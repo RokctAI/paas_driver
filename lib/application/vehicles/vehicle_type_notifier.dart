@@ -1,0 +1,20 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../domain/interface/interfaces.dart';
+import 'vehicle_type_state.dart';
+
+class VehicleTypeNotifier extends StateNotifier<VehicleTypeState> {
+  final UserRepository repository;
+
+  VehicleTypeNotifier(this.repository) : super(const VehicleTypeState.loading()) {
+    fetchTypes();
+  }
+
+  Future<void> fetchTypes() async {
+    final result = await repository.getDeliveryVehicleTypes();
+    result.when(
+      success: (data) => state = VehicleTypeState.data(data),
+      failure: (err, _) => state = VehicleTypeState.error(err),
+    );
+  }
+}
