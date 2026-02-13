@@ -1,5 +1,10 @@
 name: Build (Smart)
 
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
 on:
   push:
     branches: [ main, develop ]
@@ -15,6 +20,9 @@ on:
         options:
         - apk
         - appbundle
+      flutter-version:
+        type: string
+        default: '3.24.0'
 
 jobs:
   # --- 1. DETECT PROJECT TYPE ---
@@ -54,4 +62,6 @@ jobs:
       run_ci: true
       # Deployment Configuration (Immediate release on Main)
       release_strategy: 'immediate'
+      flutter-version: ${{ inputs.flutter-version || '3.24.0' }}
+      app-type: 'driver'
     secrets: inherit
