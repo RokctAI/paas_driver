@@ -33,9 +33,34 @@ def keystorePropertiesFile = rootProject.file('key.properties')
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
+def dartDefines = [:]
+
+// 1. Load from .env/production.env in repo root
+def envFile = rootProject.file("../.env/production.env")
+if (envFile.exists()) {
+    envFile.eachLine { line ->
+        def trimmed = line.trim()
+        if (trimmed && !trimmed.startsWith('#')) {
+            def parts = trimmed.split('=', 2)
+            if (parts.length == 2) {
+                dartDefines[parts[0].trim()] = parts[1].trim()
+            }
+        }
+    }
+}
+
+// 2. Load from flutter.dart-defines - Highest priority
+if (project.hasProperty('flutter.dart-defines')) {
+    dartDefines = dartDefines + project.property('flutter.dart-defines')
+        .split(',')
+        .collectEntries { entry ->
+            def pair = new String(entry.decodeBase64(), 'UTF-8').split('=')
+            [(pair[0]): pair.length > 1 ? pair[1] : '']
+        }
+}
 
 android {
-    namespace "app.juvo.driver"
+    namespace "org.foodyman.deliveryman.demo"
     compileSdkVersion 34
     ndkVersion "26.1.10909125"
 
@@ -53,11 +78,13 @@ android {
     }
 
     defaultConfig {
-        applicationId "app.juvo.driver"
+        applicationId "org.foodyman.deliveryman.demo"
         minSdkVersion 23
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+
+        resValue "string", "app_name", dartDefines.DRIVER_APP_NAME ?: ""
     }
 
     signingConfigs {
