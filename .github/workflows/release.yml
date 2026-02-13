@@ -28,4 +28,5 @@ jobs:
 
       # Build APK
       build_android: true
+      flutter-version: '3.24.0'
     secrets: inherit
