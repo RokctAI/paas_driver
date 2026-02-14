@@ -2,8 +2,6 @@ name: Auto Release (Weekly)
 on:
   push:
     branches: [main, develop, "build_*"]
-  schedule:
-    - cron: '0 23 * * 5'
 
 jobs:
   release:
