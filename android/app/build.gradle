@@ -52,7 +52,6 @@ if (envFile.exists()) {
 // 2. Load from flutter.dart-defines - Highest priority
 if (project.hasProperty('flutter.dart-defines')) {
     dartDefines = dartDefines + project.property('flutter.dart-defines')
-        .split(',')
             .split(',')
             .collectEntries { entry ->
                 def pair = new String(entry.decodeBase64(), 'UTF-8').split('=')
@@ -79,7 +78,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "org.foodyman.deliveryman.demo"
+        applicationId dartDefines.DRIVER_ANDROID_PACKAGE_NAME
         minSdkVersion 23
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
@@ -90,7 +89,7 @@ android {
         resValue "string", "facebook_app_id", dartDefines.FACEBOOK_APP_ID ?: ""
         resValue "string", "facebook_client_token", dartDefines.FACEBOOK_CLIENT_TOKEN ?: ""
         resValue "string", "fb_login_protocol_scheme", dartDefines.FB_LOGIN_PROTOCOL_SCHEME ?: ""
-        resValue "string", "app_name", dartDefines.DRIVER_APP_NAME ?: "Foodyman Driver"
+        resValue "string", "app_name", dartDefines.DRIVER_APP_NAME ?: ""
     }
 
     signingConfigs {
