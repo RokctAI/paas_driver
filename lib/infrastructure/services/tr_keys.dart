@@ -1,0 +1,256 @@
+class TrKeys {
+  TrKeys._();
+
+  static const String id = "id";
+  static const String tax = "tax";
+  static const String coupon = "coupon";
+  static const String serviceFee = "service.fee";
+  static const String discount = "discount";
+  static const String askThisCodeFromCustomer = "ask.this.code.from.customer";
+  static const String referral = "referral";
+  static const String deliveryFee = "delivery.fee";
+  static const String commissionFee = "commission.fee";
+  static const String deliveryZone = "delivery.zone";
+  static const String carSettings = "car.settings";
+  static const String becomeDriver = "become.driver";
+  static const String needAddSetting = "need_add_setting";
+  static const String newOrders = 'new_orders';
+  static const String orderImage = 'order.image';
+  static const String thisImageWasUploadDriver = 'this.image.was.uploaded.by.driver';
+  static const String takePhoto = 'take.photo';
+  static const String selectPhoto = 'select.photo';
+  static const String telAdmin = 'tel.admin';
+  static const String chooseFromLibrary = 'choose.from.library';
+  static const String moreDistance = 'more.distance';
+  static const String register = 'register';
+  static const String statusNote = 'status.note';
+  static const String surname = 'surname';
+  static const String readAll = 'read_all';
+  static const String resend = 'resend';
+  static const String userAlready = 'user.already';
+  static const String canceled = 'canceled';
+  static const String yourRequest = 'your.request';
+  static const String youStatus = 'your.status';
+  static const String deletedUser = 'deleted.user';
+  static const String keepMeLoggedIn = 'keep_me_logged_in';
+  static const String yourOrderStatusChanged =
+      'your_order_status_has_been_changed';
+  static const String emailOrPhone = 'email_or_phone';
+  static const String trySearchingAgain = "try_searching_again";
+  static const String typeSomething = 'type_something';
+  static const String areYouSure = 'are.you.sure';
+  static const String deleteAccount = 'delete.account';
+  static const String nothingFound = 'nothing_found';
+  static const String cannotBeEmpty = 'cannot_be_empty';
+  static const String inActive = 'in_active';
+  static const String logout = 'logout';
+  static const String availableParcels = 'available_parcels';
+  static const String activeParcels = 'active_parcels';
+  static const String deliveredOrder = 'delivered_order';
+  static const String active = 'active';
+  static const String parcelHistory = 'parcel_history';
+  static const String parcels = 'parcels';
+  static const String height = 'height';
+  static const String width = 'width';
+  static const String pricePerKm = 'pricePerKm';
+  static const String length = 'length';
+  static const String weight = 'weight';
+  static const String orderHistory = 'order_history';
+  static const String foot = 'foot';
+  static const String bike = 'bike';
+  static const String wallet = 'wallet';
+  static const String motorbike = 'motorbike';
+  static const String gas = 'gas';
+  static const String note = 'note';
+  static const String diesel = 'diesel';
+  static const String completeCheckout = 'complete_checkout';
+  static const String benzine = 'benzine';
+  static const String availableOrders = 'available_orders';
+  static const String activeOrders = 'active_orders';
+  static const String noteAboutClient = 'note_about_the_client';
+  static const String rateTheCustomer = 'rate_the_customer';
+  static const String yourFeedbackService =
+      'your_feedback_will_help_us_improve_our_delivery_service';
+  static const String evaluation = 'evaluation';
+  static const String iDeliveredTheOrder = 'delivered_the_order';
+  static const String approve = 'approve';
+  static const String cancel = 'cancel';
+  static const String theOrderDoYouConfirm = 'the_order_do_you_confirm?';
+  static const String thatYouHaveIndeed = 'that_you_have_indeed';
+  static const String received = 'received';
+  static const String foods = 'foods';
+  static const String order = 'order';
+  static const String orderInformation = 'order_information';
+  static const String skip = 'skip';
+  static const String accept = 'accept';
+  static const String carPicture = 'car_picture';
+  static const String color = 'color';
+  static const String stateNumber = 'state_number';
+  static const String carModels = 'car_models';
+  static const String carBrand = 'car_brand';
+  static const String typeTechnique = 'type_of_technique';
+  static const String deliveryVehicle = 'delivery_vehicle';
+  static const String yourName = 'your_name';
+  static const String apart = 'apart';
+  static const String entr = 'entr';
+  static const String home = 'home';
+  static const String restaurantHome = 'restauran_home';
+  static const String paidCourier = 'Paid to the courier';
+  static const String paid = 'Paid';
+  static const String km = 'km';
+  static const String rating = 'rating';
+  static const String deliverymanTransactions = 'deliveryman_transactions';
+  static const String profileSettings = 'profile_settings';
+  static const String onlineHelper = 'online.helper';
+  static const String lastProfit = 'last.profit';
+  static const String showOnMap = 'show.on.map';
+  static const String toTheRestaurant = 'to the restaurant';
+  static const String qRCode = ' QR code ';
+  static const String youWillShow = 'You will show the';
+  static const String lunchCan = 'lunch can be selected from the list';
+  static const String onlyOne = 'Only 1';
+  static const String matchingYourRank = ' matching your rank.';
+  static const String freeLunches = 'Free Lunches';
+  static const String offline = 'offline';
+  static const String online = 'online';
+  static const String editProduct = "edit_product";
+  static const String product = 'product';
+  static const String groupName = 'group_name';
+  static const String addComment = 'add.comment';
+  static const String comment = 'comment';
+  static const String recommendedSize = "jpg,png – recommended size is 1MB";
+  static const String total = 'total';
+  static const String subtotal = 'subtotal';
+  static const String somethingWentWrongWithTheServer =
+      'something_went_wrong_with_the_server';
+  static const String ordering = 'Ordering';
+  static const String toBuy = 'To buy';
+  static const String resendOtp = 'Send new';
+  static const String sendOtp = 'We are send OTP code to';
+  static const String enterOtp = 'Enter OTP code';
+  static const String checkYourNetworkConnection =
+      'check_your_network_connection';
+  static const String send = "Send";
+  static const String resetPasswordText =
+      "Please provide your email address and we'll send you code on how to change your password.";
+  static const String orAccessQuickly = 'or_access_quickly';
+  static const String forgotPassword = 'forgot_password';
+  static const String keepLogged = 'keep_me_logged_in';
+  static const String login = 'login';
+  static const String noNotices = "you.have.no.notices.at.the.same.time";
+  static const String fm = "fm";
+  static const String restaurant = "restaurant";
+  static const String moreOrders = "More details about all orders";
+  static const String canceledOrders = "Canceled orders";
+  static const String doneOrders = "Done orders";
+  static const String rejectedOrders = "Rejected orders";
+  static const String acceptedOrders = "Accepted orders";
+  static const String totalOrders = "total.orders";
+  static const String statistics = "statistics";
+  static const String earningsChart = "Earnings chart";
+  static const String lastIncome = "last.income";
+  static const String orderPrice = "Order price";
+  static const String withdrawMoney = "Withdraw money";
+  static const String earningsRestaurant = "earnings_restaurant";
+  static const String income = 'income';
+  static const String selectDesiredOrderHistory =
+      "Select the desired order history range";
+  static const String filter = "Filter";
+  static const String today = "Today";
+  static const String overall = "Overall";
+  static const String monthly = "Monthly";
+  static const String weekly = "Weekly";
+  static const String customerOrder = "Customer order";
+  static const String foodymanBenefit = "foodyman_benefit";
+  static const String yourBenefit = "Your benefit";
+  static const String thereAreOrders = "there_are";
+  static const String setBusinessDay = "Set as a business day";
+  static const String enterOpeningHours =
+      "Enter the restaurant's opening hours";
+  static const String workingTime = 'Working Time';
+  static const String locationConfirmation = 'Location confirmation';
+  static const String save = 'save';
+  static const String address = 'address';
+  static const String password = 'password';
+  static const String email = 'email';
+  static const String phoneNumber = 'phone_number';
+  static const String descriptionOfTheRestaurant =
+      'Description of the restaurant';
+  static const String restaurantName = 'Restaurant name';
+  static const String settings = 'settings';
+  static const String myOrderHistory = 'My order history';
+  static const String restaurantSettings = 'Restaurant settings';
+  static const String sections = 'Sections';
+  static const String seeAll = 'See all';
+  static const String notifications = 'Notifications';
+  static const String balance = 'Balance';
+  static const String workedHours = 'Worked hours:';
+  static const String ingredients = 'Ingredients';
+  static const String size = 'Size';
+  static const String changeProduct = 'Change the product';
+  static const String additionalParameters = 'Additional parameters';
+  static const String inactiveTime = 'Choose inactive meal time';
+  static const String parameters = 'Parameters';
+  static const String search = 'Search';
+  static const String orderAcceptance = 'Order acceptance';
+  static const String sideDish = 'Side dish';
+  static const String amount = 'Amount';
+  static const String products = 'Products';
+  static const String delivery = 'Delivery';
+  static const String orders = 'orders';
+  static const String currentOrder = 'Current order';
+  static const String changePassword = 'change_password';
+  static const String newPassword = 'new_password';
+  static const String confirmNewPassword = 'confirm_new_password';
+  static const String confirmPasswordDoesntMatchWithNewPassword =
+      'confirm_password_doesnt_matches_with_new_password';
+  static const String noInternetConnection = 'no_internet_connection';
+  static const String resetPassword = 'reset_password';
+  static const String sendSmsCode = 'send_sms_code';
+  static const String createNewPassword = 'create_new_password';
+  static const String confirmation = 'Confirm';
+  static const String enterTheCodeWeSentOverSmsTo =
+      'enter_the_code_we_sent_over_sms_to';
+  static const String confirmPassword = 'confirm_password';
+  static const String youAlreadyHaveAnAccount = 'you_already_have_an_account';
+  static const String iAgreeToSendASms = 'i_agree_to_send_a_sms';
+  static const String privacyPolicy = 'privacy_policy';
+  static const String smsDidntSend = 'sms_didnt_send';
+  static const String loginCredentialsAreNotValid =
+      'login_credentials_are_not_valid';
+  static const String shops = 'shops';
+  static const String startShopping = 'start_shopping';
+  static const String itemsInCart = 'items_in_cart';
+  static const String notFound = 'not_found';
+  static const String emailNotVerifiedYet = 'email_not_verified_yet';
+  static const String errorWithConnectingToFirebase =
+      'error_with_connecting_to_firebase';
+  static const String doYouReallyWantToLogout = 'do_you_really_want_to_logout';
+  static const String yes = 'yes';
+  static const String walletAmountIsNotEnoughForOrderCreating =
+      'wallet_amount_is_not_enough_for_order_creating';
+  static const String errorOccurredWithPayingViaStripe =
+      'error_occurred_with_paying_via_stripe';
+  static const String emailIsNotValid = 'email_is_not_valid';
+  static const String passwordShouldContainMinimum8Characters =
+      'password_should_contain_minimum_8_characters';
+  static const String phoneNumberIsNotValid = 'phone_number_is_not_valid';
+  static const String confirmationCodeIsNotPresent =
+      'confirmation_code_is_not_present';
+  static const String confirmPasswordIsNotTheSame =
+      'confirm_password_is_not_the_same';
+  static const String errorWithUpdatingPassword =
+      'error_with_updating_password';
+  static const String errorWithCreatingAccount = 'error_with_creating_account';
+  static const String language = 'language';
+
+  /// not added yet
+  static const String youAreNotADeliveryman = 'you_are_not_a_deliveryman';
+  static const String firstname = 'firstname';
+  static const String firstnameCannotBeEmpty = 'firstname_cannot_be_empty';
+  static const String lastnameCannotBeEmpty = 'lastname_cannot_be_empty';
+  static const String lastname = 'lastname';
+  static const String passwordShouldContainMinimum6Characters =
+      'password_should_contain_minimum_6_characters';
+  static const String demoLoginPassword = 'demo_login_password';
+}
