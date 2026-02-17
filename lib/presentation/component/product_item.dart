@@ -11,11 +11,12 @@ class ProductItem extends StatelessWidget {
   final num? amount;
   final String price;
 
-  const ProductItem(
-      {super.key,
-      required this.product,
-      required this.amount,
-      required this.price});
+  const ProductItem({
+    super.key,
+    required this.product,
+    required this.amount,
+    required this.price,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +38,7 @@ class ProductItem extends StatelessWidget {
                   4.verticalSpace,
                   Text(
                     "${AppHelpers.getTranslation(TrKeys.amount)} — ${(amount ?? 1) * (product?.interval ?? 1)} ${(product?.unit?.translation?.title ?? "")}",
-                    style:
-                        Style.interRegular(size: 14.sp, color: Style.black),
+                    style: Style.interRegular(size: 14.sp, color: Style.black),
                   ),
                 ],
               ),
@@ -57,17 +57,18 @@ class ProductItem extends StatelessWidget {
                     width: 200.w,
                     child: RichText(
                       text: TextSpan(
-                          text:
-                              "${AppHelpers.getTranslation(TrKeys.sideDish)}:",
-                          style: Style.interSemi(
-                              size: 14.sp, color: Style.black),
-                          children: [
-                            TextSpan(
-                              text: product?.translation?.description ?? "",
-                              style: Style.interRegular(
-                                  size: 14.sp, color: Style.black),
+                        text: "${AppHelpers.getTranslation(TrKeys.sideDish)}:",
+                        style: Style.interSemi(size: 14.sp, color: Style.black),
+                        children: [
+                          TextSpan(
+                            text: product?.translation?.description ?? "",
+                            style: Style.interRegular(
+                              size: 14.sp,
+                              color: Style.black,
                             ),
-                          ]),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

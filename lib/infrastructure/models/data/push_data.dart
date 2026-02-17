@@ -55,8 +55,12 @@ class PushModel {
       totalPrice: jsonDecode(data["order"])["total_price"],
       type: jsonDecode(data["order"])["transaction"]["payment_system"]["tag"],
       deliveryFree: jsonDecode(data["order"])["delivery_fee"],
-      longitude: double.tryParse(jsonDecode(data["order"])["location"]["longitude"].toString()),
-      latitude: double.tryParse(jsonDecode(data["order"])["location"]["latitude"].toString()),
+      longitude: double.tryParse(
+        jsonDecode(data["order"])["location"]["longitude"].toString(),
+      ),
+      latitude: double.tryParse(
+        jsonDecode(data["order"])["location"]["latitude"].toString(),
+      ),
     );
   }
 
@@ -76,8 +80,12 @@ class PushModel {
       totalPrice: jsonDecode(data["order"])["total_price"],
       type: jsonDecode(data["order"])["transaction"]["payment_system"]["tag"],
       deliveryFree: jsonDecode(data["order"])["delivery_fee"],
-      longitude: double.tryParse(jsonDecode(data["order"])["location"]["longitude"].toString()),
-      latitude: double.tryParse(jsonDecode(data["order"])["location"]["latitude"].toString()),
+      longitude: double.tryParse(
+        jsonDecode(data["order"])["location"]["longitude"].toString(),
+      ),
+      latitude: double.tryParse(
+        jsonDecode(data["order"])["location"]["latitude"].toString(),
+      ),
     );
   }
 }
@@ -88,19 +96,14 @@ class AddressModel {
   final String? house;
   final String? floor;
 
-  AddressModel({
-    this.address,
-    this.office,
-    this.house,
-    this.floor,
-  });
+  AddressModel({this.address, this.office, this.house, this.floor});
 
   Map toJson() {
     return {
       "address": address,
       "office": office,
       "house": house,
-      "floor": floor
+      "floor": floor,
     };
   }
 

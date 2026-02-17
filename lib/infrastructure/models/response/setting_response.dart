@@ -1,5 +1,3 @@
-
-
 import '../data/setting.dart';
 
 class SettingsResponse {
@@ -37,13 +35,12 @@ class SettingsResponse {
     bool? status,
     String? message,
     List<SettingsData>? data,
-  }) =>
-      SettingsResponse(
-        timestamp: timestamp ?? _timestamp,
-        status: status ?? _status,
-        message: message ?? _message,
-        data: data ?? _data,
-      );
+  }) => SettingsResponse(
+    timestamp: timestamp ?? _timestamp,
+    status: status ?? _status,
+    message: message ?? _message,
+    data: data ?? _data,
+  );
 
   String? get timestamp => _timestamp;
 

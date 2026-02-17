@@ -58,10 +58,7 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
                   CommonAppBar(
                     child: Text(
                       AppHelpers.getTranslation(TrKeys.notifications),
-                      style: Style.interSemi(
-                        size: 18,
-                        color: Style.black,
-                      ),
+                      style: Style.interSemi(size: 18, color: Style.black),
                     ),
                   ),
                   Expanded(
@@ -71,8 +68,9 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
                       enablePullUp: true,
                       onRefresh: () {
                         event.fetchNotificationsPaginate(
-                            refreshController: refreshController,
-                            isRefresh: true);
+                          refreshController: refreshController,
+                          isRefresh: true,
+                        );
                       },
                       onLoading: () {
                         event.fetchNotificationsPaginate(
@@ -80,66 +78,69 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
                         );
                       },
                       child: ListView.builder(
-                          shrinkWrap: true,
-                          padding: EdgeInsets.only(
-                              top: 24.h,
-                              right: 16.w,
-                              left: 16.w,
-                              bottom:
-                                  MediaQuery.of(context).padding.bottom + 72.h),
-                          itemCount: state.notifications.length,
-                          itemBuilder: (context, index) {
-                            return InkWell(
-                              onTap: () async {
-                                if (state.notifications[index].readAt == null) {
-                                  event.readOne(
-                                      index: index,
-                                      context,
-                                      id: state.notifications[index].id);
-                                }
+                        shrinkWrap: true,
+                        padding: EdgeInsets.only(
+                          top: 24.h,
+                          right: 16.w,
+                          left: 16.w,
+                          bottom: MediaQuery.of(context).padding.bottom + 72.h,
+                        ),
+                        itemCount: state.notifications.length,
+                        itemBuilder: (context, index) {
+                          return InkWell(
+                            onTap: () async {
+                              if (state.notifications[index].readAt == null) {
+                                event.readOne(
+                                  index: index,
+                                  context,
+                                  id: state.notifications[index].id,
+                                );
+                              }
+                              if (state.notifications[index].orderData !=
+                                  null) {
                                 if (state.notifications[index].orderData !=
                                     null) {
-                                  if (state.notifications[index].orderData !=
-                                      null) {
-                                    // AppHelpers.showCustomModalBottomSheet(
-                                    //     context: context,
-                                    //     modal: OrderDetailsModal(
-                                    //         order: state.notifications[index]
-                                    //             .orderData!),
-                                    //     isDarkMode: false);
-                                  }
-                                } else if (state
-                                        .notifications[index].blogData !=
-                                    null) {
-                                  await launch(
-                                    "${AppConstants.webUrl}/blog/${state.notifications[index].blogData?.uuid}",
-                                    forceSafariVC: true,
-                                    forceWebView: true,
-                                    enableJavaScript: true,
-                                  );
-                                } else if (state.notifications[index].type ==
-                                    "reservation") {
-                                  await launch(
-                                    "${AppConstants.webUrl}/reservations",
-                                    forceSafariVC: true,
-                                    forceWebView: true,
-                                    enableJavaScript: true,
-                                  );
-                                } else {
-                                  AppHelpers.showAlertDialog(
-                                      context: context,
-                                      child: Text(
-                                          '${state.notifications[index].body ?? state.notifications[index].title}'));
+                                  // AppHelpers.showCustomModalBottomSheet(
+                                  //     context: context,
+                                  //     modal: OrderDetailsModal(
+                                  //         order: state.notifications[index]
+                                  //             .orderData!),
+                                  //     isDarkMode: false);
                                 }
-                              },
-                              child: Column(
-                                children: [
-                                  notificationItem(state.notifications[index]),
-                                  const Divider()
-                                ],
-                              ),
-                            );
-                          }),
+                              } else if (state.notifications[index].blogData !=
+                                  null) {
+                                await launch(
+                                  "${AppConstants.webUrl}/blog/${state.notifications[index].blogData?.uuid}",
+                                  forceSafariVC: true,
+                                  forceWebView: true,
+                                  enableJavaScript: true,
+                                );
+                              } else if (state.notifications[index].type ==
+                                  "reservation") {
+                                await launch(
+                                  "${AppConstants.webUrl}/reservations",
+                                  forceSafariVC: true,
+                                  forceWebView: true,
+                                  enableJavaScript: true,
+                                );
+                              } else {
+                                AppHelpers.showAlertDialog(
+                                  context: context,
+                                  child: Text(
+                                    '${state.notifications[index].body ?? state.notifications[index].title}',
+                                  ),
+                                );
+                              }
+                            },
+                            child: Column(
+                              children: [
+                                notificationItem(state.notifications[index]),
+                                const Divider(),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
@@ -152,14 +153,15 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
               const PopButton(),
               10.horizontalSpace,
               Expanded(
-                  child: CustomButton(
-                background: Style.black,
-                textColor: Style.white,
-                title: AppHelpers.getTranslation(TrKeys.readAll),
-                onPressed: () async {
-                  event.readAll(context);
-                },
-              ))
+                child: CustomButton(
+                  background: Style.black,
+                  textColor: Style.white,
+                  title: AppHelpers.getTranslation(TrKeys.readAll),
+                  onPressed: () async {
+                    event.readAll(context);
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -194,11 +196,12 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
                       height: 8.r,
                       width: 8.r,
                       decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: notification.readAt == null
-                              ? Style.primaryColor
-                              : Style.transparent),
-                    )
+                        shape: BoxShape.circle,
+                        color: notification.readAt == null
+                            ? Style.primary
+                            : Style.transparent,
+                      ),
+                    ),
                   ],
                 ),
               2.verticalSpace,
@@ -221,18 +224,19 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
                       height: 8.r,
                       width: 8.r,
                       decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: notification.readAt == null
-                              ? Style.primaryColor
-                              : Style.transparent),
-                    )
+                        shape: BoxShape.circle,
+                        color: notification.readAt == null
+                            ? Style.primary
+                            : Style.transparent,
+                      ),
+                    ),
                 ],
               ),
               4.verticalSpace,
               Text(
                 Jiffy.parseFromDateTime(
-                        notification.createdAt ?? DateTime.now())
-                    .fromNow(),
+                  notification.createdAt ?? DateTime.now(),
+                ).fromNow(),
                 style: Style.interRegular(size: 12, color: Style.textGrey),
               ),
             ],

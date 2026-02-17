@@ -1,3 +1,6 @@
+// ignore_for_file: deprecated_member_use
+
+import 'package:driver/presentation/app_assets.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_remix/flutter_remix.dart';
@@ -16,9 +19,7 @@ class BarCodeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 16.w,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         children: [
           const RestaurantItem(
@@ -50,13 +51,17 @@ class BarCodeScreen extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: AppHelpers.getTranslation(TrKeys.qRCode),
-                        style:
-                            Style.interSemi(size: 14.sp, letterSpacing: -0.3),
+                        style: Style.interSemi(
+                          size: 14.sp,
+                          letterSpacing: -0.3,
+                        ),
                       ),
                       TextSpan(
                         text: AppHelpers.getTranslation(TrKeys.toTheRestaurant),
                         style: Style.interRegular(
-                            size: 14.sp, letterSpacing: -0.3),
+                          size: 14.sp,
+                          letterSpacing: -0.3,
+                        ),
                       ),
                     ],
                   ),
@@ -65,7 +70,7 @@ class BarCodeScreen extends StatelessWidget {
             ),
           ),
           24.verticalSpace,
-          Image.asset(AppAssets.pngQr),
+          Image.asset(Assets.imageQr),
           24.verticalSpace,
           Consumer(
             builder: (context, ref, child) {
@@ -79,32 +84,24 @@ class BarCodeScreen extends StatelessWidget {
                   Navigator.pop(context);
                   final Uint8List markerMarketIcon =
                       await AppHelpers.getBytesFromAsset(
-                          AppAssets.pngMarket, 100).whenComplete((){
-
-                      });
-                  ref.read(homeProvider.notifier).getRoutingAll(
+                        Assets.imageMarker,
+                        100,
+                      ).whenComplete(() {});
+                  ref
+                      .read(homeProvider.notifier)
+                      .getRoutingAll(
                         // ignore: use_build_context_synchronously
                         context: context,
                         start: LatLng(
-                          LocalStorage
-                                  .getAddressSelected()
-                                  ?.latitude ??
+                          LocalStorage.getAddressSelected()?.latitude ??
                               AppConstants.demoLatitude,
-                          LocalStorage
-                                  .getAddressSelected()
-                                  ?.longitude ??
+                          LocalStorage.getAddressSelected()?.longitude ??
                               AppConstants.demoLongitude,
                         ),
-                        end: const LatLng(
-                          41.285127,
-                          69.172530,
-                        ),
+                        end: const LatLng(41.285127, 69.172530),
                         market: Marker(
                           markerId: const MarkerId("Shop"),
-                          position: const LatLng(
-                            41.285127,
-                            69.172530,
-                          ),
+                          position: const LatLng(41.285127, 69.172530),
                           icon: BitmapDescriptor.fromBytes(markerMarketIcon),
                         ),
                       );

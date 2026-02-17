@@ -10,6 +10,7 @@ import '../../../styles/style.dart';
 
 class StoresPage extends StatelessWidget {
   final String image;
+
   const StoresPage({super.key, required this.image});
 
   @override
@@ -28,8 +29,8 @@ class StoresPage extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Style.primaryColor.withOpacity(0),
-              Style.primaryColor.withOpacity(0.8)
+              Style.primary.withValues(alpha: 0),
+              Style.primary.withValues(alpha: 0.8),
             ],
           ),
         ),
@@ -40,10 +41,7 @@ class StoresPage extends StatelessWidget {
             imageUrl: image,
             fit: BoxFit.cover,
             progressIndicatorBuilder: (context, url, progress) {
-              return ImageShimmer(
-                isCircle: false,
-                size: 16.r,
-              );
+              return ImageShimmer(isCircle: false, size: 16.r);
             },
             errorWidget: (context, url, error) {
               return Container(
@@ -54,10 +52,7 @@ class StoresPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16.r),
                 ),
                 alignment: Alignment.center,
-                child: const Icon(
-                  FlutterRemix.image_line,
-                  color: Style.black,
-                ),
+                child: const Icon(FlutterRemix.image_line, color: Style.black),
               );
             },
           ),

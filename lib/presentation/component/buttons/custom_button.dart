@@ -9,9 +9,9 @@ class CustomButton extends StatelessWidget {
   final String title;
   final bool isLoading;
   final Function()? onPressed;
-  final Color background;
+  final Color? background;
   final Color borderColor;
-  final Color textColor;
+  final Color? textColor;
   final double weight;
   final double radius;
 
@@ -20,8 +20,8 @@ class CustomButton extends StatelessWidget {
     required this.title,
     required this.onPressed,
     this.isLoading = false,
-    this.background = Style.primaryColor,
-    this.textColor = Style.black,
+    this.background,
+    this.textColor,
     this.weight = double.infinity,
     this.radius = 8,
     this.icon,
@@ -34,48 +34,45 @@ class CustomButton extends StatelessWidget {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           side: BorderSide(
-              color:
-              borderColor == Style.transparent ? background : borderColor,
-              width: 2.r),
+            color: borderColor == Style.transparent
+                ? (background ?? Style.primary)
+                : borderColor,
+            width: 2.r,
+          ),
           elevation: 0,
           shadowColor: Style.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radius.r),
           ),
           minimumSize: Size(weight, 50.h),
-          backgroundColor: background,
+          backgroundColor: background ?? Style.primary,
         ),
         onPressed: isLoading ? null : onPressed,
         child: isLoading
             ? SizedBox(
-          width: 20.r,
-          height: 20.r,
-          child: CircularProgressIndicator(
-            color: textColor,
-            strokeWidth: 2.r,
-          ),
-        )
+                width: 20.r,
+                height: 20.r,
+                child: CircularProgressIndicator(
+                  color: textColor,
+                  strokeWidth: 2.r,
+                ),
+              )
             : Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            icon == null
-                ? const SizedBox()
-                : Row(
-              children: [
-                icon!,
-                10.horizontalSpace,
-              ],
-            ),
-            Text(
-              title,
-              style: Style.interNormal(
-                size: 15,
-                color: textColor,
-                letterSpacing: -14 * 0.01,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  icon == null
+                      ? const SizedBox()
+                      : Row(children: [icon!, 10.horizontalSpace]),
+                  Text(
+                    title,
+                    style: Style.interNormal(
+                      size: 15,
+                      color: textColor ?? Style.buttonFontColor,
+                      letterSpacing: -14 * 0.01,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

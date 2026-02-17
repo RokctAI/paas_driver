@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,232 +9,275 @@ part of 'profile_settings_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
 /// @nodoc
 mixin _$ProfileSettingsState {
-  bool get isLoading => throw _privateConstructorUsedError;
-  bool get isStatisticLoading => throw _privateConstructorUsedError;
-  UserData? get userData => throw _privateConstructorUsedError;
-  RequestModelData? get requestData => throw _privateConstructorUsedError;
-  StatisticsResponse? get statistics => throw _privateConstructorUsedError;
 
-  /// Create a copy of ProfileSettingsState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $ProfileSettingsStateCopyWith<ProfileSettingsState> get copyWith =>
-      throw _privateConstructorUsedError;
+ bool get isLoading; bool get isStatisticLoading; UserData? get userData; RequestModelData? get requestData; StatisticsResponse? get statistics;
+/// Create a copy of ProfileSettingsState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProfileSettingsStateCopyWith<ProfileSettingsState> get copyWith => _$ProfileSettingsStateCopyWithImpl<ProfileSettingsState>(this as ProfileSettingsState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfileSettingsState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isStatisticLoading, isStatisticLoading) || other.isStatisticLoading == isStatisticLoading)&&(identical(other.userData, userData) || other.userData == userData)&&(identical(other.requestData, requestData) || other.requestData == requestData)&&(identical(other.statistics, statistics) || other.statistics == statistics));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isLoading,isStatisticLoading,userData,requestData,statistics);
+
+@override
+String toString() {
+  return 'ProfileSettingsState(isLoading: $isLoading, isStatisticLoading: $isStatisticLoading, userData: $userData, requestData: $requestData, statistics: $statistics)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $ProfileSettingsStateCopyWith<$Res> {
-  factory $ProfileSettingsStateCopyWith(ProfileSettingsState value,
-          $Res Function(ProfileSettingsState) then) =
-      _$ProfileSettingsStateCopyWithImpl<$Res, ProfileSettingsState>;
-  @useResult
-  $Res call(
-      {bool isLoading,
-      bool isStatisticLoading,
-      UserData? userData,
-      RequestModelData? requestData,
-      StatisticsResponse? statistics});
-}
+abstract mixin class $ProfileSettingsStateCopyWith<$Res>  {
+  factory $ProfileSettingsStateCopyWith(ProfileSettingsState value, $Res Function(ProfileSettingsState) _then) = _$ProfileSettingsStateCopyWithImpl;
+@useResult
+$Res call({
+ bool isLoading, bool isStatisticLoading, UserData? userData, RequestModelData? requestData, StatisticsResponse? statistics
+});
 
+
+
+
+}
 /// @nodoc
-class _$ProfileSettingsStateCopyWithImpl<$Res,
-        $Val extends ProfileSettingsState>
+class _$ProfileSettingsStateCopyWithImpl<$Res>
     implements $ProfileSettingsStateCopyWith<$Res> {
-  _$ProfileSettingsStateCopyWithImpl(this._value, this._then);
+  _$ProfileSettingsStateCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final ProfileSettingsState _self;
+  final $Res Function(ProfileSettingsState) _then;
 
-  /// Create a copy of ProfileSettingsState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? isLoading = null,
-    Object? isStatisticLoading = null,
-    Object? userData = freezed,
-    Object? requestData = freezed,
-    Object? statistics = freezed,
-  }) {
-    return _then(_value.copyWith(
-      isLoading: null == isLoading
-          ? _value.isLoading
-          : isLoading // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isStatisticLoading: null == isStatisticLoading
-          ? _value.isStatisticLoading
-          : isStatisticLoading // ignore: cast_nullable_to_non_nullable
-              as bool,
-      userData: freezed == userData
-          ? _value.userData
-          : userData // ignore: cast_nullable_to_non_nullable
-              as UserData?,
-      requestData: freezed == requestData
-          ? _value.requestData
-          : requestData // ignore: cast_nullable_to_non_nullable
-              as RequestModelData?,
-      statistics: freezed == statistics
-          ? _value.statistics
-          : statistics // ignore: cast_nullable_to_non_nullable
-              as StatisticsResponse?,
-    ) as $Val);
-  }
+/// Create a copy of ProfileSettingsState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? isStatisticLoading = null,Object? userData = freezed,Object? requestData = freezed,Object? statistics = freezed,}) {
+  return _then(_self.copyWith(
+isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as bool,isStatisticLoading: null == isStatisticLoading ? _self.isStatisticLoading : isStatisticLoading // ignore: cast_nullable_to_non_nullable
+as bool,userData: freezed == userData ? _self.userData : userData // ignore: cast_nullable_to_non_nullable
+as UserData?,requestData: freezed == requestData ? _self.requestData : requestData // ignore: cast_nullable_to_non_nullable
+as RequestModelData?,statistics: freezed == statistics ? _self.statistics : statistics // ignore: cast_nullable_to_non_nullable
+as StatisticsResponse?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ProfileSettingsState].
+extension ProfileSettingsStatePatterns on ProfileSettingsState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProfileSettingsState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ProfileSettingsState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProfileSettingsState value)  $default,){
+final _that = this;
+switch (_that) {
+case _ProfileSettingsState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProfileSettingsState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ProfileSettingsState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  bool isStatisticLoading,  UserData? userData,  RequestModelData? requestData,  StatisticsResponse? statistics)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ProfileSettingsState() when $default != null:
+return $default(_that.isLoading,_that.isStatisticLoading,_that.userData,_that.requestData,_that.statistics);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  bool isStatisticLoading,  UserData? userData,  RequestModelData? requestData,  StatisticsResponse? statistics)  $default,) {final _that = this;
+switch (_that) {
+case _ProfileSettingsState():
+return $default(_that.isLoading,_that.isStatisticLoading,_that.userData,_that.requestData,_that.statistics);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  bool isStatisticLoading,  UserData? userData,  RequestModelData? requestData,  StatisticsResponse? statistics)?  $default,) {final _that = this;
+switch (_that) {
+case _ProfileSettingsState() when $default != null:
+return $default(_that.isLoading,_that.isStatisticLoading,_that.userData,_that.requestData,_that.statistics);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
-abstract class _$$ProfileSettingsStateImplCopyWith<$Res>
-    implements $ProfileSettingsStateCopyWith<$Res> {
-  factory _$$ProfileSettingsStateImplCopyWith(_$ProfileSettingsStateImpl value,
-          $Res Function(_$ProfileSettingsStateImpl) then) =
-      __$$ProfileSettingsStateImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {bool isLoading,
-      bool isStatisticLoading,
-      UserData? userData,
-      RequestModelData? requestData,
-      StatisticsResponse? statistics});
+
+
+class _ProfileSettingsState extends ProfileSettingsState {
+  const _ProfileSettingsState({this.isLoading = false, this.isStatisticLoading = false, this.userData, this.requestData, this.statistics}): super._();
+  
+
+@override@JsonKey() final  bool isLoading;
+@override@JsonKey() final  bool isStatisticLoading;
+@override final  UserData? userData;
+@override final  RequestModelData? requestData;
+@override final  StatisticsResponse? statistics;
+
+/// Create a copy of ProfileSettingsState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ProfileSettingsStateCopyWith<_ProfileSettingsState> get copyWith => __$ProfileSettingsStateCopyWithImpl<_ProfileSettingsState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProfileSettingsState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isStatisticLoading, isStatisticLoading) || other.isStatisticLoading == isStatisticLoading)&&(identical(other.userData, userData) || other.userData == userData)&&(identical(other.requestData, requestData) || other.requestData == requestData)&&(identical(other.statistics, statistics) || other.statistics == statistics));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isLoading,isStatisticLoading,userData,requestData,statistics);
+
+@override
+String toString() {
+  return 'ProfileSettingsState(isLoading: $isLoading, isStatisticLoading: $isStatisticLoading, userData: $userData, requestData: $requestData, statistics: $statistics)';
+}
+
+
 }
 
 /// @nodoc
-class __$$ProfileSettingsStateImplCopyWithImpl<$Res>
-    extends _$ProfileSettingsStateCopyWithImpl<$Res, _$ProfileSettingsStateImpl>
-    implements _$$ProfileSettingsStateImplCopyWith<$Res> {
-  __$$ProfileSettingsStateImplCopyWithImpl(_$ProfileSettingsStateImpl _value,
-      $Res Function(_$ProfileSettingsStateImpl) _then)
-      : super(_value, _then);
+abstract mixin class _$ProfileSettingsStateCopyWith<$Res> implements $ProfileSettingsStateCopyWith<$Res> {
+  factory _$ProfileSettingsStateCopyWith(_ProfileSettingsState value, $Res Function(_ProfileSettingsState) _then) = __$ProfileSettingsStateCopyWithImpl;
+@override @useResult
+$Res call({
+ bool isLoading, bool isStatisticLoading, UserData? userData, RequestModelData? requestData, StatisticsResponse? statistics
+});
 
-  /// Create a copy of ProfileSettingsState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? isLoading = null,
-    Object? isStatisticLoading = null,
-    Object? userData = freezed,
-    Object? requestData = freezed,
-    Object? statistics = freezed,
-  }) {
-    return _then(_$ProfileSettingsStateImpl(
-      isLoading: null == isLoading
-          ? _value.isLoading
-          : isLoading // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isStatisticLoading: null == isStatisticLoading
-          ? _value.isStatisticLoading
-          : isStatisticLoading // ignore: cast_nullable_to_non_nullable
-              as bool,
-      userData: freezed == userData
-          ? _value.userData
-          : userData // ignore: cast_nullable_to_non_nullable
-              as UserData?,
-      requestData: freezed == requestData
-          ? _value.requestData
-          : requestData // ignore: cast_nullable_to_non_nullable
-              as RequestModelData?,
-      statistics: freezed == statistics
-          ? _value.statistics
-          : statistics // ignore: cast_nullable_to_non_nullable
-              as StatisticsResponse?,
-    ));
-  }
+
+
+
 }
-
 /// @nodoc
+class __$ProfileSettingsStateCopyWithImpl<$Res>
+    implements _$ProfileSettingsStateCopyWith<$Res> {
+  __$ProfileSettingsStateCopyWithImpl(this._self, this._then);
 
-class _$ProfileSettingsStateImpl extends _ProfileSettingsState {
-  const _$ProfileSettingsStateImpl(
-      {this.isLoading = false,
-      this.isStatisticLoading = false,
-      this.userData,
-      this.requestData,
-      this.statistics})
-      : super._();
+  final _ProfileSettingsState _self;
+  final $Res Function(_ProfileSettingsState) _then;
 
-  @override
-  @JsonKey()
-  final bool isLoading;
-  @override
-  @JsonKey()
-  final bool isStatisticLoading;
-  @override
-  final UserData? userData;
-  @override
-  final RequestModelData? requestData;
-  @override
-  final StatisticsResponse? statistics;
-
-  @override
-  String toString() {
-    return 'ProfileSettingsState(isLoading: $isLoading, isStatisticLoading: $isStatisticLoading, userData: $userData, requestData: $requestData, statistics: $statistics)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ProfileSettingsStateImpl &&
-            (identical(other.isLoading, isLoading) ||
-                other.isLoading == isLoading) &&
-            (identical(other.isStatisticLoading, isStatisticLoading) ||
-                other.isStatisticLoading == isStatisticLoading) &&
-            (identical(other.userData, userData) ||
-                other.userData == userData) &&
-            (identical(other.requestData, requestData) ||
-                other.requestData == requestData) &&
-            (identical(other.statistics, statistics) ||
-                other.statistics == statistics));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, isLoading, isStatisticLoading,
-      userData, requestData, statistics);
-
-  /// Create a copy of ProfileSettingsState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$ProfileSettingsStateImplCopyWith<_$ProfileSettingsStateImpl>
-      get copyWith =>
-          __$$ProfileSettingsStateImplCopyWithImpl<_$ProfileSettingsStateImpl>(
-              this, _$identity);
+/// Create a copy of ProfileSettingsState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? isStatisticLoading = null,Object? userData = freezed,Object? requestData = freezed,Object? statistics = freezed,}) {
+  return _then(_ProfileSettingsState(
+isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as bool,isStatisticLoading: null == isStatisticLoading ? _self.isStatisticLoading : isStatisticLoading // ignore: cast_nullable_to_non_nullable
+as bool,userData: freezed == userData ? _self.userData : userData // ignore: cast_nullable_to_non_nullable
+as UserData?,requestData: freezed == requestData ? _self.requestData : requestData // ignore: cast_nullable_to_non_nullable
+as RequestModelData?,statistics: freezed == statistics ? _self.statistics : statistics // ignore: cast_nullable_to_non_nullable
+as StatisticsResponse?,
+  ));
 }
 
-abstract class _ProfileSettingsState extends ProfileSettingsState {
-  const factory _ProfileSettingsState(
-      {final bool isLoading,
-      final bool isStatisticLoading,
-      final UserData? userData,
-      final RequestModelData? requestData,
-      final StatisticsResponse? statistics}) = _$ProfileSettingsStateImpl;
-  const _ProfileSettingsState._() : super._();
 
-  @override
-  bool get isLoading;
-  @override
-  bool get isStatisticLoading;
-  @override
-  UserData? get userData;
-  @override
-  RequestModelData? get requestData;
-  @override
-  StatisticsResponse? get statistics;
-
-  /// Create a copy of ProfileSettingsState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ProfileSettingsStateImplCopyWith<_$ProfileSettingsStateImpl>
-      get copyWith => throw _privateConstructorUsedError;
 }
+
+// dart format on

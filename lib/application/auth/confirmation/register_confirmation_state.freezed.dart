@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,357 +9,290 @@ part of 'register_confirmation_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
 /// @nodoc
 mixin _$RegisterConfirmationState {
-  bool get isLoading => throw _privateConstructorUsedError;
-  bool get isSuccess => throw _privateConstructorUsedError;
-  bool get isResetPasswordSuccess => throw _privateConstructorUsedError;
-  bool get isResending => throw _privateConstructorUsedError;
-  bool get isTimeExpired => throw _privateConstructorUsedError;
-  bool get isCodeError => throw _privateConstructorUsedError;
-  bool get isConfirm => throw _privateConstructorUsedError;
-  String get confirmCode => throw _privateConstructorUsedError;
-  String get verificationCode => throw _privateConstructorUsedError;
-  String get timerText => throw _privateConstructorUsedError;
 
-  /// Create a copy of RegisterConfirmationState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $RegisterConfirmationStateCopyWith<RegisterConfirmationState> get copyWith =>
-      throw _privateConstructorUsedError;
+ bool get isLoading; bool get isSuccess; bool get isResetPasswordSuccess; bool get isResending; bool get isTimeExpired; bool get isCodeError; bool get isConfirm; String get confirmCode; String get verificationCode; String get timerText;
+/// Create a copy of RegisterConfirmationState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RegisterConfirmationStateCopyWith<RegisterConfirmationState> get copyWith => _$RegisterConfirmationStateCopyWithImpl<RegisterConfirmationState>(this as RegisterConfirmationState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RegisterConfirmationState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isSuccess, isSuccess) || other.isSuccess == isSuccess)&&(identical(other.isResetPasswordSuccess, isResetPasswordSuccess) || other.isResetPasswordSuccess == isResetPasswordSuccess)&&(identical(other.isResending, isResending) || other.isResending == isResending)&&(identical(other.isTimeExpired, isTimeExpired) || other.isTimeExpired == isTimeExpired)&&(identical(other.isCodeError, isCodeError) || other.isCodeError == isCodeError)&&(identical(other.isConfirm, isConfirm) || other.isConfirm == isConfirm)&&(identical(other.confirmCode, confirmCode) || other.confirmCode == confirmCode)&&(identical(other.verificationCode, verificationCode) || other.verificationCode == verificationCode)&&(identical(other.timerText, timerText) || other.timerText == timerText));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isLoading,isSuccess,isResetPasswordSuccess,isResending,isTimeExpired,isCodeError,isConfirm,confirmCode,verificationCode,timerText);
+
+@override
+String toString() {
+  return 'RegisterConfirmationState(isLoading: $isLoading, isSuccess: $isSuccess, isResetPasswordSuccess: $isResetPasswordSuccess, isResending: $isResending, isTimeExpired: $isTimeExpired, isCodeError: $isCodeError, isConfirm: $isConfirm, confirmCode: $confirmCode, verificationCode: $verificationCode, timerText: $timerText)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $RegisterConfirmationStateCopyWith<$Res> {
-  factory $RegisterConfirmationStateCopyWith(RegisterConfirmationState value,
-          $Res Function(RegisterConfirmationState) then) =
-      _$RegisterConfirmationStateCopyWithImpl<$Res, RegisterConfirmationState>;
-  @useResult
-  $Res call(
-      {bool isLoading,
-      bool isSuccess,
-      bool isResetPasswordSuccess,
-      bool isResending,
-      bool isTimeExpired,
-      bool isCodeError,
-      bool isConfirm,
-      String confirmCode,
-      String verificationCode,
-      String timerText});
-}
+abstract mixin class $RegisterConfirmationStateCopyWith<$Res>  {
+  factory $RegisterConfirmationStateCopyWith(RegisterConfirmationState value, $Res Function(RegisterConfirmationState) _then) = _$RegisterConfirmationStateCopyWithImpl;
+@useResult
+$Res call({
+ bool isLoading, bool isSuccess, bool isResetPasswordSuccess, bool isResending, bool isTimeExpired, bool isCodeError, bool isConfirm, String confirmCode, String verificationCode, String timerText
+});
 
+
+
+
+}
 /// @nodoc
-class _$RegisterConfirmationStateCopyWithImpl<$Res,
-        $Val extends RegisterConfirmationState>
+class _$RegisterConfirmationStateCopyWithImpl<$Res>
     implements $RegisterConfirmationStateCopyWith<$Res> {
-  _$RegisterConfirmationStateCopyWithImpl(this._value, this._then);
+  _$RegisterConfirmationStateCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final RegisterConfirmationState _self;
+  final $Res Function(RegisterConfirmationState) _then;
 
-  /// Create a copy of RegisterConfirmationState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? isLoading = null,
-    Object? isSuccess = null,
-    Object? isResetPasswordSuccess = null,
-    Object? isResending = null,
-    Object? isTimeExpired = null,
-    Object? isCodeError = null,
-    Object? isConfirm = null,
-    Object? confirmCode = null,
-    Object? verificationCode = null,
-    Object? timerText = null,
-  }) {
-    return _then(_value.copyWith(
-      isLoading: null == isLoading
-          ? _value.isLoading
-          : isLoading // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isSuccess: null == isSuccess
-          ? _value.isSuccess
-          : isSuccess // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isResetPasswordSuccess: null == isResetPasswordSuccess
-          ? _value.isResetPasswordSuccess
-          : isResetPasswordSuccess // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isResending: null == isResending
-          ? _value.isResending
-          : isResending // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isTimeExpired: null == isTimeExpired
-          ? _value.isTimeExpired
-          : isTimeExpired // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isCodeError: null == isCodeError
-          ? _value.isCodeError
-          : isCodeError // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isConfirm: null == isConfirm
-          ? _value.isConfirm
-          : isConfirm // ignore: cast_nullable_to_non_nullable
-              as bool,
-      confirmCode: null == confirmCode
-          ? _value.confirmCode
-          : confirmCode // ignore: cast_nullable_to_non_nullable
-              as String,
-      verificationCode: null == verificationCode
-          ? _value.verificationCode
-          : verificationCode // ignore: cast_nullable_to_non_nullable
-              as String,
-      timerText: null == timerText
-          ? _value.timerText
-          : timerText // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
-  }
+/// Create a copy of RegisterConfirmationState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? isSuccess = null,Object? isResetPasswordSuccess = null,Object? isResending = null,Object? isTimeExpired = null,Object? isCodeError = null,Object? isConfirm = null,Object? confirmCode = null,Object? verificationCode = null,Object? timerText = null,}) {
+  return _then(_self.copyWith(
+isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as bool,isSuccess: null == isSuccess ? _self.isSuccess : isSuccess // ignore: cast_nullable_to_non_nullable
+as bool,isResetPasswordSuccess: null == isResetPasswordSuccess ? _self.isResetPasswordSuccess : isResetPasswordSuccess // ignore: cast_nullable_to_non_nullable
+as bool,isResending: null == isResending ? _self.isResending : isResending // ignore: cast_nullable_to_non_nullable
+as bool,isTimeExpired: null == isTimeExpired ? _self.isTimeExpired : isTimeExpired // ignore: cast_nullable_to_non_nullable
+as bool,isCodeError: null == isCodeError ? _self.isCodeError : isCodeError // ignore: cast_nullable_to_non_nullable
+as bool,isConfirm: null == isConfirm ? _self.isConfirm : isConfirm // ignore: cast_nullable_to_non_nullable
+as bool,confirmCode: null == confirmCode ? _self.confirmCode : confirmCode // ignore: cast_nullable_to_non_nullable
+as String,verificationCode: null == verificationCode ? _self.verificationCode : verificationCode // ignore: cast_nullable_to_non_nullable
+as String,timerText: null == timerText ? _self.timerText : timerText // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-abstract class _$$RegisterConfirmationStateImplCopyWith<$Res>
-    implements $RegisterConfirmationStateCopyWith<$Res> {
-  factory _$$RegisterConfirmationStateImplCopyWith(
-          _$RegisterConfirmationStateImpl value,
-          $Res Function(_$RegisterConfirmationStateImpl) then) =
-      __$$RegisterConfirmationStateImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {bool isLoading,
-      bool isSuccess,
-      bool isResetPasswordSuccess,
-      bool isResending,
-      bool isTimeExpired,
-      bool isCodeError,
-      bool isConfirm,
-      String confirmCode,
-      String verificationCode,
-      String timerText});
 }
 
-/// @nodoc
-class __$$RegisterConfirmationStateImplCopyWithImpl<$Res>
-    extends _$RegisterConfirmationStateCopyWithImpl<$Res,
-        _$RegisterConfirmationStateImpl>
-    implements _$$RegisterConfirmationStateImplCopyWith<$Res> {
-  __$$RegisterConfirmationStateImplCopyWithImpl(
-      _$RegisterConfirmationStateImpl _value,
-      $Res Function(_$RegisterConfirmationStateImpl) _then)
-      : super(_value, _then);
 
-  /// Create a copy of RegisterConfirmationState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? isLoading = null,
-    Object? isSuccess = null,
-    Object? isResetPasswordSuccess = null,
-    Object? isResending = null,
-    Object? isTimeExpired = null,
-    Object? isCodeError = null,
-    Object? isConfirm = null,
-    Object? confirmCode = null,
-    Object? verificationCode = null,
-    Object? timerText = null,
-  }) {
-    return _then(_$RegisterConfirmationStateImpl(
-      isLoading: null == isLoading
-          ? _value.isLoading
-          : isLoading // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isSuccess: null == isSuccess
-          ? _value.isSuccess
-          : isSuccess // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isResetPasswordSuccess: null == isResetPasswordSuccess
-          ? _value.isResetPasswordSuccess
-          : isResetPasswordSuccess // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isResending: null == isResending
-          ? _value.isResending
-          : isResending // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isTimeExpired: null == isTimeExpired
-          ? _value.isTimeExpired
-          : isTimeExpired // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isCodeError: null == isCodeError
-          ? _value.isCodeError
-          : isCodeError // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isConfirm: null == isConfirm
-          ? _value.isConfirm
-          : isConfirm // ignore: cast_nullable_to_non_nullable
-              as bool,
-      confirmCode: null == confirmCode
-          ? _value.confirmCode
-          : confirmCode // ignore: cast_nullable_to_non_nullable
-              as String,
-      verificationCode: null == verificationCode
-          ? _value.verificationCode
-          : verificationCode // ignore: cast_nullable_to_non_nullable
-              as String,
-      timerText: null == timerText
-          ? _value.timerText
-          : timerText // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
+/// Adds pattern-matching-related methods to [RegisterConfirmationState].
+extension RegisterConfirmationStatePatterns on RegisterConfirmationState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RegisterConfirmationState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RegisterConfirmationState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RegisterConfirmationState value)  $default,){
+final _that = this;
+switch (_that) {
+case _RegisterConfirmationState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RegisterConfirmationState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RegisterConfirmationState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  bool isSuccess,  bool isResetPasswordSuccess,  bool isResending,  bool isTimeExpired,  bool isCodeError,  bool isConfirm,  String confirmCode,  String verificationCode,  String timerText)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RegisterConfirmationState() when $default != null:
+return $default(_that.isLoading,_that.isSuccess,_that.isResetPasswordSuccess,_that.isResending,_that.isTimeExpired,_that.isCodeError,_that.isConfirm,_that.confirmCode,_that.verificationCode,_that.timerText);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  bool isSuccess,  bool isResetPasswordSuccess,  bool isResending,  bool isTimeExpired,  bool isCodeError,  bool isConfirm,  String confirmCode,  String verificationCode,  String timerText)  $default,) {final _that = this;
+switch (_that) {
+case _RegisterConfirmationState():
+return $default(_that.isLoading,_that.isSuccess,_that.isResetPasswordSuccess,_that.isResending,_that.isTimeExpired,_that.isCodeError,_that.isConfirm,_that.confirmCode,_that.verificationCode,_that.timerText);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  bool isSuccess,  bool isResetPasswordSuccess,  bool isResending,  bool isTimeExpired,  bool isCodeError,  bool isConfirm,  String confirmCode,  String verificationCode,  String timerText)?  $default,) {final _that = this;
+switch (_that) {
+case _RegisterConfirmationState() when $default != null:
+return $default(_that.isLoading,_that.isSuccess,_that.isResetPasswordSuccess,_that.isResending,_that.isTimeExpired,_that.isCodeError,_that.isConfirm,_that.confirmCode,_that.verificationCode,_that.timerText);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 
-class _$RegisterConfirmationStateImpl extends _RegisterConfirmationState {
-  const _$RegisterConfirmationStateImpl(
-      {this.isLoading = false,
-      this.isSuccess = false,
-      this.isResetPasswordSuccess = false,
-      this.isResending = false,
-      this.isTimeExpired = false,
-      this.isCodeError = false,
-      this.isConfirm = false,
-      this.confirmCode = '',
-      this.verificationCode = '',
-      this.timerText = '05:00'})
-      : super._();
 
-  @override
-  @JsonKey()
-  final bool isLoading;
-  @override
-  @JsonKey()
-  final bool isSuccess;
-  @override
-  @JsonKey()
-  final bool isResetPasswordSuccess;
-  @override
-  @JsonKey()
-  final bool isResending;
-  @override
-  @JsonKey()
-  final bool isTimeExpired;
-  @override
-  @JsonKey()
-  final bool isCodeError;
-  @override
-  @JsonKey()
-  final bool isConfirm;
-  @override
-  @JsonKey()
-  final String confirmCode;
-  @override
-  @JsonKey()
-  final String verificationCode;
-  @override
-  @JsonKey()
-  final String timerText;
+class _RegisterConfirmationState extends RegisterConfirmationState {
+  const _RegisterConfirmationState({this.isLoading = false, this.isSuccess = false, this.isResetPasswordSuccess = false, this.isResending = false, this.isTimeExpired = false, this.isCodeError = false, this.isConfirm = false, this.confirmCode = '', this.verificationCode = '', this.timerText = '05:00'}): super._();
+  
 
-  @override
-  String toString() {
-    return 'RegisterConfirmationState(isLoading: $isLoading, isSuccess: $isSuccess, isResetPasswordSuccess: $isResetPasswordSuccess, isResending: $isResending, isTimeExpired: $isTimeExpired, isCodeError: $isCodeError, isConfirm: $isConfirm, confirmCode: $confirmCode, verificationCode: $verificationCode, timerText: $timerText)';
-  }
+@override@JsonKey() final  bool isLoading;
+@override@JsonKey() final  bool isSuccess;
+@override@JsonKey() final  bool isResetPasswordSuccess;
+@override@JsonKey() final  bool isResending;
+@override@JsonKey() final  bool isTimeExpired;
+@override@JsonKey() final  bool isCodeError;
+@override@JsonKey() final  bool isConfirm;
+@override@JsonKey() final  String confirmCode;
+@override@JsonKey() final  String verificationCode;
+@override@JsonKey() final  String timerText;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$RegisterConfirmationStateImpl &&
-            (identical(other.isLoading, isLoading) ||
-                other.isLoading == isLoading) &&
-            (identical(other.isSuccess, isSuccess) ||
-                other.isSuccess == isSuccess) &&
-            (identical(other.isResetPasswordSuccess, isResetPasswordSuccess) ||
-                other.isResetPasswordSuccess == isResetPasswordSuccess) &&
-            (identical(other.isResending, isResending) ||
-                other.isResending == isResending) &&
-            (identical(other.isTimeExpired, isTimeExpired) ||
-                other.isTimeExpired == isTimeExpired) &&
-            (identical(other.isCodeError, isCodeError) ||
-                other.isCodeError == isCodeError) &&
-            (identical(other.isConfirm, isConfirm) ||
-                other.isConfirm == isConfirm) &&
-            (identical(other.confirmCode, confirmCode) ||
-                other.confirmCode == confirmCode) &&
-            (identical(other.verificationCode, verificationCode) ||
-                other.verificationCode == verificationCode) &&
-            (identical(other.timerText, timerText) ||
-                other.timerText == timerText));
-  }
+/// Create a copy of RegisterConfirmationState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RegisterConfirmationStateCopyWith<_RegisterConfirmationState> get copyWith => __$RegisterConfirmationStateCopyWithImpl<_RegisterConfirmationState>(this, _$identity);
 
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      isLoading,
-      isSuccess,
-      isResetPasswordSuccess,
-      isResending,
-      isTimeExpired,
-      isCodeError,
-      isConfirm,
-      confirmCode,
-      verificationCode,
-      timerText);
 
-  /// Create a copy of RegisterConfirmationState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$RegisterConfirmationStateImplCopyWith<_$RegisterConfirmationStateImpl>
-      get copyWith => __$$RegisterConfirmationStateImplCopyWithImpl<
-          _$RegisterConfirmationStateImpl>(this, _$identity);
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RegisterConfirmationState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isSuccess, isSuccess) || other.isSuccess == isSuccess)&&(identical(other.isResetPasswordSuccess, isResetPasswordSuccess) || other.isResetPasswordSuccess == isResetPasswordSuccess)&&(identical(other.isResending, isResending) || other.isResending == isResending)&&(identical(other.isTimeExpired, isTimeExpired) || other.isTimeExpired == isTimeExpired)&&(identical(other.isCodeError, isCodeError) || other.isCodeError == isCodeError)&&(identical(other.isConfirm, isConfirm) || other.isConfirm == isConfirm)&&(identical(other.confirmCode, confirmCode) || other.confirmCode == confirmCode)&&(identical(other.verificationCode, verificationCode) || other.verificationCode == verificationCode)&&(identical(other.timerText, timerText) || other.timerText == timerText));
 }
 
-abstract class _RegisterConfirmationState extends RegisterConfirmationState {
-  const factory _RegisterConfirmationState(
-      {final bool isLoading,
-      final bool isSuccess,
-      final bool isResetPasswordSuccess,
-      final bool isResending,
-      final bool isTimeExpired,
-      final bool isCodeError,
-      final bool isConfirm,
-      final String confirmCode,
-      final String verificationCode,
-      final String timerText}) = _$RegisterConfirmationStateImpl;
-  const _RegisterConfirmationState._() : super._();
 
-  @override
-  bool get isLoading;
-  @override
-  bool get isSuccess;
-  @override
-  bool get isResetPasswordSuccess;
-  @override
-  bool get isResending;
-  @override
-  bool get isTimeExpired;
-  @override
-  bool get isCodeError;
-  @override
-  bool get isConfirm;
-  @override
-  String get confirmCode;
-  @override
-  String get verificationCode;
-  @override
-  String get timerText;
+@override
+int get hashCode => Object.hash(runtimeType,isLoading,isSuccess,isResetPasswordSuccess,isResending,isTimeExpired,isCodeError,isConfirm,confirmCode,verificationCode,timerText);
 
-  /// Create a copy of RegisterConfirmationState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$RegisterConfirmationStateImplCopyWith<_$RegisterConfirmationStateImpl>
-      get copyWith => throw _privateConstructorUsedError;
+@override
+String toString() {
+  return 'RegisterConfirmationState(isLoading: $isLoading, isSuccess: $isSuccess, isResetPasswordSuccess: $isResetPasswordSuccess, isResending: $isResending, isTimeExpired: $isTimeExpired, isCodeError: $isCodeError, isConfirm: $isConfirm, confirmCode: $confirmCode, verificationCode: $verificationCode, timerText: $timerText)';
 }
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RegisterConfirmationStateCopyWith<$Res> implements $RegisterConfirmationStateCopyWith<$Res> {
+  factory _$RegisterConfirmationStateCopyWith(_RegisterConfirmationState value, $Res Function(_RegisterConfirmationState) _then) = __$RegisterConfirmationStateCopyWithImpl;
+@override @useResult
+$Res call({
+ bool isLoading, bool isSuccess, bool isResetPasswordSuccess, bool isResending, bool isTimeExpired, bool isCodeError, bool isConfirm, String confirmCode, String verificationCode, String timerText
+});
+
+
+
+
+}
+/// @nodoc
+class __$RegisterConfirmationStateCopyWithImpl<$Res>
+    implements _$RegisterConfirmationStateCopyWith<$Res> {
+  __$RegisterConfirmationStateCopyWithImpl(this._self, this._then);
+
+  final _RegisterConfirmationState _self;
+  final $Res Function(_RegisterConfirmationState) _then;
+
+/// Create a copy of RegisterConfirmationState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? isSuccess = null,Object? isResetPasswordSuccess = null,Object? isResending = null,Object? isTimeExpired = null,Object? isCodeError = null,Object? isConfirm = null,Object? confirmCode = null,Object? verificationCode = null,Object? timerText = null,}) {
+  return _then(_RegisterConfirmationState(
+isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as bool,isSuccess: null == isSuccess ? _self.isSuccess : isSuccess // ignore: cast_nullable_to_non_nullable
+as bool,isResetPasswordSuccess: null == isResetPasswordSuccess ? _self.isResetPasswordSuccess : isResetPasswordSuccess // ignore: cast_nullable_to_non_nullable
+as bool,isResending: null == isResending ? _self.isResending : isResending // ignore: cast_nullable_to_non_nullable
+as bool,isTimeExpired: null == isTimeExpired ? _self.isTimeExpired : isTimeExpired // ignore: cast_nullable_to_non_nullable
+as bool,isCodeError: null == isCodeError ? _self.isCodeError : isCodeError // ignore: cast_nullable_to_non_nullable
+as bool,isConfirm: null == isConfirm ? _self.isConfirm : isConfirm // ignore: cast_nullable_to_non_nullable
+as bool,confirmCode: null == confirmCode ? _self.confirmCode : confirmCode // ignore: cast_nullable_to_non_nullable
+as String,verificationCode: null == verificationCode ? _self.verificationCode : verificationCode // ignore: cast_nullable_to_non_nullable
+as String,timerText: null == timerText ? _self.timerText : timerText // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+// dart format on

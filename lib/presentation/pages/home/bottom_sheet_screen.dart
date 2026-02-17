@@ -1,3 +1,4 @@
+import 'package:driver/presentation/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_remix/flutter_remix.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,7 +8,6 @@ import 'package:driver/application/profile/provider/profile_settings_provider.da
 
 import 'package:driver/infrastructure/services/services.dart';
 import 'package:driver/presentation/styles/style.dart';
-import 'widgets/free_lunch.dart';
 import 'widgets/stores.dart';
 
 class BottomSheetScreen extends StatefulWidget {
@@ -42,10 +42,10 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Style.black.withOpacity(0.25),
+              color: Style.black.withValues(alpha: 0.25),
               blurRadius: 40,
               offset: const Offset(0, -2),
-            )
+            ),
           ],
         ),
         padding: EdgeInsets.only(
@@ -69,26 +69,19 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
                 18.verticalSpace,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _balance(context),
-                    _benefit(context),
-                  ],
+                  children: [_balance(context), _benefit(context)],
                 ),
                 SizedBox(
                   height: 186.h,
                   child: ListView.builder(
                     padding: EdgeInsets.only(top: 24.h),
                     scrollDirection: Axis.horizontal,
-                    itemCount: 4,
+                    itemCount: 3,
                     itemBuilder: (context, index) {
-                      return index == 0
-                          ? const FreeLunch()
-                          : StoresPage(
-                              image: image[index - 1],
-                            );
+                      return StoresPage(image: image[index]);
                     },
                   ),
-                )
+                ),
               ],
             ),
           ],
@@ -107,7 +100,7 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
         width: (MediaQuery.sizeOf(context).width - 42.w) / 2,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(color: Style.primaryColor),
+          border: Border.all(color: Style.primary),
         ),
         padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
         child: Row(
@@ -119,9 +112,9 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
                 shape: BoxShape.circle,
                 color: Style.black,
               ),
-              child: const Icon(
+              child: Icon(
                 FlutterRemix.file_list_2_fill,
-                color: Style.primaryColor,
+                color: Style.primary,
               ),
             ),
             14.horizontalSpace,
@@ -137,20 +130,24 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
                     maxLines: 1,
                   ),
                 ),
-                Consumer(builder: (context, ref, child) {
-                  return Text(
-                    AppHelpers.numberFormat(
-                        number: (ref
+                Consumer(
+                  builder: (context, ref, child) {
+                    return Text(
+                      AppHelpers.numberFormat(
+                        number:
+                            (ref
                                 .watch(profileSettingsProvider)
                                 .statistics
                                 ?.data
                                 ?.totalPrice ??
-                            0)),
-                    style: Style.interSemi(size: 14.sp, letterSpacing: -0.3),
-                  );
-                })
+                            0),
+                      ),
+                      style: Style.interSemi(size: 14.sp, letterSpacing: -0.3),
+                    );
+                  },
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -175,26 +172,28 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
         padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
         child: Row(
           children: [
-            SvgPicture.asset(AppAssets.svgBalance),
+            SvgPicture.asset(Assets.svgBalance),
             14.horizontalSpace,
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppHelpers.getTranslation(TrKeys.balance),
-                  style: Style.interNormal(size: 12.sp, letterSpacing: -0.3),
-                ),
-                Consumer(builder: (context, ref, child) {
-                  return Text(
-                    AppHelpers.numberFormat(
-                      number: LocalStorage.getUser()?.wallet?.price,
-                      maxLength: 3
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppHelpers.getTranslation(TrKeys.balance),
+                    style: Style.interNormal(size: 12.sp, letterSpacing: -0.3),
+                  ),
+                  Expanded(
+                    child: Text(
+                      AppHelpers.numberFormat(
+                        number: LocalStorage.getUser()?.wallet?.price,
+                        maxLength: 3,
+                      ),
+                      style: Style.interSemi(size: 14.sp, letterSpacing: -0.3),
                     ),
-                    style: Style.interSemi(size: 14.sp, letterSpacing: -0.3),
-                  );
-                })
-              ],
-            )
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

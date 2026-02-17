@@ -26,25 +26,25 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) {
-        ref.read(profileSettingsProvider.notifier).fetchProfileDetails(
-              context: context,
-              checkYourNetwork: () {
-                AppHelpers.showCheckTopSnackBar(
-                  context,
-                  AppHelpers.getTranslation(TrKeys.checkYourNetworkConnection),
-                );
-              },
-              setImage: (url) {
-                ref.read(profileImageProvider.notifier).setUrl(url);
-              },
-              setUserData: (user) {
-                ref.read(profileEditProvider.notifier).setInitialInfo(user);
-              },
-            );
-      },
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(profileSettingsProvider.notifier)
+          .fetchProfileDetails(
+            context: context,
+            checkYourNetwork: () {
+              AppHelpers.showCheckTopSnackBar(
+                context,
+                AppHelpers.getTranslation(TrKeys.checkYourNetworkConnection),
+              );
+            },
+            setImage: (url) {
+              ref.read(profileImageProvider.notifier).setUrl(url);
+            },
+            setUserData: (user) {
+              ref.read(profileEditProvider.notifier).setInitialInfo(user);
+            },
+          );
+    });
   }
 
   @override
@@ -71,15 +71,17 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                         children: [
                           TitleAndIcon(
                             title: AppHelpers.getTranslation(
-                                TrKeys.profileSettings),
+                              TrKeys.profileSettings,
+                            ),
                           ),
                           24.verticalSpace,
                           Row(
                             children: [
                               Consumer(
                                 builder: (context, ref, child) {
-                                  final imageState =
-                                      ref.watch(profileImageProvider);
+                                  final imageState = ref.watch(
+                                    profileImageProvider,
+                                  );
                                   return Stack(
                                     alignment: Alignment.center,
                                     children: [
@@ -89,15 +91,20 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                                         path: imageState.path,
                                         size: 50,
                                         padding: 6,
-                                        bgColor: Style.black.withOpacity(0.27),
+                                        bgColor: Style.black.withValues(
+                                          alpha: 0.27,
+                                        ),
                                       ),
                                       Container(
                                         width: 50.r,
                                         height: 50.r,
                                         decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(16.r),
-                                          color: Style.black.withOpacity(0.27),
+                                          borderRadius: BorderRadius.circular(
+                                            16.r,
+                                          ),
+                                          color: Style.black.withValues(
+                                            alpha: 0.27,
+                                          ),
                                         ),
                                       ),
                                       IconButton(
@@ -109,16 +116,17 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                                         onPressed: () async {
                                           final XFile? pickedFile =
                                               await ImagePicker().pickImage(
-                                            source: ImageSource.gallery,
-                                            maxWidth: 1000,
-                                            maxHeight: 1000,
-                                            imageQuality: 90,
-                                          );
+                                                source: ImageSource.gallery,
+                                                maxWidth: 1000,
+                                                maxHeight: 1000,
+                                                imageQuality: 90,
+                                              );
                                           if (pickedFile != null) {
                                             // ignore: use_build_context_synchronously
                                             ref
-                                                .read(profileImageProvider
-                                                    .notifier)
+                                                .read(
+                                                  profileImageProvider.notifier,
+                                                )
                                                 .changePhoto(
                                                   // ignore: use_build_context_synchronously
                                                   context: context,
@@ -128,7 +136,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                                                 );
                                           }
                                         },
-                                      )
+                                      ),
                                     ],
                                   );
                                 },
@@ -137,12 +145,14 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                               Expanded(
                                 child: UnderlinedBorderTextField(
                                   label: AppHelpers.getTranslation(
-                                      TrKeys.firstname),
+                                    TrKeys.firstname,
+                                  ),
                                   initialText: editState.firstname,
                                   onChanged: editNotifier.setFirstname,
                                   descriptionText: editState.isFirstnameError
                                       ? AppHelpers.getTranslation(
-                                          TrKeys.firstnameCannotBeEmpty)
+                                          TrKeys.firstnameCannotBeEmpty,
+                                        )
                                       : null,
                                   isError: editState.isFirstnameError,
                                 ),
@@ -156,89 +166,107 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                             onChanged: editNotifier.setLastname,
                             descriptionText: editState.isLastnameError
                                 ? AppHelpers.getTranslation(
-                                    TrKeys.lastnameCannotBeEmpty)
+                                    TrKeys.lastnameCannotBeEmpty,
+                                  )
                                 : null,
                             isError: editState.isLastnameError,
                           ),
                           24.verticalSpace,
                           if (!AppConstants.isSpecificNumberEnabled)
-                          UnderlinedBorderTextField(
-                            label:
-                                AppHelpers.getTranslation(TrKeys.phoneNumber),
-                            initialText: editState.phone,
-                            inputType: TextInputType.phone,
-                            readOnly: !editState.isPhoneEditable,
-                            onChanged: editNotifier.setPhone,
-                          ),
+                            UnderlinedBorderTextField(
+                              label: AppHelpers.getTranslation(
+                                TrKeys.phoneNumber,
+                              ),
+                              initialText: editState.phone,
+                              inputType: TextInputType.phone,
+                              readOnly: !editState.isPhoneEditable,
+                              onChanged: editNotifier.setPhone,
+                            ),
                           if (AppConstants.isSpecificNumberEnabled)
                             Directionality(
                               textDirection: TextDirection.ltr,
                               child: IntlPhoneField(
                                 showCountryFlag: AppConstants.showFlag,
                                 showDropdownIcon: AppConstants.showArrowIcon,
-                                disableLengthCheck: !AppConstants.isNumberLengthAlwaysSame,
-                                onChanged: (phoneNum) => editNotifier
-                                    .setPhone(phoneNum.completeNumber),
+                                disableLengthCheck:
+                                    !AppConstants.isNumberLengthAlwaysSame,
+                                onChanged: (phoneNum) => editNotifier.setPhone(
+                                  phoneNum.completeNumber,
+                                ),
                                 validator: (s) {
                                   if (AppConstants.isNumberLengthAlwaysSame &&
                                       (s?.isValidNumber() ?? false)) {
                                     return AppHelpers.getTranslation(
-                                        TrKeys.phoneNumberIsNotValid);
+                                      TrKeys.phoneNumberIsNotValid,
+                                    );
                                   }
                                   return null;
                                 },
                                 keyboardType: TextInputType.number,
                                 autovalidateMode: AutovalidateMode.disabled,
                                 initialCountryCode: PhoneNumber.fromCompleteNumber(
-                                        completeNumber:
-                                            "+${editState.phone.replaceAll('+', "")}")
-                                    .countryISOCode,
+                                  completeNumber:
+                                      "+${editState.phone.replaceAll('+', "")}",
+                                ).countryISOCode,
                                 initialValue: PhoneNumber.fromCompleteNumber(
-                                        completeNumber:
-                                            "+${editState.phone.replaceAll('+', "")}")
-                                    .number,
+                                  completeNumber:
+                                      "+${editState.phone.replaceAll('+', "")}",
+                                ).number,
                                 enabled: editState.isPhoneEditable,
                                 invalidNumberMessage: AppHelpers.getTranslation(
-                                    TrKeys.phoneNumberIsNotValid),
+                                  TrKeys.phoneNumberIsNotValid,
+                                ),
                                 inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly
+                                  FilteringTextInputFormatter.digitsOnly,
                                 ],
                                 textAlignVertical: TextAlignVertical.center,
                                 decoration: InputDecoration(
                                   counterText: '',
                                   enabledBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide.merge(
-                                          const BorderSide(
-                                              color: Style.borderColor),
-                                          const BorderSide(
-                                              color: Style.borderColor))),
+                                    borderSide: BorderSide.merge(
+                                      const BorderSide(
+                                        color: Style.borderColor,
+                                      ),
+                                      const BorderSide(
+                                        color: Style.borderColor,
+                                      ),
+                                    ),
+                                  ),
                                   errorBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide.merge(
-                                          const BorderSide(
-                                              color: Style.borderColor),
-                                          const BorderSide(
-                                              color: Style.borderColor))),
+                                    borderSide: BorderSide.merge(
+                                      const BorderSide(
+                                        color: Style.borderColor,
+                                      ),
+                                      const BorderSide(
+                                        color: Style.borderColor,
+                                      ),
+                                    ),
+                                  ),
                                   border: const UnderlineInputBorder(),
                                   focusedErrorBorder:
                                       const UnderlineInputBorder(),
                                   disabledBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide.merge(
-                                          const BorderSide(
-                                              color: Style.borderColor),
-                                          const BorderSide(
-                                              color: Style.borderColor))),
+                                    borderSide: BorderSide.merge(
+                                      const BorderSide(
+                                        color: Style.borderColor,
+                                      ),
+                                      const BorderSide(
+                                        color: Style.borderColor,
+                                      ),
+                                    ),
+                                  ),
                                   focusedBorder: const UnderlineInputBorder(),
                                 ),
                               ),
                             ),
                           24.verticalSpace,
                           UnderlinedBorderTextField(
-                              label: AppHelpers.getTranslation(TrKeys.email),
-                              initialText: editState.email,
-                              inputType: TextInputType.emailAddress,
-                              readOnly: !editState.isEmailEditable,
-                              onChanged: editNotifier.setEmail,
-                            ),
+                            label: AppHelpers.getTranslation(TrKeys.email),
+                            initialText: editState.email,
+                            inputType: TextInputType.emailAddress,
+                            readOnly: !editState.isEmailEditable,
+                            onChanged: editNotifier.setEmail,
+                          ),
                           24.verticalSpace,
                           UnderlinedBorderTextField(
                             label: AppHelpers.getTranslation(TrKeys.password),
@@ -246,8 +274,10 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                             onChanged: editNotifier.setPassword,
                             isError: editState.isPasswordError,
                             descriptionText: editState.isPasswordError
-                                ? AppHelpers.getTranslation(TrKeys
-                                    .passwordShouldContainMinimum6Characters)
+                                ? AppHelpers.getTranslation(
+                                    TrKeys
+                                        .passwordShouldContainMinimum6Characters,
+                                  )
                                 : null,
                             suffixIcon: IconButton(
                               splashRadius: 25,
@@ -264,13 +294,16 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                           24.verticalSpace,
                           UnderlinedBorderTextField(
                             label: AppHelpers.getTranslation(
-                                TrKeys.confirmPassword),
+                              TrKeys.confirmPassword,
+                            ),
                             obscure: editState.showConfirmPassword,
                             onChanged: editNotifier.setConfirmPassword,
                             isError: editState.isConfirmPasswordError,
                             descriptionText: editState.isConfirmPasswordError
-                                ? AppHelpers.getTranslation(TrKeys
-                                    .confirmPasswordDoesntMatchWithNewPassword)
+                                ? AppHelpers.getTranslation(
+                                    TrKeys
+                                        .confirmPasswordDoesntMatchWithNewPassword,
+                                  )
                                 : null,
                             suffixIcon: IconButton(
                               splashRadius: 25.r,
@@ -305,29 +338,31 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                           padding: EdgeInsets.all(16.r),
                           child: Row(
                             children: [
-                              Icon(
-                                FlutterRemix.time_fill,
-                                size: 20.r,
-                              ),
+                              Icon(FlutterRemix.time_fill, size: 20.r),
                               8.horizontalSpace,
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     AppHelpers.getTranslation(
-                                        TrKeys.deliveryVehicle),
+                                      TrKeys.deliveryVehicle,
+                                    ),
                                     style: Style.interNormal(
-                                        size: 12.sp, color: Style.black),
+                                      size: 12.sp,
+                                      color: Style.black,
+                                    ),
                                   ),
                                   Text(
                                     "${LocalStorage.getDeliveryInfo()?.data?.number ?? ''} — ${LocalStorage.getDeliveryInfo()?.data?.model ?? ''}, ${LocalStorage.getDeliveryInfo()?.data?.color ?? ''}",
                                     style: Style.interNormal(
-                                        size: 12.sp, color: Style.black),
+                                      size: 12.sp,
+                                      color: Style.black,
+                                    ),
                                   ),
                                 ],
                               ),
                               const Spacer(),
-                              const Icon(FlutterRemix.arrow_right_s_line)
+                              const Icon(FlutterRemix.arrow_right_s_line),
                             ],
                           ),
                         ),
@@ -346,14 +381,15 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                               AppHelpers.showCheckTopSnackBar(
                                 context,
                                 AppHelpers.getTranslation(
-                                    TrKeys.checkYourNetworkConnection),
+                                  TrKeys.checkYourNetworkConnection,
+                                ),
                               );
                             },
                             updated: context.router.maybePop,
                           );
                         },
                       ),
-                    )
+                    ),
                   ],
                 );
               },

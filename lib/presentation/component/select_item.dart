@@ -40,11 +40,13 @@ class SelectItem extends StatelessWidget {
                     width: 18.w,
                     height: 18.h,
                     decoration: BoxDecoration(
-                        color: isActive ? Style.primaryColor : Style.transparent,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                            color: isActive ? Style.black : Style.textColor,
-                            width: isActive ? 4.r : 2.r)),
+                      color: isActive ? Style.primary : Style.transparent,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isActive ? Style.black : Style.textColor,
+                        width: isActive ? 4.r : 2.r,
+                      ),
+                    ),
                   ),
                   16.horizontalSpace,
                   Text(

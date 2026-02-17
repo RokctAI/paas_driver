@@ -35,13 +35,12 @@ class CurrenciesResponse {
     bool? status,
     String? message,
     List<CurrencyData>? data,
-  }) =>
-      CurrenciesResponse(
-        timestamp: timestamp ?? _timestamp,
-        status: status ?? _status,
-        message: message ?? _message,
-        data: data ?? _data,
-      );
+  }) => CurrenciesResponse(
+    timestamp: timestamp ?? _timestamp,
+    status: status ?? _status,
+    message: message ?? _message,
+    data: data ?? _data,
+  );
 
   String? get timestamp => _timestamp;
 

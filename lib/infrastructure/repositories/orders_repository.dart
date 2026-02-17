@@ -8,8 +8,6 @@ import '../../../domain/handlers/handlers.dart';
 import '../models/data/order_paginate_response.dart';
 
 class OrdersRepository implements OrdersRepositoryFacade {
-
-
   @override
   Future<ApiResult<OrderPaginateResponse>> getActiveOrders(int page) async {
     final data = {
@@ -20,7 +18,7 @@ class OrdersRepository implements OrdersRepositoryFacade {
       "statuses[2]": "ready",
       "statuses[3]": "on_a_way",
       "perPage": 10,
-      "delivery_type": "delivery"
+      "delivery_type": "delivery",
     };
     try {
       final client = dioHttp.client(requireAuth: true);
@@ -34,8 +32,39 @@ class OrdersRepository implements OrdersRepositoryFacade {
     } catch (e) {
       debugPrint('==> get active orders failure: $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
+    }
+  }
+
+  @override
+  Future<ApiResult<OrderPaginateResponse>> getProgressOrders(int page) async {
+    final data = {
+      'currency_id': LocalStorage.getSelectedCurrency()!.id,
+      'lang': LocalStorage.getLanguage()?.locale ?? 'en',
+      'page': page,
+      // "statuses[1]": "accepted",
+      "statuses[2]": "ready",
+      "statuses[3]": "on_a_way",
+      "perPage": 10,
+      "delivery_type": "delivery",
+    };
+    try {
+      final client = dioHttp.client(requireAuth: true);
+      final response = await client.get(
+        '/api/v1/dashboard/deliveryman/orders/paginate',
+        queryParameters: data,
+      );
+      return ApiResult.success(
+        data: OrderPaginateResponse.fromJson(response.data),
+      );
+    } catch (e) {
+      debugPrint('==> get active orders failure: $e');
+      return ApiResult.failure(
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -50,11 +79,13 @@ class OrdersRepository implements OrdersRepositoryFacade {
       "perPage": 10,
       "delivery_type": "delivery",
       "address": {
-        "latitude": LocalStorage.getAddressSelected()?.latitude ??
+        "latitude":
+            LocalStorage.getAddressSelected()?.latitude ??
             AppConstants.demoLatitude,
-        "longitude": LocalStorage.getAddressSelected()?.longitude ??
-            AppConstants.demoLongitude
-      }
+        "longitude":
+            LocalStorage.getAddressSelected()?.longitude ??
+            AppConstants.demoLongitude,
+      },
     };
     try {
       final client = dioHttp.client(requireAuth: true);
@@ -68,8 +99,9 @@ class OrdersRepository implements OrdersRepositoryFacade {
     } catch (e) {
       debugPrint('==> get canceled orders failure: $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -85,25 +117,28 @@ class OrdersRepository implements OrdersRepositoryFacade {
         '/api/v1/dashboard/deliveryman/orders/$id',
         queryParameters: data,
       );
-      return ApiResult.success(
-        data: OrderDetailModel.fromJson(response.data),
-      );
+      return ApiResult.success(data: OrderDetailModel.fromJson(response.data));
     } catch (e) {
       debugPrint('==> get single order failure: $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
   @override
-  Future<ApiResult<List<OrderDetailData>>> getHistoryOrders(int page,
-      {DateTime? start, DateTime? end}) async {
+  Future<ApiResult<List<OrderDetailData>>> getHistoryOrders(
+    int page, {
+    DateTime? start,
+    DateTime? end,
+    List<String>? status,
+  }) async {
     final data = {
       'currency_id': LocalStorage.getSelectedCurrency()!.id,
       'lang': LocalStorage.getLanguage()?.locale ?? 'en',
       'page': page,
-      "status": "delivered",
+      "status": status ?? ["ready", "on_a_way", "delivered", "canceled"],
       "perPage": 10,
       if (start != null)
         "delivery_date_from": DateFormat("yyyy-MM-dd").format(start),
@@ -115,14 +150,16 @@ class OrdersRepository implements OrdersRepositoryFacade {
         '/api/v1/dashboard/deliveryman/orders/paginate',
         queryParameters: data,
       );
+
       return ApiResult.success(
         data: OrderPaginateResponse.fromJson(response.data).data ?? [],
       );
     } catch (e) {
       debugPrint('==> get delivered orders failure: $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -133,14 +170,13 @@ class OrdersRepository implements OrdersRepositoryFacade {
       await client.post(
         '/api/v1/dashboard/deliveryman/orders/$orderId/current',
       );
-      return const ApiResult.success(
-        data: null,
-      );
+      return const ApiResult.success(data: null);
     } catch (e) {
       debugPrint('==> get delivered orders failure: $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -157,8 +193,9 @@ class OrdersRepository implements OrdersRepositoryFacade {
     } catch (e) {
       debugPrint('===> error current order settings $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -170,14 +207,13 @@ class OrdersRepository implements OrdersRepositoryFacade {
         '/api/v1/dashboard/deliveryman/order/$orderId/status/update',
         data: {"status": status},
       );
-      return const ApiResult.success(
-        data: null,
-      );
+      return const ApiResult.success(data: null);
     } catch (e) {
       debugPrint('===> error statistics settings $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -189,14 +225,13 @@ class OrdersRepository implements OrdersRepositoryFacade {
         'https://api.foodyman.org/api/v1/dashboard/deliveryman/orders/$orderId/image',
         data: {"img": image},
       );
-      return const ApiResult.success(
-        data: null,
-      );
+      return const ApiResult.success(data: null);
     } catch (e) {
       debugPrint('===> error statistics settings $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -206,10 +241,7 @@ class OrdersRepository implements OrdersRepositoryFacade {
     required double rating,
     required String comment,
   }) async {
-    final data = {
-      'rating': rating,
-      if (comment.isNotEmpty) 'comment': comment,
-    };
+    final data = {'rating': rating, if (comment.isNotEmpty) 'comment': comment};
     try {
       final client = dioHttp.client(requireAuth: true);
       await client.post(
@@ -220,8 +252,9 @@ class OrdersRepository implements OrdersRepositoryFacade {
     } catch (e) {
       debugPrint('==> add order review failure: $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -232,14 +265,13 @@ class OrdersRepository implements OrdersRepositoryFacade {
       final response = await client.post(
         '/api/v1/dashboard/deliveryman/order/$orderId/attach/me',
       );
-      return ApiResult.success(
-        data: OrderDetailModel.fromJson(response.data),
-      );
+      return ApiResult.success(data: OrderDetailModel.fromJson(response.data));
     } catch (e) {
       debugPrint('===> error statistics settings $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -248,16 +280,16 @@ class OrdersRepository implements OrdersRepositoryFacade {
     try {
       final client = dioHttp.client(requireAuth: true);
       await client.post(
-          '/api/v1/dashboard/deliveryman/order/$orderId/status/update?status=canceled',
-          data: {"note": note});
-      return const ApiResult.success(
-        data: null,
+        '/api/v1/dashboard/deliveryman/order/$orderId/status/update?status=canceled',
+        data: {"note": note},
       );
+      return const ApiResult.success(data: null);
     } catch (e) {
       debugPrint('==> post cancel order failure: $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 }

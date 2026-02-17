@@ -42,11 +42,17 @@ abstract class UserRepository {
     String? imageUrl,
   });
 
-  Future<ApiResult<StatisticsIncomeResponse>> getStatistics(
-      {required DateTime startTime, required DateTime endTime});
+  Future<ApiResult<StatisticsIncomeResponse>> getStatistics({
+    required DateTime startTime,
+    required DateTime endTime,
+  });
 
-  Future<ApiResult<StatisticsOrderResponse>> getStatisticsOrder(
-      {DateTime? startTime, DateTime? endTime, int? page, int? perPage});
+  Future<ApiResult<StatisticsOrderResponse>> getStatisticsOrder({
+    DateTime? startTime,
+    DateTime? endTime,
+    int? page,
+    int? perPage,
+  });
 
   Future<ApiResult<ProfileResponse>> getProfileDetails();
 
@@ -70,13 +76,9 @@ abstract class UserRepository {
 
   Future<ApiResult<void>> updateFirebaseToken(String? token);
 
-
-
   Future<ApiResult<dynamic>> deleteAccount();
 
-  Future<ApiResult<void>> updateDeliveryZones({
-    required List<LatLng> points,
-  });
+  Future<ApiResult<void>> updateDeliveryZones({required List<LatLng> points});
 
   Future<ApiResult<DeliveryZonePaginate>> getDeliveryZone();
 }

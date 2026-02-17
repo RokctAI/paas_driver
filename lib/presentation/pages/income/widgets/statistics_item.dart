@@ -11,14 +11,15 @@ class StatisticsItem extends StatelessWidget {
   final Color textColor;
   final Color iconColor;
 
-  const StatisticsItem(
-      {super.key,
-      required this.title,
-      required this.count,
-      required this.percentage,
-      required this.bgColor,
-      required this.textColor,
-      required this.iconColor});
+  const StatisticsItem({
+    super.key,
+    required this.title,
+    required this.count,
+    required this.percentage,
+    required this.bgColor,
+    required this.textColor,
+    required this.iconColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +37,10 @@ class StatisticsItem extends StatelessWidget {
           Text(
             title,
             style: Style.interNormal(
-                size: 12.sp, color: textColor, letterSpacing: -0.3),
+              size: 12.sp,
+              color: textColor,
+              letterSpacing: -0.3,
+            ),
           ),
           const Spacer(),
           Row(
@@ -44,22 +48,30 @@ class StatisticsItem extends StatelessWidget {
               Text(
                 count,
                 style: Style.interSemi(
-                    size: 14.sp, color: textColor, letterSpacing: -0.6),
+                  size: 14.sp,
+                  color: textColor,
+                  letterSpacing: -0.6,
+                ),
               ),
               Container(
                 width: 6.r,
                 height: 6.r,
                 margin: EdgeInsets.symmetric(horizontal: 4.w),
-                decoration:
-                    BoxDecoration(shape: BoxShape.circle, color: iconColor),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: iconColor,
+                ),
               ),
               Text(
                 percentage,
                 style: Style.interSemi(
-                    size: 14.sp, color: textColor, letterSpacing: -0.6),
+                  size: 14.sp,
+                  color: textColor,
+                  letterSpacing: -0.6,
+                ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );

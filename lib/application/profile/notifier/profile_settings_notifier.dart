@@ -14,7 +14,7 @@ class ProfileSettingsNotifier extends StateNotifier<ProfileSettingsState> {
   final UserRepository _userRepository;
 
   ProfileSettingsNotifier(this._userRepository)
-      : super(const ProfileSettingsState());
+    : super(const ProfileSettingsState());
 
   Future<void> fetchProfileDetails({
     required BuildContext context,
@@ -46,9 +46,7 @@ class ProfileSettingsNotifier extends StateNotifier<ProfileSettingsState> {
     }
   }
 
-  Future<void> fetchRequestResponse({
-    required BuildContext context,
-  }) async {
+  Future<void> fetchRequestResponse({required BuildContext context}) async {
     if (await AppConnectivity.connectivity()) {
       state = state.copyWith(isLoading: true);
       final response = await _userRepository.getRequestModel();
@@ -70,21 +68,19 @@ class ProfileSettingsNotifier extends StateNotifier<ProfileSettingsState> {
     }
   }
 
-  clearRequest() {
+  void clearRequest() {
     state = state.copyWith(requestData: null);
   }
 
-  setPhone(String? data) {
+  void setPhone(String? data) {
     state = state.copyWith(userData: UserData(phone: data));
   }
 
-  setEmail(String? data) {
+  void setEmail(String? data) {
     state = state.copyWith(userData: UserData(email: data));
   }
 
-  Future<void> fetchProfileStatistics({
-    required BuildContext context,
-  }) async {
+  Future<void> fetchProfileStatistics({required BuildContext context}) async {
     if (await AppConnectivity.connectivity()) {
       state = state.copyWith(isLoading: true);
       final response = await _userRepository.getDriverStatistics();
@@ -129,10 +125,7 @@ class ProfileSettingsNotifier extends StateNotifier<ProfileSettingsState> {
         },
         failure: (fail, status) {
           state = state.copyWith(isLoading: false);
-          AppHelpers.showCheckTopSnackBar(
-            context,
-            fail,
-          );
+          AppHelpers.showCheckTopSnackBar(context, fail);
         },
       );
     } else {

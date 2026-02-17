@@ -27,11 +27,12 @@ class ResetPasswordPage extends ConsumerWidget {
           child: Container(
             padding: MediaQuery.viewInsetsOf(context),
             decoration: BoxDecoration(
-                color: Style.greyColor.withOpacity(0.96),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16.r),
-                  topRight: Radius.circular(16.r),
-                )),
+              color: Style.greyColor.withValues(alpha: 0.96),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16.r),
+                topRight: Radius.circular(16.r),
+              ),
+            ),
             width: double.infinity,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -43,16 +44,22 @@ class ResetPasswordPage extends ConsumerWidget {
                     Column(
                       children: [
                         AppBarBottomSheet(
-                          title: AppHelpers.getTranslation(TrKeys.resetPassword),
+                          title: AppHelpers.getTranslation(
+                            TrKeys.resetPassword,
+                          ),
                         ),
                         Text(
                           AppHelpers.getTranslation(TrKeys.resetPasswordText),
                           style: Style.interRegular(
-                              size: 14.sp, color: Style.blackColor),
+                            size: 14.sp,
+                            color: Style.blackColor,
+                          ),
                         ),
                         40.verticalSpace,
                         UnderlinedBorderTextField(
-                          label: AppHelpers.getTranslation(TrKeys.email).toUpperCase(),
+                          label: AppHelpers.getTranslation(
+                            TrKeys.email,
+                          ).toUpperCase(),
                           onChanged: notifier.setEmail,
                         ),
                       ],
@@ -76,7 +83,7 @@ class ResetPasswordPage extends ConsumerWidget {
                             isDarkMode: isDarkMode,
                           );
                         },
-                        background: Style.primaryColor,
+                        background: Style.primary,
                         textColor: Style.blackColor,
                       ),
                     ),

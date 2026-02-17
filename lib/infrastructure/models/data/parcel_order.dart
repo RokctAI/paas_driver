@@ -86,34 +86,33 @@ class ParcelOrder {
     User? user,
     dynamic transaction,
     TypeModel? type,
-  }) =>
-      ParcelOrder(
-        id: id ?? this.id,
-        userId: userId ?? this.userId,
-        totalPrice: totalPrice ?? this.totalPrice,
-        rate: rate ?? this.rate,
-        status: status ?? this.status,
-        note: note ?? this.note,
-        phoneTo: phoneTo ?? this.phoneTo,
-        usernameTo: usernameTo ?? this.usernameTo,
-        addressFrom: addressFrom ?? this.addressFrom,
-        addressTo: addressTo ?? this.addressTo,
-        typeId: typeId ?? this.typeId,
-        deliveryFee: deliveryFee ?? this.deliveryFee,
-        deliveryDate: deliveryDate ?? this.deliveryDate,
-        deliveryTime: deliveryTime ?? this.deliveryTime,
-        phoneFrom: phoneFrom ?? this.phoneFrom,
-        usernameFrom: usernameFrom ?? this.usernameFrom,
-        current: current ?? this.current,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-        km: km ?? this.km,
-        deliveryman: deliveryman ?? this.deliveryman,
-        currency: currency ?? this.currency,
-        user: user ?? this.user,
-        transaction: transaction ?? this.transaction,
-        type: type ?? this.type,
-      );
+  }) => ParcelOrder(
+    id: id ?? this.id,
+    userId: userId ?? this.userId,
+    totalPrice: totalPrice ?? this.totalPrice,
+    rate: rate ?? this.rate,
+    status: status ?? this.status,
+    note: note ?? this.note,
+    phoneTo: phoneTo ?? this.phoneTo,
+    usernameTo: usernameTo ?? this.usernameTo,
+    addressFrom: addressFrom ?? this.addressFrom,
+    addressTo: addressTo ?? this.addressTo,
+    typeId: typeId ?? this.typeId,
+    deliveryFee: deliveryFee ?? this.deliveryFee,
+    deliveryDate: deliveryDate ?? this.deliveryDate,
+    deliveryTime: deliveryTime ?? this.deliveryTime,
+    phoneFrom: phoneFrom ?? this.phoneFrom,
+    usernameFrom: usernameFrom ?? this.usernameFrom,
+    current: current ?? this.current,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    km: km ?? this.km,
+    deliveryman: deliveryman ?? this.deliveryman,
+    currency: currency ?? this.currency,
+    user: user ?? this.user,
+    transaction: transaction ?? this.transaction,
+    type: type ?? this.type,
+  );
 
   factory ParcelOrder.fromJson(Map<String, dynamic> json) {
     return ParcelOrder(
@@ -148,8 +147,9 @@ class ParcelOrder {
           : DateTime.parse(json["updated_at"]).toLocal(),
       km: json["km"]?.toDouble(),
       deliveryman: json["deliveryman"],
-      currency:
-          json["currency"] == null ? null : Currency.fromJson(json["currency"]),
+      currency: json["currency"] == null
+          ? null
+          : Currency.fromJson(json["currency"]),
       user: json["user"] == null ? null : User.fromJson(json["user"]),
       transaction: json["transaction"],
       type: json["type"] == null ? null : TypeModel.fromJson(json["type"]),
@@ -157,33 +157,33 @@ class ParcelOrder {
   }
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "user_id": userId,
-        "total_price": totalPrice,
-        "rate": rate,
-        "status": status,
-        "note": note,
-        "phone_to": phoneTo,
-        "username_to": usernameTo,
-        "address_from": addressFrom?.toJson(),
-        "address_to": addressTo?.toJson(),
-        "type_id": typeId,
-        "delivery_fee": deliveryFee,
-        "delivery_date":
-            "${deliveryDate!.year.toString().padLeft(4, '0')}-${deliveryDate!.month.toString().padLeft(2, '0')}-${deliveryDate!.day.toString().padLeft(2, '0')}",
-        "delivery_time": deliveryTime,
-        "phone_from": phoneFrom,
-        "username_from": usernameFrom,
-        "current": current,
-        "created_at": createdAt?.toIso8601String(),
-        "updated_at": updatedAt?.toIso8601String(),
-        "km": km,
-        "deliveryman": deliveryman,
-        "currency": currency?.toJson(),
-        "user": user?.toJson(),
-        "transaction": transaction,
-        "type": type?.toJson(),
-      };
+    "id": id,
+    "user_id": userId,
+    "total_price": totalPrice,
+    "rate": rate,
+    "status": status,
+    "note": note,
+    "phone_to": phoneTo,
+    "username_to": usernameTo,
+    "address_from": addressFrom?.toJson(),
+    "address_to": addressTo?.toJson(),
+    "type_id": typeId,
+    "delivery_fee": deliveryFee,
+    "delivery_date":
+        "${deliveryDate!.year.toString().padLeft(4, '0')}-${deliveryDate!.month.toString().padLeft(2, '0')}-${deliveryDate!.day.toString().padLeft(2, '0')}",
+    "delivery_time": deliveryTime,
+    "phone_from": phoneFrom,
+    "username_from": usernameFrom,
+    "current": current,
+    "created_at": createdAt?.toIso8601String(),
+    "updated_at": updatedAt?.toIso8601String(),
+    "km": km,
+    "deliveryman": deliveryman,
+    "currency": currency?.toJson(),
+    "user": user?.toJson(),
+    "transaction": transaction,
+    "type": type?.toJson(),
+  };
 }
 
 class Address {
@@ -191,17 +191,9 @@ class Address {
   double? latitude;
   double? longitude;
 
-  Address({
-    this.address,
-    this.latitude,
-    this.longitude,
-  });
+  Address({this.address, this.latitude, this.longitude});
 
-  Address copyWith({
-    String? address,
-    double? latitude,
-    double? longitude,
-  }) =>
+  Address copyWith({String? address, double? latitude, double? longitude}) =>
       Address(
         address: address ?? this.address,
         latitude: latitude ?? this.latitude,
@@ -209,16 +201,16 @@ class Address {
       );
 
   factory Address.fromJson(Map<String, dynamic> json) => Address(
-        address: json["address"],
-        latitude: json["latitude"]?.toDouble(),
-        longitude: json["longitude"]?.toDouble(),
-      );
+    address: json["address"],
+    latitude: json["latitude"]?.toDouble(),
+    longitude: json["longitude"]?.toDouble(),
+  );
 
   Map<String, dynamic> toJson() => {
-        "address": address,
-        "latitude": latitude,
-        "longitude": longitude,
-      };
+    "address": address,
+    "latitude": latitude,
+    "longitude": longitude,
+  };
 }
 
 class Currency {
@@ -254,44 +246,43 @@ class Currency {
     bool? active,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) =>
-      Currency(
-        id: id ?? this.id,
-        symbol: symbol ?? this.symbol,
-        title: title ?? this.title,
-        rate: rate ?? this.rate,
-        currencyDefault: currencyDefault ?? this.currencyDefault,
-        position: position ?? this.position,
-        active: active ?? this.active,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-      );
+  }) => Currency(
+    id: id ?? this.id,
+    symbol: symbol ?? this.symbol,
+    title: title ?? this.title,
+    rate: rate ?? this.rate,
+    currencyDefault: currencyDefault ?? this.currencyDefault,
+    position: position ?? this.position,
+    active: active ?? this.active,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
 
   factory Currency.fromJson(Map<String, dynamic> json) => Currency(
-        id: json["id"],
-        symbol: json["symbol"],
-        title: json["title"],
-        rate: json["rate"],
-        currencyDefault: json["default"],
-        position: json["position"],
-        active: json["active"],
-        createdAt: json["created_at"] == null
-            ? null
-            : DateTime.parse(json["created_at"]),
-        updatedAt: json["updated_at"] == null
-            ? null
-            : DateTime.parse(json["updated_at"]),
-      );
+    id: json["id"],
+    symbol: json["symbol"],
+    title: json["title"],
+    rate: json["rate"],
+    currencyDefault: json["default"],
+    position: json["position"],
+    active: json["active"],
+    createdAt: json["created_at"] == null
+        ? null
+        : DateTime.parse(json["created_at"]),
+    updatedAt: json["updated_at"] == null
+        ? null
+        : DateTime.parse(json["updated_at"]),
+  );
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "symbol": symbol,
-        "title": title,
-        "rate": rate,
-        "default": currencyDefault,
-        "position": position,
-        "active": active,
-        "created_at": createdAt?.toIso8601String(),
-        "updated_at": updatedAt?.toIso8601String(),
-      };
+    "id": id,
+    "symbol": symbol,
+    "title": title,
+    "rate": rate,
+    "default": currencyDefault,
+    "position": position,
+    "active": active,
+    "created_at": createdAt?.toIso8601String(),
+    "updated_at": updatedAt?.toIso8601String(),
+  };
 }

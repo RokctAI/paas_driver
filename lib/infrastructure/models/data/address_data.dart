@@ -52,17 +52,16 @@ class AddressData {
     bool? active,
     String? createdAt,
     String? updatedAt,
-  }) =>
-      AddressData(
-        id: id ?? _id,
-        title: title ?? _title,
-        address: address ?? _address,
-        location: location ?? _location,
-        isDefault: isDefault ?? _default,
-        active: active ?? _active,
-        createdAt: createdAt ?? _createdAt,
-        updatedAt: updatedAt ?? _updatedAt,
-      );
+  }) => AddressData(
+    id: id ?? _id,
+    title: title ?? _title,
+    address: address ?? _address,
+    location: location ?? _location,
+    isDefault: isDefault ?? _default,
+    active: active ?? _active,
+    createdAt: createdAt ?? _createdAt,
+    updatedAt: updatedAt ?? _updatedAt,
+  );
 
   int? get id => _id;
 

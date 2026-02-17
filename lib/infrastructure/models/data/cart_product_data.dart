@@ -1,5 +1,3 @@
-
-
 import 'product_data.dart';
 
 class CartProductData {
@@ -38,13 +36,12 @@ class CartProductData {
     String? imageUrl,
     String? title,
     Stocks? selectedStock,
-  }) =>
-      CartProductData(
-        quantity: quantity ?? _quantity,
-        imageUrl: imageUrl ?? _imageUrl,
-        title: title ?? _title,
-        selectedStock: selectedStock ?? _selectedStock,
-      );
+  }) => CartProductData(
+    quantity: quantity ?? _quantity,
+    imageUrl: imageUrl ?? _imageUrl,
+    title: title ?? _title,
+    selectedStock: selectedStock ?? _selectedStock,
+  );
 
   double? get price => _price;
 

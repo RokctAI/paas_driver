@@ -1,13 +1,9 @@
-
-
 import '../../services/local_storage.dart';
 
 class CategoryModel {
   final int page;
 
-  CategoryModel({
-    required this.page
-  });
+  CategoryModel({required this.page});
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

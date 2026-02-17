@@ -6,5 +6,5 @@ import '../state/profile_image_state.dart';
 
 final profileImageProvider =
     StateNotifierProvider<ProfileImageNotifier, ProfileImageState>(
-  (ref) => ProfileImageNotifier(userRepository, settingsRepository),
-);
+      (ref) => ProfileImageNotifier(userRepository, settingsRepository),
+    );

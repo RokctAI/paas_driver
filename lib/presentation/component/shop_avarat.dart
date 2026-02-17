@@ -72,13 +72,13 @@ class ShopAvatar extends StatelessWidget {
                     },
                   )
                 : path != null
-                    ? Image.file(
-                        File(path!),
-                        width: size.r,
-                        height: size.r,
-                        fit: BoxFit.cover,
-                      )
-                    : null,
+                ? Image.file(
+                    File(path!),
+                    width: size.r,
+                    height: size.r,
+                    fit: BoxFit.cover,
+                  )
+                : null,
           ),
         ),
       ),

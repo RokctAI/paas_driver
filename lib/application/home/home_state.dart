@@ -6,7 +6,7 @@ import 'package:driver/infrastructure/models/data/parcel_order.dart';
 part 'home_state.freezed.dart';
 
 @freezed
-class HomeState with _$HomeState {
+abstract class HomeState with _$HomeState {
   const factory HomeState({
     @Default(false) bool isLoading,
     @Default(false) bool isGoUser,

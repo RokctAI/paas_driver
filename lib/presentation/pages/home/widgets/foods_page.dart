@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:driver/application/order/order_provider.dart';
+import 'package:driver/application/order/all_order/order_provider.dart';
 import 'package:driver/infrastructure/models/data/order_detail.dart';
 
 import '../../../../infrastructure/services/services.dart';
@@ -55,48 +55,58 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
                   child: Column(
                     children: [
                       ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: hasData
-                              ? (widget.order.details?.length ?? 0)
-                              : (state.order?.details?.length ?? 0),
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(vertical: 6.h),
-                              child: Column(
-                                children: [
-                                  ProductItem(
-                                    product: hasData
-                                        ? (widget.order.details?[index].stock
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: hasData
+                            ? (widget.order.details?.length ?? 0)
+                            : (state.order?.details?.length ?? 0),
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(vertical: 6.h),
+                            child: Column(
+                              children: [
+                                ProductItem(
+                                  product: hasData
+                                      ? (widget
+                                            .order
+                                            .details?[index]
+                                            .stock
                                             ?.product)
-                                        : (state.order?.details?[index].stock
+                                      : (state
+                                            .order
+                                            ?.details?[index]
+                                            .stock
                                             ?.product),
-                                    amount: hasData
+                                  amount: hasData
+                                      ? (widget.order.details?[index].quantity)
+                                      : (state.order?.details?[index].quantity),
+                                  price: AppHelpers.numberFormat(
+                                    number: hasData
                                         ? (widget
-                                            .order.details?[index].quantity)
-                                        : (state
-                                            .order?.details?[index].quantity),
-                                    price: AppHelpers.numberFormat(
-                                        number: hasData
-                                            ? (widget.order.details?[index]
-                                                .totalPrice)
-                                            : state.order?.details?[index]
-                                                .totalPrice),
+                                              .order
+                                              .details?[index]
+                                              .totalPrice)
+                                        : state
+                                              .order
+                                              ?.details?[index]
+                                              .totalPrice,
                                   ),
-                                  if (state.order?.details?[index].note !=
-                                          null &&
-                                      state.order?.details?[index].note != '')
-                                    Text(
-                                      "${AppHelpers.getTranslation(TrKeys.note)}: ${state.order?.details?[index].note}",
-                                      style: Style.interRegular(
-                                          color: Style.blackColor,
-                                          size: 14.sp,
-                                          letterSpacing: -0.3),
+                                ),
+                                if (state.order?.details?[index].note != null &&
+                                    state.order?.details?[index].note != '')
+                                  Text(
+                                    "${AppHelpers.getTranslation(TrKeys.note)}: ${state.order?.details?[index].note}",
+                                    style: Style.interRegular(
+                                      color: Style.blackColor,
+                                      size: 14.sp,
+                                      letterSpacing: -0.3,
                                     ),
-                                ],
-                              ),
-                            );
-                          }),
+                                  ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                       _priceItem(
                         title: TrKeys.subtotal,
                         price: hasData
@@ -147,7 +157,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
           );
   }
 
-  _priceItem({
+  RenderObjectWidget _priceItem({
     required String title,
     required num? price,
     bool isTotal = false,
@@ -158,7 +168,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
         : Column(
             children: [
               2.verticalSpace,
-              Divider(color: Style.black.withOpacity(0.4)),
+              Divider(color: Style.black.withValues(alpha: 0.4)),
               2.verticalSpace,
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -183,7 +193,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
                             letterSpacing: -0.3,
                             color: isDiscount ? Style.redColor : Style.black,
                           ),
-                  )
+                  ),
                 ],
               ),
             ],

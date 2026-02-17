@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:driver/application/parcel/parcel_provider.dart';
 import 'package:driver/application/statistics/statistics_provider.dart';
 
-import '../../application/order/order_provider.dart';
+import '../../application/order/all_order/order_provider.dart';
 import '../../infrastructure/services/app_helpers.dart';
 import '../../infrastructure/services/tr_keys.dart';
 import '../styles/style.dart';
@@ -20,12 +20,13 @@ class FilterScreen extends StatefulWidget {
   final DateTime? start;
   final DateTime? end;
 
-  const FilterScreen(
-      {super.key,
-      this.isTabBar = true,
-      this.start,
-      this.end,
-      this.parcel = false});
+  const FilterScreen({
+    super.key,
+    this.isTabBar = true,
+    this.start,
+    this.end,
+    this.parcel = false,
+  });
 
   @override
   State<FilterScreen> createState() => _FilterScreenState();
@@ -38,11 +39,7 @@ class _FilterScreenState extends State<FilterScreen>
   List<DateTime?> _newList = [];
 
   final _tabs = [
-    Tab(
-      child: Text(
-        AppHelpers.getTranslation(TrKeys.today),
-      ),
-    ),
+    Tab(child: Text(AppHelpers.getTranslation(TrKeys.today))),
     Tab(
       child: Text(
         AppHelpers.getTranslation(TrKeys.weekly),
@@ -57,11 +54,7 @@ class _FilterScreenState extends State<FilterScreen>
         overflow: TextOverflow.clip,
       ),
     ),
-    Tab(
-      child: Text(
-        AppHelpers.getTranslation(TrKeys.overall),
-      ),
-    ),
+    Tab(child: Text(AppHelpers.getTranslation(TrKeys.overall))),
   ];
 
   @override
@@ -74,10 +67,7 @@ class _FilterScreenState extends State<FilterScreen>
     _tabController.addListener(() {
       switch (_tabController.index) {
         case 0:
-          _rangeDatePicker = [
-            DateTime.now(),
-            DateTime.now(),
-          ];
+          _rangeDatePicker = [DateTime.now(), DateTime.now()];
           _newList = _rangeDatePicker;
           break;
         case 1:
@@ -127,7 +117,10 @@ class _FilterScreenState extends State<FilterScreen>
           child: Text(
             AppHelpers.getTranslation(TrKeys.selectDesiredOrderHistory),
             style: Style.interNormal(
-                size: 14.sp, color: Style.black, letterSpacing: -0.3),
+              size: 14.sp,
+              color: Style.black,
+              letterSpacing: -0.3,
+            ),
           ),
         ),
         widget.isTabBar
@@ -149,26 +142,38 @@ class _FilterScreenState extends State<FilterScreen>
         16.verticalSpace,
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Consumer(builder: (context, ref, child) {
-            return CustomButton(
+          child: Consumer(
+            builder: (context, ref, child) {
+              return CustomButton(
                 title: AppHelpers.getTranslation(TrKeys.save),
                 onPressed: () {
                   widget.isTabBar
                       ? widget.parcel
-                          ? ref
-                              .read(parcelProvider.notifier)
-                              .fetchHistoryOrders(context,
-                                  start: _newList.first, end: _newList.last)
-                          : ref.read(orderProvider.notifier).fetchHistoryOrders(
-                              context,
-                              start: _newList.first,
-                              end: _newList.last)
-                      : ref.read(statisticsProvider.notifier).fetchStatistics(
-                          startTime: _newList.last ?? DateTime.now(),
-                          endTime: _newList.first ?? DateTime.now());
+                            ? ref
+                                  .read(parcelProvider.notifier)
+                                  .fetchHistoryOrders(
+                                    context,
+                                    start: _newList.first,
+                                    end: _newList.last,
+                                  )
+                            : ref
+                                  .read(orderProvider.notifier)
+                                  .fetchHistoryOrders(
+                                    context,
+                                    start: _newList.first,
+                                    end: _newList.last,
+                                  )
+                      : ref
+                            .read(statisticsProvider.notifier)
+                            .fetchStatistics(
+                              startTime: _newList.last ?? DateTime.now(),
+                              endTime: _newList.first ?? DateTime.now(),
+                            );
                   context.router.maybePop();
-                });
-          }),
+                },
+              );
+            },
+          ),
         ),
         8.verticalSpace,
       ],

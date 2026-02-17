@@ -18,7 +18,7 @@ class ParcelRepository implements ParcelRepositoryFacade {
       "statuses[2]": "ready",
       "statuses[3]": "on_a_way",
       "perPage": 10,
-      "delivery_type": "delivery"
+      "delivery_type": "delivery",
     };
     try {
       final client = dioHttp.client(requireAuth: true);
@@ -32,8 +32,9 @@ class ParcelRepository implements ParcelRepositoryFacade {
     } catch (e) {
       debugPrint('==> get active orders failure: $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -46,7 +47,7 @@ class ParcelRepository implements ParcelRepositoryFacade {
       "status": "ready",
       "empty-deliveryman": 1,
       "perPage": 10,
-      "delivery_type": "delivery"
+      "delivery_type": "delivery",
     };
     try {
       final client = dioHttp.client(requireAuth: true);
@@ -60,8 +61,9 @@ class ParcelRepository implements ParcelRepositoryFacade {
     } catch (e) {
       debugPrint('==> get canceled orders failure: $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -77,20 +79,22 @@ class ParcelRepository implements ParcelRepositoryFacade {
         '/api/v1/dashboard/deliveryman/parcel-orders$id',
         queryParameters: data,
       );
-      return ApiResult.success(
-        data: ParcelOrder.fromJson(response.data),
-      );
+      return ApiResult.success(data: ParcelOrder.fromJson(response.data));
     } catch (e) {
       debugPrint('==> get single order failure: $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
   @override
-  Future<ApiResult<List<ParcelOrder>>> getHistoryOrders(int page,
-      {DateTime? start, DateTime? end}) async {
+  Future<ApiResult<List<ParcelOrder>>> getHistoryOrders(
+    int page, {
+    DateTime? start,
+    DateTime? end,
+  }) async {
     final data = {
       'currency_id': LocalStorage.getSelectedCurrency()!.id,
       'lang': LocalStorage.getLanguage()?.locale ?? 'en',
@@ -113,8 +117,9 @@ class ParcelRepository implements ParcelRepositoryFacade {
     } catch (e) {
       debugPrint('==> get delivered orders failure: $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -125,14 +130,13 @@ class ParcelRepository implements ParcelRepositoryFacade {
       await client.post(
         '/api/v1/dashboard/deliveryman/parcel-orders$orderId/current',
       );
-      return const ApiResult.success(
-        data: null,
-      );
+      return const ApiResult.success(data: null);
     } catch (e) {
       debugPrint('==> get delivered orders failure: $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -144,14 +148,13 @@ class ParcelRepository implements ParcelRepositoryFacade {
         '/api/v1/dashboard/deliveryman/parcel-orders/$parcelId/status/update',
         data: {"status": status},
       );
-      return const ApiResult.success(
-        data: null,
-      );
+      return const ApiResult.success(data: null);
     } catch (e) {
       debugPrint('===> error statistics settings $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -161,10 +164,7 @@ class ParcelRepository implements ParcelRepositoryFacade {
     required double rating,
     required String comment,
   }) async {
-    final data = {
-      'rating': rating,
-      if (comment.isNotEmpty) 'comment': comment,
-    };
+    final data = {'rating': rating, if (comment.isNotEmpty) 'comment': comment};
     try {
       final client = dioHttp.client(requireAuth: true);
       await client.post(
@@ -175,8 +175,9 @@ class ParcelRepository implements ParcelRepositoryFacade {
     } catch (e) {
       debugPrint('==> add order review failure: $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -187,14 +188,13 @@ class ParcelRepository implements ParcelRepositoryFacade {
       final response = await client.post(
         '/api/v1/dashboard/deliveryman/parcel-order/$parcelId/attach/me',
       );
-      return ApiResult.success(
-        data: ParcelOrder.fromJson(response.data),
-      );
+      return ApiResult.success(data: ParcelOrder.fromJson(response.data));
     } catch (e) {
       debugPrint('===> error statistics settings $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 }

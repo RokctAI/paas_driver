@@ -1,13 +1,9 @@
-
 import 'package:driver/infrastructure/models/data/parcel_order.dart';
 
 import '../data/meta.dart';
 
 class ParcelPaginateResponse {
-  ParcelPaginateResponse({
-    List<ParcelOrder>? data,
-    Meta? meta,
-  }) {
+  ParcelPaginateResponse({List<ParcelOrder>? data, Meta? meta}) {
     _data = data;
     _meta = meta;
   }
@@ -25,14 +21,8 @@ class ParcelPaginateResponse {
   List<ParcelOrder>? _data;
   Meta? _meta;
 
-  ParcelPaginateResponse copyWith({
-    List<ParcelOrder>? data,
-    Meta? meta,
-  }) =>
-      ParcelPaginateResponse(
-        data: data ?? _data,
-        meta: meta ?? _meta,
-      );
+  ParcelPaginateResponse copyWith({List<ParcelOrder>? data, Meta? meta}) =>
+      ParcelPaginateResponse(data: data ?? _data, meta: meta ?? _meta);
 
   List<ParcelOrder>? get data => _data;
 

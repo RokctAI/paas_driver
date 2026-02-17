@@ -30,13 +30,12 @@ class VerifyPhoneResponse {
     bool? status,
     String? message,
     VerifyData? data,
-  }) =>
-      VerifyPhoneResponse(
-        timestamp: timestamp ?? _timestamp,
-        status: status ?? _status,
-        message: message ?? _message,
-        data: data ?? _data,
-      );
+  }) => VerifyPhoneResponse(
+    timestamp: timestamp ?? _timestamp,
+    status: status ?? _status,
+    message: message ?? _message,
+    data: data ?? _data,
+  );
 
   String? get timestamp => _timestamp;
 
@@ -59,10 +58,7 @@ class VerifyPhoneResponse {
 }
 
 class VerifyData {
-  VerifyData({
-    String? token,
-    ProfileData? user,
-  }) {
+  VerifyData({String? token, ProfileData? user}) {
     _token = token;
     _user = user;
   }
@@ -75,14 +71,8 @@ class VerifyData {
   String? _token;
   ProfileData? _user;
 
-  VerifyData copyWith({
-    String? token,
-    ProfileData? user,
-  }) =>
-      VerifyData(
-        token: token ?? _token,
-        user: user ?? _user,
-      );
+  VerifyData copyWith({String? token, ProfileData? user}) =>
+      VerifyData(token: token ?? _token, user: user ?? _user);
 
   String? get token => _token;
 

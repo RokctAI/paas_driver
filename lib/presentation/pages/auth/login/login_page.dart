@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:driver/presentation/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,6 +10,7 @@ import '../../../styles/style.dart';
 import '../../../component/components.dart';
 import '../../../../application/providers.dart';
 import '../../../../infrastructure/services/services.dart';
+
 @RoutePage()
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -28,15 +30,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   void selectLanguage() {
     AppHelpers.showCustomModalBottomSheet(
-        isDismissible: false,
-        isDrag: false,
-        context: context,
-        modal: LanguageScreen(
-          afterUpdate: (lang) {
-            ref.read(appProvider.notifier).changeLanguage(lang);
-          },
-        ),
-        isDarkMode: false);
+      isDismissible: false,
+      isDrag: false,
+      context: context,
+      modal: LanguageScreen(
+        afterUpdate: (lang) {
+          ref.read(appProvider.notifier).changeLanguage(lang);
+        },
+      ),
+      isDarkMode: false,
+    );
   }
 
   @override
@@ -55,7 +58,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         body: Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage(AppAssets.pngSplash),
+              image: AssetImage(Assets.imageBackground),
               fit: BoxFit.cover,
             ),
           ),
@@ -67,12 +70,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   30.verticalSpace,
                   Row(
                     children: [
-                      Image.asset(
-                        AppAssets.pngLogo,
-                        width: 30.r,
-                        height: 30.r,
-                      ),
-                      8.horizontalSpace,
                       Text(
                         AppHelpers.getAppName(),
                         style: Style.interBold(color: Style.white, size: 24),
@@ -81,13 +78,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   ),
                   const Spacer(),
                   CustomButton(
+                    background: Style.primary,
                     title: AppHelpers.getTranslation(TrKeys.login),
                     onPressed: () =>
                         AppHelpers.showCustomModalBottomSheetWithoutIosIcon(
-                      context: context,
-                      modal: const LoginModal(),
-                      isDarkMode: false,
-                    ),
+                          context: context,
+                          modal: const LoginModal(),
+                          isDarkMode: false,
+                        ),
                   ),
                   10.verticalSpace,
                   CustomButton(
@@ -103,7 +101,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     textColor: Style.white,
                     borderColor: Style.white,
                   ),
-                  30.verticalSpace
+                  30.verticalSpace,
                 ],
               ),
             ),

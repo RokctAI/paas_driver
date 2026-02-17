@@ -53,7 +53,8 @@ class OrderDetailData {
   Transaction? transaction;
   dynamic review;
 
-  OrderDetailData({this.id,
+  OrderDetailData({
+    this.id,
     this.userId,
     this.totalPrice,
     this.serviceFee,
@@ -83,7 +84,8 @@ class OrderDetailData {
     this.transaction,
     this.totalDiscount,
     this.couponPrice,
-    this.review});
+    this.review,
+  });
 
   OrderDetailData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -93,7 +95,7 @@ class OrderDetailData {
     originPrice = json['origin_price'];
     rate = json['rate'];
     tax = json['tax'];
-    couponPrice = json['coupon'] != null? json['coupon']["price"]: null;
+    couponPrice = json['coupon'] != null ? json['coupon']["price"] : null;
     totalDiscount = json['total_discount'];
     note = json['note'];
     afterDeliveredImage = json['image_after_delivered'];
@@ -103,10 +105,11 @@ class OrderDetailData {
     current = json["current"] == null
         ? false
         : ((json["current"].runtimeType == int)
-        ? (json["current"] == 0 ? false : true)
-        : json["current"]);
-    location =
-    json['location'] != null ? Location.fromJson(json['location']) : null;
+              ? (json["current"] == 0 ? false : true)
+              : json["current"]);
+    location = json['location'] != null
+        ? Location.fromJson(json['location'])
+        : null;
     address = (json['address'] != null)
         ? AddressModel.fromJson(json['address'])
         : null;
@@ -119,8 +122,9 @@ class OrderDetailData {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     shop = json['shop'] != null ? Shop.fromJson(json['shop']) : null;
-    currency =
-    json['currency'] != null ? Currency.fromJson(json['currency']) : null;
+    currency = json['currency'] != null
+        ? Currency.fromJson(json['currency'])
+        : null;
     user = json['user'] != null ? User.fromJson(json['user']) : null;
     if (json['details'] != null) {
       details = <Details>[];
@@ -222,7 +226,8 @@ class Shop {
   Translation? translation;
   List<String>? locales;
 
-  Shop({this.id,
+  Shop({
+    this.id,
     this.uuid,
     this.userId,
     this.price,
@@ -242,7 +247,8 @@ class Shop {
     this.location,
     this.productsCount,
     this.translation,
-    this.locales});
+    this.locales,
+  });
 
   Shop.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -253,8 +259,9 @@ class Shop {
     tax = json['tax'];
     percentage = json['percentage'];
     phone = json['phone'];
-    visibility =
-    json['visibility'].runtimeType == int ? (json['visibility'] == 1) : json['visibility'];
+    visibility = json['visibility'].runtimeType == int
+        ? (json['visibility'] == 1)
+        : json['visibility'];
     backgroundImg = json['background_img'];
     logoImg = json['logo_img'];
     minAmount = json['min_amount'];
@@ -265,8 +272,9 @@ class Shop {
         : null;
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    location =
-    json['location'] != null ? Location.fromJson(json['location']) : null;
+    location = json['location'] != null
+        ? Location.fromJson(json['location'])
+        : null;
     productsCount = json['products_count'];
     translation = json['translation'] != null
         ? Translation.fromJson(json['translation'])
@@ -336,8 +344,13 @@ class Translation {
   String? description;
   String? address;
 
-  Translation(
-      {this.id, this.locale, this.title, this.description, this.address});
+  Translation({
+    this.id,
+    this.locale,
+    this.title,
+    this.description,
+    this.address,
+  });
 
   Translation.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -398,7 +411,8 @@ class User {
   String? emailVerifiedAt;
   String? registeredAt;
 
-  User({this.id,
+  User({
+    this.id,
     this.uuid,
     this.firstname,
     this.lastname,
@@ -410,7 +424,8 @@ class User {
     this.img,
     this.role,
     this.emailVerifiedAt,
-    this.registeredAt});
+    this.registeredAt,
+  });
 
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -464,7 +479,8 @@ class Details {
   String? updatedAt;
   Stock? stock;
 
-  Details({this.id,
+  Details({
+    this.id,
     this.orderId,
     this.stockId,
     this.originPrice,
@@ -476,7 +492,8 @@ class Details {
     this.createdAt,
     this.updatedAt,
     this.stock,
-    this.note});
+    this.note,
+  });
 
   Details.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -527,14 +544,16 @@ class Stock {
   List<Extras>? extras;
   Product? product;
 
-  Stock({this.id,
+  Stock({
+    this.id,
     this.countableId,
     this.price,
     this.quantity,
     this.tax,
     this.totalPrice,
     this.extras,
-    this.product});
+    this.product,
+  });
 
   Stock.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -549,8 +568,9 @@ class Stock {
         extras?.add(Extras.fromJson(v));
       });
     }
-    product =
-    json['product'] != null ? Product.fromJson(json['product']) : null;
+    product = json['product'] != null
+        ? Product.fromJson(json['product'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -653,7 +673,8 @@ class Product {
   Unit? unit;
   List<String>? locales;
 
-  Product({this.id,
+  Product({
+    this.id,
     this.uuid,
     this.shopId,
     this.categoryId,
@@ -670,7 +691,8 @@ class Product {
     this.updatedAt,
     this.translation,
     this.unit,
-    this.locales});
+    this.locales,
+  });
 
   Product.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -692,9 +714,7 @@ class Product {
     translation = json['translation'] != null
         ? Translation.fromJson(json['translation'])
         : null;
-    unit = json['unit'] != null
-        ? Unit.fromJson(json['unit'])
-        : null;
+    unit = json['unit'] != null ? Unit.fromJson(json['unit']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -738,7 +758,8 @@ class Transaction {
   String? updatedAt;
   PaymentSystem? paymentSystem;
 
-  Transaction({this.id,
+  Transaction({
+    this.id,
     this.payableId,
     this.price,
     this.paymentTrxId,
@@ -747,7 +768,8 @@ class Transaction {
     this.statusDescription,
     this.createdAt,
     this.updatedAt,
-    this.paymentSystem});
+    this.paymentSystem,
+  });
 
   Transaction.fromJson(Map<String, dynamic> json) {
     id = json['id'];

@@ -10,8 +10,12 @@ class SectionsItem extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
-  const SectionsItem(
-      {super.key, required this.title, required this.icon, required this.onTap});
+  const SectionsItem({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +41,7 @@ class SectionsItem extends StatelessWidget {
               const Icon(
                 FlutterRemix.arrow_right_s_line,
                 color: Style.tabBarBorderColor,
-              )
+              ),
             ],
           ),
         ),

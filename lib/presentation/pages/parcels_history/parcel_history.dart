@@ -11,6 +11,7 @@ import 'package:driver/infrastructure/services/services.dart';
 import 'package:driver/presentation/component/components.dart';
 import 'package:driver/presentation/component/loading.dart';
 import 'package:driver/presentation/styles/style.dart';
+
 @RoutePage()
 class ParcelHistoryPage extends ConsumerStatefulWidget {
   const ParcelHistoryPage({super.key});
@@ -71,34 +72,38 @@ class _ParcelHistoryPageState extends ConsumerState<ParcelHistoryPage> {
                     enablePullDown: true,
                     enablePullUp: true,
                     onRefresh: () {
-                      ref.read(parcelProvider.notifier).fetchHistoryOrdersPage(
-                          context, historyController,
-                          isRefresh: true);
-                    },
-                    onLoading: () {
-                      ref.read(parcelProvider.notifier).fetchHistoryOrdersPage(
+                      ref
+                          .read(parcelProvider.notifier)
+                          .fetchHistoryOrdersPage(
                             context,
                             historyController,
+                            isRefresh: true,
                           );
+                    },
+                    onLoading: () {
+                      ref
+                          .read(parcelProvider.notifier)
+                          .fetchHistoryOrdersPage(context, historyController);
                     },
                     controller: historyController,
                     child: ListView.builder(
-                        padding: EdgeInsets.only(
-                            left: 16.r,
-                            right: 16.r,
-                            top: 30.h,
-                            bottom:
-                                MediaQuery.paddingOf(context).bottom + 42.h),
-                        shrinkWrap: true,
-                        itemCount: state.historyOrders.length,
-                        physics: const BouncingScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return ParcelItem(
-                            isOrder: false,
-                            parcel: state.historyOrders[index],
-                            isSet: false,
-                          );
-                        }),
+                      padding: EdgeInsets.only(
+                        left: 16.r,
+                        right: 16.r,
+                        top: 30.h,
+                        bottom: MediaQuery.paddingOf(context).bottom + 42.h,
+                      ),
+                      shrinkWrap: true,
+                      itemCount: state.historyOrders.length,
+                      physics: const BouncingScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return ParcelItem(
+                          isOrder: false,
+                          parcel: state.historyOrders[index],
+                          isSet: false,
+                        );
+                      },
+                    ),
                   ),
                 ),
         ],
@@ -115,23 +120,25 @@ class _ParcelHistoryPageState extends ConsumerState<ParcelHistoryPage> {
             GestureDetector(
               onTap: () {
                 AppHelpers.showCustomModalBottomSheet(
-                    paddingTop: MediaQuery.paddingOf(context).top,
-                    context: context,
-                    radius: 12,
-                    modal: const FilterScreen(
-                      parcel: true,
-                    ),
-                    isDarkMode: true);
+                  paddingTop: MediaQuery.paddingOf(context).top,
+                  context: context,
+                  radius: 12,
+                  modal: const FilterScreen(parcel: true),
+                  isDarkMode: true,
+                );
               },
               child: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Style.primaryColor,
+                  color: Style.primary,
                 ),
                 padding: EdgeInsets.all(16.r),
-                child: const Icon(FlutterRemix.equalizer_fill),
+                child: Icon(
+                  FlutterRemix.equalizer_fill,
+                  color: Style.buttonFontColor,
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),

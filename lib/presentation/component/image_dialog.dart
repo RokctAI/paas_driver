@@ -19,7 +19,7 @@ class ImageDialog extends StatelessWidget {
       padding: REdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Style.white,
-        borderRadius: BorderRadius.circular(12)
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -34,17 +34,16 @@ class ImageDialog extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Padding(
-                    padding: REdgeInsets.all(4),
-                    child: const Icon(FlutterRemix.close_circle_line),
-                  )),
+                onTap: () => Navigator.pop(context),
+                child: Padding(
+                  padding: REdgeInsets.all(4),
+                  child: const Icon(FlutterRemix.close_circle_line),
+                ),
+              ),
             ],
           ),
           12.verticalSpace,
-          CommonImage(
-            imageUrl: img,
-          ),
+          CommonImage(imageUrl: img),
         ],
       ),
     );

@@ -28,13 +28,12 @@ class GalleryUploadResponse {
     bool? status,
     String? message,
     ImageData? imageData,
-  }) =>
-      GalleryUploadResponse(
-        timestamp: timestamp ?? _timestamp,
-        status: status ?? _status,
-        message: message ?? _message,
-        imageData: imageData ?? _imageData,
-      );
+  }) => GalleryUploadResponse(
+    timestamp: timestamp ?? _timestamp,
+    status: status ?? _status,
+    message: message ?? _message,
+    imageData: imageData ?? _imageData,
+  );
 
   String? get timestamp => _timestamp;
 
@@ -70,10 +69,8 @@ class ImageData {
   String? _title;
   String? _type;
 
-  ImageData copyWith({String? title, String? type}) => ImageData(
-        title: title ?? _title,
-        type: type ?? _type,
-      );
+  ImageData copyWith({String? title, String? type}) =>
+      ImageData(title: title ?? _title, type: type ?? _type);
 
   String? get title => _title;
 

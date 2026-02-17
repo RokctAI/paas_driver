@@ -1,13 +1,8 @@
-
-
 import '../data/meta.dart';
 import 'order_detail.dart';
 
 class OrderPaginateResponse {
-  OrderPaginateResponse({
-    List<OrderDetailData>? data,
-    Meta? meta,
-  }) {
+  OrderPaginateResponse({List<OrderDetailData>? data, Meta? meta}) {
     _data = data;
     _meta = meta;
   }
@@ -25,14 +20,8 @@ class OrderPaginateResponse {
   List<OrderDetailData>? _data;
   Meta? _meta;
 
-  OrderPaginateResponse copyWith({
-    List<OrderDetailData>? data,
-    Meta? meta,
-  }) =>
-      OrderPaginateResponse(
-        data: data ?? _data,
-        meta: meta ?? _meta,
-      );
+  OrderPaginateResponse copyWith({List<OrderDetailData>? data, Meta? meta}) =>
+      OrderPaginateResponse(data: data ?? _data, meta: meta ?? _meta);
 
   List<OrderDetailData>? get data => _data;
 

@@ -48,26 +48,27 @@ class Data {
   DeliveryMan? deliveryMan;
   List<Galleries>? galleries;
 
-  Data(
-      {this.id,
-      this.userId,
-      this.typeOfTechnique,
-      this.brand,
-      this.model,
-      this.number,
-      this.color,
-      this.width,
-      this.height,
-      this.kg,
-      this.length,
-      this.price,
-      this.pricePerKm,
-      this.online,
-      this.location,
-      this.createdAt,
-      this.updatedAt,
-      this.deliveryMan,
-      this.galleries});
+  Data({
+    this.id,
+    this.userId,
+    this.typeOfTechnique,
+    this.brand,
+    this.model,
+    this.number,
+    this.color,
+    this.width,
+    this.height,
+    this.kg,
+    this.length,
+    this.price,
+    this.pricePerKm,
+    this.online,
+    this.location,
+    this.createdAt,
+    this.updatedAt,
+    this.deliveryMan,
+    this.galleries,
+  });
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -86,8 +87,9 @@ class Data {
     online = json['online'].runtimeType == int
         ? json['online'] == 1
         : json['online'];
-    location =
-        json['location'] != null ? Location.fromJson(json['location']) : null;
+    location = json['location'] != null
+        ? Location.fromJson(json['location'])
+        : null;
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     deliveryMan = json['deliveryMan'] != null
@@ -162,18 +164,19 @@ class DeliveryMan {
   String? emailVerifiedAt;
   String? registeredAt;
 
-  DeliveryMan(
-      {this.id,
-      this.uuid,
-      this.firstname,
-      this.lastname,
-      this.email,
-      this.phone,
-      this.active,
-      this.img,
-      this.role,
-      this.emailVerifiedAt,
-      this.registeredAt});
+  DeliveryMan({
+    this.id,
+    this.uuid,
+    this.firstname,
+    this.lastname,
+    this.email,
+    this.phone,
+    this.active,
+    this.img,
+    this.role,
+    this.emailVerifiedAt,
+    this.registeredAt,
+  });
 
   DeliveryMan.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -217,14 +220,15 @@ class Galleries {
   String? path;
   String? basePath;
 
-  Galleries(
-      {this.id,
-      this.title,
-      this.type,
-      this.loadableType,
-      this.loadableId,
-      this.path,
-      this.basePath});
+  Galleries({
+    this.id,
+    this.title,
+    this.type,
+    this.loadableType,
+    this.loadableId,
+    this.path,
+    this.basePath,
+  });
 
   Galleries.fromJson(Map<String, dynamic> json) {
     id = json['id'];

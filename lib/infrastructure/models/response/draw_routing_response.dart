@@ -1,8 +1,7 @@
-
-
 import 'dart:convert';
 
-DrawRouting drawRoutingFromJson(String str) => DrawRouting.fromJson(json.decode(str));
+DrawRouting drawRoutingFromJson(String str) =>
+    DrawRouting.fromJson(json.decode(str));
 
 String drawRoutingToJson(DrawRouting data) => json.encode(data.toJson());
 
@@ -21,11 +20,13 @@ class DrawRouting {
 
   factory DrawRouting.fromJson(Map<String, dynamic> json) {
     return DrawRouting(
-    type: json["type"],
-    features: List<Feature>.from(json["features"].map((x) => Feature.fromJson(x))),
-    bbox: List<double>.from(json["bbox"].map((x) => x.toDouble())),
-    metadata: Metadata.fromJson(json["metadata"]),
-  );
+      type: json["type"],
+      features: List<Feature>.from(
+        json["features"].map((x) => Feature.fromJson(x)),
+      ),
+      bbox: List<double>.from(json["bbox"].map((x) => x.toDouble())),
+      metadata: Metadata.fromJson(json["metadata"]),
+    );
   }
 
   Map<String, dynamic> toJson() => {
@@ -65,21 +66,24 @@ class Feature {
 }
 
 class Geometry {
-  Geometry({
-    required this.coordinates,
-    required this.type,
-  });
+  Geometry({required this.coordinates, required this.type});
 
   List<List<double>> coordinates;
   String type;
 
   factory Geometry.fromJson(Map<String, dynamic> json) => Geometry(
-    coordinates: List<List<double>>.from(json["coordinates"].map((x) => List<double>.from(x.map((x) => x.toDouble())))),
+    coordinates: List<List<double>>.from(
+      json["coordinates"].map(
+        (x) => List<double>.from(x.map((x) => x.toDouble())),
+      ),
+    ),
     type: json["type"],
   );
 
   Map<String, dynamic> toJson() => {
-    "coordinates": List<dynamic>.from(coordinates.map((x) => List<dynamic>.from(x.map((x) => x)))),
+    "coordinates": List<dynamic>.from(
+      coordinates.map((x) => List<dynamic>.from(x.map((x) => x))),
+    ),
     "type": type,
   };
 }
@@ -96,7 +100,9 @@ class Properties {
   List<num> wayPoints;
 
   factory Properties.fromJson(Map<String, dynamic> json) => Properties(
-    segments: List<Segment>.from(json["segments"].map((x) => Segment.fromJson(x))),
+    segments: List<Segment>.from(
+      json["segments"].map((x) => Segment.fromJson(x)),
+    ),
     summary: Summary.fromJson(json["summary"]),
     wayPoints: List<int>.from(json["way_points"].map((x) => x)),
   );
@@ -169,10 +175,7 @@ class Step {
 }
 
 class Summary {
-  Summary({
-    required this.distance,
-    required this.duration,
-  });
+  Summary({required this.distance, required this.duration});
 
   num distance;
   num duration;
@@ -182,10 +185,7 @@ class Summary {
     duration: json["duration"],
   );
 
-  Map<String, dynamic> toJson() => {
-    "distance": distance,
-    "duration": duration,
-  };
+  Map<String, dynamic> toJson() => {"distance": distance, "duration": duration};
 }
 
 class Metadata {
@@ -233,8 +233,10 @@ class Engine {
 
   factory Engine.fromJson(Map<String, dynamic> json) => Engine(
     version: json["version"],
-    buildDate: DateTime.tryParse(json["build_date"])?.toLocal() ?? DateTime.now(),
-    graphDate: DateTime.tryParse(json["graph_date"])?.toLocal() ?? DateTime.now(),
+    buildDate:
+        DateTime.tryParse(json["build_date"])?.toLocal() ?? DateTime.now(),
+    graphDate:
+        DateTime.tryParse(json["graph_date"])?.toLocal() ?? DateTime.now(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -256,13 +258,19 @@ class Query {
   String format;
 
   factory Query.fromJson(Map<String, dynamic> json) => Query(
-    coordinates: List<List<double>>.from(json["coordinates"].map((x) => List<double>.from(x.map((x) => x.toDouble())))),
+    coordinates: List<List<double>>.from(
+      json["coordinates"].map(
+        (x) => List<double>.from(x.map((x) => x.toDouble())),
+      ),
+    ),
     profile: json["profile"],
     format: json["format"],
   );
 
   Map<String, dynamic> toJson() => {
-    "coordinates": List<dynamic>.from(coordinates.map((x) => List<dynamic>.from(x.map((x) => x)))),
+    "coordinates": List<dynamic>.from(
+      coordinates.map((x) => List<dynamic>.from(x.map((x) => x))),
+    ),
     "profile": profile,
     "format": format,
   };

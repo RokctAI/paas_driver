@@ -21,11 +21,12 @@ class OrderDetail extends StatelessWidget {
   final bool isOrder;
   final bool isActiveButton;
 
-  const OrderDetail(
-      {super.key,
-      this.isOrder = false,
-      required this.order,
-      this.isActiveButton = false});
+  const OrderDetail({
+    super.key,
+    this.isOrder = false,
+    required this.order,
+    this.isActiveButton = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,10 +35,7 @@ class OrderDetail extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
       shrinkWrap: true,
       children: [
-        OrderItem(
-          order: order,
-          isSetCurrentOrder: isOrder && isActiveButton,
-        ),
+        OrderItem(order: order, isSetCurrentOrder: isOrder && isActiveButton),
         isOrder
             ? Column(
                 children: [
@@ -46,11 +44,10 @@ class OrderDetail extends StatelessWidget {
                     title: AppHelpers.getTranslation(TrKeys.orderInformation),
                     onPressed: () {
                       AppHelpers.showCustomModalBottomSheet(
-                          context: context,
-                          modal: FoodsPage(
-                            order: order,
-                          ),
-                          isDarkMode: false);
+                        context: context,
+                        modal: FoodsPage(order: order),
+                        isDarkMode: false,
+                      );
                     },
                     background: Style.transparent,
                     borderColor: Style.black,
@@ -60,57 +57,81 @@ class OrderDetail extends StatelessWidget {
                     builder: (context, ref, child) {
                       return CustomButton(
                         isLoading: ref.watch(homeProvider).isLoading,
-                        title: AppHelpers.getTranslation(isOrder
-                            ? (order.status != "on_a_way"
-                                ? TrKeys.startShopping
-                                : TrKeys.completeCheckout)
-                            : TrKeys.order),
+                        title: AppHelpers.getTranslation(
+                          isOrder
+                              ? (order.status != "on_a_way"
+                                    ? TrKeys.startShopping
+                                    : TrKeys.completeCheckout)
+                              : TrKeys.order,
+                        ),
                         onPressed: () async {
                           if (order.deliveryman == null) {
                             final ImageCropperMarker image =
                                 ImageCropperMarker();
-                            ref.read(homeProvider.notifier).goMarket(
-                                context: context,
-                                orderId: order.id.toString(),
-                                setOrder: !isActiveButton && true,
-                                order: order,
-                                onSuccess: () async {
-                                  ref.read(homeProvider.notifier).getRoutingAll(
-                                      context: context,
-                                      start: LatLng(
-                                          LocalStorage.getAddressSelected()
-                                                  ?.latitude ??
-                                              AppConstants.demoLatitude,
-                                          LocalStorage.getAddressSelected()
-                                                  ?.longitude ??
-                                              AppConstants.demoLongitude),
-                                      end: LatLng(
-                                        double.parse(
-                                            order.shop?.location?.latitude ??
-                                                "0"),
-                                        double.parse(
-                                            order.shop?.location?.longitude ??
-                                                "0"),
-                                      ),
-                                      market: Marker(
-                                          markerId: const MarkerId("Shop"),
-                                          position: LatLng(
-                                            double.parse(order
-                                                    .shop?.location?.latitude ??
-                                                "41.285127"),
-                                            double.parse(order.shop?.location
+                            ref
+                                .read(homeProvider.notifier)
+                                .goMarket(
+                                  context: context,
+                                  orderId: order.id.toString(),
+                                  setOrder: !isActiveButton && true,
+                                  order: order,
+                                  onSuccess: () async {
+                                    ref
+                                        .read(homeProvider.notifier)
+                                        .getRoutingAll(
+                                          context: context,
+                                          start: LatLng(
+                                            LocalStorage.getAddressSelected()
+                                                    ?.latitude ??
+                                                AppConstants.demoLatitude,
+                                            LocalStorage.getAddressSelected()
                                                     ?.longitude ??
-                                                "69.172530"),
+                                                AppConstants.demoLongitude,
                                           ),
-                                          icon: await image.resizeAndCircle(
-                                              order.shop?.logoImg ?? "", 120)));
-                                  context.router.popUntilRoot();
-                                });
+                                          end: LatLng(
+                                            double.parse(
+                                              order.shop?.location?.latitude ??
+                                                  "0",
+                                            ),
+                                            double.parse(
+                                              order.shop?.location?.longitude ??
+                                                  "0",
+                                            ),
+                                          ),
+                                          market: Marker(
+                                            markerId: const MarkerId("Shop"),
+                                            position: LatLng(
+                                              double.parse(
+                                                order
+                                                        .shop
+                                                        ?.location
+                                                        ?.latitude ??
+                                                    "41.285127",
+                                              ),
+                                              double.parse(
+                                                order
+                                                        .shop
+                                                        ?.location
+                                                        ?.longitude ??
+                                                    "69.172530",
+                                              ),
+                                            ),
+                                            icon: await image.resizeAndCircle(
+                                              order.shop?.logoImg ?? "",
+                                              120,
+                                            ),
+                                          ),
+                                        );
+                                    context.router.popUntilRoot();
+                                  },
+                                );
                           } else {
                             final ImageCropperMarker image =
                                 ImageCropperMarker();
                             if (order.status != "on_a_way") {
-                              ref.read(homeProvider.notifier).getRoutingAll(
+                              ref
+                                  .read(homeProvider.notifier)
+                                  .getRoutingAll(
                                     context: context,
                                     start: LatLng(
                                       LocalStorage.getAddressSelected()
@@ -122,28 +143,36 @@ class OrderDetail extends StatelessWidget {
                                     ),
                                     end: LatLng(
                                       double.parse(
-                                          order.shop?.location?.latitude ??
-                                              "41.285127"),
+                                        order.shop?.location?.latitude ??
+                                            "41.285127",
+                                      ),
                                       double.parse(
-                                          order.shop?.location?.longitude ??
-                                              "69.172530"),
+                                        order.shop?.location?.longitude ??
+                                            "69.172530",
+                                      ),
                                     ),
                                     market: Marker(
                                       markerId: const MarkerId("Shop"),
                                       position: LatLng(
                                         double.parse(
-                                            order.shop?.location?.latitude ??
-                                                "41.285127"),
+                                          order.shop?.location?.latitude ??
+                                              "41.285127",
+                                        ),
                                         double.parse(
-                                            order.shop?.location?.longitude ??
-                                                "69.172530"),
+                                          order.shop?.location?.longitude ??
+                                              "69.172530",
+                                        ),
                                       ),
                                       icon: await image.resizeAndCircle(
-                                          order.shop?.logoImg ?? "", 120),
+                                        order.shop?.logoImg ?? "",
+                                        120,
+                                      ),
                                     ),
                                   );
                             } else {
-                              ref.read(homeProvider.notifier).getRoutingAll(
+                              ref
+                                  .read(homeProvider.notifier)
+                                  .getRoutingAll(
                                     context: context,
                                     start: LatLng(
                                       LocalStorage.getAddressSelected()
@@ -154,36 +183,50 @@ class OrderDetail extends StatelessWidget {
                                           AppConstants.demoLongitude,
                                     ),
                                     end: LatLng(
-                                      double.parse(order.location?.latitude ??
-                                          "41.285127"),
-                                      double.parse(order.location?.longitude ??
-                                          "69.172530"),
+                                      double.parse(
+                                        order.location?.latitude ?? "41.285127",
+                                      ),
+                                      double.parse(
+                                        order.location?.longitude ??
+                                            "69.172530",
+                                      ),
                                     ),
                                     market: Marker(
                                       markerId: const MarkerId("User"),
                                       position: LatLng(
-                                        double.parse(order.location?.latitude ??
-                                            "41.285127"),
                                         double.parse(
-                                            order.location?.longitude ??
-                                                "69.172530"),
+                                          order.location?.latitude ??
+                                              "41.285127",
+                                        ),
+                                        double.parse(
+                                          order.location?.longitude ??
+                                              "69.172530",
+                                        ),
                                       ),
                                       icon: await image.resizeAndCircle(
-                                          order.user?.img ?? "", 120),
+                                        order.user?.img ?? "",
+                                        120,
+                                      ),
                                     ),
                                   );
                             }
                             order.status != "on_a_way"
-                                ? ref.read(homeProvider.notifier).goMarket(
-                                      context: context,
-                                      orderId: "",
-                                      order: order,
-                                      setOrder: !isActiveButton,
-                                      onSuccess: () {},
-                                    )
+                                ? ref
+                                      .read(homeProvider.notifier)
+                                      .goMarket(
+                                        context: context,
+                                        orderId: "",
+                                        order: order,
+                                        setOrder: !isActiveButton,
+                                        onSuccess: () {},
+                                      )
                                 : ref
-                                    .read(homeProvider.notifier)
-                                    .goClient(context, order.id, order: order);
+                                      .read(homeProvider.notifier)
+                                      .goClient(
+                                        context,
+                                        order.id,
+                                        order: order,
+                                      );
                             Navigator.pop(context);
                             Navigator.pop(context);
                           }
@@ -197,42 +240,42 @@ class OrderDetail extends StatelessWidget {
             : Column(
                 children: [
                   16.verticalSpace,
-                  if(order.afterDeliveredImage != null)
-                  GestureDetector(
-                    onTap: () {
-                      AppHelpers.showAlertDialog(
-                        context: context,
-                        child: ImageDialog(img: order.afterDeliveredImage),
-                      );
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(top: 8.h),
-                      decoration: BoxDecoration(
-                        color: Style.transparent,
-                        border: Border.all(color: Style.black),
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      padding: REdgeInsets.all(16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            AppHelpers.getTranslation(TrKeys.orderImage),
-                            style: Style.interNormal(
-                              size: 14.sp,
-                              color: Style.blackColor,
-                              letterSpacing: -0.3,
+                  if (order.afterDeliveredImage != null)
+                    GestureDetector(
+                      onTap: () {
+                        AppHelpers.showAlertDialog(
+                          context: context,
+                          child: ImageDialog(img: order.afterDeliveredImage),
+                        );
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(top: 8.h),
+                        decoration: BoxDecoration(
+                          color: Style.transparent,
+                          border: Border.all(color: Style.black),
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        padding: REdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              AppHelpers.getTranslation(TrKeys.orderImage),
+                              style: Style.interNormal(
+                                size: 14.sp,
+                                color: Style.blackColor,
+                                letterSpacing: -0.3,
+                              ),
                             ),
-                          ),
-                          12.horizontalSpace,
-                          const Icon(FlutterRemix.gallery_fill),
-                        ],
+                            12.horizontalSpace,
+                            const Icon(FlutterRemix.gallery_fill),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
                   16.verticalSpace,
                 ],
-              )
+              ),
       ],
     );
   }

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
+import '../../../../component/tab_bars/auth_tab_bar.dart';
 import '../../../../styles/style.dart';
 import '../../../../component/components.dart';
 import '../../../../routes/app_router.gr.dart';
@@ -19,9 +20,27 @@ class LoginModal extends ConsumerStatefulWidget {
   ConsumerState<LoginModal> createState() => _LoginModalState();
 }
 
-class _LoginModalState extends ConsumerState<LoginModal> {
+class _LoginModalState extends ConsumerState<LoginModal>
+    with SingleTickerProviderStateMixin {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: AppHelpers.getAuthOption() == SignUpType.email ? 1 : 0,
+    );
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +56,7 @@ class _LoginModalState extends ConsumerState<LoginModal> {
           child: Container(
             margin: MediaQuery.viewInsetsOf(context),
             decoration: BoxDecoration(
-              color: Style.greyColor.withOpacity(0.96),
+              color: Style.greyColor.withValues(alpha: 0.96),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(16.r),
                 topRight: Radius.circular(16.r),
@@ -58,98 +77,142 @@ class _LoginModalState extends ConsumerState<LoginModal> {
                           title: AppHelpers.getTranslation(TrKeys.login),
                         ),
                         20.verticalSpace,
-                        if (AppConstants.isSpecificNumberEnabled)
-                          Directionality(
-                            textDirection:
-                                isLtr ? TextDirection.ltr : TextDirection.rtl,
-                            child: IntlPhoneField(
-                              disableLengthCheck:
-                                  !AppConstants.isNumberLengthAlwaysSame,
-                              onChanged: (phoneNum) {
-                                event.setEmail(phoneNum.completeNumber);
-                              },
-                              validator: (s) {
-                                if (state.isLoginError) {
-                                  return AppHelpers.getTranslation(
-                                      TrKeys.loginCredentialsAreNotValid);
-                                }
-                                if (AppConstants.isNumberLengthAlwaysSame &&
-                                    (s?.isValidNumber() ?? true)) {
-                                  return AppHelpers.getTranslation(
-                                      TrKeys.phoneNumberIsNotValid);
-                                }
-                                return null;
-                              },
-                              keyboardType: TextInputType.phone,
-                              initialCountryCode: AppConstants.countryCodeISO,
-                              invalidNumberMessage: AppHelpers.getTranslation(
-                                  state.isLoginError
-                                      ? TrKeys.loginCredentialsAreNotValid
-                                      : TrKeys.phoneNumberIsNotValid),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly
+                        if (AppHelpers.getAuthOption() == SignUpType.both)
+                          Padding(
+                            padding: REdgeInsets.only(bottom: 24),
+                            child: AuthTabBar(
+                              tabController: _tabController,
+                              tabs: [
+                                AuthTab(
+                                  text: TrKeys.phone,
+                                  icon: FlutterRemix.phone_fill,
+                                ),
+                                AuthTab(
+                                  text: TrKeys.email,
+                                  icon: FlutterRemix.mail_fill,
+                                ),
                               ],
-                              showCountryFlag: AppConstants.showFlag,
-                              showDropdownIcon: AppConstants.showArrowIcon,
-                              autovalidateMode: state.isLoginError
-                                  ? AutovalidateMode.always
-                                  : AppConstants.isNumberLengthAlwaysSame
-                                      ? AutovalidateMode.onUserInteraction
-                                      : AutovalidateMode.disabled,
-                              textAlignVertical: TextAlignVertical.center,
-                              decoration: InputDecoration(
-                                counterText: '',
-                                enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide.merge(
-                                        const BorderSide(
-                                            color: Style.differBorderColor),
-                                        const BorderSide(
-                                            color: Style.differBorderColor))),
-                                errorBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide.merge(
-                                        const BorderSide(
-                                            color: Style.differBorderColor),
-                                        const BorderSide(
-                                            color: Style.differBorderColor))),
-                                border: const UnderlineInputBorder(),
-                                focusedErrorBorder:
-                                    const UnderlineInputBorder(),
-                                disabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide.merge(
-                                        const BorderSide(
-                                            color: Style.differBorderColor),
-                                        const BorderSide(
-                                            color: Style.differBorderColor))),
-                                focusedBorder: const UnderlineInputBorder(),
-                              ),
                             ),
                           ),
-                        if (!AppConstants.isSpecificNumberEnabled)
-                          UnderlinedBorderTextField(
-                            inputType: TextInputType.emailAddress,
-                            textCapitalization: TextCapitalization.none,
-                            textController: emailController,
-                            textInputAction: TextInputAction.next,
-                            label:
-                                AppHelpers.getTranslation(TrKeys.emailOrPhone)
-                                    .toUpperCase(),
-                            onChanged: event.setEmail,
-                            isError:
-                                state.isEmailNotValid || state.isLoginError,
-                            descriptionText: state.isLoginError
-                                ? AppHelpers.getTranslation(
-                                    TrKeys.loginCredentialsAreNotValid)
-                                : (state.isEmailNotValid
+                        SizedBox(
+                          height: 76.r,
+                          child: TabBarView(
+                            controller: _tabController,
+                            physics: NeverScrollableScrollPhysics(),
+                            children: [
+                              Directionality(
+                                textDirection: isLtr
+                                    ? TextDirection.ltr
+                                    : TextDirection.rtl,
+                                child: IntlPhoneField(
+                                  disableLengthCheck:
+                                      !AppConstants.isNumberLengthAlwaysSame,
+                                  onChanged: (phoneNum) {
+                                    event.setEmail(phoneNum.completeNumber);
+                                  },
+                                  validator: (s) {
+                                    if (state.isLoginError) {
+                                      return AppHelpers.getTranslation(
+                                        TrKeys.loginCredentialsAreNotValid,
+                                      );
+                                    }
+                                    if (AppConstants.isNumberLengthAlwaysSame &&
+                                        (s?.isValidNumber() ?? true)) {
+                                      return AppHelpers.getTranslation(
+                                        TrKeys.phoneNumberIsNotValid,
+                                      );
+                                    }
+                                    return null;
+                                  },
+                                  keyboardType: TextInputType.phone,
+                                  initialCountryCode:
+                                      AppConstants.countryCodeISO,
+                                  invalidNumberMessage:
+                                      AppHelpers.getTranslation(
+                                        state.isLoginError
+                                            ? TrKeys.loginCredentialsAreNotValid
+                                            : TrKeys.phoneNumberIsNotValid,
+                                      ),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                  ],
+                                  showCountryFlag: AppConstants.showFlag,
+                                  showDropdownIcon: AppConstants.showArrowIcon,
+                                  autovalidateMode: state.isLoginError
+                                      ? AutovalidateMode.always
+                                      : AppConstants.isNumberLengthAlwaysSame
+                                      ? AutovalidateMode.onUserInteraction
+                                      : AutovalidateMode.disabled,
+                                  textAlignVertical: TextAlignVertical.center,
+                                  decoration: InputDecoration(
+                                    counterText: '',
+                                    enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide.merge(
+                                        const BorderSide(
+                                          color: Style.shimmerBase,
+                                        ),
+                                        const BorderSide(
+                                          color: Style.shimmerBase,
+                                        ),
+                                      ),
+                                    ),
+                                    errorBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide.merge(
+                                        const BorderSide(
+                                          color: Style.shimmerBase,
+                                        ),
+                                        const BorderSide(
+                                          color: Style.shimmerBase,
+                                        ),
+                                      ),
+                                    ),
+                                    border: const UnderlineInputBorder(),
+                                    focusedErrorBorder:
+                                        const UnderlineInputBorder(),
+                                    disabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide.merge(
+                                        const BorderSide(
+                                          color: Style.differBorderColor,
+                                        ),
+                                        const BorderSide(
+                                          color: Style.differBorderColor,
+                                        ),
+                                      ),
+                                    ),
+                                    focusedBorder: const UnderlineInputBorder(),
+                                  ),
+                                ),
+                              ),
+                              UnderlinedBorderTextField(
+                                inputType: TextInputType.emailAddress,
+                                textCapitalization: TextCapitalization.none,
+                                textController: emailController,
+                                textInputAction: TextInputAction.next,
+                                label: AppHelpers.getTranslation(
+                                  TrKeys.email,
+                                ).toUpperCase(),
+                                onChanged: event.setEmail,
+                                isError:
+                                    state.isEmailNotValid || state.isLoginError,
+                                descriptionText: state.isLoginError
                                     ? AppHelpers.getTranslation(
-                                        TrKeys.cannotBeEmpty)
-                                    : null),
+                                        TrKeys.loginCredentialsAreNotValid,
+                                      )
+                                    : state.isEmailNotValid
+                                    ? AppHelpers.getTranslation(
+                                        TrKeys.emailIsNotValid,
+                                      )
+                                    : null,
+                              ),
+                            ],
                           ),
-                        34.verticalSpace,
+                        ),
                         UnderlinedBorderTextField(
                           textInputAction: TextInputAction.done,
                           textCapitalization: TextCapitalization.none,
-                          label: AppHelpers.getTranslation(TrKeys.password)
-                              .toUpperCase(),
+                          label: AppHelpers.getTranslation(
+                            TrKeys.password,
+                          ).toUpperCase(),
                           obscure: state.showPassword,
                           textController: passwordController,
                           suffixIcon: ButtonsBouncingEffect(
@@ -171,11 +234,14 @@ class _LoginModalState extends ConsumerState<LoginModal> {
                               state.isPasswordNotValid || state.isLoginError,
                           descriptionText: state.isLoginError
                               ? AppHelpers.getTranslation(
-                                  TrKeys.loginCredentialsAreNotValid)
+                                  TrKeys.loginCredentialsAreNotValid,
+                                )
                               : (state.isPasswordNotValid
-                                  ? AppHelpers.getTranslation(TrKeys
-                                      .passwordShouldContainMinimum8Characters)
-                                  : null),
+                                    ? AppHelpers.getTranslation(
+                                        TrKeys
+                                            .passwordShouldContainMinimum8Characters,
+                                      )
+                                    : null),
                         ),
                         30.verticalSpace,
                         Row(
@@ -234,12 +300,14 @@ class _LoginModalState extends ConsumerState<LoginModal> {
                           isLoading: state.isLoading,
                           onPressed: () {
                             event.login(
+                              index: _tabController.index,
                               context: context,
                               checkYourNetwork: () {
                                 AppHelpers.showCheckTopSnackBar(
                                   context,
                                   AppHelpers.getTranslation(
-                                      TrKeys.checkYourNetworkConnection),
+                                    TrKeys.checkYourNetworkConnection,
+                                  ),
                                 );
                               },
                               loginSuccess: () {
@@ -263,15 +331,18 @@ class _LoginModalState extends ConsumerState<LoginModal> {
                                   Row(
                                     children: <Widget>[
                                       const Expanded(
-                                        child:
-                                            Divider(color: Style.shimmerBase),
+                                        child: Divider(
+                                          color: Style.shimmerBase,
+                                        ),
                                       ),
                                       Padding(
                                         padding: REdgeInsets.symmetric(
-                                            horizontal: 12),
+                                          horizontal: 12,
+                                        ),
                                         child: Text(
                                           AppHelpers.getTranslation(
-                                              TrKeys.demoLoginPassword),
+                                            TrKeys.demoLoginPassword,
+                                          ),
                                           style: Style.interNormal(
                                             size: 12.sp,
                                             color: Style.textColor,
@@ -279,22 +350,29 @@ class _LoginModalState extends ConsumerState<LoginModal> {
                                         ),
                                       ),
                                       const Expanded(
-                                        child:
-                                            Divider(color: Style.shimmerBase),
+                                        child: Divider(
+                                          color: Style.shimmerBase,
+                                        ),
                                       ),
                                     ],
                                   ),
                                   22.verticalSpace,
                                   InkWell(
                                     onTap: () {
+                                      _tabController.animateTo(
+                                        1,
+                                        duration: Duration(milliseconds: 300),
+                                      );
                                       emailController.text =
                                           AppConstants.demoSellerLogin;
                                       passwordController.text =
                                           AppConstants.demoSellerPassword;
                                       event.setEmail(
-                                          AppConstants.demoSellerLogin);
+                                        AppConstants.demoSellerLogin,
+                                      );
                                       event.setPassword(
-                                          AppConstants.demoSellerPassword);
+                                        AppConstants.demoSellerPassword,
+                                      );
                                     },
                                     child: Column(
                                       crossAxisAlignment:
@@ -305,7 +383,8 @@ class _LoginModalState extends ConsumerState<LoginModal> {
                                             text:
                                                 '${AppHelpers.getTranslation(TrKeys.login)}:',
                                             style: Style.interNormal(
-                                                letterSpacing: -0.3),
+                                              letterSpacing: -0.3,
+                                            ),
                                             children: [
                                               TextSpan(
                                                 text:
@@ -314,7 +393,7 @@ class _LoginModalState extends ConsumerState<LoginModal> {
                                                   letterSpacing: -0.3,
                                                   fontStyle: FontStyle.italic,
                                                 ),
-                                              )
+                                              ),
                                             ],
                                           ),
                                         ),
@@ -324,7 +403,8 @@ class _LoginModalState extends ConsumerState<LoginModal> {
                                             text:
                                                 '${AppHelpers.getTranslation(TrKeys.password)}:',
                                             style: Style.interNormal(
-                                                letterSpacing: -0.3),
+                                              letterSpacing: -0.3,
+                                            ),
                                             children: [
                                               TextSpan(
                                                 text:
@@ -333,7 +413,7 @@ class _LoginModalState extends ConsumerState<LoginModal> {
                                                   letterSpacing: -0.3,
                                                   fontStyle: FontStyle.italic,
                                                 ),
-                                              )
+                                              ),
                                             ],
                                           ),
                                         ),

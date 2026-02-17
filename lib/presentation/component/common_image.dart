@@ -47,13 +47,13 @@ class CommonImage extends StatelessWidget {
               width: width?.r,
               height: height?.r,
               fit: fit ?? BoxFit.cover,
-              progressIndicatorBuilder: (_, __, ___) => Container(
+              progressIndicatorBuilder: (_, _, _) => Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(radius.r),
                   color: Style.white,
                 ),
               ),
-              errorWidget: (_, __, ___) => Container(
+              errorWidget: (_, _, _) => Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10.r),
                   color: errorBackground ?? Style.greyColor,
@@ -61,7 +61,7 @@ class CommonImage extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Icon(
                   FlutterRemix.image_line,
-                  color: Style.black.withOpacity(0.5),
+                  color: Style.black.withValues(alpha: 0.5),
                   size: 20.r,
                 ),
               ),

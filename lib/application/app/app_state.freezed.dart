@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,137 +9,263 @@ part of 'app_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
 /// @nodoc
 mixin _$AppState {
-  LanguageData? get activeLanguage => throw _privateConstructorUsedError;
 
-  /// Create a copy of AppState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $AppStateCopyWith<AppState> get copyWith =>
-      throw _privateConstructorUsedError;
+ LanguageData? get activeLanguage;
+/// Create a copy of AppState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AppStateCopyWith<AppState> get copyWith => _$AppStateCopyWithImpl<AppState>(this as AppState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppState&&(identical(other.activeLanguage, activeLanguage) || other.activeLanguage == activeLanguage));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,activeLanguage);
+
+@override
+String toString() {
+  return 'AppState(activeLanguage: $activeLanguage)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $AppStateCopyWith<$Res> {
-  factory $AppStateCopyWith(AppState value, $Res Function(AppState) then) =
-      _$AppStateCopyWithImpl<$Res, AppState>;
-  @useResult
-  $Res call({LanguageData? activeLanguage});
-}
+abstract mixin class $AppStateCopyWith<$Res>  {
+  factory $AppStateCopyWith(AppState value, $Res Function(AppState) _then) = _$AppStateCopyWithImpl;
+@useResult
+$Res call({
+ LanguageData? activeLanguage
+});
 
+
+
+
+}
 /// @nodoc
-class _$AppStateCopyWithImpl<$Res, $Val extends AppState>
+class _$AppStateCopyWithImpl<$Res>
     implements $AppStateCopyWith<$Res> {
-  _$AppStateCopyWithImpl(this._value, this._then);
+  _$AppStateCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final AppState _self;
+  final $Res Function(AppState) _then;
 
-  /// Create a copy of AppState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? activeLanguage = freezed,
-  }) {
-    return _then(_value.copyWith(
-      activeLanguage: freezed == activeLanguage
-          ? _value.activeLanguage
-          : activeLanguage // ignore: cast_nullable_to_non_nullable
-              as LanguageData?,
-    ) as $Val);
-  }
+/// Create a copy of AppState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? activeLanguage = freezed,}) {
+  return _then(_self.copyWith(
+activeLanguage: freezed == activeLanguage ? _self.activeLanguage : activeLanguage // ignore: cast_nullable_to_non_nullable
+as LanguageData?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [AppState].
+extension AppStatePatterns on AppState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _AppState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _AppState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _AppState value)  $default,){
+final _that = this;
+switch (_that) {
+case _AppState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _AppState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _AppState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( LanguageData? activeLanguage)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _AppState() when $default != null:
+return $default(_that.activeLanguage);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( LanguageData? activeLanguage)  $default,) {final _that = this;
+switch (_that) {
+case _AppState():
+return $default(_that.activeLanguage);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( LanguageData? activeLanguage)?  $default,) {final _that = this;
+switch (_that) {
+case _AppState() when $default != null:
+return $default(_that.activeLanguage);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
-abstract class _$$AppStateImplCopyWith<$Res>
-    implements $AppStateCopyWith<$Res> {
-  factory _$$AppStateImplCopyWith(
-          _$AppStateImpl value, $Res Function(_$AppStateImpl) then) =
-      __$$AppStateImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({LanguageData? activeLanguage});
+
+
+class _AppState extends AppState {
+  const _AppState({this.activeLanguage}): super._();
+  
+
+@override final  LanguageData? activeLanguage;
+
+/// Create a copy of AppState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AppStateCopyWith<_AppState> get copyWith => __$AppStateCopyWithImpl<_AppState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppState&&(identical(other.activeLanguage, activeLanguage) || other.activeLanguage == activeLanguage));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,activeLanguage);
+
+@override
+String toString() {
+  return 'AppState(activeLanguage: $activeLanguage)';
+}
+
+
 }
 
 /// @nodoc
-class __$$AppStateImplCopyWithImpl<$Res>
-    extends _$AppStateCopyWithImpl<$Res, _$AppStateImpl>
-    implements _$$AppStateImplCopyWith<$Res> {
-  __$$AppStateImplCopyWithImpl(
-      _$AppStateImpl _value, $Res Function(_$AppStateImpl) _then)
-      : super(_value, _then);
+abstract mixin class _$AppStateCopyWith<$Res> implements $AppStateCopyWith<$Res> {
+  factory _$AppStateCopyWith(_AppState value, $Res Function(_AppState) _then) = __$AppStateCopyWithImpl;
+@override @useResult
+$Res call({
+ LanguageData? activeLanguage
+});
 
-  /// Create a copy of AppState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? activeLanguage = freezed,
-  }) {
-    return _then(_$AppStateImpl(
-      activeLanguage: freezed == activeLanguage
-          ? _value.activeLanguage
-          : activeLanguage // ignore: cast_nullable_to_non_nullable
-              as LanguageData?,
-    ));
-  }
+
+
+
 }
-
 /// @nodoc
+class __$AppStateCopyWithImpl<$Res>
+    implements _$AppStateCopyWith<$Res> {
+  __$AppStateCopyWithImpl(this._self, this._then);
 
-class _$AppStateImpl extends _AppState {
-  const _$AppStateImpl({this.activeLanguage}) : super._();
+  final _AppState _self;
+  final $Res Function(_AppState) _then;
 
-  @override
-  final LanguageData? activeLanguage;
-
-  @override
-  String toString() {
-    return 'AppState(activeLanguage: $activeLanguage)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$AppStateImpl &&
-            (identical(other.activeLanguage, activeLanguage) ||
-                other.activeLanguage == activeLanguage));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, activeLanguage);
-
-  /// Create a copy of AppState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$AppStateImplCopyWith<_$AppStateImpl> get copyWith =>
-      __$$AppStateImplCopyWithImpl<_$AppStateImpl>(this, _$identity);
+/// Create a copy of AppState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? activeLanguage = freezed,}) {
+  return _then(_AppState(
+activeLanguage: freezed == activeLanguage ? _self.activeLanguage : activeLanguage // ignore: cast_nullable_to_non_nullable
+as LanguageData?,
+  ));
 }
 
-abstract class _AppState extends AppState {
-  const factory _AppState({final LanguageData? activeLanguage}) =
-      _$AppStateImpl;
-  const _AppState._() : super._();
 
-  @override
-  LanguageData? get activeLanguage;
-
-  /// Create a copy of AppState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$AppStateImplCopyWith<_$AppStateImpl> get copyWith =>
-      throw _privateConstructorUsedError;
 }
+
+// dart format on

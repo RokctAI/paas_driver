@@ -29,9 +29,7 @@ class _RateCustomerState extends State<RateCustomer> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 16.w,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -54,10 +52,8 @@ class _RateCustomerState extends State<RateCustomer> {
             ),
             padding: EdgeInsets.all(16.r),
             child: RatingBar.builder(
-              itemBuilder: (context, index) => const Icon(
-                FlutterRemix.star_fill,
-                color: Style.primaryColor,
-              ),
+              itemBuilder: (context, index) =>
+                  Icon(FlutterRemix.star_fill, color: Style.primary),
               itemCount: 5,
               itemPadding: EdgeInsets.symmetric(horizontal: 11.r),
               direction: Axis.horizontal,
@@ -76,20 +72,25 @@ class _RateCustomerState extends State<RateCustomer> {
                 title: AppHelpers.getTranslation(TrKeys.send),
                 onPressed: () {
                   Navigator.pop(context);
-                  if(widget.order == null){
-                    ref.read(homeProvider.notifier).addReviewParcel(
-                        context: context,
-                        parcelId: widget.parcel?.id,
-                        rating: rate,
-                        comment: note);
-                  }else{
-                    ref.read(homeProvider.notifier).addReview(
-                        context: context,
-                        orderId: widget.order?.id,
-                        rating: rate,
-                        comment: note);
+                  if (widget.order == null) {
+                    ref
+                        .read(homeProvider.notifier)
+                        .addReviewParcel(
+                          context: context,
+                          parcelId: widget.parcel?.id,
+                          rating: rate,
+                          comment: note,
+                        );
+                  } else {
+                    ref
+                        .read(homeProvider.notifier)
+                        .addReview(
+                          context: context,
+                          orderId: widget.order?.id,
+                          rating: rate,
+                          comment: note,
+                        );
                   }
-
                 },
               );
             },
@@ -128,7 +129,7 @@ class _RateCustomerState extends State<RateCustomer> {
                   ? AppHelpers.getTranslation(TrKeys.noteAboutClient)
                   : note,
               style: Style.interRegular(size: 13.sp, color: Style.black),
-            )
+            ),
           ],
         ),
       ),

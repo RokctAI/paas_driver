@@ -62,16 +62,15 @@ class ApproveOrderDialog extends StatelessWidget {
                           ref
                               .read(homeProvider.notifier)
                               .goClientParcel(context, parcel?.id);
-                          ref.read(homeProvider.notifier).getRoutingAll(
+                          ref
+                              .read(homeProvider.notifier)
+                              .getRoutingAll(
                                 // ignore: use_build_context_synchronously
                                 context: context,
                                 start: LatLng(
-                                  LocalStorage
-                                          .getAddressSelected()
-                                          ?.latitude ??
+                                  LocalStorage.getAddressSelected()?.latitude ??
                                       AppConstants.demoLatitude,
-                                  LocalStorage
-                                          .getAddressSelected()
+                                  LocalStorage.getAddressSelected()
                                           ?.longitude ??
                                       AppConstants.demoLongitude,
                                 ),
@@ -94,35 +93,40 @@ class ApproveOrderDialog extends StatelessWidget {
                           ref
                               .read(homeProvider.notifier)
                               .goClient(context, order?.id);
-                          ref.read(homeProvider.notifier).getRoutingAll(
+                          ref
+                              .read(homeProvider.notifier)
+                              .getRoutingAll(
                                 // ignore: use_build_context_synchronously
                                 context: context,
                                 start: LatLng(
-                                  LocalStorage
-                                          .getAddressSelected()
-                                          ?.latitude ??
+                                  LocalStorage.getAddressSelected()?.latitude ??
                                       AppConstants.demoLatitude,
-                                  LocalStorage
-                                          .getAddressSelected()
+                                  LocalStorage.getAddressSelected()
                                           ?.longitude ??
                                       AppConstants.demoLongitude,
                                 ),
                                 end: LatLng(
                                   double.parse(
-                                      order?.location?.latitude ?? "0"),
+                                    order?.location?.latitude ?? "0",
+                                  ),
                                   double.parse(
-                                      order?.location?.longitude ?? "0"),
+                                    order?.location?.longitude ?? "0",
+                                  ),
                                 ),
                                 market: Marker(
                                   markerId: const MarkerId("User"),
                                   position: LatLng(
                                     double.parse(
-                                        order?.location?.latitude ?? "0"),
+                                      order?.location?.latitude ?? "0",
+                                    ),
                                     double.parse(
-                                        order?.location?.longitude ?? "0"),
+                                      order?.location?.longitude ?? "0",
+                                    ),
                                   ),
                                   icon: await image.resizeAndCircle(
-                                      order?.user?.img ?? "", 100),
+                                    order?.user?.img ?? "",
+                                    100,
+                                  ),
                                 ),
                               );
                         }
@@ -130,9 +134,9 @@ class ApproveOrderDialog extends StatelessWidget {
                     );
                   },
                 ),
-              )
+              ),
             ],
-          )
+          ),
         ],
       ),
     );

@@ -90,8 +90,9 @@ class OrderData {
     _transaction = json['transaction'] != null
         ? Transaction.fromJson(json['transaction'])
         : null;
-    _orderAddress =
-        json['address'] != null ? OrderAddress.fromJson(json['address']) : null;
+    _orderAddress = json['address'] != null
+        ? OrderAddress.fromJson(json['address'])
+        : null;
     _review = json['review'];
     _note = json['note'];
     _seen = false;
@@ -147,32 +148,31 @@ class OrderData {
     dynamic review,
     String? note,
     bool? seen,
-  }) =>
-      OrderData(
-        id: id ?? _id,
-        userId: userId ?? _userId,
-        totalPrice: totalPrice ?? _totalPrice,
-        rate: rate ?? _rate,
-        tax: tax ?? _tax,
-        commissionFee: commissionFee ?? _commissionFee,
-        status: status ?? _status,
-        location: location ?? _location,
-        deliveryType: deliveryType ?? _deliveryType,
-        deliveryFee: deliveryFee ?? _deliveryFee,
-        deliveryman: deliveryman ?? _deliveryman,
-        deliveryDate: deliveryDate ?? _deliveryDate,
-        deliveryTime: deliveryTime ?? _deliveryTime,
-        createdAt: createdAt ?? _createdAt,
-        updatedAt: updatedAt ?? _updatedAt,
-        shop: shop ?? _shop,
-        currency: currency ?? _currency,
-        user: user ?? _user,
-        details: details ?? _details,
-        transaction: transaction ?? _transaction,
-        review: review ?? _review,
-        note: note ?? _note,
-        seen: seen ?? _seen,
-      );
+  }) => OrderData(
+    id: id ?? _id,
+    userId: userId ?? _userId,
+    totalPrice: totalPrice ?? _totalPrice,
+    rate: rate ?? _rate,
+    tax: tax ?? _tax,
+    commissionFee: commissionFee ?? _commissionFee,
+    status: status ?? _status,
+    location: location ?? _location,
+    deliveryType: deliveryType ?? _deliveryType,
+    deliveryFee: deliveryFee ?? _deliveryFee,
+    deliveryman: deliveryman ?? _deliveryman,
+    deliveryDate: deliveryDate ?? _deliveryDate,
+    deliveryTime: deliveryTime ?? _deliveryTime,
+    createdAt: createdAt ?? _createdAt,
+    updatedAt: updatedAt ?? _updatedAt,
+    shop: shop ?? _shop,
+    currency: currency ?? _currency,
+    user: user ?? _user,
+    details: details ?? _details,
+    transaction: transaction ?? _transaction,
+    review: review ?? _review,
+    note: note ?? _note,
+    seen: seen ?? _seen,
+  );
 
   int? get id => _id;
 
@@ -304,8 +304,9 @@ class OrderDetail {
     _tax = json['tax'];
     _discount = json['discount'];
     _quantity = json['quantity'];
-    _bonus =
-        json['bonus'].runtimeType == int ? (json['bonus'] != 0) : json['bonus'];
+    _bonus = json['bonus'].runtimeType == int
+        ? (json['bonus'] != 0)
+        : json['bonus'];
     _createdAt = json['created_at'];
     _updatedAt = json['updated_at'];
     _stock = json['stock'] != null ? Stock.fromJson(json['stock']) : null;
@@ -348,23 +349,22 @@ class OrderDetail {
     Stock? stock,
     List<AddonData>? addons,
     bool? isChecked,
-  }) =>
-      OrderDetail(
-        id: id ?? _id,
-        orderId: orderId ?? _orderId,
-        stockId: stockId ?? _stockId,
-        originPrice: originPrice ?? _originPrice,
-        totalPrice: totalPrice ?? _totalPrice,
-        tax: tax ?? _tax,
-        discount: discount ?? _discount,
-        quantity: quantity ?? _quantity,
-        bonus: bonus ?? _bonus,
-        createdAt: createdAt ?? _createdAt,
-        updatedAt: updatedAt ?? _updatedAt,
-        stock: stock ?? _stock,
-        addons: addons ?? _addons,
-        isChecked: isChecked ?? _isChecked,
-      );
+  }) => OrderDetail(
+    id: id ?? _id,
+    orderId: orderId ?? _orderId,
+    stockId: stockId ?? _stockId,
+    originPrice: originPrice ?? _originPrice,
+    totalPrice: totalPrice ?? _totalPrice,
+    tax: tax ?? _tax,
+    discount: discount ?? _discount,
+    quantity: quantity ?? _quantity,
+    bonus: bonus ?? _bonus,
+    createdAt: createdAt ?? _createdAt,
+    updatedAt: updatedAt ?? _updatedAt,
+    stock: stock ?? _stock,
+    addons: addons ?? _addons,
+    isChecked: isChecked ?? _isChecked,
+  );
 
   int? get id => _id;
 
@@ -481,20 +481,19 @@ class Transaction {
     String? createdAt,
     String? updatedAt,
     PaymentData? paymentSystem,
-  }) =>
-      Transaction(
-        id: id ?? _id,
-        payableId: payableId ?? _payableId,
-        price: price ?? _price,
-        paymentTrxId: paymentTrxId ?? _paymentTrxId,
-        note: note ?? _note,
-        performTime: performTime ?? _performTime,
-        status: status ?? _status,
-        statusDescription: statusDescription ?? _statusDescription,
-        createdAt: createdAt ?? _createdAt,
-        updatedAt: updatedAt ?? _updatedAt,
-        paymentSystem: paymentSystem ?? _paymentSystem,
-      );
+  }) => Transaction(
+    id: id ?? _id,
+    payableId: payableId ?? _payableId,
+    price: price ?? _price,
+    paymentTrxId: paymentTrxId ?? _paymentTrxId,
+    note: note ?? _note,
+    performTime: performTime ?? _performTime,
+    status: status ?? _status,
+    statusDescription: statusDescription ?? _statusDescription,
+    createdAt: createdAt ?? _createdAt,
+    updatedAt: updatedAt ?? _updatedAt,
+    paymentSystem: paymentSystem ?? _paymentSystem,
+  );
 
   int? get id => _id;
 
@@ -567,13 +566,12 @@ class OrderAddress {
     String? office,
     String? house,
     String? floor,
-  }) =>
-      OrderAddress(
-        address: address ?? _address,
-        office: office ?? _office,
-        house: house ?? _house,
-        floor: floor ?? _floor,
-      );
+  }) => OrderAddress(
+    address: address ?? _address,
+    office: office ?? _office,
+    house: house ?? _house,
+    floor: floor ?? _floor,
+  );
 
   String? get address => _address;
 

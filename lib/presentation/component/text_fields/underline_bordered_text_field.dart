@@ -22,6 +22,7 @@ class UnderlinedBorderTextField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final VoidCallback? onTap;
   final String? Function(String?)? validator;
+
   const UnderlinedBorderTextField({
     super.key,
     required this.label,
@@ -38,7 +39,8 @@ class UnderlinedBorderTextField extends StatelessWidget {
     this.textCapitalization,
     this.textInputAction,
     this.hint,
-    this.onTap, this.validator,
+    this.onTap,
+    this.validator,
   });
 
   @override
@@ -47,7 +49,7 @@ class UnderlinedBorderTextField extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children:[
+      children: [
         TextFormField(
           validator: validator,
           onTap: onTap,
@@ -66,11 +68,13 @@ class UnderlinedBorderTextField extends StatelessWidget {
           initialValue: initialText,
           readOnly: readOnly,
           textCapitalization:
-          textCapitalization ?? TextCapitalization.sentences,
+              textCapitalization ?? TextCapitalization.sentences,
           textInputAction: textInputAction,
           decoration: InputDecoration(
             suffixIconConstraints: BoxConstraints(
-                maxHeight: suffixIcon !=null ? 80.h : 30.h, maxWidth: suffixIcon !=null ? 80.w: 30.w),
+              maxHeight: suffixIcon != null ? 80.h : 30.h,
+              maxWidth: suffixIcon != null ? 80.w : 30.w,
+            ),
             suffixIcon: suffixIcon,
             hintText: hint,
             hintStyle: GoogleFonts.inter(
@@ -79,22 +83,19 @@ class UnderlinedBorderTextField extends StatelessWidget {
               color: isDarkMode ? Style.white : Style.textColor,
             ),
             labelText: label.toUpperCase(),
-            labelStyle: Style.interNormal(
-              size: 14.sp,
-              color: Style.black,
-            ),
+            labelStyle: Style.interNormal(size: 14.sp, color: Style.black),
             contentPadding: REdgeInsets.symmetric(horizontal: 0, vertical: 8),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             enabledBorder: const UnderlineInputBorder(
-                borderSide: BorderSide(color: Style.shimmerBase)),
+              borderSide: BorderSide(color: Style.shimmerBase),
+            ),
             errorBorder: InputBorder.none,
             border: const UnderlineInputBorder(),
             focusedErrorBorder: const UnderlineInputBorder(),
             disabledBorder: const UnderlineInputBorder(
-                borderSide: BorderSide(color: Style.shimmerBase)),
-            focusedBorder: const UnderlineInputBorder(
-
+              borderSide: BorderSide(color: Style.shimmerBase),
             ),
+            focusedBorder: const UnderlineInputBorder(),
           ),
         ),
         if (descriptionText != null)
@@ -117,7 +118,7 @@ class UnderlinedBorderTextField extends StatelessWidget {
                 ),
               ),
             ],
-          )
+          ),
       ],
     );
   }

@@ -1,7 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:driver/domain/interface/interfaces.dart';
 import 'package:driver/infrastructure/services/services.dart';
@@ -12,71 +11,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
   final UserRepository _userRepository;
 
   LoginNotifier(this._authRepository, this._userRepository)
-      : super(const LoginState());
-
-  Future<void> loginWithGoogle({
-    required BuildContext context,
-    VoidCallback? checkYourNetwork,
-    Function(String)? errorOccurred,
-    VoidCallback? loginSuccess,
-    VoidCallback? youAreNotDeliveryman,
-  }) async {
-    if (await AppConnectivity.connectivity()) {
-      state = state.copyWith(isGoogleLoading: true);
-      GoogleSignInAccount? googleUser;
-      try {
-        googleUser = await GoogleSignIn().signIn();
-      } catch (e) {
-        state = state.copyWith(isGoogleLoading: false);
-        debugPrint('===> login with google exception: $e');
-        if (errorOccurred != null) {
-          errorOccurred(e.toString());
-        }
-      }
-      if (googleUser == null) {
-        state = state.copyWith(isGoogleLoading: false);
-        return;
-      }
-      final response = await _authRepository.loginWithSocial(
-        email: googleUser.email,
-        displayName: googleUser.displayName,
-        id: googleUser.id,
-      );
-      response.when(
-        success: (data) async {
-          if (data.data?.user?.role != 'deliveryman') {
-            state = state.copyWith(isGoogleLoading: false);
-            final GoogleSignIn signIn = GoogleSignIn();
-            signIn.disconnect();
-            signIn.signOut();
-            youAreNotDeliveryman?.call();
-            return;
-          }
-          LocalStorage.setToken(data.data?.accessToken ?? '');
-          await getProfileDetails(context);
-          String? fcmToken;
-          try {
-            fcmToken = await FirebaseMessaging.instance.getToken();
-          } catch (e) {
-            debugPrint('===> error with getting firebase token $e');
-          }
-          _userRepository.updateFirebaseToken(fcmToken);
-          state = state.copyWith(isGoogleLoading: false);
-          loginSuccess?.call();
-        },
-        failure: (failure, status) {
-          debugPrint('===> login error google $failure');
-          state = state.copyWith(isGoogleLoading: false);
-          AppHelpers.showCheckTopSnackBar(
-            context,
-            AppHelpers.getTranslation(failure),
-          );
-        },
-      );
-    } else {
-      checkYourNetwork?.call();
-    }
-  }
+    : super(const LoginState());
 
   Future<void> getProfileDetails(BuildContext context) async {
     final response = await _userRepository.getProfileDetails();
@@ -105,6 +40,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
       isLoginError: false,
       isEmailNotValid: false,
       isPasswordNotValid: false,
+      isPhoneNotValid: false,
     );
   }
 
@@ -121,11 +57,19 @@ class LoginNotifier extends StateNotifier<LoginState> {
     VoidCallback? checkYourNetwork,
     VoidCallback? youAreNotDeliveryman,
     VoidCallback? loginSuccess,
+    required int index,
   }) async {
     if (await AppConnectivity.connectivity()) {
-      if (AppValidators.emptyCheck(state.email)?.isNotEmpty ?? false) {
-        state = state.copyWith(isEmailNotValid: true);
-        return;
+      if(index == 0) {
+        if (!AppValidators.isValidPhone(state.email)) {
+          state=state.copyWith(isPhoneNotValid: true);
+          return;
+        }
+      }else {
+        if (!AppValidators.isValidEmail(state.email)) {
+          state=state.copyWith(isEmailNotValid: true);
+          return;
+        }
       }
       if (!AppValidators.isValidPassword(state.password)) {
         state = state.copyWith(isPasswordNotValid: true);
@@ -148,7 +92,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
           }
           _userRepository.updateFirebaseToken(fcmToken);
 
-          state = state.copyWith(isLoading: false, isLoginError: true);
+          state = state.copyWith(isLoading: false, isLoginError: false);
           if (data.data?.user?.role != 'deliveryman') {
             youAreNotDeliveryman?.call();
           } else {
@@ -169,91 +113,91 @@ class LoginNotifier extends StateNotifier<LoginState> {
     }
   }
 
-// Future<void> loginWithGoogle(BuildContext context) async {
-//   final connected = await AppConnectivity.connectivity();
-//   if (connected) {
-//     state = state.copyWith(isLoading: true);
-//     GoogleSignInAccount? googleUser;
-//     try {
-//       googleUser = await GoogleSignIn().signIn();
-//     } catch (e) {
-//       state = state.copyWith(isLoading: false);
-//       debugPrint('===> login with google exception: $e');
-//       if (context.mounted) {
-//         AppHelpers.showCheckTopSnackBar(
-//           context,
-//           AppHelpers.getTranslation(e.toString()),
-//         );
-//       }
-//     }
-//     if (googleUser == null) {
-//       state = state.copyWith(isLoading: false);
-//       return;
-//     }
-//     final response = await _authRepository.loginWithGoogle(
-//       email: googleUser.email,
-//       displayName: googleUser.displayName ?? '',
-//       id: googleUser.id,
-//     );
-//     response.when(
-//       success: (data) async {
-//         LocalStorage.setToken(data.data?.accessToken ?? '');
-//         String? fcmToken;
-//         try {
-//           fcmToken = await FirebaseMessaging.instance.getToken();
-//         } catch (e) {
-//           debugPrint('===> error with getting firebase token');
-//         }
-//         _userRepository.updateFirebaseToken(fcmToken);
-//         final addressResponse = await _addressRepository.getUserAddresses();
-//         addressResponse.when(
-//           success: (addressData) {
-//             log('===> getting address data: $addressData');
-//             state = state.copyWith(isLoading: false);
-//           },
-//           failure: (addressFailure) {
-//             state = state.copyWith(isLoading: false);
-//             debugPrint('==> address failure: $addressFailure');
-//           },
-//         );
-//       },
-//       failure: (failure) {},
-//     );
-//   } else {
-//     if (context.mounted) {
-//       AppHelpers.showNoConnectionSnackBar(context);
-//     }
-//   }
-// }
-//
-// Future<void> loginWithFacebook(BuildContext context) async {
-//   final connected = await AppConnectivity.connectivity();
-//   if (connected) {
-//     state = state.copyWith(isLoading: true);
-//     AccessToken? accessToken = await FacebookAuth.instance.accessToken;
-//     if (accessToken != null) {
-//       final LoginResult loginResult = await FacebookAuth.instance.login();
-//       if (loginResult.status == LoginStatus.success) {
-//         final userData = await FacebookAuth.instance.getUserData();
-//         debugPrint('==> facebook auth email: ${userData['email']}');
-//         debugPrint('==> facebook auth name: ${userData['name']}');
-//         debugPrint('==> facebook auth id: ${userData['id']}');
-//       }
-//       accessToken = loginResult.accessToken;
-//     } else {
-//       final userData = await FacebookAuth.instance.getUserData();
-//       debugPrint('==> facebook auth email: ${userData['email']}');
-//       debugPrint('==> facebook auth name: ${userData['name']}');
-//       debugPrint('==> facebook auth id: ${userData['id']}');
-//     }
-//     state = state.copyWith(isLoading: false);
-//   } else {
-//     if (context.mounted) {
-//       AppHelpers.showCheckTopSnackBar(
-//         context,
-//         AppHelpers.getTranslation(TrKeys.checkYourNetworkConnection),
-//       );
-//     }
-//   }
-// }
+  // Future<void> loginWithGoogle(BuildContext context) async {
+  //   final connected = await AppConnectivity.connectivity();
+  //   if (connected) {
+  //     state = state.copyWith(isLoading: true);
+  //     GoogleSignInAccount? googleUser;
+  //     try {
+  //       googleUser = await GoogleSignIn().signIn();
+  //     } catch (e) {
+  //       state = state.copyWith(isLoading: false);
+  //       debugPrint('===> login with google exception: $e');
+  //       if (context.mounted) {
+  //         AppHelpers.showCheckTopSnackBar(
+  //           context,
+  //           AppHelpers.getTranslation(e.toString()),
+  //         );
+  //       }
+  //     }
+  //     if (googleUser == null) {
+  //       state = state.copyWith(isLoading: false);
+  //       return;
+  //     }
+  //     final response = await _authRepository.loginWithGoogle(
+  //       email: googleUser.email,
+  //       displayName: googleUser.displayName ?? '',
+  //       id: googleUser.id,
+  //     );
+  //     response.when(
+  //       success: (data) async {
+  //         LocalStorage.setToken(data.data?.accessToken ?? '');
+  //         String? fcmToken;
+  //         try {
+  //           fcmToken = await FirebaseMessaging.instance.getToken();
+  //         } catch (e) {
+  //           debugPrint('===> error with getting firebase token');
+  //         }
+  //         _userRepository.updateFirebaseToken(fcmToken);
+  //         final addressResponse = await _addressRepository.getUserAddresses();
+  //         addressResponse.when(
+  //           success: (addressData) {
+  //             log('===> getting address data: $addressData');
+  //             state = state.copyWith(isLoading: false);
+  //           },
+  //           failure: (addressFailure) {
+  //             state = state.copyWith(isLoading: false);
+  //             debugPrint('==> address failure: $addressFailure');
+  //           },
+  //         );
+  //       },
+  //       failure: (failure) {},
+  //     );
+  //   } else {
+  //     if (context.mounted) {
+  //       AppHelpers.showNoConnectionSnackBar(context);
+  //     }
+  //   }
+  // }
+  //
+  // Future<void> loginWithFacebook(BuildContext context) async {
+  //   final connected = await AppConnectivity.connectivity();
+  //   if (connected) {
+  //     state = state.copyWith(isLoading: true);
+  //     AccessToken? accessToken = await FacebookAuth.instance.accessToken;
+  //     if (accessToken != null) {
+  //       final LoginResult loginResult = await FacebookAuth.instance.login();
+  //       if (loginResult.status == LoginStatus.success) {
+  //         final userData = await FacebookAuth.instance.getUserData();
+  //         debugPrint('==> facebook auth email: ${userData['email']}');
+  //         debugPrint('==> facebook auth name: ${userData['name']}');
+  //         debugPrint('==> facebook auth id: ${userData['id']}');
+  //       }
+  //       accessToken = loginResult.accessToken;
+  //     } else {
+  //       final userData = await FacebookAuth.instance.getUserData();
+  //       debugPrint('==> facebook auth email: ${userData['email']}');
+  //       debugPrint('==> facebook auth name: ${userData['name']}');
+  //       debugPrint('==> facebook auth id: ${userData['id']}');
+  //     }
+  //     state = state.copyWith(isLoading: false);
+  //   } else {
+  //     if (context.mounted) {
+  //       AppHelpers.showCheckTopSnackBar(
+  //         context,
+  //         AppHelpers.getTranslation(TrKeys.checkYourNetworkConnection),
+  //       );
+  //     }
+  //   }
+  // }
 }

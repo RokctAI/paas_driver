@@ -5,5 +5,5 @@ import 'push_order_state.dart';
 
 final pushOrderProvider =
     StateNotifierProvider.autoDispose<PushOrderNotifier, PushOrderState>(
-  (_) => PushOrderNotifier(),
-);
+      (_) => PushOrderNotifier(),
+    );

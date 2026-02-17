@@ -8,6 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:driver/application/providers.dart';
 import 'package:driver/presentation/component/components.dart';
 import 'package:driver/presentation/styles/style.dart';
+
 @RoutePage()
 class StoryPage extends ConsumerStatefulWidget {
   const StoryPage({super.key});
@@ -37,20 +38,20 @@ class _StoryPageState extends ConsumerState<StoryPage>
 
   @override
   void initState() {
-    controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 5),
-    )..addListener(() {
-      setState(() {});
-      if (controller.value > 0.99) {
-        if (ref.watch(storyProvider).currentIndex == 2) {
-          context.router.maybePop();
-        }
-        pageController.nextPage(
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeIn);
-      }
-    });
+    controller =
+        AnimationController(vsync: this, duration: const Duration(seconds: 5))
+          ..addListener(() {
+            setState(() {});
+            if (controller.value > 0.99) {
+              if (ref.watch(storyProvider).currentIndex == 2) {
+                context.router.maybePop();
+              }
+              pageController.nextPage(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeIn,
+              );
+            }
+          });
     controller.repeat();
     super.initState();
   }
@@ -72,18 +73,19 @@ class _StoryPageState extends ConsumerState<StoryPage>
     final state = ref.watch(storyProvider);
     final event = ref.read(storyProvider.notifier);
     return Scaffold(
-        body: Stack(
-          children: [
-            PageView(
-              physics: const ClampingScrollPhysics(),
-              controller: pageController,
-              onPageChanged: (s) {
-                event.changeIndex(s);
-                controller.reset();
-                controller.repeat();
-              },
-              children: [
-                ...image.map((e) => Stack(
+      body: Stack(
+        children: [
+          PageView(
+            physics: const ClampingScrollPhysics(),
+            controller: pageController,
+            onPageChanged: (s) {
+              event.changeIndex(s);
+              controller.reset();
+              controller.repeat();
+            },
+            children: [
+              ...image.map(
+                (e) => Stack(
                   children: [
                     Container(
                       width: MediaQuery.sizeOf(context).width,
@@ -93,10 +95,10 @@ class _StoryPageState extends ConsumerState<StoryPage>
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Style.primaryColor.withOpacity(0.26),
-                            Style.primaryColor.withOpacity(0),
-                            Style.primaryColor.withOpacity(0),
-                            Style.primaryColor.withOpacity(0.26)
+                            Style.primary.withValues(alpha: 0.26),
+                            Style.primary.withValues(alpha: 0),
+                            Style.primary.withValues(alpha: 0),
+                            Style.primary.withValues(alpha: 0.26),
                           ],
                         ),
                       ),
@@ -108,8 +110,8 @@ class _StoryPageState extends ConsumerState<StoryPage>
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Style.black.withOpacity(0.4),
-                              Style.black.withOpacity(0.4)
+                              Style.black.withValues(alpha: 0.4),
+                              Style.black.withValues(alpha: 0.4),
                             ],
                           ),
                         ),
@@ -119,10 +121,7 @@ class _StoryPageState extends ConsumerState<StoryPage>
                           height: MediaQuery.sizeOf(context).height,
                           fit: BoxFit.cover,
                           progressIndicatorBuilder: (context, url, progress) {
-                            return const ImageShimmer(
-                              isCircle: false,
-                              size: 0,
-                            );
+                            return const ImageShimmer(isCircle: false, size: 0);
                           },
                           errorWidget: (context, url, error) {
                             return Container(
@@ -149,7 +148,9 @@ class _StoryPageState extends ConsumerState<StoryPage>
                             Text(
                               titles[image.indexOf(e)],
                               style: Style.interNormal(
-                                  size: 32.sp, color: Style.white),
+                                size: 32.sp,
+                                color: Style.white,
+                              ),
                             ),
                             24.verticalSpace,
                           ],
@@ -161,8 +162,9 @@ class _StoryPageState extends ConsumerState<StoryPage>
                         GestureDetector(
                           onTap: () {
                             pageController.previousPage(
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.easeIn);
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.easeIn,
+                            );
                           },
                           child: Container(
                             height: MediaQuery.sizeOf(context).height,
@@ -173,8 +175,9 @@ class _StoryPageState extends ConsumerState<StoryPage>
                         GestureDetector(
                           onTap: () {
                             pageController.nextPage(
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.easeIn);
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.easeIn,
+                            );
                           },
                           child: Container(
                             height: MediaQuery.sizeOf(context).height,
@@ -202,58 +205,63 @@ class _StoryPageState extends ConsumerState<StoryPage>
                       ),
                     ),
                   ],
-                ))
-              ],
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: SafeArea(
-                child: Container(
-                  height: 4.h,
-                  width: MediaQuery.sizeOf(context).width,
-                  margin: EdgeInsets.only(left: 20.w, bottom: 10.h),
-                  child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: 3,
-                      itemBuilder: (context, index) {
-                        return AnimatedContainer(
-                          margin: EdgeInsets.only(right: 8.w),
-                          height: 4.h,
-                          width: (MediaQuery.sizeOf(context).width - 60.w) / 3,
-                          decoration: BoxDecoration(
-                            color: state.currentIndex >= index
-                                ? Style.primaryColor
-                                : Style.white,
-                            borderRadius: BorderRadius.circular(122.r),
-                          ),
-                          duration: const Duration(milliseconds: 500),
-                          child: state.currentIndex == index
-                              ? ClipRRect(
-                            borderRadius: BorderRadius.circular(122.r),
-                            child: LinearProgressIndicator(
-                              value: controller.value,
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                  Style.primaryColor),
-                              backgroundColor: Style.white,
-                            ),
-                          )
-                              : state.currentIndex > index
-                              ? ClipRRect(
-                            borderRadius: BorderRadius.circular(122.r),
-                            child: const LinearProgressIndicator(
-                              value: 1,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  Style.primaryColor),
-                              backgroundColor: Style.white,
-                            ),
-                          )
-                              : const SizedBox.shrink(),
-                        );
-                      }),
+                ),
+              ),
+            ],
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SafeArea(
+              child: Container(
+                height: 4.h,
+                width: MediaQuery.sizeOf(context).width,
+                margin: EdgeInsets.only(left: 20.w, bottom: 10.h),
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 3,
+                  itemBuilder: (context, index) {
+                    return AnimatedContainer(
+                      margin: EdgeInsets.only(right: 8.w),
+                      height: 4.h,
+                      width: (MediaQuery.sizeOf(context).width - 60.w) / 3,
+                      decoration: BoxDecoration(
+                        color: state.currentIndex >= index
+                            ? Style.primary
+                            : Style.white,
+                        borderRadius: BorderRadius.circular(122.r),
+                      ),
+                      duration: const Duration(milliseconds: 500),
+                      child: state.currentIndex == index
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(122.r),
+                              child: LinearProgressIndicator(
+                                value: controller.value,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Style.primary,
+                                ),
+                                backgroundColor: Style.white,
+                              ),
+                            )
+                          : state.currentIndex > index
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(122.r),
+                              child: LinearProgressIndicator(
+                                value: 1,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Style.primary,
+                                ),
+                                backgroundColor: Style.white,
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    );
+                  },
                 ),
               ),
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 }

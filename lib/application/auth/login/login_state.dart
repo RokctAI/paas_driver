@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'login_state.freezed.dart';
 
 @freezed
-class LoginState with _$LoginState {
+abstract class LoginState with _$LoginState {
   const factory LoginState({
     @Default(false) bool isLoading,
     @Default(false) bool showPassword,
@@ -14,6 +14,7 @@ class LoginState with _$LoginState {
     @Default(false) bool isGoogleLoading,
     @Default('') String email,
     @Default('') String password,
+    @Default(false) bool isPhoneNotValid,
   }) = _LoginState;
 
   const LoginState._();

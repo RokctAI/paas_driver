@@ -13,13 +13,9 @@ abstract class AuthRepository {
     String? id,
   });
 
-  Future<ApiResult> signUp({
-    required String email,
-  });
+  Future<ApiResult> signUp({required String email});
 
-  Future<ApiResult<VerifyData>> sigUpWithPhone({
-    required UserData user,
-  });
+  Future<ApiResult<VerifyData>> sigUpWithPhone({required UserData user});
 
   Future<ApiResult<RegisterResponse>> sendOtp({required String phone});
 
@@ -43,10 +39,7 @@ abstract class AuthRepository {
     required String verifyCode,
   });
 
-  Future<ApiResult<VerifyData>> sigUpWithData({
-    required UserData user,
-  });
+  Future<ApiResult<VerifyData>> sigUpWithData({required UserData user});
 
-  Future<ApiResult<bool>>  checkPhone({required String phone});
-
+  Future<ApiResult<bool>> checkPhone({required String phone});
 }
