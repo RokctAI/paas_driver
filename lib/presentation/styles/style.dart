@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:driver/infrastructure/services/services.dart';
+import 'package:driver/infrastructure/models/models.dart';
 
-class Style {
+abstract class Style {
   Style._();
 
   /// ###################### Colors ##########################
@@ -17,8 +19,6 @@ class Style {
 
   static const textGrey = Color(0xFF898989);
   static const differBorderColor = Color(0xFF898989);
-
-  static const primaryColor = Color(0xff83EA00);
 
   static const greenColor = Color(0xff16AA16);
 
@@ -70,62 +70,82 @@ class Style {
 
   static const shadowColor = Color(0xFF7D7D7D);
 
+
+  static Color get primary =>
+      _getColorFromSettings('primary_color', const Color(0xFF83EA00));
+
+  static Color get buttonFontColor =>
+      _getColorFromSettings('primary_button_font_color', black);
+
+  static Color _getColorFromSettings(String key, Color defaultColor) {
+    final settings = LocalStorage.getSettingsList();
+    final setting = settings.firstWhere(
+          (s) => s.key == key,
+      orElse: () => SettingsData(),
+    );
+
+    if (setting.value == null) return defaultColor;
+
+    try {
+      return Color(int.parse('0xFF${setting.value!.substring(1, 7)}'));
+    } catch (e) {
+      return defaultColor;
+    }
+  }
+
+
   /// @@@@@@@@@@@@@@@@@ Fonts @@@@@@@@@@@@@@@@@@@@@@@@
 
-  static interBold({
+  static TextStyle interBold({
     double size = 18,
     Color color = Style.black,
     double letterSpacing = 0,
-  }) =>
-      GoogleFonts.inter(
-        fontSize: size,
-        fontWeight: FontWeight.bold,
-        color: color,
-        decoration: TextDecoration.none,
-        letterSpacing: letterSpacing,
-      );
+  }) => GoogleFonts.inter(
+    fontSize: size,
+    fontWeight: FontWeight.bold,
+    color: color,
+    decoration: TextDecoration.none,
+    letterSpacing: letterSpacing,
+  );
 
-  static interSemi({
+  static TextStyle interSemi({
     double size = 18,
     Color color = Style.black,
     TextDecoration decoration = TextDecoration.none,
     double letterSpacing = 0,
-  }) =>
-      GoogleFonts.inter(
-        fontSize: size,
-        fontWeight: FontWeight.w700,
-        color: color,
-        letterSpacing: letterSpacing,
-        decoration: decoration,
-      );
+  }) => GoogleFonts.inter(
+    fontSize: size,
+    fontWeight: FontWeight.w700,
+    color: color,
+    letterSpacing: letterSpacing,
+    decoration: decoration,
+  );
 
-  static interNormal({
+  static TextStyle interNormal({
     double size = 16,
     Color color = Style.black,
     double letterSpacing = 0,
     TextDecoration textDecoration = TextDecoration.none,
-  }) =>
-      GoogleFonts.inter(
-        fontSize: size,
-        fontWeight: FontWeight.w500,
-        color: color,
-        letterSpacing: letterSpacing,
-        decoration: textDecoration,
-      );
+  }) => GoogleFonts.inter(
+    fontSize: size,
+    fontWeight: FontWeight.w500,
+    color: color,
+    letterSpacing: letterSpacing,
+    decoration: textDecoration,
+  );
 
-  static interRegular({
+  static TextStyle interRegular({
     double size = 16,
     Color color = Style.black,
     double letterSpacing = 0,
     TextDecoration textDecoration = TextDecoration.none,
     FontStyle? fontStyle,
-  }) =>
-      GoogleFonts.inter(
-        fontSize: size,
-        fontWeight: FontWeight.w400,
-        color: color,
-        letterSpacing: letterSpacing,
-        decoration: textDecoration,
-        fontStyle: fontStyle,
-      );
+  }) => GoogleFonts.inter(
+    fontSize: size,
+    fontWeight: FontWeight.w400,
+    color: color,
+    letterSpacing: letterSpacing,
+    decoration: textDecoration,
+    fontStyle: fontStyle,
+  );
 }

@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'dart:ui';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -9,10 +10,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
-
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../presentation/component/components.dart';
 import '../../presentation/styles/style.dart';
 import '../models/models.dart';
+import 'enums.dart';
 import 'img_service.dart';
 import 'local_storage.dart';
 import 'tr_keys.dart';
@@ -33,22 +35,31 @@ class AppHelpers {
     bool isBefore = LocalStorage.getSelectedCurrency()?.position == "before";
     String beforeSymbol = (isBefore ? symbol : '');
     String afterSymbol = (isBefore ? '' : ' $symbol');
-    if(number.toString().length > 12){
-      maxLength=maxLength;
-    }else{
+    if (number.toString().length > 12) {
+      maxLength = maxLength;
+    } else {
       maxLength = 16;
+    }
+    if ((number ?? 0) > 999999) {
+      return beforeSymbol +
+          NumberFormat.compact(
+            locale: LocalStorage.getLanguage()?.locale,
+          ).format(number) +
+          afterSymbol;
     }
     if (number.toString().length > (maxLength ?? 16)) {
       return beforeSymbol +
           (number?.toStringAsExponential(maxLength ?? 10) ?? '') +
           afterSymbol;
     }
-    if (number.toString().length > 8) {
-      return beforeSymbol +
-          NumberFormat.compact(locale: LocalStorage.getLanguage()?.locale)
-              .format(number) +
-          afterSymbol;
-    }
+    // if (number.toString().length > 8) {
+    //   print(3);
+    //   return beforeSymbol +
+    //       NumberFormat.compact(
+    //         locale: LocalStorage.getLanguage()?.locale,
+    //       ).format(number) +
+    //       afterSymbol;
+    // }
     if (isBefore) {
       return NumberFormat.currency(
         customPattern: '\u00a4#,###.#',
@@ -62,6 +73,23 @@ class AppHelpers {
         decimalDigits: 2,
       ).format(number ?? 0);
     }
+  }
+
+  static SignUpType getAuthOption() {
+    final List<SettingsData> settings = LocalStorage.getSettingsList();
+    for (final setting in settings) {
+      if (setting.key == 'auth_option') {
+        switch (setting.value) {
+          case 'phone':
+            return SignUpType.phone;
+          case 'email':
+            return SignUpType.email;
+          default:
+            return SignUpType.both;
+        }
+      }
+    }
+    return SignUpType.both;
   }
 
   static String? getAppPhone() {
@@ -112,7 +140,7 @@ class AppHelpers {
     return url.substring(length - 3, length) == 'svg';
   }
 
-  static showNoConnectionSnackBar(BuildContext context) {
+  static void showNoConnectionSnackBar(BuildContext context) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     final snackBar = SnackBar(
       backgroundColor: Colors.teal,
@@ -138,7 +166,7 @@ class AppHelpers {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  static showCheckTopSnackBar(BuildContext context, String text) {
+  static void showCheckTopSnackBar(BuildContext context, String text) {
     return showTopSnackBar(
       Overlay.of(context),
       CustomSnackBar.error(
@@ -149,12 +177,10 @@ class AppHelpers {
     );
   }
 
-  static showCheckTopSnackBarInfo(BuildContext context, String text) {
+  static void showCheckTopSnackBarInfo(BuildContext context, String text) {
     return showTopSnackBar(
       Overlay.of(context),
-      CustomSnackBar.success(
-        message: text,
-      ),
+      CustomSnackBar.success(message: text),
     );
   }
 
@@ -162,8 +188,13 @@ class AppHelpers {
     final Map<String, dynamic> translations = LocalStorage.getTranslations();
     return translations[trKey] ??
         (trKey.isNotEmpty
-            ? trKey.replaceAll(".", " ").replaceAll("_", " ").replaceFirst(
-                trKey.substring(0, 1), trKey.substring(0, 1).toUpperCase())
+            ? trKey
+                  .replaceAll(".", " ")
+                  .replaceAll("_", " ")
+                  .replaceFirst(
+                    trKey.substring(0, 1),
+                    trKey.substring(0, 1).toUpperCase(),
+                  )
             : '');
   }
 
@@ -211,17 +242,18 @@ class AppHelpers {
           margin: EdgeInsets.only(
             bottom: MediaQuery.viewInsetsOf(context).bottom,
           ),
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.paddingOf(context).bottom,
+          ),
           decoration: BoxDecoration(
-            color: Style.white.withOpacity(0.9),
+            color: Style.white.withValues(alpha: 0.9),
             borderRadius: BorderRadius.only(
               topRight: Radius.circular(12.r),
               topLeft: Radius.circular(12.r),
             ),
             boxShadow: [
               BoxShadow(
-                color: Style.black.withOpacity(0.25),
+                color: Style.black.withValues(alpha: 0.25),
                 blurRadius: 40,
                 spreadRadius: 0,
                 offset: const Offset(0, -2),
@@ -301,39 +333,59 @@ class AppHelpers {
 
   static Future<Uint8List> getBytesFromAsset(String path, int width) async {
     ByteData data = await rootBundle.load(path);
-    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
-        targetWidth: width);
+    ui.Codec codec = await ui.instantiateImageCodec(
+      data.buffer.asUint8List(),
+      targetWidth: width,
+    );
     ui.FrameInfo fi = await codec.getNextFrame();
-    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
-        .buffer
-        .asUint8List();
+    return (await fi.image.toByteData(
+      format: ui.ImageByteFormat.png,
+    ))!.buffer.asUint8List();
   }
 
-  static String errorHandler(e) {
+  static Future<Uint8List> svgToPng(
+    String svgString, {
+    int? svgWidth,
+    int? svgHeight,
+  }) async {
+    final PictureInfo pictureInfo = await vg.loadPicture(
+      SvgAssetLoader(svgString),
+      null,
+    );
+    final image = await pictureInfo.picture.toImage(
+      svgWidth ?? pictureInfo.size.width.toInt(),
+      svgHeight ?? pictureInfo.size.height.toInt(),
+    );
+    ByteData? bytes = await image.toByteData(format: ImageByteFormat.png);
+
+    return bytes!.buffer.asUint8List();
+  }
+
+  static String errorHandler(dynamic e) {
     try {
       return (e.runtimeType == DioException)
           ? ((e as DioException).response?.data["message"] == "Bad request."
-          ? (e.response?.data["params"] as Map).values.first[0]
-          : e.response?.data["message"])
+                ? (e.response?.data["params"] as Map).values.first[0]
+                : e.response?.data["message"])
           : e.toString();
     } catch (s) {
       try {
         return (e.runtimeType == DioException)
             ? ((e as DioException).response?.data.toString().substring(
-            (e.response?.data.toString().indexOf("<title>") ?? 0) + 7,
-            e.response?.data.toString().indexOf("</title") ?? 0))
-            .toString()
+                (e.response?.data.toString().indexOf("<title>") ?? 0) + 7,
+                e.response?.data.toString().indexOf("</title") ?? 0,
+              )).toString()
             : e.toString();
       } catch (r) {
         return (e.runtimeType == DioException)
             ? ((e as DioException).response?.data["error"]["message"])
-            .toString()
+                  .toString()
             : e.toString();
       }
     }
   }
 
-  static openDialogImagePicker({
+  static Future openDialogImagePicker({
     required BuildContext context,
     required ValueChanged<String> onSuccess,
   }) {
@@ -369,7 +421,9 @@ class AppHelpers {
                         onTap: () => ImgService.getPhotoCamera(onSuccess),
                         child: Padding(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 16.r, vertical: 8.r),
+                            horizontal: 16.r,
+                            vertical: 8.r,
+                          ),
                           child: Row(
                             children: [
                               const Icon(FlutterRemix.camera_lens_line),
@@ -390,14 +444,17 @@ class AppHelpers {
                         onTap: () => ImgService.getPhotoGallery(onSuccess),
                         child: Padding(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 16.r, vertical: 8.r),
+                            horizontal: 16.r,
+                            vertical: 8.r,
+                          ),
                           child: Row(
                             children: [
                               const Icon(FlutterRemix.gallery_line),
                               4.horizontalSpace,
                               Text(
                                 AppHelpers.getTranslation(
-                                    TrKeys.chooseFromLibrary),
+                                  TrKeys.chooseFromLibrary,
+                                ),
                                 textAlign: TextAlign.center,
                                 style: Style.interNormal(size: 16),
                               ),
@@ -413,7 +470,7 @@ class AppHelpers {
                       onPressed: () {
                         onSuccess.call('');
                       },
-                    )
+                    ),
                   ],
                 ),
               ),

@@ -55,10 +55,7 @@ class OutlinedBorderTextField extends StatelessWidget {
             children: [
               Text(
                 label!,
-                style: Style.interNormal(
-                  size: 9,
-                  color: Style.black,
-                ),
+                style: Style.interNormal(size: 9, color: Style.black),
               ),
             ],
           ),
@@ -71,10 +68,7 @@ class OutlinedBorderTextField extends StatelessWidget {
           obscuringCharacter: '*',
           controller: textController,
           validator: validation,
-          style: Style.interNormal(
-            size: 15.sp,
-            color: Style.black,
-          ),
+          style: Style.interNormal(size: 15.sp, color: Style.black),
           cursorWidth: 1,
           cursorColor: Style.black,
           keyboardType: inputType,
@@ -84,32 +78,40 @@ class OutlinedBorderTextField extends StatelessWidget {
               textCapitalization ?? TextCapitalization.sentences,
           textInputAction: textInputAction,
           decoration: InputDecoration(
-            suffixIconConstraints:
-                BoxConstraints(maxHeight: 30.h, maxWidth: 30.h),
+            suffixIconConstraints: BoxConstraints(
+              maxHeight: 30.h,
+              maxWidth: 30.h,
+            ),
             suffixIcon: suffixIcon,
             hintText: hint ?? AppHelpers.getTranslation(TrKeys.typeSomething),
             hintStyle: Style.interNormal(
               size: 13,
-              color: Style.black.withOpacity(.5),
+              color: Style.black.withValues(alpha: .5),
             ),
             contentPadding: REdgeInsets.symmetric(horizontal: 0, vertical: 8),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             fillColor: Style.pendingDark,
             filled: false,
             enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide.merge(
-                    BorderSide(color: Style.black.withOpacity(.5)),
-                    BorderSide(color: Style.black.withOpacity(.5)))),
+              borderSide: BorderSide.merge(
+                BorderSide(color: Style.black.withValues(alpha: .5)),
+                BorderSide(color: Style.black.withValues(alpha: .5)),
+              ),
+            ),
             errorBorder: UnderlineInputBorder(
-                borderSide: BorderSide.merge(
-                    const BorderSide(color: Style.borderColor),
-                    const BorderSide(color: Style.borderColor))),
+              borderSide: BorderSide.merge(
+                const BorderSide(color: Style.borderColor),
+                const BorderSide(color: Style.borderColor),
+              ),
+            ),
             border: const UnderlineInputBorder(),
             focusedErrorBorder: const UnderlineInputBorder(),
             disabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide.merge(
-                    const BorderSide(color: Style.borderColor),
-                    const BorderSide(color: Style.borderColor))),
+              borderSide: BorderSide.merge(
+                const BorderSide(color: Style.borderColor),
+                const BorderSide(color: Style.borderColor),
+              ),
+            ),
             focusedBorder: const UnderlineInputBorder(),
           ),
         ),
@@ -127,12 +129,12 @@ class OutlinedBorderTextField extends StatelessWidget {
                   color: isError
                       ? Style.redColor
                       : isSuccess
-                          ? Style.greyColor
-                          : Style.pendingDark,
+                      ? Style.greyColor
+                      : Style.pendingDark,
                 ),
               ),
             ],
-          )
+          ),
       ],
     );
   }

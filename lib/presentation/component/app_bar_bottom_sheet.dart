@@ -18,23 +18,18 @@ class AppBarBottomSheet extends StatelessWidget {
         ButtonsBouncingEffect(
           child: GestureDetector(
             onTap: context.router.maybePop,
-            child: Icon(
-              Icons.arrow_back,
-              color: Style.black,
-              size: 24.r,
-            ),
+            child: Icon(Icons.arrow_back, color: Style.black, size: 24.r),
           ),
         ),
         Text(
           title,
           style: Style.interSemi(
-              size: 20, color: Style.black, letterSpacing: -0.01),
+            size: 20,
+            color: Style.black,
+            letterSpacing: -0.01,
+          ),
         ),
-        Container(
-          width: 24.w,
-          height: 24.h,
-          margin: const EdgeInsets.all(8),
-        ),
+        Container(width: 24.w, height: 24.h, margin: const EdgeInsets.all(8)),
       ],
     );
   }

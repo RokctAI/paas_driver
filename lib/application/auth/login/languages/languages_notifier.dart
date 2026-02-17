@@ -8,12 +8,14 @@ import 'languages_state.dart';
 
 class LanguageNotifier extends StateNotifier<LanguageState> {
   final SettingsRepository _settingsRepository;
-  LanguageNotifier(this._settingsRepository) : super( const LanguageState());
+
+  LanguageNotifier(this._settingsRepository) : super(const LanguageState());
 
   void change(int index) {
     state = state.copyWith(index: index);
     LocalStorage.setLanguageData(state.list[index]);
   }
+
   Future<void> checkLanguage(BuildContext context) async {
     final lang = LocalStorage.getLanguage();
     if (lang == null) {
@@ -28,9 +30,7 @@ class LanguageNotifier extends StateNotifier<LanguageState> {
             final List<LanguageData> languages = data.data ?? [];
             for (int i = 0; i < languages.length; i++) {
               if (languages[i].id == lang.id) {
-                state = state.copyWith(
-                  isSelectLanguage: true,
-                );
+                state = state.copyWith(isSelectLanguage: true);
                 break;
               }
             }
@@ -53,7 +53,7 @@ class LanguageNotifier extends StateNotifier<LanguageState> {
   Future<void> getLanguages(BuildContext context) async {
     final connect = await AppConnectivity.connectivity();
     if (connect) {
-      state = state.copyWith(isLoading: true,isSuccess: false);
+      state = state.copyWith(isLoading: true, isSuccess: false);
       final response = await _settingsRepository.getLanguages();
       response.when(
         success: (data) {
@@ -72,7 +72,7 @@ class LanguageNotifier extends StateNotifier<LanguageState> {
             index: index,
           );
         },
-        failure: (failure,status) {
+        failure: (failure, status) {
           state = state.copyWith(isLoading: false);
           AppHelpers.showCheckTopSnackBar(
             context,
@@ -86,8 +86,10 @@ class LanguageNotifier extends StateNotifier<LanguageState> {
     }
   }
 
-
-  Future<void> makeSelectedLang({Function(LanguageData)? afterUpdate,required BuildContext context}) async {
+  Future<void> makeSelectedLang({
+    Function(LanguageData)? afterUpdate,
+    required BuildContext context,
+  }) async {
     LocalStorage.setLanguageSelected(true);
     LocalStorage.setLanguageData(state.list[state.index]);
     LocalStorage.setLangLtr(state.list[state.index].backward);
@@ -101,7 +103,10 @@ class LanguageNotifier extends StateNotifier<LanguageState> {
     );
   }
 
-  Future<void> getTranslations({VoidCallback? afterUpdate,required BuildContext context}) async {
+  Future<void> getTranslations({
+    VoidCallback? afterUpdate,
+    required BuildContext context,
+  }) async {
     state = state.copyWith(
       isLoading: true,
       isSuccess: false,
@@ -116,7 +121,7 @@ class LanguageNotifier extends StateNotifier<LanguageState> {
         }
         state = state.copyWith(isLoading: false, isSuccess: true);
       },
-      failure: (failure,status) {
+      failure: (failure, status) {
         AppHelpers.showCheckTopSnackBar(
           context,
           AppHelpers.getTranslation(failure),

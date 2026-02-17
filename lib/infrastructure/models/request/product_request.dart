@@ -1,15 +1,10 @@
-
-
 import '../../services/local_storage.dart';
 
 class ProductRequest {
   final String shopId;
   final int page;
 
-  ProductRequest({
-    required this.shopId,
-    required this.page
-  });
+  ProductRequest({required this.shopId, required this.page});
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

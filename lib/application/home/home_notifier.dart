@@ -14,7 +14,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   HomeNotifier() : super(const HomeState());
   final ImageCropperMarker image = ImageCropperMarker();
 
-  fetchDeliveryZone({bool isFetch = false}) async {
+  Future<void> fetchDeliveryZone({bool isFetch = false}) async {
     if (isFetch) {
       final response = await userRepository.getDeliveryZone();
       response.when(
@@ -30,7 +30,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  setDeliveryZone(List<List<double>>? address) {
+  void setDeliveryZone(List<List<double>>? address) {
     if (address?.isNotEmpty ?? false) {
       final Set<Polygon> polygon = HashSet<Polygon>();
       final List<List<double>> addresses = address ?? [];
@@ -43,14 +43,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
         Polygon(
           polygonId: const PolygonId("zone"),
           points: points,
-          fillColor: Style.primaryColor.withOpacity(0.01),
-          strokeColor: Style.primaryColor,
+          fillColor: Style.primary.withValues(alpha: 0.01),
+          strokeColor: Style.primary,
           geodesic: false,
           strokeWidth: 8,
         ),
       );
       state = state.copyWith(
-          polygon: polygon, isLoading: false, deliveryZone: points);
+        polygon: polygon,
+        isLoading: false,
+        deliveryZone: points,
+      );
     }
   }
 
@@ -65,8 +68,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
     required Marker market,
   }) async {
     if (await AppConnectivity.connectivity()) {
-      state =
-          state.copyWith(polylineCoordinates: [], markers: {}, isLoading: true);
+      state = state.copyWith(
+        polylineCoordinates: [],
+        markers: {},
+        isLoading: true,
+      );
       final response = await drawRepository.getRouting(start: start, end: end);
       response.when(
         success: (data) {
@@ -76,14 +82,20 @@ class HomeNotifier extends StateNotifier<HomeState> {
             list.add(LatLng(ls[i][1], ls[i][0]));
           }
           state = state.copyWith(
-              polylineCoordinates: list, markers: {market}, isLoading: false);
+            polylineCoordinates: list,
+            markers: {market},
+            isLoading: false,
+          );
         },
         failure: (failure, status) {
           // if(status==400){
           //   AppHelpers.showCheckTopSnackBar(context, TrKeys.moreDistance);
           // }
-          state = state
-              .copyWith(polylineCoordinates: [], markers: {}, isLoading: false);
+          state = state.copyWith(
+            polylineCoordinates: [],
+            markers: {},
+            isLoading: false,
+          );
         },
       );
     } else {
@@ -93,10 +105,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> getRouting(
-      {required BuildContext context,
-      required LatLng start,
-      required bool isOnline}) async {
+  Future<void> getRouting({
+    required BuildContext context,
+    required LatLng start,
+    required bool isOnline,
+  }) async {
     if (await AppConnectivity.connectivity()) {
       state = state.copyWith(isLoading: state.isLoading);
       final response = await userRepository.setCurrentLocation(start);
@@ -114,12 +127,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> goMarket(
-      {required BuildContext context,
-      String? orderId,
-      OrderDetailData? order,
-      bool setOrder = false,
-      required VoidCallback onSuccess}) async {
+  Future<void> goMarket({
+    required BuildContext context,
+    String? orderId,
+    OrderDetailData? order,
+    bool setOrder = false,
+    required VoidCallback onSuccess,
+  }) async {
     state = state.copyWith(isGoUser: false, isLoading: true);
     if (await AppConnectivity.connectivity()) {
       if (setOrder) {
@@ -143,7 +157,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
         );
       } else {
         state = state.copyWith(
-            isLoading: false, orderDetail: order, isGoRestaurant: true);
+          isLoading: false,
+          orderDetail: order,
+          isGoRestaurant: true,
+        );
       }
     } else {
       state = state.copyWith(isLoading: false);
@@ -153,22 +170,23 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> goMarketParcel(
-      {required BuildContext context,
-      String? parcelId,
-      ParcelOrder? parcel,
-      bool setOrder = false}) async {
-    state =
-        state.copyWith(isGoRestaurant: true, isGoUser: false, isLoading: true);
+  Future<void> goMarketParcel({
+    required BuildContext context,
+    String? parcelId,
+    ParcelOrder? parcel,
+    bool setOrder = false,
+  }) async {
+    state = state.copyWith(
+      isGoRestaurant: true,
+      isGoUser: false,
+      isLoading: true,
+    );
     if (await AppConnectivity.connectivity()) {
       if (setOrder) {
         final response = await parcelRepository.setParcel(parcelId ?? "0");
         response.when(
           success: (data) {
-            state = state.copyWith(
-              isLoading: false,
-              parcelDetail: parcel,
-            );
+            state = state.copyWith(isLoading: false, parcelDetail: parcel);
           },
           failure: (failure, status) {
             state = state.copyWith(isLoading: false);
@@ -191,10 +209,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   Future<void> fetchCurrentOrder(BuildContext context) async {
     fetchDeliveryZone();
-    state = state.copyWith(
-      isGoRestaurant: false,
-      isGoUser: false,
-    );
+    state = state.copyWith(isGoRestaurant: false, isGoUser: false);
     if (await AppConnectivity.connectivity()) {
       final response = await orderRepository.fetchCurrentOrder();
       response.when(
@@ -222,40 +237,51 @@ class HomeNotifier extends StateNotifier<HomeState> {
                     double.parse(data.data?.first.location?.longitude ?? "0"),
                   ),
                   icon: await image.resizeAndCircle(
-                      data.data?.first.user?.img ?? "", 100),
+                    data.data?.first.user?.img ?? "",
+                    100,
+                  ),
                 ),
               );
               state = state.copyWith(
-                  isGoRestaurant: false, isGoUser: true, isLoading: false);
-            } else {
-              state = state.copyWith(
-                isGoRestaurant: true,
-                isGoUser: false,
+                isGoRestaurant: false,
+                isGoUser: true,
+                isLoading: false,
               );
+            } else {
+              state = state.copyWith(isGoRestaurant: true, isGoUser: false);
               getRoutingAll(
-                  // ignore: use_build_context_synchronously
-                  context: context,
-                  start: LatLng(
-                      LocalStorage.getAddressSelected()?.latitude ??
-                          AppConstants.demoLatitude,
-                      LocalStorage.getAddressSelected()?.longitude ??
-                          AppConstants.demoLongitude),
-                  end: LatLng(
-                    double.parse(
-                        data.data?.first.shop?.location?.latitude ?? "0"),
-                    double.parse(
-                        data.data?.first.shop?.location?.longitude ?? "0"),
+                // ignore: use_build_context_synchronously
+                context: context,
+                start: LatLng(
+                  LocalStorage.getAddressSelected()?.latitude ??
+                      AppConstants.demoLatitude,
+                  LocalStorage.getAddressSelected()?.longitude ??
+                      AppConstants.demoLongitude,
+                ),
+                end: LatLng(
+                  double.parse(
+                    data.data?.first.shop?.location?.latitude ?? "0",
                   ),
-                  market: Marker(
-                      markerId: const MarkerId("Shop"),
-                      position: LatLng(
-                        double.parse(
-                            data.data?.first.shop?.location?.latitude ?? "0"),
-                        double.parse(
-                            data.data?.first.shop?.location?.longitude ?? "0"),
-                      ),
-                      icon: await image.resizeAndCircle(
-                          data.data?.first.shop?.logoImg ?? "", 120)));
+                  double.parse(
+                    data.data?.first.shop?.location?.longitude ?? "0",
+                  ),
+                ),
+                market: Marker(
+                  markerId: const MarkerId("Shop"),
+                  position: LatLng(
+                    double.parse(
+                      data.data?.first.shop?.location?.latitude ?? "0",
+                    ),
+                    double.parse(
+                      data.data?.first.shop?.location?.longitude ?? "0",
+                    ),
+                  ),
+                  icon: await image.resizeAndCircle(
+                    data.data?.first.shop?.logoImg ?? "",
+                    120,
+                  ),
+                ),
+              );
             }
           }
         },
@@ -275,16 +301,21 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> goClient(BuildContext context, int? orderId,
-      {OrderDetailData? order}) async {
+  Future<void> goClient(
+    BuildContext context,
+    int? orderId, {
+    OrderDetailData? order,
+  }) async {
     state = state.copyWith(isGoUser: true, isGoRestaurant: false);
     if (await AppConnectivity.connectivity()) {
       if (order != null) {
         state = state.copyWith(orderDetail: order);
         return;
       }
-      final response =
-          await orderRepository.updateOrder(orderId ?? 0, "on_a_way");
+      final response = await orderRepository.updateOrder(
+        orderId ?? 0,
+        "on_a_way",
+      );
       response.when(
         success: (data) {},
         failure: (failure, status) {
@@ -302,16 +333,21 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> goClientParcel(BuildContext context, int? parcelId,
-      {ParcelOrder? parcel}) async {
+  Future<void> goClientParcel(
+    BuildContext context,
+    int? parcelId, {
+    ParcelOrder? parcel,
+  }) async {
     state = state.copyWith(isGoUser: true, isGoRestaurant: false);
     if (await AppConnectivity.connectivity()) {
       if (parcel != null) {
         state = state.copyWith(parcelDetail: parcel);
         return;
       }
-      final response =
-          await parcelRepository.updateParcel(parcelId ?? 0, "on_a_way");
+      final response = await parcelRepository.updateParcel(
+        parcelId ?? 0,
+        "on_a_way",
+      );
       response.when(
         success: (data) {},
         failure: (failure, status) {
@@ -329,14 +365,18 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> addReview(
-      {required BuildContext context,
-      String? comment,
-      double? rating,
-      int? orderId}) async {
+  Future<void> addReview({
+    required BuildContext context,
+    String? comment,
+    double? rating,
+    int? orderId,
+  }) async {
     if (await AppConnectivity.connectivity()) {
-      orderRepository.addReview(orderId ?? 0,
-          rating: rating ?? 0, comment: comment ?? "");
+      orderRepository.addReview(
+        orderId ?? 0,
+        rating: rating ?? 0,
+        comment: comment ?? "",
+      );
     } else {
       if (context.mounted) {
         AppHelpers.showNoConnectionSnackBar(context);
@@ -344,14 +384,18 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> addReviewParcel(
-      {required BuildContext context,
-      String? comment,
-      double? rating,
-      int? parcelId}) async {
+  Future<void> addReviewParcel({
+    required BuildContext context,
+    String? comment,
+    double? rating,
+    int? parcelId,
+  }) async {
     if (await AppConnectivity.connectivity()) {
-      parcelRepository.addReviewParcel(parcelId ?? 0,
-          rating: rating ?? 0, comment: comment ?? "");
+      parcelRepository.addReviewParcel(
+        parcelId ?? 0,
+        rating: rating ?? 0,
+        comment: comment ?? "",
+      );
     } else {
       if (context.mounted) {
         AppHelpers.showNoConnectionSnackBar(context);
@@ -359,8 +403,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> deliveredFinishParcel(
-      {required BuildContext context, int? parcelId}) async {
+  Future<void> deliveredFinishParcel({
+    required BuildContext context,
+    int? parcelId,
+  }) async {
     state = state.copyWith(
       isGoUser: false,
       isGoRestaurant: false,
@@ -377,8 +423,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> deliveredFinish(
-      {required BuildContext context, int? orderId}) async {
+  Future<void> deliveredFinish({
+    required BuildContext context,
+    int? orderId,
+  }) async {
     state = state.copyWith(
       isGoUser: false,
       isGoRestaurant: false,
@@ -395,10 +443,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> cancelOrder(
-      {required BuildContext context,
-      required int orderId,
-      required String note}) async {
+  Future<void> cancelOrder({
+    required BuildContext context,
+    required int orderId,
+    required String note,
+  }) async {
     state = state.copyWith(isLoading: true);
     if (await AppConnectivity.connectivity()) {
       await orderRepository.cancelOrder(orderId, note);
@@ -423,16 +472,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
     required String path,
   }) async {
     final res = await settingsRepository.uploadImage(path, UploadType.products);
-    res.when(success: (success) {
-      orderRepository.uploadImage(orderId, success.imageData?.title);
-    }, failure: (failure, status) {
-      AppHelpers.showCheckTopSnackBar(context, failure);
-    });
+    res.when(
+      success: (success) {
+        orderRepository.uploadImage(orderId, success.imageData?.title);
+      },
+      failure: (failure, status) {
+        AppHelpers.showCheckTopSnackBar(context, failure);
+      },
+    );
   }
 
-  Future<void> setOnline({
-    required BuildContext context,
-  }) async {
+  Future<void> setOnline({required BuildContext context}) async {
     if (await AppConnectivity.connectivity()) {
       final response = await userRepository.setOnline();
       response.when(

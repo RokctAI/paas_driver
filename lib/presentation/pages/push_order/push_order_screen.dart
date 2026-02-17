@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_remix/flutter_remix.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:intl/intl.dart' as intl;
@@ -17,11 +16,7 @@ class PushOrder extends ConsumerStatefulWidget {
   final OrderDetailData pushModel;
   final bool isActive;
 
-  const PushOrder({
-    super.key,
-    required this.pushModel,
-    required this.isActive,
-  });
+  const PushOrder({super.key, required this.pushModel, required this.isActive});
 
   @override
   ConsumerState<PushOrder> createState() => _PushOrderState();
@@ -68,42 +63,37 @@ class _PushOrderState extends ConsumerState<PushOrder> {
               ),
               child: Padding(
                 padding: EdgeInsets.only(
-                    top: widget.isActive ? 84.h : 32.h,
-                    left: 16.w,
-                    right: 16.w),
+                  top: widget.isActive ? 84.h : 32.h,
+                  left: 16.w,
+                  right: 16.w,
+                ),
                 child: Column(
                   children: [
                     _orderAvatar(),
                     const Spacer(),
-                    const Divider(
-                      color: Style.borderColor,
-                    ),
+                    const Divider(color: Style.borderColor),
                     16.verticalSpace,
                     Row(
                       children: [
-                        SvgPicture.asset("assets/svg/cutter.svg", width: 18.r),
+                        Icon(FlutterRemix.currency_line, size: 21.r),
                         10.horizontalSpace,
                         Text(
                           AppHelpers.numberFormat(
-                              number: widget.pushModel.totalPrice ?? 0),
+                            number: widget.pushModel.totalPrice ?? 0,
+                          ),
                           style: Style.interSemi(size: 12.sp),
                         ),
                         const Spacer(),
-                        Icon(
-                          FlutterRemix.takeaway_fill,
-                          size: 18.sp,
-                        ),
+                        Icon(FlutterRemix.takeaway_fill, size: 18.sp),
                         10.horizontalSpace,
                         Text(
                           AppHelpers.numberFormat(
-                              number: widget.pushModel.deliveryFee ?? 0),
+                            number: widget.pushModel.deliveryFee ?? 0,
+                          ),
                           style: Style.interSemi(size: 12.sp),
                         ),
                         const Spacer(),
-                        Icon(
-                          FlutterRemix.bank_card_2_line,
-                          size: 18.sp,
-                        ),
+                        Icon(FlutterRemix.bank_card_2_line, size: 18.sp),
                         10.horizontalSpace,
                         Text(
                           widget.pushModel.transaction?.paymentSystem?.tag ??
@@ -113,9 +103,7 @@ class _PushOrderState extends ConsumerState<PushOrder> {
                       ],
                     ),
                     16.verticalSpace,
-                    const Divider(
-                      color: Style.borderColor,
-                    ),
+                    const Divider(color: Style.borderColor),
                     const Spacer(),
                     Row(
                       children: [
@@ -132,17 +120,20 @@ class _PushOrderState extends ConsumerState<PushOrder> {
                         14.horizontalSpace,
                         Expanded(
                           child: CustomButton(
-                              isLoading: ref.watch(pushOrderProvider).isLoading,
-                              title: widget.isActive
-                                  ? AppHelpers.getTranslation(TrKeys.accept)
-                                  : AppHelpers.getTranslation(
-                                      TrKeys.orderInformation),
-                              onPressed: () async {
-                                if (widget.isActive) {
-                                  final ImageCropperMarker image =
-                                      ImageCropperMarker();
-                                  notifier.changeLoading();
-                                  ref.read(homeProvider.notifier).goMarket(
+                            isLoading: ref.watch(pushOrderProvider).isLoading,
+                            title: widget.isActive
+                                ? AppHelpers.getTranslation(TrKeys.accept)
+                                : AppHelpers.getTranslation(
+                                    TrKeys.orderInformation,
+                                  ),
+                            onPressed: () async {
+                              if (widget.isActive) {
+                                final ImageCropperMarker image =
+                                    ImageCropperMarker();
+                                notifier.changeLoading();
+                                ref
+                                    .read(homeProvider.notifier)
+                                    .goMarket(
                                       context: context,
                                       orderId: widget.pushModel.id.toString(),
                                       order: widget.pushModel,
@@ -156,61 +147,75 @@ class _PushOrderState extends ConsumerState<PushOrder> {
                                               // ignore: use_build_context_synchronously
                                               context: context,
                                               start: LatLng(
-                                                  LocalStorage.getAddressSelected()
-                                                          ?.latitude ??
-                                                      AppConstants.demoLatitude,
-                                                  LocalStorage.getAddressSelected()
-                                                          ?.longitude ??
-                                                      AppConstants
-                                                          .demoLongitude),
-                                              end: LatLng(
-                                                double.parse(widget
-                                                        .pushModel
-                                                        .shop
-                                                        ?.location
+                                                LocalStorage.getAddressSelected()
                                                         ?.latitude ??
-                                                    "0"),
-                                                double.parse(widget
-                                                        .pushModel
-                                                        .shop
-                                                        ?.location
+                                                    AppConstants.demoLatitude,
+                                                LocalStorage.getAddressSelected()
                                                         ?.longitude ??
-                                                    "0"),
+                                                    AppConstants.demoLongitude,
+                                              ),
+                                              end: LatLng(
+                                                double.parse(
+                                                  widget
+                                                          .pushModel
+                                                          .shop
+                                                          ?.location
+                                                          ?.latitude ??
+                                                      "0",
+                                                ),
+                                                double.parse(
+                                                  widget
+                                                          .pushModel
+                                                          .shop
+                                                          ?.location
+                                                          ?.longitude ??
+                                                      "0",
+                                                ),
                                               ),
                                               market: Marker(
-                                                markerId:
-                                                    const MarkerId("Shop"),
-                                                position: LatLng(
-                                                  double.parse(widget
-                                                          .pushModel
-                                                          .shop
-                                                          ?.location
-                                                          ?.latitude ??
-                                                      "0"),
-                                                  double.parse(widget
-                                                          .pushModel
-                                                          .shop
-                                                          ?.location
-                                                          ?.longitude ??
-                                                      "0"),
+                                                markerId: const MarkerId(
+                                                  "Shop",
                                                 ),
-                                                icon:
-                                                    await image.resizeAndCircle(
-                                                        widget.pushModel.shop
-                                                                ?.logoImg ??
-                                                            "",
-                                                        120),
+                                                position: LatLng(
+                                                  double.parse(
+                                                    widget
+                                                            .pushModel
+                                                            .shop
+                                                            ?.location
+                                                            ?.latitude ??
+                                                        "0",
+                                                  ),
+                                                  double.parse(
+                                                    widget
+                                                            .pushModel
+                                                            .shop
+                                                            ?.location
+                                                            ?.longitude ??
+                                                        "0",
+                                                  ),
+                                                ),
+                                                icon: await image
+                                                    .resizeAndCircle(
+                                                      widget
+                                                              .pushModel
+                                                              .shop
+                                                              ?.logoImg ??
+                                                          "",
+                                                      120,
+                                                    ),
                                               ),
                                             );
-                                      });
-                                } else {
-                                  Navigator.pop(context);
-                                }
-                              }),
-                        )
+                                      },
+                                    );
+                              } else {
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                        ),
                       ],
                     ),
-                    24.verticalSpace
+                    24.verticalSpace,
                   ],
                 ),
               ),
@@ -228,16 +233,23 @@ class _PushOrderState extends ConsumerState<PushOrder> {
       right: (MediaQuery.sizeOf(context).width - 32.w) / 2 - 52.r,
       child: Container(
         padding: EdgeInsets.all(4.r),
-        decoration:
-            const BoxDecoration(color: Style.white, shape: BoxShape.circle),
+        decoration: const BoxDecoration(
+          color: Style.white,
+          shape: BoxShape.circle,
+        ),
         child: CircularPercentIndicator(
           radius: 48.r,
           lineWidth: 12.r,
-          percent: double.parse(ref
-                  .watch(pushOrderProvider)
-                  .timerText
-                  .substring(
-                      0, ref.watch(pushOrderProvider).timerText.indexOf(' '))) /
+          percent:
+              double.parse(
+                ref
+                    .watch(pushOrderProvider)
+                    .timerText
+                    .substring(
+                      0,
+                      ref.watch(pushOrderProvider).timerText.indexOf(' '),
+                    ),
+              ) /
               AppHelpers.getAppDeliveryTime(),
           center: Text(
             ref.watch(pushOrderProvider).timerText,
@@ -263,16 +275,15 @@ class _PushOrderState extends ConsumerState<PushOrder> {
               height: 32.r,
               width: 32.r,
               decoration: const BoxDecoration(
-                  color: Style.white, shape: BoxShape.circle),
+                color: Style.white,
+                shape: BoxShape.circle,
+              ),
               child: ClipOval(
                 child: CachedNetworkImage(
                   imageUrl: "${widget.pushModel.shop?.logoImg}",
                   fit: BoxFit.cover,
                   progressIndicatorBuilder: (context, url, progress) {
-                    return ImageShimmer(
-                      isCircle: true,
-                      size: 32.r,
-                    );
+                    return ImageShimmer(isCircle: true, size: 32.r);
                   },
                   errorWidget: (context, url, error) {
                     return Container(
@@ -306,27 +317,30 @@ class _PushOrderState extends ConsumerState<PushOrder> {
                     children: [
                       Text(
                         '№ ${widget.pushModel.id}',
-                        style:
-                            Style.interNormal(size: 14.sp, letterSpacing: -0.3),
+                        style: Style.interNormal(
+                          size: 14.sp,
+                          letterSpacing: -0.3,
+                        ),
                       ),
                       const VerticalDivider(),
                       Text(
-                        intl.DateFormat("hh:mm").format(DateTime.tryParse(
-                                    widget.pushModel.updatedAt ??
-                                        DateTime.now().toString())
-                                ?.toLocal() ??
-                            DateTime.now()),
-                        style:
-                            Style.interNormal(size: 14.sp, letterSpacing: -0.3),
+                        intl.DateFormat("hh:mm").format(
+                          DateTime.tryParse(
+                                widget.pushModel.updatedAt ??
+                                    DateTime.now().toString(),
+                              )?.toLocal() ??
+                              DateTime.now(),
+                        ),
+                        style: Style.interNormal(
+                          size: 14.sp,
+                          letterSpacing: -0.3,
+                        ),
                       ),
                       16.horizontalSpace,
-                      Icon(
-                        FlutterRemix.building_fill,
-                        size: 18.r,
-                      ),
+                      Icon(FlutterRemix.building_fill, size: 18.r),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ],
@@ -341,14 +355,18 @@ class _PushOrderState extends ConsumerState<PushOrder> {
                 height: 4.r,
                 margin: EdgeInsets.only(bottom: 6.h, top: 6.h),
                 decoration: const BoxDecoration(
-                    color: Style.tabBarBorderColor, shape: BoxShape.circle),
+                  color: Style.tabBarBorderColor,
+                  shape: BoxShape.circle,
+                ),
               ),
               Container(
                 width: 4.r,
                 height: 4.r,
                 margin: EdgeInsets.only(bottom: 10.h),
                 decoration: const BoxDecoration(
-                    color: Style.tabBarBorderColor, shape: BoxShape.circle),
+                  color: Style.tabBarBorderColor,
+                  shape: BoxShape.circle,
+                ),
               ),
             ],
           ),
@@ -360,16 +378,15 @@ class _PushOrderState extends ConsumerState<PushOrder> {
               height: 32.r,
               width: 32.r,
               decoration: const BoxDecoration(
-                  color: Style.white, shape: BoxShape.circle),
+                color: Style.white,
+                shape: BoxShape.circle,
+              ),
               child: ClipOval(
                 child: CachedNetworkImage(
                   imageUrl: widget.pushModel.user?.img ?? "",
                   fit: BoxFit.cover,
                   progressIndicatorBuilder: (context, url, progress) {
-                    return ImageShimmer(
-                      isCircle: true,
-                      size: 32.r,
-                    );
+                    return ImageShimmer(isCircle: true, size: 32.r);
                   },
                   errorWidget: (context, url, error) {
                     return Container(
@@ -408,20 +425,23 @@ class _PushOrderState extends ConsumerState<PushOrder> {
                       Text(
                         widget.pushModel.user == null
                             ? AppHelpers.getTranslation(TrKeys.deletedUser)
-                            :
-                        widget.pushModel.user?.firstname ?? "",
-                        style:
-                            Style.interNormal(size: 14.sp, letterSpacing: -0.3),
+                            : widget.pushModel.user?.firstname ?? "",
+                        style: Style.interNormal(
+                          size: 14.sp,
+                          letterSpacing: -0.3,
+                        ),
                       ),
                       const VerticalDivider(),
                       Text(
                         widget.pushModel.user?.phone ?? "",
-                        style:
-                            Style.interNormal(size: 14.sp, letterSpacing: -0.3),
+                        style: Style.interNormal(
+                          size: 14.sp,
+                          letterSpacing: -0.3,
+                        ),
                       ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ],

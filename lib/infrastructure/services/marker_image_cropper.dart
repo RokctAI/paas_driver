@@ -11,7 +11,6 @@ import 'dart:math';
 
 import 'package:driver/presentation/styles/style.dart';
 
-
 class ImageCropperMarker {
   Future<BitmapDescriptor> resizeAndCircle(String? imageURL, int size) async {
     final File imageFile = await urlToFile(imageURL);
@@ -25,7 +24,8 @@ class ImageCropperMarker {
     String tempPath = (await getTemporaryDirectory()).path;
     File file = File('$tempPath/app_logo.png');
     await file.writeAsBytes(
-        bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));
+      bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes),
+    );
     return file;
   }
 
@@ -44,19 +44,24 @@ class ImageCropperMarker {
   }
 
   Future<Image> _resizeAndConvertImage(
-      Uint8List? data,
-      int height,
-      int width,
-      ) async {
+    Uint8List? data,
+    int height,
+    int width,
+  ) async {
     ByteData bytes = await rootBundle.load('assets/image/app_logo.png');
-    final img.Image? baseSizeImage =
-    img.decodeImage(data ?? bytes.buffer.asUint8List());
+    final img.Image? baseSizeImage = img.decodeImage(
+      data ?? bytes.buffer.asUint8List(),
+    );
     final img.Image? newSizeImage = img.decodeImage(bytes.buffer.asUint8List());
 
-    final img.Image resizeImage = img.copyResize(baseSizeImage ?? newSizeImage!,
-        height: height, width: width);
+    final img.Image resizeImage = img.copyResize(
+      baseSizeImage ?? newSizeImage!,
+      height: height,
+      width: width,
+    );
     final Codec codec = await instantiateImageCodec(
-        Uint8List.fromList(img.encodePng(resizeImage)));
+      Uint8List.fromList(img.encodePng(resizeImage)),
+    );
     final FrameInfo frameInfo = await codec.getNextFrame();
     return frameInfo.image;
   }
@@ -74,6 +79,7 @@ class ImageCropperMarker {
     final byteData = await img.toByteData(format: ImageByteFormat.png);
     final buffer = byteData?.buffer.asUint8List();
 
+    // ignore: deprecated_member_use
     return BitmapDescriptor.fromBytes(buffer!);
   }
 
@@ -96,15 +102,11 @@ class ImageCropperMarker {
       );
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-          Rect.fromLTRB(
-            drawImageWidth,
-            drawImageHeight,
-            imageW,
-            imageH,
-          ),
-          Radius.circular(imageW / 4)),
+        Rect.fromLTRB(drawImageWidth, drawImageHeight, imageW, imageH),
+        Radius.circular(imageW / 4),
+      ),
       Paint()
-        ..color = Style.white.withOpacity(0.75)
+        ..color = Style.white.withValues(alpha: 0.75)
         ..imageFilter = ImageFilter.blur(sigmaX: 7, sigmaY: 7),
     );
     canvas.clipPath(path);

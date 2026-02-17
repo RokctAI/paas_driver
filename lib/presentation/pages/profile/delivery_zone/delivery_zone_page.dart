@@ -8,6 +8,7 @@ import 'package:driver/application/delivery_zone/delivery_zone_provider.dart';
 import '../../../styles/style.dart';
 import '../../../component/components.dart';
 import '../../../../infrastructure/services/services.dart';
+
 @RoutePage()
 class DeliveryZonePage extends ConsumerStatefulWidget {
   const DeliveryZonePage({super.key});
@@ -54,11 +55,11 @@ class _DeliveryZonePageState extends ConsumerState<DeliveryZonePage> {
                           state.polygon.isNotEmpty
                               ? state.polygon.first.points.first.latitude
                               : LocalStorage.getAddressSelected()?.latitude ??
-                                  AppConstants.demoLatitude,
+                                    AppConstants.demoLatitude,
                           state.polygon.isNotEmpty
                               ? state.polygon.first.points.first.longitude
                               : LocalStorage.getAddressSelected()?.longitude ??
-                                  AppConstants.demoLongitude,
+                                    AppConstants.demoLongitude,
                         ),
                         tilt: 0,
                         zoom: 11,

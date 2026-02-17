@@ -10,10 +10,16 @@ abstract class OrdersRepositoryFacade {
 
   Future<ApiResult<OrderPaginateResponse>> getActiveOrders(int page);
 
+  Future<ApiResult<OrderPaginateResponse>> getProgressOrders(int page);
+
   Future<ApiResult<List<OrderDetailData>>> getAvailableOrders(int page);
 
-  Future<ApiResult<List<OrderDetailData>>> getHistoryOrders(int page,
-      {DateTime? start, DateTime? end});
+  Future<ApiResult<List<OrderDetailData>>> getHistoryOrders(
+    int page, {
+    DateTime? start,
+    DateTime? end,
+    List<String>? status,
+  });
 
   Future<ApiResult<dynamic>> updateOrder(int? orderId, String? status);
 

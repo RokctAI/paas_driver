@@ -14,7 +14,7 @@ class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
   final UserRepository _usersRepository;
 
   ResetPasswordNotifier(this._authRepository, this._usersRepository)
-      : super(const ResetPasswordState());
+    : super(const ResetPasswordState());
 
   void setEmail(String text) {
     state = state.copyWith(email: text.trim(), isEmailError: false);
@@ -43,7 +43,7 @@ class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
     state = state.copyWith(showConfirmPassword: !state.showConfirmPassword);
   }
 
-  checkEmail() {
+  bool checkEmail() {
     return AppValidators.isValidEmail(state.email);
   }
 
@@ -86,21 +86,26 @@ class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isLoading: true, isSuccess: false);
-      final response =
-          await _authRepository.forgotPassword(email: state.email.trim());
+      final response = await _authRepository.forgotPassword(
+        email: state.email.trim(),
+      );
       response.when(
         success: (data) async {
           state = state.copyWith(
-              verifyId: data.data?.verifyId ?? '',
-              isLoading: false,
-              isSuccess: true);
+            verifyId: data.data?.verifyId ?? '',
+            isLoading: false,
+            isSuccess: true,
+          );
         },
         failure: (failure, status) {
           state = state.copyWith(
-              isLoading: false, isEmailError: true, isSuccess: false);
+            isLoading: false,
+            isEmailError: true,
+            isSuccess: false,
+          );
           AppHelpers.showCheckTopSnackBar(
             context,
-          AppHelpers.getTranslation(failure),
+            AppHelpers.getTranslation(failure),
           );
           debugPrint('==> send otp failure: $failure');
         },
@@ -123,7 +128,9 @@ class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
         return;
       }
       if (!AppValidators.isValidConfirmPassword(
-          state.password, state.confirmPassword)) {
+        state.password,
+        state.confirmPassword,
+      )) {
         state = state.copyWith(isConfirmPasswordInvalid: true);
         return;
       }
@@ -142,12 +149,12 @@ class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
           if (status == 400) {
             AppHelpers.showCheckTopSnackBar(
               context,
-             AppHelpers.getTranslation(TrKeys.emailIsNotValid),
+              AppHelpers.getTranslation(TrKeys.emailIsNotValid),
             );
           } else {
             AppHelpers.showCheckTopSnackBar(
               context,
-             AppHelpers.getTranslation(failure),
+              AppHelpers.getTranslation(failure),
             );
           }
         },

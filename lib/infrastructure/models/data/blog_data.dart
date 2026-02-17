@@ -62,19 +62,18 @@ class BlogData {
     String? createdAt,
     String? updatedAt,
     Translation? translation,
-  }) =>
-      BlogData(
-        id: id ?? _id,
-        uuid: uuid ?? _uuid,
-        userId: userId ?? _userId,
-        type: type ?? _type,
-        publishedAt: publishedAt ?? _publishedAt,
-        active: active ?? _active,
-        img: img ?? _img,
-        createdAt: createdAt ?? _createdAt,
-        updatedAt: updatedAt ?? _updatedAt,
-        translation: translation ?? _translation,
-      );
+  }) => BlogData(
+    id: id ?? _id,
+    uuid: uuid ?? _uuid,
+    userId: userId ?? _userId,
+    type: type ?? _type,
+    publishedAt: publishedAt ?? _publishedAt,
+    active: active ?? _active,
+    img: img ?? _img,
+    createdAt: createdAt ?? _createdAt,
+    updatedAt: updatedAt ?? _updatedAt,
+    translation: translation ?? _translation,
+  );
 
   int? get id => _id;
 

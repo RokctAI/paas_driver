@@ -8,11 +8,12 @@ class IncomeItem extends StatelessWidget {
   final String price;
   final bool isBlack;
 
-  const IncomeItem(
-      {super.key,
-      required this.title,
-      required this.price,
-      this.isBlack = false});
+  const IncomeItem({
+    super.key,
+    required this.title,
+    required this.price,
+    this.isBlack = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +30,10 @@ class IncomeItem extends StatelessWidget {
           Text(
             title,
             style: Style.interNormal(
-                size: 14.sp,
-                letterSpacing: -0.3,
-                color: isBlack ? Style.white : Style.black),
+              size: 14.sp,
+              letterSpacing: -0.3,
+              color: isBlack ? Style.white : Style.black,
+            ),
           ),
           6.horizontalSpace,
           Expanded(

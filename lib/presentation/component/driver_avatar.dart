@@ -20,8 +20,10 @@ class DriverAvatar extends StatelessWidget {
           Container(
             height: 50.r,
             width: 50.r,
-            decoration:
-                const BoxDecoration(color: Style.white, shape: BoxShape.circle),
+            decoration: const BoxDecoration(
+              color: Style.white,
+              shape: BoxShape.circle,
+            ),
             padding: REdgeInsets.all(2),
             child: ClipOval(child: CommonImage(imageUrl: imageUrl)),
           ),
@@ -49,7 +51,7 @@ class DriverAvatar extends StatelessWidget {
                       color: Style.white,
                       letterSpacing: -0.26,
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

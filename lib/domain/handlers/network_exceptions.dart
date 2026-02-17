@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 class NetworkExceptions {
-  static int getDioStatus(error) {
+  static int getDioStatus(dynamic error) {
     if (error is Exception) {
       try {
         int? status;
@@ -57,10 +57,10 @@ class NetworkExceptions {
               status = 500;
               break;
             case DioExceptionType.badCertificate:
-            // TODO: Handle this case.
+              // TODO: Handle this case.
               break;
             case DioExceptionType.connectionError:
-            // TODO: Handle this case.
+              // TODO: Handle this case.
               break;
           }
         } else if (error is SocketException) {

@@ -12,6 +12,7 @@ import 'package:driver/infrastructure/services/services.dart';
 import 'package:driver/presentation/component/components.dart';
 import 'package:driver/presentation/styles/style.dart';
 import 'parcel_item.dart';
+
 @RoutePage()
 class ParcelsPage extends ConsumerStatefulWidget {
   const ParcelsPage({super.key});
@@ -28,16 +29,8 @@ class _ParcelsPageState extends ConsumerState<ParcelsPage>
   late ParcelNotifier event;
 
   final _tabs = [
-    Tab(
-      child: Text(
-        AppHelpers.getTranslation(TrKeys.activeParcels),
-      ),
-    ),
-    Tab(
-      child: Text(
-        AppHelpers.getTranslation(TrKeys.availableParcels),
-      ),
-    ),
+    Tab(child: Text(AppHelpers.getTranslation(TrKeys.activeParcels))),
+    Tab(child: Text(AppHelpers.getTranslation(TrKeys.availableParcels))),
   ];
 
   @override
@@ -88,18 +81,24 @@ class _ParcelsPageState extends ConsumerState<ParcelsPage>
                   children: [
                     Text(
                       AppHelpers.getTranslation(TrKeys.thereAreOrders),
-                      style:
-                          Style.interRegular(size: 12.sp, letterSpacing: -0.3),
+                      style: Style.interRegular(
+                        size: 12.sp,
+                        letterSpacing: -0.3,
+                      ),
                     ),
                     Text(
                       " ${state.totalActiveOrder} ",
-                      style:
-                          Style.interRegular(size: 12.sp, letterSpacing: -0.3),
+                      style: Style.interRegular(
+                        size: 12.sp,
+                        letterSpacing: -0.3,
+                      ),
                     ),
                     Text(
                       AppHelpers.getTranslation(TrKeys.orders).toLowerCase(),
-                      style:
-                          Style.interRegular(size: 12.sp, letterSpacing: -0.3),
+                      style: Style.interRegular(
+                        size: 12.sp,
+                        letterSpacing: -0.3,
+                      ),
                     ),
                   ],
                 ),
@@ -112,88 +111,99 @@ class _ParcelsPageState extends ConsumerState<ParcelsPage>
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Column(
                 children: [
-                  CustomTabBar(
-                    tabController: _tabController,
-                    tabs: _tabs,
-                  ),
+                  CustomTabBar(tabController: _tabController, tabs: _tabs),
                   Expanded(
-                    child: TabBarView(controller: _tabController, children: [
-                      state.isActiveLoading
-                          ? const Loading()
-                          : SmartRefresher(
-                              enablePullDown: true,
-                              enablePullUp: true,
-                              onRefresh: () {
-                                event.fetchActiveOrdersPage(
-                                    context, activeController,
-                                    isRefresh: true);
-                              },
-                              onLoading: () {
-                                event.fetchActiveOrdersPage(
-                                  context,
-                                  activeController,
-                                );
-                              },
-                              controller: activeController,
-                              child: state.activeOrders.isNotEmpty
-                                  ? ListView.builder(
-                                      padding: EdgeInsets.only(
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        state.isActiveLoading
+                            ? const Loading()
+                            : SmartRefresher(
+                                enablePullDown: true,
+                                enablePullUp: true,
+                                onRefresh: () {
+                                  event.fetchActiveOrdersPage(
+                                    context,
+                                    activeController,
+                                    isRefresh: true,
+                                  );
+                                },
+                                onLoading: () {
+                                  event.fetchActiveOrdersPage(
+                                    context,
+                                    activeController,
+                                  );
+                                },
+                                controller: activeController,
+                                child: state.activeOrders.isNotEmpty
+                                    ? ListView.builder(
+                                        padding: EdgeInsets.only(
                                           top: 30.h,
-                                          bottom: MediaQuery.of(context)
-                                                  .padding
-                                                  .bottom +
-                                              42.h),
-                                      shrinkWrap: true,
-                                      itemCount: state.activeOrders.length,
-                                      physics: const BouncingScrollPhysics(),
-                                      itemBuilder: (context, index) {
-                                        return ParcelItem(
-                                          parcel: state.activeOrders[index],
-                                          isOrder: true,
-                                          isSet: false,
-                                        );
-                                      })
-                                  : _resultEmpty(),
-                            ),
-                      state.isAvailableLoading
-                          ? const Loading()
-                          : SmartRefresher(
-                              enablePullDown: true,
-                              enablePullUp: true,
-                              onRefresh: () {
-                                event.fetchAvailableOrdersPage(
-                                    context, availableController,
-                                    isRefresh: true);
-                              },
-                              onLoading: () {
-                                event.fetchAvailableOrdersPage(
-                                  context,
-                                  availableController,
-                                );
-                              },
-                              controller: availableController,
-                              child: state.availableOrders.isNotEmpty
-                                  ? ListView.builder(
-                                      padding: EdgeInsets.only(
+                                          bottom:
+                                              MediaQuery.of(
+                                                context,
+                                              ).padding.bottom +
+                                              42.h,
+                                        ),
+                                        shrinkWrap: true,
+                                        itemCount: state.activeOrders.length,
+                                        physics: const BouncingScrollPhysics(),
+                                        itemBuilder: (context, index) {
+                                          return ParcelItem(
+                                            parcel: state.activeOrders[index],
+                                            isOrder: true,
+                                            isSet: false,
+                                          );
+                                        },
+                                      )
+                                    : _resultEmpty(),
+                              ),
+                        state.isAvailableLoading
+                            ? const Loading()
+                            : SmartRefresher(
+                                enablePullDown: true,
+                                enablePullUp: true,
+                                onRefresh: () {
+                                  event.fetchAvailableOrdersPage(
+                                    context,
+                                    availableController,
+                                    isRefresh: true,
+                                  );
+                                },
+                                onLoading: () {
+                                  event.fetchAvailableOrdersPage(
+                                    context,
+                                    availableController,
+                                  );
+                                },
+                                controller: availableController,
+                                child: state.availableOrders.isNotEmpty
+                                    ? ListView.builder(
+                                        padding: EdgeInsets.only(
                                           top: 30.h,
-                                          bottom: MediaQuery.of(context)
-                                                  .padding
-                                                  .bottom +
-                                              42.h),
-                                      shrinkWrap: true,
-                                      itemCount: state.availableOrders.length,
-                                      physics: const BouncingScrollPhysics(),
-                                      itemBuilder: (context, index) {
-                                        return ParcelItem(
-                                          parcel: state.availableOrders[index],
-                                          isOrder: true,
-                                          isSet: true,
-                                        );
-                                      })
-                                  : _resultEmpty(),
-                            ),
-                    ]),
-                  )
+                                          bottom:
+                                              MediaQuery.of(
+                                                context,
+                                              ).padding.bottom +
+                                              42.h,
+                                        ),
+                                        shrinkWrap: true,
+                                        itemCount: state.availableOrders.length,
+                                        physics: const BouncingScrollPhysics(),
+                                        itemBuilder: (context, index) {
+                                          return ParcelItem(
+                                            parcel:
+                                                state.availableOrders[index],
+                                            isOrder: true,
+                                            isSet: true,
+                                          );
+                                        },
+                                      )
+                                    : _resultEmpty(),
+                              ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

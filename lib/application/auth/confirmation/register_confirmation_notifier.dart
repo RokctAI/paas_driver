@@ -17,23 +17,24 @@ class RegisterConfirmationNotifier
   final AuthRepository _authRepository;
   final UserRepository _userRepositoryFacade;
 
-  RegisterConfirmationNotifier(
-    this._authRepository,
-    this._userRepositoryFacade,
-  ) : super(const RegisterConfirmationState());
+  RegisterConfirmationNotifier(this._authRepository, this._userRepositoryFacade)
+    : super(const RegisterConfirmationState());
 
   Timer? _timer;
   int _initialTime = 30;
 
   void setCode(String? code) {
     state = state.copyWith(
-        confirmCode: code?.trim() ?? '',
-        isCodeError: false,
-        isConfirm: code.toString().length == 6);
+      confirmCode: code?.trim() ?? '',
+      isCodeError: false,
+      isConfirm: code.toString().length == 6,
+    );
   }
 
-  Future<void> confirmCodeWithFirebase(
-      {required BuildContext context, required String verificationId}) async {
+  Future<void> confirmCodeWithFirebase({
+    required BuildContext context,
+    required String verificationId,
+  }) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isLoading: true, isSuccess: false);
@@ -53,7 +54,10 @@ class RegisterConfirmationNotifier
           AppHelpers.getTranslation((e as FirebaseAuthException).message ?? ""),
         );
         state = state.copyWith(
-            isLoading: false, isCodeError: true, isSuccess: false);
+          isLoading: false,
+          isCodeError: true,
+          isSuccess: false,
+        );
       }
     } else {
       if (context.mounted) {
@@ -79,11 +83,11 @@ class RegisterConfirmationNotifier
         },
         failure: (failure, status) {
           state = state.copyWith(
-              isLoading: false, isCodeError: true, isSuccess: false);
-          AppHelpers.showCheckTopSnackBar(
-            context,
-            failure.toString(),
+            isLoading: false,
+            isCodeError: true,
+            isSuccess: false,
           );
+          AppHelpers.showCheckTopSnackBar(context, failure.toString());
           debugPrint('==> confirm code failure: $failure');
         },
       );
@@ -98,19 +102,25 @@ class RegisterConfirmationNotifier
   }
 
   Future<void> confirmCodeResetPassword(
-      BuildContext context, String email) async {
+    BuildContext context,
+    String email,
+  ) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isLoading: true, isResetPasswordSuccess: false);
       final response = await _authRepository.forgotPasswordConfirm(
-          verifyCode: state.confirmCode.trim(), email: email);
+        verifyCode: state.confirmCode.trim(),
+        email: email,
+      );
       response.when(
         success: (data) async {
           await LocalStorage.setToken(data.token);
           String? fcmToken = await FirebaseMessaging.instance.getToken();
           _userRepositoryFacade.updateFirebaseToken(fcmToken);
-          state =
-              state.copyWith(isLoading: false, isResetPasswordSuccess: true);
+          state = state.copyWith(
+            isLoading: false,
+            isResetPasswordSuccess: true,
+          );
         },
         failure: (failure, status) {
           state = state.copyWith(isLoading: false, isCodeError: true);
@@ -132,7 +142,10 @@ class RegisterConfirmationNotifier
   }
 
   Future<void> confirmCodeResetPasswordWithPhone(
-      BuildContext context, String phone, String verificationId) async {
+    BuildContext context,
+    String phone,
+    String verificationId,
+  ) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isLoading: true, isResetPasswordSuccess: false);
@@ -146,15 +159,18 @@ class RegisterConfirmationNotifier
 
         await FirebaseAuth.instance.signInWithCredential(credential);
 
-        final response =
-            await _authRepository.forgotPasswordConfirmWithPhone(phone: phone);
+        final response = await _authRepository.forgotPasswordConfirmWithPhone(
+          phone: phone,
+        );
         response.when(
           success: (data) async {
             await LocalStorage.setToken(data.token);
             String? fcmToken = await FirebaseMessaging.instance.getToken();
             _userRepositoryFacade.updateFirebaseToken(fcmToken);
-            state =
-                state.copyWith(isLoading: false, isResetPasswordSuccess: true);
+            state = state.copyWith(
+              isLoading: false,
+              isResetPasswordSuccess: true,
+            );
           },
           failure: (failure, status) {
             state = state.copyWith(isLoading: false, isCodeError: true);
@@ -182,8 +198,11 @@ class RegisterConfirmationNotifier
     }
   }
 
-  Future<void> resendConfirmation(BuildContext context, String email,
-      {bool isResetPassword = false}) async {
+  Future<void> resendConfirmation(
+    BuildContext context,
+    String email, {
+    bool isResetPassword = false,
+  }) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isResending: true);
@@ -218,7 +237,9 @@ class RegisterConfirmationNotifier
   }
 
   Future<void> sendCodeToNumber(
-      BuildContext context, String phoneNumber) async {
+    BuildContext context,
+    String phoneNumber,
+  ) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isResending: true);
@@ -234,7 +255,9 @@ class RegisterConfirmationNotifier
         },
         codeSent: (String verificationId, int? resendToken) {
           state = state.copyWith(
-              isResending: false, verificationCode: verificationId);
+            isResending: false,
+            verificationCode: verificationId,
+          );
         },
         codeAutoRetrievalTimeout: (String verificationId) {},
       );
@@ -252,31 +275,23 @@ class RegisterConfirmationNotifier
   void startTimer() {
     _timer?.cancel();
     _initialTime = 30;
-    state = state.copyWith(
-      confirmCode: '',
-      isCodeError: false,
-    );
+    state = state.copyWith(confirmCode: '', isCodeError: false);
     if (_timer != null) {
       _initialTime = 30;
       _timer?.cancel();
     }
-    _timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (timer) {
-        if (_initialTime < 1) {
-          _timer?.cancel();
-          state = state.copyWith(
-            isTimeExpired: true,
-          );
-        } else {
-          _initialTime--;
-          state = state.copyWith(
-            isTimeExpired: false,
-            timerText: formatHHMMSS(_initialTime),
-          );
-        }
-      },
-    );
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_initialTime < 1) {
+        _timer?.cancel();
+        state = state.copyWith(isTimeExpired: true);
+      } else {
+        _initialTime--;
+        state = state.copyWith(
+          isTimeExpired: false,
+          timerText: formatHHMMSS(_initialTime),
+        );
+      }
+    });
   }
 
   void cancelTimer() {

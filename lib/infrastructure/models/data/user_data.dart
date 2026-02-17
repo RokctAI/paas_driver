@@ -60,8 +60,11 @@ class UserData {
     _gender = json['gender'];
     _deliveryZone = json["delivery_man_delivery_zone"] == null
         ? []
-        : List<List<double>>.from(json["delivery_man_delivery_zone"]!
-            .map((x) => List<double>.from(x.map((x) => x?.toDouble()))));
+        : List<List<double>>.from(
+            json["delivery_man_delivery_zone"]!.map(
+              (x) => List<double>.from(x.map((x) => x?.toDouble())),
+            ),
+          );
     _active = json['active'].runtimeType == int
         ? (json['active'] != 0)
         : json['active'];
@@ -122,30 +125,29 @@ class UserData {
     Wallet? wallet,
     String? password,
     String? conPassword,
-  }) =>
-      UserData(
-        id: id ?? _id,
-        uuid: uuid ?? _uuid,
-        firstname: firstname ?? _firstname,
-        lastname: lastname ?? _lastname,
-        email: email ?? _email,
-        phone: phone ?? _phone,
-        birthday: birthday ?? _birthday,
-        gender: gender ?? _gender,
-        emailVerifiedAt: emailVerifiedAt ?? _emailVerifiedAt,
-        registeredAt: registeredAt ?? _registeredAt,
-        deliveryZone: deliveryZone ?? _deliveryZone,
-        active: active ?? _active,
-        img: img ?? _img,
-        rate: rate ?? _rate,
-        role: role ?? _role,
-        addresses: addresses ?? _addresses,
-        shop: shop ?? _shop,
-        wallet: wallet ?? _wallet,
-        confirmPassword: conPassword ?? _confirmPassword,
-        password: password ?? _password,
-        referral: referral ?? _referral,
-      );
+  }) => UserData(
+    id: id ?? _id,
+    uuid: uuid ?? _uuid,
+    firstname: firstname ?? _firstname,
+    lastname: lastname ?? _lastname,
+    email: email ?? _email,
+    phone: phone ?? _phone,
+    birthday: birthday ?? _birthday,
+    gender: gender ?? _gender,
+    emailVerifiedAt: emailVerifiedAt ?? _emailVerifiedAt,
+    registeredAt: registeredAt ?? _registeredAt,
+    deliveryZone: deliveryZone ?? _deliveryZone,
+    active: active ?? _active,
+    img: img ?? _img,
+    rate: rate ?? _rate,
+    role: role ?? _role,
+    addresses: addresses ?? _addresses,
+    shop: shop ?? _shop,
+    wallet: wallet ?? _wallet,
+    confirmPassword: conPassword ?? _confirmPassword,
+    password: password ?? _password,
+    referral: referral ?? _referral,
+  );
 
   int? get id => _id;
 
@@ -202,7 +204,8 @@ class UserData {
     map['delivery_man_delivery_zone'] = _deliveryZone == null
         ? []
         : List<dynamic>.from(
-            _deliveryZone!.map((x) => List<dynamic>.from(x.map((x) => x))));
+            _deliveryZone!.map((x) => List<dynamic>.from(x.map((x) => x))),
+          );
     map["assign_reviews_avg_rating"] = _rate;
     map['email_verified_at'] = _emailVerifiedAt;
     map['registered_at'] = _registeredAt;
@@ -275,17 +278,16 @@ class Wallet {
     String? createdAt,
     String? updatedAt,
     CurrencyData? currency,
-  }) =>
-      Wallet(
-        uuid: uuid ?? _uuid,
-        userId: userId ?? _userId,
-        currencyId: currencyId ?? _currencyId,
-        price: price ?? _price,
-        symbol: symbol ?? _symbol,
-        createdAt: createdAt ?? _createdAt,
-        updatedAt: updatedAt ?? _updatedAt,
-        currency: currency ?? _currency,
-      );
+  }) => Wallet(
+    uuid: uuid ?? _uuid,
+    userId: userId ?? _userId,
+    currencyId: currencyId ?? _currencyId,
+    price: price ?? _price,
+    symbol: symbol ?? _symbol,
+    createdAt: createdAt ?? _createdAt,
+    updatedAt: updatedAt ?? _updatedAt,
+    currency: currency ?? _currency,
+  );
 
   String? get uuid => _uuid;
 

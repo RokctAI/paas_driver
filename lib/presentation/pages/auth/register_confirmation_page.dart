@@ -58,9 +58,7 @@ class _RegisterConfirmationPageState
         Navigator.pop(context);
         AppHelpers.showCustomModalBottomSheetWithoutIosIcon(
           context: context,
-          modal: const RegisterPage(
-            isOnlyEmail: false,
-          ),
+          modal: const RegisterPage(isOnlyEmail: false),
           isDarkMode: isDarkMode,
         );
       }
@@ -82,11 +80,12 @@ class _RegisterConfirmationPageState
           child: Container(
             padding: MediaQuery.viewInsetsOf(context),
             decoration: BoxDecoration(
-                color: Style.greyColor.withOpacity(0.96),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16.r),
-                  topRight: Radius.circular(16.r),
-                )),
+              color: Style.greyColor.withValues(alpha: 0.96),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16.r),
+                topRight: Radius.circular(16.r),
+              ),
+            ),
             width: double.infinity,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -139,8 +138,8 @@ class _RegisterConfirmationPageState
                                 state.isCodeError
                                     ? Style.redColor
                                     : isDarkMode
-                                        ? Style.borderColor
-                                        : Style.black,
+                                    ? Style.borderColor
+                                    : Style.black,
                               ),
                             ),
                           ),
@@ -149,8 +148,9 @@ class _RegisterConfirmationPageState
                     ),
                     Padding(
                       padding: EdgeInsets.only(
-                          bottom: MediaQuery.paddingOf(context).bottom,
-                          top: 120.h),
+                        bottom: MediaQuery.paddingOf(context).bottom,
+                        top: 120.h,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -163,8 +163,10 @@ class _RegisterConfirmationPageState
                               if (state.isTimeExpired) {
                                 widget.verificationId.isEmpty
                                     ? notifier.resendConfirmation(
-                                        context, widget.userModel.email ?? "",
-                                        isResetPassword: widget.isResetPassword)
+                                        context,
+                                        widget.userModel.email ?? "",
+                                        isResetPassword: widget.isResetPassword,
+                                      )
                                     : notifier.sendCodeToNumber(
                                         context,
                                         widget.userModel.email ?? "",
@@ -178,35 +180,41 @@ class _RegisterConfirmationPageState
                           ),
                           CustomButton(
                             isLoading: state.isLoading,
-                            title: AppHelpers.getTranslation(TrKeys.confirmation),
+                            title: AppHelpers.getTranslation(
+                              TrKeys.confirmation,
+                            ),
                             onPressed: () {
                               if (state.confirmCode.length == 6) {
                                 if (widget.isResetPassword) {
                                   widget.verificationId.isEmpty
                                       ? notifier.confirmCodeResetPassword(
-                                          context, widget.userModel.email ?? "")
+                                          context,
+                                          widget.userModel.email ?? "",
+                                        )
                                       : notifier
-                                          .confirmCodeResetPasswordWithPhone(
+                                            .confirmCodeResetPasswordWithPhone(
                                               context,
                                               widget.userModel.email ?? "",
-                                              widget.verificationId);
+                                              widget.verificationId,
+                                            );
                                 } else {
                                   widget.verificationId.isEmpty
                                       ? notifier.confirmCode(context)
                                       : notifier.confirmCodeWithFirebase(
                                           context: context,
-                                          verificationId:
-                                              widget.verificationId);
+                                          verificationId: widget.verificationId,
+                                        );
                                 }
                               }
                             },
                             weight:
                                 2 * (MediaQuery.sizeOf(context).width - 40) / 3,
                             background: state.isConfirm
-                                ? Style.primaryColor
+                                ? Style.primary
                                 : Style.white,
-                            textColor:
-                                state.isConfirm ? Style.black : Style.black,
+                            textColor: state.isConfirm
+                                ? Style.black
+                                : Style.black,
                           ),
                         ],
                       ),

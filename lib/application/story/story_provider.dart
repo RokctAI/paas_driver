@@ -5,5 +5,5 @@ import 'story_state.dart';
 
 final storyProvider =
     StateNotifierProvider.autoDispose<StoryNotifier, StoryState>(
-  (ref) => StoryNotifier(),
-);
+      (ref) => StoryNotifier(),
+    );

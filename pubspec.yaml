@@ -5,58 +5,64 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.5.0 <4.0.0'
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.38.5'
 
 dependencies:
   flutter:
     sdk: flutter
-  dio: ^5.7.0
-  http: ^1.2.2
-  intl: ^0.19.0
-  image: ^4.2.0
-  get_it: ^8.0.0
-  jiffy: ^6.3.1
-  lottie: ^3.1.2
+  dio: ^5.9.0
+  http: ^1.6.0
+  intl: ^0.20.2
+  image: ^4.7.2
+  get_it: ^9.2.0
+  jiffy: ^6.4.4
+  lottie: ^3.3.2
   shimmer: ^3.0.0
-  auto_route: ^9.1.0
-  workmanager: ^0.5.1
-  flutter_svg: ^2.0.10+1
+  auto_route: ^11.1.0
+  flutter_svg: ^2.2.3
   card_swiper: ^3.0.1
-  image_picker: ^1.1.2
-  sms_autofill: ^2.2.0
-  google_fonts: ^6.2.1
-  url_launcher: ^6.1.14
+  image_picker: ^1.2.1
+  sms_autofill: ^2.4.1
+  google_fonts: ^6.3.3
+  url_launcher: ^6.3.2
   flutter_remix: ^0.0.3
-  path_provider: ^2.0.11
-  google_sign_in: ^6.2.1
+  path_provider: ^2.1.5
   pull_to_refresh: ^2.0.0
-  flutter_riverpod: ^2.1.3
-  flutter_slidable: ^3.1.1
-  connectivity_plus: ^6.0.4
-  percent_indicator: ^4.2.2
-  freezed_annotation: ^2.2.0
+  flutter_riverpod: ^2.6.1
+  flutter_slidable: ^4.0.3
+  connectivity_plus: ^7.0.0
+  percent_indicator: ^4.2.5
+  freezed_annotation: ^3.1.0
   flutter_rating_bar: ^4.0.1
-  flutter_screenutil: ^5.9.0
-  shared_preferences: ^2.0.16
-  cached_network_image: ^3.3.0
-  calendar_date_picker2: ^1.1.5
-  top_snackbar_flutter: ^3.0.0+1
-  flutter_native_splash: ^2.2.16
-  flutter_advanced_switch: ^3.0.1
-  flutter_polyline_points: ^2.1.0
-  map_launcher: ^3.3.1
+  flutter_screenutil: ^5.9.3
+  shared_preferences: ^2.5.4
+  cached_network_image: ^3.4.1
+  calendar_date_picker2: ^2.0.1
+  top_snackbar_flutter: ^3.3.0
+  flutter_native_splash: ^2.4.7
+  flutter_advanced_switch: ^3.1.0
+  flutter_polyline_points: ^3.1.0
   auto_size_text: ^3.0.0
   intl_phone_field: ^3.2.0
+  permission_handler: ^12.0.1
 
   #maps:
-  geolocator: ^13.0.1
-  google_maps_flutter: ^2.9.0
+  geolocator: ^14.0.2
+  map_launcher: ^4.4.2
+  google_maps_flutter: ^2.14.0
 
 
   #firebase:
-  firebase_core: ^3.4.0
-  firebase_auth: ^5.2.0
-  firebase_messaging: ^15.0.4
+  firebase_core: ^4.3.0
+  firebase_auth: ^6.1.3
+  firebase_messaging: ^16.1.0
+
+  workmanager:
+    git:
+      url: https://github.com/fluttercommunity/flutter_workmanager.git
+      path: workmanager
+      ref: main
 
   charts_flutter:
     git:
@@ -66,11 +72,11 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  freezed: ^2.5.2
-  build_runner: ^2.4.9
-  flutter_lints: ^5.0.0
-  auto_route_generator: ^9.0.0
-  flutter_launcher_icons: ^0.14.1
+  freezed: ^3.2.3
+  build_runner: ^2.10.4
+  flutter_lints: ^6.0.0
+  auto_route_generator: ^10.4.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
@@ -84,9 +90,10 @@ flutter_native_splash:
   android_12:
   fullscreen: true
 
-flutter_icons:
+flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  min_sdk_android: 23
   remove_alpha_ios: true
   image_path: 'assets/image/delivery.png'
+  adaptive_icon_foreground: 'assets/image/delivery.png'
+  adaptive_icon_background: "#ffffff"

@@ -15,7 +15,7 @@ if (localPropertiesFile.exists()) {
 
 def flutterRoot = localProperties.getProperty('flutter.sdk')
 if (flutterRoot == null) {
-    throw  GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+    throw GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
@@ -34,18 +34,44 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+def dartDefines = [:]
+
+// 1. Load from .env/production.env in repo root (useful for CI and local fallbacks)
+def envFile = rootProject.file("../.env/production.env")
+if (envFile.exists()) {
+    envFile.eachLine { line ->
+        def trimmed = line.trim()
+        if (trimmed && !trimmed.startsWith('#')) {
+            def parts = trimmed.split('=', 2)
+            if (parts.length == 2) {
+                dartDefines[parts[0].trim()] = parts[1].trim()
+            }
+        }
+    }
+}
+
+// 2. Load from flutter.dart-defines (CLI / IDE injection) - Highest priority
+if (project.hasProperty('flutter.dart-defines')) {
+    dartDefines = dartDefines + project.property('flutter.dart-defines')
+            .split(',')
+            .collectEntries { entry ->
+                def pair = new String(entry.decodeBase64(), 'UTF-8').split('=')
+                [(pair[0]): pair.length > 1 ? pair[1] : '']
+            }
+}
+
 android {
-    namespace "org.foodyman.deliveryman"
-    compileSdkVersion 34
-    ndkVersion "26.1.10909125"
+    namespace "org.foodyman.deliveryman.demo"
+    compileSdkVersion 36
+    ndkVersion "29.0.14206865"
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     sourceSets {
@@ -53,11 +79,18 @@ android {
     }
 
     defaultConfig {
-        applicationId "org.foodyman.deliveryman"
-        minSdkVersion 23
+        applicationId dartDefines.DRIVER_ANDROID_PACKAGE_NAME
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        
+        // Synchronized configurations from dart-defines
+        resValue "string", "google_maps_api_key", dartDefines.GOOGLE_MAPS_API_KEY ?: ""
+        resValue "string", "facebook_app_id", dartDefines.FACEBOOK_APP_ID ?: ""
+        resValue "string", "facebook_client_token", dartDefines.FACEBOOK_CLIENT_TOKEN ?: ""
+        resValue "string", "fb_login_protocol_scheme", dartDefines.FB_LOGIN_PROTOCOL_SCHEME ?: ""
+        resValue "string", "app_name", dartDefines.DRIVER_APP_NAME ?: ""
     }
 
     signingConfigs {
@@ -80,8 +113,5 @@ flutter {
 }
 
 dependencies {
-    implementation platform('com.google.firebase:firebase-bom:32.7.2')
-    implementation 'com.google.firebase:firebase-analytics-ktx'
-    implementation("com.google.firebase:firebase-inappmessaging-display-ktx")
 
 }

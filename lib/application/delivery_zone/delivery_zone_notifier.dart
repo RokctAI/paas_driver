@@ -12,12 +12,13 @@ class DeliveryZoneNotifier extends StateNotifier<DeliveryZoneState> {
   final UserRepository _usersRepository;
 
   DeliveryZoneNotifier(this._usersRepository)
-      : super(const DeliveryZoneState());
+    : super(const DeliveryZoneState());
 
   Future<void> updateDeliveryZone({VoidCallback? updateSuccess}) async {
     state = state.copyWith(isSaving: true);
-    final response =
-        await _usersRepository.updateDeliveryZones(points: state.tappedPoints);
+    final response = await _usersRepository.updateDeliveryZones(
+      points: state.tappedPoints,
+    );
     response.when(
       success: (data) {
         state = state.copyWith(isSaving: false);
@@ -40,8 +41,8 @@ class DeliveryZoneNotifier extends StateNotifier<DeliveryZoneState> {
         Polygon(
           polygonId: const PolygonId('1'),
           points: points,
-          fillColor: Style.primaryColor.withOpacity(0.3),
-          strokeColor: Style.primaryColor,
+          fillColor: Style.primary.withValues(alpha: 0.3),
+          strokeColor: Style.primary,
           geodesic: false,
           strokeWidth: 4,
         ),
@@ -67,8 +68,8 @@ class DeliveryZoneNotifier extends StateNotifier<DeliveryZoneState> {
             Polygon(
               polygonId: const PolygonId('1'),
               points: points,
-              fillColor: Style.primaryColor.withOpacity(0.3),
-              strokeColor: Style.primaryColor,
+              fillColor: Style.primary.withValues(alpha: 0.3),
+              strokeColor: Style.primary,
               geodesic: false,
               strokeWidth: 4,
             ),

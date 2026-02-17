@@ -28,13 +28,12 @@ class RegisterResponse {
     bool? status,
     String? message,
     RegisterData? data,
-  }) =>
-      RegisterResponse(
-        timestamp: timestamp ?? _timestamp,
-        status: status ?? _status,
-        message: message ?? _message,
-        data: data ?? _data,
-      );
+  }) => RegisterResponse(
+    timestamp: timestamp ?? _timestamp,
+    status: status ?? _status,
+    message: message ?? _message,
+    data: data ?? _data,
+  );
 
   String? get timestamp => _timestamp;
 
@@ -57,10 +56,7 @@ class RegisterResponse {
 }
 
 class RegisterData {
-  RegisterData({
-    String? verifyId,
-    String? phone,
-  }) {
+  RegisterData({String? verifyId, String? phone}) {
     _verifyId = verifyId;
     _phone = phone;
   }
@@ -73,14 +69,8 @@ class RegisterData {
   String? _verifyId;
   String? _phone;
 
-  RegisterData copyWith({
-    String? verifyId,
-    String? phone,
-  }) =>
-      RegisterData(
-        verifyId: verifyId ?? _verifyId,
-        phone: phone ?? _phone,
-      );
+  RegisterData copyWith({String? verifyId, String? phone}) =>
+      RegisterData(verifyId: verifyId ?? _verifyId, phone: phone ?? _phone);
 
   String? get verifyId => _verifyId;
 

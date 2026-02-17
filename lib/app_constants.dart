@@ -1,36 +1,37 @@
 abstract class AppConstants {
   AppConstants._();
 
-  static const bool isDemo = true;
+  static const bool isDemo = bool.fromEnvironment('IS_DEMO');
 
   /// api urls
-  static const String baseUrl = 'https://api.foodyman.org/';
-  static const String drawingBaseUrl = 'https://api.openrouteservice.org';
-  static const String googleApiKey = 'Yor Map key';
-  static const String adminPageUrl = 'https://admin.foodyman.org';
-  static const String webUrl = 'https://foodyman.org';
-  static const String routingKey =
-      '5b3ce3597851110001cf62480384c1db92764d1b8959761ea2510ac8';
+  static const String baseUrl = String.fromEnvironment('BASE_URL');
+  static const String drawingBaseUrl = String.fromEnvironment('ROUTING_API');
+  static const String googleApiKey = String.fromEnvironment('GOOGLE_MAPS_API_KEY');
+  static const String adminPageUrl = String.fromEnvironment('ADMIN_URL');
+  static const String webUrl = String.fromEnvironment('WEB_URL');
+  static const String routingKey = String.fromEnvironment('ROUTING_KEY');
+  static const String androidPackageName = String.fromEnvironment('DRIVER_ANDROID_PACKAGE_NAME');
+  static const String iosPackageName = String.fromEnvironment('DRIVER_IOS_PACKAGE_NAME');
 
   /// hero tags
   static const String heroTagProfileAvatar = 'heroTagProfileAvatar';
 
   /// auth phone fields
-  static const bool isSpecificNumberEnabled = false;
-  static const bool isNumberLengthAlwaysSame = true;
-  static const String countryCodeISO = 'UZ';
-  static const bool showFlag = true;
-  static const bool showArrowIcon = true;
+  static const bool isSpecificNumberEnabled = bool.fromEnvironment('IS_SPECIFIC_NUMBER_ENABLED');
+  static const bool isNumberLengthAlwaysSame = bool.fromEnvironment('IS_NUMBER_LENGTH_ALWAYS_SAME');
+  static const String countryCodeISO = String.fromEnvironment('COUNTRY_ISO');
+  static const bool showFlag = bool.fromEnvironment('SHOW_FLAG');
+  static const bool showArrowIcon = bool.fromEnvironment('SHOW_ARROW_ICON');
 
   /// location
-  static const double demoLatitude = 41.304223;
-  static const double demoLongitude = 69.2348277;
+  static final double demoLatitude = double.parse(const String.fromEnvironment('DEMO_LATITUDE'));
+  static final double demoLongitude = double.parse(const String.fromEnvironment('DEMO_LONGITUDE'));
   static const double pinLoadingMin = 0.116666667;
   static const double pinLoadingMax = 0.611111111;
 
   /// demo app info
-  static const String demoSellerLogin = 'delivery@githubit.com';
-  static const String demoSellerPassword = 'delivery';
+  static const String demoSellerLogin = String.fromEnvironment('DEMO_DRIVER_LOGIN');
+  static const String demoSellerPassword = String.fromEnvironment('DEMO_DRIVER_PASSWORD');
 }
 
 enum UploadType {
@@ -42,5 +43,5 @@ enum UploadType {
   products,
   reviews,
   users,
-  deliveryCar
+  deliveryCar,
 }

@@ -7,9 +7,7 @@ class ImageShimmer extends StatelessWidget {
   final double size;
   final bool isCircle;
 
-
-  const ImageShimmer(
-      {super.key, required this.size, required this.isCircle,});
+  const ImageShimmer({super.key, required this.size, required this.isCircle});
 
   @override
   Widget build(BuildContext context) {

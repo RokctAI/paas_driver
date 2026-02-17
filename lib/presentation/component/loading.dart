@@ -14,10 +14,10 @@ class Loading extends StatelessWidget {
     return Center(
       child: Platform.isAndroid
           ? CircularProgressIndicator(
-              color: Style.primaryColor,
+              color: Style.primary,
               strokeWidth: 5.r,
             )
-          :  CupertinoActivityIndicator(radius: 12.r),
+          : CupertinoActivityIndicator(radius: 12.r),
     );
   }
 }

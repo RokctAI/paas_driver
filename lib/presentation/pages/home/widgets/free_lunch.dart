@@ -1,3 +1,4 @@
+import 'package:driver/presentation/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -25,9 +26,9 @@ class FreeLunch extends StatelessWidget {
         margin: EdgeInsets.only(left: 8.w),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.r),
-          color: Style.primaryColor.withOpacity(0.5),
+          color: Style.primary.withValues(alpha: 0.5),
           image: const DecorationImage(
-            image: AssetImage(AppAssets.pngLunch),
+            image: AssetImage(Assets.imageLunch),
             fit: BoxFit.cover,
           ),
         ),

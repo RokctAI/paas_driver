@@ -12,6 +12,7 @@ import 'package:driver/presentation/styles/style.dart';
 import 'app_bar_screen.dart';
 import 'statistics_screen.dart';
 import 'widgets/income_item.dart';
+
 @RoutePage()
 class IncomePage extends ConsumerStatefulWidget {
   const IncomePage({super.key});
@@ -25,21 +26,9 @@ class _IncomePageState extends ConsumerState<IncomePage>
   late TabController _tabController;
 
   final _tabs = [
-    Tab(
-      child: Text(
-        AppHelpers.getTranslation(TrKeys.today),
-      ),
-    ),
-    Tab(
-      child: Text(
-        AppHelpers.getTranslation(TrKeys.weekly),
-      ),
-    ),
-    Tab(
-      child: Text(
-        AppHelpers.getTranslation(TrKeys.monthly),
-      ),
-    ),
+    Tab(child: Text(AppHelpers.getTranslation(TrKeys.today))),
+    Tab(child: Text(AppHelpers.getTranslation(TrKeys.weekly))),
+    Tab(child: Text(AppHelpers.getTranslation(TrKeys.monthly))),
   ];
 
   @override
@@ -47,24 +36,33 @@ class _IncomePageState extends ConsumerState<IncomePage>
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       if (_tabController.index == 0) {
-        ref.read(statisticsProvider.notifier).fetchStatistics(
-            startTime: DateTime.now(), endTime: DateTime.now());
+        ref
+            .read(statisticsProvider.notifier)
+            .fetchStatistics(
+              startTime: DateTime.now(),
+              endTime: DateTime.now(),
+            );
       } else if (_tabController.index == 1) {
-        ref.read(statisticsProvider.notifier).fetchStatistics(
-            startTime: DateTime.now(),
-            endTime: DateTime.now().subtract(const Duration(days: 7)));
+        ref
+            .read(statisticsProvider.notifier)
+            .fetchStatistics(
+              startTime: DateTime.now(),
+              endTime: DateTime.now().subtract(const Duration(days: 7)),
+            );
       } else {
-        ref.read(statisticsProvider.notifier).fetchStatistics(
-            startTime: DateTime.now(),
-            endTime: DateTime.now().subtract(const Duration(days: 30)));
+        ref
+            .read(statisticsProvider.notifier)
+            .fetchStatistics(
+              startTime: DateTime.now(),
+              endTime: DateTime.now().subtract(const Duration(days: 30)),
+            );
       }
     });
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) {
-        ref.read(statisticsProvider.notifier).fetchStatistics(
-            startTime: DateTime.now(), endTime: DateTime.now());
-      },
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(statisticsProvider.notifier)
+          .fetchStatistics(startTime: DateTime.now(), endTime: DateTime.now());
+    });
     super.initState();
   }
 
@@ -86,15 +84,13 @@ class _IncomePageState extends ConsumerState<IncomePage>
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.only(
-                  right: 16.w,
-                  left: 16.w,
-                  bottom: MediaQuery.paddingOf(context).bottom + 56.h),
+                right: 16.w,
+                left: 16.w,
+                bottom: MediaQuery.paddingOf(context).bottom + 56.h,
+              ),
               child: Column(
                 children: [
-                  CustomTabBar(
-                    tabController: _tabController,
-                    tabs: _tabs,
-                  ),
+                  CustomTabBar(tabController: _tabController, tabs: _tabs),
                   24.verticalSpace,
                   _orderPrices(context, state),
                   // TitleAndIcon(
@@ -124,15 +120,15 @@ class _IncomePageState extends ConsumerState<IncomePage>
                   // 24.verticalSpace,
                   TitleAndIcon(
                     title: AppHelpers.getTranslation(
-                        TrKeys.deliverymanTransactions),
+                      TrKeys.deliverymanTransactions,
+                    ),
                   ),
                   12.verticalSpace,
                   IncomeItem(
                     title: AppHelpers.getTranslation(TrKeys.wallet),
                     price: AppHelpers.numberFormat(
-                        number:
-                            LocalStorage.getUser()?.wallet?.price ??
-                                0),
+                      number: LocalStorage.getUser()?.wallet?.price ?? 0,
+                    ),
                   ),
                   IncomeItem(
                     title: AppHelpers.getTranslation(TrKeys.rating),
@@ -163,34 +159,30 @@ class _IncomePageState extends ConsumerState<IncomePage>
                   // ),
                   // 24.verticalSpace,
                   StatisticsScreen(
-                      totalOrders: (state.countData?.data?.totalCount ?? 0)
-                          .toString(),
-                      todayOrders: (state.countData?.data?.totalTodayCount ?? 0)
-                          .toString(),
-                      acceptedOrders: (state
-                                  .countData?.data?.totalAcceptedCount ??
-                              0)
-                          .toString(),
-                      rejectedOrders: (state
-                                  .countData?.data?.totalCanceledCount ??
-                              0)
-                          .toString(),
-                      doneOrders: (state.countData?.data?.totalDeliveredCount ??
-                              0)
-                          .toString(),
-                      canceledOrders:
-                          (state
-                                      .countData?.data?.totalNewCount ??
-                                  0)
-                              .toString(),
-                      acceptedPer:
-                          "${((state.countData?.data?.totalAcceptedCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
-                      rejectedPer:
-                          "${((state.countData?.data?.totalCanceledCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
-                      donePer:
-                          "${((state.countData?.data?.totalDeliveredCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
-                      canceledPer:
-                          "${((state.countData?.data?.totalNewCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%"),
+                    totalOrders: (state.countData?.data?.totalCount ?? 0)
+                        .toString(),
+                    todayOrders: (state.countData?.data?.totalTodayCount ?? 0)
+                        .toString(),
+                    acceptedOrders:
+                        (state.countData?.data?.totalAcceptedCount ?? 0)
+                            .toString(),
+                    rejectedOrders:
+                        (state.countData?.data?.totalCanceledCount ?? 0)
+                            .toString(),
+                    doneOrders:
+                        (state.countData?.data?.totalDeliveredCount ?? 0)
+                            .toString(),
+                    canceledOrders: (state.countData?.data?.totalNewCount ?? 0)
+                        .toString(),
+                    acceptedPer:
+                        "${((state.countData?.data?.totalAcceptedCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
+                    rejectedPer:
+                        "${((state.countData?.data?.totalCanceledCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
+                    donePer:
+                        "${((state.countData?.data?.totalDeliveredCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
+                    canceledPer:
+                        "${((state.countData?.data?.totalNewCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
+                  ),
                   32.verticalSpace,
                   _chart(state),
                 ],
@@ -205,26 +197,28 @@ class _IncomePageState extends ConsumerState<IncomePage>
   }
 
   Column _chart(StatisticsState state) {
-    return  Column(
+    return Column(
       children: [
         TitleAndIcon(title: AppHelpers.getTranslation(TrKeys.earningsChart)),
         16.verticalSpace,
         Container(
-            width: double.infinity,
-            height: 300.h,
-            decoration: BoxDecoration(
-              color: Style.white,
-              borderRadius: BorderRadius.circular(10.r),
+          width: double.infinity,
+          height: 300.h,
+          decoration: BoxDecoration(
+            color: Style.white,
+            borderRadius: BorderRadius.circular(10.r),
+          ),
+          padding: EdgeInsets.all(16.r),
+          child: BarChart(
+            state.list,
+            animate: true,
+            vertical: false,
+            animationDuration: const Duration(seconds: 1),
+            defaultRenderer: BarRendererConfig(
+              cornerStrategy: const ConstCornerStrategy(6),
             ),
-            padding: EdgeInsets.all(16.r),
-            child: BarChart(
-              state.list,
-              animate: true,
-              vertical: false,
-              animationDuration: const Duration(seconds: 1),
-              defaultRenderer: BarRendererConfig(
-                  cornerStrategy: const ConstCornerStrategy(6)),
-            )),
+          ),
+        ),
         32.verticalSpace,
       ],
     );
@@ -246,33 +240,45 @@ class _IncomePageState extends ConsumerState<IncomePage>
               Text(
                 AppHelpers.getTranslation(TrKeys.orderPrice),
                 style: Style.interNormal(
-                    size: 14.sp, color: Style.black, letterSpacing: -0.3),
+                  size: 14.sp,
+                  color: Style.black,
+                  letterSpacing: -0.3,
+                ),
               ),
               16.verticalSpace,
               Text(
                 AppHelpers.numberFormat(
-                    number: state.countData?.data?.lastOrderTotalPrice ?? 0),
+                  number: state.countData?.data?.lastOrderTotalPrice ?? 0,
+                ),
                 style: Style.interSemi(
-                    size: 32.sp, color: Style.black, letterSpacing: -0.3),
+                  size: 32.sp,
+                  color: Style.black,
+                  letterSpacing: -0.3,
+                ),
               ),
               4.verticalSpace,
               RichText(
-                  text: TextSpan(
-                      text: AppHelpers.getTranslation(TrKeys.lastIncome),
-                      style: Style.interNormal(
-                          size: 12.sp,
-                          color: Style.black,
-                          letterSpacing: -0.3),
-                      children: [
+                text: TextSpan(
+                  text: AppHelpers.getTranslation(TrKeys.lastIncome),
+                  style: Style.interNormal(
+                    size: 12.sp,
+                    color: Style.black,
+                    letterSpacing: -0.3,
+                  ),
+                  children: [
                     TextSpan(
                       text: AppHelpers.numberFormat(
-                          number: state.countData?.data?.lastOrderIncome ?? 0),
+                        number: state.countData?.data?.lastOrderIncome ?? 0,
+                      ),
                       style: Style.interSemi(
-                          size: 12.sp,
-                          color: Style.black,
-                          letterSpacing: -0.3),
-                    )
-                  ])),
+                        size: 12.sp,
+                        color: Style.black,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

@@ -1,5 +1,3 @@
-
-
 import '../data/language.dart';
 
 class LanguagesResponse {
@@ -37,13 +35,12 @@ class LanguagesResponse {
     bool? status,
     String? message,
     List<LanguageData>? data,
-  }) =>
-      LanguagesResponse(
-        timestamp: timestamp ?? _timestamp,
-        status: status ?? _status,
-        message: message ?? _message,
-        data: data ?? _data,
-      );
+  }) => LanguagesResponse(
+    timestamp: timestamp ?? _timestamp,
+    status: status ?? _status,
+    message: message ?? _message,
+    data: data ?? _data,
+  );
 
   String? get timestamp => _timestamp;
 

@@ -10,8 +10,11 @@ abstract class ParcelRepositoryFacade {
 
   Future<ApiResult<List<ParcelOrder>>> getAvailableOrders(int page);
 
-  Future<ApiResult<List<ParcelOrder>>> getHistoryOrders(int page,
-      {DateTime? start, DateTime? end});
+  Future<ApiResult<List<ParcelOrder>>> getHistoryOrders(
+    int page, {
+    DateTime? start,
+    DateTime? end,
+  });
 
   Future<ApiResult<dynamic>> updateParcel(int? parcelId, String? status);
 

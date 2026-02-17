@@ -30,10 +30,7 @@ class CancelDialog extends StatelessWidget {
             style: Style.interNormal(),
           ),
           16.verticalSpace,
-          Text(
-            note ?? '',
-            style: Style.interRegular(),
-          ),
+          Text(note ?? '', style: Style.interRegular()),
           16.verticalSpace,
           CustomButton(
             title: AppHelpers.getTranslation(TrKeys.telAdmin),
@@ -45,11 +42,7 @@ class CancelDialog extends StatelessWidget {
               );
               await launchUrl(launchUri);
             },
-            icon: Icon(
-              FlutterRemix.phone_line,
-              color: Style.white,
-              size: 20.r,
-            ),
+            icon: Icon(FlutterRemix.phone_line, color: Style.white, size: 20.r),
           ),
         ],
       ),

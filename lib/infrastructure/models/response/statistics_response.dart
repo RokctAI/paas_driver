@@ -1,10 +1,5 @@
 class StatisticsResponse {
-  StatisticsResponse({
-    this.timestamp,
-    this.status,
-    this.message,
-    this.data,
-  });
+  StatisticsResponse({this.timestamp, this.status, this.message, this.data});
 
   StatisticsResponse.fromJson(dynamic json) {
     timestamp = json['timestamp'];
@@ -23,13 +18,12 @@ class StatisticsResponse {
     bool? status,
     String? message,
     StatisticsData? data,
-  }) =>
-      StatisticsResponse(
-        timestamp: timestamp ?? this.timestamp,
-        status: status ?? this.status,
-        message: message ?? this.message,
-        data: data ?? this.data,
-      );
+  }) => StatisticsResponse(
+    timestamp: timestamp ?? this.timestamp,
+    status: status ?? this.status,
+    message: message ?? this.message,
+    data: data ?? this.data,
+  );
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -88,18 +82,17 @@ class StatisticsData {
     num? onAWayOrdersCount,
     num? ordersCount,
     dynamic totalPrice,
-  }) =>
-      StatisticsData(
-        progressOrdersCount: progressOrdersCount ?? this.progressOrdersCount,
-        deliveredOrdersCount: deliveredOrdersCount ?? this.deliveredOrdersCount,
-        cancelOrdersCount: cancelOrdersCount ?? this.cancelOrdersCount,
-        newOrdersCount: newOrdersCount ?? this.newOrdersCount,
-        acceptedOrdersCount: acceptedOrdersCount ?? this.acceptedOrdersCount,
-        readyOrdersCount: readyOrdersCount ?? this.readyOrdersCount,
-        onAWayOrdersCount: onAWayOrdersCount ?? this.onAWayOrdersCount,
-        ordersCount: ordersCount ?? this.ordersCount,
-        totalPrice: totalPrice ?? this.totalPrice,
-      );
+  }) => StatisticsData(
+    progressOrdersCount: progressOrdersCount ?? this.progressOrdersCount,
+    deliveredOrdersCount: deliveredOrdersCount ?? this.deliveredOrdersCount,
+    cancelOrdersCount: cancelOrdersCount ?? this.cancelOrdersCount,
+    newOrdersCount: newOrdersCount ?? this.newOrdersCount,
+    acceptedOrdersCount: acceptedOrdersCount ?? this.acceptedOrdersCount,
+    readyOrdersCount: readyOrdersCount ?? this.readyOrdersCount,
+    onAWayOrdersCount: onAWayOrdersCount ?? this.onAWayOrdersCount,
+    ordersCount: ordersCount ?? this.ordersCount,
+    totalPrice: totalPrice ?? this.totalPrice,
+  );
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

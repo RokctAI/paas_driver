@@ -1,5 +1,3 @@
-
-
 import '../data/translation.dart';
 
 class ParcelTypeResponse {
@@ -7,31 +5,33 @@ class ParcelTypeResponse {
   Links? links;
   Meta? meta;
 
-  ParcelTypeResponse({
-    this.data,
-    this.links,
-    this.meta,
-  });
+  ParcelTypeResponse({this.data, this.links, this.meta});
 
   ParcelTypeResponse copyWith({
     List<TypeModel>? data,
     Links? links,
     Meta? meta,
-  }) =>
-      ParcelTypeResponse(
-        data: data ?? this.data,
-        links: links ?? this.links,
-        meta: meta ?? this.meta,
-      );
-
-  factory ParcelTypeResponse.fromJson(Map<String, dynamic> json) => ParcelTypeResponse(
-    data: json["data"] == null ? [] : List<TypeModel>.from(json["data"]!.map((x) => TypeModel.fromJson(x))),
-    links: json["links"] == null ? null : Links.fromJson(json["links"]),
-    meta: json["meta"] == null ? null : Meta.fromJson(json["meta"]),
+  }) => ParcelTypeResponse(
+    data: data ?? this.data,
+    links: links ?? this.links,
+    meta: meta ?? this.meta,
   );
 
+  factory ParcelTypeResponse.fromJson(Map<String, dynamic> json) =>
+      ParcelTypeResponse(
+        data: json["data"] == null
+            ? []
+            : List<TypeModel>.from(
+                json["data"]!.map((x) => TypeModel.fromJson(x)),
+              ),
+        links: json["links"] == null ? null : Links.fromJson(json["links"]),
+        meta: json["meta"] == null ? null : Meta.fromJson(json["meta"]),
+      );
+
   Map<String, dynamic> toJson() => {
-    "data": data == null ? [] : List<dynamic>.from(data!.map((x) => x.toJson())),
+    "data": data == null
+        ? []
+        : List<dynamic>.from(data!.map((x) => x.toJson())),
     "links": links?.toJson(),
     "meta": meta?.toJson(),
   };
@@ -91,25 +91,24 @@ class TypeModel {
     DateTime? createdAt,
     DateTime? updatedAt,
     List<Option>? options,
-  }) =>
-      TypeModel(
-        id: id ?? this.id,
-        type: type ?? this.type,
-        img: img ?? this.img,
-        minWidth: minWidth ?? this.minWidth,
-        minHeight: minHeight ?? this.minHeight,
-        minLength: minLength ?? this.minLength,
-        maxWidth: maxWidth ?? this.maxWidth,
-        maxHeight: maxHeight ?? this.maxHeight,
-        maxLength: maxLength ?? this.maxLength,
-        minG: minG ?? this.minG,
-        maxG: maxG ?? this.maxG,
-        price: price ?? this.price,
-        pricePerKm: pricePerKm ?? this.pricePerKm,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-        options: options ?? this.options,
-      );
+  }) => TypeModel(
+    id: id ?? this.id,
+    type: type ?? this.type,
+    img: img ?? this.img,
+    minWidth: minWidth ?? this.minWidth,
+    minHeight: minHeight ?? this.minHeight,
+    minLength: minLength ?? this.minLength,
+    maxWidth: maxWidth ?? this.maxWidth,
+    maxHeight: maxHeight ?? this.maxHeight,
+    maxLength: maxLength ?? this.maxLength,
+    minG: minG ?? this.minG,
+    maxG: maxG ?? this.maxG,
+    price: price ?? this.price,
+    pricePerKm: pricePerKm ?? this.pricePerKm,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    options: options ?? this.options,
+  );
 
   factory TypeModel.fromJson(Map<String, dynamic> json) => TypeModel(
     id: json["id"],
@@ -125,10 +124,15 @@ class TypeModel {
     maxG: json["max_g"],
     price: json["price"],
     pricePerKm: json["price_per_km"],
-    createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
-    updatedAt: json["updated_at"] == null ? null : DateTime.parse(json["updated_at"]),
-    options: json["options"] == null ? [] : List<Option>.from(json["options"]!.map((x) => Option.fromJson(x))),
-
+    createdAt: json["created_at"] == null
+        ? null
+        : DateTime.parse(json["created_at"]),
+    updatedAt: json["updated_at"] == null
+        ? null
+        : DateTime.parse(json["updated_at"]),
+    options: json["options"] == null
+        ? []
+        : List<Option>.from(json["options"]!.map((x) => Option.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
@@ -147,8 +151,9 @@ class TypeModel {
     "price_per_km": pricePerKm,
     "created_at": createdAt?.toIso8601String(),
     "updated_at": updatedAt?.toIso8601String(),
-    "options": options == null ? [] : List<dynamic>.from(options!.map((x) => x.toJson())),
-
+    "options": options == null
+        ? []
+        : List<dynamic>.from(options!.map((x) => x.toJson())),
   };
 }
 
@@ -158,31 +163,31 @@ class Option {
   DateTime? updatedAt;
   Translation? translation;
 
-  Option({
-    this.id,
-    this.createdAt,
-    this.updatedAt,
-    this.translation,
-  });
+  Option({this.id, this.createdAt, this.updatedAt, this.translation});
 
   Option copyWith({
     int? id,
     DateTime? createdAt,
     DateTime? updatedAt,
     Translation? translation,
-  }) =>
-      Option(
-        id: id ?? this.id,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-        translation: translation ?? this.translation,
-      );
+  }) => Option(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    translation: translation ?? this.translation,
+  );
 
   factory Option.fromJson(Map<String, dynamic> json) => Option(
     id: json["id"],
-    createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
-    updatedAt: json["updated_at"] == null ? null : DateTime.parse(json["updated_at"]),
-    translation: json["translation"] == null ? null : Translation.fromJson(json["translation"]),
+    createdAt: json["created_at"] == null
+        ? null
+        : DateTime.parse(json["created_at"]),
+    updatedAt: json["updated_at"] == null
+        ? null
+        : DateTime.parse(json["updated_at"]),
+    translation: json["translation"] == null
+        ? null
+        : Translation.fromJson(json["translation"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -199,19 +204,9 @@ class Links {
   dynamic prev;
   dynamic next;
 
-  Links({
-    this.first,
-    this.last,
-    this.prev,
-    this.next,
-  });
+  Links({this.first, this.last, this.prev, this.next});
 
-  Links copyWith({
-    String? first,
-    String? last,
-    dynamic prev,
-    dynamic next,
-  }) =>
+  Links copyWith({String? first, String? last, dynamic prev, dynamic next}) =>
       Links(
         first: first ?? this.first,
         last: last ?? this.last,
@@ -264,23 +259,24 @@ class Meta {
     int? perPage,
     int? to,
     int? total,
-  }) =>
-      Meta(
-        currentPage: currentPage ?? this.currentPage,
-        from: from ?? this.from,
-        lastPage: lastPage ?? this.lastPage,
-        links: links ?? this.links,
-        path: path ?? this.path,
-        perPage: perPage ?? this.perPage,
-        to: to ?? this.to,
-        total: total ?? this.total,
-      );
+  }) => Meta(
+    currentPage: currentPage ?? this.currentPage,
+    from: from ?? this.from,
+    lastPage: lastPage ?? this.lastPage,
+    links: links ?? this.links,
+    path: path ?? this.path,
+    perPage: perPage ?? this.perPage,
+    to: to ?? this.to,
+    total: total ?? this.total,
+  );
 
   factory Meta.fromJson(Map<String, dynamic> json) => Meta(
     currentPage: json["current_page"],
     from: json["from"],
     lastPage: json["last_page"],
-    links: json["links"] == null ? [] : List<Link>.from(json["links"]!.map((x) => Link.fromJson(x))),
+    links: json["links"] == null
+        ? []
+        : List<Link>.from(json["links"]!.map((x) => Link.fromJson(x))),
     path: json["path"],
     perPage: json["per_page"],
     to: json["to"],
@@ -291,7 +287,9 @@ class Meta {
     "current_page": currentPage,
     "from": from,
     "last_page": lastPage,
-    "links": links == null ? [] : List<dynamic>.from(links!.map((x) => x.toJson())),
+    "links": links == null
+        ? []
+        : List<dynamic>.from(links!.map((x) => x.toJson())),
     "path": path,
     "per_page": perPage,
     "to": to,
@@ -304,28 +302,16 @@ class Link {
   String? label;
   bool? active;
 
-  Link({
-    this.url,
-    this.label,
-    this.active,
-  });
+  Link({this.url, this.label, this.active});
 
-  Link copyWith({
-    String? url,
-    String? label,
-    bool? active,
-  }) =>
-      Link(
-        url: url ?? this.url,
-        label: label ?? this.label,
-        active: active ?? this.active,
-      );
-
-  factory Link.fromJson(Map<String, dynamic> json) => Link(
-    url: json["url"],
-    label: json["label"],
-    active: json["active"],
+  Link copyWith({String? url, String? label, bool? active}) => Link(
+    url: url ?? this.url,
+    label: label ?? this.label,
+    active: active ?? this.active,
   );
+
+  factory Link.fromJson(Map<String, dynamic> json) =>
+      Link(url: json["url"], label: json["label"], active: json["active"]);
 
   Map<String, dynamic> toJson() => {
     "url": url,

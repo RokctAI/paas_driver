@@ -7,15 +7,15 @@ class EditProfile {
   String? secondPhone;
   List<String>? images;
 
-  EditProfile(
-      {this.firstname,
-        this.lastname,
-        this.birthday,
-        this.gender,
-        this.phone,
-        this.secondPhone,
-        this.images
-        });
+  EditProfile({
+    this.firstname,
+    this.lastname,
+    this.birthday,
+    this.gender,
+    this.phone,
+    this.secondPhone,
+    this.images,
+  });
 
   EditProfile.fromJson(Map<String, dynamic> json) {
     firstname = json['firstname'];

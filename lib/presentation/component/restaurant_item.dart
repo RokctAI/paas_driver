@@ -32,7 +32,7 @@ class RestaurantItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(10.r),
           boxShadow: [
             BoxShadow(
-              color: Style.white.withOpacity(0.04),
+              color: Style.white.withValues(alpha: 0.04),
               spreadRadius: 0,
               blurRadius: 2,
               offset: const Offset(0, 2),
@@ -54,18 +54,13 @@ class RestaurantItem extends StatelessWidget {
                     children: [
                       Text(
                         shopName,
-                        style: Style.interSemi(
-                          size: 15.sp,
-                          color: Style.black,
-                        ),
+                        style: Style.interSemi(size: 15.sp, color: Style.black),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
-                            left: MediaQuery.sizeOf(context).width - 220.w),
-                        child: Icon(
-                          FlutterRemix.building_fill,
-                          size: 16.r,
+                          left: MediaQuery.sizeOf(context).width - 220.w,
                         ),
+                        child: Icon(FlutterRemix.building_fill, size: 16.r),
                       ),
                       8.horizontalSpace,
                       Text(
@@ -79,10 +74,7 @@ class RestaurantItem extends StatelessWidget {
                   ),
                   Text(
                     shopText,
-                    style: Style.interNormal(
-                      size: 12.sp,
-                      color: Style.black,
-                    ),
+                    style: Style.interNormal(size: 12.sp, color: Style.black),
                   ),
                 ],
               ),

@@ -40,9 +40,10 @@ class FreeLunchScreen extends StatelessWidget {
                           child: Text(
                             "4.5",
                             style: Style.interSemi(
-                                size: 16.sp,
-                                color: Style.white,
-                                letterSpacing: -1),
+                              size: 16.sp,
+                              color: Style.white,
+                              letterSpacing: -1,
+                            ),
                           ),
                         ),
                       ),
@@ -77,29 +78,38 @@ class FreeLunchScreen extends StatelessWidget {
                       RichText(
                         text: TextSpan(
                           text: AppHelpers.getTranslation(TrKeys.freeLunches),
-                          style:
-                              Style.interSemi(size: 14.sp, letterSpacing: -0.3),
+                          style: Style.interSemi(
+                            size: 14.sp,
+                            letterSpacing: -0.3,
+                          ),
                           children: [
                             TextSpan(
                               text: AppHelpers.getTranslation(
-                                  TrKeys.matchingYourRank),
+                                TrKeys.matchingYourRank,
+                              ),
                               style: Style.interRegular(
-                                  size: 14.sp, letterSpacing: -0.3),
-                            )
+                                size: 14.sp,
+                                letterSpacing: -0.3,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                       RichText(
                         text: TextSpan(
                           text: AppHelpers.getTranslation(TrKeys.onlyOne),
-                          style:
-                              Style.interSemi(size: 14.sp, letterSpacing: -0.3),
+                          style: Style.interSemi(
+                            size: 14.sp,
+                            letterSpacing: -0.3,
+                          ),
                           children: [
                             TextSpan(
                               text: AppHelpers.getTranslation(TrKeys.lunchCan),
                               style: Style.interRegular(
-                                  size: 14.sp, letterSpacing: -0.3),
-                            )
+                                size: 14.sp,
+                                letterSpacing: -0.3,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -136,7 +146,7 @@ class FreeLunchScreen extends StatelessWidget {
                 );
               },
             ),
-          )
+          ),
         ],
       ),
     );

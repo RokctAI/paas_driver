@@ -1,12 +1,9 @@
-
-
 import '../../services/local_storage.dart';
 
 class OnlyShopRequest {
   final String? lan;
-  OnlyShopRequest({
-    this.lan,
-  });
+
+  OnlyShopRequest({this.lan});
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

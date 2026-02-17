@@ -33,14 +33,13 @@ class SettingsData {
     String? value,
     String? createdAt,
     String? updatedAt,
-  }) =>
-      SettingsData(
-        id: id ?? _id,
-        key: key ?? _key,
-        value: value ?? _value,
-        createdAt: createdAt ?? _createdAt,
-        updatedAt: updatedAt ?? _updatedAt,
-      );
+  }) => SettingsData(
+    id: id ?? _id,
+    key: key ?? _key,
+    value: value ?? _value,
+    createdAt: createdAt ?? _createdAt,
+    updatedAt: updatedAt ?? _updatedAt,
+  );
 
   int? get id => _id;
 

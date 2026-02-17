@@ -40,30 +40,25 @@ class ParcelItem extends StatelessWidget {
         margin: EdgeInsets.only(bottom: 10.h),
         padding: EdgeInsets.all(16.r),
         decoration: BoxDecoration(
-            color: Style.white,
-            borderRadius: BorderRadius.all(Radius.circular(10.r))),
+          color: Style.white,
+          borderRadius: BorderRadius.all(Radius.circular(10.r)),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               "#${AppHelpers.getTranslation(TrKeys.id)}${parcel?.id}",
-              style: Style.interSemi(
-                size: 16,
-              ),
+              style: Style.interSemi(size: 16),
             ),
             16.verticalSpace,
             Text(
               parcel?.addressFrom?.address ?? "",
-              style: Style.interSemi(
-                size: 16,
-              ),
+              style: Style.interSemi(size: 16),
             ),
             16.verticalSpace,
             Text(
               parcel?.addressTo?.address ?? "",
-              style: Style.interSemi(
-                size: 16,
-              ),
+              style: Style.interSemi(size: 16),
             ),
             16.verticalSpace,
             Row(
@@ -74,23 +69,21 @@ class ParcelItem extends StatelessWidget {
                   children: [
                     Text(
                       AppHelpers.numberFormat(
-                          isOrder: parcel?.currency?.symbol != null,
-                          symbol: parcel?.currency?.symbol,
-                          number: (parcel?.totalPrice?.isNegative ?? true)
-                              ? 0
-                              : (parcel?.totalPrice ?? 0)),
-                      style: Style.interNormal(
-                        size: 16,
+                        isOrder: parcel?.currency?.symbol != null,
+                        symbol: parcel?.currency?.symbol,
+                        number: (parcel?.totalPrice?.isNegative ?? true)
+                            ? 0
+                            : (parcel?.totalPrice ?? 0),
                       ),
+                      style: Style.interNormal(size: 16),
                     ),
                     6.verticalSpace,
                     Text(
-                      intl.DateFormat("MMM dd, HH:mm")
-                          .format(parcel?.createdAt ?? DateTime.now()),
-                      style: Style.interRegular(
-                        size: 12,
-                      ),
-                    )
+                      intl.DateFormat(
+                        "MMM dd, HH:mm",
+                      ).format(parcel?.createdAt ?? DateTime.now()),
+                      style: Style.interRegular(size: 12),
+                    ),
                   ],
                 ),
               ],

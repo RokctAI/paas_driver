@@ -1,4 +1,3 @@
-
 class LanguageData {
   LanguageData({
     int? id,
@@ -44,16 +43,15 @@ class LanguageData {
     bool? isDefault,
     bool? active,
     String? img,
-  }) =>
-      LanguageData(
-        id: id ?? _id,
-        title: title ?? _title,
-        locale: locale ?? _locale,
-        backward: backward ?? _backward,
-        isDefault: isDefault ?? _default,
-        active: active ?? _active,
-        img: img ?? _img,
-      );
+  }) => LanguageData(
+    id: id ?? _id,
+    title: title ?? _title,
+    locale: locale ?? _locale,
+    backward: backward ?? _backward,
+    isDefault: isDefault ?? _default,
+    active: active ?? _active,
+    img: img ?? _img,
+  );
 
   int? get id => _id;
 

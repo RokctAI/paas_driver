@@ -1,8 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'sign_up_state.freezed.dart';
 
 @freezed
-class SignUpState with _$SignUpState {
+abstract class SignUpState with _$SignUpState {
   const factory SignUpState({
     @Default(false) bool isLoading,
     @Default(false) bool showPassword,
@@ -25,6 +26,7 @@ class SignUpState with _$SignUpState {
     @Default('') String lastName,
     @Default('') String password,
     @Default('') String confirmPassword,
+    @Default(false) bool isPhoneNotValid,
   }) = _SignUpState;
 
   const SignUpState._();

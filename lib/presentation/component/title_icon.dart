@@ -49,10 +49,12 @@ class TitleAndIcon extends StatelessWidget {
                   ),
                 ),
                 isIcon
-                    ? Icon(isLtr
-                        ? Icons.keyboard_arrow_right
-                        : Icons.keyboard_arrow_left)
-                    : const SizedBox.shrink()
+                    ? Icon(
+                        isLtr
+                            ? Icons.keyboard_arrow_right
+                            : Icons.keyboard_arrow_left,
+                      )
+                    : const SizedBox.shrink(),
               ],
             ),
           ),

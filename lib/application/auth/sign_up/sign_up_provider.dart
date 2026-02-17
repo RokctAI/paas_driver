@@ -6,5 +6,5 @@ import 'package:driver/domain/di/dependency_manager.dart';
 
 final signUpProvider =
     StateNotifierProvider.autoDispose<SignUpNotifier, SignUpState>(
-  (ref) => SignUpNotifier(authRepository, userRepository),
-);
+      (ref) => SignUpNotifier(authRepository, userRepository),
+    );

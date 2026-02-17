@@ -6,5 +6,5 @@ import '../state/profile_edit_state.dart';
 
 final profileEditProvider =
     StateNotifierProvider<ProfileEditNotifier, ProfileEditState>(
-  (ref) => ProfileEditNotifier(userRepository),
-);
+      (ref) => ProfileEditNotifier(userRepository),
+    );

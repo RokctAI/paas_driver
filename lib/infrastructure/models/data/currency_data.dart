@@ -48,17 +48,16 @@ class CurrencyData {
     bool? active,
     String? updatedAt,
     String? position,
-  }) =>
-      CurrencyData(
-        id: id ?? _id,
-        symbol: symbol ?? _symbol,
-        title: title ?? _title,
-        rate: rate ?? _rate,
-        isDefault: isDefault ?? _default,
-        active: active ?? _active,
-        updatedAt: updatedAt ?? _updatedAt,
-        position: position ?? _position,
-      );
+  }) => CurrencyData(
+    id: id ?? _id,
+    symbol: symbol ?? _symbol,
+    title: title ?? _title,
+    rate: rate ?? _rate,
+    isDefault: isDefault ?? _default,
+    active: active ?? _active,
+    updatedAt: updatedAt ?? _updatedAt,
+    position: position ?? _position,
+  );
 
   int? get id => _id;
 

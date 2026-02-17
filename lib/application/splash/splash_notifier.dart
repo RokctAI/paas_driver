@@ -15,7 +15,7 @@ class SplashNotifier extends StateNotifier<SplashState> {
   final UserRepository _userRepository;
 
   SplashNotifier(this._settingsRepository, this._userRepository)
-      : super(const SplashState());
+    : super(const SplashState());
 
   Future<void> fetchDriverDetails({required BuildContext context}) async {
     final response = await _userRepository.getDriverDetails();
@@ -134,10 +134,13 @@ class SplashNotifier extends StateNotifier<SplashState> {
       );
       fetchGlobalSettings(context);
       if (LocalStorage.getToken().isNotEmpty) {
-
-        fetchProfileDetails(context, onMain: goMain, onBecome: onBecome,onLogin: goLogin);
+        fetchProfileDetails(
+          context,
+          onMain: goMain,
+          onBecome: onBecome,
+          onLogin: goLogin,
+        );
       } else {
-
         goLogin?.call();
       }
       if (LocalStorage.getSelectedCurrency() == null) {

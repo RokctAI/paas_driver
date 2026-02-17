@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:driver/presentation/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_remix/flutter_remix.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -111,56 +112,66 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     child: IntrinsicHeight(
                       child: Row(
                         children: [
-                          SvgPicture.asset(AppAssets.svgBalance),
+                          SvgPicture.asset(Assets.svgBalance),
                           10.horizontalSpace,
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                AppHelpers.getTranslation(TrKeys.balance),
-                                style: Style.interNormal(
-                                    size: 12.sp, letterSpacing: -0.3),
-                              ),
-                              Text(
-                                AppHelpers.numberFormat(
-                                  number: LocalStorage.getUser()?.wallet?.price,
-                                  maxLength: 8,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  AppHelpers.getTranslation(TrKeys.balance),
+                                  style: Style.interNormal(
+                                    size: 12.sp,
+                                    letterSpacing: -0.3,
+                                  ),
                                 ),
-                                style: Style.interSemi(
-                                    size: 14.sp, letterSpacing: -0.3),
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          const VerticalDivider(
-                            color: Style.borderColor,
-                          ),
-                          10.horizontalSpace,
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                AppHelpers.getTranslation(TrKeys.lastProfit),
-                                style: Style.interNormal(
-                                    size: 12.sp, letterSpacing: -0.3),
-                              ),
-                              Text(
-                                AppHelpers.numberFormat(
-                                  number: ref
-                                          .watch(profileSettingsProvider)
-                                          .statistics
-                                          ?.data
-                                          ?.totalPrice ??
-                                      0,
-                                ),
-                                style: Style.interSemi(
+                                Text(
+                                  AppHelpers.numberFormat(
+                                    number: LocalStorage.getUser()?.wallet?.price,
+                                    maxLength: 8,
+                                  ),
+                                  style: Style.interSemi(
                                     size: 14.sp,
                                     letterSpacing: -0.3,
-                                    color: Style.primaryColor),
-                              ),
-                            ],
+                                  ),
+                                  maxLines: 2,
+                                ),
+                              ],
+                            ),
                           ),
-                          32.horizontalSpace
+                          const VerticalDivider(color: Style.borderColor),
+                          10.horizontalSpace,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  AppHelpers.getTranslation(TrKeys.lastProfit),
+                                  style: Style.interNormal(
+                                    size: 12.sp,
+                                    letterSpacing: -0.3,
+                                  ),
+                                ),
+                                Text(
+                                  AppHelpers.numberFormat(
+                                    number:
+                                        ref
+                                            .watch(profileSettingsProvider)
+                                            .statistics
+                                            ?.data
+                                            ?.totalPrice ??
+                                        0,
+                                  ),
+                                  style: Style.interSemi(
+                                    size: 14.sp,
+                                    letterSpacing: -0.3,
+                                    color: Style.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          32.horizontalSpace,
                         ],
                       ),
                     ),
@@ -174,10 +185,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     padding: EdgeInsets.all(12.r),
                     child: Row(
                       children: [
-                        Icon(
-                          FlutterRemix.checkbox_circle_fill,
-                          size: 30.r,
-                        ),
+                        Icon(FlutterRemix.checkbox_circle_fill, size: 30.r),
                         10.horizontalSpace,
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,14 +193,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             Text(
                               AppHelpers.getTranslation(TrKeys.deliveredOrder),
                               style: Style.interNormal(
-                                  size: 12.sp, letterSpacing: -0.3),
+                                size: 12.sp,
+                                letterSpacing: -0.3,
+                              ),
                             ),
                             Text(
                               (state.statistics?.data?.deliveredOrdersCount ??
                                       0)
                                   .toString(),
                               style: Style.interSemi(
-                                  size: 14.sp, letterSpacing: -0.3),
+                                size: 14.sp,
+                                letterSpacing: -0.3,
+                              ),
                             ),
                           ],
                         ),
@@ -244,7 +256,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         //     ),
                         //   ),
                         // ),
-                        24.horizontalSpace
+                        24.horizontalSpace,
                       ],
                     ),
                   ),
@@ -352,7 +364,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   100.verticalSpace,
                 ],
               ),
-            )
+            ),
           ],
         ),
         floatingActionButtonLocation:
@@ -368,7 +380,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               Expanded(
                 child: CustomButton(
                   title: AppHelpers.getTranslation(TrKeys.onlineHelper),
-                  textColor: Style.white,
                   onPressed: () async {
                     final Uri launchUri = Uri(
                       scheme: 'tel',
@@ -378,11 +389,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   },
                   icon: Icon(
                     FlutterRemix.chat_smile_2_fill,
-                    color: Style.white,
+                    color: Style.buttonFontColor,
                     size: 20.r,
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -390,63 +401,63 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-// Widget _notifications(BuildContext context) {
-//   return Column(
-//     children: [
-//       24.verticalSpace,
-//       Row(
-//         children: [
-//           Container(
-//             decoration: const BoxDecoration(
-//               color: Style.primaryColor,
-//               shape: BoxShape.circle,
-//             ),
-//             height: 30.h,
-//             width: 30.w,
-//             child: Center(
-//               child: Text(
-//                 "4",
-//                 style: Style.interSemi(size: 14.sp, color: Style.blackColor),
-//               ),
-//             ),
-//           ),
-//           12.horizontalSpace,
-//           Text(
-//             AppHelpers.getTranslation(TrKeys.notifications),
-//             style: Style.interSemi(size: 18.sp, color: Style.blackColor),
-//           ),
-//           const Spacer(),
-//           GestureDetector(
-//             onTap: () {
-//               context.pushRoute(const ListNotificationRoute());
-//             },
-//             child: Padding(
-//               padding: const EdgeInsets.all(4.0),
-//               child: Text(
-//                 AppHelpers.getTranslation(TrKeys.seeAll),
-//                 style: Style.interNormal(size: 14.sp, color: Style.blueColor),
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//       16.verticalSpace,
-//       SizedBox(
-//         height: 136.h,
-//         child: ListView.builder(
-//           scrollDirection: Axis.horizontal,
-//           itemCount: 4,
-//           physics: const BouncingScrollPhysics(),
-//           itemBuilder: (context, index) {
-//             return const NotificationItem(
-//               date: "June 24",
-//               text: "Check your settings you have notifications turned off",
-//             );
-//           },
-//         ),
-//       ),
-//       40.verticalSpace,
-//     ],
-//   );
-// }
+  // Widget _notifications(BuildContext context) {
+  //   return Column(
+  //     children: [
+  //       24.verticalSpace,
+  //       Row(
+  //         children: [
+  //           Container(
+  //             decoration: const BoxDecoration(
+  //               color: Style.primaryColor,
+  //               shape: BoxShape.circle,
+  //             ),
+  //             height: 30.h,
+  //             width: 30.w,
+  //             child: Center(
+  //               child: Text(
+  //                 "4",
+  //                 style: Style.interSemi(size: 14.sp, color: Style.blackColor),
+  //               ),
+  //             ),
+  //           ),
+  //           12.horizontalSpace,
+  //           Text(
+  //             AppHelpers.getTranslation(TrKeys.notifications),
+  //             style: Style.interSemi(size: 18.sp, color: Style.blackColor),
+  //           ),
+  //           const Spacer(),
+  //           GestureDetector(
+  //             onTap: () {
+  //               context.pushRoute(const ListNotificationRoute());
+  //             },
+  //             child: Padding(
+  //               padding: const EdgeInsets.all(4.0),
+  //               child: Text(
+  //                 AppHelpers.getTranslation(TrKeys.seeAll),
+  //                 style: Style.interNormal(size: 14.sp, color: Style.blueColor),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //       16.verticalSpace,
+  //       SizedBox(
+  //         height: 136.h,
+  //         child: ListView.builder(
+  //           scrollDirection: Axis.horizontal,
+  //           itemCount: 4,
+  //           physics: const BouncingScrollPhysics(),
+  //           itemBuilder: (context, index) {
+  //             return const NotificationItem(
+  //               date: "June 24",
+  //               text: "Check your settings you have notifications turned off",
+  //             );
+  //           },
+  //         ),
+  //       ),
+  //       40.verticalSpace,
+  //     ],
+  //   );
+  // }
 }

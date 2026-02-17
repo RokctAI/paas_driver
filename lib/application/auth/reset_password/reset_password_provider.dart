@@ -6,5 +6,5 @@ import 'package:driver/domain/di/dependency_manager.dart';
 
 final resetPasswordProvider =
     StateNotifierProvider<ResetPasswordNotifier, ResetPasswordState>(
-  (ref) => ResetPasswordNotifier(authRepository, userRepository),
-);
+      (ref) => ResetPasswordNotifier(authRepository, userRepository),
+    );

@@ -1,9 +1,7 @@
 class SignUpRequest {
   final String? email;
 
-  SignUpRequest({
-    required this.email,
-  });
+  SignUpRequest({required this.email});
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

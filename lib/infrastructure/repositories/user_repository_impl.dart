@@ -15,14 +15,13 @@ class UserRepositoryImpl implements UserRepository {
       final response = await client.get(
         '/api/v1/dashboard/deliveryman/settings',
       );
-      return ApiResult.success(
-        data: DeliveryResponse.fromJson(response.data),
-      );
+      return ApiResult.success(data: DeliveryResponse.fromJson(response.data));
     } catch (e) {
       debugPrint('===> error driver settings $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -50,14 +49,13 @@ class UserRepositoryImpl implements UserRepository {
         '/api/v1/dashboard/user/profile/update',
         data: data,
       );
-      return ApiResult.success(
-        data: ProfileResponse.fromJson(response.data),
-      );
+      return ApiResult.success(data: ProfileResponse.fromJson(response.data));
     } catch (e) {
       debugPrint('==> update profile details failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -65,17 +63,14 @@ class UserRepositoryImpl implements UserRepository {
   Future<ApiResult<ProfileResponse>> getProfileDetails() async {
     try {
       final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '/api/v1/dashboard/user/profile/show',
-      );
+      final response = await client.get('/api/v1/dashboard/user/profile/show');
 
-      return ApiResult.success(
-        data: ProfileResponse.fromJson(response.data),
-      );
+      return ApiResult.success(data: ProfileResponse.fromJson(response.data));
     } catch (e) {
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -91,14 +86,13 @@ class UserRepositoryImpl implements UserRepository {
         '/api/v1/dashboard/user/profile/update',
         data: data,
       );
-      return ApiResult.success(
-        data: ProfileResponse.fromJson(response.data),
-      );
+      return ApiResult.success(data: ProfileResponse.fromJson(response.data));
     } catch (e) {
       debugPrint('==> update profile details failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -118,14 +112,13 @@ class UserRepositoryImpl implements UserRepository {
         '/api/v1/dashboard/user/profile/update',
         data: data,
       );
-      return ApiResult.success(
-        data: ProfileResponse.fromJson(response.data),
-      );
+      return ApiResult.success(data: ProfileResponse.fromJson(response.data));
     } catch (e) {
       debugPrint('==> update profile image failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -144,14 +137,13 @@ class UserRepositoryImpl implements UserRepository {
         '/api/v1/dashboard/user/profile/password/update',
         data: data,
       );
-      return ApiResult.success(
-        data: ProfileResponse.fromJson(response.data),
-      );
+      return ApiResult.success(data: ProfileResponse.fromJson(response.data));
     } catch (e) {
       debugPrint('==> update password failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -168,23 +160,25 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('==> update firebase token failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
   @override
-  Future<ApiResult<DeliveryResponse>> editCarInfo(
-      {required String type,
-      required String brand,
-      required String model,
-      required String number,
-      required String color,
-      required String height,
-      required String weight,
-      required String length,
-      required String width,
-      String? imageUrl}) async {
+  Future<ApiResult<DeliveryResponse>> editCarInfo({
+    required String type,
+    required String brand,
+    required String model,
+    required String number,
+    required String color,
+    required String height,
+    required String weight,
+    required String length,
+    required String width,
+    String? imageUrl,
+  }) async {
     final data = {
       'type_of_technique': type,
       'brand': brand,
@@ -205,29 +199,29 @@ class UserRepositoryImpl implements UserRepository {
         '/api/v1/dashboard/deliveryman/settings',
         data: data,
       );
-      return ApiResult.success(
-        data: DeliveryResponse.fromJson(response.data),
-      );
+      return ApiResult.success(data: DeliveryResponse.fromJson(response.data));
     } catch (e) {
       debugPrint('==> update car details failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
   @override
-  Future<ApiResult<DeliveryResponse>> createCarInfo(
-      {required String type,
-      required String brand,
-      required String model,
-      required String number,
-      required String color,
-      required String height,
-      required String weight,
-      required String length,
-      required String width,
-      String? imageUrl}) async {
+  Future<ApiResult<DeliveryResponse>> createCarInfo({
+    required String type,
+    required String brand,
+    required String model,
+    required String number,
+    required String color,
+    required String height,
+    required String weight,
+    required String length,
+    required String width,
+    String? imageUrl,
+  }) async {
     final data = {
       "data": {
         "type_of_technique": type,
@@ -241,7 +235,7 @@ class UserRepositoryImpl implements UserRepository {
         'length': int.tryParse(length) ?? 0,
         "online": (LocalStorage.getUser()?.active ?? false) ? 1 : 0,
         if (imageUrl != null) 'images[0]': imageUrl,
-      }
+      },
     };
     debugPrint('===> create car info data ${jsonEncode(data)}');
     try {
@@ -256,65 +250,82 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e, s) {
       debugPrint('==> create car details failure: $e.$s');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
   @override
-  Future<ApiResult<StatisticsIncomeResponse>> getStatistics(
-      {required DateTime startTime, required DateTime endTime}) async {
+  Future<ApiResult<StatisticsIncomeResponse>> getStatistics({
+    required DateTime startTime,
+    required DateTime endTime,
+  }) async {
     try {
       final data = {
-        "date_from":
-            endTime.toString().substring(0, endTime.toString().indexOf(" ")),
-        "date_to": startTime
-            .toString()
-            .substring(0, startTime.toString().indexOf(" ")),
-        "type": "day"
+        "date_from": endTime.toString().substring(
+          0,
+          endTime.toString().indexOf(" "),
+        ),
+        "date_to": startTime.toString().substring(
+          0,
+          startTime.toString().indexOf(" "),
+        ),
+        "type": "day",
       };
       final client = dioHttp.client(requireAuth: true);
       final response = await client.get(
-          '/api/v1/dashboard/deliveryman/order/report',
-          queryParameters: data);
+        '/api/v1/dashboard/deliveryman/order/report',
+        queryParameters: data,
+      );
       return ApiResult.success(
         data: StatisticsIncomeResponse.fromJson(response.data),
       );
     } catch (e) {
       debugPrint('===> get statistics error $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
   @override
-  Future<ApiResult<StatisticsOrderResponse>> getStatisticsOrder(
-      {DateTime? startTime, DateTime? endTime, int? page, int? perPage}) async {
+  Future<ApiResult<StatisticsOrderResponse>> getStatisticsOrder({
+    DateTime? startTime,
+    DateTime? endTime,
+    int? page,
+    int? perPage,
+  }) async {
     try {
       final data = {
         if (endTime != null)
-          "date_from":
-              endTime.toString().substring(0, endTime.toString().indexOf(" ")),
+          "date_from": endTime.toString().substring(
+            0,
+            endTime.toString().indexOf(" "),
+          ),
         if (startTime != null)
-          "date_to": startTime
-              .toString()
-              .substring(0, startTime.toString().indexOf(" ")),
+          "date_to": startTime.toString().substring(
+            0,
+            startTime.toString().indexOf(" "),
+          ),
         "page": page,
-        "perPage": perPage ?? 10
+        "perPage": perPage ?? 10,
       };
       final client = dioHttp.client(requireAuth: true);
       final response = await client.get(
-          '/api/v1/dashboard/seller/orders/report/paginate',
-          queryParameters: data);
+        '/api/v1/dashboard/seller/orders/report/paginate',
+        queryParameters: data,
+      );
       return ApiResult.success(
         data: StatisticsOrderResponse.fromJson(response.data),
       );
     } catch (e) {
       debugPrint('===> get statistics order error $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -322,15 +333,14 @@ class UserRepositoryImpl implements UserRepository {
   Future<ApiResult> setOnline() async {
     try {
       final client = dioHttp.client(requireAuth: true);
-      await client.post(
-        '/api/v1/dashboard/deliveryman/settings/online',
-      );
+      await client.post('/api/v1/dashboard/deliveryman/settings/online');
       return const ApiResult.success(data: null);
     } catch (e) {
       debugPrint('==> update online token failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -338,15 +348,14 @@ class UserRepositoryImpl implements UserRepository {
   Future<ApiResult<RequestModelResponse>> getRequestModel() async {
     try {
       final client = dioHttp.client(requireAuth: true);
-      final res = await client.get(
-        '/api/v1/dashboard/user/request-models',
-      );
+      final res = await client.get('/api/v1/dashboard/user/request-models');
       return ApiResult.success(data: RequestModelResponse.fromJson(res.data));
     } catch (e) {
       debugPrint('==> get request model failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -363,8 +372,9 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('===> error statistics settings $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -376,19 +386,19 @@ class UserRepositoryImpl implements UserRepository {
         '/api/v1/dashboard/deliveryman/settings/location',
         data: {
           "location": LocalLocationData(
-                  latitude: location.latitude, longitude: location.longitude)
-              .toJson()
+            latitude: location.latitude,
+            longitude: location.longitude,
+          ).toJson(),
         },
       );
       LocalStorage.setDeliveryInfo(DeliveryResponse.fromJson(res.data));
-      return const ApiResult.success(
-        data: null,
-      );
+      return const ApiResult.success(data: null);
     } catch (e, s) {
       debugPrint('===> error statistics settings $e,$s');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -396,16 +406,13 @@ class UserRepositoryImpl implements UserRepository {
   Future<ApiResult> deleteAccount() async {
     try {
       final client = dioHttp.client(requireAuth: true);
-      await client.delete(
-        '/api/v1/dashboard/user/profile/delete',
-      );
-      return const ApiResult.success(
-        data: null,
-      );
+      await client.delete('/api/v1/dashboard/user/profile/delete');
+      return const ApiResult.success(data: null);
     } catch (e) {
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -418,9 +425,7 @@ class UserRepositoryImpl implements UserRepository {
       final location = {'0': point.latitude, '1': point.longitude};
       tapped.add(location);
     }
-    final data = {
-      'address': tapped,
-    };
+    final data = {'address': tapped};
     debugPrint('====> update delivery zone ${jsonEncode(data)}');
     try {
       final client = dioHttp.client(requireAuth: true);
@@ -432,8 +437,9 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('==> update delivery zones failure: $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 
@@ -456,8 +462,9 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('===> error get delivery zone $e');
       return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
     }
   }
 }

@@ -22,23 +22,18 @@ class PushOrderNotifier extends StateNotifier<PushOrderState> {
       _initialTime = AppHelpers.getAppDeliveryTime();
       _timer?.cancel();
     }
-    _timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (timer) {
-        if (_initialTime < 1) {
-          _timer?.cancel();
-          state = state.copyWith(
-            isTimeOut: true,
-          );
-        } else {
-          _initialTime--;
-          state = state.copyWith(
-            isTimeOut: false,
-            timerText: formatHHMMSS(_initialTime),
-          );
-        }
-      },
-    );
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_initialTime < 1) {
+        _timer?.cancel();
+        state = state.copyWith(isTimeOut: true);
+      } else {
+        _initialTime--;
+        state = state.copyWith(
+          isTimeOut: false,
+          timerText: formatHHMMSS(_initialTime),
+        );
+      }
+    });
   }
 
   String formatHHMMSS(int seconds) {
@@ -47,7 +42,7 @@ class PushOrderNotifier extends StateNotifier<PushOrderState> {
     return "$secondsStr s";
   }
 
-  changeLoading(){
-    state=state.copyWith(isLoading:!state.isLoading);
+  void changeLoading() {
+    state = state.copyWith(isLoading: !state.isLoading);
   }
 }

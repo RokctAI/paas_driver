@@ -7,8 +7,12 @@ class BlurWrap extends StatelessWidget {
   final BorderRadius radius;
   final double blur;
 
-  const BlurWrap(
-      {super.key, required this.child, required this.radius, this.blur = 13});
+  const BlurWrap({
+    super.key,
+    required this.child,
+    required this.radius,
+    this.blur = 13,
+  });
 
   @override
   Widget build(BuildContext context) {

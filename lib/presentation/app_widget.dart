@@ -14,7 +14,7 @@ class AppWidget extends ConsumerWidget {
   Future fetchSetting() async {
     final connect = await Connectivity().checkConnectivity();
     if (!connect.contains(ConnectivityResult.none)) {
-      settingsRepository.getGlobalSettings();
+      await settingsRepository.getGlobalSettings();
       await settingsRepository.getLanguages();
       await settingsRepository.getTranslations();
     }
@@ -25,8 +25,7 @@ class AppWidget extends ConsumerWidget {
     return FutureBuilder(
       future: Future.wait([
         setUpDependencies(),
-        LocalStorage.init(),
-        if (LocalStorage.getTranslations().isEmpty) fetchSetting()
+        if (LocalStorage.getTranslations().isEmpty) fetchSetting(),
       ]),
       builder: (context, AsyncSnapshot<List<dynamic>> snap) {
         return ScreenUtilInit(
@@ -34,10 +33,8 @@ class AppWidget extends ConsumerWidget {
           designSize: const Size(375, 812),
           builder: (context, child) {
             return RefreshConfiguration(
-              footerBuilder: () => const ClassicFooter(
-                idleIcon: SizedBox(),
-                idleText: '',
-              ),
+              footerBuilder: () =>
+                  const ClassicFooter(idleIcon: SizedBox(), idleText: ''),
               child: MaterialApp.router(
                 theme: ThemeData(useMaterial3: false),
                 debugShowCheckedModeBanner: false,

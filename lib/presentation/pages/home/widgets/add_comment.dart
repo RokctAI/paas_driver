@@ -16,9 +16,7 @@ class AddComment extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         children: [
-          TitleAndIcon(
-            title: AppHelpers.getTranslation(TrKeys.addComment),
-          ),
+          TitleAndIcon(title: AppHelpers.getTranslation(TrKeys.addComment)),
           24.verticalSpace,
           UnderlinedBorderTextField(
             label: AppHelpers.getTranslation(TrKeys.comment),

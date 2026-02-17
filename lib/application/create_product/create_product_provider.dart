@@ -5,5 +5,5 @@ import 'create_product_state.dart';
 
 final createProductProvider =
     StateNotifierProvider<CreateProductNotifier, CreateProductState>(
-  (ref) => CreateProductNotifier(),
-);
+      (ref) => CreateProductNotifier(),
+    );

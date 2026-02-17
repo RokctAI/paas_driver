@@ -12,7 +12,7 @@ class ProfileImageNotifier extends StateNotifier<ProfileImageState> {
   final SettingsRepository _settingsRepository;
 
   ProfileImageNotifier(this._userRepository, this._settingsRepository)
-      : super(const ProfileImageState());
+    : super(const ProfileImageState());
 
   Future<void> updateProfileImage({
     required BuildContext context,
@@ -20,8 +20,10 @@ class ProfileImageNotifier extends StateNotifier<ProfileImageState> {
     String? firstname,
   }) async {
     String? url;
-    final imageResponse =
-        await _settingsRepository.uploadImage(path, UploadType.users);
+    final imageResponse = await _settingsRepository.uploadImage(
+      path,
+      UploadType.users,
+    );
     imageResponse.when(
       success: (data) {
         url = data.imageData?.title;
@@ -60,8 +62,10 @@ class ProfileImageNotifier extends StateNotifier<ProfileImageState> {
     required BuildContext context,
     required String path,
   }) async {
-    final imageResponse =
-        await _settingsRepository.uploadImage(path, UploadType.deliveryCar);
+    final imageResponse = await _settingsRepository.uploadImage(
+      path,
+      UploadType.deliveryCar,
+    );
     imageResponse.when(
       success: (data) {
         state = state.copyWith(carImageUrl: data.imageData?.title);
@@ -80,8 +84,11 @@ class ProfileImageNotifier extends StateNotifier<ProfileImageState> {
     state = state.copyWith(carImageUrl: url);
   }
 
-  void changePhoto(
-      {String? path, String? firstname, required BuildContext context}) {
+  void changePhoto({
+    String? path,
+    String? firstname,
+    required BuildContext context,
+  }) {
     state = state.copyWith(path: path, imageUrl: null);
     if (path != null) {
       updateProfileImage(path: path, firstname: firstname, context: context);
