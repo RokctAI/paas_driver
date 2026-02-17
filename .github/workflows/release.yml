@@ -1,0 +1,31 @@
+name: Auto Release (Weekly)
+on:
+  push:
+    branches: [main, develop, "build_*"]
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    uses: RokctAI/shared-workflows/.github/workflows/universal-pipeline.yml@main
+    with:
+      project_type: 'flutter'
+      app-type: 'driver'
+      # Dogfooding: Use the new Weekly Strategy
+      release_strategy: 'weekly'
+
+      # RC Cleanup: Delete RC releases/tags after promotion to stable
+      cleanup_rc_releases: true
+      
+      # One-time cleanup: Set a cutoff date (YYYY-MM-DD) to run cleanup once if past this date
+      # After cleanup runs once, a marker file is created and cleanup won't run again
+      # Example: one_time_cleanup_cutoff_date: '2026-02-01'
+      one_time_cleanup_cutoff_date: '2026-01-30'
+      
+      # Brain Endpoint 
+      brain_endpoint: https://platform.rokct.ai/api/method/brain.api.generate_release_notes
+
+      # Build APK
+      build_android: true
+      flutter-version: '3.24.0'
+    secrets: inherit
