@@ -151,7 +151,7 @@ class LocalStorage {
     if (dataString.isNotEmpty) {
       LatLng data =
           LatLng.fromJson(jsonDecode(dataString)) ??
-          const LatLng(AppConstants.demoLatitude, AppConstants.demoLongitude);
+          LatLng(AppConstants.demoLatitude, AppConstants.demoLongitude);
       return data;
     } else {
       return null;
