@@ -42,7 +42,7 @@ class _AuthTabBarState extends State<AuthTabBar> {
             color: Style.black.withValues(alpha: 0.05),
             blurRadius: 2,
             offset: const Offset(0, 1),
-          )
+          ),
         ],
       ),
       child: TabBar(
@@ -57,23 +57,25 @@ class _AuthTabBarState extends State<AuthTabBar> {
         unselectedLabelStyle: Style.interNormal(size: 12.sp),
         labelStyle: Style.interSemi(size: 12.sp),
         tabs: widget.tabs
-            .map((tab) => Tab(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        tab.icon,
-                        size: 18.r,
-                        color: widget.tabController.index ==
-                                widget.tabs.indexOf(tab)
-                            ? Style.black
-                            : Style.black.withValues(alpha: 0.5),
-                      ),
-                      8.horizontalSpace,
-                      Text(AppHelpers.getTranslation(tab.text)),
-                    ],
-                  ),
-                ))
+            .map(
+              (tab) => Tab(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      tab.icon,
+                      size: 18.r,
+                      color:
+                          widget.tabController.index == widget.tabs.indexOf(tab)
+                          ? Style.black
+                          : Style.black.withValues(alpha: 0.5),
+                    ),
+                    8.horizontalSpace,
+                    Text(AppHelpers.getTranslation(tab.text)),
+                  ],
+                ),
+              ),
+            )
             .toList(),
       ),
     );
@@ -84,8 +86,5 @@ class AuthTab {
   final String text;
   final IconData icon;
 
-  const AuthTab({
-    required this.text,
-    required this.icon,
-  });
+  const AuthTab({required this.text, required this.icon});
 }

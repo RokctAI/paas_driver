@@ -20,5 +20,4 @@ class Assets {
   static const String lottieProcessing = 'assets/lottie/processing.json';
   static const String svgBalance = 'assets/svg/balance.svg';
   static const String svgMyLocation = 'assets/svg/my_location.svg';
-
 }

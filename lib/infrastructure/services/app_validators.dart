@@ -57,7 +57,8 @@ class AppValidators {
     print(input);
     if (isValidEmail2(input)) {
       return TrKeys.email;
-    }  if (isValidPhone(input)) {
+    }
+    if (isValidPhone(input)) {
       return TrKeys.phone;
     } else {
       return TrKeys.invalid;

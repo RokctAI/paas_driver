@@ -48,7 +48,11 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
 
   void setEmail(String value) {
     print("email value: $value");
-    state = state.copyWith(email: value.trim(), isEmailInvalid: false,isPhoneNotValid: false);
+    state = state.copyWith(
+      email: value.trim(),
+      isEmailInvalid: false,
+      isPhoneNotValid: false,
+    );
   }
 
   void toggleShowPassword() {
@@ -104,7 +108,6 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       if (state.phone.isEmpty || !AppValidators.isValidPhone(state.phone)) {
-
         state = state.copyWith(isPhoneInvalid: true);
         return;
       }
@@ -214,7 +217,11 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
   }
 
   void setPhone(String value) {
-    state = state.copyWith(phone: value.trim(), isPhoneInvalid: false,isEmailInvalid: false);
+    state = state.copyWith(
+      phone: value.trim(),
+      isPhoneInvalid: false,
+      isEmailInvalid: false,
+    );
   }
 
   void setLatName(String name) {
@@ -231,7 +238,7 @@ class SignUpNotifier extends StateNotifier<SignUpState> {
 
   Future<void> registerWithPhone(BuildContext context, String? phone) async {
     final connected = await AppConnectivity.connectivity();
-    
+
     print("===> Register with phone called");
     state = state.copyWith(isPasswordInvalid: false);
     if (connected) {

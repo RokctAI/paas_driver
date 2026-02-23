@@ -174,8 +174,7 @@ class TrKeys {
   static const String yourBenefit = "your.benefit";
   static const String thereAreOrders = "there.are";
   static const String setBusinessDay = "set.as.a.business.day";
-  static const String enterOpeningHours =
-      "enter.the.restaurants.opening.hours";
+  static const String enterOpeningHours = "enter.the.restaurants.opening.hours";
   static const String workingTime = 'working.time';
   static const String locationConfirmation = 'location.confirmation';
   static const String save = 'save';

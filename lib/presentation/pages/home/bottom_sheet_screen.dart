@@ -112,10 +112,7 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
                 shape: BoxShape.circle,
                 color: Style.black,
               ),
-              child: Icon(
-                FlutterRemix.file_list_2_fill,
-                color: Style.primary,
-              ),
+              child: Icon(FlutterRemix.file_list_2_fill, color: Style.primary),
             ),
             14.horizontalSpace,
             Column(

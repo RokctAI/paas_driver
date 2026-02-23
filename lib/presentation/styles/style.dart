@@ -70,7 +70,6 @@ abstract class Style {
 
   static const shadowColor = Color(0xFF7D7D7D);
 
-
   static Color get primary =>
       _getColorFromSettings('primary_color', const Color(0xFF83EA00));
 
@@ -80,7 +79,7 @@ abstract class Style {
   static Color _getColorFromSettings(String key, Color defaultColor) {
     final settings = LocalStorage.getSettingsList();
     final setting = settings.firstWhere(
-          (s) => s.key == key,
+      (s) => s.key == key,
       orElse: () => SettingsData(),
     );
 
@@ -92,7 +91,6 @@ abstract class Style {
       return defaultColor;
     }
   }
-
 
   /// @@@@@@@@@@@@@@@@@ Fonts @@@@@@@@@@@@@@@@@@@@@@@@
 
