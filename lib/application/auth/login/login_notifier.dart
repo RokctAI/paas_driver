@@ -60,14 +60,14 @@ class LoginNotifier extends StateNotifier<LoginState> {
     required int index,
   }) async {
     if (await AppConnectivity.connectivity()) {
-      if(index == 0) {
+      if (index == 0) {
         if (!AppValidators.isValidPhone(state.email)) {
-          state=state.copyWith(isPhoneNotValid: true);
+          state = state.copyWith(isPhoneNotValid: true);
           return;
         }
-      }else {
+      } else {
         if (!AppValidators.isValidEmail(state.email)) {
-          state=state.copyWith(isEmailNotValid: true);
+          state = state.copyWith(isEmailNotValid: true);
           return;
         }
       }

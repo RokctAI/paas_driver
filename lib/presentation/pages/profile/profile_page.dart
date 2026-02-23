@@ -127,7 +127,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 ),
                                 Text(
                                   AppHelpers.numberFormat(
-                                    number: LocalStorage.getUser()?.wallet?.price,
+                                    number:
+                                        LocalStorage.getUser()?.wallet?.price,
                                     maxLength: 8,
                                   ),
                                   style: Style.interSemi(

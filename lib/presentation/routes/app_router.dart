@@ -5,7 +5,7 @@ import 'app_router.gr.dart';
 @AutoRouterConfig()
 class AppRouter extends RootStackRouter {
   @override
-  List<AutoRoute> get routes =>  [
+  List<AutoRoute> get routes => [
     CupertinoRoute(path: '/', page: SplashRoute.page),
     CupertinoRoute(path: '/no-connection', page: NoConnectionRoute.page),
     CupertinoRoute(path: '/login', page: LoginRoute.page),
@@ -13,7 +13,10 @@ class AppRouter extends RootStackRouter {
     CupertinoRoute(path: '/home', page: HomeRoute.page),
     CupertinoRoute(path: '/story', page: StoryRoute.page),
     CupertinoRoute(path: '/profile', page: ProfileRoute.page),
-    CupertinoRoute(path: '/list-notification', page: NotificationListRoute.page),
+    CupertinoRoute(
+      path: '/list-notification',
+      page: NotificationListRoute.page,
+    ),
     CupertinoRoute(path: '/order-history', page: OrderHistoryRoute.page),
     CupertinoRoute(path: '/parcel-history', page: ParcelHistoryRoute.page),
     CupertinoRoute(path: '/orders', page: OrdersRoute.page),
@@ -21,5 +24,4 @@ class AppRouter extends RootStackRouter {
     CupertinoRoute(path: '/become-driver', page: BecomeDriverRoute.page),
     CupertinoRoute(path: '/delivery-zone', page: DeliveryZoneRoute.page),
   ];
-
 }
