@@ -22,7 +22,7 @@ on:
         - appbundle
       flutter-version:
         type: string
-        default: '3.24.0'
+        default: '3.38.5'
 
 jobs:
   # --- 1. DETECT PROJECT TYPE ---
@@ -63,6 +63,6 @@ jobs:
       # Deployment Configuration (Immediate release on Main)
       release_strategy: 'immediate'
       build_android: true
-      flutter-version: ${{ inputs.flutter-version || '3.24.0' }}
+      flutter-version: ${{ inputs.flutter-version || '3.38.5' }}
       app-type: 'driver'
     secrets: inherit
