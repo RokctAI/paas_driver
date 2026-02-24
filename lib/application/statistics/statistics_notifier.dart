@@ -30,7 +30,7 @@ class StatisticsNotifier extends StateNotifier<StatisticsState> {
         }
         addListInfo();
       },
-      failure: (fail,s) {
+      failure: (fail, s) {
         if (state.countData == null) {
           state = state.copyWith(isLoading: false);
         }
@@ -39,17 +39,19 @@ class StatisticsNotifier extends StateNotifier<StatisticsState> {
     );
   }
 
-  Future<void> fetchStatisticsOrder(
-      {DateTime? endTime, DateTime? startTime,}) async {
+  Future<void> fetchStatisticsOrder({
+    DateTime? endTime,
+    DateTime? startTime,
+  }) async {
     page = 1;
-    state = state.copyWith(isLoading: true,isRefresh: true);
+    state = state.copyWith(isLoading: true, isRefresh: true);
     final response = await _userRepository.getStatisticsOrder(
         startTime: startTime, endTime: endTime, page: 1);
     response.when(
       success: (data) {
         state = state.copyWith(listOfOrder: data.data ?? [], isLoading: false);
       },
-      failure: (fail,s) {
+      failure: (fail, s) {
         state = state.copyWith(isLoading: false);
 
         debugPrint('==> error with fetching statistics $fail');
@@ -60,14 +62,14 @@ class StatisticsNotifier extends StateNotifier<StatisticsState> {
   Future<void> fetchStatisticsOrderByDay(
       {DateTime? endTime, DateTime? startTime}) async {
     page = 1;
-    state = state.copyWith(isLoading: true,isRefresh: false);
+    state = state.copyWith(isLoading: true, isRefresh: false);
     final response = await _userRepository.getStatisticsOrder(
-        startTime: startTime, endTime: endTime, page: 1,perPage: 100);
+        startTime: startTime, endTime: endTime, page: 1, perPage: 100);
     response.when(
       success: (data) {
         state = state.copyWith(listOfOrder: data.data ?? [], isLoading: false);
       },
-      failure: (fail,s) {
+      failure: (fail, s) {
         state = state.copyWith(isLoading: false);
 
         debugPrint('==> error with fetching statistics $fail');
@@ -88,7 +90,7 @@ class StatisticsNotifier extends StateNotifier<StatisticsState> {
         refreshController?.loadComplete();
         state = state.copyWith(listOfOrder: newList);
       },
-      failure: (fail,s) {
+      failure: (fail, s) {
         refreshController?.loadNoData();
         if (state.countData == null) {
           state = state.copyWith(isLoading: false);

@@ -2,7 +2,6 @@ import 'package:driver/domain/handlers/api_result.dart';
 import 'package:driver/infrastructure/models/models.dart';
 
 abstract class NotificationRepositoryFacade {
-
   Future<ApiResult<NotificationResponse>> getNotifications({
     int? page,
   });
@@ -14,7 +13,6 @@ abstract class NotificationRepositoryFacade {
   });
 
   Future<ApiResult<NotificationResponse>> readAll();
-
 
   Future<ApiResult<CountNotificationModel>> getCount();
 }

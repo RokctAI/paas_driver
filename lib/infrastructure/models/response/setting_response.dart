@@ -1,5 +1,3 @@
-
-
 import '../data/setting.dart';
 
 class SettingsResponse {

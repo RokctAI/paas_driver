@@ -10,7 +10,11 @@ class CustomToggle extends StatefulWidget {
   final ValueChanged<bool> onChange;
   final bool isOrder;
 
-  const CustomToggle({super.key, required this.isOnline, required this.onChange,  this.isOrder = false});
+  const CustomToggle(
+      {super.key,
+      required this.isOnline,
+      required this.onChange,
+      this.isOrder = false});
 
   @override
   State<CustomToggle> createState() => _CustomToggleState();
@@ -43,11 +47,11 @@ class _CustomToggleState extends State<CustomToggle> {
       inactiveColor: Style.toggleColor,
       borderRadius: BorderRadius.circular(10.r),
       width: widget.isOrder ? 70.w : 94.w,
-      height:  widget.isOrder ? 32.w : 40.h,
+      height: widget.isOrder ? 32.w : 40.h,
       enabled: true,
       disabledOpacity: 0.5,
       thumb: Container(
-        margin: EdgeInsets.all(  widget.isOrder ? 2.r : 4.r),
+        margin: EdgeInsets.all(widget.isOrder ? 2.r : 4.r),
         padding: EdgeInsets.symmetric(
           vertical: 6.h,
         ),
@@ -81,7 +85,9 @@ class _CustomToggleState extends State<CustomToggle> {
         ),
       ),
       activeChild: Text(
-          !widget.isOrder ?  AppHelpers.getTranslation(TrKeys.online) : AppHelpers.getTranslation(TrKeys.active),
+        !widget.isOrder
+            ? AppHelpers.getTranslation(TrKeys.online)
+            : AppHelpers.getTranslation(TrKeys.active),
         style: Style.interNormal(
           size: widget.isOrder ? 10.sp : 12.sp,
           letterSpacing: -0.3,
@@ -89,7 +95,9 @@ class _CustomToggleState extends State<CustomToggle> {
         ),
       ),
       inactiveChild: Text(
-        !widget.isOrder ?  AppHelpers.getTranslation(TrKeys.offline) : AppHelpers.getTranslation(TrKeys.inActive),
+        !widget.isOrder
+            ? AppHelpers.getTranslation(TrKeys.offline)
+            : AppHelpers.getTranslation(TrKeys.inActive),
         style: Style.interNormal(
           size: widget.isOrder ? 10.sp : 12.sp,
           letterSpacing: -0.3,

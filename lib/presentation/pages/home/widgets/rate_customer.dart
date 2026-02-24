@@ -76,20 +76,19 @@ class _RateCustomerState extends State<RateCustomer> {
                 title: AppHelpers.getTranslation(TrKeys.send),
                 onPressed: () {
                   Navigator.pop(context);
-                  if(widget.order == null){
+                  if (widget.order == null) {
                     ref.read(homeProvider.notifier).addReviewParcel(
                         context: context,
                         parcelId: widget.parcel?.id,
                         rating: rate,
                         comment: note);
-                  }else{
+                  } else {
                     ref.read(homeProvider.notifier).addReview(
                         context: context,
                         orderId: widget.order?.id,
                         rating: rate,
                         comment: note);
                   }
-
                 },
               );
             },

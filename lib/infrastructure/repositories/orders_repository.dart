@@ -8,8 +8,6 @@ import '../../../domain/handlers/handlers.dart';
 import '../models/data/order_paginate_response.dart';
 
 class OrdersRepository implements OrdersRepositoryFacade {
-
-
   @override
   Future<ApiResult<OrderPaginateResponse>> getActiveOrders(int page) async {
     final data = {

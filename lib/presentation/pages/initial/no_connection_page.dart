@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:driver/infrastructure/services/services.dart';
 import 'package:driver/presentation/routes/app_router.gr.dart';
 import 'package:driver/presentation/styles/style.dart';
+
 @RoutePage()
 class NoConnectionPage extends ConsumerWidget {
   const NoConnectionPage({super.key});
@@ -17,7 +18,7 @@ class NoConnectionPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Style.white,
       body: Padding(
-        padding: REdgeInsets.symmetric(horizontal: 16,vertical: 48),
+        padding: REdgeInsets.symmetric(horizontal: 16, vertical: 48),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

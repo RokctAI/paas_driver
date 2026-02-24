@@ -19,12 +19,12 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
   final config = CalendarDatePicker2Config(
     calendarType: CalendarDatePicker2Type.range,
     selectedDayHighlightColor: Style.primaryColor,
-    weekdayLabelTextStyle: Style.interNormal(
-        size: 14.sp, letterSpacing: -0.3, color: Style.black),
-    controlsTextStyle: Style.interNormal(
-        size: 14.sp, letterSpacing: -0.3, color: Style.black),
-    dayTextStyle: Style.interNormal(
-        size: 14.sp, letterSpacing: -0.3, color: Style.black),
+    weekdayLabelTextStyle:
+        Style.interNormal(size: 14.sp, letterSpacing: -0.3, color: Style.black),
+    controlsTextStyle:
+        Style.interNormal(size: 14.sp, letterSpacing: -0.3, color: Style.black),
+    dayTextStyle:
+        Style.interNormal(size: 14.sp, letterSpacing: -0.3, color: Style.black),
     disabledDayTextStyle: Style.interNormal(
         size: 14.sp, letterSpacing: -0.3, color: Style.textColor),
     dayBorderRadius: BorderRadius.circular(10.r),
@@ -33,9 +33,10 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
   @override
   Widget build(BuildContext context) {
     return CalendarDatePicker2(
-        key: UniqueKey(),
-        config: config,
-        // initialValue: widget.range,
-        onValueChanged: widget.onChange, value: const [],);
+      key: UniqueKey(),
+      config: config,
+      // initialValue: widget.range,
+      onValueChanged: widget.onChange, value: const [],
+    );
   }
 }

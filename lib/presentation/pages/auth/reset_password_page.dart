@@ -43,7 +43,8 @@ class ResetPasswordPage extends ConsumerWidget {
                     Column(
                       children: [
                         AppBarBottomSheet(
-                          title: AppHelpers.getTranslation(TrKeys.resetPassword),
+                          title:
+                              AppHelpers.getTranslation(TrKeys.resetPassword),
                         ),
                         Text(
                           AppHelpers.getTranslation(TrKeys.resetPasswordText),
@@ -52,7 +53,8 @@ class ResetPasswordPage extends ConsumerWidget {
                         ),
                         40.verticalSpace,
                         UnderlinedBorderTextField(
-                          label: AppHelpers.getTranslation(TrKeys.email).toUpperCase(),
+                          label: AppHelpers.getTranslation(TrKeys.email)
+                              .toUpperCase(),
                           onChanged: notifier.setEmail,
                         ),
                       ],

@@ -532,8 +532,9 @@ class Shop {
     _tax = json['tax'];
     _deliveryRange = json['delivery_range'];
     _percentage = json['percentage'];
-    _location =
-        json['location'] != null ? LocalLocationData.fromJson(json['location']) : null;
+    _location = json['location'] != null
+        ? LocalLocationData.fromJson(json['location'])
+        : null;
     _phone = json['phone'];
     _showType = json['show_type'];
     _open = json['open'];

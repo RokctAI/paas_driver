@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_remix/flutter_remix.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -83,10 +81,12 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     SizedBox(
-                                      width: MediaQuery.sizeOf(context).width - 180.w,
+                                      width: MediaQuery.sizeOf(context).width -
+                                          180.w,
                                       child: Text(
                                         parcel?.addressFrom?.address ?? "",
-                                        style: Style.interSemi(size: 14.sp, letterSpacing: -0.3),
+                                        style: Style.interSemi(
+                                            size: 14.sp, letterSpacing: -0.3),
                                       ),
                                     ),
                                     2.verticalSpace,
@@ -96,14 +96,17 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                           Text(
                                             "№ ${parcel?.id}",
                                             style: Style.interNormal(
-                                                size: 14.sp, letterSpacing: -0.3),
+                                                size: 14.sp,
+                                                letterSpacing: -0.3),
                                           ),
                                           const VerticalDivider(),
                                           Text(
-                                            intl.DateFormat("hh:mm")
-                                                .format(parcel?.updatedAt ?? DateTime.now()),
+                                            intl.DateFormat("hh:mm").format(
+                                                parcel?.updatedAt ??
+                                                    DateTime.now()),
                                             style: Style.interNormal(
-                                                size: 14.sp, letterSpacing: -0.3),
+                                                size: 14.sp,
+                                                letterSpacing: -0.3),
                                           ),
                                           16.horizontalSpace,
                                           Icon(
@@ -115,15 +118,20 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                               horizontal: 6.w,
                                             ),
                                             onPressed: () async {
-                                              AppHelpers.showCustomModalBottomSheet(
-                                                  context: context,
-                                                  modal: MapsList(
-                                                      location: Coords(
-                                                        parcel?.addressFrom?.latitude ?? 0,
-                                                        parcel?.addressFrom?.longitude ?? 0,
-                                                      ),
-                                                      title: "A"),
-                                                  isDarkMode: false);
+                                              AppHelpers
+                                                  .showCustomModalBottomSheet(
+                                                      context: context,
+                                                      modal: MapsList(
+                                                          location: Coords(
+                                                            parcel?.addressFrom
+                                                                    ?.latitude ??
+                                                                0,
+                                                            parcel?.addressFrom
+                                                                    ?.longitude ??
+                                                                0,
+                                                          ),
+                                                          title: "A"),
+                                                      isDarkMode: false);
                                             },
                                             icon: Icon(
                                               FlutterRemix.map_2_fill,
@@ -150,7 +158,8 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                         height: 38.r,
                                         width: 38.r,
                                         decoration: const BoxDecoration(
-                                            color: Style.black, shape: BoxShape.circle),
+                                            color: Style.black,
+                                            shape: BoxShape.circle),
                                         margin: EdgeInsets.all(4.r),
                                         child: Icon(
                                           FlutterRemix.phone_fill,
@@ -171,7 +180,8 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                         height: 38.r,
                                         width: 38.r,
                                         decoration: const BoxDecoration(
-                                            color: Style.black, shape: BoxShape.circle),
+                                            color: Style.black,
+                                            shape: BoxShape.circle),
                                         margin: EdgeInsets.all(4.r),
                                         child: Icon(
                                           FlutterRemix.chat_1_fill,
@@ -190,16 +200,20 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                               children: [
                                 16.horizontalSpace,
                                 SizedBox(
-                                  width: MediaQuery.sizeOf(context).width - 180.w,
+                                  width:
+                                      MediaQuery.sizeOf(context).width - 180.w,
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       SizedBox(
-                                        width: MediaQuery.sizeOf(context).width - 190.w,
+                                        width:
+                                            MediaQuery.sizeOf(context).width -
+                                                190.w,
                                         child: Text(
                                           parcel?.addressTo?.address ?? "",
-                                          style:
-                                          Style.interSemi(size: 14.sp, letterSpacing: -0.3),
+                                          style: Style.interSemi(
+                                              size: 14.sp, letterSpacing: -0.3),
                                           maxLines: 1,
                                         ),
                                       ),
@@ -211,27 +225,35 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                               child: Text(
                                                 parcel?.usernameTo ?? "",
                                                 style: Style.interNormal(
-                                                    size: 12.sp, letterSpacing: -0.3),
+                                                    size: 12.sp,
+                                                    letterSpacing: -0.3),
                                               ),
                                             ),
                                             const VerticalDivider(),
                                             Text(
                                               parcel?.phoneTo ?? "",
                                               style: Style.interNormal(
-                                                  size: 12.sp, letterSpacing: -0.3),
+                                                  size: 12.sp,
+                                                  letterSpacing: -0.3),
                                             ),
                                             IconButton(
-                                              padding: EdgeInsets.symmetric(horizontal: 6.w),
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 6.w),
                                               onPressed: () {
-                                                AppHelpers.showCustomModalBottomSheet(
-                                                    context: context,
-                                                    modal: MapsList(
-                                                        location: Coords(
-                                                          parcel?.addressTo?.latitude ?? 0,
-                                                          parcel?.addressTo?.longitude ?? 0,
-                                                        ),
-                                                        title: "B"),
-                                                    isDarkMode: false);
+                                                AppHelpers
+                                                    .showCustomModalBottomSheet(
+                                                        context: context,
+                                                        modal: MapsList(
+                                                            location: Coords(
+                                                              parcel?.addressTo
+                                                                      ?.latitude ??
+                                                                  0,
+                                                              parcel?.addressTo
+                                                                      ?.longitude ??
+                                                                  0,
+                                                            ),
+                                                            title: "B"),
+                                                        isDarkMode: false);
                                               },
                                               icon: Icon(
                                                 FlutterRemix.map_2_fill,
@@ -259,7 +281,8 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                         height: 38.r,
                                         width: 38.r,
                                         decoration: const BoxDecoration(
-                                            color: Style.black, shape: BoxShape.circle),
+                                            color: Style.black,
+                                            shape: BoxShape.circle),
                                         margin: EdgeInsets.all(4.r),
                                         child: Icon(
                                           FlutterRemix.phone_fill,
@@ -280,7 +303,8 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                         height: 38.r,
                                         width: 38.r,
                                         decoration: const BoxDecoration(
-                                            color: Style.black, shape: BoxShape.circle),
+                                            color: Style.black,
+                                            shape: BoxShape.circle),
                                         margin: EdgeInsets.all(4.r),
                                         child: Icon(
                                           FlutterRemix.chat_1_fill,
@@ -298,8 +322,10 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                         24.verticalSpace,
                         CustomButton(
                           title: ref.watch(homeProvider).isGoRestaurant
-                              ? AppHelpers.getTranslation(TrKeys.completeCheckout)
-                              : AppHelpers.getTranslation(TrKeys.iDeliveredTheOrder),
+                              ? AppHelpers.getTranslation(
+                                  TrKeys.completeCheckout)
+                              : AppHelpers.getTranslation(
+                                  TrKeys.iDeliveredTheOrder),
                           onPressed: () {
                             if (ref.watch(homeProvider).isGoRestaurant) {
                               AppHelpers.showAlertDialog(
@@ -308,7 +334,9 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                     parcel: parcel,
                                   ));
                             } else {
-                              ref.read(homeProvider.notifier).deliveredFinishParcel(
+                              ref
+                                  .read(homeProvider.notifier)
+                                  .deliveredFinishParcel(
                                     context: context,
                                     parcelId: parcel?.id,
                                   );

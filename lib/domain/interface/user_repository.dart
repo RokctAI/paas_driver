@@ -4,7 +4,6 @@ import '../../infrastructure/models/models.dart';
 import '../handlers/handlers.dart';
 
 abstract class UserRepository {
-
   Future<ApiResult<List<DeliveryVehicleType>>> getDeliveryVehicleTypes();
 
   Future<ApiResult<DeliveryResponse>> getDriverDetails();
@@ -73,8 +72,6 @@ abstract class UserRepository {
   });
 
   Future<ApiResult<void>> updateFirebaseToken(String? token);
-
-
 
   Future<ApiResult<dynamic>> deleteAccount();
 

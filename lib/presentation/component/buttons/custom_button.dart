@@ -35,7 +35,7 @@ class CustomButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           side: BorderSide(
               color:
-              borderColor == Style.transparent ? background : borderColor,
+                  borderColor == Style.transparent ? background : borderColor,
               width: 2.r),
           elevation: 0,
           shadowColor: Style.transparent,
@@ -48,34 +48,34 @@ class CustomButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         child: isLoading
             ? SizedBox(
-          width: 20.r,
-          height: 20.r,
-          child: CircularProgressIndicator(
-            color: textColor,
-            strokeWidth: 2.r,
-          ),
-        )
+                width: 20.r,
+                height: 20.r,
+                child: CircularProgressIndicator(
+                  color: textColor,
+                  strokeWidth: 2.r,
+                ),
+              )
             : Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            icon == null
-                ? const SizedBox()
-                : Row(
-              children: [
-                icon!,
-                10.horizontalSpace,
-              ],
-            ),
-            Text(
-              title,
-              style: Style.interNormal(
-                size: 15,
-                color: textColor,
-                letterSpacing: -14 * 0.01,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  icon == null
+                      ? const SizedBox()
+                      : Row(
+                          children: [
+                            icon!,
+                            10.horizontalSpace,
+                          ],
+                        ),
+                  Text(
+                    title,
+                    style: Style.interNormal(
+                      size: 15,
+                      color: textColor,
+                      letterSpacing: -14 * 0.01,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

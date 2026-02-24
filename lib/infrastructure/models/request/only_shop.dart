@@ -1,5 +1,3 @@
-
-
 import '../../services/local_storage.dart';
 
 class OnlyShopRequest {

@@ -8,11 +8,12 @@ class OutsidePolygonPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
-      ..color = Colors.red.withOpacity(0.5)  // Color for the outside area
+      ..color = Colors.red.withOpacity(0.5) // Color for the outside area
       ..style = PaintingStyle.fill;
 
     Path path = Path()
-      ..addRect(Rect.fromLTWH(0, 0, size.width, size.height)); // Cover entire map
+      ..addRect(
+          Rect.fromLTWH(0, 0, size.width, size.height)); // Cover entire map
 
     // Convert LatLng to screen coordinates
     for (int i = 0; i < polygonLatLngs.length; i++) {

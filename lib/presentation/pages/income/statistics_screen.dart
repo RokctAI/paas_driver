@@ -54,17 +54,13 @@ class StatisticsScreen extends StatelessWidget {
                     Text(
                       AppHelpers.getTranslation(TrKeys.totalOrders),
                       style: Style.interNormal(
-                          size: 12.sp,
-                          color: Style.black,
-                          letterSpacing: -0.3),
+                          size: 12.sp, color: Style.black, letterSpacing: -0.3),
                     ),
                     const Spacer(),
                     Text(
                       totalOrders,
                       style: Style.interSemi(
-                          size: 34.sp,
-                          color: Style.black,
-                          letterSpacing: -1),
+                          size: 34.sp, color: Style.black, letterSpacing: -1),
                     ),
                     RichText(
                       text: TextSpan(

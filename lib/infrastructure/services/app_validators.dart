@@ -19,7 +19,8 @@ class AppValidators {
     }
     return null;
   }
-  static String? emailCheck(String? text)   {
+
+  static String? emailCheck(String? text) {
     if (text == null || text.trim().isEmpty) {
       return AppHelpers.getTranslation(TrKeys.cannotBeEmpty);
     }
@@ -28,17 +29,18 @@ class AppValidators {
     }
     return null;
   }
-  static bool _isValidEmail(String email) => RegExp(
-    "^[a-zA-Z0-9.!#\$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*\$",
-  ).hasMatch(email);
 
+  static bool _isValidEmail(String email) => RegExp(
+        "^[a-zA-Z0-9.!#\$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*\$",
+      ).hasMatch(email);
 
   static String? passwordCheck(String? text) {
     if (text == null || text.trim().isEmpty) {
       return AppHelpers.getTranslation(TrKeys.cannotBeEmpty);
     }
     if (text.length < 6) {
-      return AppHelpers.getTranslation(TrKeys.passwordShouldContainMinimum6Characters);
+      return AppHelpers.getTranslation(
+          TrKeys.passwordShouldContainMinimum6Characters);
     }
     return null;
   }

@@ -126,21 +126,22 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                               AppHelpers.openDialogImagePicker(
                                 context: context,
                                 onSuccess: (path) async {
-
                                   if (context.mounted) {
-                                    if(path.isNotEmpty){
-                                      ref.read(homeProvider.notifier).uploadImage(
-                                        context: context,
-                                        orderId: widget.order.id,
-                                        path: path,
-                                      );
+                                    if (path.isNotEmpty) {
+                                      ref
+                                          .read(homeProvider.notifier)
+                                          .uploadImage(
+                                            context: context,
+                                            orderId: widget.order.id,
+                                            path: path,
+                                          );
                                     }
                                     ref
                                         .read(homeProvider.notifier)
                                         .deliveredFinish(
-                                      context: context,
-                                      orderId: widget.order.id,
-                                    );
+                                          context: context,
+                                          orderId: widget.order.id,
+                                        );
                                     Navigator.pop(context);
                                     AppHelpers.showCustomModalBottomSheet(
                                         context: context,
@@ -182,7 +183,7 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                                             text: AppHelpers.getTranslation(
                                                 TrKeys.areYouSure),
                                             style:
-                                            Style.interNormal(size: 16.sp),
+                                                Style.interNormal(size: 16.sp),
                                           ),
                                         ),
                                         Form(
@@ -194,7 +195,7 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                                               if (p0?.isEmpty ?? true) {
                                                 return AppHelpers
                                                     .getTranslation(
-                                                    TrKeys.cannotBeEmpty);
+                                                        TrKeys.cannotBeEmpty);
                                               }
                                               return null;
                                             },
@@ -209,8 +210,8 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                                             Expanded(
                                               child: CustomButton(
                                                 title:
-                                                AppHelpers.getTranslation(
-                                                    TrKeys.cancel),
+                                                    AppHelpers.getTranslation(
+                                                        TrKeys.cancel),
                                                 background: Style.redColor,
                                                 textColor: Style.white,
                                                 onPressed: () {
@@ -225,31 +226,32 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                                                   return CustomButton(
                                                     title: AppHelpers
                                                         .getTranslation(TrKeys
-                                                        .confirmation),
+                                                            .confirmation),
                                                     background: Style.black,
                                                     textColor: Style.white,
                                                     borderColor:
-                                                    Colors.transparent,
+                                                        Colors.transparent,
                                                     onPressed: () {
                                                       if ((formKey.currentState
-                                                          ?.validate() ??
-                                                          false) &&
+                                                                  ?.validate() ??
+                                                              false) &&
                                                           widget.order.id !=
                                                               null) {
                                                         ref
                                                             .read(homeProvider
-                                                            .notifier)
+                                                                .notifier)
                                                             .cancelOrder(
-                                                            context:
-                                                            context,
-                                                            orderId: widget
-                                                                .order
-                                                                .id ??
-                                                                0,
-                                                            note: noteCon
-                                                                .text);
+                                                                context:
+                                                                    context,
+                                                                orderId: widget
+                                                                        .order
+                                                                        .id ??
+                                                                    0,
+                                                                note: noteCon
+                                                                    .text);
                                                         Navigator.pop(context);
                                                       }
+
                                                       /// TODO CANCEL ORDER AND SEND NOTE
                                                     },
                                                   );

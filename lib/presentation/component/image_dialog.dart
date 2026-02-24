@@ -18,9 +18,7 @@ class ImageDialog extends StatelessWidget {
     return Container(
       padding: REdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Style.white,
-        borderRadius: BorderRadius.circular(12)
-      ),
+          color: Style.white, borderRadius: BorderRadius.circular(12)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

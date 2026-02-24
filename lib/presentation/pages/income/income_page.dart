@@ -12,6 +12,7 @@ import 'package:driver/presentation/styles/style.dart';
 import 'app_bar_screen.dart';
 import 'statistics_screen.dart';
 import 'widgets/income_item.dart';
+
 @RoutePage()
 class IncomePage extends ConsumerStatefulWidget {
   const IncomePage({super.key});
@@ -130,9 +131,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
                   IncomeItem(
                     title: AppHelpers.getTranslation(TrKeys.wallet),
                     price: AppHelpers.numberFormat(
-                        number:
-                            LocalStorage.getUser()?.wallet?.price ??
-                                0),
+                        number: LocalStorage.getUser()?.wallet?.price ?? 0),
                   ),
                   IncomeItem(
                     title: AppHelpers.getTranslation(TrKeys.rating),
@@ -199,7 +198,8 @@ class _IncomePageState extends ConsumerState<IncomePage>
           ),
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterDocked,
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.miniCenterDocked,
       floatingActionButton: Padding(
         padding: REdgeInsets.all(16),
         child: Row(
@@ -221,7 +221,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
   }
 
   Column _chart(StatisticsState state) {
-    return  Column(
+    return Column(
       children: [
         TitleAndIcon(title: AppHelpers.getTranslation(TrKeys.earningsChart)),
         16.verticalSpace,
@@ -276,17 +276,13 @@ class _IncomePageState extends ConsumerState<IncomePage>
                   text: TextSpan(
                       text: AppHelpers.getTranslation(TrKeys.lastIncome),
                       style: Style.interNormal(
-                          size: 12.sp,
-                          color: Style.black,
-                          letterSpacing: -0.3),
+                          size: 12.sp, color: Style.black, letterSpacing: -0.3),
                       children: [
                     TextSpan(
                       text: AppHelpers.numberFormat(
                           number: state.countData?.data?.lastOrderIncome ?? 0),
                       style: Style.interSemi(
-                          size: 12.sp,
-                          color: Style.black,
-                          letterSpacing: -0.3),
+                          size: 12.sp, color: Style.black, letterSpacing: -0.3),
                     )
                   ])),
             ],

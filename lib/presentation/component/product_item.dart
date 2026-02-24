@@ -37,8 +37,7 @@ class ProductItem extends StatelessWidget {
                   4.verticalSpace,
                   Text(
                     "${AppHelpers.getTranslation(TrKeys.amount)} — ${(amount ?? 1) * (product?.interval ?? 1)} ${(product?.unit?.translation?.title ?? "")}",
-                    style:
-                        Style.interRegular(size: 14.sp, color: Style.black),
+                    style: Style.interRegular(size: 14.sp, color: Style.black),
                   ),
                 ],
               ),
@@ -59,8 +58,8 @@ class ProductItem extends StatelessWidget {
                       text: TextSpan(
                           text:
                               "${AppHelpers.getTranslation(TrKeys.sideDish)}:",
-                          style: Style.interSemi(
-                              size: 14.sp, color: Style.black),
+                          style:
+                              Style.interSemi(size: 14.sp, color: Style.black),
                           children: [
                             TextSpan(
                               text: product?.translation?.description ?? "",

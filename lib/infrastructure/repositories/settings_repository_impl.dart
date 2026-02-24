@@ -64,7 +64,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
     } catch (e) {
       debugPrint('==> upload image failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -80,7 +80,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
     } catch (e) {
       debugPrint('==> get currencies failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -96,7 +96,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
     } catch (e) {
       debugPrint('==> get settings failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -116,7 +116,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
     } catch (e) {
       debugPrint('==> get translations failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -144,7 +144,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
     } catch (e) {
       debugPrint('==> get languages failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }

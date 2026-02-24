@@ -33,9 +33,9 @@ class AppHelpers {
     bool isBefore = LocalStorage.getSelectedCurrency()?.position == "before";
     String beforeSymbol = (isBefore ? symbol : '');
     String afterSymbol = (isBefore ? '' : ' $symbol');
-    if(number.toString().length > 12){
-      maxLength=maxLength;
-    }else{
+    if (number.toString().length > 12) {
+      maxLength = maxLength;
+    } else {
       maxLength = 16;
     }
     if (number.toString().length > (maxLength ?? 16)) {
@@ -313,21 +313,21 @@ class AppHelpers {
     try {
       return (e.runtimeType == DioException)
           ? ((e as DioException).response?.data["message"] == "Bad request."
-          ? (e.response?.data["params"] as Map).values.first[0]
-          : e.response?.data["message"])
+              ? (e.response?.data["params"] as Map).values.first[0]
+              : e.response?.data["message"])
           : e.toString();
     } catch (s) {
       try {
         return (e.runtimeType == DioException)
             ? ((e as DioException).response?.data.toString().substring(
-            (e.response?.data.toString().indexOf("<title>") ?? 0) + 7,
-            e.response?.data.toString().indexOf("</title") ?? 0))
-            .toString()
+                    (e.response?.data.toString().indexOf("<title>") ?? 0) + 7,
+                    e.response?.data.toString().indexOf("</title") ?? 0))
+                .toString()
             : e.toString();
       } catch (r) {
         return (e.runtimeType == DioException)
             ? ((e as DioException).response?.data["error"]["message"])
-            .toString()
+                .toString()
             : e.toString();
       }
     }

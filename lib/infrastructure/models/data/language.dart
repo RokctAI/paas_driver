@@ -1,4 +1,3 @@
-
 class LanguageData {
   LanguageData({
     int? id,

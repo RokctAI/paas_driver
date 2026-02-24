@@ -18,7 +18,7 @@ class Style {
   static const textGrey = Color(0xFF898989);
   static const differBorderColor = Color(0xFF898989);
 
-  static const primaryColor = Color(0xFFFF6600);//changed
+  static const primaryColor = Color(0xFFFF6600); //changed
 
   static const greenColor = Color(0xff16AA16);
 

@@ -6,7 +6,8 @@ import 'vehicle_type_state.dart';
 class VehicleTypeNotifier extends StateNotifier<VehicleTypeState> {
   final UserRepository repository;
 
-  VehicleTypeNotifier(this.repository) : super(const VehicleTypeState.loading()) {
+  VehicleTypeNotifier(this.repository)
+      : super(const VehicleTypeState.loading()) {
     fetchTypes();
   }
 

@@ -4,9 +4,8 @@ class StatisticsIncomeResponse {
   }
 
   StatisticsIncomeResponse.fromJson(dynamic json) {
-    _data = json['data'] != null
-        ? StatisticsModel.fromJson(json['data'])
-        : null;
+    _data =
+        json['data'] != null ? StatisticsModel.fromJson(json['data']) : null;
   }
 
   StatisticsModel? _data;
@@ -25,7 +24,6 @@ class StatisticsIncomeResponse {
     return map;
   }
 }
-
 
 class StatisticsModel {
   StatisticsModel({
@@ -87,37 +85,42 @@ class StatisticsModel {
         chart: chart ?? this.chart,
       );
 
-  factory StatisticsModel.fromJson(Map<String, dynamic> json) => StatisticsModel(
-    lastOrderTotalPrice: json["last_order_total_price"],
-    lastOrderIncome: json["last_order_income"],
-    totalPrice: json["total_price"],
-    fmTotalPrice: json["fm_total_price"],
-    totalCount: json["total_count"],
-    totalNewCount: json["total_new_count"],
-    totalReadyCount: json["total_ready_count"],
-    totalOnAWayCount: json["total_on_a_way_count"],
-    totalAcceptedCount: json["total_accepted_count"],
-    totalCanceledCount: json["total_canceled_count"],
-    totalDeliveredCount: json["total_delivered_count"],
-    totalTodayCount: json["total_today_count"],
-    chart: json["chart"] == null ? [] : List<Chart>.from(json["chart"]!.map((x) => Chart.fromJson(x))),
-  );
+  factory StatisticsModel.fromJson(Map<String, dynamic> json) =>
+      StatisticsModel(
+        lastOrderTotalPrice: json["last_order_total_price"],
+        lastOrderIncome: json["last_order_income"],
+        totalPrice: json["total_price"],
+        fmTotalPrice: json["fm_total_price"],
+        totalCount: json["total_count"],
+        totalNewCount: json["total_new_count"],
+        totalReadyCount: json["total_ready_count"],
+        totalOnAWayCount: json["total_on_a_way_count"],
+        totalAcceptedCount: json["total_accepted_count"],
+        totalCanceledCount: json["total_canceled_count"],
+        totalDeliveredCount: json["total_delivered_count"],
+        totalTodayCount: json["total_today_count"],
+        chart: json["chart"] == null
+            ? []
+            : List<Chart>.from(json["chart"]!.map((x) => Chart.fromJson(x))),
+      );
 
   Map<String, dynamic> toJson() => {
-    "last_order_total_price": lastOrderTotalPrice,
-    "last_order_income": lastOrderIncome,
-    "total_price": totalPrice,
-    "fm_total_price": fmTotalPrice,
-    "total_count": totalCount,
-    "total_new_count": totalNewCount,
-    "total_ready_count": totalReadyCount,
-    "total_on_a_way_count": totalOnAWayCount,
-    "total_accepted_count": totalAcceptedCount,
-    "total_canceled_count": totalCanceledCount,
-    "total_delivered_count": totalDeliveredCount,
-    "total_today_count": totalTodayCount,
-    "chart": chart == null ? [] : List<dynamic>.from(chart!.map((x) => x.toJson())),
-  };
+        "last_order_total_price": lastOrderTotalPrice,
+        "last_order_income": lastOrderIncome,
+        "total_price": totalPrice,
+        "fm_total_price": fmTotalPrice,
+        "total_count": totalCount,
+        "total_new_count": totalNewCount,
+        "total_ready_count": totalReadyCount,
+        "total_on_a_way_count": totalOnAWayCount,
+        "total_accepted_count": totalAcceptedCount,
+        "total_canceled_count": totalCanceledCount,
+        "total_delivered_count": totalDeliveredCount,
+        "total_today_count": totalTodayCount,
+        "chart": chart == null
+            ? []
+            : List<dynamic>.from(chart!.map((x) => x.toJson())),
+      };
 }
 
 class Chart {
@@ -139,13 +142,15 @@ class Chart {
       );
 
   factory Chart.fromJson(Map<String, dynamic> json) => Chart(
-    time: json["time"] == null ? null : DateTime.tryParse(json["time"])?.toLocal(),
-    totalPrice: json["total_price"]?.toDouble(),
-  );
+        time: json["time"] == null
+            ? null
+            : DateTime.tryParse(json["time"])?.toLocal(),
+        totalPrice: json["total_price"]?.toDouble(),
+      );
 
   Map<String, dynamic> toJson() => {
-    "time": "${time!.year.toString().padLeft(4, '0')}-${time!.month.toString().padLeft(2, '0')}-${time!.day.toString().padLeft(2, '0')}",
-    "total_price": totalPrice,
-  };
+        "time":
+            "${time!.year.toString().padLeft(4, '0')}-${time!.month.toString().padLeft(2, '0')}-${time!.day.toString().padLeft(2, '0')}",
+        "total_price": totalPrice,
+      };
 }
-

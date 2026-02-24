@@ -2,7 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../infrastructure/models/data/delivery_vehicle_type.dart';
 
-
 part 'vehicle_type_state.freezed.dart';
 
 @freezed

@@ -17,7 +17,8 @@ Future<void> initializeExcludedProductIds() async {
   await remoteConfig.fetchAndActivate();
 
   // Update excludedProductIds with the fetched value from Remote Config
-  final excludedProductIdsFromRemoteConfig = remoteConfig.getString('excludedProductIds')
+  final excludedProductIdsFromRemoteConfig = remoteConfig
+      .getString('excludedProductIds')
       .split(',')
       .map((id) => int.tryParse(id.trim()))
       .where((id) => id != null)
@@ -27,6 +28,7 @@ Future<void> initializeExcludedProductIds() async {
   excludedProductIds = excludedProductIdsFromRemoteConfig;
   print('Excluded Product IDs: $excludedProductIds');
 }
+
 Future<void> initializeExcludedCategoryIds() async {
   final remoteConfig = FirebaseRemoteConfig.instance;
 
@@ -39,7 +41,8 @@ Future<void> initializeExcludedCategoryIds() async {
   await remoteConfig.fetchAndActivate();
 
   // Update excludedCategoryIds with the fetched value from Remote Config
-  final excludedCategoryIdsFromRemoteConfig = remoteConfig.getString('excludedCategoryIds')
+  final excludedCategoryIdsFromRemoteConfig = remoteConfig
+      .getString('excludedCategoryIds')
       .split(',')
       .map((id) => int.tryParse(id.trim()))
       .where((id) => id != null)

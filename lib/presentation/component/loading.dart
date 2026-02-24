@@ -17,7 +17,7 @@ class Loading extends StatelessWidget {
               color: Style.primaryColor,
               strokeWidth: 5.r,
             )
-          :  CupertinoActivityIndicator(radius: 12.r),
+          : CupertinoActivityIndicator(radius: 12.r),
     );
   }
 }

@@ -178,7 +178,8 @@ class _RegisterConfirmationPageState
                           ),
                           CustomButton(
                             isLoading: state.isLoading,
-                            title: AppHelpers.getTranslation(TrKeys.confirmation),
+                            title:
+                                AppHelpers.getTranslation(TrKeys.confirmation),
                             onPressed: () {
                               if (state.confirmCode.length == 6) {
                                 if (widget.isResetPassword) {

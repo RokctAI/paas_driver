@@ -27,24 +27,27 @@ class _StoryPageState extends ConsumerState<StoryPage>
   int currentIndex = 0;
 
   final List<String> image = [
-      "https://s3.juvo.app/public/images/intro/driver/1.jpg",
-      "https://s3.juvo.app/public/images/intro/driver/2.jpg",
-      "https://s3.juvo.app/public/images/intro/driver/3.jpg",
-    ];
+    "https://s3.juvo.app/public/images/intro/driver/1.jpg",
+    "https://s3.juvo.app/public/images/intro/driver/2.jpg",
+    "https://s3.juvo.app/public/images/intro/driver/3.jpg",
+  ];
 
   final List<Map<String, dynamic>> titles = [
     {
-        'text': AppHelpers.getTranslation(TrKeys.deliverymanbottomslide1),
-        'style': Style.interNormal(size: 32.sp, letterSpacing: -0.3, color: Style.white),
-      },
-      {
-        'text': AppHelpers.getTranslation(TrKeys.deliverymanbottomslide2),
-        'style': Style.interNormal(size: 32.sp, letterSpacing: -0.3, color: Style.white),
-      },
-      {
-        'text': AppHelpers.getTranslation(TrKeys.deliverymanbottomslide3),
-        'style': Style.interNormal(size: 32.sp, letterSpacing: -0.3, color: Style.white),
-      },
+      'text': AppHelpers.getTranslation(TrKeys.deliverymanbottomslide1),
+      'style': Style.interNormal(
+          size: 32.sp, letterSpacing: -0.3, color: Style.white),
+    },
+    {
+      'text': AppHelpers.getTranslation(TrKeys.deliverymanbottomslide2),
+      'style': Style.interNormal(
+          size: 32.sp, letterSpacing: -0.3, color: Style.white),
+    },
+    {
+      'text': AppHelpers.getTranslation(TrKeys.deliverymanbottomslide3),
+      'style': Style.interNormal(
+          size: 32.sp, letterSpacing: -0.3, color: Style.white),
+    },
   ];
 
   @override
@@ -53,16 +56,16 @@ class _StoryPageState extends ConsumerState<StoryPage>
       vsync: this,
       duration: const Duration(seconds: 5),
     )..addListener(() {
-      setState(() {});
-      if (controller.value > 0.99) {
-        if (ref.watch(storyProvider).currentIndex == 2) {
-           context.router.maybePop();
+        setState(() {});
+        if (controller.value > 0.99) {
+          if (ref.watch(storyProvider).currentIndex == 2) {
+            context.router.maybePop();
+          }
+          pageController.nextPage(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeIn);
         }
-        pageController.nextPage(
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeIn);
-      }
-    });
+      });
     controller.repeat();
     super.initState();
   }
@@ -85,17 +88,17 @@ class _StoryPageState extends ConsumerState<StoryPage>
     final event = ref.read(storyProvider.notifier);
     return Scaffold(
         body: Stack(
+      children: [
+        PageView(
+          physics: const ClampingScrollPhysics(),
+          controller: pageController,
+          onPageChanged: (s) {
+            event.changeIndex(s);
+            controller.reset();
+            controller.repeat();
+          },
           children: [
-            PageView(
-              physics: const ClampingScrollPhysics(),
-              controller: pageController,
-              onPageChanged: (s) {
-                event.changeIndex(s);
-                controller.reset();
-                controller.repeat();
-              },
-              children: [
-                ...image.map((e) => Stack(
+            ...image.map((e) => Stack(
                   children: [
                     Container(
                       width: MediaQuery.sizeOf(context).width,
@@ -159,9 +162,11 @@ class _StoryPageState extends ConsumerState<StoryPage>
                           children: [
                             const Spacer(),
                             Text(
-          titles[image.indexOf(e)]['text'], // Replace with 'text1'
-          style: titles[image.indexOf(e)]['style'], // Replace with 'style1'
-        ),
+                              titles[image.indexOf(e)]
+                                  ['text'], // Replace with 'text1'
+                              style: titles[image.indexOf(e)]
+                                  ['style'], // Replace with 'style1'
+                            ),
                             24.verticalSpace,
                           ],
                         ),
@@ -214,57 +219,57 @@ class _StoryPageState extends ConsumerState<StoryPage>
                     ),
                   ],
                 ))
-              ],
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: SafeArea(
-                child: Container(
-                  height: 4.h,
-                  width: MediaQuery.sizeOf(context).width,
-                  margin: EdgeInsets.only(left: 20.w, bottom: 10.h),
-                  child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: 3,
-                      itemBuilder: (context, index) {
-                        return AnimatedContainer(
-                          margin: EdgeInsets.only(right: 8.w),
-                          height: 4.h,
-                          width: (MediaQuery.sizeOf(context).width - 60.w) / 3,
-                          decoration: BoxDecoration(
-                            color: state.currentIndex >= index
-                                ? Style.primaryColor
-                                : Style.white,
-                            borderRadius: BorderRadius.circular(122.r),
-                          ),
-                          duration: const Duration(milliseconds: 500),
-                          child: state.currentIndex == index
-                              ? ClipRRect(
-                            borderRadius: BorderRadius.circular(122.r),
-                            child: LinearProgressIndicator(
-                              value: controller.value,
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                  Style.primaryColor),
-                              backgroundColor: Style.white,
-                            ),
-                          )
-                              : state.currentIndex > index
-                              ? ClipRRect(
-                            borderRadius: BorderRadius.circular(122.r),
-                            child: const LinearProgressIndicator(
-                              value: 1,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  Style.primaryColor),
-                              backgroundColor: Style.white,
-                            ),
-                          )
-                              : const SizedBox.shrink(),
-                        );
-                      }),
-                ),
-              ),
-            ),
           ],
-        ));
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: SafeArea(
+            child: Container(
+              height: 4.h,
+              width: MediaQuery.sizeOf(context).width,
+              margin: EdgeInsets.only(left: 20.w, bottom: 10.h),
+              child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 3,
+                  itemBuilder: (context, index) {
+                    return AnimatedContainer(
+                      margin: EdgeInsets.only(right: 8.w),
+                      height: 4.h,
+                      width: (MediaQuery.sizeOf(context).width - 60.w) / 3,
+                      decoration: BoxDecoration(
+                        color: state.currentIndex >= index
+                            ? Style.primaryColor
+                            : Style.white,
+                        borderRadius: BorderRadius.circular(122.r),
+                      ),
+                      duration: const Duration(milliseconds: 500),
+                      child: state.currentIndex == index
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(122.r),
+                              child: LinearProgressIndicator(
+                                value: controller.value,
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                    Style.primaryColor),
+                                backgroundColor: Style.white,
+                              ),
+                            )
+                          : state.currentIndex > index
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(122.r),
+                                  child: const LinearProgressIndicator(
+                                    value: 1,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Style.primaryColor),
+                                    backgroundColor: Style.white,
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                    );
+                  }),
+            ),
+          ),
+        ),
+      ],
+    ));
   }
 }

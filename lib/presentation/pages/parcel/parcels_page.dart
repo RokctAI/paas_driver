@@ -12,6 +12,7 @@ import 'package:driver/infrastructure/services/services.dart';
 import 'package:driver/presentation/component/components.dart';
 import 'package:driver/presentation/styles/style.dart';
 import 'parcel_item.dart';
+
 @RoutePage()
 class ParcelsPage extends ConsumerStatefulWidget {
   const ParcelsPage({super.key});

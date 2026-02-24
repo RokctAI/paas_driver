@@ -134,10 +134,9 @@ class SplashNotifier extends StateNotifier<SplashState> {
       );
       fetchGlobalSettings(context);
       if (LocalStorage.getToken().isNotEmpty) {
-
-        fetchProfileDetails(context, onMain: goMain, onBecome: onBecome,onLogin: goLogin);
+        fetchProfileDetails(context,
+            onMain: goMain, onBecome: onBecome, onLogin: goLogin);
       } else {
-
         goLogin?.call();
       }
       if (LocalStorage.getSelectedCurrency() == null) {

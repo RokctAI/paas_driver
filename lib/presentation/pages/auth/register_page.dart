@@ -70,7 +70,8 @@ class RegisterPage extends ConsumerWidget {
                           textDirection:
                               isLtr ? TextDirection.ltr : TextDirection.rtl,
                           child: IntlPhoneField(
-                            disableLengthCheck: !AppConstants.isNumberLengthAlwaysSame,
+                            disableLengthCheck:
+                                !AppConstants.isNumberLengthAlwaysSame,
                             onChanged: (phoneNum) {
                               event.setPhone(phoneNum.completeNumber);
                               profileEvent.setPhone(phoneNum.completeNumber);

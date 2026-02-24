@@ -1,4 +1,3 @@
-
 import 'package:driver/infrastructure/models/data/parcel_order.dart';
 
 import '../data/meta.dart';

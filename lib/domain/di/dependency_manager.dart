@@ -22,7 +22,8 @@ Future<void> setUpDependencies() async {
   getIt.registerSingleton<OrdersRepositoryFacade>(OrdersRepository());
   getIt.registerSingleton<ParcelRepositoryFacade>(ParcelRepository());
   getIt.registerSingleton<AppRouter>(AppRouter());
-  getIt.registerSingleton<NotificationRepositoryFacade>(NotificationRepositoryImpl());
+  getIt.registerSingleton<NotificationRepositoryFacade>(
+      NotificationRepositoryImpl());
 }
 
 final dioHttp = getIt.get<HttpService>();

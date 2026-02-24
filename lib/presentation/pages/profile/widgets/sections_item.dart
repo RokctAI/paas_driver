@@ -11,7 +11,10 @@ class SectionsItem extends StatelessWidget {
   final VoidCallback onTap;
 
   const SectionsItem(
-      {super.key, required this.title, required this.icon, required this.onTap});
+      {super.key,
+      required this.title,
+      required this.icon,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {

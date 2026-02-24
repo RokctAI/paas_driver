@@ -15,6 +15,7 @@ abstract class ImgService {
       onChange.call(file.path);
     }
   }
+
   static Future getPhotoGallery(ValueChanged<String> onChange) async {
     XFile? file;
     try {
@@ -26,6 +27,7 @@ abstract class ImgService {
       onChange.call(file.path);
     }
   }
+
   static Future getPhotoCamera(ValueChanged<String> onChange) async {
     XFile? file;
     try {

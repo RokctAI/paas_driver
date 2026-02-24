@@ -38,7 +38,8 @@ class UnderlinedBorderTextField extends StatelessWidget {
     this.textCapitalization,
     this.textInputAction,
     this.hint,
-    this.onTap, this.validator,
+    this.onTap,
+    this.validator,
   });
 
   @override
@@ -47,7 +48,7 @@ class UnderlinedBorderTextField extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children:[
+      children: [
         TextFormField(
           validator: validator,
           onTap: onTap,
@@ -66,11 +67,12 @@ class UnderlinedBorderTextField extends StatelessWidget {
           initialValue: initialText,
           readOnly: readOnly,
           textCapitalization:
-          textCapitalization ?? TextCapitalization.sentences,
+              textCapitalization ?? TextCapitalization.sentences,
           textInputAction: textInputAction,
           decoration: InputDecoration(
             suffixIconConstraints: BoxConstraints(
-                maxHeight: suffixIcon !=null ? 80.h : 30.h, maxWidth: suffixIcon !=null ? 80.w: 30.w),
+                maxHeight: suffixIcon != null ? 80.h : 30.h,
+                maxWidth: suffixIcon != null ? 80.w : 30.w),
             suffixIcon: suffixIcon,
             hintText: hint,
             hintStyle: GoogleFonts.inter(
@@ -92,9 +94,7 @@ class UnderlinedBorderTextField extends StatelessWidget {
             focusedErrorBorder: const UnderlineInputBorder(),
             disabledBorder: const UnderlineInputBorder(
                 borderSide: BorderSide(color: Style.shimmerBase)),
-            focusedBorder: const UnderlineInputBorder(
-
-            ),
+            focusedBorder: const UnderlineInputBorder(),
           ),
         ),
         if (descriptionText != null)
@@ -112,8 +112,8 @@ class UnderlinedBorderTextField extends StatelessWidget {
                   color: isError
                       ? Style.redColor
                       : isSuccess
-                      ? Style.textColor
-                      : Style.black,
+                          ? Style.textColor
+                          : Style.black,
                 ),
               ),
             ],

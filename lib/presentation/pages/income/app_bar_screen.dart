@@ -41,7 +41,6 @@ class AbbBarScreen extends StatelessWidget {
                       radius: 12,
                       modal: const FilterScreen(
                         isTabBar: false,
-
                       ),
                       isDarkMode: true);
                 },

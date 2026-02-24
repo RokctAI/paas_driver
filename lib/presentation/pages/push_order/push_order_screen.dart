@@ -408,8 +408,7 @@ class _PushOrderState extends ConsumerState<PushOrder> {
                       Text(
                         widget.pushModel.user == null
                             ? AppHelpers.getTranslation(TrKeys.deletedUser)
-                            :
-                        widget.pushModel.user?.firstname ?? "",
+                            : widget.pushModel.user?.firstname ?? "",
                         style:
                             Style.interNormal(size: 14.sp, letterSpacing: -0.3),
                       ),

@@ -162,21 +162,22 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                           ),
                           24.verticalSpace,
                           if (!AppConstants.isSpecificNumberEnabled)
-                          UnderlinedBorderTextField(
-                            label:
-                                AppHelpers.getTranslation(TrKeys.phoneNumber),
-                            initialText: editState.phone,
-                            inputType: TextInputType.phone,
-                            readOnly: !editState.isPhoneEditable,
-                            onChanged: editNotifier.setPhone,
-                          ),
+                            UnderlinedBorderTextField(
+                              label:
+                                  AppHelpers.getTranslation(TrKeys.phoneNumber),
+                              initialText: editState.phone,
+                              inputType: TextInputType.phone,
+                              readOnly: !editState.isPhoneEditable,
+                              onChanged: editNotifier.setPhone,
+                            ),
                           if (AppConstants.isSpecificNumberEnabled)
                             Directionality(
                               textDirection: TextDirection.ltr,
                               child: IntlPhoneField(
                                 showCountryFlag: AppConstants.showFlag,
                                 showDropdownIcon: AppConstants.showArrowIcon,
-                                disableLengthCheck: !AppConstants.isNumberLengthAlwaysSame,
+                                disableLengthCheck:
+                                    !AppConstants.isNumberLengthAlwaysSame,
                                 onChanged: (phoneNum) => editNotifier
                                     .setPhone(phoneNum.completeNumber),
                                 validator: (s) {
@@ -233,12 +234,12 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                             ),
                           24.verticalSpace,
                           UnderlinedBorderTextField(
-                              label: AppHelpers.getTranslation(TrKeys.email),
-                              initialText: editState.email,
-                              inputType: TextInputType.emailAddress,
-                              readOnly: !editState.isEmailEditable,
-                              onChanged: editNotifier.setEmail,
-                            ),
+                            label: AppHelpers.getTranslation(TrKeys.email),
+                            initialText: editState.email,
+                            inputType: TextInputType.emailAddress,
+                            readOnly: !editState.isEmailEditable,
+                            onChanged: editNotifier.setEmail,
+                          ),
                           24.verticalSpace,
                           UnderlinedBorderTextField(
                             label: AppHelpers.getTranslation(TrKeys.password),

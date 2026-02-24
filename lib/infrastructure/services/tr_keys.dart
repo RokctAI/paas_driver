@@ -16,7 +16,8 @@ class TrKeys {
   static const String needAddSetting = "need_add_setting";
   static const String newOrders = 'new_orders';
   static const String orderImage = 'order.image';
-  static const String thisImageWasUploadDriver = 'this.image.was.uploaded.by.driver';
+  static const String thisImageWasUploadDriver =
+      'this.image.was.uploaded.by.driver';
   static const String takePhoto = 'take.photo';
   static const String selectPhoto = 'select.photo';
   static const String telAdmin = 'tel.admin';

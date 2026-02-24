@@ -66,9 +66,8 @@ class OrderData {
     _tax = json['tax'];
     _commissionFee = json['commission_fee'];
     _status = json['status'];
-    _location = json['location'] != null
-        ? Location.fromJson(json['location'])
-        : null;
+    _location =
+        json['location'] != null ? Location.fromJson(json['location']) : null;
     _deliveryType = json['delivery_type'];
     _deliveryFee = json['delivery_fee'];
     _deliveryman = json['deliveryman'];

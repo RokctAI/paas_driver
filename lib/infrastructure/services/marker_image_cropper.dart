@@ -11,7 +11,6 @@ import 'dart:math';
 
 import 'package:driver/presentation/styles/style.dart';
 
-
 class ImageCropperMarker {
   Future<BitmapDescriptor> resizeAndCircle(String? imageURL, int size) async {
     final File imageFile = await urlToFile(imageURL);
@@ -44,13 +43,13 @@ class ImageCropperMarker {
   }
 
   Future<Image> _resizeAndConvertImage(
-      Uint8List? data,
-      int height,
-      int width,
-      ) async {
+    Uint8List? data,
+    int height,
+    int width,
+  ) async {
     ByteData bytes = await rootBundle.load('assets/image/app_logo.png');
     final img.Image? baseSizeImage =
-    img.decodeImage(data ?? bytes.buffer.asUint8List());
+        img.decodeImage(data ?? bytes.buffer.asUint8List());
     final img.Image? newSizeImage = img.decodeImage(bytes.buffer.asUint8List());
 
     final img.Image resizeImage = img.copyResize(baseSizeImage ?? newSizeImage!,

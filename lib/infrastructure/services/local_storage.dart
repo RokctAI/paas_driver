@@ -10,7 +10,7 @@ class LocalStorage {
 
   LocalStorage._();
 
- static Future<void> init() async {
+  static Future<void> init() async {
     _preferences = await SharedPreferences.getInstance();
   }
 
@@ -20,7 +20,8 @@ class LocalStorage {
     }
   }
 
-  static  String getToken() => _preferences?.getString(StorageKeys.keyToken) ?? '';
+  static String getToken() =>
+      _preferences?.getString(StorageKeys.keyToken) ?? '';
 
   static _deleteToken() => _preferences?.remove(StorageKeys.keyToken);
 
@@ -40,8 +41,7 @@ class LocalStorage {
     if (_preferences != null) {
       final List<String> strings =
           settings.map((setting) => jsonEncode(setting.toJson())).toList();
-      await _preferences!
-          .setStringList(StorageKeys.keyGlobalSettings, strings);
+      await _preferences!.setStringList(StorageKeys.keyGlobalSettings, strings);
     }
   }
 
@@ -56,14 +56,15 @@ class LocalStorage {
     return settingsList;
   }
 
-  static Future<void> setTranslations(Map<String, dynamic>? translations) async {
+  static Future<void> setTranslations(
+      Map<String, dynamic>? translations) async {
     if (_preferences != null) {
       final String encoded = jsonEncode(translations);
       await _preferences!.setString(StorageKeys.keyTranslations, encoded);
     }
   }
 
-  static  Map<String, dynamic> getTranslations() {
+  static Map<String, dynamic> getTranslations() {
     final String encoded =
         _preferences?.getString(StorageKeys.keyTranslations) ?? '';
     if (encoded.isEmpty) {
@@ -107,7 +108,8 @@ class LocalStorage {
     }
   }
 
-  static bool getLangLtr() => !(_preferences?.getBool(StorageKeys.keyLangLtr) ?? false);
+  static bool getLangLtr() =>
+      !(_preferences?.getBool(StorageKeys.keyLangLtr) ?? false);
 
   static Future<void> setSelectedCurrency(CurrencyData? currency) async {
     if (_preferences != null) {
@@ -132,8 +134,8 @@ class LocalStorage {
 
   static Future<void> setAddressSelected(LatLng data) async {
     if (_preferences != null) {
-      await _preferences!.setString(
-          StorageKeys.keyAddressSelected, jsonEncode(data.toJson()));
+      await _preferences!
+          .setString(StorageKeys.keyAddressSelected, jsonEncode(data.toJson()));
     }
   }
 
@@ -142,7 +144,7 @@ class LocalStorage {
         _preferences?.getString(StorageKeys.keyAddressSelected) ?? "";
     if (dataString.isNotEmpty) {
       LatLng data = LatLng.fromJson(jsonDecode(dataString)) ??
-           LatLng(AppConstants.demoLatitude, AppConstants.demoLongitude);
+          LatLng(AppConstants.demoLatitude, AppConstants.demoLongitude);
       return data;
     } else {
       return null;
@@ -172,7 +174,8 @@ class LocalStorage {
 
   static Future<void> setDeliveryInfo(DeliveryResponse? info) async {
     if (_preferences != null) {
-      final String infoString = ((info != null) ? jsonEncode(info.toJson()) : '');
+      final String infoString =
+          ((info != null) ? jsonEncode(info.toJson()) : '');
       await _preferences!.setString(StorageKeys.keyCarInfo, infoString);
     }
   }
@@ -189,7 +192,8 @@ class LocalStorage {
     return DeliveryResponse.fromJson(map);
   }
 
-  static void _deleteDeliveryInfo() => _preferences?.remove(StorageKeys.keyCarInfo);
+  static void _deleteDeliveryInfo() =>
+      _preferences?.remove(StorageKeys.keyCarInfo);
 
   static Future<void> setOnline(bool online) async {
     if (_preferences != null) {

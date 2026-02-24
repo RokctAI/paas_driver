@@ -64,12 +64,21 @@ class ShopData {
     _tax = json['tax'];
     _deliveryRange = json['delivery_range'];
     _percentage = json['percentage'];
-    _location =
-        json['location'] != null ? LocalLocationData.fromJson(json['location']) : null;
+    _location = json['location'] != null
+        ? LocalLocationData.fromJson(json['location'])
+        : null;
     _phone = json['phone'];
-    _showType = json['show_type'].runtimeType ==int? json['show_type']==1? true:false:json['show_type'];
+    _showType = json['show_type'].runtimeType == int
+        ? json['show_type'] == 1
+            ? true
+            : false
+        : json['show_type'];
     _open = json['open'];
-    _visibility = json['visibility'].runtimeType ==int? json['visibility']==1? true:false:json['visibility'];
+    _visibility = json['visibility'].runtimeType == int
+        ? json['visibility'] == 1
+            ? true
+            : false
+        : json['visibility'];
     _openTime = json['open_time'];
     _closeTime = json['close_time'];
     _backgroundImg = json['background_img'];
@@ -92,7 +101,6 @@ class ShopData {
       });
     }
   }
-
 
   int? _id;
   String? _uuid;

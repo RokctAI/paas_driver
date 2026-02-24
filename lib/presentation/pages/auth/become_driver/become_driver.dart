@@ -15,6 +15,7 @@ import 'package:driver/presentation/pages/profile/widgets/logout_modal.dart';
 import 'package:driver/presentation/styles/style.dart';
 
 import '../../../../application/providers.dart';
+
 @RoutePage()
 class BecomeDriverPage extends ConsumerStatefulWidget {
   const BecomeDriverPage({super.key});
@@ -330,8 +331,9 @@ class _EditRestaurantState extends ConsumerState<BecomeDriverPage> {
                                   eventImage.setUrlCar(null);
                                   if (imagePath != null) {
                                     eventImage.editCarImage(
-                                      // ignore: use_build_context_synchronously
-                                        context: context, path: imagePath!);
+                                        // ignore: use_build_context_synchronously
+                                        context: context,
+                                        path: imagePath!);
                                   }
                                 },
                                 child: Container(
@@ -384,40 +386,11 @@ class _EditRestaurantState extends ConsumerState<BecomeDriverPage> {
                                 ),
                               ),
                               8.verticalSpace,
-                              Builder(
-                                builder: (context) {
-                                  return Padding(
-                                    padding: EdgeInsets.all(16.r),
-                                    child: CustomButton(
-                                        textColor:
-                                            (dropdownValue?.isNotEmpty ?? false) &&
-                                                    brand.text.isNotEmpty &&
-                                                    model.text.isNotEmpty &&
-                                                    number.text.isNotEmpty &&
-                                                    color.text.isNotEmpty &&
-                                                    height.text.isNotEmpty &&
-                                                    weight.text.isNotEmpty &&
-                                                    width.text.isNotEmpty &&
-                                                    length.text.isNotEmpty
-                                                ? Style.black
-                                                : Style.white,
-                                        background:
-                                            (dropdownValue?.isNotEmpty ?? false) &&
-                                                    brand.text.isNotEmpty &&
-                                                    model.text.isNotEmpty &&
-                                                    number.text.isNotEmpty &&
-                                                    color.text.isNotEmpty &&
-                                                    height.text.isNotEmpty &&
-                                                    weight.text.isNotEmpty &&
-                                                    width.text.isNotEmpty &&
-                                                    length.text.isNotEmpty
-                                                ? Style.primaryColor
-                                                : Style.shadowColor,
-                                        isLoading: state.isLoading,
-                                        title:
-                                            AppHelpers.getTranslation(TrKeys.save),
-                                        onPressed: () {
-                                          if ((dropdownValue?.isNotEmpty ??
+                              Builder(builder: (context) {
+                                return Padding(
+                                  padding: EdgeInsets.all(16.r),
+                                  child: CustomButton(
+                                      textColor: (dropdownValue?.isNotEmpty ??
                                                   false) &&
                                               brand.text.isNotEmpty &&
                                               model.text.isNotEmpty &&
@@ -426,33 +399,61 @@ class _EditRestaurantState extends ConsumerState<BecomeDriverPage> {
                                               height.text.isNotEmpty &&
                                               weight.text.isNotEmpty &&
                                               width.text.isNotEmpty &&
-                                              length.text.isNotEmpty) {
-                                            event.createCarInfo(
-                                                context: context,
-                                                type: AppHelpers
-                                                    .getTranslationReverse(
-                                                        dropdownValue!),
-                                                brand: brand.text,
-                                                model: model.text,
-                                                number: number.text,
-                                                color: color.text,
-                                                imageUrl: stateImage.carImageUrl,
-                                                updated: () {
-                                                  ref
-                                                      .read(profileSettingsProvider
-                                                          .notifier)
-                                                      .fetchRequestResponse(
-                                                          context: context);
-                                                },
-                                                height: height.text,
-                                                weight: weight.text,
-                                                length: length.text,
-                                                width: width.text);
-                                          }
-                                        }),
-                                  );
-                                }
-                              )
+                                              length.text.isNotEmpty
+                                          ? Style.black
+                                          : Style.white,
+                                      background: (dropdownValue?.isNotEmpty ??
+                                                  false) &&
+                                              brand.text.isNotEmpty &&
+                                              model.text.isNotEmpty &&
+                                              number.text.isNotEmpty &&
+                                              color.text.isNotEmpty &&
+                                              height.text.isNotEmpty &&
+                                              weight.text.isNotEmpty &&
+                                              width.text.isNotEmpty &&
+                                              length.text.isNotEmpty
+                                          ? Style.primaryColor
+                                          : Style.shadowColor,
+                                      isLoading: state.isLoading,
+                                      title: AppHelpers.getTranslation(
+                                          TrKeys.save),
+                                      onPressed: () {
+                                        if ((dropdownValue?.isNotEmpty ??
+                                                false) &&
+                                            brand.text.isNotEmpty &&
+                                            model.text.isNotEmpty &&
+                                            number.text.isNotEmpty &&
+                                            color.text.isNotEmpty &&
+                                            height.text.isNotEmpty &&
+                                            weight.text.isNotEmpty &&
+                                            width.text.isNotEmpty &&
+                                            length.text.isNotEmpty) {
+                                          event.createCarInfo(
+                                              context: context,
+                                              type: AppHelpers
+                                                  .getTranslationReverse(
+                                                      dropdownValue!),
+                                              brand: brand.text,
+                                              model: model.text,
+                                              number: number.text,
+                                              color: color.text,
+                                              imageUrl: stateImage.carImageUrl,
+                                              updated: () {
+                                                ref
+                                                    .read(
+                                                        profileSettingsProvider
+                                                            .notifier)
+                                                    .fetchRequestResponse(
+                                                        context: context);
+                                              },
+                                              height: height.text,
+                                              weight: weight.text,
+                                              length: length.text,
+                                              width: width.text);
+                                        }
+                                      }),
+                                );
+                              })
                             ],
                           ),
                         ),

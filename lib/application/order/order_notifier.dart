@@ -27,8 +27,7 @@ class OrderNotifier extends StateNotifier<OrderState> {
     state = state.copyWith(paymentType: isActive);
   }
 
-
-  Future<void> showOrder(BuildContext context,int orderId) async {
+  Future<void> showOrder(BuildContext context, int orderId) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(
@@ -60,14 +59,15 @@ class OrderNotifier extends StateNotifier<OrderState> {
     }
   }
 
-  Future<void> setCurrentOrder(BuildContext context,int orderId,VoidCallback onSuccess) async {
+  Future<void> setCurrentOrder(
+      BuildContext context, int orderId, VoidCallback onSuccess) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
-      List<OrderDetailData> list =  List.from(state.activeOrders);
+      List<OrderDetailData> list = List.from(state.activeOrders);
       List<OrderDetailData> newList = list.map((element) {
-        if(element.id == orderId){
+        if (element.id == orderId) {
           element.current = true;
-        }else{
+        } else {
           element.current = false;
         }
         return element;
@@ -80,7 +80,6 @@ class OrderNotifier extends StateNotifier<OrderState> {
           onSuccess();
         },
         failure: (failure, status) {
-
           AppHelpers.showCheckTopSnackBar(
             context,
             AppHelpers.getTranslation(failure),
@@ -169,7 +168,7 @@ class OrderNotifier extends StateNotifier<OrderState> {
         activeOrder = 1;
       }
       final response =
-      await _orderRepository.getActiveOrders(isRefresh ? 1 : ++activeOrder);
+          await _orderRepository.getActiveOrders(isRefresh ? 1 : ++activeOrder);
       response.when(
         success: (data) {
           if (isRefresh) {
@@ -183,7 +182,7 @@ class OrderNotifier extends StateNotifier<OrderState> {
               List<OrderDetailData> list = List.from(state.activeOrders);
               list.addAll(data.data ?? []);
               state = state.copyWith(
-                activeOrders: list ,
+                activeOrders: list,
               );
               controller.loadComplete();
             } else {
@@ -191,7 +190,6 @@ class OrderNotifier extends StateNotifier<OrderState> {
               controller.loadNoData();
             }
           }
-
         },
         failure: (failure, status) {
           if (!isRefresh) {
@@ -221,8 +219,8 @@ class OrderNotifier extends StateNotifier<OrderState> {
       if (isRefresh) {
         availableOrderPage = 1;
       }
-      final response =
-      await _orderRepository.getAvailableOrders(isRefresh ? 1 : ++availableOrderPage);
+      final response = await _orderRepository
+          .getAvailableOrders(isRefresh ? 1 : ++availableOrderPage);
       response.when(
         success: (data) {
           if (isRefresh) {
@@ -243,7 +241,6 @@ class OrderNotifier extends StateNotifier<OrderState> {
               controller.loadNoData();
             }
           }
-
         },
         failure: (failure, status) {
           if (!isRefresh) {
@@ -265,8 +262,6 @@ class OrderNotifier extends StateNotifier<OrderState> {
     }
   }
 
-
-
   Future<void> fetchHistoryOrders(BuildContext context,
       {DateTime? start, DateTime? end}) async {
     final connected = await AppConnectivity.connectivity();
@@ -275,7 +270,8 @@ class OrderNotifier extends StateNotifier<OrderState> {
         historyOrders: [],
         isHistoryLoading: true,
       );
-      final response = await _orderRepository.getHistoryOrders(1,start: start,end: end);
+      final response =
+          await _orderRepository.getHistoryOrders(1, start: start, end: end);
       response.when(
         success: (data) {
           state = state.copyWith(
@@ -299,7 +295,6 @@ class OrderNotifier extends StateNotifier<OrderState> {
     }
   }
 
-
   Future<void> fetchHistoryOrdersPage(
       BuildContext context, RefreshController controller,
       {bool isRefresh = false}) async {
@@ -308,8 +303,8 @@ class OrderNotifier extends StateNotifier<OrderState> {
       if (isRefresh) {
         historyOrder = 1;
       }
-      final response =
-      await _orderRepository.getHistoryOrders(isRefresh ? 1 : ++historyOrder);
+      final response = await _orderRepository
+          .getHistoryOrders(isRefresh ? 1 : ++historyOrder);
       response.when(
         success: (data) {
           if (isRefresh) {
@@ -322,7 +317,7 @@ class OrderNotifier extends StateNotifier<OrderState> {
               List<OrderDetailData> list = List.from(state.historyOrders);
               list.addAll(data);
               state = state.copyWith(
-                historyOrders: list ,
+                historyOrders: list,
               );
               controller.loadComplete();
             } else {
@@ -330,7 +325,6 @@ class OrderNotifier extends StateNotifier<OrderState> {
               controller.loadNoData();
             }
           }
-
         },
         failure: (failure, status) {
           if (!isRefresh) {
@@ -351,6 +345,4 @@ class OrderNotifier extends StateNotifier<OrderState> {
       }
     }
   }
-
-
 }

@@ -1,4 +1,3 @@
-
 import '../data/blog_data.dart';
 import '../data/order_data.dart';
 
@@ -60,34 +59,32 @@ class NotificationModel {
     this.blogData,
   });
 
-  NotificationModel copyWith({
-    int? id,
-    String? type,
-    String? title,
-    String? body,
-    NotificationData? data,
-    int? userId,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? readAt,
-    Client? client,
-    OrderData? orderData,
-    BlogData? blogData
-  }) =>
+  NotificationModel copyWith(
+          {int? id,
+          String? type,
+          String? title,
+          String? body,
+          NotificationData? data,
+          int? userId,
+          DateTime? createdAt,
+          DateTime? updatedAt,
+          DateTime? readAt,
+          Client? client,
+          OrderData? orderData,
+          BlogData? blogData}) =>
       NotificationModel(
-        id: id ?? this.id,
-        type: type ?? this.type,
-        title: title ?? this.title,
-        body: body ?? this.body,
-        data: data ?? this.data,
-        userId: userId ?? this.userId,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-        readAt: readAt ?? this.readAt,
-        client: client ?? this.client,
-        orderData: orderData ?? this.orderData,
-        blogData: blogData ?? this.blogData
-      );
+          id: id ?? this.id,
+          type: type ?? this.type,
+          title: title ?? this.title,
+          body: body ?? this.body,
+          data: data ?? this.data,
+          userId: userId ?? this.userId,
+          createdAt: createdAt ?? this.createdAt,
+          updatedAt: updatedAt ?? this.updatedAt,
+          readAt: readAt ?? this.readAt,
+          client: client ?? this.client,
+          orderData: orderData ?? this.orderData,
+          blogData: blogData ?? this.blogData);
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) =>
       NotificationModel(
@@ -95,18 +92,22 @@ class NotificationModel {
         type: json["type"],
         title: json["title"],
         body: json["body"],
-        data: json["data"] == null ? null : NotificationData.fromJson(json["data"]),
+        data: json["data"] == null
+            ? null
+            : NotificationData.fromJson(json["data"]),
         userId: json["user_id"],
         createdAt: json["created_at"] == null
             ? null
             : DateTime.tryParse(json["created_at"])?.toLocal(),
         updatedAt: json["updated_at"] == null
             ? null
-              : DateTime.tryParse(json["updated_at"])?.toLocal(),
-        readAt:
-            json["read_at"] == null ? null : DateTime.tryParse(json["read_at"])?.toUtc().toLocal(),
+            : DateTime.tryParse(json["updated_at"])?.toLocal(),
+        readAt: json["read_at"] == null
+            ? null
+            : DateTime.tryParse(json["read_at"])?.toUtc().toLocal(),
         client: json["client"] == null ? null : Client.fromJson(json["client"]),
-        orderData: json["order"] == null ? null : OrderData.fromJson(json["order"]),
+        orderData:
+            json["order"] == null ? null : OrderData.fromJson(json["order"]),
         blogData: json["blog"] == null ? null : BlogData.fromJson(json["blog"]),
       );
 
@@ -206,7 +207,8 @@ class NotificationData {
         status: status ?? this.status,
       );
 
-  factory NotificationData.fromJson(Map<String, dynamic> json) => NotificationData(
+  factory NotificationData.fromJson(Map<String, dynamic> json) =>
+      NotificationData(
         id: json["id"],
         type: json["type"],
         status: json["status"],

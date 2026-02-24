@@ -104,7 +104,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
     response.when(
       success: (data) {},
       failure: (failure, s) {
-        AppHelpers.showCheckTopSnackBar(context,failure);
+        AppHelpers.showCheckTopSnackBar(context, failure);
       },
     );
   }

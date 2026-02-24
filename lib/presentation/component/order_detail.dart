@@ -197,39 +197,39 @@ class OrderDetail extends StatelessWidget {
             : Column(
                 children: [
                   16.verticalSpace,
-                  if(order.afterDeliveredImage != null)
-                  GestureDetector(
-                    onTap: () {
-                      AppHelpers.showAlertDialog(
-                        context: context,
-                        child: ImageDialog(img: order.afterDeliveredImage),
-                      );
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(top: 8.h),
-                      decoration: BoxDecoration(
-                        color: Style.transparent,
-                        border: Border.all(color: Style.black),
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      padding: REdgeInsets.all(16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            AppHelpers.getTranslation(TrKeys.orderImage),
-                            style: Style.interNormal(
-                              size: 14.sp,
-                              color: Style.blackColor,
-                              letterSpacing: -0.3,
+                  if (order.afterDeliveredImage != null)
+                    GestureDetector(
+                      onTap: () {
+                        AppHelpers.showAlertDialog(
+                          context: context,
+                          child: ImageDialog(img: order.afterDeliveredImage),
+                        );
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(top: 8.h),
+                        decoration: BoxDecoration(
+                          color: Style.transparent,
+                          border: Border.all(color: Style.black),
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        padding: REdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              AppHelpers.getTranslation(TrKeys.orderImage),
+                              style: Style.interNormal(
+                                size: 14.sp,
+                                color: Style.blackColor,
+                                letterSpacing: -0.3,
+                              ),
                             ),
-                          ),
-                          12.horizontalSpace,
-                          const Icon(FlutterRemix.gallery_fill),
-                        ],
+                            12.horizontalSpace,
+                            const Icon(FlutterRemix.gallery_fill),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
                   16.verticalSpace,
                 ],
               )

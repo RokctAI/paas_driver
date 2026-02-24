@@ -98,10 +98,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         title: AppHelpers.getTranslation(TrKeys.login),
                         onPressed: () =>
                             AppHelpers.showCustomModalBottomSheetWithoutIosIcon(
-                              context: context,
-                              modal: const LoginModal(),
-                              isDarkMode: false,
-                            ),
+                          context: context,
+                          modal: const LoginModal(),
+                          isDarkMode: false,
+                        ),
                       ),
                       10.verticalSpace,
                       CustomButton(
@@ -127,4 +127,5 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ),
       ),
     );
-  }}
+  }
+}

@@ -24,7 +24,8 @@ class _AppInitializerWidgetState extends State<AppInitializerWidget> {
   }
 
   Future<void> _initializeApp() async {
-    final appInitializer = AppInitializer(providerContainer: _providerContainer);
+    final appInitializer =
+        AppInitializer(providerContainer: _providerContainer);
     await appInitializer.initializeRemoteConfigWithoutAPICall();
     setState(() {
       _isInitialized = true;

@@ -3,8 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../styles/style.dart';
 
-
-class CustomAppBar extends StatelessWidget  {
+class CustomAppBar extends StatelessWidget {
   final Widget child;
   final double height;
   final double bottomPadding;
@@ -28,11 +27,11 @@ class CustomAppBar extends StatelessWidget  {
       child: Align(
         alignment: Alignment.bottomLeft,
         child: Padding(
-          padding: EdgeInsets.only(left: 16.w,right: 16.w,bottom: bottomPadding.h),
+          padding:
+              EdgeInsets.only(left: 16.w, right: 16.w, bottom: bottomPadding.h),
           child: child,
         ),
       ),
     );
   }
-
 }

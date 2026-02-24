@@ -1,5 +1,3 @@
-
-
 import 'product_data.dart';
 
 class CartProductData {

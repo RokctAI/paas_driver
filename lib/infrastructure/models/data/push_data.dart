@@ -55,8 +55,10 @@ class PushModel {
       totalPrice: jsonDecode(data["order"])["total_price"],
       type: jsonDecode(data["order"])["transaction"]["payment_system"]["tag"],
       deliveryFree: jsonDecode(data["order"])["delivery_fee"],
-      longitude: double.tryParse(jsonDecode(data["order"])["location"]["longitude"].toString()),
-      latitude: double.tryParse(jsonDecode(data["order"])["location"]["latitude"].toString()),
+      longitude: double.tryParse(
+          jsonDecode(data["order"])["location"]["longitude"].toString()),
+      latitude: double.tryParse(
+          jsonDecode(data["order"])["location"]["latitude"].toString()),
     );
   }
 
@@ -76,8 +78,10 @@ class PushModel {
       totalPrice: jsonDecode(data["order"])["total_price"],
       type: jsonDecode(data["order"])["transaction"]["payment_system"]["tag"],
       deliveryFree: jsonDecode(data["order"])["delivery_fee"],
-      longitude: double.tryParse(jsonDecode(data["order"])["location"]["longitude"].toString()),
-      latitude: double.tryParse(jsonDecode(data["order"])["location"]["latitude"].toString()),
+      longitude: double.tryParse(
+          jsonDecode(data["order"])["location"]["longitude"].toString()),
+      latitude: double.tryParse(
+          jsonDecode(data["order"])["location"]["latitude"].toString()),
     );
   }
 }

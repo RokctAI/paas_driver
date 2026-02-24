@@ -148,15 +148,18 @@ class _EditCarState extends ConsumerState<EditCar> {
                 ),
                 24.verticalSpace,
                 vehicleTypeState.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (msg) => Text('Error: $msg', style: const TextStyle(color: Colors.red)),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (msg) => Text('Error: $msg',
+                      style: const TextStyle(color: Colors.red)),
                   data: (types) {
                     vehicleTypes = types; // Store the types for later use
                     final keys = types.map((e) => e.key).toList();
 
                     // Initialize dropdown value once when API data is available
                     if (!_isInitialized && keys.isNotEmpty) {
-                      if (dropdownValue.isEmpty || !keys.contains(dropdownValue)) {
+                      if (dropdownValue.isEmpty ||
+                          !keys.contains(dropdownValue)) {
                         dropdownValue = keys.first;
                         // Auto-update weight when dropdown is initialized
                         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -171,46 +174,56 @@ class _EditCarState extends ConsumerState<EditCar> {
                     }
 
                     // Ensure dropdownValue is valid
-                    if (dropdownValue.isEmpty || !keys.contains(dropdownValue)) {
+                    if (dropdownValue.isEmpty ||
+                        !keys.contains(dropdownValue)) {
                       dropdownValue = keys.isNotEmpty ? keys.first : "";
                     }
 
                     return DropdownButtonFormField<String>(
                       value: dropdownValue.isEmpty ? null : dropdownValue,
-                      items: types.map((vehicleType) => DropdownMenuItem(
-                        value: vehicleType.key,
-                        child: Text(
-                          vehicleType.name,
-                          style: Style.interNormal(size: 14.sp),
-                        ),
-                      )).toList(),
+                      items: types
+                          .map((vehicleType) => DropdownMenuItem(
+                                value: vehicleType.key,
+                                child: Text(
+                                  vehicleType.name,
+                                  style: Style.interNormal(size: 14.sp),
+                                ),
+                              ))
+                          .toList(),
                       onChanged: AppHelpers.getDriverCantEdit()
                           ? null
                           : (value) {
-                        setState(() {
-                          dropdownValue = value ?? "";
-                          // Auto-update weight when vehicle type changes
-                          updateWeightFromVehicleType();
-                        });
-                      },
+                              setState(() {
+                                dropdownValue = value ?? "";
+                                // Auto-update weight when vehicle type changes
+                                updateWeightFromVehicleType();
+                              });
+                            },
                       autovalidateMode: AutovalidateMode.disabled,
                       validator: null, // Remove any validation
                       decoration: InputDecoration(
-                        labelText: AppHelpers.getTranslation(TrKeys.typeTechnique).toUpperCase(),
-                        labelStyle: Style.interNormal(size: 14.sp, color: Style.black),
-                        contentPadding: REdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                        labelText:
+                            AppHelpers.getTranslation(TrKeys.typeTechnique)
+                                .toUpperCase(),
+                        labelStyle:
+                            Style.interNormal(size: 14.sp, color: Style.black),
+                        contentPadding:
+                            REdgeInsets.symmetric(horizontal: 0, vertical: 8),
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         enabledBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: Style.shimmerBase)),
                         border: const UnderlineInputBorder(),
                         focusedBorder: const UnderlineInputBorder(),
                         errorBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Style.shimmerBase)), // Same as enabled
+                            borderSide: BorderSide(
+                                color: Style.shimmerBase)), // Same as enabled
                         focusedErrorBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Style.shimmerBase)), // Same as enabled
+                            borderSide: BorderSide(
+                                color: Style.shimmerBase)), // Same as enabled
                         disabledBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: Style.shimmerBase)),
-                        errorStyle: const TextStyle(height: 0), // Hide error text
+                        errorStyle:
+                            const TextStyle(height: 0), // Hide error text
                       ),
                     );
                   },
@@ -243,7 +256,8 @@ class _EditCarState extends ConsumerState<EditCar> {
                         label: AppHelpers.getTranslation(TrKeys.stateNumber),
                         textController: number,
                         onChanged: (_) {
-                          setState(() {}); // Just trigger rebuild for button state
+                          setState(
+                              () {}); // Just trigger rebuild for button state
                         },
                       ),
                     ),
@@ -255,7 +269,8 @@ class _EditCarState extends ConsumerState<EditCar> {
                         label: AppHelpers.getTranslation(TrKeys.color),
                         textController: color,
                         onChanged: (_) {
-                          setState(() {}); // Just trigger rebuild for button state
+                          setState(
+                              () {}); // Just trigger rebuild for button state
                         },
                       ),
                     ),
@@ -272,7 +287,8 @@ class _EditCarState extends ConsumerState<EditCar> {
                         textController: height,
                         inputType: TextInputType.number,
                         onChanged: (_) {
-                          setState(() {}); // Just trigger rebuild for button state
+                          setState(
+                              () {}); // Just trigger rebuild for button state
                         },
                       ),
                     ),
@@ -288,7 +304,8 @@ class _EditCarState extends ConsumerState<EditCar> {
                             textController: weight,
                             inputType: TextInputType.number,
                             onChanged: (_) {
-                              setState(() {}); // Just trigger rebuild for button state
+                              setState(
+                                  () {}); // Just trigger rebuild for button state
                             },
                           ),
                           if (selectedVehicleType != null) ...[
@@ -297,8 +314,7 @@ class _EditCarState extends ConsumerState<EditCar> {
                               'Max: ${selectedVehicleType!.weightCapacity}kg',
                               style: Style.interRegular(
                                   size: 12.sp,
-                                  color: Style.textColor.withOpacity(0.6)
-                              ),
+                                  color: Style.textColor.withOpacity(0.6)),
                             ),
                           ],
                         ],
@@ -357,37 +373,37 @@ class _EditCarState extends ConsumerState<EditCar> {
                   border: Border.all(color: Style.black)),
               child: stateImage.carImageUrl == null
                   ? imagePath == null
-                  ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    FlutterRemix.upload_cloud_2_line,
-                    size: 36.sp,
-                    color: Style.blueColor,
-                  ),
-                  16.verticalSpace,
-                  Text(
-                    AppHelpers.getTranslation(TrKeys.carPicture),
-                    style: Style.interSemi(size: 14.sp),
-                  ),
-                  Text(
-                      AppHelpers.getTranslation(
-                          TrKeys.recommendedSize),
-                      style: Style.interRegular(size: 14.sp)),
-                ],
-              )
-                  : ClipRRect(
-                borderRadius: BorderRadius.circular(20.r),
-                child: Image.file(
-                  File(imagePath!),
-                  fit: BoxFit.cover,
-                ),
-              )
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              FlutterRemix.upload_cloud_2_line,
+                              size: 36.sp,
+                              color: Style.blueColor,
+                            ),
+                            16.verticalSpace,
+                            Text(
+                              AppHelpers.getTranslation(TrKeys.carPicture),
+                              style: Style.interSemi(size: 14.sp),
+                            ),
+                            Text(
+                                AppHelpers.getTranslation(
+                                    TrKeys.recommendedSize),
+                                style: Style.interRegular(size: 14.sp)),
+                          ],
+                        )
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(20.r),
+                          child: Image.file(
+                            File(imagePath!),
+                            fit: BoxFit.cover,
+                          ),
+                        )
                   : CommonImage(
-                imageUrl: stateImage.carImageUrl,
-                height: 160,
-                radius: 20,
-              ),
+                      imageUrl: stateImage.carImageUrl,
+                      height: 160,
+                      radius: 20,
+                    ),
             ),
           ),
           24.verticalSpace,
@@ -398,24 +414,28 @@ class _EditCarState extends ConsumerState<EditCar> {
               background: isFormValid ? Style.primaryColor : Style.shadowColor,
               isLoading: state.isLoading,
               title: AppHelpers.getTranslation(TrKeys.save),
-              onPressed: isFormValid ? () {
-                event.editCarInfo(
-                  context: context,
-                  type: dropdownValue, // Use the key directly instead of reverse translation
-                  brand: brand.text,
-                  model: model.text,
-                  number: number.text,
-                  color: color.text,
-                  imageUrl: stateImage.carImageUrl,
-                  updated: () {
-                    context.router.maybePop();
-                  },
-                  height: height.text,
-                  weight: weight.text, // This will now contain the vehicle type's max weight
-                  length: length.text,
-                  width: width.text,
-                );
-              } : null,
+              onPressed: isFormValid
+                  ? () {
+                      event.editCarInfo(
+                        context: context,
+                        type:
+                            dropdownValue, // Use the key directly instead of reverse translation
+                        brand: brand.text,
+                        model: model.text,
+                        number: number.text,
+                        color: color.text,
+                        imageUrl: stateImage.carImageUrl,
+                        updated: () {
+                          context.router.maybePop();
+                        },
+                        height: height.text,
+                        weight: weight
+                            .text, // This will now contain the vehicle type's max weight
+                        length: length.text,
+                        width: width.text,
+                      );
+                    }
+                  : null,
             ),
           ),
         ],

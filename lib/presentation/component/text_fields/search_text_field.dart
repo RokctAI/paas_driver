@@ -22,7 +22,7 @@ class SearchTextField extends StatelessWidget {
     this.onChanged,
     this.bgColor = Style.transparent,
     this.isBorder = false,
-     this.isRead = false,
+    this.isRead = false,
   });
 
   @override
@@ -50,7 +50,6 @@ class SearchTextField extends StatelessWidget {
           FlutterRemix.search_2_line,
           color: Style.black,
         ),
-
         suffixIcon: suffixIcon,
         fillColor: bgColor,
         filled: true,

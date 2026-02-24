@@ -30,7 +30,9 @@ class DeliveryVehicleType {
       maxWeight: json['maxWeight'] ?? json['max_weight_kg'],
       base: json['base']?.toString(),
       maxWeightKg: json['max_weight_kg'],
-      baseRate: json['base_rate'] != null ? double.tryParse(json['base_rate'].toString()) : null,
+      baseRate: json['base_rate'] != null
+          ? double.tryParse(json['base_rate'].toString())
+          : null,
       description: json['description'],
       active: json['active'],
       sortOrder: json['sort_order'],
@@ -55,7 +57,8 @@ class DeliveryVehicleType {
 
   int get weightCapacity => maxWeight ?? maxWeightKg ?? 0;
 
-  double get basePrice => baseRate ?? (base != null ? double.tryParse(base!) ?? 0.0 : 0.0);
+  double get basePrice =>
+      baseRate ?? (base != null ? double.tryParse(base!) ?? 0.0 : 0.0);
 
   bool canHandle(int weightKg) {
     return weightCapacity == 0 || weightKg <= weightCapacity;
@@ -142,21 +145,21 @@ class DeliveryVehicleType {
     return 'DeliveryVehicleType(key: $key, name: $name, maxWeight: $maxWeight, base: $base)';
   }
 
-  static List<DeliveryVehicleType> getRetailVehicles(List<DeliveryVehicleType> vehicles) {
+  static List<DeliveryVehicleType> getRetailVehicles(
+      List<DeliveryVehicleType> vehicles) {
     return vehicles.where((v) => v.isRetailVehicle).toList();
   }
 
-  static List<DeliveryVehicleType> getAgricultureVehicles(List<DeliveryVehicleType> vehicles) {
+  static List<DeliveryVehicleType> getAgricultureVehicles(
+      List<DeliveryVehicleType> vehicles) {
     return vehicles.where((v) => v.isAgricultureVehicle).toList();
   }
 
   static List<DeliveryVehicleType> getSuitableVehicles(
-      List<DeliveryVehicleType> vehicles,
-      int weightKg,
-      ) {
-    return vehicles
-        .where((v) => v.canHandle(weightKg))
-        .toList()
+    List<DeliveryVehicleType> vehicles,
+    int weightKg,
+  ) {
+    return vehicles.where((v) => v.canHandle(weightKg)).toList()
       ..sort((a, b) {
         int capacityComparison = a.weightCapacity.compareTo(b.weightCapacity);
         if (capacityComparison != 0) return capacityComparison;
@@ -165,9 +168,9 @@ class DeliveryVehicleType {
   }
 
   static DeliveryVehicleType? getMostEconomical(
-      List<DeliveryVehicleType> vehicles,
-      int weightKg,
-      ) {
+    List<DeliveryVehicleType> vehicles,
+    int weightKg,
+  ) {
     final suitable = getSuitableVehicles(vehicles, weightKg);
     if (suitable.isEmpty) return null;
     suitable.sort((a, b) => a.basePrice.compareTo(b.basePrice));
@@ -175,9 +178,9 @@ class DeliveryVehicleType {
   }
 
   static DeliveryVehicleType? getMostEfficient(
-      List<DeliveryVehicleType> vehicles,
-      int weightKg,
-      ) {
+    List<DeliveryVehicleType> vehicles,
+    int weightKg,
+  ) {
     final suitable = getSuitableVehicles(vehicles, weightKg);
     if (suitable.isEmpty) return null;
     suitable.sort((a, b) => b.efficiency.compareTo(a.efficiency));

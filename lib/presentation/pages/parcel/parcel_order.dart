@@ -50,7 +50,8 @@ class ParcelOrderPage extends StatelessWidget {
                       width: MediaQuery.sizeOf(context).width - 180.w,
                       child: Text(
                         parcel?.addressFrom?.address ?? "",
-                        style: Style.interSemi(size: 14.sp, letterSpacing: -0.3),
+                        style:
+                            Style.interSemi(size: 14.sp, letterSpacing: -0.3),
                       ),
                     ),
                     2.verticalSpace,
@@ -298,12 +299,10 @@ class ParcelOrderPage extends StatelessWidget {
                                 // ignore: use_build_context_synchronously
                                 context: context,
                                 start: LatLng(
-                                    LocalStorage
-                                            .getAddressSelected()
+                                    LocalStorage.getAddressSelected()
                                             ?.latitude ??
                                         AppConstants.demoLatitude,
-                                    LocalStorage
-                                            .getAddressSelected()
+                                    LocalStorage.getAddressSelected()
                                             ?.longitude ??
                                         AppConstants.demoLongitude),
                                 end: LatLng(
@@ -335,12 +334,10 @@ class ParcelOrderPage extends StatelessWidget {
                                     // ignore: use_build_context_synchronously
                                     context: context,
                                     start: LatLng(
-                                      LocalStorage
-                                              .getAddressSelected()
+                                      LocalStorage.getAddressSelected()
                                               ?.latitude ??
                                           AppConstants.demoLatitude,
-                                      LocalStorage
-                                              .getAddressSelected()
+                                      LocalStorage.getAddressSelected()
                                               ?.longitude ??
                                           AppConstants.demoLongitude,
                                     ),
@@ -366,12 +363,10 @@ class ParcelOrderPage extends StatelessWidget {
                                     // ignore: use_build_context_synchronously
                                     context: context,
                                     start: LatLng(
-                                      LocalStorage
-                                              .getAddressSelected()
+                                      LocalStorage.getAddressSelected()
                                               ?.latitude ??
                                           AppConstants.demoLatitude,
-                                      LocalStorage
-                                              .getAddressSelected()
+                                      LocalStorage.getAddressSelected()
                                               ?.longitude ??
                                           AppConstants.demoLongitude,
                                     ),

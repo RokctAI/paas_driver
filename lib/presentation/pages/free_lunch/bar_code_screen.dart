@@ -79,20 +79,15 @@ class BarCodeScreen extends StatelessWidget {
                   Navigator.pop(context);
                   final Uint8List markerMarketIcon =
                       await AppHelpers.getBytesFromAsset(
-                          AppAssets.pngMarket, 100).whenComplete((){
-
-                      });
+                              AppAssets.pngMarket, 100)
+                          .whenComplete(() {});
                   ref.read(homeProvider.notifier).getRoutingAll(
                         // ignore: use_build_context_synchronously
                         context: context,
                         start: LatLng(
-                          LocalStorage
-                                  .getAddressSelected()
-                                  ?.latitude ??
+                          LocalStorage.getAddressSelected()?.latitude ??
                               AppConstants.demoLatitude,
-                          LocalStorage
-                                  .getAddressSelected()
-                                  ?.longitude ??
+                          LocalStorage.getAddressSelected()?.longitude ??
                               AppConstants.demoLongitude,
                         ),
                         end: const LatLng(

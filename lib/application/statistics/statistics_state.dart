@@ -12,7 +12,6 @@ class StatisticsState with _$StatisticsState {
     @Default([]) List<Series<OrdinalSales, String>> list,
     @Default([]) List<StatisticsOrder> listOfOrder,
     StatisticsIncomeResponse? countData,
-
   }) = _StatisticsState;
 
   const StatisticsState._();

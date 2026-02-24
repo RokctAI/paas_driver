@@ -22,7 +22,7 @@ void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     switch (task) {
       case fetchBackground:
-      // Create location settings with high accuracy
+        // Create location settings with high accuracy
         final LocationSettings locationSettings = LocationSettings(
           accuracy: LocationAccuracy.high,
           distanceFilter: 0,
@@ -36,7 +36,7 @@ void callbackDispatcher() {
           BaseOptions(
             headers: {
               'Accept':
-              'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+                  'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
               'Content-type': 'application/json',
               "Authorization": "Bearer ${LocalStorage.getToken()}"
             },
@@ -46,7 +46,7 @@ void callbackDispatcher() {
           '${AppConstants.baseUrl}/api/v1/dashboard/deliveryman/settings/location',
           data: {
             "location":
-            "{'latitude': '${userLocation.latitude}', 'longitude': '${userLocation.longitude}'}"
+                "{'latitude': '${userLocation.latitude}', 'longitude': '${userLocation.longitude}'}"
           },
         );
         break;
@@ -65,7 +65,7 @@ void main() async {
   await Firebase.initializeApp();
   await Workmanager().initialize(callbackDispatcher);
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
- SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Style.transparent,

@@ -29,7 +29,7 @@ class _ButtonsBouncingEffectState extends State<ButtonsBouncingEffect>
       duration: const Duration(milliseconds: 80),
     );
     _controllerA?.addListener(
-          () {
+      () {
         setState(() {
           squareScaleA = _controllerA!.value;
         });
@@ -49,18 +49,18 @@ class _ButtonsBouncingEffectState extends State<ButtonsBouncingEffect>
   Widget build(BuildContext context) {
     return widget.disabled
         ? Listener(
-      onPointerDown: (_) {
-        _controllerA!.reverse();
-      },
-      onPointerUp: (_) {
-        _controllerA!.forward(from: 1.0);
-        if (!widget.disabled) {}
-      },
-      child: Transform.scale(
-        scale: squareScaleA,
-        child: widget.child,
-      ),
-    )
+            onPointerDown: (_) {
+              _controllerA!.reverse();
+            },
+            onPointerUp: (_) {
+              _controllerA!.forward(from: 1.0);
+              if (!widget.disabled) {}
+            },
+            child: Transform.scale(
+              scale: squareScaleA,
+              child: widget.child,
+            ),
+          )
         : widget.child;
   }
 }

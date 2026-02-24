@@ -10,7 +10,6 @@ import '../models/data/delivery_vehicle_type.dart';
 import '../models/models.dart';
 
 class UserRepositoryImpl implements UserRepository {
-
   @override
   Future<ApiResult<DeliveryResponse>> getDriverDetails() async {
     try {
@@ -24,7 +23,7 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('===> error driver settings $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -37,9 +36,8 @@ class UserRepositoryImpl implements UserRepository {
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final List data = response.data['data'];
-        final items = data
-            .map((item) => DeliveryVehicleType.fromJson(item))
-            .toList();
+        final items =
+            data.map((item) => DeliveryVehicleType.fromJson(item)).toList();
         return ApiResult.success(data: items);
       } else {
         return ApiResult.failure(
@@ -59,8 +57,6 @@ class UserRepositoryImpl implements UserRepository {
       );
     }
   }
-
-
 
   @override
   Future<ApiResult<ProfileResponse>> updateGeneralInfo({
@@ -92,7 +88,7 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('==> update profile details failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -110,7 +106,7 @@ class UserRepositoryImpl implements UserRepository {
       );
     } catch (e) {
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -133,7 +129,7 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('==> update profile details failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -160,7 +156,7 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('==> update profile image failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -186,7 +182,7 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('==> update password failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -204,7 +200,7 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('==> update firebase token failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -247,7 +243,7 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('==> update car details failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -292,7 +288,7 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e, s) {
       debugPrint('==> create car details failure: $e.$s');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -319,7 +315,7 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('===> get statistics error $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -349,7 +345,7 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('===> get statistics order error $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -365,7 +361,7 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('==> update online token failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -381,7 +377,7 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('==> get request model failure: $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -399,7 +395,7 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e) {
       debugPrint('===> error statistics settings $e');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -423,7 +419,7 @@ class UserRepositoryImpl implements UserRepository {
     } catch (e, s) {
       debugPrint('===> error statistics settings $e,$s');
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }
@@ -440,7 +436,7 @@ class UserRepositoryImpl implements UserRepository {
       );
     } catch (e) {
       return ApiResult.failure(
-            error: AppHelpers.errorHandler(e),
+          error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
     }
   }

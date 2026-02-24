@@ -187,9 +187,8 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
                 Consumer(builder: (context, ref, child) {
                   return Text(
                     AppHelpers.numberFormat(
-                      number: LocalStorage.getUser()?.wallet?.price,
-                      maxLength: 3
-                    ),
+                        number: LocalStorage.getUser()?.wallet?.price,
+                        maxLength: 3),
                     style: Style.interSemi(size: 14.sp, letterSpacing: -0.3),
                   );
                 })

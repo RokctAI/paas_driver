@@ -55,35 +55,41 @@ class RequestModelData {
         updatedAt: updatedAt ?? this.updatedAt,
       );
 
-  factory RequestModelData.fromJson(Map<String, dynamic> json) => RequestModelData(
-    id: json["id"],
-    modelId: json["model_id"],
-    modelType: json["model_type"],
-    datumCreatedBy: json["created_by"],
-    data: json["data"] == null ? null : CarData.fromJson(json["data"]),
-    status: json["status"],
-    statusNote: json["status_note"],
-    model: json["model"] == null ? null : UserData.fromJson(json["model"]),
-    createdBy: json["createdBy"] == null ? null : UserData.fromJson(json["createdBy"]),
-    createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
-    updatedAt: json["updated_at"] == null ? null : DateTime.parse(json["updated_at"]),
-  );
+  factory RequestModelData.fromJson(Map<String, dynamic> json) =>
+      RequestModelData(
+        id: json["id"],
+        modelId: json["model_id"],
+        modelType: json["model_type"],
+        datumCreatedBy: json["created_by"],
+        data: json["data"] == null ? null : CarData.fromJson(json["data"]),
+        status: json["status"],
+        statusNote: json["status_note"],
+        model: json["model"] == null ? null : UserData.fromJson(json["model"]),
+        createdBy: json["createdBy"] == null
+            ? null
+            : UserData.fromJson(json["createdBy"]),
+        createdAt: json["created_at"] == null
+            ? null
+            : DateTime.parse(json["created_at"]),
+        updatedAt: json["updated_at"] == null
+            ? null
+            : DateTime.parse(json["updated_at"]),
+      );
 
   Map<String, dynamic> toJson() => {
-    "id": id,
-    "model_id": modelId,
-    "model_type": modelType,
-    "created_by": datumCreatedBy,
-    "data": data?.toJson(),
-    "status": status,
-    "status_note": statusNote,
-    "model": model?.toJson(),
-    "createdBy": createdBy?.toJson(),
-    "created_at": createdAt?.toIso8601String(),
-    "updated_at": updatedAt?.toIso8601String(),
-  };
+        "id": id,
+        "model_id": modelId,
+        "model_type": modelType,
+        "created_by": datumCreatedBy,
+        "data": data?.toJson(),
+        "status": status,
+        "status_note": statusNote,
+        "model": model?.toJson(),
+        "createdBy": createdBy?.toJson(),
+        "created_at": createdAt?.toIso8601String(),
+        "updated_at": updatedAt?.toIso8601String(),
+      };
 }
-
 
 class CarData {
   int? kg;
@@ -148,34 +154,36 @@ class CarData {
       );
 
   factory CarData.fromJson(Map<String, dynamic> json) => CarData(
-    kg: json["kg"],
-    role: json["role"],
-    brand: json["brand"],
-    color: json["color"],
-    model: json["model"],
-    width: json["width"],
-    height: json["height"],
-    length: json["length"],
-    number: json["number"],
-    online: json["online"],
-    images0: json["images[0]"],
-    typeOfTechnique: json["type_of_technique"],
-    location: json["location"] == null ? null : Location.fromJson(json["location"]),
-  );
+        kg: json["kg"],
+        role: json["role"],
+        brand: json["brand"],
+        color: json["color"],
+        model: json["model"],
+        width: json["width"],
+        height: json["height"],
+        length: json["length"],
+        number: json["number"],
+        online: json["online"],
+        images0: json["images[0]"],
+        typeOfTechnique: json["type_of_technique"],
+        location: json["location"] == null
+            ? null
+            : Location.fromJson(json["location"]),
+      );
 
   Map<String, dynamic> toJson() => {
-    "kg": kg,
-    "role": role,
-    "brand": brand,
-    "color": color,
-    "model": model,
-    "width": width,
-    "height": height,
-    "length": length,
-    "number": number,
-    "online": online,
-    "images[0]": images0,
-    "type_of_technique": typeOfTechnique,
-    "location": location?.toJson(),
-  };
+        "kg": kg,
+        "role": role,
+        "brand": brand,
+        "color": color,
+        "model": model,
+        "width": width,
+        "height": height,
+        "length": length,
+        "number": number,
+        "online": online,
+        "images[0]": images0,
+        "type_of_technique": typeOfTechnique,
+        "location": location?.toJson(),
+      };
 }

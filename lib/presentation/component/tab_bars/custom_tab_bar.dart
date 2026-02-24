@@ -9,7 +9,10 @@ class CustomTabBar extends StatelessWidget {
   final bool scroll;
 
   const CustomTabBar(
-      {super.key, required this.tabController, required this.tabs, this.scroll = false});
+      {super.key,
+      required this.tabController,
+      required this.tabs,
+      this.scroll = false});
 
   @override
   Widget build(BuildContext context) {
@@ -24,12 +27,13 @@ class CustomTabBar extends StatelessWidget {
           isScrollable: scroll,
           controller: tabController,
           indicator: BoxDecoration(
-              borderRadius: BorderRadius.circular(10.r),
-              color: Style.black),
+              borderRadius: BorderRadius.circular(10.r), color: Style.black),
           labelColor: Style.white,
           unselectedLabelColor: Style.textColor,
           unselectedLabelStyle: Style.interRegular(size: 14.sp),
-          labelStyle: Style.interSemi(size: 14.sp,),
+          labelStyle: Style.interSemi(
+            size: 14.sp,
+          ),
           tabs: tabs),
     );
   }

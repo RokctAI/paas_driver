@@ -1,7 +1,6 @@
 import 'package:driver/infrastructure/models/models.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-
 part 'languages_state.freezed.dart';
 
 @freezed

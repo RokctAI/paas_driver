@@ -11,7 +11,7 @@ import '../application/poidata/poi_data_provider.dart';
 
 class AppInitializer extends StatefulWidget {
   final ProviderContainer providerContainer;
- // final List<int> excludedProductIds = [];
+  // final List<int> excludedProductIds = [];
   //final List<int> excludedCategoryIds = [];
 
   const AppInitializer({super.key, required this.providerContainer});
@@ -29,7 +29,7 @@ class AppInitializer extends StatefulWidget {
 
   Future<void> checkAppStatusFromAPI() async {
     final initializer = _AppInitializerState(providerContainer);
-   // await initializer._checkAppStatusFromAPI();
+    // await initializer._checkAppStatusFromAPI();
   }
 
   @override
@@ -52,71 +52,97 @@ class _AppInitializerState extends State<AppInitializer> {
     const String controlPanelUrl = "https://platform.rokct.ai";
 
     try {
-      final response = await http.get(Uri.parse('$tenantSite/api/method/paas.api.get_remote_config?app_type=Driver'));
+      final response = await http.get(Uri.parse(
+          '$tenantSite/api/method/paas.api.get_remote_config?app_type=Driver'));
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         final config = responseData['message'];
 
         if (config != null) {
-            String? getString(String key) => config[key]?.toString();
-            bool? getBool(String key) => config[key] == 1 || config[key] == true || config[key] == "true";
-            double? getDouble(String key) => double.tryParse(config[key]?.toString() ?? "");
+          String? getString(String key) => config[key]?.toString();
+          bool? getBool(String key) =>
+              config[key] == 1 || config[key] == true || config[key] == "true";
+          double? getDouble(String key) =>
+              double.tryParse(config[key]?.toString() ?? "");
 
-            /// api urls
-            if (getString('drawingBaseUrl') != null) AppConstants.drawingBaseUrl = getString('drawingBaseUrl')!;
-            // AppConstants.baseUrl is not overwritten
-            if (getString('webUrl') != null) AppConstants.webUrl = getString('webUrl')!;
-            if (getString('googleApiKey') != null) AppConstants.googleApiKey = getString('googleApiKey')!;
-            if (getString('routingKey') != null) AppConstants.routingKey = getString('routingKey')!;
-            //AppConstants.privacyPolicyUrl = remoteConfig.getString('privacyPolicyUrl');
+          /// api urls
+          if (getString('drawingBaseUrl') != null)
+            AppConstants.drawingBaseUrl = getString('drawingBaseUrl')!;
+          // AppConstants.baseUrl is not overwritten
+          if (getString('webUrl') != null)
+            AppConstants.webUrl = getString('webUrl')!;
+          if (getString('googleApiKey') != null)
+            AppConstants.googleApiKey = getString('googleApiKey')!;
+          if (getString('routingKey') != null)
+            AppConstants.routingKey = getString('routingKey')!;
+          //AppConstants.privacyPolicyUrl = remoteConfig.getString('privacyPolicyUrl');
 
-            /// auth phone fields
-            if (getBool('isSpecificNumberEnabled') != null) AppConstants.isSpecificNumberEnabled = getBool('isSpecificNumberEnabled')!;
-            if (getBool('isNumberLengthAlwaysSame') != null) AppConstants.isNumberLengthAlwaysSame = getBool('isNumberLengthAlwaysSame')!;
-            if (getString('countryCodeISO') != null) AppConstants.countryCodeISO = getString('countryCodeISO')!;
-            if (getBool('showFlag') != null) AppConstants.showFlag = getBool('showFlag')!;
-            if (getBool('showArrowIcon') != null) AppConstants.showArrowIcon = getBool('showArrowIcon')!;
+          /// auth phone fields
+          if (getBool('isSpecificNumberEnabled') != null)
+            AppConstants.isSpecificNumberEnabled =
+                getBool('isSpecificNumberEnabled')!;
+          if (getBool('isNumberLengthAlwaysSame') != null)
+            AppConstants.isNumberLengthAlwaysSame =
+                getBool('isNumberLengthAlwaysSame')!;
+          if (getString('countryCodeISO') != null)
+            AppConstants.countryCodeISO = getString('countryCodeISO')!;
+          if (getBool('showFlag') != null)
+            AppConstants.showFlag = getBool('showFlag')!;
+          if (getBool('showArrowIcon') != null)
+            AppConstants.showArrowIcon = getBool('showArrowIcon')!;
 
-            /// location
-            if (getDouble('demoLatitude') != null) AppConstants.demoLatitude = getDouble('demoLatitude')!;
-            if (getDouble('demoLongitude') != null) AppConstants.demoLongitude = getDouble('demoLongitude')!;
-            if (getDouble('pinLoadingMin') != null) AppConstants.pinLoadingMin = getDouble('pinLoadingMin')!;
-            if (getDouble('pinLoadingMax') != null) AppConstants.pinLoadingMax = getDouble('pinLoadingMax')!;
+          /// location
+          if (getDouble('demoLatitude') != null)
+            AppConstants.demoLatitude = getDouble('demoLatitude')!;
+          if (getDouble('demoLongitude') != null)
+            AppConstants.demoLongitude = getDouble('demoLongitude')!;
+          if (getDouble('pinLoadingMin') != null)
+            AppConstants.pinLoadingMin = getDouble('pinLoadingMin')!;
+          if (getDouble('pinLoadingMax') != null)
+            AppConstants.pinLoadingMax = getDouble('pinLoadingMax')!;
 
-            ///Google Maps POI
-            if (getBool('showGooglePOILayer') != null) AppConstants.showGooglePOILayer = getBool('showGooglePOILayer')!;
+          ///Google Maps POI
+          if (getBool('showGooglePOILayer') != null)
+            AppConstants.showGooglePOILayer = getBool('showGooglePOILayer')!;
 
-            // Handle POI Data
-            if (config['poiData'] != null) {
-                try {
-                    String poiDataString = config['poiData'];
-                    List<dynamic> poiDataJson = jsonDecode(poiDataString);
+          // Handle POI Data
+          if (config['poiData'] != null) {
+            try {
+              String poiDataString = config['poiData'];
+              List<dynamic> poiDataJson = jsonDecode(poiDataString);
 
-                    print("poiDataJson: $poiDataJson"); // Debug print to check poiDataJson
+              print(
+                  "poiDataJson: $poiDataJson"); // Debug print to check poiDataJson
 
-                    List<POIData> poiDataList = [];
-                    for (var poiDataMap in poiDataJson) {
-                        poiDataList.add(
-                            POIData(
-                                name: poiDataMap['name'],
-                                latitude: poiDataMap['latitude'].toDouble(),
-                                longitude: poiDataMap['longitude'].toDouble(),
-                                titleColor: Color(int.parse(poiDataMap['titleColor'].substring(2), radix: 16) + 0xFF000000),
-                            ),
-                        );
-                    }
-                    print("poiDataList: $poiDataList"); // Debug print to check poiDataList
+              List<POIData> poiDataList = [];
+              for (var poiDataMap in poiDataJson) {
+                poiDataList.add(
+                  POIData(
+                    name: poiDataMap['name'],
+                    latitude: poiDataMap['latitude'].toDouble(),
+                    longitude: poiDataMap['longitude'].toDouble(),
+                    titleColor: Color(int.parse(
+                            poiDataMap['titleColor'].substring(2),
+                            radix: 16) +
+                        0xFF000000),
+                  ),
+                );
+              }
+              print(
+                  "poiDataList: $poiDataList"); // Debug print to check poiDataList
 
-                    // Update the poiDataProvider with the new data
-                    providerContainer.read(poiDataProvider.notifier).updatePOIData(poiDataList);
-                } catch (e) {
-                     print("Error processing poiData: $e");
-                }
+              // Update the poiDataProvider with the new data
+              providerContainer
+                  .read(poiDataProvider.notifier)
+                  .updatePOIData(poiDataList);
+            } catch (e) {
+              print("Error processing poiData: $e");
             }
+          }
         }
       } else {
-          print("Failed to fetch remote config. Status: ${response.statusCode}");
+        print("Failed to fetch remote config. Status: ${response.statusCode}");
       }
     } catch (e) {
       print("Error fetching remote config: $e");
@@ -146,4 +172,3 @@ class _AppInitializerState extends State<AppInitializer> {
     return Container(); // No UI needed here
   }
 }
-

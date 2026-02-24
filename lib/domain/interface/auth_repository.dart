@@ -47,6 +47,5 @@ abstract class AuthRepository {
     required UserData user,
   });
 
-  Future<ApiResult<bool>>  checkPhone({required String phone});
-
+  Future<ApiResult<bool>> checkPhone({required String phone});
 }

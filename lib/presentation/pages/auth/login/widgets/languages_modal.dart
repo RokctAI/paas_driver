@@ -37,49 +37,47 @@ class _LanguagePageState extends ConsumerState<LanguageScreen> {
         child: SizedBox(
           child: state.isLoading
               ? Padding(
-                padding:  REdgeInsets.symmetric(vertical: 32),
-                child: const Loading(),
-              )
+                  padding: REdgeInsets.symmetric(vertical: 32),
+                  child: const Loading(),
+                )
               : SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TitleAndIcon(
-                      title: AppHelpers.getTranslation(TrKeys.language),
-                      titleSize: 18,
-                    ),
-                    24.verticalSpace,
-                    ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: state.list.length,
-                      padding: EdgeInsets.zero,
-                      physics: const BouncingScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return SelectItem(
-                          onTap: () => event.change(index),
-                          isActive: state.index == index,
-                          title: state.list[index].title ?? '',
-                        );
-                      },
-                    ),
-                    16.verticalSpace,
-                    CustomButton(
-                      title: AppHelpers.getTranslation(TrKeys.save),
-                      onPressed: () {
-                        ref
-                            .read(languagesProvider.notifier)
-                            .makeSelectedLang(
-                                afterUpdate: widget.afterUpdate,
-                                context: context);
-                        Navigator.pop(context);
-                      },
-                    ),
-                    24.verticalSpace,
-                  ],
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TitleAndIcon(
+                        title: AppHelpers.getTranslation(TrKeys.language),
+                        titleSize: 18,
+                      ),
+                      24.verticalSpace,
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: state.list.length,
+                        padding: EdgeInsets.zero,
+                        physics: const BouncingScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return SelectItem(
+                            onTap: () => event.change(index),
+                            isActive: state.index == index,
+                            title: state.list[index].title ?? '',
+                          );
+                        },
+                      ),
+                      16.verticalSpace,
+                      CustomButton(
+                        title: AppHelpers.getTranslation(TrKeys.save),
+                        onPressed: () {
+                          ref.read(languagesProvider.notifier).makeSelectedLang(
+                              afterUpdate: widget.afterUpdate,
+                              context: context);
+                          Navigator.pop(context);
+                        },
+                      ),
+                      24.verticalSpace,
+                    ],
+                  ),
                 ),
-              ),
         ),
       ),
     );
