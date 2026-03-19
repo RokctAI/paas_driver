@@ -1,8 +1,8 @@
 name: Auto Release (Weekly)
-on:
-  push:
-    branches: [main, develop, "build_*"]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+on:
 jobs:
   release:
     permissions:
