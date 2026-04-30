@@ -71,7 +71,7 @@ abstract class Style {
   static const shadowColor = Color(0xFF7D7D7D);
 
   static Color get primary =>
-      _getColorFromSettings('primary_color', const Color(0xFF83EA00));
+      _getColorFromSettings('primary_color', const Color(0xFFE23744));
 
   static Color get buttonFontColor =>
       _getColorFromSettings('primary_button_font_color', black);
