@@ -7,14 +7,19 @@ import 'package:driver/infrastructure/repositories/parcel_repository.dart';
 import '../../infrastructure/repositories/orders_repository.dart';
 import '../../infrastructure/repositories/repositories.dart';
 import '../../presentation/routes/app_router.dart';
-import '../handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/http_service.dart';
 import '../interface/interfaces.dart';
 import '../interface/orders.dart';
 
 final GetIt getIt = GetIt.instance;
 
 Future<void> setUpDependencies() async {
-  getIt.registerSingleton<HttpService>(HttpService());
+  // HttpService is registered by BaseSdkDependencies.register() in main(),
+  // which runs first and guards on isRegistered. Registering it again here
+  // with registerSingleton (unguarded) would throw on startup.
+  if (!getIt.isRegistered<HttpService>()) {
+    getIt.registerSingleton<HttpService>(HttpService());
+  }
   getIt.registerSingleton<SettingsRepository>(SettingsRepositoryImpl());
   getIt.registerSingleton<AuthRepository>(AuthRepositoryImpl());
   getIt.registerSingleton<UserRepository>(UserRepositoryImpl());

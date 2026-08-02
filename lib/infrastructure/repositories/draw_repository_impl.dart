@@ -1,7 +1,7 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:driver/domain/di/dependency_manager.dart';
-import 'package:driver/domain/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:driver/domain/interface/interfaces.dart';
 import '../models/models.dart';
 import '../services/services.dart';

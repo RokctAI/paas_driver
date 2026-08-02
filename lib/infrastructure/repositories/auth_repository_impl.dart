@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:driver/domain/di/dependency_manager.dart';
 import 'package:driver/infrastructure/services/services.dart';
 import '../models/models.dart';
-import 'package:driver/domain/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:driver/domain/interface/interfaces.dart';
 
 class AuthRepositoryImpl implements AuthRepository {

@@ -1,6 +1,6 @@
 import '../../infrastructure/models/models.dart';
 import '../../infrastructure/services/services.dart';
-import '../handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/handlers.dart';
 
 abstract class SettingsRepository {
   Future<ApiResult<GalleryUploadResponse>> uploadImage(

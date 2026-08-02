@@ -1,7 +1,7 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../infrastructure/models/data/delivery_vehicle_type.dart';
 import '../../infrastructure/models/models.dart';
-import '../handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/handlers.dart';
 
 abstract class UserRepository {
   Future<ApiResult<List<DeliveryVehicleType>>> getDeliveryVehicleTypes();

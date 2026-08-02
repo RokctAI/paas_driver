@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:driver/infrastructure/services/services.dart';
 import 'package:driver/domain/di/dependency_manager.dart';
-import 'package:driver/domain/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:driver/domain/interface/interfaces.dart';
 import '../models/data/delivery_vehicle_type.dart';
 import '../models/models.dart';
