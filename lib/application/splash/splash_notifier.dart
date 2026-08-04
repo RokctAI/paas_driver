@@ -8,7 +8,7 @@ import 'package:driver/presentation/routes/app_router.gr.dart';
 import 'package:driver/domain/interface/interfaces.dart';
 import '../../infrastructure/models/models.dart';
 import '../../infrastructure/services/services.dart';
-import 'splash_state.dart';
+import 'package:base_sdk/src/application/splash/splash_state.dart';
 
 class SplashNotifier extends StateNotifier<SplashState> {
   final SettingsRepository _settingsRepository;

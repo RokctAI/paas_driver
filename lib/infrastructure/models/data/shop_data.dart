@@ -1,6 +1,6 @@
 import 'translation.dart';
 import 'local_location_data.dart';
-import 'shop_delivery.dart';
+import 'package:base_sdk/src/models/data/shop_delivery.dart';
 
 class ShopData {
   ShopData({

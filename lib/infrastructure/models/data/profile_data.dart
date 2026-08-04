@@ -1,5 +1,5 @@
 import 'address_data.dart';
-import 'currency_data.dart';
+import 'package:base_sdk/src/models/data/currency_data.dart';
 import 'shop_data.dart';
 
 class ProfileData {
