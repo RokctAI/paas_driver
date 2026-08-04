@@ -12,6 +12,32 @@ environment:
 
 
 dependencies:
+  base_sdk:
+    path: .rokct/cache/base
+  auth_sdk:
+    path: .rokct/cache/auth
+  users_sdk:
+    path: .rokct/cache/users
+  orders_sdk:
+    path: .rokct/cache/orders
+  delivery_sdk:
+    path: .rokct/cache/delivery
+  comms_sdk:
+    path: .rokct/cache/comms
+  processing_sdk:
+    path: .rokct/cache/processing
+  corporate_sdk:
+    path: .rokct/cache/corporate
+  map_sdk:
+    path: .rokct/cache/map
+  zones_sdk:
+    path: .rokct/cache/zones
+  revenue_sdk:
+    path: .rokct/cache/revenue
+  merchants_sdk:
+    path: .rokct/cache/merchants
+  products_sdk:
+    path: .rokct/cache/products
   flutter:
     sdk: flutter
   uuid: ^4.4.0
@@ -109,10 +135,10 @@ dependencies:
     git:
       url: https://github.com/RendaniSinyage/payfast_flutter.git
 
-  # Driver-app-specific packages. The composer's update_pubspec_dependencies()
-  # truncates this block on every compose after the first (its skip-loop eats
-  # every indented line after the first *_sdk: entry), so if these vanish
-  # again that is the cause, not a manual edit.
+  # Driver-app-specific packages, i.e. not provided by base_sdk's template.
+  # Each is still referenced by app code that has not yet moved into an SDK;
+  # when a feature moves, its package should move to that SDK's pubspec and
+  # drop off this list.
   #   workmanager           - background location reporting (home_page.dart)
   #   percent_indicator     - push-order countdown ring (push_order_screen)
   #   map_launcher          - hand off to an external maps app (order_item)
@@ -129,32 +155,6 @@ dependencies:
       url: https://github.com/Muhammadyunusxon/charts.git
       path: charts_flutter
 
-  base_sdk:
-    path: .rokct/cache/base
-  auth_sdk:
-    path: .rokct/cache/auth
-  users_sdk:
-    path: .rokct/cache/users
-  orders_sdk:
-    path: .rokct/cache/orders
-  delivery_sdk:
-    path: .rokct/cache/delivery
-  comms_sdk:
-    path: .rokct/cache/comms
-  processing_sdk:
-    path: .rokct/cache/processing
-  corporate_sdk:
-    path: .rokct/cache/corporate
-  map_sdk:
-    path: .rokct/cache/map
-  zones_sdk:
-    path: .rokct/cache/zones
-  revenue_sdk:
-    path: .rokct/cache/revenue
-  merchants_sdk:
-    path: .rokct/cache/merchants
-  products_sdk:
-    path: .rokct/cache/products
 dev_dependencies:
   flutter_test:
     sdk: flutter
