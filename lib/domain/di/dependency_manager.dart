@@ -8,6 +8,7 @@ import '../../infrastructure/repositories/orders_repository.dart';
 import '../../infrastructure/repositories/repositories.dart';
 import '../../presentation/routes/app_router.dart';
 import 'package:base_sdk/src/handlers/http_service.dart';
+import 'package:revenue_sdk/revenue_sdk.dart';
 import '../interface/interfaces.dart';
 import '../interface/orders.dart';
 
@@ -40,3 +41,8 @@ final orderRepository = getIt.get<OrdersRepositoryFacade>();
 final parcelRepository = getIt.get<ParcelRepositoryFacade>();
 final notificationRepo = getIt.get<NotificationRepositoryFacade>();
 final appRouter = getIt.get<AppRouter>();
+
+// SDK-owned repository, registered by RevenueSdkDependencies.register() in
+// main()'s generated DI block — exposed here so app code resolves it the same
+// way as the app's own repositories.
+final courierStatisticsRepository = getIt.get<CourierStatisticsRepositoryFacade>();

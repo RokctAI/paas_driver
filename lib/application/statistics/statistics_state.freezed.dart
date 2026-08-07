@@ -20,8 +20,8 @@ mixin _$StatisticsState {
   bool get isRefresh => throw _privateConstructorUsedError;
   List<Series<OrdinalSales, String>> get list =>
       throw _privateConstructorUsedError;
-  List<StatisticsOrder> get listOfOrder => throw _privateConstructorUsedError;
-  StatisticsIncomeResponse? get countData => throw _privateConstructorUsedError;
+  CourierStatisticsIncomeResponse? get countData =>
+      throw _privateConstructorUsedError;
 
   /// Create a copy of StatisticsState
   /// with the given fields replaced by the non-null parameter values.
@@ -40,8 +40,7 @@ abstract class $StatisticsStateCopyWith<$Res> {
       {bool isLoading,
       bool isRefresh,
       List<Series<OrdinalSales, String>> list,
-      List<StatisticsOrder> listOfOrder,
-      StatisticsIncomeResponse? countData});
+      CourierStatisticsIncomeResponse? countData});
 }
 
 /// @nodoc
@@ -62,7 +61,6 @@ class _$StatisticsStateCopyWithImpl<$Res, $Val extends StatisticsState>
     Object? isLoading = null,
     Object? isRefresh = null,
     Object? list = null,
-    Object? listOfOrder = null,
     Object? countData = freezed,
   }) {
     return _then(_value.copyWith(
@@ -78,14 +76,10 @@ class _$StatisticsStateCopyWithImpl<$Res, $Val extends StatisticsState>
           ? _value.list
           : list // ignore: cast_nullable_to_non_nullable
               as List<Series<OrdinalSales, String>>,
-      listOfOrder: null == listOfOrder
-          ? _value.listOfOrder
-          : listOfOrder // ignore: cast_nullable_to_non_nullable
-              as List<StatisticsOrder>,
       countData: freezed == countData
           ? _value.countData
           : countData // ignore: cast_nullable_to_non_nullable
-              as StatisticsIncomeResponse?,
+              as CourierStatisticsIncomeResponse?,
     ) as $Val);
   }
 }
@@ -102,8 +96,7 @@ abstract class _$$StatisticsStateImplCopyWith<$Res>
       {bool isLoading,
       bool isRefresh,
       List<Series<OrdinalSales, String>> list,
-      List<StatisticsOrder> listOfOrder,
-      StatisticsIncomeResponse? countData});
+      CourierStatisticsIncomeResponse? countData});
 }
 
 /// @nodoc
@@ -122,7 +115,6 @@ class __$$StatisticsStateImplCopyWithImpl<$Res>
     Object? isLoading = null,
     Object? isRefresh = null,
     Object? list = null,
-    Object? listOfOrder = null,
     Object? countData = freezed,
   }) {
     return _then(_$StatisticsStateImpl(
@@ -138,14 +130,10 @@ class __$$StatisticsStateImplCopyWithImpl<$Res>
           ? _value._list
           : list // ignore: cast_nullable_to_non_nullable
               as List<Series<OrdinalSales, String>>,
-      listOfOrder: null == listOfOrder
-          ? _value._listOfOrder
-          : listOfOrder // ignore: cast_nullable_to_non_nullable
-              as List<StatisticsOrder>,
       countData: freezed == countData
           ? _value.countData
           : countData // ignore: cast_nullable_to_non_nullable
-              as StatisticsIncomeResponse?,
+              as CourierStatisticsIncomeResponse?,
     ));
   }
 }
@@ -157,10 +145,8 @@ class _$StatisticsStateImpl extends _StatisticsState {
       {this.isLoading = false,
       this.isRefresh = true,
       final List<Series<OrdinalSales, String>> list = const [],
-      final List<StatisticsOrder> listOfOrder = const [],
       this.countData})
       : _list = list,
-        _listOfOrder = listOfOrder,
         super._();
 
   @override
@@ -178,21 +164,12 @@ class _$StatisticsStateImpl extends _StatisticsState {
     return EqualUnmodifiableListView(_list);
   }
 
-  final List<StatisticsOrder> _listOfOrder;
   @override
-  @JsonKey()
-  List<StatisticsOrder> get listOfOrder {
-    if (_listOfOrder is EqualUnmodifiableListView) return _listOfOrder;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_listOfOrder);
-  }
-
-  @override
-  final StatisticsIncomeResponse? countData;
+  final CourierStatisticsIncomeResponse? countData;
 
   @override
   String toString() {
-    return 'StatisticsState(isLoading: $isLoading, isRefresh: $isRefresh, list: $list, listOfOrder: $listOfOrder, countData: $countData)';
+    return 'StatisticsState(isLoading: $isLoading, isRefresh: $isRefresh, list: $list, countData: $countData)';
   }
 
   @override
@@ -205,20 +182,13 @@ class _$StatisticsStateImpl extends _StatisticsState {
             (identical(other.isRefresh, isRefresh) ||
                 other.isRefresh == isRefresh) &&
             const DeepCollectionEquality().equals(other._list, _list) &&
-            const DeepCollectionEquality()
-                .equals(other._listOfOrder, _listOfOrder) &&
             (identical(other.countData, countData) ||
                 other.countData == countData));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      isLoading,
-      isRefresh,
-      const DeepCollectionEquality().hash(_list),
-      const DeepCollectionEquality().hash(_listOfOrder),
-      countData);
+  int get hashCode => Object.hash(runtimeType, isLoading, isRefresh,
+      const DeepCollectionEquality().hash(_list), countData);
 
   /// Create a copy of StatisticsState
   /// with the given fields replaced by the non-null parameter values.
@@ -232,11 +202,11 @@ class _$StatisticsStateImpl extends _StatisticsState {
 
 abstract class _StatisticsState extends StatisticsState {
   const factory _StatisticsState(
-      {final bool isLoading,
-      final bool isRefresh,
-      final List<Series<OrdinalSales, String>> list,
-      final List<StatisticsOrder> listOfOrder,
-      final StatisticsIncomeResponse? countData}) = _$StatisticsStateImpl;
+          {final bool isLoading,
+          final bool isRefresh,
+          final List<Series<OrdinalSales, String>> list,
+          final CourierStatisticsIncomeResponse? countData}) =
+      _$StatisticsStateImpl;
   const _StatisticsState._() : super._();
 
   @override
@@ -246,9 +216,7 @@ abstract class _StatisticsState extends StatisticsState {
   @override
   List<Series<OrdinalSales, String>> get list;
   @override
-  List<StatisticsOrder> get listOfOrder;
-  @override
-  StatisticsIncomeResponse? get countData;
+  CourierStatisticsIncomeResponse? get countData;
 
   /// Create a copy of StatisticsState
   /// with the given fields replaced by the non-null parameter values.

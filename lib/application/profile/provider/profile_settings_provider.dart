@@ -6,5 +6,5 @@ import '../state/profile_settings_state.dart';
 
 final profileSettingsProvider =
     StateNotifierProvider<ProfileSettingsNotifier, ProfileSettingsState>(
-  (ref) => ProfileSettingsNotifier(userRepository),
+  (ref) => ProfileSettingsNotifier(userRepository, courierStatisticsRepository),
 );

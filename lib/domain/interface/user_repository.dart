@@ -8,7 +8,9 @@ abstract class UserRepository {
 
   Future<ApiResult<DeliveryResponse>> getDriverDetails();
 
-  Future<ApiResult<StatisticsResponse>> getDriverStatistics();
+  // The courier statistics slice (getDriverStatistics / getStatistics /
+  // getStatisticsOrder) moved to revenue_sdk's
+  // CourierStatisticsRepositoryFacade (src/driver/, corporate main).
 
   Future<ApiResult<ProfileResponse>> updateGeneralInfo({
     required String firstName,
@@ -44,12 +46,6 @@ abstract class UserRepository {
     required String width,
     String? imageUrl,
   });
-
-  Future<ApiResult<StatisticsIncomeResponse>> getStatistics(
-      {required DateTime startTime, required DateTime endTime});
-
-  Future<ApiResult<StatisticsOrderResponse>> getStatisticsOrder(
-      {DateTime? startTime, DateTime? endTime, int? page, int? perPage});
 
   Future<ApiResult<ProfileResponse>> getProfileDetails();
 

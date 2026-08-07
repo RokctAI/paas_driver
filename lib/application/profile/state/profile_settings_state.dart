@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:revenue_sdk/revenue_sdk.dart';
 
 import '../../../../infrastructure/models/models.dart';
 
@@ -11,7 +12,7 @@ class ProfileSettingsState with _$ProfileSettingsState {
     @Default(false) bool isStatisticLoading,
     UserData? userData,
     RequestModelData? requestData,
-    StatisticsResponse? statistics,
+    CourierStatisticsResponse? statistics,
   }) = _ProfileSettingsState;
 
   const ProfileSettingsState._();

@@ -20,7 +20,8 @@ mixin _$ProfileSettingsState {
   bool get isStatisticLoading => throw _privateConstructorUsedError;
   UserData? get userData => throw _privateConstructorUsedError;
   RequestModelData? get requestData => throw _privateConstructorUsedError;
-  StatisticsResponse? get statistics => throw _privateConstructorUsedError;
+  CourierStatisticsResponse? get statistics =>
+      throw _privateConstructorUsedError;
 
   /// Create a copy of ProfileSettingsState
   /// with the given fields replaced by the non-null parameter values.
@@ -40,7 +41,7 @@ abstract class $ProfileSettingsStateCopyWith<$Res> {
       bool isStatisticLoading,
       UserData? userData,
       RequestModelData? requestData,
-      StatisticsResponse? statistics});
+      CourierStatisticsResponse? statistics});
 }
 
 /// @nodoc
@@ -85,7 +86,7 @@ class _$ProfileSettingsStateCopyWithImpl<$Res,
       statistics: freezed == statistics
           ? _value.statistics
           : statistics // ignore: cast_nullable_to_non_nullable
-              as StatisticsResponse?,
+              as CourierStatisticsResponse?,
     ) as $Val);
   }
 }
@@ -103,7 +104,7 @@ abstract class _$$ProfileSettingsStateImplCopyWith<$Res>
       bool isStatisticLoading,
       UserData? userData,
       RequestModelData? requestData,
-      StatisticsResponse? statistics});
+      CourierStatisticsResponse? statistics});
 }
 
 /// @nodoc
@@ -145,7 +146,7 @@ class __$$ProfileSettingsStateImplCopyWithImpl<$Res>
       statistics: freezed == statistics
           ? _value.statistics
           : statistics // ignore: cast_nullable_to_non_nullable
-              as StatisticsResponse?,
+              as CourierStatisticsResponse?,
     ));
   }
 }
@@ -172,7 +173,7 @@ class _$ProfileSettingsStateImpl extends _ProfileSettingsState {
   @override
   final RequestModelData? requestData;
   @override
-  final StatisticsResponse? statistics;
+  final CourierStatisticsResponse? statistics;
 
   @override
   String toString() {
@@ -213,11 +214,12 @@ class _$ProfileSettingsStateImpl extends _ProfileSettingsState {
 
 abstract class _ProfileSettingsState extends ProfileSettingsState {
   const factory _ProfileSettingsState(
-      {final bool isLoading,
-      final bool isStatisticLoading,
-      final UserData? userData,
-      final RequestModelData? requestData,
-      final StatisticsResponse? statistics}) = _$ProfileSettingsStateImpl;
+          {final bool isLoading,
+          final bool isStatisticLoading,
+          final UserData? userData,
+          final RequestModelData? requestData,
+          final CourierStatisticsResponse? statistics}) =
+      _$ProfileSettingsStateImpl;
   const _ProfileSettingsState._() : super._();
 
   @override
@@ -229,7 +231,7 @@ abstract class _ProfileSettingsState extends ProfileSettingsState {
   @override
   RequestModelData? get requestData;
   @override
-  StatisticsResponse? get statistics;
+  CourierStatisticsResponse? get statistics;
 
   /// Create a copy of ProfileSettingsState
   /// with the given fields replaced by the non-null parameter values.
