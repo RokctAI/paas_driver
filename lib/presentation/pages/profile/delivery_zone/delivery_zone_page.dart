@@ -1,23 +1,40 @@
+// ==========================================
+// [GENERATED TEMPLATE FILE]
+// This file was installed from: zones_sdk
+// Feel free to modify and customize this code.
+// Note: If you edit this file, the SDK installer will detect your changes
+// and automatically skip overwriting it during future upgrades.
+// ==========================================
+
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:driver/application/delivery_zone/delivery_zone_provider.dart';
+// The zone slice now lives in zones_sdk (ported from paas_driver's
+// application/delivery_zone/ in the 2026-07 refork), not delivery_sdk as this
+// page originally assumed. zones_sdk owns zone geometry for both the driver
+// and manager flavours of this page.
+import 'package:zones_sdk/zones_sdk.dart';
 
-import '../../../styles/style.dart';
-import '../../../component/components.dart';
-import '../../../../infrastructure/services/services.dart';
+import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:base_sdk/src/presentation/theme/app_style.dart';
+import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
+import 'package:base_sdk/src/presentation/components/buttons/pop_button.dart';
+import 'package:base_sdk/src/constants/app_constants.dart';
 
-@RoutePage()
-class DeliveryZonePage extends ConsumerStatefulWidget {
-  const DeliveryZonePage({super.key});
+@RoutePage(name: 'DriverDeliveryZoneRoute')
+class DriverDeliveryZonePage extends ConsumerStatefulWidget {
+  const DriverDeliveryZonePage({super.key});
 
   @override
-  ConsumerState<DeliveryZonePage> createState() => _DeliveryZonePageState();
+  ConsumerState<DriverDeliveryZonePage> createState() =>
+      _DeliveryZonePageState();
 }
 
-class _DeliveryZonePageState extends ConsumerState<DeliveryZonePage> {
+class _DeliveryZonePageState extends ConsumerState<DriverDeliveryZonePage> {
   @override
   void initState() {
     super.initState();
@@ -29,7 +46,7 @@ class _DeliveryZonePageState extends ConsumerState<DeliveryZonePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Style.greyColor,
+      backgroundColor: AppStyle.textGrey,
       resizeToAvoidBottomInset: false,
       body: Consumer(
         builder: (context, ref, child) {
@@ -41,7 +58,7 @@ class _DeliveryZonePageState extends ConsumerState<DeliveryZonePage> {
                   ? Container(
                       width: double.infinity,
                       height: double.infinity,
-                      color: Style.white,
+                      color: AppStyle.white,
                     )
                   : GoogleMap(
                       tiltGesturesEnabled: false,
@@ -54,12 +71,16 @@ class _DeliveryZonePageState extends ConsumerState<DeliveryZonePage> {
                         target: LatLng(
                           state.polygon.isNotEmpty
                               ? state.polygon.first.points.first.latitude
-                              : LocalStorage.getAddressSelected()?.latitude ??
-                                  AppConstants.demoLatitude,
+                              : LocalStorage.getAddressSelected()
+                                        ?.location
+                                        ?.latitude ??
+                                    AppConstants.demoLatitude,
                           state.polygon.isNotEmpty
                               ? state.polygon.first.points.first.longitude
-                              : LocalStorage.getAddressSelected()?.longitude ??
-                                  AppConstants.demoLongitude,
+                              : LocalStorage.getAddressSelected()
+                                        ?.location
+                                        ?.longitude ??
+                                    AppConstants.demoLongitude,
                         ),
                         tilt: 0,
                         zoom: 11,

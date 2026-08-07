@@ -9,7 +9,7 @@ import 'package:driver/presentation/pages/profile/widgets/edit_profile_modal.dar
 import 'package:driver/application/providers.dart';
 import 'package:driver/infrastructure/services/services.dart';
 import 'package:driver/presentation/component/components.dart';
-import 'package:driver/presentation/routes/app_router.gr.dart';
+import 'package:driver/presentation/routes/app_router.dart';
 import 'package:driver/presentation/styles/style.dart';
 import '../auth/login/widgets/languages_modal.dart';
 import 'widgets/logout_modal.dart';
@@ -267,7 +267,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     title: AppHelpers.getTranslation(TrKeys.deliveryZone),
                     icon: FlutterRemix.navigation_fill,
                     onTap: () async {
-                      await context.pushRoute(const DeliveryZoneRoute());
+                      await context.pushRoute(const DriverDeliveryZoneRoute());
                       ref
                           .read(homeProvider.notifier)
                           .fetchDeliveryZone(isFetch: true);

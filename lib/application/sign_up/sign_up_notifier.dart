@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../../infrastructure/models/data/user_data.dart';
-import '../../presentation/routes/app_router.gr.dart';
+import '../../presentation/routes/app_router.dart';
 import 'sign_up_state.dart';
 import '../../domain/interface/interfaces.dart';
 import '../../infrastructure/services/services.dart';

@@ -8,7 +8,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 
 import '../../../../styles/style.dart';
 import '../../../../component/components.dart';
-import '../../../../routes/app_router.gr.dart';
+import '../../../../routes/app_router.dart';
 import '../../../../../application/providers.dart';
 import '../../../../../infrastructure/services/services.dart';
 

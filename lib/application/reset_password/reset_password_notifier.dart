@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/interface/interfaces.dart';
 import '../../infrastructure/services/services.dart';
-import '../../presentation/routes/app_router.gr.dart';
+import '../../presentation/routes/app_router.dart';
 import 'reset_password_state.dart';
 
 class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {

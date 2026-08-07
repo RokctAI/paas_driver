@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:driver/infrastructure/services/services.dart';
-import 'package:driver/presentation/routes/app_router.gr.dart';
+import 'package:driver/presentation/routes/app_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

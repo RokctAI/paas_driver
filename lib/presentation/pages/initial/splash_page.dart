@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:driver/application/providers.dart';
 import 'package:driver/infrastructure/services/services.dart';
-import 'package:driver/presentation/routes/app_router.gr.dart';
+import 'package:driver/presentation/routes/app_router.dart';
 
 @RoutePage()
 class SplashPage extends ConsumerStatefulWidget {
