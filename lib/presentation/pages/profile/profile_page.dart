@@ -311,7 +311,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     title: AppHelpers.getTranslation(TrKeys.income),
                     icon: FlutterRemix.line_chart_line,
                     onTap: () {
-                      context.pushRoute(const IncomeRoute());
+                      context.pushRoute(const DriverIncomeRoute());
                     },
                   ),
                   Consumer(

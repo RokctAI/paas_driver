@@ -9,6 +9,9 @@ import '../../infrastructure/repositories/repositories.dart';
 import '../../presentation/routes/app_router.dart';
 import 'package:base_sdk/src/handlers/http_service.dart';
 import 'package:revenue_sdk/revenue_sdk.dart';
+// Direct src/ import by design: DriverRevenueDependencies is role code, kept
+// out of the barrel so a manager app's stripped cache still compiles it.
+import 'package:revenue_sdk/src/driver/di/driver_revenue_di.dart';
 import '../interface/interfaces.dart';
 import '../interface/orders.dart';
 
@@ -30,6 +33,11 @@ Future<void> setUpDependencies() async {
   getIt.registerSingleton<AppRouter>(AppRouter());
   getIt.registerSingleton<NotificationRepositoryFacade>(
       NotificationRepositoryImpl());
+  // Driver-role revenue registrations. RevenueSdkDependencies.register (still
+  // called from main()'s generated DI block) is an empty common hook now that
+  // both concrete repositories are strippable role code — the host wires its
+  // own role's DI explicitly.
+  DriverRevenueDependencies.register(getIt);
 }
 
 final dioHttp = getIt.get<HttpService>();
@@ -42,7 +50,7 @@ final parcelRepository = getIt.get<ParcelRepositoryFacade>();
 final notificationRepo = getIt.get<NotificationRepositoryFacade>();
 final appRouter = getIt.get<AppRouter>();
 
-// SDK-owned repository, registered by RevenueSdkDependencies.register() in
-// main()'s generated DI block — exposed here so app code resolves it the same
+// SDK-owned repository, registered by DriverRevenueDependencies.register() in
+// setUpDependencies() above — exposed here so app code resolves it the same
 // way as the app's own repositories.
 final courierStatisticsRepository = getIt.get<CourierStatisticsRepositoryFacade>();

@@ -76,11 +76,11 @@ class HomeRoute extends PageRouteInfo<void> {
 
 /// generated route for
 /// [IncomePage]
-class IncomeRoute extends PageRouteInfo<void> {
-  const IncomeRoute({List<PageRouteInfo>? children})
-    : super(IncomeRoute.name, initialChildren: children);
+class DriverIncomeRoute extends PageRouteInfo<void> {
+  const DriverIncomeRoute({List<PageRouteInfo>? children})
+    : super(DriverIncomeRoute.name, initialChildren: children);
 
-  static const String name = 'IncomeRoute';
+  static const String name = 'DriverIncomeRoute';
 
   static PageInfo page = PageInfo(
     name,

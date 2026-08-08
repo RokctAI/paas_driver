@@ -15,6 +15,7 @@ import 'package:driver/presentation/pages/parcel/parcels_page.dart';
 import 'package:driver/presentation/pages/parcels_history/parcel_history.dart';
 import 'package:driver/presentation/pages/auth/become_driver/become_driver.dart';
 // @generated-imports-start
+import 'package:driver/presentation/pages/income/income_page.dart';
 import 'package:driver/presentation/pages/profile/delivery_zone/delivery_zone_page.dart';
 import 'package:driver/presentation/routes/route_pages.dart';
 // @generated-imports-end
@@ -31,6 +32,7 @@ class AppRouter extends RootStackRouter {
     MaterialRoute(path: '/closed', page: ClosedRoute.page),
     MaterialRoute(path: '/ui-type', page: UiTypeRoute.page),
     MaterialRoute(path: '/delivery-zone', page: DriverDeliveryZoneRoute.page),
+    MaterialRoute(path: '/income', page: DriverIncomeRoute.page),
 // @generated-routes-end
         // Host-owned routes, deliberately OUTSIDE the generated markers:
         // update_router_table() rewrites everything between them on every
@@ -45,7 +47,6 @@ class AppRouter extends RootStackRouter {
         // LoginRoute — installing auth_sdk's shells would duplicate the name.
         // The auth_sdk routes take over when the app's auth pages migrate.
         CupertinoRoute(path: '/login', page: LoginRoute.page),
-        CupertinoRoute(path: '/income', page: IncomeRoute.page),
         CupertinoRoute(path: '/home', page: HomeRoute.page),
         CupertinoRoute(path: '/story', page: StoryRoute.page),
         CupertinoRoute(path: '/profile', page: ProfileRoute.page),

@@ -1,3 +1,11 @@
+// ==========================================
+// [GENERATED TEMPLATE FILE]
+// This file was installed from: revenue_sdk
+// Feel free to modify and customize this code.
+// Note: If you edit this file, the SDK installer will detect your changes
+// and automatically skip overwriting it during future upgrades.
+// ==========================================
+
 import 'package:auto_route/annotations.dart';
 import 'package:charts_flutter/flutter.dart';
 import 'package:flutter/material.dart';
@@ -9,11 +17,11 @@ import 'package:driver/application/statistics/statistics_state.dart';
 import 'package:driver/infrastructure/services/services.dart';
 import 'package:driver/presentation/component/components.dart';
 import 'package:driver/presentation/styles/style.dart';
-import 'app_bar_screen.dart';
-import 'statistics_screen.dart';
-import 'widgets/income_item.dart';
+import 'package:driver/presentation/pages/income/app_bar_screen.dart';
+import 'package:driver/presentation/pages/income/statistics_screen.dart';
+import 'package:driver/presentation/pages/income/widgets/income_item.dart';
 
-@RoutePage()
+@RoutePage(name: 'DriverIncomeRoute')
 class IncomePage extends ConsumerStatefulWidget {
   const IncomePage({super.key});
 
