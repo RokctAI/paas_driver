@@ -41,11 +41,17 @@ class AppRouter extends RootStackRouter {
         // its owning SDK's manifest (or composer.json "host_routes") as its
         // feature moves out of the app.
         //
-        // /login stays host-owned too: auth_sdk's manifest declares /login..
-        // /reset-password via its auth_route_pages.dart shells, but this app
-        // still owns its login page, whose @RoutePage already generates
-        // LoginRoute — installing auth_sdk's shells would duplicate the name.
-        // The auth_sdk routes take over when the app's auth pages migrate.
+        // /login stays host-owned too: this app still owns its login page,
+        // whose @RoutePage already generates LoginRoute — auth_sdk's
+        // auth_route_pages.dart shells would duplicate the name. auth_sdk is
+        // composed with its installer skipped ("skip_install" in
+        // composer.json), so recomposing keeps its /login../reset-password
+        // routes out of the generated block durably. Before flipping to the
+        // SDK's routes, auth_sdk/host still need: a deliveryman role-gate
+        // hook (login_notifier.dart:150 gates role != 'deliveryman' →
+        // BecomeDriver), AppRoutes.replaceMainRoute in _HostAppRoutes,
+        // EmbeddedWidgets.I wiring in main.dart, and a become_driver
+        // equivalent for the post-register funnel.
         CupertinoRoute(path: '/login', page: LoginRoute.page),
         CupertinoRoute(path: '/home', page: HomeRoute.page),
         CupertinoRoute(path: '/story', page: StoryRoute.page),
