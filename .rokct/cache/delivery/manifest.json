@@ -1,0 +1,8 @@
+{
+  "name": "delivery_sdk",
+  "version": "1.0.0",
+  "home_page": "templates/pages/driver/home/home_page.dart",
+  "installs": [],
+  "routes": [],
+  "integrations": []
+}
