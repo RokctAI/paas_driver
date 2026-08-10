@@ -1,8 +1,28 @@
 name: License Eye
+
+permissions: write-all
+
 on:
   pull_request:
 
+# The shared universal-license.yml passes its config as inline YAML, but
+# skywalking-eyes treats the `config` input as a file path. The inline
+# content never resolves to a file, so license-eye silently fell back to
+# its embedded default config: the ASF Apache-2.0 header applied to every
+# file — wrong twice over on this GPL-3.0 repo. Until the shared workflow
+# is fixed upstream, run the action directly against the repo's real
+# config file (.licenserc.yaml), which carries the correct GPL-3.0 header
+# template and ignores composed/generated paths.
 jobs:
   license:
-    uses: RokctAI/shared-workflows/.github/workflows/universal-license.yml@main
-    secrets: inherit
+    name: license-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check License Headers
+        uses: apache/skywalking-eyes/header@v0.4.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          mode: check
+          config: .licenserc.yaml

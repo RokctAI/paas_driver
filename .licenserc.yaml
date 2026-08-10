@@ -1,0 +1,56 @@
+# License-eye (apache/skywalking-eyes) header configuration.
+#
+# This repository is licensed under the GNU General Public License v3.0
+# (see LICENSE), so the header template below is the standard GPL-3.0
+# notice — not the MIT/Apache boilerplate the previous (broken) inline
+# config implied.
+#
+# Note on the ignore list: this is a composed app. lib/ is assembled from
+# the SDKs by the build pipeline, .rokct/ holds composition internals, and
+# the ios/ and android/ trees are generated platform projects. Stamping
+# headers there would be clobbered on the next recompose/regeneration, so
+# those paths are ignored rather than stamped.
+header:
+  license:
+    spdx-id: GPL-3.0-or-later
+    copyright-owner: RokctAI
+    content: |
+      Copyright (C) 2024-2026 RokctAI
+
+      This program is free software: you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation, either version 3 of the License, or
+      (at your option) any later version.
+
+      This program is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
+
+      You should have received a copy of the GNU General Public License
+      along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+  paths:
+    - '**/*.py'
+    - '**/*.js'
+    - '**/*.ts'
+    - '**/*.dart'
+
+  paths-ignore:
+    # Composed from the SDKs by the build pipeline; recompose clobbers it.
+    - 'lib/**'
+    # Composition/protocol internals, synced by the pipeline.
+    - '.rokct/**'
+    # Generated platform projects.
+    - 'ios/**'
+    - 'android/**'
+    # Generated artifacts and vendored code.
+    - 'pubspec.lock'
+    - '**/*.g.dart'
+    - '**/*.gr.dart'
+    - '**/*.freezed.dart'
+    - '**/build/**'
+    - '**/dist/**'
+    - '**/node_modules/**'
+
+  comment: on-failure
