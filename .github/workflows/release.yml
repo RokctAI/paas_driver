@@ -1,14 +1,11 @@
 name: Auto Release (Weekly)
+permissions: write-all
 on:
   push:
     branches: [main, develop, "build_*"]
 
 jobs:
   release:
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
     uses: RokctAI/shared-workflows/.github/workflows/universal-pipeline.yml@main
     with:
       project_type: 'flutter'
@@ -29,5 +26,5 @@ jobs:
 
       # Build APK
       build_android: true
-      flutter-version: '3.24.0'
+      flutter-version: '3.38.5'
     secrets: inherit

@@ -1,4 +1,5 @@
 name: Auto Label
+permissions: write-all
 on:
   issues:
     types: [opened, edited]
@@ -6,6 +7,4 @@ on:
 jobs:
   label:
     uses: RokctAI/shared-workflows/.github/workflows/universal-labeler.yml@main
-    permissions:
-      issues: write
     secrets: inherit
