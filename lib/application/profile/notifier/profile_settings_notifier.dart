@@ -3,17 +3,19 @@ import 'dart:async';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:driver/presentation/routes/app_router.gr.dart';
+import 'package:driver/presentation/routes/app_router.dart';
 
 import 'package:driver/domain/interface/interfaces.dart';
+import 'package:revenue_sdk/revenue_sdk.dart';
 import '../../../../infrastructure/models/models.dart';
 import '../../../../infrastructure/services/services.dart';
 import '../state/profile_settings_state.dart';
 
 class ProfileSettingsNotifier extends StateNotifier<ProfileSettingsState> {
   final UserRepository _userRepository;
+  final CourierStatisticsRepositoryFacade _courierStatistics;
 
-  ProfileSettingsNotifier(this._userRepository)
+  ProfileSettingsNotifier(this._userRepository, this._courierStatistics)
       : super(const ProfileSettingsState());
 
   Future<void> fetchProfileDetails({
@@ -87,7 +89,7 @@ class ProfileSettingsNotifier extends StateNotifier<ProfileSettingsState> {
   }) async {
     if (await AppConnectivity.connectivity()) {
       state = state.copyWith(isLoading: true);
-      final response = await _userRepository.getDriverStatistics();
+      final response = await _courierStatistics.getCourierStatistics();
       response.when(
         success: (data) {
           state = state.copyWith(statistics: data, isLoading: false);

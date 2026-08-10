@@ -1,4 +1,4 @@
-import 'package:driver/domain/handlers/api_result.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:driver/infrastructure/models/data/parcel_order.dart';
 
 abstract class ParcelRepositoryFacade {

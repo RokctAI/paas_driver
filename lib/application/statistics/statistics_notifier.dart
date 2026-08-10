@@ -4,22 +4,31 @@ import 'package:driver/presentation/styles/style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:revenue_sdk/revenue_sdk.dart'
+    show CourierStatisticsRepositoryFacade;
 import 'statistics_state.dart';
-import 'package:driver/domain/interface/interfaces.dart';
 
+/// Courier earnings/statistics, consumed through revenue_sdk's
+/// [CourierStatisticsRepositoryFacade] — the slice was ported out of this
+/// app's UserRepositoryImpl into revenue_sdk (src/driver/) on corporate main.
+///
+/// The pre-fork notifier also carried fetchStatisticsOrder /
+/// fetchStatisticsOrderByDay / fetchStatisticsOrderPage over
+/// `getStatisticsOrder`. No page or widget in this app called any of them
+/// (verified by grep before removal), so they were dropped here rather than
+/// wired through the facade; the facade still declares getStatisticsOrder for
+/// when a consumer materialises.
 class StatisticsNotifier extends StateNotifier<StatisticsState> {
-  final UserRepository _userRepository;
-  int page = 1;
+  final CourierStatisticsRepositoryFacade _courierStatistics;
 
-  StatisticsNotifier(this._userRepository) : super(const StatisticsState());
+  StatisticsNotifier(this._courierStatistics) : super(const StatisticsState());
 
   Future<void> fetchStatistics(
       {required DateTime endTime, required DateTime startTime}) async {
     if (state.countData == null) {
       state = state.copyWith(isLoading: true);
     }
-    final response = await _userRepository.getStatistics(
+    final response = await _courierStatistics.getStatistics(
         startTime: startTime, endTime: endTime);
     response.when(
       success: (data) {
@@ -31,67 +40,6 @@ class StatisticsNotifier extends StateNotifier<StatisticsState> {
         addListInfo();
       },
       failure: (fail, s) {
-        if (state.countData == null) {
-          state = state.copyWith(isLoading: false);
-        }
-        debugPrint('==> error with fetching statistics $fail');
-      },
-    );
-  }
-
-  Future<void> fetchStatisticsOrder({
-    DateTime? endTime,
-    DateTime? startTime,
-  }) async {
-    page = 1;
-    state = state.copyWith(isLoading: true, isRefresh: true);
-    final response = await _userRepository.getStatisticsOrder(
-        startTime: startTime, endTime: endTime, page: 1);
-    response.when(
-      success: (data) {
-        state = state.copyWith(listOfOrder: data.data ?? [], isLoading: false);
-      },
-      failure: (fail, s) {
-        state = state.copyWith(isLoading: false);
-
-        debugPrint('==> error with fetching statistics $fail');
-      },
-    );
-  }
-
-  Future<void> fetchStatisticsOrderByDay(
-      {DateTime? endTime, DateTime? startTime}) async {
-    page = 1;
-    state = state.copyWith(isLoading: true, isRefresh: false);
-    final response = await _userRepository.getStatisticsOrder(
-        startTime: startTime, endTime: endTime, page: 1, perPage: 100);
-    response.when(
-      success: (data) {
-        state = state.copyWith(listOfOrder: data.data ?? [], isLoading: false);
-      },
-      failure: (fail, s) {
-        state = state.copyWith(isLoading: false);
-
-        debugPrint('==> error with fetching statistics $fail');
-      },
-    );
-  }
-
-  Future<void> fetchStatisticsOrderPage(
-      {DateTime? endTime,
-      DateTime? startTime,
-      RefreshController? refreshController}) async {
-    final response = await _userRepository.getStatisticsOrder(
-        startTime: startTime, endTime: endTime, page: ++page);
-    response.when(
-      success: (data) {
-        List<StatisticsOrder> newList = List.from(state.listOfOrder);
-        newList.addAll(data.data ?? []);
-        refreshController?.loadComplete();
-        state = state.copyWith(listOfOrder: newList);
-      },
-      failure: (fail, s) {
-        refreshController?.loadNoData();
         if (state.countData == null) {
           state = state.copyWith(isLoading: false);
         }

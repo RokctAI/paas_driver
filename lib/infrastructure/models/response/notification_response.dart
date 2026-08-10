@@ -1,4 +1,4 @@
-import '../data/blog_data.dart';
+import 'package:base_sdk/src/models/data/blog_data.dart';
 import '../data/order_data.dart';
 
 class NotificationResponse {

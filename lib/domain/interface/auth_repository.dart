@@ -1,4 +1,4 @@
-import '../handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/handlers.dart';
 import '../../infrastructure/models/models.dart';
 
 abstract class AuthRepository {

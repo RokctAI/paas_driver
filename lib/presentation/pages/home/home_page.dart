@@ -20,7 +20,7 @@ import 'package:driver/application/providers.dart';
 import 'package:driver/infrastructure/services/services.dart';
 import 'package:driver/main.dart';
 import 'package:driver/presentation/component/components.dart';
-import 'package:driver/presentation/routes/app_router.gr.dart';
+import 'package:driver/presentation/routes/app_router.dart';
 import 'package:driver/presentation/styles/style.dart';
 import 'bottom_sheet_screen.dart';
 import 'delivery_bottom_sheet.dart';

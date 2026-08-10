@@ -1,4 +1,4 @@
-import 'package:driver/domain/handlers/api_result.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:driver/infrastructure/models/models.dart';
 
 abstract class NotificationRepositoryFacade {

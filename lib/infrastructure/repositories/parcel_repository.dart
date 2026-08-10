@@ -5,7 +5,7 @@ import 'package:driver/domain/interface/parcel.dart';
 import 'package:driver/infrastructure/models/data/parcel_order.dart';
 import 'package:driver/infrastructure/models/response/parcel_paginate_response.dart';
 import 'package:driver/infrastructure/services/services.dart';
-import '../../../domain/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/handlers.dart';
 
 class ParcelRepository implements ParcelRepositoryFacade {
   @override

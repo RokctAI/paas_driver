@@ -1,10 +1,18 @@
+// ==========================================
+// [GENERATED TEMPLATE FILE]
+// This file was installed from: revenue_sdk
+// Feel free to modify and customize this code.
+// Note: If you edit this file, the SDK installer will detect your changes
+// and automatically skip overwriting it during future upgrades.
+// ==========================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:driver/infrastructure/services/services.dart';
 import 'package:driver/presentation/component/components.dart';
 import 'package:driver/presentation/styles/style.dart';
-import 'widgets/statistics_item.dart';
+import 'package:driver/presentation/pages/income/widgets/statistics_item.dart';
 
 class StatisticsScreen extends StatelessWidget {
   final String totalOrders;

@@ -7,7 +7,6 @@ import 'package:driver/application/profile/provider/profile_settings_provider.da
 
 import 'package:driver/infrastructure/services/services.dart';
 import 'package:driver/presentation/styles/style.dart';
-import 'widgets/free_lunch.dart';
 import 'widgets/stores.dart';
 
 class BottomSheetScreen extends StatefulWidget {
@@ -79,13 +78,11 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
                   child: ListView.builder(
                     padding: EdgeInsets.only(top: 24.h),
                     scrollDirection: Axis.horizontal,
-                    itemCount: 4,
+                    itemCount: image.length,
                     itemBuilder: (context, index) {
-                      return index == 0
-                          ? const FreeLunch()
-                          : StoresPage(
-                              image: image[index - 1],
-                            );
+                      return StoresPage(
+                        image: image[index],
+                      );
                     },
                   ),
                 )

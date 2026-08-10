@@ -7,7 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../domain/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/handlers.dart';
 import '../../domain/interface/interfaces.dart';
 import '../../infrastructure/services/services.dart';
 import 'register_confirmation_state.dart';

@@ -4,7 +4,7 @@ import 'package:driver/domain/di/dependency_manager.dart';
 import 'package:driver/domain/interface/orders.dart';
 import 'package:driver/infrastructure/models/data/order_detail.dart';
 import 'package:driver/infrastructure/services/services.dart';
-import '../../../domain/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/handlers.dart';
 import '../models/data/order_paginate_response.dart';
 
 class OrdersRepository implements OrdersRepositoryFacade {

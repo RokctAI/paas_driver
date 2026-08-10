@@ -3,7 +3,7 @@ import 'order_detail.dart';
 import 'payment_data.dart';
 import 'user_data.dart';
 import 'shop_data.dart';
-import 'currency_data.dart';
+import 'package:base_sdk/src/models/data/currency_data.dart';
 
 class OrderData {
   OrderData({

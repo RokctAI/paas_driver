@@ -7,14 +7,23 @@ import 'package:driver/infrastructure/repositories/parcel_repository.dart';
 import '../../infrastructure/repositories/orders_repository.dart';
 import '../../infrastructure/repositories/repositories.dart';
 import '../../presentation/routes/app_router.dart';
-import '../handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/http_service.dart';
+import 'package:revenue_sdk/revenue_sdk.dart';
+// Direct src/ import by design: DriverRevenueDependencies is role code, kept
+// out of the barrel so a manager app's stripped cache still compiles it.
+import 'package:revenue_sdk/src/driver/di/driver_revenue_di.dart';
 import '../interface/interfaces.dart';
 import '../interface/orders.dart';
 
 final GetIt getIt = GetIt.instance;
 
 Future<void> setUpDependencies() async {
-  getIt.registerSingleton<HttpService>(HttpService());
+  // HttpService is registered by BaseSdkDependencies.register() in main(),
+  // which runs first and guards on isRegistered. Registering it again here
+  // with registerSingleton (unguarded) would throw on startup.
+  if (!getIt.isRegistered<HttpService>()) {
+    getIt.registerSingleton<HttpService>(HttpService());
+  }
   getIt.registerSingleton<SettingsRepository>(SettingsRepositoryImpl());
   getIt.registerSingleton<AuthRepository>(AuthRepositoryImpl());
   getIt.registerSingleton<UserRepository>(UserRepositoryImpl());
@@ -24,6 +33,11 @@ Future<void> setUpDependencies() async {
   getIt.registerSingleton<AppRouter>(AppRouter());
   getIt.registerSingleton<NotificationRepositoryFacade>(
       NotificationRepositoryImpl());
+  // Driver-role revenue registrations. RevenueSdkDependencies.register (still
+  // called from main()'s generated DI block) is an empty common hook now that
+  // both concrete repositories are strippable role code — the host wires its
+  // own role's DI explicitly.
+  DriverRevenueDependencies.register(getIt);
 }
 
 final dioHttp = getIt.get<HttpService>();
@@ -35,3 +49,8 @@ final orderRepository = getIt.get<OrdersRepositoryFacade>();
 final parcelRepository = getIt.get<ParcelRepositoryFacade>();
 final notificationRepo = getIt.get<NotificationRepositoryFacade>();
 final appRouter = getIt.get<AppRouter>();
+
+// SDK-owned repository, registered by DriverRevenueDependencies.register() in
+// setUpDependencies() above — exposed here so app code resolves it the same
+// way as the app's own repositories.
+final courierStatisticsRepository = getIt.get<CourierStatisticsRepositoryFacade>();

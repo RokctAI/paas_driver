@@ -6,5 +6,5 @@ import 'package:driver/domain/di/dependency_manager.dart';
 
 final statisticsProvider =
     StateNotifierProvider<StatisticsNotifier, StatisticsState>(
-  (ref) => StatisticsNotifier(userRepository),
+  (ref) => StatisticsNotifier(courierStatisticsRepository),
 );

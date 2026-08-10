@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:driver/infrastructure/services/services.dart';
 import 'package:driver/domain/di/dependency_manager.dart';
-import 'package:driver/domain/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:driver/domain/interface/interfaces.dart';
 import '../models/data/delivery_vehicle_type.dart';
 import '../models/models.dart';
@@ -293,62 +293,8 @@ class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  @override
-  Future<ApiResult<StatisticsIncomeResponse>> getStatistics(
-      {required DateTime startTime, required DateTime endTime}) async {
-    try {
-      final data = {
-        "date_from":
-            endTime.toString().substring(0, endTime.toString().indexOf(" ")),
-        "date_to": startTime
-            .toString()
-            .substring(0, startTime.toString().indexOf(" ")),
-        "type": "day"
-      };
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-          '/api/v1/dashboard/deliveryman/order/report',
-          queryParameters: data);
-      return ApiResult.success(
-        data: StatisticsIncomeResponse.fromJson(response.data),
-      );
-    } catch (e) {
-      debugPrint('===> get statistics error $e');
-      return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
-    }
-  }
-
-  @override
-  Future<ApiResult<StatisticsOrderResponse>> getStatisticsOrder(
-      {DateTime? startTime, DateTime? endTime, int? page, int? perPage}) async {
-    try {
-      final data = {
-        if (endTime != null)
-          "date_from":
-              endTime.toString().substring(0, endTime.toString().indexOf(" ")),
-        if (startTime != null)
-          "date_to": startTime
-              .toString()
-              .substring(0, startTime.toString().indexOf(" ")),
-        "page": page,
-        "perPage": perPage ?? 10
-      };
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-          '/api/v1/dashboard/seller/orders/report/paginate',
-          queryParameters: data);
-      return ApiResult.success(
-        data: StatisticsOrderResponse.fromJson(response.data),
-      );
-    } catch (e) {
-      debugPrint('===> get statistics order error $e');
-      return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
-    }
-  }
+  // getStatistics / getStatisticsOrder / getDriverStatistics moved to
+  // revenue_sdk's CourierStatisticsRepository (src/driver/, corporate main).
 
   @override
   Future<ApiResult> setOnline() async {
@@ -376,24 +322,6 @@ class UserRepositoryImpl implements UserRepository {
       return ApiResult.success(data: RequestModelResponse.fromJson(res.data));
     } catch (e) {
       debugPrint('==> get request model failure: $e');
-      return ApiResult.failure(
-          error: AppHelpers.errorHandler(e),
-          statusCode: NetworkExceptions.getDioStatus(e));
-    }
-  }
-
-  @override
-  Future<ApiResult<StatisticsResponse>> getDriverStatistics() async {
-    try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '/api/v1/dashboard/deliveryman/statistics/count',
-      );
-      return ApiResult.success(
-        data: StatisticsResponse.fromJson(response.data),
-      );
-    } catch (e) {
-      debugPrint('===> error statistics settings $e');
       return ApiResult.failure(
           error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
