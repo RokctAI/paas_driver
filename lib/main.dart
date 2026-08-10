@@ -26,7 +26,6 @@ import 'package:driver/presentation/routes/zones_adapters.dart';
 
 // @generated-sdk-imports-start
 import 'package:base_sdk/base_sdk.dart';
-import 'package:auth_sdk/auth_sdk.dart';
 import 'package:comms_sdk/comms_sdk.dart';
 import 'package:corporate_sdk/corporate_sdk.dart';
 import 'package:delivery_sdk/delivery_sdk.dart';
@@ -129,7 +128,6 @@ void main() async {
   BaseSdkDependencies.register(GetIt.instance);
   // @generated-sdk-di-start
   BaseSdkDependencies.register(GetIt.instance);
-  AuthSdkDependencies.register(GetIt.instance);
   CommsSdkDependencies.register(GetIt.instance);
   CorporateSdkDependencies.register(GetIt.instance);
   DeliverySdkDependencies.register(GetIt.instance);
@@ -195,9 +193,6 @@ class _HostAppRoutes implements AppRoutes {
 
   @override
   Future<Object?> replaceUiTypeRoute(BuildContext context) => context.router.replace(UiTypeRoute());
-
-  @override
-  Future<Object?> replaceLoginRoute(BuildContext context) => context.router.replace(LoginRoute());
 
   // @generated-approutes-end
 

@@ -1,0 +1,332 @@
+{
+  "packages": {
+    "base_sdk": {
+      "version": "1.0.0",
+      "files": {
+        "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
+        "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
+        "android/app/src/main/kotlin/com/foodyman/demo/JuvoApplication.kt": "08d9f33ad23841a9b200ec08ac99e62e9b34acb06e4ab49983a16992ed2c28ca",
+        "android/app/src/main/kotlin/com/foodyman/demo/MainActivity.kt": "6fd7464a016f4a6ee3cb580f0acf182fc397afa4f5583a99caa56dae7e52b9a8",
+        "android/app/src/main/res/font/montserrat_extrabolditalic.ttf": "d38bac61eda8d8c002b1a852f5368901a085fbe1d844b5e0a149b674e22e2cdd",
+        "android/app/src/main/res/raw/notification.wav": "e3e7b32ecf00872fa5da29d94b5738aaf9890981e39f640e083db9a522d961a6",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29@3x.png": "02373e1f13fdb0d818636d08959f3287ee8e1042a3959a9c1a9d30a0e2ca6a89",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon~ipad.png": "4d4be6287e85f6be6fba34ac40a159c8a2e6e12c9d3e2b2f65fc9a50a5209488",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20~ipad.png": "a0bbc103b3bc015ccec3ac6806de68d48a278726eb6a6d59855c37950cd591c1",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40~ipad.png": "0606dc265dd1b6dd08df03a90b7b9b1659c6d0d8133724cfa792c65e7aa50bf9",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40@2x~ipad.png": "4edeb36d690a4fb40d1b923564b5220ad0c82cccee873d8c49cf7ccdf6f17287",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon~ios-marketing.png": "904d4c9fdf1e5cfd99f8374a234126cb688b5561227097c168b799e774e01f85",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20@2x~ipad.png": "0606dc265dd1b6dd08df03a90b7b9b1659c6d0d8133724cfa792c65e7aa50bf9",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-60@3x~car.png": "b6b30212ca33e3d3a0f8293f5d143b04cc4cea9776a6ca6a9f5e429ec88d5273",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-60@2x~car.png": "f0d45eec5d5654768f5351247e6d10a5309365a4948d1aae1698294af30b2dcc",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40@2x.png": "4edeb36d690a4fb40d1b923564b5220ad0c82cccee873d8c49cf7ccdf6f17287",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29.png": "41b9440c36800caac47be04afac3135b699a6cb4ca432d6f22d0d0ed17cfa289",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29@2x~ipad.png": "c2c86a16df23add98a93d3ade928a8ad57e9cb1b755db309373067897f7f2a7e",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-83.5@2x~ipad.png": "59f3f4d2a51a421873b9950137a8419b45d54d0e0658dd86d5c4736f507ff1f1",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20@2x.png": "0606dc265dd1b6dd08df03a90b7b9b1659c6d0d8133724cfa792c65e7aa50bf9",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29@2x.png": "c2c86a16df23add98a93d3ade928a8ad57e9cb1b755db309373067897f7f2a7e",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@2x~ipad.png": "0b7dac7382a61ee5763a64cd3ebe31c9fb47ec7d0324c5ad6519225eb5ec1158",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@3x.png": "b6b30212ca33e3d3a0f8293f5d143b04cc4cea9776a6ca6a9f5e429ec88d5273",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@2x.png": "f0d45eec5d5654768f5351247e6d10a5309365a4948d1aae1698294af30b2dcc",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20@3x.png": "97f9b5dbb52449997d6cb644ac7adc0e42c2cda873e641c658c42dbe572893c9",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40@3x.png": "f0d45eec5d5654768f5351247e6d10a5309365a4948d1aae1698294af30b2dcc",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29~ipad.png": "41b9440c36800caac47be04afac3135b699a6cb4ca432d6f22d0d0ed17cfa289",
+        "assets/notification.wav": "f4ab5f12b8f99cd2ce06168f1173e50ecf758bbe859871c838e867e08e0a0c6a",
+        "assets/images/ui1.png": "cbcefd92c0f96e9c4f9315fff357cc63a8095d51ac53080f4490f7f8427ed9c7",
+        "assets/images/splash2.png": "15f17d2db026f6d02d4b639aa1ed7c8930a10952e09da8607c52f4c4443cc122",
+        "assets/images/person.png": "6feaae82919733fea31ee6b873c1bdfba02814e7c165a8e707751ffa8aa8265f",
+        "assets/images/splash1.png": "15f17d2db026f6d02d4b639aa1ed7c8930a10952e09da8607c52f4c4443cc122",
+        "assets/images/delivery_banner.png": "5cd18fbd0ef827a5ce393b180facb13696990b36313b9cf47634e228d9cc1afd",
+        "assets/images/notFound.png": "bd8902d7a7b2b4f3d5701caf9ef252dc8765ab359f379c0dcb16f27ffe478adf",
+        "assets/images/ui3.png": "f916a60c05da26d504525cba339bf8e77063fe8bf7f0277884b93fffc730fe8e",
+        "assets/images/marker.png": "873ddee9717c4eab9947c9309ab9fb2796fcf0521a12fc03473047d34bdf2f4f",
+        "assets/images/splash.png": "15f17d2db026f6d02d4b639aa1ed7c8930a10952e09da8607c52f4c4443cc122",
+        "assets/images/fast.png": "76bdf5d241ba5b8c515233349174e5cbbe0984a9e52fb5834bbef008b4b3ddfc",
+        "assets/images/order.png": "08558741d26a73cef0e93745cb9a8a3630ba716444adbed02453e9ee4ca15eec",
+        "assets/images/delivery.png": "bfba72635a86d7b69bca1774302e2f07cfe297b82fdcc7c45d1eae0915fbf5d1",
+        "assets/images/door.png": "c1ab409142c79303f40756d35e728ee7c91b6e8c548da0d6fb5ccf47c90c39f7",
+        "assets/images/ui0.png": "49c443c4901c937ed91bcdfe784f71a9e0277c97c4086e9d416ce8bede8f64eb",
+        "assets/images/save.png": "f6885a79bd859f5979043fec5843c4b5053679bf0fe66ed51c9933d1c65ce778",
+        "assets/images/door_to_door_3.png": "24203432faa71a4f04f7b32c203911ed9dc63faad9f9ebe64db5ce8c2b501176",
+        "assets/images/set.png": "f944227f8cde814049a888a732bdbe255b2a32ec3a1629ea2a1127142bdef5a7",
+        "assets/images/app_logo.png": "7accc2b8b2f4d1414fc21b3fb3c9e018e10439fea02339efcd0660e5846369c9",
+        "assets/images/visa.png": "1719f035b3e01fb0efd7c300c7fad77e14ec7eac4bf63a2b7a6606cfd6c1f197",
+        "assets/images/card.png": "c490bd23f7566c1d56700cdcf4ec8c095be829237d8ca5845585c3bfe773ad79",
+        "assets/images/cardBg.png": "539b76b460c9376e04d1794a2af17fd5894ec9272761dc0d58fe6412c0c1156d",
+        "assets/images/ui2.png": "e21a03c853cef2fafed356ff0a8de0a5e80c36a23381dbf32fd3ca3c9d6d87cd",
+        "assets/images/logo.png": "c94a0b944700f35fadf980456d5c73aa9e40e3db9686c105755dfad3a0ad1b48",
+        "assets/temp/discount5.png": "e60ed0f00b450ca4751d8c4f430e6e26f48267c03ad254074bfd24f6b02ecee0",
+        "assets/temp/discount6.png": "784e1ff8e0b7ec4b57bd72daf84960837251f7c011029a7332c85a0bc38642c1",
+        "assets/lottie/notification_empty.json": "4910696b915ba2f7c1302460039c7f78c17782231eaa4887360710b364d7ad62",
+        "assets/lottie/not_found_page.json": "680a132bc530ba49e09ebd74d76bfc1ad35e7611d186c72d800ced8ea5a2a111",
+        "assets/svgs/avatar.svg": "9f0bcfc64a25f82a1d39d7b200659862b6c856072df31906230e1601407353f7",
+        "assets/svgs/category3.svg": "557d3191d4ba91b25274ef08f439ecd929c1c65aa7b9c85aa0bcdef70227c180",
+        "assets/svgs/noHomeSvg.svg": "a41ab4b68fe9e5d38f03ca3d13e8cc49cb1f94dde53a4b955c1d3f0052476153",
+        "assets/svgs/delivery2.svg": "127690bf32f78617299505a810ea65116c06e0dd0fbaade9bba90dfa23fc494a",
+        "assets/svgs/noSearchSvg.svg": "9be1543a8a3c8c34954c55aef9086a8012ddfde14ed7c20a23228c23042ea06c",
+        "assets/svgs/searchSvg.svg": "6281473d6cee46f147a2bf374fcd3df9c61fba1ccfbd1875fbb9fd73a3dd09dd",
+        "assets/svgs/ticket.svg": "13801b1f4de167b62b51f93b370c02bb278b8708a09f270f039e6dfbb0b5c7d2",
+        "assets/svgs/box.svg": "afd25e7269a972538b9e324e8d59467dd9a5c36b6de7406d4c897127edf2d0f6",
+        "assets/svgs/badge.svg": "db07062d903001730becd8708c55a671a46841524b72cc6c35987974ae4cd08b",
+        "assets/svgs/delivery_time.svg": "a125cc19652b774775a27ec8d632530ed624f5950817b853c7507ed79b3b9754",
+        "assets/svgs/delivery.svg": "48dc8f137f24c9d6ad90557e2a8b0f2aa53839e70361b0489f413780f7d320b8",
+        "assets/svgs/contact.svg": "2db95dd1c4bdc16c1db9fb0814af3e9e27cda2ec390c07e1ad7a8d24fac1f5b4",
+        "assets/svgs/delivery0.svg": "05806ec4ab82e433bfa8e4c17e46773dc590568bdcf5dac03f52b1896bc83b5e",
+        "assets/svgs/fosend2.svg": "dcf1a9de2c4bfcd0aa0e7ce2c257caecaeebc005ee4b78e5019aac8e4e61394f",
+        "assets/svgs/bag3.svg": "7be6d78f2c25fb30967d38b88853513e5effcd9e3f8e0937c1a105bc966c7ab2",
+        "assets/svgs/category2.svg": "aca377dfe6cf5e4ac6ffc5ca446f07588cf96a41d05e95b905281c28aeebe765",
+        "assets/svgs/pickUpFrom.svg": "3fa43dc1bf6aafe14bc4d5588e2e9a54cf9fdb4053bd16cf4f796f59f731dee8",
+        "assets/svgs/fosend3.svg": "25e7034d3807b5ac5e14eee773271ed021c9a95d958bbafef4b0ceff0023c6c1",
+        "assets/svgs/meat.svg": "6dbc183f4d9cf15b05117c551a07aee7323a86f82b95dccd0405512edc919ae5",
+        "assets/svgs/bag2.svg": "cbbd6265ef2ad8779ec46c9a6f24d178ba30064d5dd39e4813832efbfa31f180",
+        "assets/svgs/homeSvg.svg": "8fdcab873b980529fadd7036eb3cd9d78c49394286c2799e8dac20d8fea27629",
+        "assets/svgs/brand_logo_rounded.svg": "c0bacbe19e595cfa43e1c96621c9b62546c6970eb71bf48f44a62d5f8a3eaedf",
+        "assets/svgs/halal.svg": "10704d15a169f9090f40b90de1d9f031f78faca1301de57b400c08acdf1c1fb9",
+        "assets/svgs/star.svg": "61afbcf2751aef31dc03b3bc1ea84ae4b4ebddaa8d6177fa2bb6e1457d8ed9c3",
+        "assets/svgs/discount.svg": "f2950ddf871d045df485662fcdbd9a42c73dc6048a93e3d06566b78a1122cb2b",
+        "assets/svgs/logo.svg": "90ae6b93d0ffe4cfd04f37bda190dae86647bef4e317c0bd3d67fa74c89c4255",
+        "assets/svgs/filter.svg": "99e051bcb1258f981bea16feec85d7596b7c373f8bd82cf5803388ccf9f042aa",
+        "assets/svgs/menu.svg": "4fd54cdd1bf8570d30be4d952cf79d35299801704d4cc93216ccb9ba62d72428",
+        "assets/svgs/vegetarin.svg": "018ed75530958236c1a981200a8398b4fa4d02d026698b2bdbdfcbb65313e8bd",
+        "assets/svgs/likeSvg.svg": "8f7dd6ce963b3816acc1f76b40444873ab36253580ba5848c1a7b236462cbfa4",
+        "assets/svgs/noLikeSvg.svg": "9195070d62852cddebe3d0adf85cd783815b3a8c3bbb62e4e9ee94ca8e5c847b",
+        "assets/svgs/orderTime.svg": "bb7cae032a9c24293657560178fc301a078f1414485288d8cf93a7cb1d210ff1",
+        "assets/svgs/empty.svg": "145faca3f39dfdfbc1f5f9ddd7aad26c43cc58368e0cc9e878e1e1949b86a35a",
+        "assets/svgs/adress.svg": "774120f4d4cd801898852fc3062683a456a8c07bf8253a0c608fc5429f604697",
+        "assets/svgs/home3.svg": "be4804b6ccf3245e0fcbca4f5c1b3cd54d217024fa59011193c7c3cf5747fbdc",
+        "assets/svgs/foodyman.svg": "8d9dd7f7cf44328d4ed2b7364163eb218a17636763d3cb886d9d9e4b6ab48261",
+        "lib/presentation/theme/theme.dart": "4fd8344adbba5f9720346b6406d4d06056752d7dec07b2318d2e0180955511a7",
+        "lib/presentation/theme/app_style.dart": "f202085343ef063bdfb3c285c6cda67eaac1e92e5d7fb32297783178eca55c63"
+      },
+      "routes": [
+        {
+          "path": "/",
+          "page": "SplashRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/route_pages.dart"
+        },
+        {
+          "path": "/no-connection",
+          "page": "NoConnectionRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/route_pages.dart"
+        },
+        {
+          "path": "/closed",
+          "page": "ClosedRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/route_pages.dart"
+        },
+        {
+          "path": "/ui-type",
+          "page": "UiTypeRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/route_pages.dart"
+        }
+      ],
+      "app_routes": [
+        {
+          "method": "replaceSplashRoute",
+          "body": "context.router.replace(SplashRoute());",
+          "imports": [
+            "import 'package:auto_route/auto_route.dart';",
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        },
+        {
+          "method": "replaceNoConnectionRoute",
+          "body": "context.router.replace(NoConnectionRoute());",
+          "imports": [
+            "import 'package:auto_route/auto_route.dart';",
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        },
+        {
+          "method": "replaceClosedRoute",
+          "body": "context.router.replace(ClosedRoute());",
+          "imports": [
+            "import 'package:auto_route/auto_route.dart';",
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        },
+        {
+          "method": "replaceUiTypeRoute",
+          "body": "context.router.replace(UiTypeRoute());",
+          "imports": [
+            "import 'package:auto_route/auto_route.dart';",
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        }
+      ],
+      "onboarding_slides": [],
+      "embedded_widgets": []
+    },
+    "users_sdk": {
+      "version": "1.0.0",
+      "files": {},
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "embedded_widgets": []
+    },
+    "orders_sdk": {
+      "version": "1.0.0",
+      "files": {},
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "embedded_widgets": []
+    },
+    "delivery_sdk": {
+      "version": "1.0.0",
+      "files": {},
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "embedded_widgets": []
+    },
+    "comms_sdk": {
+      "version": "1.0.0",
+      "files": {},
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "embedded_widgets": []
+    },
+    "processing_sdk": {
+      "version": "1.0.0",
+      "files": {},
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "embedded_widgets": []
+    },
+    "corporate_sdk": {
+      "version": "1.0.0",
+      "files": {},
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "embedded_widgets": [
+        {
+          "method": "policyPage",
+          "params": "",
+          "body": "return const PolicyPage();"
+        },
+        {
+          "method": "termPage",
+          "params": "",
+          "body": "return const TermPage();"
+        }
+      ]
+    },
+    "map_sdk": {
+      "version": "1.0.0",
+      "files": {},
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "embedded_widgets": []
+    },
+    "zones_sdk": {
+      "version": "1.0.0",
+      "files": {},
+      "routes": [
+        {
+          "path": "/delivery-zone",
+          "page": "DriverDeliveryZoneRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/pages/profile/delivery_zone/delivery_zone_page.dart",
+          "_comment": "The installed page carries @RoutePage(name: 'DriverDeliveryZoneRoute'), so auto_route generates the route class in the host's own app_router.gr.dart - SDK lib/ pages never get one. update_router_table() owns the whole @generated-routes block, so a route not declared here is dropped on every recompose."
+        }
+      ],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "embedded_widgets": []
+    },
+    "revenue_sdk": {
+      "version": "1.0.0",
+      "files": {},
+      "routes": [
+        {
+          "path": "/income",
+          "page": "DriverIncomeRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/pages/income/income_page.dart"
+        }
+      ],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "embedded_widgets": []
+    },
+    "merchants_sdk": {
+      "version": "1.0.0",
+      "files": {},
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "embedded_widgets": []
+    },
+    "products_sdk": {
+      "version": "1.0.0",
+      "files": {},
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "embedded_widgets": []
+    }
+  },
+  "sdk_cache": {
+    "base": {
+      "version": "1.0.0",
+      "hash": "5c1879494a2659bf"
+    },
+    "comms": {
+      "version": "1.0.0",
+      "hash": "0d191a62cd4facdb"
+    },
+    "auth": {
+      "version": "1.0.0",
+      "hash": "ddc8c63490d7010d"
+    },
+    "users": {
+      "version": "1.0.0",
+      "hash": "b3ff5c300a27fd3b"
+    },
+    "orders": {
+      "version": "1.0.0",
+      "hash": "869c945aed4d6434"
+    },
+    "merchants": {
+      "version": "1.0.0",
+      "hash": "24c3bffcdc6f7c7a"
+    },
+    "products": {
+      "version": "1.0.0",
+      "hash": "7423e41e24fbe2bd"
+    },
+    "delivery": {
+      "version": "1.0.0",
+      "hash": "12ab7b8704af656e"
+    },
+    "map": {
+      "version": "1.0.0",
+      "hash": "03990e7e78e584bd"
+    },
+    "zones": {
+      "version": "1.0.0",
+      "hash": "8ed6d6a3726d75fc"
+    },
+    "processing": {
+      "version": "1.0.0",
+      "hash": "d2896292bf243a0f"
+    },
+    "corporate": {
+      "version": "1.0.0",
+      "hash": "71c3f541907496c9"
+    },
+    "revenue": {
+      "version": "1.0.0",
+      "hash": "ac378b24aaef347a"
+    }
+  }
+}
