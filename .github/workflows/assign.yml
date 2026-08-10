@@ -1,4 +1,5 @@
 name: Auto Assign
+permissions: write-all
 on:
   pull_request:
     types: [opened]

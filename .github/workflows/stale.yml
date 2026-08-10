@@ -1,4 +1,5 @@
 name: Stale
+permissions: write-all
 on:
   schedule:
     - cron: '30 1 * * *'

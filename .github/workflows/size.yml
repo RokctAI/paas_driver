@@ -1,4 +1,5 @@
 name: Size Labeler
+permissions: write-all
 on:
   pull_request:
     types: [opened, synchronize, reopened]

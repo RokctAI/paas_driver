@@ -1,5 +1,7 @@
 name: Build (Smart)
 
+permissions: write-all
+
 on:
   push:
     branches: [ main, develop ]

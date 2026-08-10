@@ -1,4 +1,5 @@
 name: ToDo Bot
+permissions: write-all
 on:
   push:
     branches: [main]

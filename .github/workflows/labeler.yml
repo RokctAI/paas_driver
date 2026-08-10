@@ -1,4 +1,5 @@
 name: Auto Label
+permissions: write-all
 on:
   issues:
     types: [opened, edited]
