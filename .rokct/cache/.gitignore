@@ -16,3 +16,4 @@ build/
 __pycache__/
 node_modules/
 *.pyc
+.flutter-plugins-dependencies
