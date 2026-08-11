@@ -1,0 +1,18 @@
+# The SDK cache is TRACKED and COMPLETE. Owner decision: sold apps must be
+# self-contained, and the composer's version/hash reconciliation treats the
+# committed cache as the source of truth - a cache missing files reads as
+# "LOCAL MODIFICATIONS" and is pinned forever, never refetched.
+#
+# Unanchored rules in ancestor .gitignore files (the root's lib/ and *.g.dart
+# family, .rokct/'s skills/ and tmp/) used to match inside the cache too, so
+# CI commit-backs silently stripped code out of every vendored SDK. This file
+# is deeper than all of those, so its patterns win for everything under
+# .rokct/cache/: re-include everything, then re-ignore only toolchain noise
+# (mirroring the composer's HASH_EXCLUDED_DIRS).
+!**
+
+.dart_tool/
+build/
+__pycache__/
+node_modules/
+*.pyc
