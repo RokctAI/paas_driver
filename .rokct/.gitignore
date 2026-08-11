@@ -1,3 +1,6 @@
-skills/
+# Anchored to .rokct/ itself: unanchored skills/ and tmp/ also matched
+# .rokct/cache/<sdk>/skills|tmp, and the vendored SDK cache must stay
+# complete (see cache/.gitignore).
+/skills/
 __pycache__/
-tmp/
+/tmp/

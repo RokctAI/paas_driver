@@ -275,58 +275,5 @@
       "embedded_widgets": []
     }
   },
-  "sdk_cache": {
-    "base": {
-      "version": "1.0.0",
-      "hash": "5c1879494a2659bf"
-    },
-    "comms": {
-      "version": "1.0.0",
-      "hash": "0d191a62cd4facdb"
-    },
-    "auth": {
-      "version": "1.0.0",
-      "hash": "ddc8c63490d7010d"
-    },
-    "users": {
-      "version": "1.0.0",
-      "hash": "b3ff5c300a27fd3b"
-    },
-    "orders": {
-      "version": "1.0.0",
-      "hash": "869c945aed4d6434"
-    },
-    "merchants": {
-      "version": "1.0.0",
-      "hash": "24c3bffcdc6f7c7a"
-    },
-    "products": {
-      "version": "1.0.0",
-      "hash": "7423e41e24fbe2bd"
-    },
-    "delivery": {
-      "version": "1.0.0",
-      "hash": "12ab7b8704af656e"
-    },
-    "map": {
-      "version": "1.0.0",
-      "hash": "03990e7e78e584bd"
-    },
-    "zones": {
-      "version": "1.0.0",
-      "hash": "8ed6d6a3726d75fc"
-    },
-    "processing": {
-      "version": "1.0.0",
-      "hash": "d2896292bf243a0f"
-    },
-    "corporate": {
-      "version": "1.0.0",
-      "hash": "71c3f541907496c9"
-    },
-    "revenue": {
-      "version": "1.0.0",
-      "hash": "ac378b24aaef347a"
-    }
-  }
+  "sdk_cache": {}
 }
