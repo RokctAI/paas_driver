@@ -20,6 +20,14 @@ abstract class AppStyle {
   /// `const CircularProgressIndicator(...)`).
   static Color _primary = const Color(0xFFFF6600);
   static Color get primary => _primary;
+
+  /// Brand fade used by chart/graph fills (e.g. revenue's income chart):
+  /// tracks the injected [primary], so it re-brands with the palette.
+  /// Getter, not const - [primary] is brand-mutable.
+  static List<Color> get primaryGradient => [
+        primary.withOpacity(0.5),
+        transparent,
+      ];
   static const Color bottomNavigationBarColor = Color(0xFF191919);
 
   // Dark-surface tokens (page background, raised card surfaces, hairline

@@ -25,6 +25,29 @@ class OfflineAuthResult {
       OfflineAuthResult._(false, null, error);
 }
 
+/// Outcome of one backend sync attempt for a local account. Unlike a bare
+/// bool this keeps the failure's HTTP status, which is what lets the sync
+/// handler tell a retryable outage (5xx/timeout) from a definitive backend
+/// rejection (4xx, e.g. phone already registered).
+class OfflineSyncOutcome {
+  final bool success;
+  final String? backendUserId;
+  final String? error;
+  final int? statusCode;
+
+  const OfflineSyncOutcome._(
+    this.success,
+    this.backendUserId,
+    this.error,
+    this.statusCode,
+  );
+
+  factory OfflineSyncOutcome.ok(String? backendUserId) =>
+      OfflineSyncOutcome._(true, backendUserId, null, null);
+  factory OfflineSyncOutcome.fail(String error, int? statusCode) =>
+      OfflineSyncOutcome._(false, null, error, statusCode);
+}
+
 /// Offline registration/login: write the account locally first (so a
 /// student with no signal isn't blocked from using the app at all), then
 /// sync it to the real backend whenever connectivity returns. OTP/phone
@@ -32,6 +55,16 @@ class OfflineAuthResult {
 /// account is real and usable the moment it's created.
 class OfflineAuthService {
   AppDatabase get _db => AppDatabase();
+
+  /// KeyValueTable box for auth-owned flags (no schema migration needed).
+  static const String authFlagsBox = 'auth_flags';
+
+  /// Key under [authFlagsBox]: set when a deferred-registration account has
+  /// synced to the backend but the user has not completed OTP verification
+  /// yet. The host app should read this and route the active user into the
+  /// existing OTP flow ('/register-confirmation'); the backend treats the
+  /// account as limited until OTP completes.
+  static const String pendingOtpKey = 'pending_otp_verification';
 
   String _hash(String password) =>
       sha256.convert(utf8.encode(password)).toString();
@@ -74,8 +107,51 @@ class OfflineAuthService {
             referral: Value(referral),
           ),
         );
-    await LocalStorage.setToken(_offlineToken(id));
+    // Never clobber a real backend session (e.g. registerWithPhone runs
+    // after phone-OTP verification already stored a real token); only
+    // activate the offline session when there is no better one.
+    final current = LocalStorage.getToken();
+    if (current.isEmpty || isOfflineToken(current)) {
+      await LocalStorage.setToken(_offlineToken(id));
+    }
     return OfflineAuthResult.ok(id);
+  }
+
+  /// The local account row for [localUserId], or null when absent.
+  Future<OfflineUserEntity?> findById(String localUserId) {
+    final query = _db.select(_db.offlineUsersTable)
+      ..where((t) => t.id.equals(localUserId));
+    return query.getSingleOrNull();
+  }
+
+  /// Reconcile a local-first row with a registration that succeeded inline
+  /// (the online path of the register flow): the backend account exists, so
+  /// the row is done and the sync path must not push it again.
+  Future<void> markSynced(
+    String localUserId, {
+    String? backendUserId,
+    String? backendToken,
+  }) async {
+    await (_db.update(_db.offlineUsersTable)
+          ..where((t) => t.id.equals(localUserId)))
+        .write(OfflineUsersTableCompanion(
+      synced: const Value(true),
+      backendUserId: Value(backendUserId),
+      backendToken: Value(backendToken),
+    ));
+  }
+
+  /// Roll back a local-first registration the backend definitively rejected
+  /// (4xx), so a corrected retry isn't blocked by "an offline account
+  /// already exists". Clears the active session only when it is this row's
+  /// own offline token.
+  Future<void> discardLocal(String localUserId) async {
+    await (_db.delete(_db.offlineUsersTable)
+          ..where((t) => t.id.equals(localUserId)))
+        .go();
+    if (LocalStorage.getToken() == _offlineToken(localUserId)) {
+      await LocalStorage.setToken('');
+    }
   }
 
   Future<OfflineAuthResult> loginOffline({
@@ -133,7 +209,7 @@ class OfflineAuthService {
   /// unless [activateOnSuccess] is true (the caller decides whether this
   /// sync is for the currently logged-in device or a background catch-up
   /// for some other local account).
-  Future<bool> syncOne(
+  Future<OfflineSyncOutcome> syncOne(
     OfflineUserEntity row,
     AuthRepositoryFacade authRepository, {
     bool activateOnSuccess = true,
@@ -153,14 +229,14 @@ class OfflineAuthService {
         referral: row.referral,
       ),
     );
-    var synced = false;
-    response.when(
+    return response.when<Future<OfflineSyncOutcome>>(
       success: (data) async {
+        final backendUserId = data.user?.id?.toString();
         await (_db.update(_db.offlineUsersTable)
               ..where((t) => t.id.equals(row.id)))
             .write(OfflineUsersTableCompanion(
           synced: const Value(true),
-          backendUserId: Value(data.user?.id?.toString()),
+          backendUserId: Value(backendUserId),
           backendToken: Value(data.token),
         ));
         if (activateOnSuccess &&
@@ -168,16 +244,38 @@ class OfflineAuthService {
             LocalStorage.getToken() == _offlineToken(row.id)) {
           await LocalStorage.setToken(data.token);
         }
-        synced = true;
+        // Ray's deferred-OTP flow: the account is now synced but NOT
+        // verified — the backend limits it until OTP completes. Flag it so
+        // the app can route the user into the OTP flow when next active.
+        // TODO(ux-hook): host-level navigation into '/register-confirmation'
+        // (sendOtp + verifyPhone / verifyEmail) when this flag is set —
+        // sync runs with no BuildContext, so auth_sdk can only record it.
+        await _db.putItem(authFlagsBox, pendingOtpKey, {
+          'localUserId': row.id,
+          'backendUserId': backendUserId,
+          'phone': row.phone,
+          'email': row.email,
+          'syncedAt': DateTime.now().toIso8601String(),
+        });
+        return OfflineSyncOutcome.ok(backendUserId);
       },
-      failure: (failure, status) {
-        // Left unsynced — pendingSync() will retry next time connectivity
-        // is confirmed. A real conflict (e.g. phone already registered on
-        // the backend by another device) needs a human decision, not a
-        // silent retry loop; surfacing that is a follow-up, not blocking
-        // here.
+      failure: (failure, status) async {
+        // Left unsynced. The caller (AuthSyncHandler) classifies: 5xx and
+        // timeouts retry with backoff; a real conflict (e.g. phone already
+        // registered on the backend by another device) parks the op for a
+        // human decision instead of a silent retry loop.
+        return OfflineSyncOutcome.fail(failure.toString(), status);
       },
     );
-    return synced;
   }
+
+  /// The deferred-OTP flag written when a background sync succeeds, or null
+  /// when no verification is pending. Map keys: localUserId, backendUserId,
+  /// phone, email, syncedAt.
+  Future<Map<String, dynamic>?> pendingOtpVerification() =>
+      _db.getItem(authFlagsBox, pendingOtpKey);
+
+  /// Clear the deferred-OTP flag once the user completes verification.
+  Future<void> clearPendingOtpVerification() =>
+      _db.deleteItem(authFlagsBox, pendingOtpKey);
 }

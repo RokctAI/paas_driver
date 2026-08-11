@@ -100,7 +100,7 @@ class ShopData {
       pricePerKm: json["price_per_km"] ?? 0,
       minPrice: json["price"] ?? 0,
       percentage: json["percentage"] ?? 0,
-      phone: json["phone"].toString(),
+      phone: json["phone"]?.toString(),
       visibility: json["visibility"],
       //open: (json["open"].runtimeType == int ? (json["open"] == 1) : json["open"]) ?? true,
       open: openValue,
@@ -141,7 +141,9 @@ class ShopData {
               json["tags"].map((x) => TagsModel.fromJson(x)),
             ),
       seller: json["seller"] == null ? null : Seller.fromJson(json["seller"]),
-      avgRate: (double.tryParse(json["rating_avg"].toString()) ?? 0.0)
+      avgRate:
+          (double.tryParse((json["rating_avg"] ?? json["avg_rate"]).toString()) ??
+                  0.0)
           .toStringAsFixed(1),
       rateCount: (double.tryParse(json["reviews_count"].toString()) ?? 0.0)
           .toStringAsFixed(0),
@@ -160,7 +162,8 @@ class ShopData {
           ? []
           : List<ShopPayment?>.from(
               json["shop_payments"]!.map((x) {
-                if (x["payment"]["active"]) {
+                final active = x["payment"]?["active"];
+                if (active == true || active == 1) {
                   return ShopPayment.fromJson(x);
                 }
               }),
@@ -370,7 +373,9 @@ class Payment {
   factory Payment.fromJson(Map<String, dynamic> json) => Payment(
         id: json["id"],
         tag: json["tag"],
-        active: json["active"],
+        active: json["active"].runtimeType == int
+            ? (json["active"] != 0)
+            : json["active"],
         translation: json["translation"],
       );
 

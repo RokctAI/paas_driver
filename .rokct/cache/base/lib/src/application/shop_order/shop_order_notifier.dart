@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 
@@ -14,7 +15,9 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 // [refork] removed host router import
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/customer_cart_store.dart';
 import 'package:base_sdk/src/services/tpying_delay.dart';
+import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:base_sdk/src/application/shop_order/shop_order_state.dart';
 import 'package:http/http.dart' as http;
 
@@ -23,27 +26,152 @@ class ShopOrderNotifier extends StateNotifier<ShopOrderState> {
 
   ShopOrderNotifier(this._cartRepository) : super(const ShopOrderState());
   final _delayed = Delayed(milliseconds: 700);
+  static const _store = CustomerCartStore();
+
+  /// 4xx means the server actively rejected the change; everything else
+  /// (network layer, 5xx) is transient and coalesces into the outbox.
+  bool _isTransientStatus(int status) => status < 400 || status >= 500;
+
+  Future<void> _persistLocalCart() async {
+    final cart = state.cart;
+    if (cart == null) {
+      await _store.clear();
+    } else {
+      await _store.save(cart);
+    }
+  }
+
+  /// Latest-wins snapshot of the (single-user) cart for the `cart.sync` op.
+  Map<String, dynamic> _cartSnapshot() {
+    final details = state.cart?.userCarts?.isNotEmpty == true
+        ? (state.cart?.userCarts?.first.cartDetails ?? <CartDetail>[])
+        : <CartDetail>[];
+    return {
+      'shopId': state.cart?.shopId,
+      'cartId': state.cart?.id,
+      'items': [
+        for (final detail in details)
+          {
+            'stockId': detail.stock?.id,
+            'quantity': detail.quantity ?? 1,
+            'addons': [
+              for (final Addons addon in detail.addons ?? [])
+                {'stockId': addon.stocks?.id, 'quantity': addon.quantity},
+            ],
+          },
+      ],
+    };
+  }
+
+  /// One pending `cart.sync` op per cart: replaces any earlier queued
+  /// snapshot instead of stacking ops (dedupe by shop).
+  Future<void> _enqueueCartSync({
+    Map<String, dynamic>? snapshot,
+    bool kickNow = false,
+  }) async {
+    final engine = SyncEngine();
+    final payload = snapshot ?? _cartSnapshot();
+    await engine.enqueueOrReplace(
+      opType: kCartSyncOpType,
+      sdk: 'orders_sdk',
+      dedupeKey: (payload['shopId'] ?? '').toString(),
+      payload: payload,
+    );
+    if (kickNow) {
+      unawaited(engine.kick());
+    }
+  }
 
   Future<void> addCount(BuildContext context, int index) async {
+    state = state.copyWith(isAddAndRemoveLoading: true);
+    CartDetail oldDetail =
+        state.cart?.userCarts?.first.cartDetails?[index] ?? CartDetail();
+    CartDetail newDetail = oldDetail.copyWith(
+      quantity: 1 + (oldDetail.quantity ?? 1),
+    );
+    if (!(((oldDetail.quantity ?? 1)) <
+        (oldDetail.stock?.product?.maxQty ?? 1))) {
+      if (context.mounted) {
+        AppHelpers.showCheckTopSnackBarInfo(
+          context,
+          "${AppHelpers.getTranslation(TrKeys.maxQty)} ${((oldDetail.quantity ?? 1))}",
+        );
+      }
+      state = state.copyWith(isAddAndRemoveLoading: false);
+      return;
+    }
+    List<CartDetail> newCartList =
+        state.cart?.userCarts?.first.cartDetails ?? [];
+    newCartList.removeAt(index);
+    newCartList.insert(index, newDetail);
+    UserCart newCart = state.cart!.userCarts!.first.copyWith(
+      cartDetails: newCartList,
+    );
+    List<UserCart> newUserCart = state.cart?.userCarts ?? [];
+    newUserCart.removeAt(0);
+    newUserCart.insert(0, newCart);
+    Cart newDate = state.cart!.copyWith(userCarts: newUserCart);
+    state = state.copyWith(cart: newDate);
+    await _persistLocalCart();
     final connected = await AppConnectivity.connectivity();
-    if (connected) {
-      state = state.copyWith(isAddAndRemoveLoading: true);
+    if (!connected) {
+      state = state.copyWith(isAddAndRemoveLoading: false);
+      await _enqueueCartSync();
+      return;
+    }
+    List<CartRequest> list = [
+      CartRequest(
+        stockId:
+            state.cart?.userCarts?.first.cartDetails?[index].stock?.id ?? "",
+        quantity:
+            state.cart?.userCarts?.first.cartDetails?[index].quantity ?? 1,
+      ),
+    ];
+    for (Addons element
+        in state.cart?.userCarts?.first.cartDetails?[index].addons ?? []) {
+      list.add(
+        CartRequest(
+          stockId: element.stocks?.id,
+          quantity: element.quantity,
+          parentId:
+              state.cart?.userCarts?.first.cartDetails?[index].stock?.id ?? "",
+        ),
+      );
+    }
+    final response = await _cartRepository.insertCart(
+      cart: CartRequest(
+        shopId: state.cart?.shopId ?? "",
+        stockId:
+            state.cart?.userCarts?.first.cartDetails?[index].stock?.id ?? "",
+        quantity:
+            state.cart?.userCarts?.first.cartDetails?[index].quantity ?? 1,
+        carts: list,
+      ),
+    );
+    await response.when(
+      success: (data) async {
+        state = state.copyWith(cart: data.data, isAddAndRemoveLoading: false);
+        await _persistLocalCart();
+      },
+      failure: (failure, status) async {
+        state = state.copyWith(isAddAndRemoveLoading: false);
+        if (_isTransientStatus(status)) {
+          await _enqueueCartSync();
+        } else if (context.mounted) {
+          AppHelpers.showCheckTopSnackBar(context, failure);
+        }
+      },
+    );
+  }
+
+  Future<void> removeCount(BuildContext context, int index) async {
+    state = state.copyWith(isAddAndRemoveLoading: true);
+    if ((state.cart?.userCarts?.first.cartDetails?[index].quantity ?? 1) > 1) {
       CartDetail oldDetail =
           state.cart?.userCarts?.first.cartDetails?[index] ?? CartDetail();
       CartDetail newDetail = oldDetail.copyWith(
-        quantity: 1 + (oldDetail.quantity ?? 1),
+        quantity: (oldDetail.quantity ?? 1) - 1,
       );
-      if (!(((oldDetail.quantity ?? 1)) <
-          (oldDetail.stock?.product?.maxQty ?? 1))) {
-        if (context.mounted) {
-          AppHelpers.showCheckTopSnackBarInfo(
-            context,
-            "${AppHelpers.getTranslation(TrKeys.maxQty)} ${((oldDetail.quantity ?? 1))}",
-          );
-        }
-        state = state.copyWith(isAddAndRemoveLoading: false);
-        return;
-      }
       List<CartDetail> newCartList =
           state.cart?.userCarts?.first.cartDetails ?? [];
       newCartList.removeAt(index);
@@ -56,6 +184,13 @@ class ShopOrderNotifier extends StateNotifier<ShopOrderState> {
       newUserCart.insert(0, newCart);
       Cart newDate = state.cart!.copyWith(userCarts: newUserCart);
       state = state.copyWith(cart: newDate);
+      await _persistLocalCart();
+      final connected = await AppConnectivity.connectivity();
+      if (!connected) {
+        state = state.copyWith(isAddAndRemoveLoading: false);
+        await _enqueueCartSync();
+        return;
+      }
       List<CartRequest> list = [
         CartRequest(
           stockId:
@@ -86,153 +221,101 @@ class ShopOrderNotifier extends StateNotifier<ShopOrderState> {
           carts: list,
         ),
       );
-      response.when(
+      await response.when(
         success: (data) async {
-          state = state.copyWith(cart: data.data, isAddAndRemoveLoading: false);
+          state = state.copyWith(
+            cart: data.data,
+            isAddAndRemoveLoading: false,
+          );
+          await _persistLocalCart();
+          getCart(context, () {}, isShowLoading: false);
         },
-        failure: (failure, status) {
+        failure: (failure, status) async {
           state = state.copyWith(isAddAndRemoveLoading: false);
-          AppHelpers.showCheckTopSnackBar(context, failure);
+          if (_isTransientStatus(status)) {
+            await _enqueueCartSync();
+          } else if (context.mounted) {
+            AppHelpers.showCheckTopSnackBar(context, failure);
+          }
         },
       );
     } else {
-      if (context.mounted) {
-        AppHelpers.showNoConnectionSnackBar(context);
-      }
-    }
-  }
-
-  Future<void> removeCount(BuildContext context, int index) async {
-    state = state.copyWith(isAddAndRemoveLoading: true);
-    if ((state.cart?.userCarts?.first.cartDetails?[index].quantity ?? 1) > 1) {
-      final connected = await AppConnectivity.connectivity();
-      if (connected) {
-        CartDetail oldDetail =
-            state.cart?.userCarts?.first.cartDetails?[index] ?? CartDetail();
-        CartDetail newDetail = oldDetail.copyWith(
-          quantity: (oldDetail.quantity ?? 1) - 1,
-        );
-        List<CartDetail> newCartList =
-            state.cart?.userCarts?.first.cartDetails ?? [];
-        newCartList.removeAt(index);
-        newCartList.insert(index, newDetail);
-        UserCart newCart = state.cart!.userCarts!.first.copyWith(
-          cartDetails: newCartList,
-        );
-        List<UserCart> newUserCart = state.cart?.userCarts ?? [];
-        newUserCart.removeAt(0);
-        newUserCart.insert(0, newCart);
-        Cart newDate = state.cart!.copyWith(userCarts: newUserCart);
-        state = state.copyWith(cart: newDate);
-        List<CartRequest> list = [
-          CartRequest(
-            stockId:
-                state.cart?.userCarts?.first.cartDetails?[index].stock?.id ??
-                    "",
-            quantity:
-                state.cart?.userCarts?.first.cartDetails?[index].quantity ?? 1,
-          ),
-        ];
-        for (Addons element
-            in state.cart?.userCarts?.first.cartDetails?[index].addons ?? []) {
-          list.add(
-            CartRequest(
-              stockId: element.stocks?.id,
-              quantity: element.quantity,
-              parentId:
-                  state.cart?.userCarts?.first.cartDetails?[index].stock?.id ??
-                      "",
-            ),
-          );
+      final cartId = state.cart?.id ?? "";
+      final cartDetailId =
+          state.cart?.userCarts?.first.cartDetails?[index].id ?? "";
+      final shopId = state.cart?.shopId;
+      List<CartDetail> newCartList =
+          state.cart?.userCarts?.first.cartDetails ?? [];
+      newCartList.removeAt(index);
+      UserCart newCart = state.cart!.userCarts!.first.copyWith(
+        cartDetails: newCartList,
+      );
+      List<UserCart> newUserCart = state.cart?.userCarts ?? [];
+      newUserCart.removeAt(0);
+      newUserCart.insert(0, newCart);
+      Cart newDate = state.cart!.copyWith(userCarts: newUserCart);
+      if (newDate.userCarts!.first.cartDetails!.isEmpty) {
+        state = state.copyWith(isAddAndRemoveLoading: false, cart: null);
+        await _persistLocalCart();
+        if (context.mounted) {
+          context.maybePop();
         }
-        final response = await _cartRepository.insertCart(
-          cart: CartRequest(
-            shopId: state.cart?.shopId ?? "",
-            stockId:
-                state.cart?.userCarts?.first.cartDetails?[index].stock?.id ??
-                    "",
-            quantity:
-                state.cart?.userCarts?.first.cartDetails?[index].quantity ?? 1,
-            carts: list,
-          ),
+        final connected = await AppConnectivity.connectivity();
+        if (!connected) {
+          await _enqueueCartSync(
+            snapshot: {'shopId': shopId, 'cartId': cartId, 'items': []},
+          );
+          return;
+        }
+        final responseDelete = await _cartRepository.deleteCart(
+          cartId: cartId,
         );
-        response.when(
-          success: (data) async {
-            state = state.copyWith(
-              cart: data.data,
-              isAddAndRemoveLoading: false,
-            );
-            getCart(context, () {}, isShowLoading: false);
-          },
-          failure: (failure, status) {
-            state = state.copyWith(isAddAndRemoveLoading: false);
-            AppHelpers.showCheckTopSnackBar(context, failure);
+        await responseDelete.when(
+          success: (data) async {},
+          failure: (failure, status) async {
+            if (_isTransientStatus(status)) {
+              await _enqueueCartSync(
+                snapshot: {'shopId': shopId, 'cartId': cartId, 'items': []},
+              );
+            } else if (context.mounted) {
+              AppHelpers.showCheckTopSnackBar(context, failure);
+            }
           },
         );
       } else {
-        if (context.mounted) {
-          AppHelpers.showNoConnectionSnackBar(context);
+        state = state.copyWith(cart: newDate, isAddAndRemoveLoading: false);
+        await _persistLocalCart();
+        final connected = await AppConnectivity.connectivity();
+        if (!connected) {
+          await _enqueueCartSync();
+          return;
         }
-      }
-    } else {
-      final connected = await AppConnectivity.connectivity();
-      if (connected) {
-        state = state.copyWith(isAddAndRemoveLoading: true);
-        final cartId = state.cart?.id ?? "";
-        final cartDetailId =
-            state.cart?.userCarts?.first.cartDetails?[index].id ?? "";
-        List<CartDetail> newCartList =
-            state.cart?.userCarts?.first.cartDetails ?? [];
-        newCartList.removeAt(index);
-        UserCart newCart = state.cart!.userCarts!.first.copyWith(
-          cartDetails: newCartList,
+        final response = await _cartRepository.removeProductCart(
+          cartDetailId: cartDetailId,
         );
-        List<UserCart> newUserCart = state.cart?.userCarts ?? [];
-        newUserCart.removeAt(0);
-        newUserCart.insert(0, newCart);
-        Cart newDate = state.cart!.copyWith(userCarts: newUserCart);
-        if (newDate.userCarts!.first.cartDetails!.isEmpty) {
-          final responseDelete = await _cartRepository.deleteCart(
-            cartId: cartId,
-          );
-          responseDelete.when(
-            success: (data) async {
-              state = state.copyWith(isAddAndRemoveLoading: false, cart: null);
-              context.maybePop();
-              getCart(context, () {}, isShowLoading: false);
-            },
-            failure: (failure, status) {
-              state = state.copyWith(isAddAndRemoveLoading: false);
-              AppHelpers.showCheckTopSnackBar(context, failure);
-            },
-          );
-        } else {
-          state = state.copyWith(cart: newDate);
-          final response = await _cartRepository.removeProductCart(
-            cartDetailId: cartDetailId,
-          );
-          response.when(
-            success: (data) async {
-              state = state.copyWith(isAddAndRemoveLoading: false);
-              getCart(context, () {}, isShowLoading: false);
-            },
-            failure: (failure, status) {
-              state = state.copyWith(isAddAndRemoveLoading: false);
+        await response.when(
+          success: (data) async {
+            getCart(context, () {}, isShowLoading: false);
+          },
+          failure: (failure, status) async {
+            if (_isTransientStatus(status)) {
+              await _enqueueCartSync();
+            } else if (context.mounted) {
               AppHelpers.showCheckTopSnackBar(
                 context,
                 AppHelpers.getTranslation(status.toString()),
               );
-            },
-          );
-        }
-      } else {
-        if (context.mounted) {
-          AppHelpers.showNoConnectionSnackBar(context);
-        }
+            }
+          },
+        );
       }
     }
   }
 
+  // Group-order carts stay connectivity-gated: the cart is shared live
+  // between several users' devices, so a local-first snapshot replace would
+  // clobber other members' changes (multi-device offline merge is an
+  // explicit non-goal of the sync engine).
   Future<void> addCountWithGroup({
     required BuildContext context,
     required int productIndex,
@@ -481,6 +564,20 @@ class ShopOrderNotifier extends StateNotifier<ShopOrderState> {
     String? cartId,
     String? userUuid,
   }) async {
+    // A queued cart.sync means the server cart lags this device's local
+    // document; show the local cart and let the engine catch the server up
+    // before trusting server reads again.
+    if (await SyncEngine().hasPending(kCartSyncOpType)) {
+      final local = await _store.load();
+      if (isShowLoading) {
+        state = state.copyWith(cart: local, isLoading: false);
+        onSuccess();
+      } else {
+        state = state.copyWith(cart: local);
+      }
+      unawaited(SyncEngine().kick());
+      return;
+    }
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       if (isShowLoading) {
@@ -504,6 +601,7 @@ class ShopOrderNotifier extends StateNotifier<ShopOrderState> {
           } else {
             state = state.copyWith(cart: data.data);
           }
+          await _persistLocalCart();
         },
         failure: (failure, status) {
           if (status == 404) {
@@ -512,6 +610,7 @@ class ShopOrderNotifier extends StateNotifier<ShopOrderState> {
             } else {
               state = state.copyWith(cart: null);
             }
+            unawaited(_store.clear());
           } else if (status == 400 || status == 404) {
             AppHelpers.showCheckTopSnackBarDone(
               context,
@@ -538,7 +637,15 @@ class ShopOrderNotifier extends StateNotifier<ShopOrderState> {
         },
       );
     } else {
-      if (context.mounted) {
+      final local = await _store.load();
+      if (local != null) {
+        if (isShowLoading) {
+          state = state.copyWith(cart: local, isLoading: false);
+          onSuccess();
+        } else {
+          state = state.copyWith(cart: local);
+        }
+      } else if (context.mounted) {
         AppHelpers.showNoConnectionSnackBar(context);
       }
     }
@@ -562,33 +669,36 @@ class ShopOrderNotifier extends StateNotifier<ShopOrderState> {
   }
 
   Future deleteCart(BuildContext context) async {
+    final cartId = state.cart?.id ?? "";
+    final shopId = state.cart?.shopId;
+    state = state.copyWith(isDeleteLoading: false, cart: null);
+    await _store.clear();
+    if (context.mounted) {
+      Navigator.pop(context);
+    }
     final connected = await AppConnectivity.connectivity();
-    state = state.copyWith(isDeleteLoading: true);
-    if (connected) {
-      final response = await _cartRepository.deleteCart(
-        cartId: state.cart?.id ?? "",
+    if (!connected) {
+      await _enqueueCartSync(
+        snapshot: {'shopId': shopId, 'cartId': cartId, 'items': []},
       );
-      response.when(
-        success: (data) async {
-          state = state.copyWith(isDeleteLoading: false, cart: null);
-          Navigator.pop(context);
-          return;
-        },
-        failure: (failure, status) {
-          state = state.copyWith(isDeleteLoading: false);
+      return;
+    }
+    final response = await _cartRepository.deleteCart(cartId: cartId);
+    await response.when(
+      success: (data) async {},
+      failure: (failure, status) async {
+        if (_isTransientStatus(status)) {
+          await _enqueueCartSync(
+            snapshot: {'shopId': shopId, 'cartId': cartId, 'items': []},
+          );
+        } else if (context.mounted) {
           AppHelpers.showCheckTopSnackBar(
             context,
             AppHelpers.getTranslation(status.toString()),
           );
-          return;
-        },
-      );
-    } else {
-      if (context.mounted) {
-        AppHelpers.showNoConnectionSnackBar(context);
-        return;
-      }
-    }
+        }
+      },
+    );
   }
 
   Future<void> deleteUser(

@@ -24,6 +24,14 @@ import 'package:${package}/presentation/app_widget.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Boot hooks: SDK-declared startup statements (each SDK manifest's
+  // "boot_hooks" list — id-keyed, order-sequenced; see the installer's
+  // update_boot_hooks()). e.g. comms_sdk declares the Firebase/FCM boot, a
+  // splash-holding app's home SDK declares FlutterNativeSplash.preserve.
+  // Bodies may await — main() is async. Imports ride the wiring block above.
+  // @generated-boot-hooks-start
+  // @generated-boot-hooks-end
+
   // Brand hook: at most ONE installed SDK (normally the home SDK) declares
   // "brand_hook" in its manifest — the installer hard-errors on two — and its
   // call is injected here to load the app's brand palette into the shared
@@ -56,6 +64,16 @@ void main() async {
   // BaseSdkDependencies.register() in every composed shell.
   // @generated-sdk-di-start
   // @generated-sdk-di-end
+
+  // DI hooks: SDK-declared DI statements beyond the standard
+  // *SdkDependencies.register calls above (each SDK manifest's "di_hooks"
+  // list — id-keyed, order-sequenced; see the installer's
+  // update_di_hooks()). Placed AFTER the sdk-di block so hook bodies can
+  // resolve anything just registered — e.g. orders_sdk's manager role DI
+  // and its ADR-005 facade adapters from the installed orders_adapters.dart.
+  // Imports ride the wiring block above.
+  // @generated-di-hooks-start
+  // @generated-di-hooks-end
 
   // AppRoutes.I: SDK-resident code (splash, auth flows) navigates through
   // this indirection since it can't reference host-generated route classes

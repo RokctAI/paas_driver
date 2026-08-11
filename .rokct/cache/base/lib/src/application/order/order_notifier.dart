@@ -36,6 +36,8 @@ import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/models/request/cart_request.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/customer_cart_store.dart';
+import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:intl/intl.dart';
 import 'package:base_sdk/src/application/order/order_state.dart';
 
@@ -442,6 +444,21 @@ class OrderNotifier extends StateNotifier<OrderState> {
     VoidCallback? onSuccess,
     Function(String, bool)? onWebview,
   }) async {
+    // Drain gate: the server cart is where price/stock validation happens,
+    // so a queued cart.sync (local changes the server has not seen yet)
+    // must land before the order may be placed.
+    if (await SyncEngine().hasPending(kCartSyncOpType)) {
+      final cartSyncConnected = await AppConnectivity.connectivity();
+      if (cartSyncConnected) {
+        await SyncEngine().kick();
+      }
+      if (await SyncEngine().hasPending(kCartSyncOpType)) {
+        if (context.mounted) {
+          AppHelpers.showNoConnectionSnackBar(context);
+        }
+        return;
+      }
+    }
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isButtonLoading: true);

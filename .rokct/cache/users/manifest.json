@@ -1,7 +1,18 @@
 {
   "name": "users_sdk",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "installs": [],
   "routes": [],
-  "integrations": []
+  "integrations": [],
+  "app_type": {
+    "manager": {
+      "installs": [
+        {
+          "from": "templates/application/manager/profile",
+          "to": "lib/application/profile"
+        }
+      ]
+    }
+  },
+  "_comment_app_type": "manager: the host profile application slice (profileProvider) becomes users_sdk-owned, installed to the EXACT path the composed consumers already import - merchants_sdk's manager logout_modal.dart reads 'package:${package}/application/profile/profile_provider.dart' for its delete-account action, so installing at lib/application/profile/ swaps the implementation under that import with zero commerce-side rewrites (fork plan S-2, manager migration bucket b). Ported from paas_manager's lib/application/profile/ trimmed to the composed surface (fetchUser + deleteAccount over base_sdk's UserRepositoryFacade; the retired become-seller createShop flow is owned by merchants_sdk's shop-setup registration step). While paas_manager still tracks its own copies the installer's hash guard warn-skips these installs (designed mid-flight behavior); they take effect the moment the manager repo deletes its host copies (migration stage M2). profile_state.freezed.dart regenerates via the host's own build_runner pass, which every compose already runs. Version bumped 1.0.0 -> 1.1.0 so version-aware cache reconciliation re-extracts composed copies."
 }
