@@ -47,6 +47,7 @@ export 'src/presentation/components/floating_nav/floating_bottom_nav.dart';
 
 // Kernel services
 export 'src/services/app_connectivity.dart';
+export 'src/services/customer_cart_store.dart';
 export 'src/services/telemetry.dart';
 export 'src/services/app_helpers.dart';
 export 'src/services/local_storage.dart';
@@ -56,6 +57,15 @@ export 'src/services/tr_keys.dart';
 // Offline database (shared Drift instance + generic JSON document store)
 export 'src/database/app_database.dart';
 export 'src/database/kv_tables.dart';
+
+// Offline sync engine (outbox drain + temp-id -> backend-id mapping).
+// Feature SDKs implement SyncHandler and register it per op type from
+// their *SdkDependencies.register.
+export 'src/services/connectivity_service.dart';
+export 'src/sync/id_mappings_table.dart';
+export 'src/sync/outbox_table.dart';
+export 'src/sync/sync_engine.dart';
+export 'src/sync/sync_handler.dart';
 
 // DI facade accessors (repository interfaces resolved via get_it)
 export 'src/di/injection.dart';

@@ -1,8 +1,11 @@
 import 'package:get_it/get_it.dart';
+import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:merchants_sdk/src/manager/domain/interface/seller_sections_tables.dart';
 import 'package:merchants_sdk/src/manager/domain/interface/seller_shop.dart';
 import 'package:merchants_sdk/src/manager/infrastructure/repositories/seller_sections_tables_repository.dart';
 import 'package:merchants_sdk/src/manager/infrastructure/repositories/seller_shop_repository.dart';
+import 'package:merchants_sdk/src/manager/infrastructure/services/shop_create_sync_handler.dart';
+import 'package:merchants_sdk/src/manager/infrastructure/services/sync_issues_service.dart';
 
 /// Manager-role DI hook (orders_sdk `ManagerOrdersDependencies` /
 /// revenue_sdk `ManagerRevenueDependencies` pattern).
@@ -29,6 +32,22 @@ class ManagerMerchantsDependencies {
       getIt.registerSingleton<SellerSectionsTablesRepositoryFacade>(
         SellerSectionsTablesRepository(),
       );
+    }
+    // Attach the shop.create push handler so offline shop creates drain to
+    // the backend (auth_di's AuthSyncHandler pattern). Registered here rather
+    // than in the common MerchantsSdkDependencies because a customer app's
+    // cache has lib/src/manager/ stripped, so the common hook cannot import
+    // this slice. BaseSdkDependencies.register puts the engine in get_it
+    // before feature SDKs run; the process-singleton fallback keeps
+    // hand-wired hosts that skipped it working. registerHandler replaces any
+    // previous handler, so this is idempotent too. Requires
+    // base_sdk >= 1.5.0 (SyncEngine/SyncHandler).
+    final engine =
+        getIt.isRegistered<SyncEngine>() ? getIt<SyncEngine>() : SyncEngine();
+    engine.registerHandler(ShopCreateSyncHandler.opType, ShopCreateSyncHandler());
+    // Park-and-surface read API over the three manager local-first boxes.
+    if (!getIt.isRegistered<SyncIssuesService>()) {
+      getIt.registerLazySingleton<SyncIssuesService>(SyncIssuesService.new);
     }
   }
 }

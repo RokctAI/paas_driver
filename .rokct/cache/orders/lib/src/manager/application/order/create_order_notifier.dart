@@ -22,7 +22,9 @@ class CreateOrderNotifier extends StateNotifier<CreateOrderState> {
     required String entrance,
     required String floor,
     required String house,
+    int? paymentId,
     ValueChanged<int>? orderSuccess,
+    ValueChanged<String>? orderQueued,
     Function(String)? failed,
   }) async {
 
@@ -38,11 +40,19 @@ class CreateOrderNotifier extends StateNotifier<CreateOrderState> {
       entrance: entrance.isEmpty ? null : entrance.trim(),
       house: house.isEmpty ? null : house.trim(),
       floor: floor.isEmpty ? null : floor.trim(),
+      paymentId: paymentId,
     );
     response.when(
       success: (data) async {
         state = state.copyWith(isCreating: false);
-        orderSuccess?.call(data.data?.id ?? 0);
+        if (data.localId != null && data.data?.id == null) {
+          // Queued locally (backend unreachable): the sale is recorded under
+          // its offline: id and the sync handler will create order +
+          // transaction later, so the POS must not call createTransaction.
+          orderQueued?.call(data.localId!);
+        } else {
+          orderSuccess?.call(data.data?.id ?? 0);
+        }
       },
       failure: (failure,status) {
         debugPrint('===> create order fail $failure');

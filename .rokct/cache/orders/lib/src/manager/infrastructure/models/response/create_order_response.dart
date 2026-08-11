@@ -1,16 +1,21 @@
 class CreateOrderResponse {
-  CreateOrderResponse({CreatedOrder? data}) {
+  CreateOrderResponse({CreatedOrder? data, this.localId}) {
     _data = data;
   }
 
-  CreateOrderResponse.fromJson(dynamic json) {
+  CreateOrderResponse.fromJson(dynamic json) : localId = null {
     _data = json['data'] != null ? CreatedOrder.fromJson(json['data']) : null;
   }
 
   CreatedOrder? _data;
 
+  /// Set instead of [data] when the order was queued locally (backend
+  /// unreachable): the `offline:<uuid>` key of the manager_orders record.
+  /// The POS keys on it until the sync handler swaps in the backend id.
+  final String? localId;
+
   CreateOrderResponse copyWith({CreatedOrder? data}) =>
-      CreateOrderResponse(data: data ?? _data);
+      CreateOrderResponse(data: data ?? _data, localId: localId);
 
   CreatedOrder? get data => _data;
 

@@ -333,6 +333,10 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                               entrance: addressState.entrance,
                               floor: addressState.floor,
                               house: addressState.house,
+                              paymentId: paymentState
+                                  .payments[paymentState.selectedIndex]
+                                  .payment
+                                  ?.id,
                               orderSuccess: (int orderId) {
                                 context.router.popUntilRoot();
                                 ref.read(orderCartProvider.notifier).clearAll();
@@ -363,6 +367,32 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                                                 paymentState.selectedIndex]
                                             .payment
                                             ?.id);
+                              },
+                              // Sale queued locally (backend unreachable):
+                              // same cleanup, but no createTransaction — the
+                              // queued op carries payment_id and the sync
+                              // handler creates the transaction after the
+                              // order lands.
+                              orderQueued: (String localId) {
+                                context.router.popUntilRoot();
+                                ref.read(orderCartProvider.notifier).clearAll();
+                                ref
+                                    .read(orderUserProvider.notifier)
+                                    .clearSelectedUserInfo();
+                                ref
+                                    .read(tableProvider.notifier)
+                                    .clearSelectTableInfo();
+                                ref
+                                    .read(sectionProvider.notifier)
+                                    .clearSelectSectionInfo();
+                                ref
+                                    .read(newOrdersProvider.notifier)
+                                    .fetchNewOrders(
+                                      context: context,
+                                      isRefresh: true,
+                                      activeTabIndex:
+                                          ref.watch(homeAppbarProvider).index,
+                                    );
                               },
                               failed: (message) =>
                                   AppHelpers.showCheckTopSnackBar(

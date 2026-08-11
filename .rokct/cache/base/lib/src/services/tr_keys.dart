@@ -127,6 +127,7 @@ class TrKeys {
   static const String openUntil = 'open_until';
   static const String notEnoughMoney = 'not_enough_money';
   static const String signUpToDeliver = 'sign_up_to_deliver';
+  static const String open = 'open';
   static const String close = 'close';
   static const String terms = 'terms';
   static const String privacyPolicy = 'privacy_policy';

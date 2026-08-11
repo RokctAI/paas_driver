@@ -8,7 +8,10 @@ import 'package:base_sdk/src/models/response/transactions_response.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/enums.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:orders_sdk/src/manager/domain/interface/seller_orders.dart';
+import 'package:orders_sdk/src/manager/infrastructure/services/manager_orders_local_store.dart';
+import 'package:orders_sdk/src/manager/infrastructure/services/order_create_sync_handler.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/data/order_calculate_data.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/data/stock.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/data/user_data.dart';
@@ -167,6 +170,7 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
     int? tableId,
     String? floor,
     String? house,
+    int? paymentId,
   }) async {
     // Body shape is the legacy seller create-order contract, byte for byte —
     // the POS depends on it. The wrapping `order_data` argument matches
@@ -215,17 +219,54 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
         },
     };
     debugPrint('===> create order body ${jsonEncode(order)}');
+    // Local-first: write the record through before the network attempt so a
+    // dead connection can never lose the sale.
+    final String localId = SyncEngine.newTempId();
+    await ManagerOrdersLocalStore.putPending(localId, {
+      'order': order,
+      if (paymentId != null) 'payment_id': paymentId,
+    });
     try {
       final client = dioHttp.client(requireAuth: true);
       final response = await client.post(
         '/api/method/paas.api.order.order.create_order',
         data: {'order_data': order},
       );
+      // Backend reachable and accepted: it is authoritative from here on
+      // (the order queues refetch supplies the row), so the write-through
+      // record goes.
+      await ManagerOrdersLocalStore.delete(localId);
       return ApiResult.success(
         data: CreateOrderResponse.fromJson(response.data),
       );
     } catch (e) {
-      return _fail(e, 'create seller order');
+      final status = NetworkExceptions.getDioStatus(e);
+      if (status >= 400 && status < 500 && status != 408) {
+        // Backend reachable and said no — unchanged backend-first behavior;
+        // the local record must not survive a definitive rejection.
+        await ManagerOrdersLocalStore.delete(localId);
+        return _fail(e, 'create seller order');
+      }
+      // Backend unreachable / transient: keep the record, queue the push and
+      // report success (getDioStatus maps connection failures and timeouts
+      // to 500). Any offline-created entities the body references (temp
+      // shop, temp products) make their minting ops this op's parents, so
+      // creates land in order with real ids substituted in.
+      final dependsOn = await ManagerOrdersLocalStore.pendingOpIdsCreating(
+        ManagerOrdersLocalStore.offlineTokensIn(jsonEncode(order)),
+      );
+      await SyncEngine().enqueue(
+        opType: OrderCreateSyncHandler.opType,
+        sdk: OrderCreateSyncHandler.sdkName,
+        payload: {
+          'localId': localId,
+          'order': order,
+          if (paymentId != null) 'payment_id': paymentId,
+        },
+        tempIds: [localId],
+        dependsOn: dependsOn,
+      );
+      return ApiResult.success(data: CreateOrderResponse(localId: localId));
     }
   }
 

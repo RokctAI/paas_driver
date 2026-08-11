@@ -24,7 +24,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:auth_sdk/src/common/application/auth/register/register_state.dart';
+import 'package:auth_sdk/src/common/infrastructure/services/auth_sync_handler.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service.dart';
 import 'package:auth_sdk/src/common/presentation/pages/auth/registration/registration_steps_page.dart';
 
@@ -170,21 +172,36 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
     }
   }
 
+  /// Local-first registration (Ray's flow): the account is written to the
+  /// local DB before any network I/O, so registration always succeeds on
+  /// this device. Backend reachable (connectivity check + the register call
+  /// itself as the test) -> the existing online registration path runs and
+  /// the local row is reconciled with the real backend identity. Unreachable
+  /// -> the local account stands, an `auth.register` op is enqueued on the
+  /// SyncEngine, and OTP verification is deferred to sync time.
   Future<void> register(BuildContext context) async {
+    if (!AppValidators.isValidPassword(state.password)) {
+      state = state.copyWith(isPasswordInvalid: true);
+      return;
+    }
+    if (!AppValidators.isValidConfirmPassword(
+      state.password,
+      state.confirmPassword,
+    )) {
+      state = state.copyWith(isConfirmPasswordInvalid: true);
+      return;
+    }
+    state = state.copyWith(isLoading: true);
+    final local = await _offlineAuth.registerOffline(
+      phone: state.phone,
+      email: state.email,
+      firstName: state.firstName,
+      lastName: state.lastName,
+      password: state.password,
+      referral: state.referral,
+    );
     final connected = await AppConnectivity.connectivity();
     if (connected) {
-      if (!AppValidators.isValidPassword(state.password)) {
-        state = state.copyWith(isPasswordInvalid: true);
-        return;
-      }
-      if (!AppValidators.isValidConfirmPassword(
-        state.password,
-        state.confirmPassword,
-      )) {
-        state = state.copyWith(isConfirmPasswordInvalid: true);
-        return;
-      }
-      state = state.copyWith(isLoading: true);
       final response = await _authRepository.sigUpWithData(
         user: UserModel(
           email: state.email,
@@ -200,6 +217,15 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
       response.when(
         success: (data) async {
           state = state.copyWith(isLoading: false);
+          // Reconcile the local-first row: the backend account now exists,
+          // so the sync path must treat this row as done.
+          if (local.success) {
+            await _offlineAuth.markSynced(
+              local.localUserId!,
+              backendUserId: data.user?.id?.toString(),
+              backendToken: data.token,
+            );
+          }
           LocalStorage.setToken(data.token);
           LocalStorage.setAddressSelected(
             AddressData(
@@ -249,7 +275,19 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           String? fcmToken = await FirebaseMessaging.instance.getToken();
           _userRepositoryFacade.updateFirebaseToken(fcmToken);
         },
-        failure: (failure, status) {
+        failure: (failure, status) async {
+          // The register call doubles as the reachability test: 5xx and
+          // timeouts mean "backend unreachable" -> fall through to the
+          // offline outcome with the local account intact.
+          if (local.success && !_isDefinitiveRejection(status)) {
+            await _completeOffline(context, local);
+            return;
+          }
+          // Definitive backend rejection: roll back the local-first row so
+          // a corrected retry isn't blocked by "account already exists".
+          if (local.success) {
+            await _offlineAuth.discardLocal(local.localUserId!);
+          }
           state = state.copyWith(isLoading: false);
           if (status == 400) {
             AppHelpers.showCheckTopSnackBar(
@@ -264,42 +302,57 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
         },
       );
     } else {
-      // No connection — register the account locally so the student isn't
-      // blocked from using the app. It gets synced to the backend (and OTP
-      // verified) once connectivity returns; see OfflineAuthService.
-      if (!AppValidators.isValidPassword(state.password)) {
-        state = state.copyWith(isPasswordInvalid: true);
-        return;
-      }
-      if (!AppValidators.isValidConfirmPassword(
-        state.password,
-        state.confirmPassword,
-      )) {
-        state = state.copyWith(isConfirmPasswordInvalid: true);
-        return;
-      }
-      state = state.copyWith(isLoading: true);
-      final result = await _offlineAuth.registerOffline(
-        phone: state.phone,
-        email: state.email,
-        firstName: state.firstName,
-        lastName: state.lastName,
-        password: state.password,
-        referral: state.referral,
-      );
-      state = state.copyWith(isLoading: false);
-      if (result.success) {
-        // Registration succeeded: run any SDK-contributed registration
-        // steps (school/grade capture, ...), then land on the same
-        // destination as before — see RegistrationFlow.
-        RegistrationFlow.completeRegistration(context, user: null);
-      } else {
-        if (context.mounted) {
-          AppHelpers.showCheckTopSnackBar(context, result.error ?? '');
-        }
-      }
+      // No connection — the local account written above stands and the
+      // user proceeds with the offline session. It gets synced to the
+      // backend (and OTP verified) once connectivity returns; see
+      // OfflineAuthService and AuthSyncHandler.
+      await _completeOffline(context, local);
     }
   }
+
+  /// Offline outcome shared by register/registerWithPhone: keep the local
+  /// account, queue its backend registration, run the registration steps.
+  Future<void> _completeOffline(
+    BuildContext context,
+    OfflineAuthResult local, {
+    bool enqueueSync = true,
+  }) async {
+    if (!local.success) {
+      state = state.copyWith(isLoading: false);
+      if (context.mounted) {
+        AppHelpers.showCheckTopSnackBar(context, local.error ?? '');
+      }
+      return;
+    }
+    if (enqueueSync) {
+      await _enqueueRegisterSync(local.localUserId!);
+    }
+    state = state.copyWith(isLoading: false);
+    if (context.mounted) {
+      // Registration succeeded: run any SDK-contributed registration
+      // steps (school/grade capture, ...), then land on the same
+      // destination as before — see RegistrationFlow.
+      RegistrationFlow.completeRegistration(context, user: null);
+    }
+  }
+
+  /// Queue the `auth.register` op. No kick: this path runs while the
+  /// backend is unreachable; the engine drains on boot and on connectivity
+  /// regain.
+  Future<void> _enqueueRegisterSync(String localUserId) {
+    return SyncEngine().enqueue(
+      opType: AuthSyncHandler.opType,
+      sdk: AuthSyncHandler.sdkName,
+      payload: {'localUserId': localUserId},
+      tempIds: [AuthSyncHandler.tempIdFor(localUserId)],
+    );
+  }
+
+  /// Mirrors NetworkExceptions.getDioStatus: connection failures and
+  /// timeouts surface as 500 (and 408), so only a concrete 4xx is a
+  /// definitive backend rejection.
+  static bool _isDefinitiveRejection(int status) =>
+      status >= 400 && status < 500 && status != 408;
 
   Future<void> registerWithFirebase(BuildContext context) async {
     final connected = await AppConnectivity.connectivity();
@@ -401,21 +454,40 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
     }
   }
 
+  /// Same local-first shape as [register], with one difference: this method
+  /// runs after a successful phone-OTP step, so a real backend account and
+  /// session already exist (created at verify time) and the online call is
+  /// a profile completion. The local row is therefore never enqueued for
+  /// `auth.register` while a real session is active — that push would
+  /// re-register an existing phone and be rejected.
   Future<void> registerWithPhone(BuildContext context) async {
+    if (!AppValidators.isValidPassword(state.password)) {
+      state = state.copyWith(isPasswordInvalid: true);
+      return;
+    }
+    if (!AppValidators.isValidConfirmPassword(
+      state.password,
+      state.confirmPassword,
+    )) {
+      state = state.copyWith(isConfirmPasswordInvalid: true);
+      return;
+    }
+    state = state.copyWith(isLoading: true);
+    // The form's single identifier field holds the phone here (see
+    // sendCodeToNumber). registerOffline never overwrites the real session
+    // token stored by the OTP step.
+    final local = await _offlineAuth.registerOffline(
+      phone: state.email,
+      firstName: state.firstName,
+      lastName: state.lastName,
+      password: state.password,
+      referral: state.referral,
+    );
+    final activeToken = LocalStorage.getToken();
+    final hasBackendSession =
+        activeToken.isNotEmpty && !OfflineAuthService.isOfflineToken(activeToken);
     final connected = await AppConnectivity.connectivity();
     if (connected) {
-      if (!AppValidators.isValidPassword(state.password)) {
-        state = state.copyWith(isPasswordInvalid: true);
-        return;
-      }
-      if (!AppValidators.isValidConfirmPassword(
-        state.password,
-        state.confirmPassword,
-      )) {
-        state = state.copyWith(isConfirmPasswordInvalid: true);
-        return;
-      }
-      state = state.copyWith(isLoading: true);
       final response = await _userRepositoryFacade.editProfile(
         user: EditProfile(
           // email: state.email,
@@ -431,6 +503,15 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
       response.when(
         success: (data) async {
           state = state.copyWith(isLoading: false);
+          // Reconcile the local-first row: the backend account exists (the
+          // OTP step created it), so the sync path must not push it.
+          if (local.success) {
+            await _offlineAuth.markSynced(
+              local.localUserId!,
+              backendUserId: data.data?.id?.toString(),
+              backendToken: hasBackendSession ? activeToken : null,
+            );
+          }
           // Registration succeeded: run any SDK-contributed registration
           // steps (school/grade capture, ...), then land on the same
           // destination as before — see RegistrationFlow.
@@ -438,7 +519,23 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           String? fcmToken = await FirebaseMessaging.instance.getToken();
           _userRepositoryFacade.updateFirebaseToken(fcmToken);
         },
-        failure: (failure, status) {
+        failure: (failure, status) async {
+          if (local.success && !_isDefinitiveRejection(status)) {
+            // Unreachable mid-flow: keep the local account and proceed.
+            // Enqueue only when no real backend session exists — with one,
+            // the account is already registered and only the profile
+            // completion was lost (needs a profile-edit op type to queue;
+            // follow-up, see PR).
+            await _completeOffline(
+              context,
+              local,
+              enqueueSync: !hasBackendSession,
+            );
+            return;
+          }
+          if (local.success) {
+            await _offlineAuth.discardLocal(local.localUserId!);
+          }
           state = state.copyWith(isLoading: false);
           if (status == 400) {
             AppHelpers.showCheckTopSnackBar(
@@ -453,40 +550,9 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
         },
       );
     } else {
-      // No connection — same offline fallback as register(). This method is
-      // only reached after a successful OTP step when online, but offline
-      // there's no OTP to have passed, so we register locally instead and
-      // defer verification to the post-sync OTP step.
-      if (!AppValidators.isValidPassword(state.password)) {
-        state = state.copyWith(isPasswordInvalid: true);
-        return;
-      }
-      if (!AppValidators.isValidConfirmPassword(
-        state.password,
-        state.confirmPassword,
-      )) {
-        state = state.copyWith(isConfirmPasswordInvalid: true);
-        return;
-      }
-      state = state.copyWith(isLoading: true);
-      final result = await _offlineAuth.registerOffline(
-        phone: state.email,
-        firstName: state.firstName,
-        lastName: state.lastName,
-        password: state.password,
-        referral: state.referral,
-      );
-      state = state.copyWith(isLoading: false);
-      if (result.success) {
-        // Registration succeeded: run any SDK-contributed registration
-        // steps (school/grade capture, ...), then land on the same
-        // destination as before — see RegistrationFlow.
-        RegistrationFlow.completeRegistration(context, user: null);
-      } else {
-        if (context.mounted) {
-          AppHelpers.showCheckTopSnackBar(context, result.error ?? '');
-        }
-      }
+      // No connection — the local account stands; verification is deferred
+      // to the post-sync OTP step (see OfflineAuthService.syncOne).
+      await _completeOffline(context, local, enqueueSync: !hasBackendSession);
     }
   }
 

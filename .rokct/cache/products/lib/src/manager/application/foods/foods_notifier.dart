@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:products_sdk/src/common/domain/interface/seller_products.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_product_data.dart';
 import 'package:products_sdk/src/manager/application/foods/foods_state.dart';
+import 'package:products_sdk/src/manager/infrastructure/services/manager_products_local_store.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 /// Straight port of `paas_manager`'s `FoodsNotifier` — the seller's product
@@ -24,6 +25,22 @@ class FoodsNotifier extends StateNotifier<FoodsState> {
   void dispose() {
     _timer?.cancel();
     super.dispose();
+  }
+
+  /// Prepends local not-yet-synced creates (`pendingSync` rows from the
+  /// manager_products box) to a page-1 [backend] result, so an offline-added
+  /// product is visible in the list immediately. Skipped while searching —
+  /// local records are not query-matched.
+  Future<List<SellerProductData>> _withPending(
+    List<SellerProductData> backend,
+  ) async {
+    if (_query.isNotEmpty) return backend;
+    var pending = await ManagerProductsLocalStore.unsyncedAsProducts();
+    if (_categoryId != null) {
+      pending =
+          pending.where((p) => p.categoryId == _categoryId).toList();
+    }
+    return pending.isEmpty ? backend : [...pending, ...backend];
   }
 
   Future<void> fetchMoreProducts({RefreshController? refreshController}) async {
@@ -66,15 +83,21 @@ class FoodsNotifier extends StateNotifier<FoodsState> {
       query: _query.isEmpty ? null : _query.trim(),
       page: ++_page,
     );
-    response.when(
-      success: (data) {
+    await response.when(
+      success: (data) async {
         final List<SellerProductData> products = data.data ?? [];
         _hasMore = products.length >= 10;
-        state = state.copyWith(foods: products, isLoading: false);
+        state = state.copyWith(
+          foods: await _withPending(products),
+          isLoading: false,
+        );
       },
-      failure: (fail, status) {
+      failure: (fail, status) async {
         debugPrint('===> fetch category products fail $fail');
-        state = state.copyWith(foods: [], isLoading: false);
+        state = state.copyWith(
+          foods: await _withPending(const []),
+          isLoading: false,
+        );
       },
     );
   }
@@ -87,15 +110,22 @@ class FoodsNotifier extends StateNotifier<FoodsState> {
     _categoryId = null;
     state = state.copyWith(isLoading: true);
     final response = await _repository.getProducts(page: ++_page);
-    response.when(
-      success: (data) {
+    await response.when(
+      success: (data) async {
         final List<SellerProductData> products = data.data ?? [];
         _hasMore = products.length >= 10;
-        state = state.copyWith(isLoading: false, foods: products);
+        state = state.copyWith(
+          isLoading: false,
+          foods: await _withPending(products),
+        );
       },
-      failure: (fail, status) {
+      failure: (fail, status) async {
         debugPrint('===> fetch products fail $fail');
-        state = state.copyWith(isLoading: false);
+        // Backend unreachable: still surface local not-yet-synced creates.
+        state = state.copyWith(
+          isLoading: false,
+          foods: await _withPending(const []),
+        );
       },
     );
   }
@@ -109,14 +139,14 @@ class FoodsNotifier extends StateNotifier<FoodsState> {
       categoryId: _categoryId,
       query: _query.isEmpty ? null : _query.trim(),
     );
-    response.when(
-      success: (data) {
+    await response.when(
+      success: (data) async {
         final List<SellerProductData> products = data.data ?? [];
-        state = state.copyWith(foods: products);
+        state = state.copyWith(foods: await _withPending(products));
         _hasMore = products.length >= 10;
         refreshController?.refreshCompleted();
       },
-      failure: (error, status) {
+      failure: (error, status) async {
         debugPrint('===> initial fetch products fail $error');
         refreshController?.refreshFailed();
       },
@@ -173,12 +203,13 @@ class FoodsNotifier extends StateNotifier<FoodsState> {
       categoryId: categoryId,
       query: _query.isEmpty ? null : _query,
     );
-    response.when(
-      success: (data) {
-        final List<SellerProductData> products =
+    await response.when(
+      success: (data) async {
+        List<SellerProductData> products =
             isRefresh ? [] : List.from(state.foods);
         final List<SellerProductData> newProducts = data.data ?? [];
         products.addAll(newProducts);
+        if (_page == 1) products = await _withPending(newProducts);
         _hasMore = newProducts.length >= 10;
         if (_page == 1 && !isRefresh) {
           state = state.copyWith(isLoading: false, foods: products);
@@ -191,10 +222,16 @@ class FoodsNotifier extends StateNotifier<FoodsState> {
           refreshController?.loadComplete();
         }
       },
-      failure: (failure, status) {
+      failure: (failure, status) async {
         debugPrint('====> fetch products fail $failure');
         _page--;
-        if (_page == 0) state = state.copyWith(isLoading: false);
+        if (_page == 0) {
+          // Backend unreachable: still surface local not-yet-synced creates.
+          state = state.copyWith(
+            isLoading: false,
+            foods: await _withPending(const []),
+          );
+        }
         if (isRefresh) {
           refreshController?.refreshFailed();
         } else {

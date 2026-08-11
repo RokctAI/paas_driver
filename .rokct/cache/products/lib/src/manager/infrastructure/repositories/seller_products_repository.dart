@@ -3,7 +3,10 @@ import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:products_sdk/src/common/domain/interface/seller_products.dart';
+import 'package:products_sdk/src/manager/infrastructure/services/manager_products_local_store.dart';
+import 'package:products_sdk/src/manager/infrastructure/services/product_create_sync_handler.dart';
 import 'package:products_sdk/src/common/infrastructure/models/response/create_seller_extras_response.dart';
 import 'package:products_sdk/src/common/infrastructure/models/response/seller_extras_groups_response.dart';
 import 'package:products_sdk/src/common/infrastructure/models/response/seller_group_extras_response.dart';
@@ -73,8 +76,55 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
   @override
   Future<ApiResult<SingleSellerProductResponse>> createProduct({
     required Map<String, dynamic> product,
-  }) =>
-      _postProduct('$_base.create_product', product);
+  }) async {
+    // Local-first: write the record through before the network attempt so a
+    // dead connection can never lose the manager's input.
+    final String localId = SyncEngine.newTempId();
+    await ManagerProductsLocalStore.putPending(localId, {'product': product});
+    try {
+      final client = dioHttp.client(requireAuth: true);
+      final response = await client.post('$_base.create_product', data: product);
+      // Backend reachable and accepted: it is authoritative from here on
+      // (the product list refetch supplies the row), so the write-through
+      // record goes.
+      await ManagerProductsLocalStore.delete(localId);
+      return ApiResult.success(
+        data: SingleSellerProductResponse.fromJson(response.data),
+      );
+    } catch (e) {
+      final status = NetworkExceptions.getDioStatus(e);
+      if (status >= 400 && status < 500 && status != 408) {
+        // Backend reachable and said no — unchanged backend-first behavior;
+        // the local record must not survive a definitive rejection.
+        await ManagerProductsLocalStore.delete(localId);
+        debugPrint('==> create product failure: $e');
+        return _fail(e);
+      }
+      // Backend unreachable / transient: keep the record, queue the push and
+      // report success (getDioStatus maps connection failures and timeouts
+      // to 500). A shop that is itself still offline-only makes the shop op
+      // this op's parent, so creates land in order.
+      final shopId = LocalStorage.getShopJson()?['id'];
+      final dependsOn = shopId is String && shopId.startsWith(kOfflineIdPrefix)
+          ? await ManagerProductsLocalStore.pendingOpIdsCreating([shopId])
+          : const <String>[];
+      await SyncEngine().enqueue(
+        opType: ProductCreateSyncHandler.opType,
+        sdk: ProductCreateSyncHandler.sdkName,
+        payload: {'localId': localId, 'product': product},
+        tempIds: [localId],
+        dependsOn: dependsOn,
+      );
+      final record = await ManagerProductsLocalStore.get(localId);
+      return ApiResult.success(
+        data: SingleSellerProductResponse(
+          data: record == null
+              ? null
+              : ManagerProductsLocalStore.toProductData(record),
+        ),
+      );
+    }
+  }
 
   @override
   Future<ApiResult<SingleSellerProductResponse>> updateProduct({

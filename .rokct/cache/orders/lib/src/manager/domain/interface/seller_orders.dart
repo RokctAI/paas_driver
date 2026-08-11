@@ -44,6 +44,10 @@ abstract class SellerOrdersRepositoryFacade {
     int? orderId,
   });
 
+  /// [paymentId] rides along for the local-first path only: an order queued
+  /// offline needs the picked payment so the sync handler can create the
+  /// order's transaction after the order itself lands. The direct online
+  /// call ignores it — the POS keeps creating the transaction itself.
   Future<ApiResult<CreateOrderResponse>> createOrder({
     required String deliveryType,
     required List<Stock> stocks,
@@ -55,6 +59,7 @@ abstract class SellerOrdersRepositoryFacade {
     int? tableId,
     String? floor,
     String? house,
+    int? paymentId,
   });
 
   Future<ApiResult<TransactionsResponse>> createTransaction({
