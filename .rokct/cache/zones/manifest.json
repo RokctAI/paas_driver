@@ -1,0 +1,51 @@
+{
+  "name": "zones_sdk",
+  "version": "1.1.1",
+  "installs": [],
+  "routes": [],
+  "integrations": [],
+  "app_type": {
+    "driver": {
+      "installs": [
+        {
+          "from": "templates/pages/driver/profile/delivery_zone/delivery_zone_page.dart",
+          "to": "lib/presentation/pages/profile/delivery_zone/delivery_zone_page.dart"
+        },
+        {
+          "from": "templates/adapters/driver/zones_adapters.dart",
+          "to": "lib/presentation/routes/zones_adapters.dart"
+        }
+      ],
+      "routes": [
+        {
+          "path": "/delivery-zone",
+          "page": "DriverDeliveryZoneRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/pages/profile/delivery_zone/delivery_zone_page.dart",
+          "_comment": "The installed page carries @RoutePage(name: 'DriverDeliveryZoneRoute'), so auto_route generates the route class in the host's own app_router.gr.dart - SDK lib/ pages never get one. update_router_table() owns the whole @generated-routes block, so a route not declared here is dropped on every recompose."
+        }
+      ]
+    },
+    "manager": {
+      "installs": [
+        {
+          "from": "templates/pages/manager/merchant/delivery_zone/delivery_zone_page.dart",
+          "to": "lib/presentation/pages/merchant/delivery_zone/delivery_zone_page.dart"
+        },
+        {
+          "from": "templates/adapters/manager/zones_adapters.dart",
+          "to": "lib/presentation/routes/zones_adapters.dart"
+        }
+      ],
+      "routes": [
+        {
+          "path": "/delivery-zone",
+          "page": "ManagerDeliveryZoneRoute.page",
+          "type": "CupertinoRoute",
+          "_comment": "CupertinoRoute matches the legacy paas_manager app_router entry for this page (driver's flavour of the same path is a MaterialRoute). Declaring this block also keeps lib/src/manager/ alive through the composer's role-stripping.",
+          "import": "package:${package}/presentation/pages/merchant/delivery_zone/delivery_zone_page.dart"
+        }
+      ]
+    }
+  }
+}

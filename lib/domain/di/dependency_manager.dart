@@ -53,4 +53,5 @@ final appRouter = getIt.get<AppRouter>();
 // SDK-owned repository, registered by DriverRevenueDependencies.register() in
 // setUpDependencies() above — exposed here so app code resolves it the same
 // way as the app's own repositories.
-final courierStatisticsRepository = getIt.get<CourierStatisticsRepositoryFacade>();
+final courierStatisticsRepository =
+    getIt.get<CourierStatisticsRepositoryFacade>();

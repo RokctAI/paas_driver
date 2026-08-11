@@ -1,0 +1,83 @@
+{
+  "name": "auth_sdk",
+  "version": "1.1.0",
+  "installs": [
+    {
+      "from": "templates/routes/auth_route_pages.dart",
+      "to": "lib/presentation/routes/auth_route_pages.dart"
+    },
+    {
+      "from": "templates/routes/registration_step_pages.dart",
+      "to": "lib/presentation/routes/registration_step_pages.dart"
+    },
+    {
+      "from": "templates/routes/auth_session_policy.dart",
+      "to": "lib/presentation/routes/auth_session_policy.dart"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/login",
+      "page": "LoginRoute.page",
+      "type": "MaterialRoute",
+      "import": "package:${package}/presentation/routes/auth_route_pages.dart"
+    },
+    {
+      "path": "/register",
+      "page": "RegisterRoute.page",
+      "type": "MaterialRoute",
+      "import": "package:${package}/presentation/routes/auth_route_pages.dart"
+    },
+    {
+      "path": "/register-confirmation",
+      "page": "RegisterConfirmationRoute.page",
+      "type": "MaterialRoute",
+      "import": "package:${package}/presentation/routes/auth_route_pages.dart"
+    },
+    {
+      "path": "/reset-password",
+      "page": "ResetPasswordRoute.page",
+      "type": "MaterialRoute",
+      "import": "package:${package}/presentation/routes/auth_route_pages.dart"
+    },
+    {
+      "path": "/registration-steps",
+      "page": "RegistrationStepsRoute.page",
+      "type": "MaterialRoute",
+      "import": "package:${package}/presentation/routes/registration_step_pages.dart"
+    }
+  ],
+  "app_routes": [
+    {
+      "method": "replaceLoginRoute",
+      "body": "context.router.replace(LoginRoute());",
+      "imports": [
+        "import 'package:${package}/presentation/routes/app_router.dart';"
+      ]
+    },
+    {
+      "method": "replaceUiTypeRoute",
+      "body": "context.router.replace(UiTypeRoute());",
+      "imports": [
+        "import 'package:${package}/presentation/routes/app_router.dart';"
+      ]
+    }
+  ],
+  "integrations": [],
+  "database": {
+    "tables": [
+      {
+        "class": "OfflineUsersTable",
+        "import": "package:auth_sdk/src/common/infrastructure/database/offline_user_table.dart"
+      }
+    ],
+    "migration": {
+      "version": 16,
+      "step": "if (from < 16) { await m.createTable(offlineUsersTable); }"
+    }
+  },
+  "_comment_app_routes": "Every app that installs auth_sdk gets real AppRoutes.replaceLoginRoute and AppRoutes.replaceUiTypeRoute navigation for free (injected into main.dart's _HostAppRoutes scaffold by update_app_routes()) instead of having to hand-wire it. LoginRoute -> LoginPage, which already falls through to EmbeddedWidgets.I.introPage() on Skip, so nobody is forced through a credentials form before onboarding. replaceUiTypeRoute resolves to UiTypeRoute, a base_sdk template route present in every composed app - both supacharge and paas_customer had hand-written their own AppRoutes implementations just for this one method before it was declared here; this manifest entry is what lets that hand-editing stop for every future app.",
+  "_comment_registration_steps": "registration_step_pages.dart is the registration-contributions shell ('auth can do what we do with onboarding'): it carries the @generated-registration-steps / @generated-registration-imports marker blocks that sdk_installer_base.py's update_registration_steps() fills from every installed SDK's own manifest 'registration_steps' list (e.g. lms_sdk's school + grade capture), plus a @registration-complete-hook placeholder for manifest 'integrations' to extend completion routing. The register flow reaches it by path — RegistrationFlow.completeRegistration() -> context.router.replaceNamed('/registration-steps') — so auth_sdk needs neither a host import (ADR-005) nor a new method on base_sdk's fixed AppRoutes interface; with no contributed steps the shell falls straight through to the old landing, so apps without contributions behave exactly as before.",
+  "_comment_session_policy": "auth_session_policy.dart is the session-policy shell: it carries the @generated-session-policy / @generated-session-policy-imports marker blocks that sdk_installer_base.py's update_session_policy() fills from the ONE installed SDK (normally the app's home SDK, typically inside an app_type flavor block — two declaring SDKs is a hard error, like brand_hook) whose manifest declares a 'session_policy' object: {\"allowed_roles\": [{\"role\": \"seller\", \"landing_route\": \"/main\"}, ...], \"rejection_message_tr_key\": \"access.denied\", \"rejection_route\": \"/login\"}. The installer turns that into an AuthSessionPolicy.I = DeclaredSessionPolicy(...) assignment between the markers; the installed auth_route_pages.dart LoginRoute wrapper applies it before the login page builds. allowed_roles maps each admitted account role to the route PATH it lands on after sign-in (path navigation, not route classes — same ADR-005 bridge as /registration-steps); every other role is turned away with the (optional) translated rejection_message_tr_key snackbar and sent to the (optional) rejection_route path, and no token is persisted. Offline logins have no verifiable role, so a declared policy rejects them. Apps declaring no session_policy keep AuthSessionPolicy's built-in default: allow every account and land it on the legacy isDemo ? replaceUiTypeRoute : goHome branch — bit-for-bit the old behavior. This is the seam that lets manager (sellers only -> /main) and driver (drivers only) lift auth_sdk's skip_install instead of keeping their own login pages.",
+  "_comment_installs": "auth_route_pages.dart is a template (like lms_sdk's lms_route_pages.dart), copied into every consuming app at compose time via 'installs' - this is what lets 'routes' below use the ${package} placeholder safely: every app gets the exact same file at the exact same path, so the SDK can register its own routes universally, the same way lms_sdk does. See templates/routes/auth_route_pages.dart for why the routes point at this wrapper file instead of auth_sdk's own page classes directly (auto_route's codegen only generates route classes for @RoutePage widgets in the HOST's own lib/, never inside a path-dependency SDK's lib/)."
+}

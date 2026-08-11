@@ -1,0 +1,45 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import 'package:base_sdk/src/presentation/theme/theme.dart';
+import 'package:base_sdk/src/presentation/components/buttons/animation_button_effect.dart';
+
+class SocialButton extends StatelessWidget {
+  final IconData iconData;
+  final Function() onPressed;
+  final String title;
+
+  const SocialButton({
+    super.key,
+    required this.iconData,
+    required this.onPressed,
+    required this.title,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimationButtonEffect(
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          backgroundColor: AppStyle.cardDarkAlt,
+          side: BorderSide(color: AppStyle.strokeDark, width: 0.5),
+          minimumSize: Size(96.r, 36.r),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.r),
+          ),
+        ),
+        onPressed: onPressed,
+        child: Row(
+          children: [
+            Icon(iconData, color: AppStyle.textPrimary, size: 16.r),
+            8.horizontalSpace,
+            Text(
+              title,
+              style: AppStyle.interNormal(size: 12, color: AppStyle.textPrimary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
