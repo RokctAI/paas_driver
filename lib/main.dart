@@ -26,6 +26,7 @@ import 'package:driver/presentation/routes/zones_adapters.dart';
 
 // @generated-sdk-imports-start
 import 'package:base_sdk/base_sdk.dart';
+import 'package:calc_sdk/calc_sdk.dart';
 import 'package:comms_sdk/comms_sdk.dart';
 import 'package:corporate_sdk/corporate_sdk.dart';
 import 'package:delivery_sdk/delivery_sdk.dart';
@@ -128,6 +129,7 @@ void main() async {
   BaseSdkDependencies.register(GetIt.instance);
   // @generated-sdk-di-start
   BaseSdkDependencies.register(GetIt.instance);
+  CalcSdkDependencies.register(GetIt.instance);
   CommsSdkDependencies.register(GetIt.instance);
   CorporateSdkDependencies.register(GetIt.instance);
   DeliverySdkDependencies.register(GetIt.instance);

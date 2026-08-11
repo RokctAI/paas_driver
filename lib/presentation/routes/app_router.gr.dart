@@ -27,6 +27,22 @@ class BecomeDriverRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [CalculatorPage]
+class CalculatorRoute extends PageRouteInfo<void> {
+  const CalculatorRoute({List<PageRouteInfo>? children})
+    : super(CalculatorRoute.name, initialChildren: children);
+
+  static const String name = 'CalculatorRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const CalculatorPage();
+    },
+  );
+}
+
+/// generated route for
 /// [ClosedRouteView]
 class ClosedRoute extends PageRouteInfo<void> {
   const ClosedRoute({List<PageRouteInfo>? children})

@@ -1,0 +1,19 @@
+{
+  "name": "calc_sdk",
+  "version": "1.0.1",
+  "installs": [
+    {
+      "from": "templates/pages/calc",
+      "to": "lib/presentation/pages/calc"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/calc",
+      "page": "CalculatorRoute.page",
+      "type": "CupertinoRoute",
+      "import": "package:${package}/presentation/pages/calc/calculator_page.dart"
+    }
+  ],
+  "_comment_routes": "installs and routes are top-level (no app_type block) on purpose: any composition that lists calc_sdk gets the page and the /calc route - Ray's decision is to use it on both manager and driver. No tr_keys: the calculator renders keypad glyphs and numbers only, no translated strings."
+}
