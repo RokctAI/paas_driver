@@ -150,6 +150,17 @@ class OrderData {
   String? _note;
   bool? _seen;
 
+  // Local-first sync metadata, set only on rows built from the
+  // manager_orders KV box (never part of the wire shape and deliberately
+  // outside copyWith/toJson): [pendingSync] marks a local not-yet-synced
+  // create for the list badge, [needsAttention]/[syncError] the parked
+  // rejected state, [localId] the `offline:<uuid>` record key the POS keys
+  // on until the backend id arrives.
+  String? localId;
+  bool pendingSync = false;
+  bool needsAttention = false;
+  String? syncError;
+
   OrderData copyWith({
     int? id,
     int? userId,

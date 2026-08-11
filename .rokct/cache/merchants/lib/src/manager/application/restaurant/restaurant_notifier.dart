@@ -58,13 +58,22 @@ class RestaurantNotifier extends StateNotifier<RestaurantState> {
               debugPrint('==> error fetching working days $failure'),
         );
         LocalStorage.setShopJson(shop?.toJson());
-        state = state.copyWith(shop: shop, orderPayment: data.orderPayment);
+        state = state.copyWith(
+          shop: shop,
+          orderPayment: data.orderPayment,
+          pendingSync: false,
+        );
         afterFetched?.call();
       },
       failure: (failure, status) async {
+        // Backend unreachable: fall back to the cached shop, which for an
+        // offline-created shop is the local-first record seeded by
+        // createShop (temp `offline:` id, pending_sync flag) — the merge of
+        // backend truth and not-yet-synced local state for this screen.
         final cached = LocalStorage.getShopJson();
         state = state.copyWith(
           shop: cached == null ? null : ShopData.fromJson(cached),
+          pendingSync: cached?['pending_sync'] == true,
         );
         afterFetched?.call();
         debugPrint('==> error with fetching my shop $failure');

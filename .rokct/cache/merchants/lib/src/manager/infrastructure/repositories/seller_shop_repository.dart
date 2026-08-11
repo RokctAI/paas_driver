@@ -5,8 +5,11 @@ import 'package:base_sdk/src/models/data/shop_data.dart';
 import 'package:base_sdk/src/models/data/translation.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:merchants_sdk/src/manager/domain/interface/seller_shop.dart';
 import 'package:merchants_sdk/src/manager/infrastructure/models/my_shop_response.dart';
+import 'package:merchants_sdk/src/manager/infrastructure/services/manager_shops_local_store.dart';
+import 'package:merchants_sdk/src/manager/infrastructure/services/shop_create_sync_handler.dart';
 
 /// Port of the shop-management half of `paas_manager`'s `UsersRepository`,
 /// repointed from the legacy `/api/v1/dashboard/seller/...` paths to
@@ -46,16 +49,60 @@ class SellerShopRepository implements SellerShopRepositoryFacade {
         'phone': phone.replaceAll('+', ''),
       if (address != null && address.isNotEmpty) 'address': address,
     };
+    // Local-first: write the record through before the network attempt so a
+    // dead connection can never lose the manager's input.
+    final String localId = SyncEngine.newTempId();
+    await ManagerShopsLocalStore.putPending(localId, {'shop_data': shopData});
     try {
       final client = dioHttp.client(requireAuth: true);
       await client.post(
         '$_shops.create_shop',
         data: {'shop_data': shopData},
       );
+      // Backend reachable and accepted: it is authoritative from here on
+      // (getMyShop supplies the shop), so the write-through record goes.
+      await ManagerShopsLocalStore.delete(localId);
       return const ApiResult.success(data: null);
     } catch (e) {
-      return _fail(e, 'create shop');
+      final status = NetworkExceptions.getDioStatus(e);
+      if (status >= 400 && status < 500 && status != 408) {
+        // Backend reachable and said no — unchanged backend-first behavior;
+        // the local record must not survive a definitive rejection.
+        await ManagerShopsLocalStore.delete(localId);
+        return _fail(e, 'create shop');
+      }
+      // Backend unreachable / transient: keep the record, queue the push and
+      // report success — the SyncEngine drains it on boot or connectivity
+      // regain (getDioStatus maps connection failures and timeouts to 500).
+      await SyncEngine().enqueue(
+        opType: ShopCreateSyncHandler.opType,
+        sdk: ShopCreateSyncHandler.sdkName,
+        payload: {'localId': localId, 'shop_data': shopData},
+        tempIds: [localId],
+      );
+      await _seedCachedShop(localId, name: name, phone: phone, address: address);
+      return const ApiResult.success(data: null);
     }
+  }
+
+  /// A first-time seller with no cached shop needs `getShopJson()?['id']` to
+  /// resolve for offline product/order creation, so seed the cache with the
+  /// temp id (`ShopData.id` is a String, so the token round-trips safely).
+  /// A cached shop is never clobbered.
+  Future<void> _seedCachedShop(
+    String localId, {
+    required String name,
+    String? phone,
+    String? address,
+  }) async {
+    if (LocalStorage.getShopJson() != null) return;
+    await LocalStorage.setShopJson({
+      'id': localId,
+      'shop_name': name,
+      'translation': {'title': name, 'address': address},
+      if (phone != null && phone.isNotEmpty) 'phone': phone,
+      'pending_sync': true,
+    });
   }
 
   @override

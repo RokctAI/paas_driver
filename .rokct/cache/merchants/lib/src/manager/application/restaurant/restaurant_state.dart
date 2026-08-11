@@ -12,6 +12,7 @@ class RestaurantState {
     this.logoImageFile,
     this.orderPayment,
     this.shop,
+    this.pendingSync = false,
   });
 
   final bool isLoading;
@@ -20,12 +21,18 @@ class RestaurantState {
   final String? orderPayment;
   final ShopData? shop;
 
+  /// True while [shop] is a local-first record not yet accepted by the
+  /// backend (offline create awaiting sync) — widgets read this for the
+  /// "pending sync" badge.
+  final bool pendingSync;
+
   RestaurantState copyWith({
     bool? isLoading,
     String? backgroundImageFile,
     String? logoImageFile,
     String? orderPayment,
     ShopData? shop,
+    bool? pendingSync,
     bool clearBackgroundImageFile = false,
     bool clearLogoImageFile = false,
   }) =>
@@ -38,5 +45,6 @@ class RestaurantState {
             clearLogoImageFile ? null : (logoImageFile ?? this.logoImageFile),
         orderPayment: orderPayment ?? this.orderPayment,
         shop: shop ?? this.shop,
+        pendingSync: pendingSync ?? this.pendingSync,
       );
 }

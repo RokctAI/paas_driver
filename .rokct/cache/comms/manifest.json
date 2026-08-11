@@ -1,7 +1,42 @@
 {
   "name": "comms_sdk",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "installs": [],
   "routes": [],
-  "integrations": []
+  "integrations": [],
+  "embedded_widgets": [
+    {
+      "method": "languageScreen",
+      "params": "{required VoidCallback onSave}",
+      "body": "return LanguageScreen(onSave: onSave);",
+      "imports": [
+        "import 'package:comms_sdk/src/common/presentation/pages/setting/language_page.dart';"
+      ]
+    }
+  ],
+  "app_type": {
+    "manager": {
+      "installs": [
+        {
+          "from": "templates/application/manager/notification",
+          "to": "lib/application/notification"
+        },
+        {
+          "from": "templates/pages/manager/notification_list_page.dart",
+          "to": "lib/presentation/pages/notification/notification_list_page.dart"
+        }
+      ],
+      "routes": [
+        {
+          "path": "/list-notification",
+          "page": "NotificationListRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/notification/notification_list_page.dart",
+          "_comment": "The installed page carries @RoutePage() with the NotificationListPage class name, so auto_route generates NotificationListRoute in the host's own app_router.gr.dart. Path and route name match paas_manager's existing hand-written CupertinoRoute(path: '/list-notification', page: NotificationListRoute.page), so the composed restaurant tab's context.pushRoute(const NotificationListRoute()) keeps working when the host deletes its own copy of the page and drops the hand-written route."
+        }
+      ]
+    }
+  },
+  "_comment_embedded_widgets": "languageScreen: comms_sdk owns the language surface (LanguageScreen in src/common/presentation/pages/setting/language_page.dart, signature-matched to base_sdk's EmbeddedWidgets.languageScreen({required VoidCallback onSave})). Until now NO SDK declared it - supacharge's legacy hand-edited main covered it - so auth_sdk's login language switcher threw a StateError in any fully generated compose. Declared at the manifest top level: every composed app with comms_sdk gets it.",
+  "_comment_app_type": "manager: the host notification vertical becomes comms_sdk-owned (fork plan S-3, manager migration bucket b, D4 minimal parameterization). The application slice installs to lib/application/notification/ - the EXACT path paas_manager's tracked copies occupy, so the installer's hash guard warn-skips it until the manager repo deletes its host copies (migration stage M2), then compose provides it; notification_state.freezed.dart regenerates via the host's own build_runner pass. The page installs to the comms-owned lib/presentation/pages/notification/ path (no collision with the tracked host copy at pages/restaurant/, so it installs cleanly TODAY) and declares the /list-notification route; the class name keeps NotificationListPage so the route class regenerates identically. The page imports orders_sdk's installed order_details_modal.dart via ${package} (host-composition file - ADR-005-legal cross-SDK composition in host lib/) and orders_sdk's manager OrderData directly, so it only compiles in a manager compose alongside orders_sdk's app_type.manager installs - same contract as merchants_sdk's shell templates. Version bumped 1.0.0 -> 1.1.0 so version-aware cache reconciliation re-extracts composed copies. Follow-up (not here): comms declares the Firebase/FCM boot via the new boot_hooks manifest key once The-Rokct-Protocol#160 lands."
 }

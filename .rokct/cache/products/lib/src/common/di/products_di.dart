@@ -11,10 +11,12 @@ import 'package:products_sdk/src/common/infrastructure/repositories/mock_categor
 import 'package:products_sdk/src/common/infrastructure/repositories/brands_repository.dart';
 import 'package:products_sdk/src/common/infrastructure/repositories/mock_brands_repository.dart';
 import 'package:products_sdk/src/common/infrastructure/repositories/gallery_repository.dart';
+import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:products_sdk/src/common/domain/interface/seller_products.dart';
 import 'package:products_sdk/src/common/domain/interface/seller_catalog.dart';
 import 'package:products_sdk/src/manager/infrastructure/repositories/seller_catalog_repository.dart';
 import 'package:products_sdk/src/manager/infrastructure/repositories/seller_products_repository.dart';
+import 'package:products_sdk/src/manager/infrastructure/services/product_create_sync_handler.dart';
 
 /// Installer-convention DI hook: the composed app's generated `main.dart`
 /// calls `ProductsSdkDependencies.register(GetIt.instance)` for every
@@ -53,5 +55,18 @@ class ProductsSdkDependencies {
         SellerCatalogRepository(),
       );
     }
+    // Attach the product.create push handler so offline product creates
+    // drain to the backend (auth_di's AuthSyncHandler pattern).
+    // BaseSdkDependencies.register puts the engine in get_it before feature
+    // SDKs run; the process-singleton fallback keeps hand-wired hosts that
+    // skipped it working. registerHandler replaces any previous handler, so
+    // this is idempotent too. Requires base_sdk >= 1.5.0
+    // (SyncEngine/SyncHandler).
+    final engine =
+        getIt.isRegistered<SyncEngine>() ? getIt<SyncEngine>() : SyncEngine();
+    engine.registerHandler(
+      ProductCreateSyncHandler.opType,
+      ProductCreateSyncHandler(),
+    );
 }
 }

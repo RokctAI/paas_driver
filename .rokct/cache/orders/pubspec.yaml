@@ -12,6 +12,9 @@ dependencies:
     path: ../base
   auto_route: ^9.2.0
   confetti: ^0.8.0
+  # Direct dep: order_create_sync_handler.dart sends the idempotency-key
+  # header via dio's Options (same version rail as base_sdk).
+  dio: ^5.7.0
   flutter_rating_bar: ^4.0.1
   flutter_remix: ^0.0.3
   flutter_riverpod: ^2.5.1

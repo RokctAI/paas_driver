@@ -16,6 +16,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/domain/interface/user.dart';
 import 'package:base_sdk/src/application/main/main_provider.dart';
 import 'package:auth_sdk/src/common/application/auth/confirmation/register_confirmation_state.dart';
+import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service.dart';
 
 class RegisterConfirmationNotifier
     extends StateNotifier<RegisterConfirmationState> {
@@ -90,6 +91,8 @@ class RegisterConfirmationNotifier
             ref.read(mainProvider.notifier).resetToInitialPage();
             state = state.copyWith(isLoading: false, isSuccess: true);
             _timer?.cancel();
+            // Deferred-OTP accounts are fully verified from here on.
+            await OfflineAuthService().clearPendingOtpVerification();
             LocalStorage.setToken(data.data?.token);
             LocalStorage.setAddressSelected(
               AddressData(
@@ -168,6 +171,8 @@ class RegisterConfirmationNotifier
           ref.read(mainProvider.notifier).resetToInitialPage();
           state = state.copyWith(isLoading: false, isSuccess: true);
           _timer?.cancel();
+          // Deferred-OTP accounts are fully verified from here on.
+          await OfflineAuthService().clearPendingOtpVerification();
         },
         failure: (failure, status) {
           state = state.copyWith(

@@ -23,6 +23,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/sync/sync_engine.dart';
 
 @RoutePage()
 class SplashPage extends ConsumerStatefulWidget {
@@ -106,6 +107,9 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   }
 
   Future<void> _proceedOnline() async {
+    // Boot trigger for the offline outbox: fire-and-forget so queued work
+    // from a previous offline session drains without delaying startup.
+    SyncEngine().kick();
     try {
       // Load translations first
       await ref.read(splashProvider.notifier).getTranslations(context);
