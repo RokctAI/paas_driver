@@ -37,22 +37,24 @@ class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
 // @generated-routes-start
-    MaterialRoute(path: '/', page: SplashRoute.page),
-    MaterialRoute(path: '/no-connection', page: NoConnectionRoute.page),
-    MaterialRoute(path: '/closed', page: ClosedRoute.page),
-    MaterialRoute(path: '/ui-type', page: UiTypeRoute.page),
-    CupertinoRoute(path: '/home', page: HomeRoute.page),
-    CupertinoRoute(path: '/orders', page: OrdersRoute.page),
-    CupertinoRoute(path: '/order-history', page: OrderHistoryRoute.page),
-    CupertinoRoute(path: '/parcels', page: ParcelsRoute.page),
-    CupertinoRoute(path: '/parcel-history', page: ParcelHistoryRoute.page),
-    CupertinoRoute(path: '/profile', page: ProfileRoute.page),
-    CupertinoRoute(path: '/become-driver', page: BecomeDriverRoute.page),
-    CupertinoRoute(path: '/list-notification', page: NotificationListRoute.page),
-    MaterialRoute(path: '/delivery-zone', page: DriverDeliveryZoneRoute.page),
-    MaterialRoute(path: '/income', page: DriverIncomeRoute.page),
-    CupertinoRoute(path: '/story', page: StoryRoute.page),
-    CupertinoRoute(path: '/calc', page: CalculatorRoute.page),
+        MaterialRoute(path: '/', page: SplashRoute.page),
+        MaterialRoute(path: '/no-connection', page: NoConnectionRoute.page),
+        MaterialRoute(path: '/closed', page: ClosedRoute.page),
+        MaterialRoute(path: '/ui-type', page: UiTypeRoute.page),
+        CupertinoRoute(path: '/home', page: HomeRoute.page),
+        CupertinoRoute(path: '/orders', page: OrdersRoute.page),
+        CupertinoRoute(path: '/order-history', page: OrderHistoryRoute.page),
+        CupertinoRoute(path: '/parcels', page: ParcelsRoute.page),
+        CupertinoRoute(path: '/parcel-history', page: ParcelHistoryRoute.page),
+        CupertinoRoute(path: '/profile', page: ProfileRoute.page),
+        CupertinoRoute(path: '/become-driver', page: BecomeDriverRoute.page),
+        CupertinoRoute(
+            path: '/list-notification', page: NotificationListRoute.page),
+        MaterialRoute(
+            path: '/delivery-zone', page: DriverDeliveryZoneRoute.page),
+        MaterialRoute(path: '/income', page: DriverIncomeRoute.page),
+        CupertinoRoute(path: '/story', page: StoryRoute.page),
+        CupertinoRoute(path: '/calc', page: CalculatorRoute.page),
 // @generated-routes-end
         // Host-owned routes, deliberately OUTSIDE the generated markers:
         // update_router_table() rewrites everything between them on every
