@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.8.0",
+      "version": "1.8.1",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -95,7 +95,11 @@
         "assets/svgs/home3.svg": "be4804b6ccf3245e0fcbca4f5c1b3cd54d217024fa59011193c7c3cf5747fbdc",
         "assets/svgs/foodyman.svg": "8d9dd7f7cf44328d4ed2b7364163eb218a17636763d3cb886d9d9e4b6ab48261",
         "lib/presentation/theme/theme.dart": "4fd8344adbba5f9720346b6406d4d06056752d7dec07b2318d2e0180955511a7",
-        "lib/presentation/theme/app_style.dart": "f202085343ef063bdfb3c285c6cda67eaac1e92e5d7fb32297783178eca55c63"
+        "lib/presentation/theme/app_style.dart": "f202085343ef063bdfb3c285c6cda67eaac1e92e5d7fb32297783178eca55c63",
+        "lib/main.dart": "700a313d683391bf87c66206c7c6a6959822246bd1d7f434b9f7e96ca5ae1bb4",
+        "lib/presentation/app_widget.dart": "88fd39c79e8c6b228756184d15f6f2f0d962b57278764032bbce37d9fc3da081",
+        "lib/presentation/routes/app_router.dart": "e08b822163e08ac9e330bd6a0bffc42dbfd149d076449012092ddcdd0d2d2979",
+        "lib/presentation/routes/route_pages.dart": "82dd7f21941054861f2e7b4f6c32fa227510fcc1535d06b1983c8a27aac8b9b7"
       },
       "routes": [
         {
@@ -202,7 +206,16 @@
         "assets/svgs/ticket.svg"
       ],
       "di_hooks": [],
-      "boot_hooks": []
+      "boot_hooks": [
+        {
+          "id": "base-remote-config-boot",
+          "order": 20,
+          "body": "await RemoteConfigService.initialize(appType: 'Driver');",
+          "imports": [
+            "import 'package:base_sdk/src/services/remote_config_service.dart';"
+          ]
+        }
+      ]
     },
     "users_sdk": {
       "version": "1.1.0",
@@ -227,10 +240,49 @@
       "boot_hooks": []
     },
     "delivery_sdk": {
-      "version": "1.3.0",
+      "version": "1.4.0",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "fbd01e72fa569f0eca97e81f0338b299e274aadc68e27737db3495d6c4d2e78f",
-        "lib/presentation/routes/delivery_adapters.dart": "87ce72a960fffd5a6c6a5902030fe4cc2269e9bd40732f054eaa4c19748aa6f4"
+        "lib/presentation/routes/delivery_adapters.dart": "87ce72a960fffd5a6c6a5902030fe4cc2269e9bd40732f054eaa4c19748aa6f4",
+        "lib/presentation/pages/home/parcel_bottom_sheet.dart": "526796a151eecd7df374e4e28b3fbff007346c6560a0f1e31298dcc2f87bc917",
+        "lib/presentation/pages/home/bottom_sheet_screen.dart": "3b728420834f784f9037c7f90821b5a7520803570abe01ece967d20497ac264e",
+        "lib/presentation/pages/home/home_page.dart": "80ff84567c8ff06bce999c89b72fb4b9251bf1d8c0777975d8b7d2b12f7640ad",
+        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "a14e094070121070e884761efe68bc865013983a5af88cdc79b893c6ad5c38b6",
+        "lib/presentation/pages/home/widgets/outside_painter.dart": "c8a6f68a712a42a066567acf1297cacc50aa177e733302c81e5b902a7119976c",
+        "lib/presentation/pages/home/widgets/rate_customer.dart": "66d785e2285b02ca96f95e86e690aae09fda59dddd3a3751a0f3965255e8353e",
+        "lib/presentation/pages/home/widgets/stores.dart": "d9ad3b0ef4471782e615b42c9266f4e0e2a96be86f62e9ff1d12270273d31bd9",
+        "lib/presentation/pages/home/widgets/foods_page.dart": "34b5c3984973b95886cb5675f9568099654a31c0a9100156c6bcce08c9ffbd05",
+        "lib/presentation/pages/home/widgets/approve_dialog.dart": "423bfbb6b996a28fe129fe57d5b5b23e790875c0955a4cb97463a5c5c3a79b70",
+        "lib/presentation/pages/home/widgets/add_comment.dart": "2507416d34073874b1237881c0c0a20df9d84b662efe498656346832665575a7",
+        "lib/presentation/pages/orders/orders_page.dart": "257e166b52f9af9be24fc30b269f6a2c39d3fef61c3e96c9398fc5530a7affe8",
+        "lib/presentation/pages/order_history/order_history.dart": "a1eff4731d249ff250f0dedfcc6d005a2bd5cbdca89525c63ddddf7000378e4a",
+        "lib/presentation/pages/parcel/parcel_item.dart": "6bd533464292d2553b99ab7322977870b7c91e385e21726995d37d5dd420b866",
+        "lib/presentation/pages/parcel/parcel_order.dart": "2ce659a36a8c11b28f5cc9137f5c3241902b242baa6f035400b011aa975cf7d8",
+        "lib/presentation/pages/parcel/parcels_page.dart": "70cc364b826bdf676c93dad696c66a8c1d46db8cc654f29682fb861198f7d5df",
+        "lib/presentation/pages/parcels_history/parcel_history.dart": "c3a428a1100d07b68a9829ba74400280b66c1437d00b67566633e4ab242b09ef",
+        "lib/presentation/pages/push_order/push_order_screen.dart": "9ab82dac4d6317c260afad46bc37d6c5e74635a2f9135c084982019415d81268",
+        "lib/presentation/pages/profile/profile_page.dart": "3e2782a89cde7d987a9650e7deec47479370fd32eafa22b5211709a75fa9bb78",
+        "lib/presentation/pages/profile/edit_car.dart": "475578363dd13c19f6ea5bf384c3a96be2c2f62ae7497d240182e32380ced9f4",
+        "lib/presentation/pages/profile/widgets/cancel_dialog.dart": "76d98dc24b68acfe25d70f0e8f413787d28dfa28e7922759fdfac920f0bd22c3",
+        "lib/presentation/pages/profile/widgets/edit_profile_modal.dart": "6b5b817530d8ad9bd63833fa568c2c8d77f596acbe3ca0a32cf9e1fa3358a828",
+        "lib/presentation/pages/profile/widgets/logout_modal.dart": "2deba1cb0f4cc0d5f42afe9c16725a4857b5408b70b3f69f890c039c59c5a331",
+        "lib/presentation/pages/profile/widgets/sections_item.dart": "6b74a5504bc428b98e28b5800a4941d5c6e59c2581ecfe0d14766978957cda45",
+        "lib/presentation/pages/auth/become_driver/become_driver.dart": "f4950a9f4931d53106dcbca715b14ffac13288350934a9d3aea218f9c840edcf",
+        "lib/presentation/component/driver_avatar.dart": "b4977efa89acc5fb7ec0fe1bd760652f9bd1cf5532d2d476a7d9c9083a6daec1",
+        "lib/presentation/component/image_dialog.dart": "43f628000cbb43f7cb6cc035f35ee22e7eae048ffe174e97e61613eecf15897a",
+        "lib/presentation/component/order_detail.dart": "af50137ed19bd19c75e8360cdd4cb32a695d53e017b4d339eb49e36dbd782dd8",
+        "lib/presentation/component/order_item.dart": "48cfad3542f8eb463e7231e389c4810726fc4986bac35e5e9ac083345db47637",
+        "lib/presentation/component/orders_item.dart": "cb252b1b83496e951719cec3c4944b9160750e115367bed6402c2c5e7891878d",
+        "lib/presentation/component/maps_list.dart": "f8b3fb0cd93f4edde705fe7f7af50532ea4fe03808e3208995df876d61f94a22",
+        "lib/presentation/component/product_item.dart": "27bab6ce7553aba13d32c7c811a79919cec1d203863ca318e82c16291c406aa4",
+        "lib/presentation/component/restaurant_item.dart": "3007d73e01c8f8ce318c8edcf5faf81385d35cabed03edbf7710c63bcd564229",
+        "lib/presentation/component/custom_toggle.dart": "7ebd81a4e3a8ffee8c74516d661943dacba68f5228b3efc84727f5fdb538efc0",
+        "lib/presentation/component/custom_date_picker.dart": "19fd87dc2e26d85bf67cadf70e2ffe6aba4aaa4df1cbf28bc43b0cec88dc821f",
+        "lib/presentation/component/filter_screen.dart": "44612f07a3edf0dc8a7825ffca3374fda154c2d461865ba18cd4aae7f1b91deb",
+        "lib/presentation/component/shop_avarat.dart": "60141c8a1a8fdccbf93735c75669f31d2a8a65024b0c0523f7ced53b769fc85a",
+        "lib/presentation/component/buttons/buttons_bouncing_effect.dart": "61270975e528f1c8eac18075d6e145f8a3ed731326648845618f215a35ab0d41",
+        "lib/presentation/component/helper/keyboard_disable.dart": "caed01983ea159fed7873205c3efc3619efc96168ad23233a2ccea8f0f89019e",
+        "lib/presentation/component/text_fields/underline_bordered_text_field.dart": "6c75149021193ca9b2250c88b8809a61f799e7115dc917dba1c5cce1697cd1f5"
       },
       "routes": [
         {
@@ -284,6 +336,14 @@
           "imports": [
             "import 'package:${package}/presentation/routes/app_router.dart';"
           ]
+        },
+        {
+          "method": "replaceMainRoute",
+          "body": "context.router.replace(HomeRoute());",
+          "imports": [
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ],
+          "_comment": "base_sdk's logged-in splash path (AppHelpers.goHome) calls AppRoutes.I.replaceMainRoute; nothing else in a driver compose declares it, so without this entry a logged-in cold start throws via _HostAppRoutes.noSuchMethod. The driver 'main' is the courier home map (/home, HomeRoute) - same pattern as launch_sdk's LauncherHomeRoute declaration."
         }
       ],
       "onboarding_slides": [],
@@ -309,7 +369,25 @@
         "assets/svg/balance.svg"
       ],
       "di_hooks": [],
-      "boot_hooks": [],
+      "boot_hooks": [
+        {
+          "id": "delivery-driver-splash-preserve",
+          "order": 1,
+          "body": "FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized());",
+          "imports": [
+            "import 'package:flutter_native_splash/flutter_native_splash.dart';"
+          ]
+        },
+        {
+          "id": "delivery-driver-courier-location-workmanager",
+          "order": 5,
+          "body": "await Workmanager().initialize(callbackDispatcher);",
+          "imports": [
+            "import 'package:workmanager/workmanager.dart';",
+            "import 'package:delivery_sdk/src/driver/infrastructure/services/courier_location_service.dart';"
+          ]
+        }
+      ],
       "session_policy": {
         "allowed_roles": [
           {
@@ -364,7 +442,12 @@
     },
     "comms_sdk": {
       "version": "1.3.0",
-      "files": {},
+      "files": {
+        "lib/application/notification/notification_state.dart": "ec4e92ba80840dbbd3bb0270a9d0f5617152178276166b81cf7cbb65940b28db",
+        "lib/application/notification/notification_notifier.dart": "8a6fe7716778f1144dd982eaa179c72ca42dbc5f57cfa1680479f8b8fb6b007b",
+        "lib/application/notification/notification_provider.dart": "ecec7f51867a72bb5780c1ba4e0121f7dd9ed2782164862890cbfa5a020ec12e",
+        "lib/presentation/pages/profile/notification_list_page.dart": "1c09245fcb568282685216ed1c83d0ec002d722c31198bbd39bf41208ea974fa"
+      },
       "routes": [
         {
           "path": "/list-notification",
@@ -449,8 +532,11 @@
       "boot_hooks": []
     },
     "zones_sdk": {
-      "version": "1.2.0",
-      "files": {},
+      "version": "1.3.0",
+      "files": {
+        "lib/presentation/pages/profile/delivery_zone/delivery_zone_page.dart": "942c22125618e6cc8f99df5e8440f41bb98ca8ba437f78ff463f711dfb1fe040",
+        "lib/presentation/routes/zones_adapters.dart": "16b56ed8e20309d5a525e93b664da08fb39a73d6f218ee6239757be700e91d13"
+      },
       "routes": [
         {
           "path": "/delivery-zone",
@@ -464,12 +550,27 @@
       "onboarding_slides": [],
       "embedded_widgets": [],
       "registration_steps": [],
-      "di_hooks": [],
+      "di_hooks": [
+        {
+          "id": "zones-driver-delivery-zones-facade",
+          "order": 30,
+          "body": "if (!GetIt.instance.isRegistered<DeliveryZonesFacade>()) {\n  GetIt.instance.registerLazySingleton<DeliveryZonesFacade>(() => DriverDeliveryZonesAdapter());\n}\nif (!GetIt.instance.isRegistered<ZoneEditPolicy>()) {\n  GetIt.instance.registerLazySingleton<ZoneEditPolicy>(() => DriverZoneEditPolicy());\n}",
+          "imports": [
+            "import 'package:${package}/presentation/routes/zones_adapters.dart';"
+          ]
+        }
+      ],
       "boot_hooks": []
     },
     "revenue_sdk": {
-      "version": "1.2.0",
-      "files": {},
+      "version": "1.3.0",
+      "files": {
+        "lib/presentation/pages/income/statistics_screen.dart": "65bdae28ed442f130e3df12281b9ebae7dc1580756d07240ac4ab4c07dbe6d21",
+        "lib/presentation/pages/income/income_page.dart": "dc15bf52b33882098a7935b588e6de680937d00b01e203acb5f54292f531a015",
+        "lib/presentation/pages/income/app_bar_screen.dart": "abf6b09671dc137cad8a35f4d8feff04ddaaa33c106a35a39ea836776253e58e",
+        "lib/presentation/pages/income/widgets/statistics_item.dart": "b0d6f4aa33eb8d022b6f2ad2fd520378f85c669abee97f7b0d0bb80492901993",
+        "lib/presentation/pages/income/widgets/income_item.dart": "50278e8cec10edde7523ea66cf06f0596799cf113d074ffd837610d716f4ac47"
+      },
       "routes": [
         {
           "path": "/income",
@@ -482,7 +583,16 @@
       "onboarding_slides": [],
       "embedded_widgets": [],
       "registration_steps": [],
-      "di_hooks": [],
+      "di_hooks": [
+        {
+          "id": "revenue-driver-role-di",
+          "order": 12,
+          "body": "DriverRevenueDependencies.register(GetIt.instance);",
+          "imports": [
+            "import 'package:revenue_sdk/src/driver/di/driver_revenue_di.dart';"
+          ]
+        }
+      ],
       "boot_hooks": [],
       "tr_keys": {
         "deliverymanTransactions": "deliveryman_transactions",
@@ -492,7 +602,8 @@
     "merchants_sdk": {
       "version": "1.9.0",
       "files": {
-        "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d"
+        "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
+        "lib/presentation/pages/stores/story_page.dart": "9fdb3077a054b3eb16fe29059fd9379aa3e5efce1a5ce5d366da9b8361d0bd2f"
       },
       "routes": [
         {
@@ -552,12 +663,91 @@
       "embedded_widgets": [],
       "di_hooks": [],
       "boot_hooks": []
+    },
+    "auth_sdk": {
+      "version": "1.4.0",
+      "files": {
+        "lib/presentation/routes/auth_route_pages.dart": "d653ecfbd5affa02fc93ec9d8d5aa04916c6a83d59e9e00ab8b7befcf88de62d",
+        "lib/presentation/routes/registration_step_pages.dart": "6173d2dcda9d444e4e7ece9b5b15e73f72dbaf833bac04be38f7708186ac3a62",
+        "lib/presentation/routes/auth_session_policy.dart": "8369d222afb939d90d1e9341757d2bef2da19b088060cbf01eabce6d2493f612"
+      },
+      "routes": [
+        {
+          "path": "/login",
+          "page": "LoginRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/auth_route_pages.dart"
+        },
+        {
+          "path": "/register",
+          "page": "RegisterRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/auth_route_pages.dart"
+        },
+        {
+          "path": "/register-confirmation",
+          "page": "RegisterConfirmationRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/auth_route_pages.dart"
+        },
+        {
+          "path": "/reset-password",
+          "page": "ResetPasswordRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/auth_route_pages.dart"
+        },
+        {
+          "path": "/registration-steps",
+          "page": "RegistrationStepsRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/registration_step_pages.dart"
+        }
+      ],
+      "app_routes": [
+        {
+          "method": "replaceLoginRoute",
+          "body": "context.router.replace(LoginRoute());",
+          "imports": [
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        },
+        {
+          "method": "replaceUiTypeRoute",
+          "body": "context.router.replace(UiTypeRoute());",
+          "imports": [
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        }
+      ],
+      "onboarding_slides": [],
+      "registration_steps": [],
+      "embedded_widgets": [],
+      "di_hooks": [],
+      "boot_hooks": [
+        {
+          "id": "auth_pending_otp_gate",
+          "order": 0,
+          "body": "PendingOtpGate.install();"
+        }
+      ],
+      "database": {
+        "tables": [
+          {
+            "class": "OfflineUsersTable",
+            "import": "package:auth_sdk/src/common/infrastructure/database/offline_user_table.dart"
+          }
+        ],
+        "migration": {
+          "version": 16,
+          "step": "if (from < 16) { await m.createTable(offlineUsersTable); }"
+        }
+      }
     }
   },
   "sdk_cache": {
     "base": {
-      "version": "1.8.0",
-      "hash": "3f9060776d326a50"
+      "version": "1.8.1",
+      "hash": "378c1c508a749b26"
     },
     "comms": {
       "version": "1.3.0",
@@ -584,16 +774,16 @@
       "hash": "1bd3e8381498f9a7"
     },
     "delivery": {
-      "version": "1.3.0",
-      "hash": "7450c52fcbc24411"
+      "version": "1.4.0",
+      "hash": "a934809a647a7446"
     },
     "map": {
       "version": "1.1.0",
       "hash": "af7d107ee32d5922"
     },
     "zones": {
-      "version": "1.2.0",
-      "hash": "89da416aea6f93eb"
+      "version": "1.3.0",
+      "hash": "501584e88bb794c7"
     },
     "processing": {
       "version": "1.0.0",
@@ -608,8 +798,8 @@
       "hash": "22dc201f9e9f9023"
     },
     "revenue": {
-      "version": "1.2.0",
-      "hash": "0842c2e58c8d8c19"
+      "version": "1.3.0",
+      "hash": "8596667a441cfe69"
     }
   }
 }
