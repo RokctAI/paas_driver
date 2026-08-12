@@ -1,33 +1,51 @@
-// Shrunken in migration stage M2 to the slice the surviving host code still
-// calls:
+// Shrunken to the single seam that still needs a host-owned repository
+// (migration stage M3): zones_sdk's installed driver adapter
+// (lib/presentation/routes/zones_adapters.dart) resolves the courier's
+// delivery-zone polygon through `di.userRepository` - see
+// domain/di/dependency_manager.dart for the exit plan.
 //
-//  - getProfileDetails / updateDeliveryZones: resolved by zones_sdk's
-//    installed driver adapter (lib/presentation/routes/zones_adapters.dart)
-//    via `di.userRepository` - the ADR-005 seam that outlives M3 (exit plan
-//    in domain/di/dependency_manager.dart);
-//  - updateFirebaseToken: the host login/sign-up notifiers save the FCM
-//    token post-auth (dies with the auth flip, M3);
-//  - getRequestModel / deleteAccount: the profile-settings notifier the
-//    host register funnel still uses (dies with M3).
+// The auth-flip stage deleted the rest of the M2 surface with its callers:
+// updateFirebaseToken (host login/sign-up notifiers) and
+// getRequestModel/deleteAccount (host profile-settings notifier) died with
+// the host auth vertical; auth_sdk and delivery_sdk own those flows now.
 //
-// Everything else (driver details, vehicles, car info, online toggle,
-// location report, profile edit) moved to delivery_sdk's src/driver
-// repositories with the courier vertical. The statistics slice moved to
-// revenue_sdk's CourierStatisticsRepositoryFacade earlier (corporate main).
+// ProfileZoneResponse below replaces the deleted host ProfileResponse/
+// UserData pair with just the slice the adapter reads
+// (`data?.deliveryZone`); the adapter binds to this repository's declared
+// return type through inference, so no shared model import is needed.
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
 
-import '../../infrastructure/models/response/profile_response.dart';
-import '../../infrastructure/models/response/request_model_response.dart';
+/// The delivery-zone slice of the courier's profile record.
+class ProfileZoneResponse {
+  ProfileZoneResponse({this.data});
+
+  ProfileZoneResponse.fromJson(dynamic json)
+      : data = json?['data'] != null
+            ? ProfileZoneData.fromJson(json['data'])
+            : null;
+
+  final ProfileZoneData? data;
+}
+
+class ProfileZoneData {
+  ProfileZoneData({this.deliveryZone});
+
+  /// Parsed exactly as the deleted host UserData did: the polygon is stored
+  /// on the courier's profile as `delivery_man_delivery_zone`, a list of
+  /// [lat, lng] pairs; null means "no zone drawn yet".
+  ProfileZoneData.fromJson(dynamic json)
+      : deliveryZone = json?['delivery_man_delivery_zone'] == null
+            ? const <List<double>>[]
+            : List<List<double>>.from(json['delivery_man_delivery_zone']!.map(
+                (x) => List<double>.from(x.map((y) => (y as num?)?.toDouble())),
+              ));
+
+  final List<List<double>>? deliveryZone;
+}
 
 abstract class UserRepository {
-  Future<ApiResult<ProfileResponse>> getProfileDetails();
-
-  Future<ApiResult<RequestModelResponse>> getRequestModel();
-
-  Future<ApiResult<dynamic>> deleteAccount();
-
-  Future<ApiResult<void>> updateFirebaseToken(String? token);
+  Future<ApiResult<ProfileZoneResponse>> getProfileDetails();
 
   Future<ApiResult<void>> updateDeliveryZones({
     required List<LatLng> points,

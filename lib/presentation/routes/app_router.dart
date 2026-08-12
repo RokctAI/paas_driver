@@ -8,11 +8,6 @@
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-// The one host page still routed by hand (its @RoutePage generates
-// LoginRoute). The .gr.dart part shares this library's imports, so every
-// @RoutePage class routed here must be visible; the SDK-installed pages'
-// imports are (re)written into the generated block on every compose.
-import 'package:driver/presentation/pages/auth/login/login_page.dart';
 // @generated-imports-start
 import 'package:driver/presentation/pages/auth/become_driver/become_driver.dart';
 import 'package:driver/presentation/pages/calc/calculator_page.dart';
@@ -26,6 +21,8 @@ import 'package:driver/presentation/pages/profile/delivery_zone/delivery_zone_pa
 import 'package:driver/presentation/pages/profile/notification_list_page.dart';
 import 'package:driver/presentation/pages/profile/profile_page.dart';
 import 'package:driver/presentation/pages/stores/story_page.dart';
+import 'package:driver/presentation/routes/auth_route_pages.dart';
+import 'package:driver/presentation/routes/registration_step_pages.dart';
 import 'package:driver/presentation/routes/route_pages.dart';
 // @generated-imports-end
 
@@ -52,26 +49,22 @@ class AppRouter extends RootStackRouter {
     MaterialRoute(path: '/income', page: DriverIncomeRoute.page),
     CupertinoRoute(path: '/story', page: StoryRoute.page),
     CupertinoRoute(path: '/calc', page: CalculatorRoute.page),
+    MaterialRoute(path: '/login', page: LoginRoute.page),
+    MaterialRoute(path: '/register', page: RegisterRoute.page),
+    MaterialRoute(path: '/register-confirmation', page: RegisterConfirmationRoute.page),
+    MaterialRoute(path: '/reset-password', page: ResetPasswordRoute.page),
+    MaterialRoute(path: '/registration-steps', page: RegistrationStepsRoute.page),
 // @generated-routes-end
-        // The single remaining host-owned route, deliberately OUTSIDE the
-        // generated markers: update_router_table() rewrites everything
-        // between them on every compose. The nine courier/story/notification
-        // routes that used to sit here moved into their owning SDKs'
-        // manifests in migration stage M2 (delivery_sdk: /home /orders
-        // /order-history /parcels /parcel-history /profile /become-driver;
-        // comms_sdk: /list-notification; merchants_sdk: /story) - the
-        // recompose regenerates them inside the markers above.
-        //
-        // /login stays host-owned until the auth flip (M3): this app still
-        // owns its login page, whose @RoutePage already generates LoginRoute
-        // - auth_sdk's auth_route_pages.dart shells would duplicate the
-        // name. auth_sdk is composed with its installer skipped
-        // ("skip_install" in composer.json), so recomposing keeps its
-        // /login../reset-password routes out of the generated block durably.
-        // The flip lifts skip_install (paired protocol PR), deletes the host
-        // auth vertical, and drops this line - delivery_sdk's session_policy
-        // (deliveryman -> /home, "*" -> /become-driver) then takes over the
-        // role gate that login_notifier.dart implements today.
-        CupertinoRoute(path: '/login', page: LoginRoute.page),
+        // No host-owned routes remain (migration M3): the auth flip lifted
+        // auth_sdk's skip_install, so /login, /register,
+        // /register-confirmation, /reset-password and /registration-steps
+        // now come from auth_sdk's manifest via update_router_table(),
+        // exactly like the courier/story/notification routes that moved
+        // into their owning SDKs' manifests in M2. The host login page that
+        // used to generate LoginRoute here was deleted in the same commit,
+        // so there is no duplicate-route collision. delivery_sdk's
+        // session_policy (deliveryman -> /home, "*" -> /become-driver
+        // keeping the session) took over the role gate the deleted
+        // login_notifier.dart implemented.
       ];
 }
