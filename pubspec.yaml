@@ -255,4 +255,9 @@ dependency_overrides:
   freezed_annotation: ^2.4.4
   google_fonts: ^6.3.0
   http: ^1.2.0
+  # drift must stay on a release whose sqlite3 constraint admits the pinned
+  # sqlite3 2.9.4 below (2.34.x moved to sqlite3 ^3.x and fails to compile
+  # against it). Mirrors paas_manager's and supacharge's arbitration of the
+  # same conflict.
+  drift: 2.31.0
   sqlite3: 2.9.4
