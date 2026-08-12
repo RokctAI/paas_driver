@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:revenue_sdk/revenue_sdk.dart';
 
-import '../../../../infrastructure/models/models.dart';
+import 'package:driver/infrastructure/models/models.dart';
 
 part 'profile_settings_state.freezed.dart';
 
