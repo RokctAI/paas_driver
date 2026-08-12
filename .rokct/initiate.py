@@ -5,52 +5,103 @@ import hashlib
 import json
 import subprocess
 import sys
+import time
 import urllib.request
+import urllib.error
+import http.client
 import io
 import zipfile
 
-GITHUB_ZIP_BASE = "https://github.com/RokctAI/The-Rokct-Protocol/archive/refs/heads/main.zip"
+# Pinned by tools/gen_protocol_lock.py - do not edit these constants by hand.
+# Every fetch below is pinned to this commit, so what this script downloads is
+# immutable; the executable targets are additionally SHA-256 verified against
+# EXPECTED_SHA256 before they are written anywhere.
+PROTOCOL_REF = "ab78bedfc5ca981d0170310dc88c3a328134eb58"
+EXPECTED_SHA256 = {
+    "profiles/web/initiate.py": "b250ef008c42c97fcf90cf367af4bbed00937529159e1505189266004e46756c",
+    "workflows/maintenance.yml": "3826ea73fee8b939c0798ae65173fb0ff6dd188758e4564b51373019bc7a7716",
+}
+GITHUB_ZIP_BASE = f"https://github.com/RokctAI/The-Rokct-Protocol/archive/{PROTOCOL_REF}.zip"
 PROTOCOL_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) if "profiles" in os.path.abspath(__file__) else os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.getcwd()
 ROKCT_DIR = os.path.join(PROJECT_ROOT, ".rokct")
-REMOTE_PREFIX = "The-Rokct-Protocol-main"
+REMOTE_PREFIX = f"The-Rokct-Protocol-{PROTOCOL_REF}"
 
-GITHUB_RAW_BASE = "https://raw.githubusercontent.com/RokctAI/The-Rokct-Protocol/main"
+GITHUB_RAW_BASE = f"https://raw.githubusercontent.com/RokctAI/The-Rokct-Protocol/{PROTOCOL_REF}"
 
-def check_self_update():
+def check_for_update():
+    """Data-only update check. The old self-update fetched initiate.py from
+    the mutable main branch and execv'd it - executing unpinned future code,
+    which the PROTOCOL_REF pinning exists to prevent. Now we only fetch the
+    lockfile from main AS DATA, compare its pinned ref to ours, and tell the
+    user to re-run the installer. Nothing fetched here is ever executed."""
     if os.environ.get("CI"):
-        # CI must run the committed copy deterministically. Self-updating
-        # would re-exec whatever is on the protocol repo's main branch,
-        # discarding local fixes mid-run.
+        # CI must run the committed copy deterministically.
         return
-    dest_initiate = os.path.join(ROKCT_DIR, "initiate.py")
-    if os.path.exists(dest_initiate) and os.path.abspath(__file__) == os.path.abspath(dest_initiate):
-        url = f"{GITHUB_RAW_BASE}/profiles/web/initiate.py"
-        try:
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "X-Trace-Id": "initiate-bootstrap"})
-            with urllib.request.urlopen(req, timeout=10) as r:
-                remote_data = r.read()
-            remote_hash = hashlib.sha256(remote_data).hexdigest()[:16]
-            if remote_hash != file_hash(dest_initiate):
-                print("[init] GitHub has a newer initiate.py. Self-updating...")
-                with open(dest_initiate, "wb") as f:
-                    f.write(remote_data)
-                print("[init] Reloading initiate.py...")
-                os.execv(sys.executable, [sys.executable] + sys.argv)
-        except Exception as e:
-            print(f"[init] Self-update check failed: {e}", file=sys.stderr)
-
-def fetch_file_from_github(rel_path, dest_path):
-    url = f"https://raw.githubusercontent.com/RokctAI/The-Rokct-Protocol/main/{rel_path.replace(os.sep, '/')}"
-    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    url = "https://raw.githubusercontent.com/RokctAI/The-Rokct-Protocol/main/protocol.lock.json"
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "X-Trace-Id": "initiate-bootstrap"})
         with urllib.request.urlopen(req, timeout=10) as r:
-            with open(dest_path, "wb") as f:
-                f.write(r.read())
-        print(f"[init] Fetched {rel_path}")
+            latest_ref = json.loads(r.read().decode()).get("ref", "")
+        if latest_ref and latest_ref != PROTOCOL_REF:
+            print("[init] A newer protocol version is available - re-run the installer to update.")
     except Exception as e:
-        print(f"[init] Failed to fetch {rel_path}: {e}", file=sys.stderr)
+        print(f"[init] Update check failed: {e}", file=sys.stderr)
+
+def verify_pinned(rel_posix, data):
+    """SHA-256 check for the executable fetch targets, before any write."""
+    expected = EXPECTED_SHA256.get(rel_posix)
+    if expected is None:
+        return
+    digest = hashlib.sha256(data).hexdigest()
+    if digest != expected:
+        print(f"[init] Integrity check failed for {rel_posix} (ref {PROTOCOL_REF}):", file=sys.stderr)
+        print(f"[init]   expected sha256 {expected}", file=sys.stderr)
+        print(f"[init]   actual   sha256 {digest}", file=sys.stderr)
+        print("[init] Refusing to install unverified code.", file=sys.stderr)
+        sys.exit(1)
+
+# Bounded retry for transient network failures (connection resets, timeouts,
+# 429/5xx): 4 attempts with 2s/4s/8s backoff. Definitive HTTP errors such as
+# 404 or 401/403 still fail fast - retrying cannot fix those.
+FETCH_ATTEMPTS = 4
+TRANSIENT_HTTP_CODES = (429, 500, 502, 503, 504)
+
+def fetch_url(url):
+    """GET url, retrying transient errors; raises the last error when out of
+    attempts (with e.fetch_attempts set so callers can report the count)."""
+    for attempt in range(1, FETCH_ATTEMPTS + 1):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "X-Trace-Id": "initiate-bootstrap"})
+            with urllib.request.urlopen(req, timeout=10) as r:
+                return r.read()
+        except urllib.error.HTTPError as e:
+            if e.code not in TRANSIENT_HTTP_CODES or attempt == FETCH_ATTEMPTS:
+                e.fetch_attempts = attempt
+                raise
+            err = e
+        except (urllib.error.URLError, http.client.HTTPException, ConnectionError, TimeoutError) as e:
+            if attempt == FETCH_ATTEMPTS:
+                e.fetch_attempts = attempt
+                raise
+            err = e
+        delay = 2 ** attempt
+        print(f"[init] Transient error fetching {url} (attempt {attempt}/{FETCH_ATTEMPTS}): {err} - retrying in {delay}s", file=sys.stderr)
+        time.sleep(delay)
+
+def fetch_file_from_github(rel_path, dest_path):
+    rel_posix = rel_path.replace(os.sep, "/")
+    url = f"{GITHUB_RAW_BASE}/{rel_posix}"
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    try:
+        data = fetch_url(url)
+    except Exception as e:
+        print(f"[init] Failed to fetch {rel_path} after {getattr(e, 'fetch_attempts', 1)} attempt(s): {e}", file=sys.stderr)
+        return
+    verify_pinned(rel_posix, data)
+    with open(dest_path, "wb") as f:
+        f.write(data)
+    print(f"[init] Fetched {rel_path}")
 
 def load_local_manifest():
     manifest_path = os.path.join(PROTOCOL_DIR, "profiles", "local", "manifest.json")
@@ -65,9 +116,7 @@ def load_core_manifest():
         with open(manifest_path, "r", encoding="utf-8") as f:
             return json.load(f)
     try:
-        req = urllib.request.Request(f"https://raw.githubusercontent.com/RokctAI/The-Rokct-Protocol/main/core/templates/manifest.json", headers={"User-Agent": "Mozilla/5.0", "X-Trace-Id": "initiate-bootstrap"})
-        with urllib.request.urlopen(req, timeout=10) as r:
-            return json.loads(r.read().decode())
+        return json.loads(fetch_url(f"{GITHUB_RAW_BASE}/core/templates/manifest.json").decode())
     except Exception:
         return {}
 
@@ -140,12 +189,15 @@ def copy_dir(src, dst):
     print(f"[init] Synced directory {src} -> {dst}")
 
 def fetch_dir_from_github(rel_src, dst):
-    prefix = f"The-Rokct-Protocol-main/{rel_src}/"
+    # Zip entries always use forward slashes; on Windows callers pass
+    # os.sep-separated paths (e.g. copy_dir strips PROTOCOL_DIR + os.sep,
+    # leaving "core\\skills"), which would match no entries and silently
+    # fetch 0 files.
+    rel_src = rel_src.replace(os.sep, "/")
+    prefix = f"{REMOTE_PREFIX}/{rel_src}/"
     try:
         print(f"[init] Fetching directory from GitHub: {rel_src}")
-        req = urllib.request.Request(GITHUB_ZIP_BASE, headers={"User-Agent": "Mozilla/5.0", "X-Trace-Id": "initiate-bootstrap"})
-        with urllib.request.urlopen(req, timeout=10) as r:
-            z = zipfile.ZipFile(io.BytesIO(r.read()))
+        z = zipfile.ZipFile(io.BytesIO(fetch_url(GITHUB_ZIP_BASE)))
         os.makedirs(dst, exist_ok=True)
         count = 0
         for name in z.namelist():
@@ -153,14 +205,16 @@ def fetch_dir_from_github(rel_src, dst):
                 rel = name[len(prefix):]
                 if rel_src == "workflows" and (rel in ("sync_workspace.py", "sync_workspace.yml", "maintenance.yml") or rel.startswith(".rok/")):
                     continue
+                data = z.read(name)
+                verify_pinned(f"{rel_src}/{rel}", data)
                 dest = os.path.join(dst, rel)
                 os.makedirs(os.path.dirname(dest), exist_ok=True)
                 with open(dest, "wb") as f:
-                    f.write(z.read(name))
+                    f.write(data)
                 count += 1
         print(f"[init] Fetched {count} files from {rel_src}")
     except Exception as e:
-        print(f"[init] Failed to fetch directory {rel_src}: {e}", file=sys.stderr)
+        print(f"[init] Failed to fetch directory {rel_src} after {getattr(e, 'fetch_attempts', 1)} attempt(s): {e}", file=sys.stderr)
 
 def detect_repo_owner():
     try:
@@ -172,7 +226,7 @@ def detect_repo_owner():
     return None
 
 def main():
-    check_self_update()
+    check_for_update()
     global manifest
     manifest = load_core_manifest()
     os.makedirs(ROKCT_DIR, exist_ok=True)
@@ -182,6 +236,11 @@ def main():
         dest_fname = os.path.join(ROKCT_DIR, fname)
         if not os.path.exists(dest_fname):
             copy_versioned(os.path.join("core", "templates", fname), dest_fname, manifest)
+
+    # Markdownlint config for the agent-maintained .rokct/ docs. markdownlint-cli2
+    # applies per-directory config to everything beneath .rokct/, keeping consumer
+    # repos green under the org-standard rule set without touching their root config.
+    copy_versioned(os.path.join("core", "templates", ".markdownlint.json"), os.path.join(ROKCT_DIR, ".markdownlint.json"), manifest)
 
     copy_versioned(".cursorrules", os.path.join(PROJECT_ROOT, ".cursorrules"), manifest)
 
