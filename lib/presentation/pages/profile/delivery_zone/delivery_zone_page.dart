@@ -72,15 +72,15 @@ class _DeliveryZonePageState extends ConsumerState<DriverDeliveryZonePage> {
                           state.polygon.isNotEmpty
                               ? state.polygon.first.points.first.latitude
                               : LocalStorage.getAddressSelected()
-                                        ?.location
-                                        ?.latitude ??
-                                    AppConstants.demoLatitude,
+                                      ?.location
+                                      ?.latitude ??
+                                  AppConstants.demoLatitude,
                           state.polygon.isNotEmpty
                               ? state.polygon.first.points.first.longitude
                               : LocalStorage.getAddressSelected()
-                                        ?.location
-                                        ?.longitude ??
-                                    AppConstants.demoLongitude,
+                                      ?.location
+                                      ?.longitude ??
+                                  AppConstants.demoLongitude,
                         ),
                         tilt: 0,
                         zoom: 11,
