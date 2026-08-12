@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/models.dart';
-import 'package:${package}/presentation/component/helper/common_image.dart';
+import 'package:base_sdk/src/presentation/components/helper/common_image.dart';
 import 'package:${package}/presentation/pages/main/widgets/buttons_bouncing_effect.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';

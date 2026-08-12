@@ -1,6 +1,6 @@
 {
   "name": "zones_sdk",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "installs": [],
   "routes": [],
   "integrations": [],
@@ -45,7 +45,18 @@
           "_comment": "CupertinoRoute matches the legacy paas_manager app_router entry for this page (driver's flavour of the same path is a MaterialRoute). Declaring this block also keeps lib/src/manager/ alive through the composer's role-stripping.",
           "import": "package:${package}/presentation/pages/merchant/delivery_zone/delivery_zone_page.dart"
         }
-      ]
+      ],
+      "di_hooks": [
+        {
+          "id": "zones-manager-delivery-zones-facade",
+          "order": 30,
+          "body": "if (!GetIt.instance.isRegistered<DeliveryZonesFacade>()) {\n  GetIt.instance.registerLazySingleton<DeliveryZonesFacade>(() => ManagerDeliveryZonesAdapter());\n}",
+          "imports": [
+            "import 'package:${package}/presentation/routes/zones_adapters.dart';"
+          ]
+        }
+      ],
+      "_comment_di_hooks": "The DeliveryZonesFacade wiring moved out of paas_manager's tracked main.dart into the #160 di_hooks mechanism (manager migration M5, scratchpad/di-hooks-declarations.md). DeliveryZonesFacade itself needs no import entry - the zones_sdk barrel arrives via the generated sdk-imports block. isRegistered-guarded so a host whose tracked main.dart still registers the adapter by hand double-boots safely during its own migration window. The adapter is now a thin shim over zones_sdk's own ManagerDeliveryZonesRepository (the former host users-repository delivery-zone slice), so no host-owned repository remains."
     }
   }
 }

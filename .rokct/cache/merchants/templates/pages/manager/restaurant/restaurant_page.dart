@@ -351,6 +351,13 @@ class _RestaurantPageState extends ConsumerState<RestaurantPage> {
           icon: FlutterRemix.notification_2_line,
           onTap: () => context.pushRoute(const NotificationListRoute()),
         ),
+        // Park-and-surface: records whose offline push the backend rejected,
+        // with per-record retry/discard (merchants_sdk's own installed page).
+        SectionsItem(
+          title: AppHelpers.getTranslation(TrKeys.syncIssues),
+          icon: FlutterRemix.refresh_line,
+          onTap: () => context.pushRoute(const ManagerSyncIssuesRoute()),
+        ),
         if (!AppConstants.isDemo)
           SectionsItem(
             title: AppHelpers.getTranslation(TrKeys.deleteAccount),

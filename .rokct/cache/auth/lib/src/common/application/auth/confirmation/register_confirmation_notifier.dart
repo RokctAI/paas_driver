@@ -16,6 +16,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/domain/interface/user.dart';
 import 'package:base_sdk/src/application/main/main_provider.dart';
 import 'package:auth_sdk/src/common/application/auth/confirmation/register_confirmation_state.dart';
+import 'package:auth_sdk/src/common/domain/interface/deferred_otp_email_resend.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service.dart';
 
 class RegisterConfirmationNotifier
@@ -37,17 +38,23 @@ class RegisterConfirmationNotifier
     );
   }
 
-  // For phone confirmation
+  // For phone confirmation. [useBackendOtp] forces the backend
+  // sendOtp/verifyPhone pair even in apps configured with
+  // AppConstants.isPhoneFirebase: the deferred-OTP flow verifies an account
+  // that already exists on the backend, and only verifyPhone lifts the
+  // backend's unverified-account limit (a Firebase credential exchange
+  // never reaches the backend at all).
   Future<void> confirmCodeWithPhone({
     required BuildContext context,
     required String verificationId,
     VoidCallback? onSuccess,
     required WidgetRef ref,
+    bool useBackendOtp = false,
   }) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isLoading: true, isSuccess: false);
-      if (AppConstants.isPhoneFirebase) {
+      if (AppConstants.isPhoneFirebase && !useBackendOtp) {
         try {
           PhoneAuthCredential credential = PhoneAuthProvider.credential(
             verificationId: state.verificationCode.isNotEmpty
@@ -369,15 +376,25 @@ class RegisterConfirmationNotifier
     BuildContext context,
     String email, {
     bool isResetPassword = false,
+    bool isDeferredOtp = false,
   }) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isResending: true);
+      final repo = _authRepository;
       late ApiResult response;
       if (isResetPassword) {
-        response = await _authRepository.forgotPassword(email: email.trim());
+        response = await repo.forgotPassword(email: email.trim());
+      } else if (isDeferredOtp && repo is DeferredOtpEmailResend) {
+        // Deferred-OTP accounts already exist on the backend, so the
+        // pre-registration sigUp send would be rejected ("already exists");
+        // the resend endpoint is the one that serves existing accounts.
+        // Explicit cast: DeferredOtpEmailResend is unrelated to the facade
+        // type, so the `is` check can't promote `repo`.
+        response = await (repo as DeferredOtpEmailResend)
+            .resendVerificationEmail(email: email.trim());
       } else {
-        response = await _authRepository.sigUp(email: email.trim());
+        response = await repo.sigUp(email: email.trim());
       }
 
       response.when(
@@ -403,14 +420,18 @@ class RegisterConfirmationNotifier
     }
   }
 
+  // [useBackendOtp]: same contract as [confirmCodeWithPhone] — the
+  // deferred-OTP flow resends through the backend regardless of
+  // AppConstants.isPhoneFirebase, since its verify step is verifyPhone.
   Future<void> sendCodeToNumber(
     BuildContext context,
-    String phoneNumber,
-  ) async {
+    String phoneNumber, {
+    bool useBackendOtp = false,
+  }) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isResending: true);
-      if (AppConstants.isPhoneFirebase) {
+      if (AppConstants.isPhoneFirebase && !useBackendOtp) {
         await FirebaseAuth.instance.verifyPhoneNumber(
           phoneNumber: phoneNumber,
           verificationCompleted: (PhoneAuthCredential credential) {},

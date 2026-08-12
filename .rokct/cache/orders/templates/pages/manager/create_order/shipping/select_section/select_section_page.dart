@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'widgets/section_item.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
-import 'package:${package}/presentation/component/custom_app_bar.dart';
+import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
 import 'package:base_sdk/src/presentation/components/buttons/pop_button.dart';
@@ -16,12 +16,6 @@ import 'package:base_sdk/src/presentation/components/text_fields/search_text_fie
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:orders_sdk/src/manager/application/order/shipping/section/section_provider.dart';
-
-// Shared with merchants_sdk's main_page.dart FAB Hero: base_sdk's AppConstants
-// does not carry this tag (yet), so both sides use the same literal. If
-// base_sdk grows AppConstants.heroTagAddOrderButton, swap the literal for the
-// constant.
-const String _heroTagAddOrderButton = 'heroTagAddOrderButton';
 
 
 @RoutePage(name: 'ManagerSelectSectionRoute')
@@ -114,7 +108,7 @@ class _SelectSectionPageState extends ConsumerState<SelectSectionPage> {
           padding: REdgeInsets.all(16),
           child: Row(
             children: [
-              const PopButton(heroTag: _heroTagAddOrderButton),
+              const PopButton(heroTag: AppConstants.heroTagAddOrderButton),
               8.horizontalSpace,
               Expanded(
                 child: CustomButton(

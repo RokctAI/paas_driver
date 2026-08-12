@@ -196,6 +196,9 @@ class _HostAppRoutes implements AppRoutes {
   @override
   Future<Object?> replaceUiTypeRoute(BuildContext context) => context.router.replace(UiTypeRoute());
 
+  @override
+  Future<Object?> replaceLoginRoute(BuildContext context) => context.router.replace(LoginRoute());
+
   // @generated-approutes-end
 
   @override

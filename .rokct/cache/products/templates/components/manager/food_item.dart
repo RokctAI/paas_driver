@@ -6,7 +6,7 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_product_data.dart';
-import 'package:${package}/presentation/component/helper/common_image.dart';
+import 'package:base_sdk/src/presentation/components/helper/common_image.dart';
 import 'package:${package}/presentation/pages/main/widgets/buttons_bouncing_effect.dart';
 
 /// The manager foods-tab product card, typed on products_sdk's

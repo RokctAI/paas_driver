@@ -10,8 +10,8 @@ import 'package:products_sdk/src/manager/application/foods/edit/details/category
 import 'package:products_sdk/src/manager/application/foods/edit/details/units/edit_food_units_provider.dart';
 import 'package:products_sdk/src/manager/application/foods/food_categories_provider.dart';
 import 'package:products_sdk/src/manager/application/foods/foods_provider.dart';
-import 'package:${package}/presentation/component/loading/tab_bar_loading.dart';
-import 'package:${package}/presentation/component/tab_bars/categories_tab_bar.dart';
+import 'package:base_sdk/src/presentation/components/loading/tab_bar_loading.dart';
+import 'package:base_sdk/src/presentation/components/categories_tab_bar.dart';
 import 'package:${package}/presentation/components/foods/products_body.dart';
 
 /// Kitchen-picker seeding moved out of the tap handler: the legacy page seeded

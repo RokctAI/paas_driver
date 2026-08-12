@@ -8,19 +8,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:${package}/presentation/pages/orders/widgets/no_orders.dart';
 import 'package:${package}/presentation/pages/orders/details/order_details_modal.dart';
-import 'package:${package}/presentation/component/custom_app_bar.dart';
-import 'package:${package}/presentation/component/filter_screen.dart';
-import 'package:${package}/presentation/component/loading/loading_list.dart';
+import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
+import 'package:base_sdk/src/presentation/components/filter_screen.dart';
+import 'package:base_sdk/src/presentation/components/loading/loading_list.dart';
 import 'package:${package}/presentation/components/orders/order_item.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/presentation/components/buttons/pop_button.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:orders_sdk/src/manager/application/order/order_provider.dart';
-
-// Legacy paas_manager AppConstants.heroTagOrderHistory - base_sdk's
-// AppConstants does not carry it; the literal is the contract.
-const String _heroTagOrderHistory = 'heroTagOrderHistory';
 
 
 @RoutePage(name: 'ManagerOrderHistoryRoute')
@@ -131,7 +127,7 @@ class _OrderHistoryPageState extends ConsumerState<OrderHistoryPage> {
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const PopButton(heroTag: _heroTagOrderHistory),
+            const PopButton(heroTag: AppConstants.heroTagOrderHistory),
             GestureDetector(
               onTap: () => AppHelpers.showCustomModalBottomSheet(
                 paddingTop: MediaQuery.paddingOf(context).top,

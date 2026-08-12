@@ -8,7 +8,10 @@ import urllib.request
 PROTOCOL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.getcwd()
 ROKCT_DIR = os.path.join(PROJECT_ROOT, ".rokct")
-GITHUB_RAW_BASE = "https://raw.githubusercontent.com/RokctAI/The-Rokct-Protocol/main"
+# Pinned by tools/gen_protocol_lock.py - do not edit these constants by hand.
+# Manifest fetches are data-only, but pinning keeps them immutable too.
+PROTOCOL_REF = "ab78bedfc5ca981d0170310dc88c3a328134eb58"
+GITHUB_RAW_BASE = f"https://raw.githubusercontent.com/RokctAI/The-Rokct-Protocol/{PROTOCOL_REF}"
 
 def dir_hash(d):
     if not os.path.isdir(d):

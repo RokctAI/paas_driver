@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/models.dart';
-import 'package:${package}/presentation/component/helper/common_image.dart';
+import 'package:base_sdk/src/presentation/components/helper/common_image.dart';
 
 class SectionItem extends StatelessWidget {
   final ShopSection? section;

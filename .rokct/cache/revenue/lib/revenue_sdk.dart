@@ -19,8 +19,10 @@ library revenue_sdk;
 //   statistics notifier/provider/state (used by the manager income page
 //   template installed into manager hosts), and ManagerRevenueDependencies
 //   (src/manager/di/manager_revenue_di.dart).
-// - driver/: CourierStatisticsRepository and DriverRevenueDependencies
-//   (src/driver/di/driver_revenue_di.dart).
+// - driver/: CourierStatisticsRepository, the income screen's statistics
+//   notifier/provider/state plus its OrdinalSales chart row (used by the
+//   driver income page template installed into driver hosts), and
+//   DriverRevenueDependencies (src/driver/di/driver_revenue_di.dart).
 export 'src/common/di/revenue_di.dart';
 export 'src/common/domain/interface/courier_statistics.dart';
 export 'src/common/domain/interface/seller_statistics.dart';

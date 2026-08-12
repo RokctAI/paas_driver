@@ -7,9 +7,9 @@ import 'package:orders_sdk/src/manager/infrastructure/models/models.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:${package}/presentation/routes/app_router.dart';
-import 'package:${package}/presentation/component/custom_app_bar.dart';
-import 'package:${package}/presentation/component/helper/shop_bordered_avatar.dart';
-import 'package:${package}/presentation/component/loading/loading_list.dart';
+import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
+import 'package:base_sdk/src/presentation/components/helper/shop_bordered_avatar.dart';
+import 'package:base_sdk/src/presentation/components/loading/loading_list.dart';
 import 'package:${package}/presentation/components/orders/food_stock_item.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
@@ -21,12 +21,6 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:orders_sdk/src/manager/application/order/shipping/payment/order_payment_provider.dart';
 import 'package:orders_sdk/src/manager/application/order_cart/order_cart_provider.dart';
 import 'package:orders_sdk/src/manager/application/order_products/order_products_provider.dart';
-
-// Shared with merchants_sdk's main_page.dart FAB Hero: base_sdk's AppConstants
-// does not carry this tag (yet), so both sides use the same literal. If
-// base_sdk grows AppConstants.heroTagAddOrderButton, swap the literal for the
-// constant.
-const String _heroTagAddOrderButton = 'heroTagAddOrderButton';
 
 
 @RoutePage(name: 'ManagerOrderRoute')
@@ -165,7 +159,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const PopButton(heroTag: _heroTagAddOrderButton),
+                const PopButton(heroTag: AppConstants.heroTagAddOrderButton),
                 8.horizontalSpace,
                 if (cartState.stocks.isNotEmpty)
                   Expanded(

@@ -3,12 +3,17 @@ import 'package:charts_flutter/flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:${package}/application/statistics/statistics_provider.dart';
-import 'package:${package}/application/statistics/statistics_state.dart';
-
-import 'package:${package}/infrastructure/services/services.dart';
-import 'package:${package}/presentation/component/components.dart';
-import 'package:${package}/presentation/styles/style.dart';
+import 'package:revenue_sdk/src/driver/application/statistics/statistics_provider.dart';
+import 'package:revenue_sdk/src/driver/application/statistics/statistics_state.dart';
+import 'package:revenue_sdk/src/driver/infrastructure/models/chart.dart';
+import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:base_sdk/src/presentation/theme/app_style.dart';
+import 'package:base_sdk/src/presentation/components/custom_tab_bar.dart';
+import 'package:base_sdk/src/presentation/components/title_icon.dart';
+import 'package:base_sdk/src/presentation/components/buttons/pop_button.dart';
+import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
 import 'package:${package}/presentation/pages/income/app_bar_screen.dart';
 import 'package:${package}/presentation/pages/income/statistics_screen.dart';
 import 'package:${package}/presentation/pages/income/widgets/income_item.dart';
@@ -79,10 +84,10 @@ class _IncomePageState extends ConsumerState<IncomePage>
   Widget build(BuildContext context) {
     final state = ref.watch(statisticsProvider);
     return Scaffold(
-      backgroundColor: Style.greyColor,
+      backgroundColor: AppStyle.bgGrey,
       body: Column(
         children: [
-          const AbbBarScreen(),
+          AbbBarScreen(event: ref.read(statisticsProvider.notifier)),
           16.verticalSpace,
           Expanded(
             child: SingleChildScrollView(
@@ -98,31 +103,6 @@ class _IncomePageState extends ConsumerState<IncomePage>
                   ),
                   24.verticalSpace,
                   _orderPrices(context, state),
-                  // TitleAndIcon(
-                  //   title: AppHelpers.getTranslation(TrKeys.remittanceIncome),
-                  // ),
-                  // 12.verticalSpace,
-                  // IncomeItem(
-                  //   title: AppHelpers.getTranslation(TrKeys.servicePrice),
-                  //   price: "\$0",
-                  // ),
-                  // IncomeItem(
-                  //   title: AppHelpers.getTranslation(TrKeys.tax),
-                  //   price: "\$2",
-                  // ),
-                  // IncomeItem(
-                  //   title: AppHelpers.getTranslation(TrKeys.shippingCost),
-                  //   price: "\$500",
-                  // ),
-                  // IncomeItem(
-                  //   title: AppHelpers.getTranslation(TrKeys.adminBenefit),
-                  //   price: "\$5.8",
-                  // ),
-                  // IncomeItem(
-                  //   title: AppHelpers.getTranslation(TrKeys.yourBenefit),
-                  //   price: "\$560",
-                  // ),
-                  // 24.verticalSpace,
                   TitleAndIcon(
                     title: AppHelpers.getTranslation(
                         TrKeys.deliverymanTransactions),
@@ -133,34 +113,16 @@ class _IncomePageState extends ConsumerState<IncomePage>
                     price: AppHelpers.numberFormat(
                         number: LocalStorage.getUser()?.wallet?.price ?? 0),
                   ),
-                  IncomeItem(
-                    title: AppHelpers.getTranslation(TrKeys.rating),
-                    price:
-                        "${LocalStorage.getUser()?.rate?.toStringAsFixed(1) ?? 0}",
-                  ),
+                  // The legacy host row showed the courier's rating from
+                  // LocalStorage.getUser()?.rate (UserData parsed
+                  // assign_reviews_avg_rating). base_sdk's ProfileData carries
+                  // no rating field, so the row is parked until the courier
+                  // profile slice (delivery_sdk, S-D3) owns that surface.
+                  // IncomeItem(
+                  //   title: AppHelpers.getTranslation(TrKeys.rating),
+                  //   price: "-",
+                  // ),
                   24.verticalSpace,
-                  // TitleAndIcon(
-                  //   title: AppHelpers.getTranslation(TrKeys.payment),
-                  // ),
-                  // 12.verticalSpace,
-                  // IncomeItem(
-                  //   title: AppHelpers.getTranslation(TrKeys.grossProfit),
-                  //   price: "\$580",
-                  // ),
-                  // IncomeItem(
-                  //   title: AppHelpers.getTranslation(TrKeys.earningsWallet),
-                  //   price: "\$100",
-                  // ),
-                  // IncomeItem(
-                  //   title: AppHelpers.getTranslation(TrKeys.paid),
-                  //   price: "\$0",
-                  // ),
-                  // IncomeItem(
-                  //   title: AppHelpers.getTranslation(TrKeys.paidCourier),
-                  //   price: "\$560",
-                  //   isBlack: true,
-                  // ),
-                  // 24.verticalSpace,
                   StatisticsScreen(
                       totalOrders: (state.countData?.data?.totalCount ?? 0)
                           .toString(),
@@ -221,6 +183,19 @@ class _IncomePageState extends ConsumerState<IncomePage>
   }
 
   Column _chart(StatisticsState state) {
+    // The SDK's StatisticsNotifier emits plain OrdinalSales rows so
+    // revenue_sdk stays chart-library-agnostic; the charts_flutter Series
+    // (including the brand-primary bar color the legacy host notifier set) is
+    // built here, in the HOST package, whose pubspec owns charts_flutter.
+    final List<Series<OrdinalSales, String>> series = [
+      Series<OrdinalSales, String>(
+        id: 'chart',
+        data: state.chartData,
+        domainFn: (OrdinalSales sales, _) => sales.day,
+        measureFn: (OrdinalSales sales, _) => sales.sales,
+        seriesColor: ColorUtil.fromDartColor(AppStyle.primary),
+      ),
+    ];
     return Column(
       children: [
         TitleAndIcon(title: AppHelpers.getTranslation(TrKeys.earningsChart)),
@@ -229,12 +204,12 @@ class _IncomePageState extends ConsumerState<IncomePage>
             width: double.infinity,
             height: 300.h,
             decoration: BoxDecoration(
-              color: Style.white,
+              color: AppStyle.white,
               borderRadius: BorderRadius.circular(10.r),
             ),
             padding: EdgeInsets.all(16.r),
             child: BarChart(
-              state.list,
+              series,
               animate: true,
               vertical: false,
               animationDuration: const Duration(seconds: 1),
@@ -252,7 +227,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Style.white,
+            color: AppStyle.white,
             borderRadius: BorderRadius.circular(10.r),
           ),
           padding: EdgeInsets.all(16.r),
@@ -261,85 +236,41 @@ class _IncomePageState extends ConsumerState<IncomePage>
             children: [
               Text(
                 AppHelpers.getTranslation(TrKeys.orderPrice),
-                style: Style.interNormal(
-                    size: 14.sp, color: Style.black, letterSpacing: -0.3),
+                style: AppStyle.interNormal(
+                    size: 14,
+                    color: AppStyle.blackColor,
+                    letterSpacing: -0.3),
               ),
               16.verticalSpace,
               Text(
                 AppHelpers.numberFormat(
                     number: state.countData?.data?.lastOrderTotalPrice ?? 0),
-                style: Style.interSemi(
-                    size: 32.sp, color: Style.black, letterSpacing: -0.3),
+                style: AppStyle.interSemi(
+                    size: 32,
+                    color: AppStyle.blackColor,
+                    letterSpacing: -0.3),
               ),
               4.verticalSpace,
               RichText(
                   text: TextSpan(
                       text: AppHelpers.getTranslation(TrKeys.lastIncome),
-                      style: Style.interNormal(
-                          size: 12.sp, color: Style.black, letterSpacing: -0.3),
+                      style: AppStyle.interNormal(
+                          size: 12,
+                          color: AppStyle.blackColor,
+                          letterSpacing: -0.3),
                       children: [
                     TextSpan(
                       text: AppHelpers.numberFormat(
                           number: state.countData?.data?.lastOrderIncome ?? 0),
-                      style: Style.interSemi(
-                          size: 12.sp, color: Style.black, letterSpacing: -0.3),
+                      style: AppStyle.interSemi(
+                          size: 12,
+                          color: AppStyle.blackColor,
+                          letterSpacing: -0.3),
                     )
                   ])),
             ],
           ),
         ),
-        // 10.verticalSpace,
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //   children: [
-        //     Container(
-        //       width: (MediaQuery.sizeOf(context).width - 40) / 2,
-        //       decoration: BoxDecoration(
-        //         color: Style.blackColor,
-        //         borderRadius: BorderRadius.circular(10.r),
-        //       ),
-        //       padding: EdgeInsets.all(16.r),
-        //       child: Column(
-        //         crossAxisAlignment: CrossAxisAlignment.start,
-        //         children: [
-        //           Text(
-        //             AppHelpers.getTranslation(TrKeys.restaurantRevenue),
-        //             style: Style.interNormal(
-        //                 size: 12.sp, color: Style.white, letterSpacing: -0.3),
-        //           ),
-        //           Text(
-        //             "\$79",
-        //             style: Style.interSemi(
-        //                 size: 22.sp, color: Style.white, letterSpacing: -0.3),
-        //           )
-        //         ],
-        //       ),
-        //     ),
-        //     Container(
-        //       width: (MediaQuery.sizeOf(context).width - 40) / 2,
-        //       decoration: BoxDecoration(
-        //         color: Style.blackColor,
-        //         borderRadius: BorderRadius.circular(10.r),
-        //       ),
-        //       padding: EdgeInsets.all(16.r),
-        //       child: Column(
-        //         crossAxisAlignment: CrossAxisAlignment.start,
-        //         children: [
-        //           Text(
-        //             AppHelpers.getTranslation(TrKeys.fMRevenue),
-        //             style: Style.interNormal(
-        //                 size: 12.sp, color: Style.white, letterSpacing: -0.3),
-        //           ),
-        //           Text(
-        //             "\$7",
-        //             style: Style.interSemi(
-        //                 size: 22.sp, color: Style.white, letterSpacing: -0.3),
-        //           )
-        //         ],
-        //       ),
-        //     )
-        //   ],
-        // ),
         32.verticalSpace,
       ],
     );

@@ -9,10 +9,24 @@ import 'package:base_sdk/src/presentation/components/blur_wrap.dart';
 class PopButton extends StatelessWidget {
   final VoidCallback? onTap;
 
-  const PopButton({super.key, this.onTap});
+  /// Optional Hero tag so a page's back/pop pill can pair with a FAB on the
+  /// launching page (e.g. merchants_sdk main_page's add-order Hero uses
+  /// 'heroTagAddOrderButton', and orders_sdk's create-order pages pass the
+  /// same literal here).
+  final String? heroTag;
+
+  const PopButton({super.key, this.onTap, this.heroTag});
 
   @override
   Widget build(BuildContext context) {
+    final button = _buildButton(context);
+    if (heroTag != null) {
+      return Hero(tag: heroTag!, child: button);
+    }
+    return button;
+  }
+
+  Widget _buildButton(BuildContext context) {
     return BlurWrap(
       radius: BorderRadius.circular(100.r),
       child: GestureDetector(

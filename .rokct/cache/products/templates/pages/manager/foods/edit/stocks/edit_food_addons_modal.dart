@@ -11,8 +11,8 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_product_data.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_stock.dart';
 import 'package:products_sdk/src/manager/application/foods/edit/stocks/addons/edit_food_addons_provider.dart';
-import 'package:${package}/presentation/component/helper/modal_drag.dart';
-import 'package:${package}/presentation/component/helper/modal_wrap.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_drag.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_wrap.dart';
 import 'package:${package}/presentation/components/foods/selectable_addon_item.dart';
 
 class EditFoodAddonsModal extends ConsumerStatefulWidget {

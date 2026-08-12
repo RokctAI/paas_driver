@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'no_orders.dart';
 import 'package:${package}/presentation/pages/orders/details/order_details_modal.dart';
-import 'package:${package}/presentation/component/loading/loading_list.dart';
+import 'package:base_sdk/src/presentation/components/loading/loading_list.dart';
 import 'package:${package}/presentation/components/orders/order_item.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:orders_sdk/src/manager/application/orders/appbar/home_appbar_provider.dart';
