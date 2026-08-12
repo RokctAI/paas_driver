@@ -1,6 +1,6 @@
 {
   "name": "base_sdk",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "home_page": "templates/routes/route_pages.dart",
   "_comment_app_assets": "app_assets registers these files in the host app's pubspec 'sdk-app-assets' block so they are bundled into the build. Only assets referenced by SDK code are kept here; foodyman-era driver/manager assets were removed (they live in paas_driver/paas_manager develop, and custodianship copies moved to delivery_sdk/merchants_sdk).",
   "app_assets": [
@@ -151,7 +151,7 @@
       ]
     }
   ],
-  "_comment_app_type": "manager: the tenant remote-config boot absorbed from paas_manager's retired host lib/utils/app_initializer.dart (manager migration M5). Flavor-gated because the fetch is per-app ('app_type=Manager'); other flavors declare their own entry with their own app_type string when they flip to fully generated shells. base_sdk has no lib/src/manager/ role folder - declaring the persona only carries this hook (role-stripping is a no-op for base).",
+  "_comment_app_type": "The tenant remote-config boot absorbed from the retired host lib/utils/app_initializer.dart files (manager migration M5, driver M4). Flavor-gated because the fetch is per-app ('app_type=Manager' / 'app_type=Driver'); other flavors declare their own entry with their own app_type string when they flip to fully generated shells. base_sdk has no lib/src/manager|driver role folders - declaring the personas only carries these hooks (role-stripping is a no-op for base).",
   "app_type": {
     "manager": {
       "boot_hooks": [
@@ -159,6 +159,18 @@
           "id": "base-remote-config-boot",
           "order": 20,
           "body": "await RemoteConfigService.initialize(appType: 'Manager');",
+          "imports": [
+            "import 'package:base_sdk/src/services/remote_config_service.dart';"
+          ]
+        }
+      ]
+    },
+    "driver": {
+      "boot_hooks": [
+        {
+          "id": "base-remote-config-boot",
+          "order": 20,
+          "body": "await RemoteConfigService.initialize(appType: 'Driver');",
           "imports": [
             "import 'package:base_sdk/src/services/remote_config_service.dart';"
           ]

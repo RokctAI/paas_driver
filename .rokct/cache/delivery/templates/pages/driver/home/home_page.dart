@@ -17,8 +17,10 @@ import 'package:${package}/presentation/pages/home/parcel_bottom_sheet.dart';
 
 import 'package:workmanager/workmanager.dart';
 
-
-import 'package:${package}/main.dart';
+// fetchBackground (the periodic courier-location task id) lives in
+// delivery_sdk since driver migration M4 — the generated main.dart no longer
+// declares it (the dispatcher is wired by this manifest's boot_hooks entry).
+import 'package:delivery_sdk/src/driver/infrastructure/services/courier_location_service.dart';
 
 import 'package:${package}/presentation/routes/app_router.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
