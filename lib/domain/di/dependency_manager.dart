@@ -1,19 +1,34 @@
+// Shrunken in migration stage M2 to the host-owned registrations that must
+// outlive the shared-layer swap:
+//
+//  - the host AUTH vertical (SettingsRepository for the login language
+//    switcher, AuthRepository, and the UserRepository profile slice its
+//    notifiers call) - all of it dies with the auth flip (M3), when
+//    auth_sdk's installed flows and comms_sdk's settings facade take over;
+//  - the UserRepository seam zones_sdk's installed driver adapter
+//    (lib/presentation/routes/zones_adapters.dart) resolves via
+//    `di.userRepository` for the courier's delivery-zone polygon. This
+//    outlives M3 and dies once the adapter is rewritten against a users_sdk
+//    repository or the registration moves to a `di_hooks` manifest
+//    declaration (The-Rokct-Protocol#160) - the M4 exit plan.
+//
+// Everything else the old setUpDependencies() registered is SDK-owned now:
+// base_sdk registers HttpService, and the courier orders/parcel/draw/
+// notification repositories moved into delivery_sdk / map_sdk / comms_sdk
+// with their verticals (each registers its own DI in the @generated-sdk-di
+// block in main.dart).
 import 'package:get_it/get_it.dart';
-import 'package:driver/domain/interface/notification.dart';
-import 'package:driver/domain/interface/parcel.dart';
-import 'package:driver/infrastructure/repositories/notification_repository.dart';
-import 'package:driver/infrastructure/repositories/parcel_repository.dart';
 
-import '../../infrastructure/repositories/orders_repository.dart';
-import '../../infrastructure/repositories/repositories.dart';
+import '../../infrastructure/repositories/auth_repository_impl.dart';
+import '../../infrastructure/repositories/settings_repository_impl.dart';
+import '../../infrastructure/repositories/user_repository_impl.dart';
 import '../../presentation/routes/app_router.dart';
+import '../interface/interfaces.dart';
 import 'package:base_sdk/src/handlers/http_service.dart';
 import 'package:revenue_sdk/revenue_sdk.dart';
 // Direct src/ import by design: DriverRevenueDependencies is role code, kept
 // out of the barrel so a manager app's stripped cache still compiles it.
 import 'package:revenue_sdk/src/driver/di/driver_revenue_di.dart';
-import '../interface/interfaces.dart';
-import '../interface/orders.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -27,12 +42,7 @@ Future<void> setUpDependencies() async {
   getIt.registerSingleton<SettingsRepository>(SettingsRepositoryImpl());
   getIt.registerSingleton<AuthRepository>(AuthRepositoryImpl());
   getIt.registerSingleton<UserRepository>(UserRepositoryImpl());
-  getIt.registerSingleton<DrawRepository>(DrawRepositoryImpl());
-  getIt.registerSingleton<OrdersRepositoryFacade>(OrdersRepository());
-  getIt.registerSingleton<ParcelRepositoryFacade>(ParcelRepository());
   getIt.registerSingleton<AppRouter>(AppRouter());
-  getIt.registerSingleton<NotificationRepositoryFacade>(
-      NotificationRepositoryImpl());
   // Driver-role revenue registrations. RevenueSdkDependencies.register (still
   // called from main()'s generated DI block) is an empty common hook now that
   // both concrete repositories are strippable role code — the host wires its
@@ -44,13 +54,10 @@ final dioHttp = getIt.get<HttpService>();
 final settingsRepository = getIt.get<SettingsRepository>();
 final authRepository = getIt.get<AuthRepository>();
 final userRepository = getIt.get<UserRepository>();
-final drawRepository = getIt.get<DrawRepository>();
-final orderRepository = getIt.get<OrdersRepositoryFacade>();
-final parcelRepository = getIt.get<ParcelRepositoryFacade>();
-final notificationRepo = getIt.get<NotificationRepositoryFacade>();
 final appRouter = getIt.get<AppRouter>();
 
 // SDK-owned repository, registered by DriverRevenueDependencies.register() in
-// setUpDependencies() above — exposed here so app code resolves it the same
-// way as the app's own repositories.
+// setUpDependencies() above — exposed here so the surviving host code (the
+// profile-settings notifier the register funnel still uses) resolves it the
+// same way as the app's own repositories.
 final courierStatisticsRepository = getIt.get<CourierStatisticsRepositoryFacade>();

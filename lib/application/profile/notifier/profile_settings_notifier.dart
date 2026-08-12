@@ -7,8 +7,8 @@ import 'package:driver/presentation/routes/app_router.dart';
 
 import 'package:driver/domain/interface/interfaces.dart';
 import 'package:revenue_sdk/revenue_sdk.dart';
-import '../../../../infrastructure/models/models.dart';
-import '../../../../infrastructure/services/services.dart';
+import 'package:driver/infrastructure/models/models.dart';
+import 'package:driver/infrastructure/services/services.dart';
 import '../state/profile_settings_state.dart';
 
 class ProfileSettingsNotifier extends StateNotifier<ProfileSettingsState> {

@@ -1,15 +1,12 @@
-// ==========================================
-// [GENERATED TEMPLATE FILE]
-// This file was installed from: base_sdk
-// Feel free to modify and customize this code.
-// Note: If you edit this file, the SDK installer will detect your changes
-// and automatically skip overwriting it during future upgrades.
-// ==========================================
-
-import 'package:auto_route/auto_route.dart';
+// Host main for the composed driver shell. Shaped after base_sdk's
+// templates/main.dart (all @generated marker blocks present, so the
+// composer's update_main_dependencies()/update_boot_hooks()/
+// update_di_hooks()/update_app_routes()/update_embedded_widgets() keep
+// working) with the driver app's own startup preserved - on a first-ever
+// compose the installer has no hash record and would otherwise clobber this
+// file (the 760191c lesson), so the host copy is committed pre-shaped and
+// the installer warn-skips it.
 import 'package:dio/dio.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -17,11 +14,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:workmanager/workmanager.dart';
-import 'package:base_sdk/base_sdk.dart';
-import 'package:base_sdk/src/presentation/theme/theme.dart';
-import 'package:driver/presentation/app_widget.dart';
-import 'package:driver/presentation/routes/app_router.dart';
+// Deep theme import (not the base_sdk barrel - that arrives via the
+// generated sdk-imports block; importing the barrel here too would produce
+// a duplicate_import lint on every compose).
+import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:driver/domain/di/dependency_manager.dart';
+import 'package:driver/presentation/app_widget.dart';
 import 'package:driver/presentation/routes/zones_adapters.dart';
 
 // @generated-sdk-imports-start
@@ -39,6 +37,19 @@ import 'package:revenue_sdk/revenue_sdk.dart';
 import 'package:users_sdk/users_sdk.dart';
 import 'package:zones_sdk/zones_sdk.dart';
 // @generated-sdk-imports-end
+
+// Wiring imports: each SDK manifest's app_routes / embedded_widgets /
+// brand_hook entries may carry an "imports" list of FULL import lines; they
+// land here (deduped, sorted) so the injected bodies' symbols resolve
+// without any hand-written imports in this file.
+// @generated-wiring-imports-start
+import 'package:auto_route/auto_route.dart';
+import 'package:comms_sdk/src/common/presentation/pages/setting/language_page.dart';
+import 'package:comms_sdk/src/common/services/firebase_background_handler.dart';
+import 'package:driver/presentation/routes/app_router.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+// @generated-wiring-imports-end
 
 /// Workmanager task id for the periodic courier-location report.
 const fetchBackground = "fetchBackground";
@@ -94,20 +105,38 @@ void callbackDispatcher() {
   });
 }
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-}
-
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
-  // Host-specific startup, also lost to the first compose. Firebase must be
-  // initialized before anything touches messaging, and the splash is held
-  // until AppWidget decides where to route.
+  // Host-specific startup (kept through the compose flip): the splash is
+  // held until the router decides where to go, and the workmanager isolate
+  // backs the courier-location report above. The Firebase/FCM boot that
+  // used to sit here moved into comms_sdk's "boot_hooks" declaration
+  // (comms-firebase-fcm-boot) - it lands in the generated block below on
+  // every compose, imports riding the wiring block. The workmanager line is
+  // destined for a delivery_sdk boot_hook the same way.
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  await Firebase.initializeApp();
   await Workmanager().initialize(callbackDispatcher);
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // Boot hooks: SDK-declared startup statements (each SDK manifest's
+  // "boot_hooks" list - id-keyed, order-sequenced; see the installer's
+  // update_boot_hooks()). comms_sdk declares the Firebase init + FCM
+  // background handler here.
+  // @generated-boot-hooks-start
+  // comms-firebase-fcm-boot (order 10, from comms_sdk)
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp();
+  }
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  // @generated-boot-hooks-end
+
+  // Brand hook: at most ONE installed SDK (normally the home SDK) declares
+  // "brand_hook" in its manifest and its call is injected here to load the
+  // app's brand palette into the shared AppStyle tokens before the first
+  // frame. The kernel ships neutral defaults only.
+  // @generated-brandhook-start
+
+  // @generated-brandhook-end
 
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setPreferredOrientations([
@@ -126,7 +155,9 @@ void main() async {
   );
 
   await LocalStorage.init();
-  BaseSdkDependencies.register(GetIt.instance);
+  // base_sdk's import and DI registration are injected into the generated
+  // blocks (base_sdk first - update_main_dependencies() orders it ahead of
+  // every feature SDK). Do NOT also import/register it by hand up here.
   // @generated-sdk-di-start
   BaseSdkDependencies.register(GetIt.instance);
   CalcSdkDependencies.register(GetIt.instance);
@@ -143,17 +174,27 @@ void main() async {
   ZonesSdkDependencies.register(GetIt.instance);
 // @generated-sdk-di-end
 
+  // DI hooks: SDK-declared DI statements beyond the standard
+  // *SdkDependencies.register calls above (each SDK manifest's "di_hooks"
+  // list; see the installer's update_di_hooks()). The hand-written host DI
+  // and ADR-005 facade registrations below move here once delivery_sdk /
+  // zones_sdk declare them (see scratchpad/di-hooks-declarations.md in the
+  // migration PR set).
+  // @generated-di-hooks-start
+
+  // @generated-di-hooks-end
+
   // ---- Host-owned DI ----
   // Deliberately OUTSIDE the generated block: update_sdk_di() rewrites
   // everything between the markers on every compose, so anything placed
   // inside is silently lost. The installer detects hand edits to main.dart
   // and stops overwriting the file, which is what keeps this section alive.
 
-  // The driver app's own repositories (UserRepository, OrdersRepositoryFacade,
-  // ParcelRepositoryFacade, ...). base_sdk's main.dart template knows nothing
-  // about them, so without this call every `getIt.get<...>` in
-  // dependency_manager.dart throws on first access. Must run before the
-  // adapters below, which resolve UserRepository.
+  // The last host-owned repositories (migration M2): the host auth vertical
+  // (dies with the auth flip, M3) and the profile/zone slice of the old user
+  // repository, still resolved by zones_sdk's installed adapter via
+  // di.userRepository - see dependency_manager.dart for the exit plan. Must
+  // run before the adapters below, which resolve UserRepository.
   await setUpDependencies();
 
   // zones_sdk declares DeliveryZonesFacade and ZoneEditPolicy but registers
@@ -170,16 +211,44 @@ void main() async {
 
   // AppRoutes.I: SDK-resident code (splash, auth flows) navigates through
   // this indirection since it can't reference host-generated route classes
-  // directly. Methods below this line are injected per-SDK (see each SDK's
-  // manifest.json "app_routes" list, e.g. auth_sdk declares
-  // replaceLoginRoute) — a method only appears here if some installed SDK
-  // actually needs it. Anything not injected keeps throwing a descriptive
-  // StateError via noSuchMethod rather than failing silently. If this
-  // app needs routing behavior no SDK provides, edit this class directly —
-  // the installer detects host edits to main.dart and stops overwriting it.
+  // directly. Methods are injected per-SDK from each manifest's "app_routes"
+  // list (e.g. delivery_sdk declares replaceLoginRoute for base_sdk's
+  // splash); anything not injected keeps throwing a descriptive StateError
+  // via noSuchMethod rather than failing silently.
+  //
+  // EmbeddedWidgets.I: same indirection for host-composed widgets - SDK code
+  // renders another SDK's pages/widgets through it without importing that
+  // SDK directly (ADR-005), e.g. comms_sdk's language screen.
+  EmbeddedWidgets.I = _HostEmbeddedWidgets();
   AppRoutes.I = _HostAppRoutes();
 
   runApp(const ProviderScope(child: AppWidget()));
+}
+
+class _HostEmbeddedWidgets implements EmbeddedWidgets {
+  // @generated-embeddedwidgets-start
+  @override
+  Widget languageScreen({required VoidCallback onSave}) {
+    return LanguageScreen(onSave: onSave);
+  }
+
+  @override
+  Widget policyPage() {
+    return const PolicyPage();
+  }
+
+  @override
+  Widget termPage() {
+    return const TermPage();
+  }
+
+  // @generated-embeddedwidgets-end
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw StateError(
+      'EmbeddedWidgets.I.${invocation.memberName} has not been implemented — '
+      'no installed SDK declares it in "embedded_widgets", and it was not '
+      'added by hand in main.dart.');
 }
 
 class _HostAppRoutes implements AppRoutes {
