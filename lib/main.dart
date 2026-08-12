@@ -24,6 +24,7 @@ import 'package:driver/presentation/routes/zones_adapters.dart';
 
 // @generated-sdk-imports-start
 import 'package:base_sdk/base_sdk.dart';
+import 'package:auth_sdk/auth_sdk.dart';
 import 'package:calc_sdk/calc_sdk.dart';
 import 'package:comms_sdk/comms_sdk.dart';
 import 'package:corporate_sdk/corporate_sdk.dart';
@@ -123,6 +124,8 @@ void main() async {
   // update_boot_hooks()). comms_sdk declares the Firebase init + FCM
   // background handler here.
   // @generated-boot-hooks-start
+  // auth_pending_otp_gate (order 0, from auth_sdk)
+  PendingOtpGate.install();
   // comms-firebase-fcm-boot (order 10, from comms_sdk)
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp();
@@ -160,6 +163,7 @@ void main() async {
   // every feature SDK). Do NOT also import/register it by hand up here.
   // @generated-sdk-di-start
   BaseSdkDependencies.register(GetIt.instance);
+  AuthSdkDependencies.register(GetIt.instance);
   CalcSdkDependencies.register(GetIt.instance);
   CommsSdkDependencies.register(GetIt.instance);
   CorporateSdkDependencies.register(GetIt.instance);
@@ -190,11 +194,13 @@ void main() async {
   // inside is silently lost. The installer detects hand edits to main.dart
   // and stops overwriting the file, which is what keeps this section alive.
 
-  // The last host-owned repositories (migration M2): the host auth vertical
-  // (dies with the auth flip, M3) and the profile/zone slice of the old user
-  // repository, still resolved by zones_sdk's installed adapter via
-  // di.userRepository - see dependency_manager.dart for the exit plan. Must
-  // run before the adapters below, which resolve UserRepository.
+  // The last host-owned registrations (migration M3): the delivery-zone
+  // slice of the old user repository, still resolved by zones_sdk's
+  // installed adapter via di.userRepository, plus the driver-role revenue
+  // DI - see dependency_manager.dart for the exit plan. Must run before the
+  // adapters below, which resolve UserRepository. The host auth vertical
+  // that used to register here died with the auth flip; auth_sdk registers
+  // its own repositories in the generated DI block above.
   await setUpDependencies();
 
   // zones_sdk declares DeliveryZonesFacade and ZoneEditPolicy but registers
@@ -267,6 +273,9 @@ class _HostAppRoutes implements AppRoutes {
 
   @override
   Future<Object?> replaceLoginRoute(BuildContext context) => context.router.replace(LoginRoute());
+
+  @override
+  Future<Object?> replaceMainRoute(BuildContext context) => context.router.replace(HomeRoute());
 
   // @generated-approutes-end
 

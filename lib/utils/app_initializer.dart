@@ -4,9 +4,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import '../app_constants.dart';
-import '../infrastructure/models/data/poi_data.dart';
+// Migration stage M3: the host POI pair (infrastructure/models/data/
+// poi_data.dart + application/poidata/poi_data_provider.dart) died with the
+// auth-pinned support layer. The remote-config POI feed now writes straight
+// into map_sdk's provider - the one map_sdk's view_map_page actually reads -
+// where the old host provider was a disconnected twin nothing rendered.
+import 'package:base_sdk/src/models/data/poi_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../application/poidata/poi_data_provider.dart';
+import 'package:map_sdk/src/common/application/poidata/poi_data_provider.dart';
 //import 'package:riverpodtemp/utils/excluded_product_ids.dart';
 
 class AppInitializer extends StatefulWidget {
@@ -126,6 +131,9 @@ class _AppInitializerState extends State<AppInitializer> {
                             poiDataMap['titleColor'].substring(2),
                             radix: 16) +
                         0xFF000000),
+                    // base_sdk's POIData carries a pin asset key the old host
+                    // model lacked; empty string = default marker.
+                    pin: poiDataMap['pin']?.toString() ?? '',
                   ),
                 );
               }

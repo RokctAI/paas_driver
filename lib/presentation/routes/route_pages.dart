@@ -7,8 +7,10 @@
 // Migration stage M2 restored the full base_sdk template shell set: the
 // app's own splash and no-connection pages under lib/presentation/pages/
 // are deleted (base_sdk owns them now), so SplashRoute and NoConnectionRoute
-// are shelled here again. LoginRoute is still NOT shelled - the app's own
-// login page's @RoutePage generates it until the auth flip (M3).
+// are shelled here again. LoginRoute is deliberately NOT shelled here:
+// since the auth flip (M3) it is generated from auth_sdk's installed
+// auth_route_pages.dart shells, the same mechanism as every other
+// SDK-routed page.
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
