@@ -33,27 +33,32 @@ class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
 // @generated-routes-start
-    MaterialRoute(path: '/', page: SplashRoute.page),
-    MaterialRoute(path: '/no-connection', page: NoConnectionRoute.page),
-    MaterialRoute(path: '/closed', page: ClosedRoute.page),
-    MaterialRoute(path: '/ui-type', page: UiTypeRoute.page),
-    CupertinoRoute(path: '/home', page: HomeRoute.page),
-    CupertinoRoute(path: '/orders', page: OrdersRoute.page),
-    CupertinoRoute(path: '/order-history', page: OrderHistoryRoute.page),
-    CupertinoRoute(path: '/parcels', page: ParcelsRoute.page),
-    CupertinoRoute(path: '/parcel-history', page: ParcelHistoryRoute.page),
-    CupertinoRoute(path: '/profile', page: ProfileRoute.page),
-    CupertinoRoute(path: '/become-driver', page: BecomeDriverRoute.page),
-    CupertinoRoute(path: '/list-notification', page: NotificationListRoute.page),
-    MaterialRoute(path: '/delivery-zone', page: DriverDeliveryZoneRoute.page),
-    MaterialRoute(path: '/income', page: DriverIncomeRoute.page),
-    CupertinoRoute(path: '/story', page: StoryRoute.page),
-    CupertinoRoute(path: '/calc', page: CalculatorRoute.page),
-    MaterialRoute(path: '/login', page: LoginRoute.page),
-    MaterialRoute(path: '/register', page: RegisterRoute.page),
-    MaterialRoute(path: '/register-confirmation', page: RegisterConfirmationRoute.page),
-    MaterialRoute(path: '/reset-password', page: ResetPasswordRoute.page),
-    MaterialRoute(path: '/registration-steps', page: RegistrationStepsRoute.page),
+        MaterialRoute(path: '/', page: SplashRoute.page),
+        MaterialRoute(path: '/no-connection', page: NoConnectionRoute.page),
+        MaterialRoute(path: '/closed', page: ClosedRoute.page),
+        MaterialRoute(path: '/ui-type', page: UiTypeRoute.page),
+        CupertinoRoute(path: '/home', page: HomeRoute.page),
+        CupertinoRoute(path: '/orders', page: OrdersRoute.page),
+        CupertinoRoute(path: '/order-history', page: OrderHistoryRoute.page),
+        CupertinoRoute(path: '/parcels', page: ParcelsRoute.page),
+        CupertinoRoute(path: '/parcel-history', page: ParcelHistoryRoute.page),
+        CupertinoRoute(path: '/profile', page: ProfileRoute.page),
+        CupertinoRoute(path: '/become-driver', page: BecomeDriverRoute.page),
+        CupertinoRoute(
+            path: '/list-notification', page: NotificationListRoute.page),
+        MaterialRoute(
+            path: '/delivery-zone', page: DriverDeliveryZoneRoute.page),
+        MaterialRoute(path: '/income', page: DriverIncomeRoute.page),
+        CupertinoRoute(path: '/story', page: StoryRoute.page),
+        CupertinoRoute(path: '/calc', page: CalculatorRoute.page),
+        MaterialRoute(path: '/login', page: LoginRoute.page),
+        MaterialRoute(path: '/register', page: RegisterRoute.page),
+        MaterialRoute(
+            path: '/register-confirmation',
+            page: RegisterConfirmationRoute.page),
+        MaterialRoute(path: '/reset-password', page: ResetPasswordRoute.page),
+        MaterialRoute(
+            path: '/registration-steps', page: RegistrationStepsRoute.page),
 // @generated-routes-end
         // No host-owned routes remain (migration M3): the auth flip lifted
         // auth_sdk's skip_install, so /login, /register,

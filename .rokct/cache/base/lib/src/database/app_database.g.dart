@@ -1314,6 +1314,678 @@ class IdMappingsTableCompanion extends UpdateCompanion<IdMapping> {
   }
 }
 
+class $OfflineUsersTableTable extends OfflineUsersTable
+    with TableInfo<$OfflineUsersTableTable, OfflineUserEntity> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OfflineUsersTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    clientDefault: () => '',
+  );
+  static const VerificationMeta _phoneMeta = const VerificationMeta('phone');
+  @override
+  late final GeneratedColumn<String> phone = GeneratedColumn<String>(
+    'phone',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _emailMeta = const VerificationMeta('email');
+  @override
+  late final GeneratedColumn<String> email = GeneratedColumn<String>(
+    'email',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _firstNameMeta = const VerificationMeta(
+    'firstName',
+  );
+  @override
+  late final GeneratedColumn<String> firstName = GeneratedColumn<String>(
+    'first_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastNameMeta = const VerificationMeta(
+    'lastName',
+  );
+  @override
+  late final GeneratedColumn<String> lastName = GeneratedColumn<String>(
+    'last_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _passwordHashMeta = const VerificationMeta(
+    'passwordHash',
+  );
+  @override
+  late final GeneratedColumn<String> passwordHash = GeneratedColumn<String>(
+    'password_hash',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _referralMeta = const VerificationMeta(
+    'referral',
+  );
+  @override
+  late final GeneratedColumn<String> referral = GeneratedColumn<String>(
+    'referral',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncedMeta = const VerificationMeta('synced');
+  @override
+  late final GeneratedColumn<bool> synced = GeneratedColumn<bool>(
+    'synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("synced" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _backendUserIdMeta = const VerificationMeta(
+    'backendUserId',
+  );
+  @override
+  late final GeneratedColumn<String> backendUserId = GeneratedColumn<String>(
+    'backend_user_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _backendTokenMeta = const VerificationMeta(
+    'backendToken',
+  );
+  @override
+  late final GeneratedColumn<String> backendToken = GeneratedColumn<String>(
+    'backend_token',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    phone,
+    email,
+    firstName,
+    lastName,
+    passwordHash,
+    referral,
+    synced,
+    backendUserId,
+    backendToken,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'offline_users_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<OfflineUserEntity> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('phone')) {
+      context.handle(
+        _phoneMeta,
+        phone.isAcceptableOrUnknown(data['phone']!, _phoneMeta),
+      );
+    }
+    if (data.containsKey('email')) {
+      context.handle(
+        _emailMeta,
+        email.isAcceptableOrUnknown(data['email']!, _emailMeta),
+      );
+    }
+    if (data.containsKey('first_name')) {
+      context.handle(
+        _firstNameMeta,
+        firstName.isAcceptableOrUnknown(data['first_name']!, _firstNameMeta),
+      );
+    }
+    if (data.containsKey('last_name')) {
+      context.handle(
+        _lastNameMeta,
+        lastName.isAcceptableOrUnknown(data['last_name']!, _lastNameMeta),
+      );
+    }
+    if (data.containsKey('password_hash')) {
+      context.handle(
+        _passwordHashMeta,
+        passwordHash.isAcceptableOrUnknown(
+          data['password_hash']!,
+          _passwordHashMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_passwordHashMeta);
+    }
+    if (data.containsKey('referral')) {
+      context.handle(
+        _referralMeta,
+        referral.isAcceptableOrUnknown(data['referral']!, _referralMeta),
+      );
+    }
+    if (data.containsKey('synced')) {
+      context.handle(
+        _syncedMeta,
+        synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta),
+      );
+    }
+    if (data.containsKey('backend_user_id')) {
+      context.handle(
+        _backendUserIdMeta,
+        backendUserId.isAcceptableOrUnknown(
+          data['backend_user_id']!,
+          _backendUserIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('backend_token')) {
+      context.handle(
+        _backendTokenMeta,
+        backendToken.isAcceptableOrUnknown(
+          data['backend_token']!,
+          _backendTokenMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  OfflineUserEntity map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OfflineUserEntity(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      phone: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}phone'],
+      ),
+      email: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}email'],
+      ),
+      firstName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}first_name'],
+      ),
+      lastName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_name'],
+      ),
+      passwordHash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}password_hash'],
+      )!,
+      referral: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}referral'],
+      ),
+      synced: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}synced'],
+      )!,
+      backendUserId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}backend_user_id'],
+      ),
+      backendToken: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}backend_token'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $OfflineUsersTableTable createAlias(String alias) {
+    return $OfflineUsersTableTable(attachedDatabase, alias);
+  }
+}
+
+class OfflineUserEntity extends DataClass
+    implements Insertable<OfflineUserEntity> {
+  final String id;
+  final String? phone;
+  final String? email;
+  final String? firstName;
+  final String? lastName;
+  final String passwordHash;
+  final String? referral;
+  final bool synced;
+  final String? backendUserId;
+  final String? backendToken;
+  final DateTime createdAt;
+  const OfflineUserEntity({
+    required this.id,
+    this.phone,
+    this.email,
+    this.firstName,
+    this.lastName,
+    required this.passwordHash,
+    this.referral,
+    required this.synced,
+    this.backendUserId,
+    this.backendToken,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || phone != null) {
+      map['phone'] = Variable<String>(phone);
+    }
+    if (!nullToAbsent || email != null) {
+      map['email'] = Variable<String>(email);
+    }
+    if (!nullToAbsent || firstName != null) {
+      map['first_name'] = Variable<String>(firstName);
+    }
+    if (!nullToAbsent || lastName != null) {
+      map['last_name'] = Variable<String>(lastName);
+    }
+    map['password_hash'] = Variable<String>(passwordHash);
+    if (!nullToAbsent || referral != null) {
+      map['referral'] = Variable<String>(referral);
+    }
+    map['synced'] = Variable<bool>(synced);
+    if (!nullToAbsent || backendUserId != null) {
+      map['backend_user_id'] = Variable<String>(backendUserId);
+    }
+    if (!nullToAbsent || backendToken != null) {
+      map['backend_token'] = Variable<String>(backendToken);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  OfflineUsersTableCompanion toCompanion(bool nullToAbsent) {
+    return OfflineUsersTableCompanion(
+      id: Value(id),
+      phone: phone == null && nullToAbsent
+          ? const Value.absent()
+          : Value(phone),
+      email: email == null && nullToAbsent
+          ? const Value.absent()
+          : Value(email),
+      firstName: firstName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(firstName),
+      lastName: lastName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastName),
+      passwordHash: Value(passwordHash),
+      referral: referral == null && nullToAbsent
+          ? const Value.absent()
+          : Value(referral),
+      synced: Value(synced),
+      backendUserId: backendUserId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(backendUserId),
+      backendToken: backendToken == null && nullToAbsent
+          ? const Value.absent()
+          : Value(backendToken),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory OfflineUserEntity.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OfflineUserEntity(
+      id: serializer.fromJson<String>(json['id']),
+      phone: serializer.fromJson<String?>(json['phone']),
+      email: serializer.fromJson<String?>(json['email']),
+      firstName: serializer.fromJson<String?>(json['firstName']),
+      lastName: serializer.fromJson<String?>(json['lastName']),
+      passwordHash: serializer.fromJson<String>(json['passwordHash']),
+      referral: serializer.fromJson<String?>(json['referral']),
+      synced: serializer.fromJson<bool>(json['synced']),
+      backendUserId: serializer.fromJson<String?>(json['backendUserId']),
+      backendToken: serializer.fromJson<String?>(json['backendToken']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'phone': serializer.toJson<String?>(phone),
+      'email': serializer.toJson<String?>(email),
+      'firstName': serializer.toJson<String?>(firstName),
+      'lastName': serializer.toJson<String?>(lastName),
+      'passwordHash': serializer.toJson<String>(passwordHash),
+      'referral': serializer.toJson<String?>(referral),
+      'synced': serializer.toJson<bool>(synced),
+      'backendUserId': serializer.toJson<String?>(backendUserId),
+      'backendToken': serializer.toJson<String?>(backendToken),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  OfflineUserEntity copyWith({
+    String? id,
+    Value<String?> phone = const Value.absent(),
+    Value<String?> email = const Value.absent(),
+    Value<String?> firstName = const Value.absent(),
+    Value<String?> lastName = const Value.absent(),
+    String? passwordHash,
+    Value<String?> referral = const Value.absent(),
+    bool? synced,
+    Value<String?> backendUserId = const Value.absent(),
+    Value<String?> backendToken = const Value.absent(),
+    DateTime? createdAt,
+  }) => OfflineUserEntity(
+    id: id ?? this.id,
+    phone: phone.present ? phone.value : this.phone,
+    email: email.present ? email.value : this.email,
+    firstName: firstName.present ? firstName.value : this.firstName,
+    lastName: lastName.present ? lastName.value : this.lastName,
+    passwordHash: passwordHash ?? this.passwordHash,
+    referral: referral.present ? referral.value : this.referral,
+    synced: synced ?? this.synced,
+    backendUserId: backendUserId.present
+        ? backendUserId.value
+        : this.backendUserId,
+    backendToken: backendToken.present ? backendToken.value : this.backendToken,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  OfflineUserEntity copyWithCompanion(OfflineUsersTableCompanion data) {
+    return OfflineUserEntity(
+      id: data.id.present ? data.id.value : this.id,
+      phone: data.phone.present ? data.phone.value : this.phone,
+      email: data.email.present ? data.email.value : this.email,
+      firstName: data.firstName.present ? data.firstName.value : this.firstName,
+      lastName: data.lastName.present ? data.lastName.value : this.lastName,
+      passwordHash: data.passwordHash.present
+          ? data.passwordHash.value
+          : this.passwordHash,
+      referral: data.referral.present ? data.referral.value : this.referral,
+      synced: data.synced.present ? data.synced.value : this.synced,
+      backendUserId: data.backendUserId.present
+          ? data.backendUserId.value
+          : this.backendUserId,
+      backendToken: data.backendToken.present
+          ? data.backendToken.value
+          : this.backendToken,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OfflineUserEntity(')
+          ..write('id: $id, ')
+          ..write('phone: $phone, ')
+          ..write('email: $email, ')
+          ..write('firstName: $firstName, ')
+          ..write('lastName: $lastName, ')
+          ..write('passwordHash: $passwordHash, ')
+          ..write('referral: $referral, ')
+          ..write('synced: $synced, ')
+          ..write('backendUserId: $backendUserId, ')
+          ..write('backendToken: $backendToken, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    phone,
+    email,
+    firstName,
+    lastName,
+    passwordHash,
+    referral,
+    synced,
+    backendUserId,
+    backendToken,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OfflineUserEntity &&
+          other.id == this.id &&
+          other.phone == this.phone &&
+          other.email == this.email &&
+          other.firstName == this.firstName &&
+          other.lastName == this.lastName &&
+          other.passwordHash == this.passwordHash &&
+          other.referral == this.referral &&
+          other.synced == this.synced &&
+          other.backendUserId == this.backendUserId &&
+          other.backendToken == this.backendToken &&
+          other.createdAt == this.createdAt);
+}
+
+class OfflineUsersTableCompanion extends UpdateCompanion<OfflineUserEntity> {
+  final Value<String> id;
+  final Value<String?> phone;
+  final Value<String?> email;
+  final Value<String?> firstName;
+  final Value<String?> lastName;
+  final Value<String> passwordHash;
+  final Value<String?> referral;
+  final Value<bool> synced;
+  final Value<String?> backendUserId;
+  final Value<String?> backendToken;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const OfflineUsersTableCompanion({
+    this.id = const Value.absent(),
+    this.phone = const Value.absent(),
+    this.email = const Value.absent(),
+    this.firstName = const Value.absent(),
+    this.lastName = const Value.absent(),
+    this.passwordHash = const Value.absent(),
+    this.referral = const Value.absent(),
+    this.synced = const Value.absent(),
+    this.backendUserId = const Value.absent(),
+    this.backendToken = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  OfflineUsersTableCompanion.insert({
+    this.id = const Value.absent(),
+    this.phone = const Value.absent(),
+    this.email = const Value.absent(),
+    this.firstName = const Value.absent(),
+    this.lastName = const Value.absent(),
+    required String passwordHash,
+    this.referral = const Value.absent(),
+    this.synced = const Value.absent(),
+    this.backendUserId = const Value.absent(),
+    this.backendToken = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : passwordHash = Value(passwordHash);
+  static Insertable<OfflineUserEntity> custom({
+    Expression<String>? id,
+    Expression<String>? phone,
+    Expression<String>? email,
+    Expression<String>? firstName,
+    Expression<String>? lastName,
+    Expression<String>? passwordHash,
+    Expression<String>? referral,
+    Expression<bool>? synced,
+    Expression<String>? backendUserId,
+    Expression<String>? backendToken,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (phone != null) 'phone': phone,
+      if (email != null) 'email': email,
+      if (firstName != null) 'first_name': firstName,
+      if (lastName != null) 'last_name': lastName,
+      if (passwordHash != null) 'password_hash': passwordHash,
+      if (referral != null) 'referral': referral,
+      if (synced != null) 'synced': synced,
+      if (backendUserId != null) 'backend_user_id': backendUserId,
+      if (backendToken != null) 'backend_token': backendToken,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  OfflineUsersTableCompanion copyWith({
+    Value<String>? id,
+    Value<String?>? phone,
+    Value<String?>? email,
+    Value<String?>? firstName,
+    Value<String?>? lastName,
+    Value<String>? passwordHash,
+    Value<String?>? referral,
+    Value<bool>? synced,
+    Value<String?>? backendUserId,
+    Value<String?>? backendToken,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return OfflineUsersTableCompanion(
+      id: id ?? this.id,
+      phone: phone ?? this.phone,
+      email: email ?? this.email,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      passwordHash: passwordHash ?? this.passwordHash,
+      referral: referral ?? this.referral,
+      synced: synced ?? this.synced,
+      backendUserId: backendUserId ?? this.backendUserId,
+      backendToken: backendToken ?? this.backendToken,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (phone.present) {
+      map['phone'] = Variable<String>(phone.value);
+    }
+    if (email.present) {
+      map['email'] = Variable<String>(email.value);
+    }
+    if (firstName.present) {
+      map['first_name'] = Variable<String>(firstName.value);
+    }
+    if (lastName.present) {
+      map['last_name'] = Variable<String>(lastName.value);
+    }
+    if (passwordHash.present) {
+      map['password_hash'] = Variable<String>(passwordHash.value);
+    }
+    if (referral.present) {
+      map['referral'] = Variable<String>(referral.value);
+    }
+    if (synced.present) {
+      map['synced'] = Variable<bool>(synced.value);
+    }
+    if (backendUserId.present) {
+      map['backend_user_id'] = Variable<String>(backendUserId.value);
+    }
+    if (backendToken.present) {
+      map['backend_token'] = Variable<String>(backendToken.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OfflineUsersTableCompanion(')
+          ..write('id: $id, ')
+          ..write('phone: $phone, ')
+          ..write('email: $email, ')
+          ..write('firstName: $firstName, ')
+          ..write('lastName: $lastName, ')
+          ..write('passwordHash: $passwordHash, ')
+          ..write('referral: $referral, ')
+          ..write('synced: $synced, ')
+          ..write('backendUserId: $backendUserId, ')
+          ..write('backendToken: $backendToken, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1322,6 +1994,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $IdMappingsTableTable idMappingsTable = $IdMappingsTableTable(
     this,
   );
+  late final $OfflineUsersTableTable offlineUsersTable =
+      $OfflineUsersTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1330,6 +2004,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     keyValueTable,
     outboxTable,
     idMappingsTable,
+    offlineUsersTable,
   ];
 }
 
@@ -2015,6 +2690,339 @@ typedef $$IdMappingsTableTableProcessedTableManager =
       IdMapping,
       PrefetchHooks Function()
     >;
+typedef $$OfflineUsersTableTableCreateCompanionBuilder =
+    OfflineUsersTableCompanion Function({
+      Value<String> id,
+      Value<String?> phone,
+      Value<String?> email,
+      Value<String?> firstName,
+      Value<String?> lastName,
+      required String passwordHash,
+      Value<String?> referral,
+      Value<bool> synced,
+      Value<String?> backendUserId,
+      Value<String?> backendToken,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+typedef $$OfflineUsersTableTableUpdateCompanionBuilder =
+    OfflineUsersTableCompanion Function({
+      Value<String> id,
+      Value<String?> phone,
+      Value<String?> email,
+      Value<String?> firstName,
+      Value<String?> lastName,
+      Value<String> passwordHash,
+      Value<String?> referral,
+      Value<bool> synced,
+      Value<String?> backendUserId,
+      Value<String?> backendToken,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$OfflineUsersTableTableFilterComposer
+    extends Composer<_$AppDatabase, $OfflineUsersTableTable> {
+  $$OfflineUsersTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get phone => $composableBuilder(
+    column: $table.phone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get firstName => $composableBuilder(
+    column: $table.firstName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastName => $composableBuilder(
+    column: $table.lastName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get passwordHash => $composableBuilder(
+    column: $table.passwordHash,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get referral => $composableBuilder(
+    column: $table.referral,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get synced => $composableBuilder(
+    column: $table.synced,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get backendUserId => $composableBuilder(
+    column: $table.backendUserId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get backendToken => $composableBuilder(
+    column: $table.backendToken,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$OfflineUsersTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $OfflineUsersTableTable> {
+  $$OfflineUsersTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get phone => $composableBuilder(
+    column: $table.phone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get firstName => $composableBuilder(
+    column: $table.firstName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastName => $composableBuilder(
+    column: $table.lastName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get passwordHash => $composableBuilder(
+    column: $table.passwordHash,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get referral => $composableBuilder(
+    column: $table.referral,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get synced => $composableBuilder(
+    column: $table.synced,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get backendUserId => $composableBuilder(
+    column: $table.backendUserId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get backendToken => $composableBuilder(
+    column: $table.backendToken,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$OfflineUsersTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $OfflineUsersTableTable> {
+  $$OfflineUsersTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get phone =>
+      $composableBuilder(column: $table.phone, builder: (column) => column);
+
+  GeneratedColumn<String> get email =>
+      $composableBuilder(column: $table.email, builder: (column) => column);
+
+  GeneratedColumn<String> get firstName =>
+      $composableBuilder(column: $table.firstName, builder: (column) => column);
+
+  GeneratedColumn<String> get lastName =>
+      $composableBuilder(column: $table.lastName, builder: (column) => column);
+
+  GeneratedColumn<String> get passwordHash => $composableBuilder(
+    column: $table.passwordHash,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get referral =>
+      $composableBuilder(column: $table.referral, builder: (column) => column);
+
+  GeneratedColumn<bool> get synced =>
+      $composableBuilder(column: $table.synced, builder: (column) => column);
+
+  GeneratedColumn<String> get backendUserId => $composableBuilder(
+    column: $table.backendUserId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get backendToken => $composableBuilder(
+    column: $table.backendToken,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$OfflineUsersTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $OfflineUsersTableTable,
+          OfflineUserEntity,
+          $$OfflineUsersTableTableFilterComposer,
+          $$OfflineUsersTableTableOrderingComposer,
+          $$OfflineUsersTableTableAnnotationComposer,
+          $$OfflineUsersTableTableCreateCompanionBuilder,
+          $$OfflineUsersTableTableUpdateCompanionBuilder,
+          (
+            OfflineUserEntity,
+            BaseReferences<
+              _$AppDatabase,
+              $OfflineUsersTableTable,
+              OfflineUserEntity
+            >,
+          ),
+          OfflineUserEntity,
+          PrefetchHooks Function()
+        > {
+  $$OfflineUsersTableTableTableManager(
+    _$AppDatabase db,
+    $OfflineUsersTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OfflineUsersTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OfflineUsersTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OfflineUsersTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String?> phone = const Value.absent(),
+                Value<String?> email = const Value.absent(),
+                Value<String?> firstName = const Value.absent(),
+                Value<String?> lastName = const Value.absent(),
+                Value<String> passwordHash = const Value.absent(),
+                Value<String?> referral = const Value.absent(),
+                Value<bool> synced = const Value.absent(),
+                Value<String?> backendUserId = const Value.absent(),
+                Value<String?> backendToken = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => OfflineUsersTableCompanion(
+                id: id,
+                phone: phone,
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+                passwordHash: passwordHash,
+                referral: referral,
+                synced: synced,
+                backendUserId: backendUserId,
+                backendToken: backendToken,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String?> phone = const Value.absent(),
+                Value<String?> email = const Value.absent(),
+                Value<String?> firstName = const Value.absent(),
+                Value<String?> lastName = const Value.absent(),
+                required String passwordHash,
+                Value<String?> referral = const Value.absent(),
+                Value<bool> synced = const Value.absent(),
+                Value<String?> backendUserId = const Value.absent(),
+                Value<String?> backendToken = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => OfflineUsersTableCompanion.insert(
+                id: id,
+                phone: phone,
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+                passwordHash: passwordHash,
+                referral: referral,
+                synced: synced,
+                backendUserId: backendUserId,
+                backendToken: backendToken,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$OfflineUsersTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $OfflineUsersTableTable,
+      OfflineUserEntity,
+      $$OfflineUsersTableTableFilterComposer,
+      $$OfflineUsersTableTableOrderingComposer,
+      $$OfflineUsersTableTableAnnotationComposer,
+      $$OfflineUsersTableTableCreateCompanionBuilder,
+      $$OfflineUsersTableTableUpdateCompanionBuilder,
+      (
+        OfflineUserEntity,
+        BaseReferences<
+          _$AppDatabase,
+          $OfflineUsersTableTable,
+          OfflineUserEntity
+        >,
+      ),
+      OfflineUserEntity,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2025,4 +3033,6 @@ class $AppDatabaseManager {
       $$OutboxTableTableTableManager(_db, _db.outboxTable);
   $$IdMappingsTableTableTableManager get idMappingsTable =>
       $$IdMappingsTableTableTableManager(_db, _db.idMappingsTable);
+  $$OfflineUsersTableTableTableManager get offlineUsersTable =>
+      $$OfflineUsersTableTableTableManager(_db, _db.offlineUsersTable);
 }
