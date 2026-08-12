@@ -1,6 +1,6 @@
 {
   "name": "delivery_sdk",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "home_sdk": true,
   "home_page": "templates/pages/driver/home/home_page.dart",
   "installs": [
@@ -195,6 +195,26 @@
           "import": "package:${package}/presentation/pages/auth/become_driver/become_driver.dart"
         }
       ],
+      "boot_hooks": [
+        {
+          "id": "delivery-driver-splash-preserve",
+          "order": 1,
+          "body": "FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized());",
+          "imports": [
+            "import 'package:flutter_native_splash/flutter_native_splash.dart';"
+          ]
+        },
+        {
+          "id": "delivery-driver-courier-location-workmanager",
+          "order": 5,
+          "body": "await Workmanager().initialize(callbackDispatcher);",
+          "imports": [
+            "import 'package:workmanager/workmanager.dart';",
+            "import 'package:delivery_sdk/src/driver/infrastructure/services/courier_location_service.dart';"
+          ]
+        }
+      ],
+      "_comment_boot_hooks": "Driver migration M4 - the last two host-owned startup lines from paas_driver's retired hand-written main.dart. Splash preserve: the home SDK holds the native splash until the router decides where to go (mirrors merchants-manager-splash-preserve, order 1). Workmanager: callbackDispatcher (the periodic courier-location report) is delivery_sdk package code (src/driver/infrastructure/services/courier_location_service.dart, vm:entry-point) because Workmanager invokes it by entry-point reference in a separate isolate - a host-private function could never be referenced from an injected hook body; the installed home page registers/cancels the task by its fetchBackground id from the same file.",
       "app_routes": [
         {
           "method": "replaceLoginRoute",
@@ -202,6 +222,14 @@
           "imports": [
             "import 'package:${package}/presentation/routes/app_router.dart';"
           ]
+        },
+        {
+          "method": "replaceMainRoute",
+          "body": "context.router.replace(HomeRoute());",
+          "imports": [
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ],
+          "_comment": "base_sdk's logged-in splash path (AppHelpers.goHome) calls AppRoutes.I.replaceMainRoute; nothing else in a driver compose declares it, so without this entry a logged-in cold start throws via _HostAppRoutes.noSuchMethod. The driver 'main' is the courier home map (/home, HomeRoute) - same pattern as launch_sdk's LauncherHomeRoute declaration."
         }
       ],
       "session_policy": {
