@@ -1,6 +1,6 @@
 {
   "name": "revenue_sdk",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "installs": [],
   "routes": [],
   "integrations": [],
@@ -23,7 +23,18 @@
           "type": "MaterialRoute",
           "import": "package:${package}/presentation/pages/income/income_page.dart"
         }
-      ]
+      ],
+      "di_hooks": [
+        {
+          "id": "revenue-driver-role-di",
+          "order": 12,
+          "body": "DriverRevenueDependencies.register(GetIt.instance);",
+          "imports": [
+            "import 'package:revenue_sdk/src/driver/di/driver_revenue_di.dart';"
+          ]
+        }
+      ],
+      "_comment_di_hooks": "Driver migration M4: the driver-role revenue DI (CourierStatisticsRepositoryFacade for the installed profile/income pages) moved out of paas_driver's tracked dependency_manager.dart into the #160 di_hooks mechanism, mirroring commerce#17's manager role-DI entries. Direct src/ import by design - DriverRevenueDependencies is role code kept out of the barrel so a manager app's stripped cache still compiles (see driver_revenue_di.dart). register() is isRegistered-guarded, so a host that still calls it by hand during its own migration window double-boots safely."
     },
     "manager": {
       "installs": [

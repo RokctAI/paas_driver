@@ -60,4 +60,5 @@ final appRouter = getIt.get<AppRouter>();
 // setUpDependencies() above — exposed here so the surviving host code (the
 // profile-settings notifier the register funnel still uses) resolves it the
 // same way as the app's own repositories.
-final courierStatisticsRepository = getIt.get<CourierStatisticsRepositoryFacade>();
+final courierStatisticsRepository =
+    getIt.get<CourierStatisticsRepositoryFacade>();
