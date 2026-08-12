@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:${package}/presentation/component/helper/common_image.dart';
-import 'package:${package}/presentation/component/helper/shop_bordered_avatar.dart';
+import 'package:base_sdk/src/presentation/components/helper/common_image.dart';
+import 'package:base_sdk/src/presentation/components/helper/shop_bordered_avatar.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:merchants_sdk/src/manager/application/restaurant/restaurant_provider.dart';

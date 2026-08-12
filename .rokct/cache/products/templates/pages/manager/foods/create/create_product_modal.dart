@@ -8,8 +8,8 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:products_sdk/src/manager/application/foods/create/details/create_food_details_provider.dart';
-import 'package:${package}/presentation/component/helper/modal_drag.dart';
-import 'package:${package}/presentation/component/helper/modal_wrap.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_drag.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_wrap.dart';
 
 /// Opened by the merchants_sdk home shell's FAB when the foods tab is on
 /// "foods" — `CreateProductModal` at this install path is main_page.dart's

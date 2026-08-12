@@ -7,7 +7,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_stock.dart';
 import 'package:products_sdk/src/manager/utils/seller_form_helpers.dart';
-import 'package:${package}/presentation/component/text_fields/underlined_text_field.dart';
+import 'package:base_sdk/src/presentation/components/text_fields/underlined_text_field.dart';
 import 'package:${package}/presentation/pages/main/widgets/buttons_bouncing_effect.dart';
 
 class EditableFoodStockItem extends StatelessWidget {

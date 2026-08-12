@@ -19,7 +19,7 @@ import 'package:products_sdk/src/manager/application/extras/extras_provider.dart
 import 'package:products_sdk/src/manager/application/foods/food_categories_provider.dart';
 import 'package:products_sdk/src/manager/application/foods/food_tabs_provider.dart';
 import 'package:products_sdk/src/manager/application/foods/foods_provider.dart';
-import 'package:${package}/presentation/component/custom_app_bar.dart';
+import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
 import 'package:${package}/presentation/pages/main/widgets/buttons_bouncing_effect.dart';
 
 /// The foods tab of the manager home shell (merchants_sdk's main_page.dart

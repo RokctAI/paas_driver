@@ -185,16 +185,24 @@ void main() async {
 class _HostAppRoutes implements AppRoutes {
   // @generated-approutes-start
   @override
-  Future<Object?> replaceSplashRoute(BuildContext context) => context.router.replace(SplashRoute());
+  Future<Object?> replaceSplashRoute(BuildContext context) =>
+      context.router.replace(SplashRoute());
 
   @override
-  Future<Object?> replaceNoConnectionRoute(BuildContext context) => context.router.replace(NoConnectionRoute());
+  Future<Object?> replaceNoConnectionRoute(BuildContext context) =>
+      context.router.replace(NoConnectionRoute());
 
   @override
-  Future<Object?> replaceClosedRoute(BuildContext context) => context.router.replace(ClosedRoute());
+  Future<Object?> replaceClosedRoute(BuildContext context) =>
+      context.router.replace(ClosedRoute());
 
   @override
-  Future<Object?> replaceUiTypeRoute(BuildContext context) => context.router.replace(UiTypeRoute());
+  Future<Object?> replaceUiTypeRoute(BuildContext context) =>
+      context.router.replace(UiTypeRoute());
+
+  @override
+  Future<Object?> replaceLoginRoute(BuildContext context) =>
+      context.router.replace(LoginRoute());
 
   // @generated-approutes-end
 

@@ -1,0 +1,25 @@
+import 'package:base_sdk/src/handlers/api_result.dart';
+import 'package:base_sdk/src/models/data/parcel_order.dart';
+
+abstract class CourierParcelRepositoryFacade {
+  Future<ApiResult<ParcelOrder>> showParcel(int id);
+
+  Future<ApiResult<dynamic>> setCurrentOrder(int? orderId);
+
+  Future<ApiResult<List<ParcelOrder>>> getActiveOrders(int page);
+
+  Future<ApiResult<List<ParcelOrder>>> getAvailableOrders(int page);
+
+  Future<ApiResult<List<ParcelOrder>>> getHistoryOrders(int page,
+      {DateTime? start, DateTime? end});
+
+  Future<ApiResult<dynamic>> updateParcel(int? parcelId, String? status);
+
+  Future<ApiResult<void>> addReviewParcel(
+    num orderId, {
+    required double rating,
+    required String comment,
+  });
+
+  Future<ApiResult<ParcelOrder>> setParcel(String orderId);
+}

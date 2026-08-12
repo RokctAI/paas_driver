@@ -15,9 +15,9 @@ import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_extras_group.dart';
 import 'package:products_sdk/src/manager/application/extras/details/extras_group_details_provider.dart';
-import 'package:${package}/presentation/component/helper/modal_drag.dart';
-import 'package:${package}/presentation/component/helper/modal_wrap.dart';
-import 'package:${package}/presentation/component/text_fields/underlined_text_field.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_drag.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_wrap.dart';
+import 'package:base_sdk/src/presentation/components/text_fields/underlined_text_field.dart';
 import 'package:${package}/presentation/pages/main/widgets/buttons_bouncing_effect.dart';
 
 class ExtrasGroupDetailsModal extends ConsumerStatefulWidget {

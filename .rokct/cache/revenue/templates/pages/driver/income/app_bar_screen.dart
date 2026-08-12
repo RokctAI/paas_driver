@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import 'package:${package}/infrastructure/services/services.dart';
-import 'package:${package}/presentation/component/components.dart';
-import 'package:${package}/presentation/styles/style.dart';
+import 'package:revenue_sdk/src/driver/application/statistics/statistics_notifier.dart';
+import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
+import 'package:base_sdk/src/presentation/components/filter_screen.dart';
+import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:base_sdk/src/presentation/theme/app_style.dart';
 
 class AbbBarScreen extends StatelessWidget {
-  const AbbBarScreen({super.key});
+  // base_sdk's FilterScreen requires an onChangeDay callback (the host copy's
+  // calendar sheet fired nothing), so the page passes its notifier in — same
+  // wiring as the manager income template's AppbarScreen.
+  final StatisticsNotifier event;
+
+  const AbbBarScreen({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +32,11 @@ class AbbBarScreen extends StatelessWidget {
                 children: [
                   Text(
                     AppHelpers.getTranslation(TrKeys.income),
-                    style: Style.interSemi(size: 18.sp),
+                    style: AppStyle.interSemi(size: 18),
                   ),
                   Text(
                     AppHelpers.getTranslation(TrKeys.earningsRestaurant),
-                    style: Style.interRegular(size: 12.sp, letterSpacing: -0.3),
+                    style: AppStyle.interRegular(size: 12, letterSpacing: -0.3),
                   ),
                 ],
               ),
@@ -39,18 +46,24 @@ class AbbBarScreen extends StatelessWidget {
                       paddingTop: MediaQuery.paddingOf(context).top,
                       context: context,
                       radius: 12,
-                      modal: const FilterScreen(
+                      modal: FilterScreen(
                         isTabBar: false,
+                        onChangeDay: (rangeDatePicker) {
+                          event.fetchStatistics(
+                            startTime: rangeDatePicker.last ?? DateTime.now(),
+                            endTime: rangeDatePicker.first ?? DateTime.now(),
+                          );
+                        },
                       ),
                       isDarkMode: true);
                 },
                 child: Container(
                   padding: EdgeInsets.all(10.r),
                   decoration: const BoxDecoration(
-                      color: Style.greyColor, shape: BoxShape.circle),
+                      color: AppStyle.bgGrey, shape: BoxShape.circle),
                   child: const Icon(
-                    FlutterRemix.calendar_event_fill,
-                    color: Style.black,
+                    Remix.calendar_event_fill,
+                    color: AppStyle.blackColor,
                   ),
                 ),
               )

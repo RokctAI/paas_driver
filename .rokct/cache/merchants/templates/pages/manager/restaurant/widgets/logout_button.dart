@@ -3,7 +3,7 @@ import 'package:flutter_remix/flutter_remix.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'logout_modal.dart';
-import 'package:${package}/presentation/component/custom_toggle.dart';
+import 'package:base_sdk/src/presentation/components/custom_toggle3.dart';
 import 'package:${package}/presentation/pages/main/widgets/buttons_bouncing_effect.dart';
 import 'package:base_sdk/src/presentation/components/blur_wrap.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';

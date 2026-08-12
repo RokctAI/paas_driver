@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.6.0",
+      "version": "1.8.0",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -216,7 +216,7 @@
       "boot_hooks": []
     },
     "orders_sdk": {
-      "version": "1.4.0",
+      "version": "1.5.0",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -227,27 +227,153 @@
       "boot_hooks": []
     },
     "delivery_sdk": {
-      "version": "1.2.0",
-      "files": {},
-      "routes": [],
-      "app_routes": [],
+      "version": "1.3.0",
+      "files": {
+        "lib/presentation/pages/profile/courier_statistics_provider.dart": "fbd01e72fa569f0eca97e81f0338b299e274aadc68e27737db3495d6c4d2e78f",
+        "lib/presentation/routes/delivery_adapters.dart": "87ce72a960fffd5a6c6a5902030fe4cc2269e9bd40732f054eaa4c19748aa6f4"
+      },
+      "routes": [
+        {
+          "path": "/home",
+          "page": "HomeRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/home/home_page.dart",
+          "_comment": "Path, route name and CupertinoRoute type match paas_driver's host-owned entry outside the generated markers, so host navigation call-sites keep working when the host deletes its manual entry + its own copy of the page (M2). The installed page carries @RoutePage(name auto-derived: HomeRoute); SDK lib/ pages never get a generated route class, which is why every routed page here is an installed template."
+        },
+        {
+          "path": "/orders",
+          "page": "OrdersRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/orders/orders_page.dart"
+        },
+        {
+          "path": "/order-history",
+          "page": "OrderHistoryRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/order_history/order_history.dart"
+        },
+        {
+          "path": "/parcels",
+          "page": "ParcelsRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/parcel/parcels_page.dart"
+        },
+        {
+          "path": "/parcel-history",
+          "page": "ParcelHistoryRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/parcels_history/parcel_history.dart"
+        },
+        {
+          "path": "/profile",
+          "page": "ProfileRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/profile/profile_page.dart"
+        },
+        {
+          "path": "/become-driver",
+          "page": "BecomeDriverRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/auth/become_driver/become_driver.dart"
+        }
+      ],
+      "app_routes": [
+        {
+          "method": "replaceLoginRoute",
+          "body": "context.router.replace(LoginRoute());",
+          "imports": [
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        }
+      ],
       "onboarding_slides": [],
       "embedded_widgets": [],
-      "registration_steps": [],
+      "registration_steps": [
+        {
+          "id": "delivery.vehicle_details",
+          "order": 10,
+          "imports": [
+            "package:delivery_sdk/src/driver/presentation/widgets/vehicle_details_slide.dart",
+            "package:${package}/presentation/routes/delivery_adapters.dart"
+          ],
+          "body": "RegistrationStep(\n  data: const {'id': 'delivery.vehicle_details'},\n  content: Builder(\n    builder: (context) => VehicleDetailsSlide(\n      capture: CourierVehicleDetailsAdapter(),\n      onContinue: () => RegistrationStepScope.of(context).next(),\n    ),\n  ),\n)"
+        }
+      ],
       "app_assets": [
         "assets/images/marker.png",
         "assets/images/splash.png",
         "assets/images/splash1.png",
         "assets/images/splash2.png",
-        "assets/lottie/empty-box.json"
+        "assets/lottie/empty-box.json",
+        "assets/image/my_location.png",
+        "assets/svg/balance.svg"
       ],
       "di_hooks": [],
-      "boot_hooks": []
+      "boot_hooks": [],
+      "session_policy": {
+        "allowed_roles": [
+          {
+            "role": "deliveryman",
+            "landing_route": "/home"
+          },
+          {
+            "role": "*",
+            "landing_route": "/become-driver"
+          }
+        ],
+        "rejection_route": "/become-driver",
+        "rejection_message_tr_key": "become.driver"
+      },
+      "tr_keys": {
+        "activeParcels": "active_parcels",
+        "apart": "apart",
+        "askThisCodeFromCustomer": "ask.this.code.from.customer",
+        "availableOrders": "available_orders",
+        "availableParcels": "available_parcels",
+        "canceled": "canceled",
+        "chooseFromLibrary": "choose.from.library",
+        "completeCheckout": "complete_checkout",
+        "deliveredOrder": "delivered_order",
+        "entr": "entr",
+        "evaluation": "evaluation",
+        "firstnameCannotBeEmpty": "firstname_cannot_be_empty",
+        "iDeliveredTheOrder": "delivered_the_order",
+        "inActive": "in_active",
+        "lastProfit": "last.profit",
+        "lastnameCannotBeEmpty": "lastname_cannot_be_empty",
+        "moreDistance": "more.distance",
+        "noteAboutClient": "note_about_the_client",
+        "offline": "offline",
+        "online": "online",
+        "onlineHelper": "online.helper",
+        "orderInformation": "order_information",
+        "rateTheCustomer": "rate_the_customer",
+        "restaurantHome": "restauran_home",
+        "startShopping": "start_shopping",
+        "statusNote": "status.note",
+        "telAdmin": "tel.admin",
+        "thatYouHaveIndeed": "that_you_have_indeed",
+        "thereAreOrders": "there_are",
+        "youStatus": "your.status",
+        "yourFeedbackService": "your_feedback_will_help_us_improve_our_delivery_service"
+      },
+      "asset_keys": {
+        "pngMyLocation": "assets/image/my_location.png",
+        "svgBalance": "assets/svg/balance.svg"
+      }
     },
     "comms_sdk": {
-      "version": "1.1.0",
+      "version": "1.3.0",
       "files": {},
-      "routes": [],
+      "routes": [
+        {
+          "path": "/list-notification",
+          "page": "NotificationListRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/profile/notification_list_page.dart",
+          "_comment": "Path, route name and CupertinoRoute type match paas_driver's host-owned entry outside the generated markers, so delivery_sdk's installed driver profile_page (zones#12) keeps pushing NotificationListRoute unchanged when the driver repo deletes its manual entry + its own copy of the page (driver migration M2)."
+        }
+      ],
       "app_routes": [],
       "onboarding_slides": [],
       "embedded_widgets": [
@@ -262,7 +388,18 @@
       ],
       "registration_steps": [],
       "di_hooks": [],
-      "boot_hooks": []
+      "boot_hooks": [
+        {
+          "id": "comms-firebase-fcm-boot",
+          "order": 10,
+          "body": "if (Firebase.apps.isEmpty) {\n  await Firebase.initializeApp();\n}\nFirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);",
+          "imports": [
+            "import 'package:firebase_core/firebase_core.dart';",
+            "import 'package:firebase_messaging/firebase_messaging.dart';",
+            "import 'package:comms_sdk/src/common/services/firebase_background_handler.dart';"
+          ]
+        }
+      ]
     },
     "processing_sdk": {
       "version": "1.0.0",
@@ -312,7 +449,7 @@
       "boot_hooks": []
     },
     "zones_sdk": {
-      "version": "1.1.1",
+      "version": "1.2.0",
       "files": {},
       "routes": [
         {
@@ -331,7 +468,7 @@
       "boot_hooks": []
     },
     "revenue_sdk": {
-      "version": "1.1.0",
+      "version": "1.2.0",
       "files": {},
       "routes": [
         {
@@ -346,14 +483,26 @@
       "embedded_widgets": [],
       "registration_steps": [],
       "di_hooks": [],
-      "boot_hooks": []
+      "boot_hooks": [],
+      "tr_keys": {
+        "deliverymanTransactions": "deliveryman_transactions",
+        "doneOrders": "Done orders"
+      }
     },
     "merchants_sdk": {
-      "version": "1.6.0",
+      "version": "1.9.0",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d"
       },
-      "routes": [],
+      "routes": [
+        {
+          "path": "/story",
+          "page": "StoryRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/stores/story_page.dart",
+          "_comment": "Path, route name and CupertinoRoute type match paas_driver's host-owned entry outside the generated markers, so host navigation call-sites keep working when the host deletes its manual entry + its own copy of the page (M2). The installed page carries @RoutePage() (name auto-derived: StoryRoute) \u2014 delivery_sdk's installed home stores.dart tile pushes `const StoryRoute()` (zones#12)."
+        }
+      ],
       "app_routes": [],
       "onboarding_slides": [],
       "embedded_widgets": [],
@@ -366,10 +515,15 @@
         "assets/svgs/menu.svg"
       ],
       "di_hooks": [],
-      "boot_hooks": []
+      "boot_hooks": [],
+      "tr_keys": {
+        "deliverymanbottomslide1": "deliveryman_bottom_slide1",
+        "deliverymanbottomslide2": "deliveryman_bottom_slide2",
+        "deliverymanbottomslide3": "deliveryman_bottom_slide3"
+      }
     },
     "products_sdk": {
-      "version": "1.2.0",
+      "version": "1.2.2",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -402,44 +556,44 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.6.0",
-      "hash": "54fd719034f77cc2"
+      "version": "1.8.0",
+      "hash": "3f9060776d326a50"
     },
     "comms": {
-      "version": "1.1.0",
-      "hash": "1615f1f2c3de3586"
+      "version": "1.3.0",
+      "hash": "38f669e01fae06a3"
     },
     "auth": {
-      "version": "1.2.0",
-      "hash": "018144e3158277bd"
+      "version": "1.4.0",
+      "hash": "018c9147dd7b94ce"
     },
     "users": {
       "version": "1.1.0",
       "hash": "0c406a88759e0089"
     },
     "orders": {
-      "version": "1.4.0",
-      "hash": "75d911783bc8f263"
+      "version": "1.5.0",
+      "hash": "20e43ca66a635a51"
     },
     "merchants": {
-      "version": "1.6.0",
-      "hash": "c79383009894ad41"
+      "version": "1.9.0",
+      "hash": "8fd88f0a8f8cfc6b"
     },
     "products": {
-      "version": "1.2.0",
-      "hash": "7d170f684ae73235"
+      "version": "1.2.2",
+      "hash": "1bd3e8381498f9a7"
     },
     "delivery": {
-      "version": "1.2.0",
-      "hash": "99cc6bc08d64485c"
+      "version": "1.3.0",
+      "hash": "7450c52fcbc24411"
     },
     "map": {
       "version": "1.1.0",
       "hash": "af7d107ee32d5922"
     },
     "zones": {
-      "version": "1.1.1",
-      "hash": "b793dcb4dfa36c7f"
+      "version": "1.2.0",
+      "hash": "89da416aea6f93eb"
     },
     "processing": {
       "version": "1.0.0",
@@ -454,8 +608,8 @@
       "hash": "22dc201f9e9f9023"
     },
     "revenue": {
-      "version": "1.1.0",
-      "hash": "9885f4eb834115d6"
+      "version": "1.2.0",
+      "hash": "0842c2e58c8d8c19"
     }
   }
 }

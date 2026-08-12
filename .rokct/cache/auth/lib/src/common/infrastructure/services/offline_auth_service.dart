@@ -61,10 +61,18 @@ class OfflineAuthService {
 
   /// Key under [authFlagsBox]: set when a deferred-registration account has
   /// synced to the backend but the user has not completed OTP verification
-  /// yet. The host app should read this and route the active user into the
-  /// existing OTP flow ('/register-confirmation'); the backend treats the
+  /// yet. PendingOtpGate (installed into the composed app's main() via
+  /// auth_sdk's manifest boot_hooks entry) reads this and routes the active
+  /// user into the existing OTP confirmation sheet; the backend treats the
   /// account as limited until OTP completes.
   static const String pendingOtpKey = 'pending_otp_verification';
+
+  /// Invoked right after [syncOne] records [pendingOtpKey], so the UX layer
+  /// can react to a sync that completes mid-session instead of waiting for
+  /// the next boot/resume. PendingOtpGate.install() assigns this; kept as a
+  /// bare callback (not an import of the gate) so this infrastructure
+  /// service stays presentation-free.
+  static void Function()? onPendingOtpFlagged;
 
   String _hash(String password) =>
       sha256.convert(utf8.encode(password)).toString();
@@ -247,9 +255,10 @@ class OfflineAuthService {
         // Ray's deferred-OTP flow: the account is now synced but NOT
         // verified — the backend limits it until OTP completes. Flag it so
         // the app can route the user into the OTP flow when next active.
-        // TODO(ux-hook): host-level navigation into '/register-confirmation'
-        // (sendOtp + verifyPhone / verifyEmail) when this flag is set —
-        // sync runs with no BuildContext, so auth_sdk can only record it.
+        // Sync runs with no BuildContext, so this only records the flag and
+        // pokes [onPendingOtpFlagged]; PendingOtpGate (wired in by the
+        // manifest boot_hooks entry) does the actual routing into the OTP
+        // confirmation sheet (sendOtp + verifyPhone / verifyEmail).
         await _db.putItem(authFlagsBox, pendingOtpKey, {
           'localUserId': row.id,
           'backendUserId': backendUserId,
@@ -257,6 +266,7 @@ class OfflineAuthService {
           'email': row.email,
           'syncedAt': DateTime.now().toIso8601String(),
         });
+        onPendingOtpFlagged?.call();
         return OfflineSyncOutcome.ok(backendUserId);
       },
       failure: (failure, status) async {

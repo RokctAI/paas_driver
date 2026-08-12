@@ -34,7 +34,9 @@ class AuthSessionPolicy {
   /// Whether an account with [role] may hold a session in this app.
   /// [role] is null when the backend sent no role — and for OFFLINE logins,
   /// where the role cannot be verified at all, so a role-gated policy
-  /// deliberately rejects offline sessions.
+  /// deliberately rejects offline sessions (unless it declares a `'*'`
+  /// fallback — see [DeclaredSessionPolicy.fallbackRole] — which admits
+  /// them onto the fallback landing, never onto an exact-role one).
   bool allows(String? role) => true;
 
   /// Where an allowed account lands right after sign-in. Only called when
@@ -65,8 +67,28 @@ class AuthSessionPolicy {
 /// bridge RegistrationFlow.completeRegistration() already uses to reach
 /// '/registration-steps' (ADR-005).
 class DeclaredSessionPolicy extends AuthSessionPolicy {
+  /// The manifest role key that declares a FALLBACK landing. When a
+  /// `'*'` entry is present in [roleLandings], an account whose role
+  /// matches no other key is still ADMITTED — its token is persisted
+  /// exactly like a matched role's — and it lands on the fallback's route
+  /// instead of being rejected. This is the driver flavour of the seam:
+  /// deliveryman -> /home, anyone else -> /become-driver with a LIVE
+  /// session, so the courier request can be filed as the signed-in user
+  /// (the legacy paas_driver behavior). Role-less sessions (offline
+  /// logins, backends that sent no role) are admitted too, but they can
+  /// only ever land on the fallback route — an exact-role landing still
+  /// requires a backend-verified role.
+  ///
+  /// With no `'*'` entry declared, nothing changes: non-matching (and
+  /// role-less) accounts are rejected with no persisted session, exactly
+  /// as this class always behaved — manager's seller-only policy is
+  /// untouched.
+  static const String fallbackRole = '*';
+
   /// role -> landing route path (e.g. {'seller': '/main'}). An account
-  /// whose role is not a key here is rejected.
+  /// whose role is not a key here is rejected — unless a [fallbackRole]
+  /// (`'*'`) entry is declared, in which case it is admitted and lands on
+  /// that entry's route, keeping its session.
   final Map<String, String> roleLandings;
 
   /// Translation key (a TrKeys VALUE, e.g. 'access.denied') of the message
@@ -86,11 +108,16 @@ class DeclaredSessionPolicy extends AuthSessionPolicy {
   });
 
   @override
-  bool allows(String? role) => role != null && roleLandings.containsKey(role);
+  bool allows(String? role) =>
+      roleLandings.containsKey(fallbackRole) ||
+      (role != null && roleLandings.containsKey(role));
 
   @override
   void onAuthenticated(BuildContext context, {String? role}) {
-    final landing = roleLandings[role];
+    // Exact role match first; a declared '*' fallback catches everyone
+    // else (including role-less sessions) — never the other way around, so
+    // a privileged landing always requires its exact verified role.
+    final landing = roleLandings[role] ?? roleLandings[fallbackRole];
     if (landing == null) {
       // Unreachable when the login flow gates on allows(); kept safe anyway.
       super.onAuthenticated(context, role: role);

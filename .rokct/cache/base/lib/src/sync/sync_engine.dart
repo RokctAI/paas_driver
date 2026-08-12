@@ -146,6 +146,62 @@ class SyncEngine {
     return row.isNotEmpty;
   }
 
+  /// Ops parked for user resolution — [OutboxStatus.failed] (terminally
+  /// rejected by the backend) and [OutboxStatus.dead] (retry cap exhausted)
+  /// — oldest first. Read API for sync-issues surfaces; pair with [retryOp]
+  /// / [deleteOp] to resolve them.
+  Future<List<OutboxEntry>> parkedOps() =>
+      (_db.select(_db.outboxTable)
+            ..where(
+              (t) => t.status.isIn([
+                OutboxStatus.failed.name,
+                OutboxStatus.dead.name,
+              ]),
+            )
+            ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
+          .get();
+
+  /// Requeue a parked ([OutboxStatus.failed] / [OutboxStatus.dead]) op as-is
+  /// and kick the drain: status back to pending with attempts, lastError and
+  /// the backoff window cleared, so the push re-runs immediately with the
+  /// stored payload. Returns false (and touches nothing) when [opId] is not
+  /// in the outbox or not parked — pending and inFlight ops are already on
+  /// their way and must not have their retry state reset from outside.
+  Future<bool> retryOp(String opId) async {
+    final reset = await (_db.update(_db.outboxTable)
+          ..where(
+            (t) =>
+                t.id.equals(opId) &
+                t.status.isIn([
+                  OutboxStatus.failed.name,
+                  OutboxStatus.dead.name,
+                ]),
+          ))
+        .write(
+          OutboxTableCompanion(
+            status: Value(OutboxStatus.pending.name),
+            attempts: const Value(0),
+            lastError: const Value(null),
+            nextAttemptAt: const Value(null),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+    if (reset == 0) return false;
+    await kick();
+    return true;
+  }
+
+  /// Remove an op from the outbox so it never pushes (the discard arm of
+  /// park-and-surface). Also what unblocks any dependents that listed it in
+  /// `dependsOn` — a parked op is otherwise held in the outbox forever,
+  /// blocking them. Returns whether a row was actually deleted.
+  Future<bool> deleteOp(String opId) async {
+    final deleted = await (_db.delete(
+      _db.outboxTable,
+    )..where((t) => t.id.equals(opId))).go();
+    return deleted > 0;
+  }
+
   /// Drain pending ops oldest-first. Safe to call from anywhere at any
   /// time: overlapping calls coalesce into one extra pass, ops without a
   /// registered handler stay pending untouched, and backoff windows are

@@ -101,6 +101,10 @@ class CreateAddonNotifier extends StateNotifier<CreateAddonState> {
     _tax = value.trim();
   }
 
+  void setBarcode(String value) {
+    _barcode = value.trim();
+  }
+
   void setDescription(String value) {
     _description = value.trim();
   }

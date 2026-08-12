@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_remix/flutter_remix.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
-import 'package:${package}/presentation/component/helper/common_image.dart';
+import 'package:base_sdk/src/presentation/components/helper/common_image.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 

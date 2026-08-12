@@ -3,7 +3,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:orders_sdk/src/manager/infrastructure/models/models.dart';
-import 'package:${package}/presentation/component/loading/loading_list.dart';
+import 'package:base_sdk/src/presentation/components/loading/loading_list.dart';
 import 'package:${package}/presentation/components/orders/food_item.dart';
 import 'package:${package}/presentation/components/orders/order_food_item.dart';
 

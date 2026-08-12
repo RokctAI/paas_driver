@@ -11,8 +11,8 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_extras.dart';
 import 'package:products_sdk/src/manager/application/extras/details/delete_item/delete_extras_item_provider.dart';
 import 'package:products_sdk/src/manager/application/extras/details/extras_group_details_provider.dart';
-import 'package:${package}/presentation/component/helper/modal_drag.dart';
-import 'package:${package}/presentation/component/helper/modal_wrap.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_drag.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_wrap.dart';
 
 class DeleteExtrasItemModal extends StatelessWidget {
   final SellerExtras extras;
