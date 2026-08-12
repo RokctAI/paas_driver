@@ -309,7 +309,6 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                           context: context,
                           modal: const EditCar(),
                           isDarkMode: false,
-                          isExpanded: true,
                         );
                       },
                       child: Container(

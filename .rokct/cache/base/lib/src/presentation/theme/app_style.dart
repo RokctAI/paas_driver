@@ -35,7 +35,7 @@ abstract class AppStyle {
   // the values are INJECTED per composed app: the kernel ships neutral
   // defaults only, and each app's brand palette arrives at boot through
   // [injectBrandColors], called from the app's SDK-installed theme shim
-  // (lib/core/presentation/theme/). Mutable statics by design — same
+  // (lib/presentation/theme/). Mutable statics by design — same
   // pattern as [shimmerBase]/[shimmerHighlight] above.
   // Mode flag — dark-first. The host sets this once per build from the app's
   // themeMode (see app_widget). Every surface token below resolves against it,

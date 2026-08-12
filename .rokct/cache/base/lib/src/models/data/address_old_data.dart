@@ -72,6 +72,16 @@ class AddressData {
 
   LocationModel? get location => _location;
 
+  /// Convenience accessors delegating to [location]. The courier vertical
+  /// (delivery_sdk's moved-verbatim paas_driver pages) reads the selected
+  /// address's coordinates directly — the legacy host stored a bare LatLng
+  /// where base stores an [AddressData] — so these keep those call sites
+  /// working against the shared model. Nullable and purely derived; the
+  /// JSON shape (location: {latitude, longitude}) is unchanged.
+  double? get latitude => _location?.latitude;
+
+  double? get longitude => _location?.longitude;
+
   bool? get isDefault => _default;
 
   bool? get active => _active;

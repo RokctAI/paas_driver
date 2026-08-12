@@ -1,6 +1,6 @@
 {
   "name": "delivery_sdk",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "home_sdk": true,
   "home_page": "templates/pages/driver/home/home_page.dart",
   "installs": [
@@ -260,6 +260,7 @@
         "canceled": "canceled",
         "chooseFromLibrary": "choose.from.library",
         "completeCheckout": "complete_checkout",
+        "confirmPasswordDoesntMatchWithNewPassword": "confirm_password_doesnt_matches_with_new_password",
         "deliveredOrder": "delivered_order",
         "entr": "entr",
         "evaluation": "evaluation",

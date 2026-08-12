@@ -1,8 +1,12 @@
 import 'dart:convert';
 
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:base_sdk/src/models/data/address_old_data.dart';
+import 'package:base_sdk/src/models/data/location.dart';
 import 'package:base_sdk/src/models/response/driver_show_response.dart';
+import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/storage_keys.dart';
 
 /// Courier-only local-storage slice carried out of paas_driver's host
@@ -46,4 +50,21 @@ abstract class CourierStorage {
   static Future<void> init() async {
     _cached = await SharedPreferences.getInstance();
   }
+
+  /// Persists the courier's live map position through base_sdk's
+  /// selected-address slot (key `keyAddressSelected`). The legacy host
+  /// stored a bare LatLng JSON under that key; base's LocalStorage now owns
+  /// the slot with an [AddressData] shape, so the coordinates travel inside
+  /// `AddressData.location` and read back through the
+  /// `AddressData.latitude`/`longitude` getters (base_sdk 1.9.0) the courier
+  /// pages already use.
+  static Future<void> saveSelectedLocation(LatLng latLng) =>
+      LocalStorage.setAddressSelected(
+        AddressData(
+          location: LocationModel(
+            latitude: latLng.latitude,
+            longitude: latLng.longitude,
+          ),
+        ),
+      );
 }

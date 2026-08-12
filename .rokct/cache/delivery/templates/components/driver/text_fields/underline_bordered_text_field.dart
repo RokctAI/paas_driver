@@ -87,12 +87,12 @@ class UnderlinedBorderTextField extends StatelessWidget {
             ),
             contentPadding: REdgeInsets.symmetric(horizontal: 0, vertical: 8),
             floatingLabelBehavior: FloatingLabelBehavior.always,
-            enabledBorder: const UnderlineInputBorder(
+            enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: AppStyle.shimmerBase)),
             errorBorder: InputBorder.none,
             border: const UnderlineInputBorder(),
             focusedErrorBorder: const UnderlineInputBorder(),
-            disabledBorder: const UnderlineInputBorder(
+            disabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: AppStyle.shimmerBase)),
             focusedBorder: const UnderlineInputBorder(),
           ),

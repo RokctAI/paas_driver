@@ -72,8 +72,8 @@ class OrderDetail extends StatelessWidget {
                             : TrKeys.order),
                         onPressed: () async {
                           if (order.deliveryman == null) {
-                            final ImageCropperMarker image =
-                                ImageCropperMarker();
+                            final ImageCropperForMarker image =
+                                ImageCropperForMarker();
                             ref.read(homeProvider.notifier).goMarket(
                                 context: context,
                                 orderId: order.id.toString(),
@@ -112,8 +112,8 @@ class OrderDetail extends StatelessWidget {
                                   context.router.popUntilRoot();
                                 });
                           } else {
-                            final ImageCropperMarker image =
-                                ImageCropperMarker();
+                            final ImageCropperForMarker image =
+                                ImageCropperForMarker();
                             if (order.status != "on_a_way") {
                               ref.read(homeProvider.notifier).getRoutingAll(
                                     context: context,

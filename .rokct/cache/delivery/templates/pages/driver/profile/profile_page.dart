@@ -18,6 +18,7 @@ import 'package:${package}/presentation/pages/profile/widgets/sections_item.dart
 import 'package:${package}/presentation/component/buttons/buttons_bouncing_effect.dart';
 import 'package:${package}/presentation/component/driver_avatar.dart';
 import 'package:base_sdk/src/application/app_widget/app_provider.dart';
+import 'package:base_sdk/src/navigation/embedded_widgets.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
@@ -144,7 +145,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               Text(
                                 AppHelpers.numberFormat(
                                   number: LocalStorage.getUser()?.wallet?.price,
-                                  maxLength: 8,
                                 ),
                                 style: AppStyle.interSemi(
                                     size: 14.sp, letterSpacing: -0.3),
@@ -285,7 +285,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         context: context,
                         modal: const EditProfileModal(),
                         isDarkMode: false,
-                        isExpanded: true,
                       );
                     },
                   ),
@@ -350,11 +349,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             isDismissible: true,
                             isDrag: false,
                             context: context,
-                            modal: LanguageScreen(
-                              afterUpdate: (lang) {
+                            modal: EmbeddedWidgets.I.languageScreen(
+                              onSave: () {
+                                Navigator.pop(context);
                                 ref
                                     .read(appProvider.notifier)
-                                    .changeLanguage(lang);
+                                    .changeLocale(LocalStorage.getLanguage());
                               },
                             ),
                             isDarkMode: false,

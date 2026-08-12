@@ -288,8 +288,8 @@ class ParcelOrderPage extends StatelessWidget {
                         title: AppHelpers.getTranslation(TrKeys.order),
                         onPressed: () async {
                           if (parcel?.deliveryman == null) {
-                            final ImageCropperMarker image =
-                                ImageCropperMarker();
+                            final ImageCropperForMarker image =
+                                ImageCropperForMarker();
                             ref.read(homeProvider.notifier).goMarketParcel(
                                 context: context,
                                 parcelId: parcel?.id.toString(),
@@ -321,8 +321,8 @@ class ParcelOrderPage extends StatelessWidget {
                               context.router.popUntilRoot();
                             }
                           } else {
-                            final ImageCropperMarker image =
-                                ImageCropperMarker();
+                            final ImageCropperForMarker image =
+                                ImageCropperForMarker();
 
                             if (parcel?.status != "on_a_way") {
                               ref.read(homeProvider.notifier).goMarketParcel(
@@ -357,7 +357,7 @@ class ParcelOrderPage extends StatelessWidget {
                                   );
                             } else {
                               ref.read(homeProvider.notifier).goClientParcel(
-                                  context, parcel?.id,
+                                  context, int.tryParse(parcel?.id ?? ''),
                                   parcel: parcel);
                               ref.read(homeProvider.notifier).getRoutingAll(
                                     // ignore: use_build_context_synchronously

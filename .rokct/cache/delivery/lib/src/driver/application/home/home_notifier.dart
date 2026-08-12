@@ -20,7 +20,7 @@ import 'package:delivery_sdk/src/driver/infrastructure/services/courier_storage.
 
 class HomeNotifier extends StateNotifier<HomeState> {
   HomeNotifier() : super(const HomeState());
-  final ImageCropperMarker image = ImageCropperMarker();
+  final ImageCropperForMarker image = ImageCropperForMarker();
 
   fetchDeliveryZone({bool isFetch = false}) async {
     // The legacy host cached the zone on its own user model

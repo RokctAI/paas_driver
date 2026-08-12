@@ -58,7 +58,7 @@ class _RateCustomerState extends State<RateCustomer> {
             ),
             padding: EdgeInsets.all(16.r),
             child: RatingBar.builder(
-              itemBuilder: (context, index) => const Icon(
+              itemBuilder: (context, index) => Icon(
                 FlutterRemix.star_fill,
                 color: AppStyle.primary,
               ),
@@ -83,7 +83,7 @@ class _RateCustomerState extends State<RateCustomer> {
                   if (widget.order == null) {
                     ref.read(homeProvider.notifier).addReviewParcel(
                         context: context,
-                        parcelId: widget.parcel?.id,
+                        parcelId: int.tryParse(widget.parcel?.id ?? ''),
                         rating: rate,
                         comment: note);
                   } else {

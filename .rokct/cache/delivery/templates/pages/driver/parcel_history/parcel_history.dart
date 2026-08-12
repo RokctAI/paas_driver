@@ -129,7 +129,7 @@ class _ParcelHistoryPageState extends ConsumerState<ParcelHistoryPage> {
                     isDarkMode: true);
               },
               child: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppStyle.primary,
                 ),

@@ -64,10 +64,10 @@ class ApproveOrderDialog extends StatelessWidget {
                       onPressed: () async {
                         if (order == null) {
                           Navigator.pop(context);
-                          final ImageCropperMarker image = ImageCropperMarker();
+                          final ImageCropperForMarker image = ImageCropperForMarker();
                           ref
                               .read(homeProvider.notifier)
-                              .goClientParcel(context, parcel?.id);
+                              .goClientParcel(context, int.tryParse(parcel?.id ?? ''));
                           ref.read(homeProvider.notifier).getRoutingAll(
                                 // ignore: use_build_context_synchronously
                                 context: context,
@@ -93,7 +93,7 @@ class ApproveOrderDialog extends StatelessWidget {
                               );
                         } else {
                           Navigator.pop(context);
-                          final ImageCropperMarker image = ImageCropperMarker();
+                          final ImageCropperForMarker image = ImageCropperForMarker();
                           ref
                               .read(homeProvider.notifier)
                               .goClient(context, order?.id);

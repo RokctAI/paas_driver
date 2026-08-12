@@ -21,7 +21,7 @@ class ShopAvatar extends StatelessWidget {
     super.key,
     required this.size,
     required this.padding,
-    this.bgColor = Color(0x06000000),
+    this.bgColor = const Color(0x06000000),
     this.radius = 10,
     this.imageUrl,
     this.path,

@@ -10,6 +10,7 @@ class TrKeys {
   static const String canceled = 'canceled';
   static const String chooseFromLibrary = 'choose.from.library';
   static const String completeCheckout = 'complete_checkout';
+  static const String confirmPasswordDoesntMatchWithNewPassword = 'confirm_password_doesnt_matches_with_new_password';
   static const String deliveredOrder = 'delivered_order';
   static const String entr = 'entr';
   static const String evaluation = 'evaluation';

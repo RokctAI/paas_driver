@@ -149,8 +149,8 @@ class _PushOrderState extends ConsumerState<PushOrder> {
                                       TrKeys.orderInformation),
                               onPressed: () async {
                                 if (widget.isActive) {
-                                  final ImageCropperMarker image =
-                                      ImageCropperMarker();
+                                  final ImageCropperForMarker image =
+                                      ImageCropperForMarker();
                                   notifier.changeLoading();
                                   ref.read(homeProvider.notifier).goMarket(
                                       context: context,

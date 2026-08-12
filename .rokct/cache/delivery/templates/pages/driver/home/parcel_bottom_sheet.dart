@@ -338,7 +338,7 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                   .read(homeProvider.notifier)
                                   .deliveredFinishParcel(
                                     context: context,
-                                    parcelId: parcel?.id,
+                                    parcelId: int.tryParse(parcel?.id ?? ''),
                                   );
                               AppHelpers.showCustomModalBottomSheet(
                                   context: context,

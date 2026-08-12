@@ -1,3 +1,41 @@
+## 1.5.0
+
+* Post-compose APK fix round for paas_driver (Build (Smart) run 31635788470,
+  87 Dart compile errors), courier vertical aligned with the shared kernel:
+  * `ImageCropperMarker` -> base_sdk's `ImageCropperForMarker` (same class,
+    base's name; the courier pages already imported base's
+    `marker_image_cropper.dart`, only the identifier was stale).
+  * Selected-location storage: the legacy host stored a bare `LatLng` under
+    `keyAddressSelected`; base's `LocalStorage.setAddressSelected` takes an
+    `AddressData`. New `CourierStorage.saveSelectedLocation(LatLng)` wraps
+    the coordinates in `AddressData.location`, and reads go through the new
+    `AddressData.latitude`/`longitude` getters (base_sdk 1.9.0).
+  * Language flow: `LanguageScreen(afterUpdate:)` (host-era widget, never
+    composed) -> `EmbeddedWidgets.I.languageScreen(onSave:)` (comms_sdk's
+    embedded widget, manager precedent) +
+    `AppNotifier.changeLocale` instead of the host's `changeLanguage`.
+  * `Delayed` import (base_sdk `tpying_delay.dart`) in the home page.
+  * Dropped the host-era no-op args base's helpers never had:
+    `AppHelpers.numberFormat(maxLength:)` (self-assigned, dead in the old
+    host too) and `showCustomModalBottomSheet(isExpanded:)` (accepted but
+    unused in the old host).
+  * `ParcelOrder.id` is `String?` in base (commerce/orders consumes it as
+    String); the courier notifier's `int?` params now get `int.tryParse` at
+    the four call sites.
+  * De-consted widgets using brand-mutable `AppStyle.primary`/`shimmerBase`
+    (order_history, parcel_history, bottom_sheet_screen, orders_item,
+    rate_customer, underline_bordered_text_field, edit_car — commerce#18
+    story_page precedent) and const-qualified shop_avarat's default
+    `Color` value.
+  * Manifest: `confirmPasswordDoesntMatchWithNewPassword` tr_key (used by
+    edit_profile_modal, absent from base).
+
+## 1.4.0
+
+* (retro note; shipped without a CHANGELOG entry) `app_routes`
+  replaceMainRoute -> /home for driver composes; courier location boot
+  hooks (zones PR #14).
+
 ## 1.3.0
 
 * Courier vertical build-out (S-D3 of the paas_driver lib-regenerable plan):

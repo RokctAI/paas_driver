@@ -219,17 +219,17 @@ class _EditCarState extends ConsumerState<EditCar> {
                         contentPadding:
                             REdgeInsets.symmetric(horizontal: 0, vertical: 8),
                         floatingLabelBehavior: FloatingLabelBehavior.always,
-                        enabledBorder: const UnderlineInputBorder(
+                        enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: AppStyle.shimmerBase)),
                         border: const UnderlineInputBorder(),
                         focusedBorder: const UnderlineInputBorder(),
-                        errorBorder: const UnderlineInputBorder(
+                        errorBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
                                 color: AppStyle.shimmerBase)), // Same as enabled
-                        focusedErrorBorder: const UnderlineInputBorder(
+                        focusedErrorBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
                                 color: AppStyle.shimmerBase)), // Same as enabled
-                        disabledBorder: const UnderlineInputBorder(
+                        disabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: AppStyle.shimmerBase)),
                         errorStyle:
                             const TextStyle(height: 0), // Hide error text

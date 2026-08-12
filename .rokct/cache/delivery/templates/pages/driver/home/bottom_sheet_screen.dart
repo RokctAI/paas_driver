@@ -119,7 +119,7 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
                 shape: BoxShape.circle,
                 color: AppStyle.black,
               ),
-              child: const Icon(
+              child: Icon(
                 FlutterRemix.file_list_2_fill,
                 color: AppStyle.primary,
               ),
@@ -187,8 +187,7 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
                 Consumer(builder: (context, ref, child) {
                   return Text(
                     AppHelpers.numberFormat(
-                        number: LocalStorage.getUser()?.wallet?.price,
-                        maxLength: 3),
+                        number: LocalStorage.getUser()?.wallet?.price),
                     style: AppStyle.interSemi(size: 14.sp, letterSpacing: -0.3),
                   );
                 })

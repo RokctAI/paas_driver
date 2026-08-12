@@ -252,7 +252,7 @@ class OrdersItem extends StatelessWidget {
               ),
             ),
             16.verticalSpace,
-            const Divider(
+            Divider(
               color: AppStyle.shimmerBase,
             ),
             8.verticalSpace,

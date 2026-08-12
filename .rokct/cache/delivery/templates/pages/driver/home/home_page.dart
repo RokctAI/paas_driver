@@ -36,6 +36,7 @@ import 'package:base_sdk/src/services/app_assets.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/marker_image_cropper.dart';
+import 'package:base_sdk/src/services/tpying_delay.dart';
 import 'package:delivery_sdk/src/driver/application/driver/driver_provider.dart';
 import 'package:delivery_sdk/src/driver/application/home/home_provider.dart';
 import 'package:${package}/presentation/pages/profile/courier_statistics_provider.dart';
@@ -137,7 +138,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           check != LocationPermission.deniedForever) {
         var loc = await Geolocator.getCurrentPosition();
         latLng = LatLng(loc.latitude, loc.longitude);
-        LocalStorage.setAddressSelected(latLng);
+        CourierStorage.saveSelectedLocation(latLng);
         googleMapController!
             .animateCamera(CameraUpdate.newLatLngZoom(latLng, 15));
       }
@@ -145,7 +146,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       if (check != LocationPermission.deniedForever) {
         var loc = await Geolocator.getCurrentPosition();
         latLng = LatLng(loc.latitude, loc.longitude);
-        LocalStorage.setAddressSelected(latLng);
+        CourierStorage.saveSelectedLocation(latLng);
         googleMapController!
             .animateCamera(CameraUpdate.newLatLngZoom(latLng, 15));
       }
@@ -159,7 +160,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           check != LocationPermission.deniedForever) {
         var loc = await Geolocator.getCurrentPosition();
         latLng = LatLng(loc.latitude, loc.longitude);
-        LocalStorage.setAddressSelected(latLng);
+        CourierStorage.saveSelectedLocation(latLng);
         googleMapController!
             .animateCamera(CameraUpdate.newLatLngZoom(latLng, 15));
       }
@@ -167,7 +168,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       if (check != LocationPermission.deniedForever) {
         var loc = await Geolocator.getCurrentPosition();
         latLng = LatLng(loc.latitude, loc.longitude);
-        LocalStorage.setAddressSelected(latLng);
+        CourierStorage.saveSelectedLocation(latLng);
         googleMapController!
             .animateCamera(CameraUpdate.newLatLngZoom(latLng, 15));
       }
@@ -199,7 +200,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         latLng = LatLng(currentLocation?.latitude ?? latLng.latitude,
             currentLocation?.longitude ?? latLng.longitude);
         _delayed.run(() {
-          LocalStorage.setAddressSelected(LatLng(
+          CourierStorage.saveSelectedLocation(LatLng(
               currentLocation?.latitude ?? latLng.latitude,
               currentLocation?.longitude ?? latLng.longitude));
         });
@@ -215,7 +216,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         isActive: false,
       ),
     );
-    final ImageCropperMarker image = ImageCropperMarker();
+    final ImageCropperForMarker image = ImageCropperForMarker();
     ref.read(homeProvider.notifier).goMarket(
         context: context,
         orderId: (push?.id ?? 0).toString(),

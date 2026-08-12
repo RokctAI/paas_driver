@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
+// Deep theme import (not the base_sdk barrel — that would produce a
+// duplicate_import lint wherever an SDK's wiring imports also pull theme
+// symbols): this file itself references AppStyle.transparent in the
+// SystemUiOverlayStyle below, so the import must be static, not left to
+// the generated wiring blocks (no SDK is obliged to inject it).
+import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:${package}/presentation/app_widget.dart';
 // auto_route and the host app_router are NOT imported statically: the only
 // code that references them is injected (app_routes bodies use
