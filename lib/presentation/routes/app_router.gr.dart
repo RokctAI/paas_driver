@@ -11,17 +11,17 @@
 part of 'app_router.dart';
 
 /// generated route for
-/// [BecomeDriverPage]
+/// [BecomeDriverRouteView]
 class BecomeDriverRoute extends PageRouteInfo<void> {
   const BecomeDriverRoute({List<PageRouteInfo>? children})
-    : super(BecomeDriverRoute.name, initialChildren: children);
+      : super(BecomeDriverRoute.name, initialChildren: children);
 
   static const String name = 'BecomeDriverRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const BecomeDriverPage();
+      return const BecomeDriverRouteView();
     },
   );
 }
@@ -30,7 +30,7 @@ class BecomeDriverRoute extends PageRouteInfo<void> {
 /// [CalculatorPage]
 class CalculatorRoute extends PageRouteInfo<void> {
   const CalculatorRoute({List<PageRouteInfo>? children})
-    : super(CalculatorRoute.name, initialChildren: children);
+      : super(CalculatorRoute.name, initialChildren: children);
 
   static const String name = 'CalculatorRoute';
 
@@ -46,7 +46,7 @@ class CalculatorRoute extends PageRouteInfo<void> {
 /// [ClosedRouteView]
 class ClosedRoute extends PageRouteInfo<void> {
   const ClosedRoute({List<PageRouteInfo>? children})
-    : super(ClosedRoute.name, initialChildren: children);
+      : super(ClosedRoute.name, initialChildren: children);
 
   static const String name = 'ClosedRoute';
 
@@ -62,7 +62,7 @@ class ClosedRoute extends PageRouteInfo<void> {
 /// [DriverDeliveryZonePage]
 class DriverDeliveryZoneRoute extends PageRouteInfo<void> {
   const DriverDeliveryZoneRoute({List<PageRouteInfo>? children})
-    : super(DriverDeliveryZoneRoute.name, initialChildren: children);
+      : super(DriverDeliveryZoneRoute.name, initialChildren: children);
 
   static const String name = 'DriverDeliveryZoneRoute';
 
@@ -78,7 +78,7 @@ class DriverDeliveryZoneRoute extends PageRouteInfo<void> {
 /// [HomePage]
 class HomeRoute extends PageRouteInfo<void> {
   const HomeRoute({List<PageRouteInfo>? children})
-    : super(HomeRoute.name, initialChildren: children);
+      : super(HomeRoute.name, initialChildren: children);
 
   static const String name = 'HomeRoute';
 
@@ -94,7 +94,7 @@ class HomeRoute extends PageRouteInfo<void> {
 /// [IncomePage]
 class DriverIncomeRoute extends PageRouteInfo<void> {
   const DriverIncomeRoute({List<PageRouteInfo>? children})
-    : super(DriverIncomeRoute.name, initialChildren: children);
+      : super(DriverIncomeRoute.name, initialChildren: children);
 
   static const String name = 'DriverIncomeRoute';
 
@@ -110,7 +110,7 @@ class DriverIncomeRoute extends PageRouteInfo<void> {
 /// [LoginPage]
 class LoginRoute extends PageRouteInfo<void> {
   const LoginRoute({List<PageRouteInfo>? children})
-    : super(LoginRoute.name, initialChildren: children);
+      : super(LoginRoute.name, initialChildren: children);
 
   static const String name = 'LoginRoute';
 
@@ -123,17 +123,17 @@ class LoginRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [NoConnectionPage]
+/// [NoConnectionRouteView]
 class NoConnectionRoute extends PageRouteInfo<void> {
   const NoConnectionRoute({List<PageRouteInfo>? children})
-    : super(NoConnectionRoute.name, initialChildren: children);
+      : super(NoConnectionRoute.name, initialChildren: children);
 
   static const String name = 'NoConnectionRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const NoConnectionPage();
+      return const NoConnectionRouteView();
     },
   );
 }
@@ -142,7 +142,7 @@ class NoConnectionRoute extends PageRouteInfo<void> {
 /// [NotificationListPage]
 class NotificationListRoute extends PageRouteInfo<void> {
   const NotificationListRoute({List<PageRouteInfo>? children})
-    : super(NotificationListRoute.name, initialChildren: children);
+      : super(NotificationListRoute.name, initialChildren: children);
 
   static const String name = 'NotificationListRoute';
 
@@ -158,7 +158,7 @@ class NotificationListRoute extends PageRouteInfo<void> {
 /// [OrderHistoryPage]
 class OrderHistoryRoute extends PageRouteInfo<void> {
   const OrderHistoryRoute({List<PageRouteInfo>? children})
-    : super(OrderHistoryRoute.name, initialChildren: children);
+      : super(OrderHistoryRoute.name, initialChildren: children);
 
   static const String name = 'OrderHistoryRoute';
 
@@ -174,7 +174,7 @@ class OrderHistoryRoute extends PageRouteInfo<void> {
 /// [OrdersPage]
 class OrdersRoute extends PageRouteInfo<void> {
   const OrdersRoute({List<PageRouteInfo>? children})
-    : super(OrdersRoute.name, initialChildren: children);
+      : super(OrdersRoute.name, initialChildren: children);
 
   static const String name = 'OrdersRoute';
 
@@ -190,7 +190,7 @@ class OrdersRoute extends PageRouteInfo<void> {
 /// [ParcelHistoryPage]
 class ParcelHistoryRoute extends PageRouteInfo<void> {
   const ParcelHistoryRoute({List<PageRouteInfo>? children})
-    : super(ParcelHistoryRoute.name, initialChildren: children);
+      : super(ParcelHistoryRoute.name, initialChildren: children);
 
   static const String name = 'ParcelHistoryRoute';
 
@@ -206,7 +206,7 @@ class ParcelHistoryRoute extends PageRouteInfo<void> {
 /// [ParcelsPage]
 class ParcelsRoute extends PageRouteInfo<void> {
   const ParcelsRoute({List<PageRouteInfo>? children})
-    : super(ParcelsRoute.name, initialChildren: children);
+      : super(ParcelsRoute.name, initialChildren: children);
 
   static const String name = 'ParcelsRoute';
 
@@ -222,7 +222,7 @@ class ParcelsRoute extends PageRouteInfo<void> {
 /// [ProfilePage]
 class ProfileRoute extends PageRouteInfo<void> {
   const ProfileRoute({List<PageRouteInfo>? children})
-    : super(ProfileRoute.name, initialChildren: children);
+      : super(ProfileRoute.name, initialChildren: children);
 
   static const String name = 'ProfileRoute';
 
@@ -235,17 +235,17 @@ class ProfileRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [SplashPage]
+/// [SplashRouteView]
 class SplashRoute extends PageRouteInfo<void> {
   const SplashRoute({List<PageRouteInfo>? children})
-    : super(SplashRoute.name, initialChildren: children);
+      : super(SplashRoute.name, initialChildren: children);
 
   static const String name = 'SplashRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const SplashPage();
+      return const SplashRouteView();
     },
   );
 }
@@ -254,7 +254,7 @@ class SplashRoute extends PageRouteInfo<void> {
 /// [StoryPage]
 class StoryRoute extends PageRouteInfo<void> {
   const StoryRoute({List<PageRouteInfo>? children})
-    : super(StoryRoute.name, initialChildren: children);
+      : super(StoryRoute.name, initialChildren: children);
 
   static const String name = 'StoryRoute';
 
@@ -270,11 +270,11 @@ class StoryRoute extends PageRouteInfo<void> {
 /// [UiTypeRouteView]
 class UiTypeRoute extends PageRouteInfo<UiTypeRouteArgs> {
   UiTypeRoute({Key? key, bool isBack = false, List<PageRouteInfo>? children})
-    : super(
-        UiTypeRoute.name,
-        args: UiTypeRouteArgs(key: key, isBack: isBack),
-        initialChildren: children,
-      );
+      : super(
+          UiTypeRoute.name,
+          args: UiTypeRouteArgs(key: key, isBack: isBack),
+          initialChildren: children,
+        );
 
   static const String name = 'UiTypeRoute';
 

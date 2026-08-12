@@ -46,9 +46,14 @@ import 'package:zones_sdk/zones_sdk.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:comms_sdk/src/common/presentation/pages/setting/language_page.dart';
 import 'package:comms_sdk/src/common/services/firebase_background_handler.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/services/courier_location_service.dart';
 import 'package:driver/presentation/routes/app_router.dart';
+import 'package:driver/presentation/routes/zones_adapters.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:revenue_sdk/src/driver/di/driver_revenue_di.dart';
+import 'package:workmanager/workmanager.dart';
 // @generated-wiring-imports-end
 
 /// Workmanager task id for the periodic courier-location report.
@@ -123,6 +128,11 @@ void main() async {
   // update_boot_hooks()). comms_sdk declares the Firebase init + FCM
   // background handler here.
   // @generated-boot-hooks-start
+  // delivery-driver-splash-preserve (order 1, from delivery_sdk)
+  FlutterNativeSplash.preserve(
+      widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
+  // delivery-driver-courier-location-workmanager (order 5, from delivery_sdk)
+  await Workmanager().initialize(callbackDispatcher);
   // comms-firebase-fcm-boot (order 10, from comms_sdk)
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp();
@@ -181,7 +191,17 @@ void main() async {
   // zones_sdk declare them (see scratchpad/di-hooks-declarations.md in the
   // migration PR set).
   // @generated-di-hooks-start
-
+  // revenue-driver-role-di (order 12, from revenue_sdk)
+  DriverRevenueDependencies.register(GetIt.instance);
+  // zones-driver-delivery-zones-facade (order 30, from zones_sdk)
+  if (!GetIt.instance.isRegistered<DeliveryZonesFacade>()) {
+    GetIt.instance.registerLazySingleton<DeliveryZonesFacade>(
+        () => DriverDeliveryZonesAdapter());
+  }
+  if (!GetIt.instance.isRegistered<ZoneEditPolicy>()) {
+    GetIt.instance
+        .registerLazySingleton<ZoneEditPolicy>(() => DriverZoneEditPolicy());
+  }
   // @generated-di-hooks-end
 
   // ---- Host-owned DI ----
@@ -254,19 +274,28 @@ class _HostEmbeddedWidgets implements EmbeddedWidgets {
 class _HostAppRoutes implements AppRoutes {
   // @generated-approutes-start
   @override
-  Future<Object?> replaceSplashRoute(BuildContext context) => context.router.replace(SplashRoute());
+  Future<Object?> replaceSplashRoute(BuildContext context) =>
+      context.router.replace(SplashRoute());
 
   @override
-  Future<Object?> replaceNoConnectionRoute(BuildContext context) => context.router.replace(NoConnectionRoute());
+  Future<Object?> replaceNoConnectionRoute(BuildContext context) =>
+      context.router.replace(NoConnectionRoute());
 
   @override
-  Future<Object?> replaceClosedRoute(BuildContext context) => context.router.replace(ClosedRoute());
+  Future<Object?> replaceClosedRoute(BuildContext context) =>
+      context.router.replace(ClosedRoute());
 
   @override
-  Future<Object?> replaceUiTypeRoute(BuildContext context) => context.router.replace(UiTypeRoute());
+  Future<Object?> replaceUiTypeRoute(BuildContext context) =>
+      context.router.replace(UiTypeRoute());
 
   @override
-  Future<Object?> replaceLoginRoute(BuildContext context) => context.router.replace(LoginRoute());
+  Future<Object?> replaceLoginRoute(BuildContext context) =>
+      context.router.replace(LoginRoute());
+
+  @override
+  Future<Object?> replaceMainRoute(BuildContext context) =>
+      context.router.replace(HomeRoute());
 
   // @generated-approutes-end
 
