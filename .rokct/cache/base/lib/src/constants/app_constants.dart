@@ -28,7 +28,11 @@ abstract class AppConstants {
   static const String baseUrl = String.fromEnvironment('BASE_URL');
   static const String wsBaseUrl = String.fromEnvironment('WS_BASE_URL');
   static const String wsSecret = String.fromEnvironment('WS_SECRET');
-  static const String webUrl = String.fromEnvironment('WEB_URL');
+
+  /// Mutable (not const) so the tenant's remote config can override it at
+  /// boot — see RemoteConfigService. Share links (shop/product/group order)
+  /// read it at call time, so a post-boot override is picked up everywhere.
+  static String webUrl = const String.fromEnvironment('WEB_URL');
   static const String drawingBaseUrl = String.fromEnvironment('ROUTING_API');
   static String adminPageUrl = String.fromEnvironment('ADMIN_URL');
   static const String googleApiKey = String.fromEnvironment(
@@ -65,6 +69,13 @@ abstract class AppConstants {
   static const String heroTagSelectUser = 'heroTagSelectUser';
   static const String heroTagSelectAddress = 'heroTagSelectAddress';
   static const String heroTagSelectCurrency = 'heroTagSelectCurrency';
+  // Shared by orders_sdk's manager create-order/POS pages and merchants_sdk's
+  // manager home FAB — the Hero animation only connects when BOTH sides use
+  // the same tag, which is why it is a named constant rather than a literal
+  // repeated across SDKs (absorbed from the retired paas_manager host
+  // app_constants.dart, manager migration M5).
+  static const String heroTagAddOrderButton = 'heroTagAddOrderButton';
+  static const String heroTagOrderHistory = 'heroTagOrderHistory';
 
   /// PayFast
   static const String passphrase = String.fromEnvironment('PAYFAST_PASSPHRASE');
@@ -84,18 +95,34 @@ abstract class AppConstants {
   static String localeCodeEn = const String.fromEnvironment('LOCALE_CODE');
 
   /// auth phone fields
+  ///
+  /// The full flag set (paas_manager#28 investigation) keeps two DISTINCT
+  /// roles apart at the same call sites: [isSpecificNumberEnabled] is the UI
+  /// gate (render the country-specific IntlPhoneField vs a free-form text
+  /// field) while [isNumberLengthAlwaysSame] is the validation policy INSIDE
+  /// the IntlPhoneField branch (disableLengthCheck / length validator /
+  /// autovalidateMode). All five are env-initialized MUTABLE statics —
+  /// never const — so the tenant's remote config can override them at boot
+  /// (see RemoteConfigService); a compile-time const would freeze the flags
+  /// against those overrides.
+  static bool isSpecificNumberEnabled = const bool.fromEnvironment(
+    'IS_SPECIFIC_NUMBER_ENABLED',
+  );
   static bool isNumberLengthAlwaysSame = const bool.fromEnvironment(
     'IS_NUMBER_LENGTH_ALWAYS_SAME',
   );
-  static const String countryCodeISO = String.fromEnvironment('COUNTRY_ISO');
+  static String countryCodeISO = const String.fromEnvironment('COUNTRY_ISO');
   static bool showFlag = const bool.fromEnvironment('SHOW_FLAG');
   static bool showArrowIcon = const bool.fromEnvironment('SHOW_ARROW_ICON');
 
   /// location
-  static final double demoLatitude = double.parse(
+  ///
+  /// Mutable (not final) so the tenant's remote config can override the demo
+  /// coordinates at boot — see RemoteConfigService.
+  static double demoLatitude = double.parse(
     const String.fromEnvironment('DEMO_LATITUDE'),
   );
-  static final double demoLongitude = double.parse(
+  static double demoLongitude = double.parse(
     const String.fromEnvironment('DEMO_LONGITUDE'),
   );
   static const double pinLoadingMin = 0.116666667;

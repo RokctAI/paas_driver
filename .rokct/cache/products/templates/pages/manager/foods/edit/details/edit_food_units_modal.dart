@@ -9,8 +9,8 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:products_sdk/src/manager/application/foods/edit/details/units/edit_food_units_provider.dart';
-import 'package:${package}/presentation/component/helper/modal_drag.dart';
-import 'package:${package}/presentation/component/helper/modal_wrap.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_drag.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_wrap.dart';
 import 'package:${package}/presentation/components/foods/food_unit_item.dart';
 
 class EditFoodUnitsModal extends ConsumerStatefulWidget {

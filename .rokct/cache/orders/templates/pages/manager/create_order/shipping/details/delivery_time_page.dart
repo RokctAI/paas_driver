@@ -27,12 +27,6 @@ import 'package:orders_sdk/src/manager/application/order_cart/order_cart_provide
 import 'package:orders_sdk/src/manager/application/orders/appbar/home_appbar_provider.dart';
 import 'package:orders_sdk/src/manager/application/orders/new/new_orders_provider.dart';
 
-// Shared with merchants_sdk's main_page.dart FAB Hero: base_sdk's AppConstants
-// does not carry this tag (yet), so both sides use the same literal. If
-// base_sdk grows AppConstants.heroTagAddOrderButton, swap the literal for the
-// constant.
-const String _heroTagAddOrderButton = 'heroTagAddOrderButton';
-
 
 @RoutePage(name: 'ManagerDeliveryTimeRoute')
 class DeliveryTimePage extends ConsumerStatefulWidget {
@@ -289,7 +283,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
           padding: REdgeInsets.all(16),
           child: Row(
             children: [
-              const PopButton(heroTag: _heroTagAddOrderButton),
+              const PopButton(heroTag: AppConstants.heroTagAddOrderButton),
               8.horizontalSpace,
               Expanded(
                 child: Consumer(

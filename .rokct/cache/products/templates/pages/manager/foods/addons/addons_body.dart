@@ -9,7 +9,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:products_sdk/src/manager/application/addons/addons_provider.dart';
 import 'package:products_sdk/src/manager/application/addons/edit/edit_addon_provider.dart';
 import 'package:products_sdk/src/manager/application/addons/edit/units/edit_addon_units_provider.dart';
-import 'package:${package}/presentation/component/loading/loading_list.dart';
+import 'package:base_sdk/src/presentation/components/loading/loading_list.dart';
 
 class AddonsBody extends StatelessWidget {
   final RefreshController addonsController;

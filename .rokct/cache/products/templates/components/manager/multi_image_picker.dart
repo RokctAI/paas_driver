@@ -11,7 +11,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tpying_delay.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_gallery.dart';
-import 'package:${package}/presentation/component/helper/common_image.dart';
+import 'package:base_sdk/src/presentation/components/helper/common_image.dart';
 import 'package:${package}/presentation/pages/main/widgets/buttons_bouncing_effect.dart';
 
 /// Multi-image gallery picker for the create/edit product forms, typed on

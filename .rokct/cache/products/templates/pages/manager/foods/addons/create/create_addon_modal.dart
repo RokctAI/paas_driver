@@ -15,10 +15,10 @@ import 'package:products_sdk/src/manager/application/addons/addons_provider.dart
 import 'package:products_sdk/src/manager/application/addons/create/create_addon_provider.dart';
 import 'package:products_sdk/src/manager/application/addons/create/units/create_addon_units_provider.dart';
 import 'package:products_sdk/src/manager/utils/seller_form_helpers.dart';
-import 'package:${package}/presentation/component/custom_toggle.dart';
-import 'package:${package}/presentation/component/helper/modal_drag.dart';
-import 'package:${package}/presentation/component/helper/modal_wrap.dart';
-import 'package:${package}/presentation/component/text_fields/underlined_text_field.dart';
+import 'package:base_sdk/src/presentation/components/custom_toggle3.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_drag.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_wrap.dart';
+import 'package:base_sdk/src/presentation/components/text_fields/underlined_text_field.dart';
 
 /// Opened by the merchants_sdk home shell's FAB when the foods tab is on
 /// "addons" — `CreateAddonModal` at this install path is main_page.dart's

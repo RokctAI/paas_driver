@@ -4,9 +4,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:${package}/presentation/component/custom_toggle.dart';
-import 'package:${package}/presentation/component/helper/modal_drag.dart';
-import 'package:${package}/presentation/component/helper/modal_wrap.dart';
+import 'package:base_sdk/src/presentation/components/custom_toggle3.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_drag.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_wrap.dart';
 import 'package:${package}/presentation/components/restaurant/small_weekday_item.dart';
 import 'package:base_sdk/src/models/data/shop_data.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';

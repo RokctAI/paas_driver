@@ -26,12 +26,20 @@ class RegisterConfirmationPage extends ConsumerStatefulWidget {
   final String verificationId;
   final bool editPhone;
 
+  /// Deferred-OTP mode (PendingOtpGate): the account already exists on the
+  /// backend — verification only lifts its unverified-account limit. On
+  /// verify success the sheet just closes instead of continuing into the
+  /// registration form, and phone codes go through the backend
+  /// sendOtp/verifyPhone pair even when AppConstants.isPhoneFirebase.
+  final bool isDeferredOtp;
+
   const RegisterConfirmationPage({
     super.key,
     required this.userModel,
     this.isResetPassword = false,
     required this.verificationId,
     this.editPhone = false,
+    this.isDeferredOtp = false,
   });
 
   @override
@@ -64,6 +72,14 @@ class _RegisterConfirmationPageState
     final bool isLtr = LocalStorage.getLangLtr();
     ref.listen(registerConfirmationProvider, (previous, next) {
       if (previous!.isSuccess != next.isSuccess && next.isSuccess) {
+        if (widget.isDeferredOtp) {
+          // Deferred flow: the account is already registered — verification
+          // is the whole job, so just close the sheet and let the user
+          // carry on where they were. (Verify success already cleared the
+          // pending_otp_verification flag, so the gate won't re-prompt.)
+          Navigator.pop(context);
+          return;
+        }
         Navigator.pop(context);
         AppHelpers.showCustomModalBottomSheet(
           context: context,
@@ -196,10 +212,14 @@ class _RegisterConfirmationPageState
                                             widget.userModel.email ?? "",
                                             isResetPassword:
                                                 widget.isResetPassword,
+                                            isDeferredOtp:
+                                                widget.isDeferredOtp,
                                           )
                                         : notifier.sendCodeToNumber(
                                             context,
                                             widget.userModel.email ?? "",
+                                            useBackendOtp:
+                                                widget.isDeferredOtp,
                                           );
                                   }
                                   notifier.startTimer();
@@ -240,6 +260,8 @@ class _RegisterConfirmationPageState
                                             verificationId:
                                                 widget.verificationId,
                                             ref: ref, // Pass ref here
+                                            useBackendOtp:
+                                                widget.isDeferredOtp,
                                             onSuccess: widget.editPhone
                                                 ? () {
                                                     if (widget.editPhone) {

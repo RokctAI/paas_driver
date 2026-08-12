@@ -11,8 +11,8 @@ import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:products_sdk/src/manager/application/foods/create/details/category/add_food_categories_provider.dart';
 import 'package:products_sdk/src/manager/application/foods/food_categories_provider.dart';
-import 'package:${package}/presentation/component/helper/modal_drag.dart';
-import 'package:${package}/presentation/component/helper/modal_wrap.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_drag.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_wrap.dart';
 import 'package:${package}/presentation/components/foods/food_category_item.dart';
 
 class FoodCategoriesModal extends ConsumerStatefulWidget {

@@ -11,9 +11,9 @@ import 'package:products_sdk/src/common/infrastructure/models/data/seller_extras
 import 'package:products_sdk/src/manager/application/extras/details/extras_group_details_provider.dart';
 import 'package:products_sdk/src/manager/application/extras/details/new_item/create_new_group_item_provider.dart';
 import 'package:products_sdk/src/manager/utils/seller_form_helpers.dart';
-import 'package:${package}/presentation/component/helper/modal_drag.dart';
-import 'package:${package}/presentation/component/helper/modal_wrap.dart';
-import 'package:${package}/presentation/component/text_fields/underlined_text_field.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_drag.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_wrap.dart';
+import 'package:base_sdk/src/presentation/components/text_fields/underlined_text_field.dart';
 
 class CreateNewGroupItemModal extends StatefulWidget {
   final SellerExtrasGroup group;

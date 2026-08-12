@@ -9,7 +9,7 @@ import 'widgets/new_orders_body.dart';
 import 'widgets/ready_orders_body.dart';
 import 'widgets/accepted_orders_body.dart';
 import 'widgets/on_a_way_orders_body.dart';
-import 'package:${package}/presentation/component/custom_app_bar.dart';
+import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
 import 'package:base_sdk/src/presentation/components/custom_tab_bar.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
@@ -202,7 +202,7 @@ class _OrdersHomePageState extends ConsumerState<OrdersHomePage>
             16.verticalSpace,
             Padding(
               padding: REdgeInsets.symmetric(horizontal: 16),
-              child: CustomTabBar(tabController: _tabController, tabs: _tabs),
+              child: CustomTabBar(tabController: _tabController!, tabs: _tabs),
             ),
             Expanded(
               child: TabBarView(

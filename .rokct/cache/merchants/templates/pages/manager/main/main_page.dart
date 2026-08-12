@@ -24,6 +24,7 @@ import 'package:${package}/presentation/pages/main/widgets/bottom_navigator_item
 import 'package:${package}/presentation/pages/main/widgets/buttons_bouncing_effect.dart';
 import 'package:merchants_sdk/src/manager/application/main/main_provider.dart';
 import 'package:products_sdk/src/manager/application/foods/food_tabs_provider.dart';
+import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
@@ -31,11 +32,6 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/presentation/components/blur_wrap.dart';
 import 'package:base_sdk/src/presentation/components/keyboard_dismisser.dart';
 import 'package:base_sdk/src/presentation/components/custom_network_image.dart';
-
-// Shared with the create-order flow's Hero: base_sdk's AppConstants does not
-// carry this tag (yet), so both sides use the same literal. If base_sdk grows
-// AppConstants.heroTagAddOrderButton, swap the literal for the constant.
-const String _heroTagAddOrderButton = 'heroTagAddOrderButton';
 
 @RoutePage(name: 'MainRoute')
 class MainPage extends StatefulWidget {
@@ -151,7 +147,7 @@ class _MainPageState extends State<MainPage> {
                   state.selectedIndex != 2
                       ? ButtonsBouncingEffect(
                           child: Hero(
-                            tag: _heroTagAddOrderButton,
+                            tag: AppConstants.heroTagAddOrderButton,
                             child: GestureDetector(
                               onTap: () {
                                 if (state.selectedIndex == 0) {

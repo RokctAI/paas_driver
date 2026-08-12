@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import 'package:${package}/presentation/styles/style.dart';
+import 'package:base_sdk/src/presentation/theme/app_style.dart';
 
 class StatisticsItem extends StatelessWidget {
   final String title;
@@ -35,16 +34,16 @@ class StatisticsItem extends StatelessWidget {
         children: [
           Text(
             title,
-            style: Style.interNormal(
-                size: 12.sp, color: textColor, letterSpacing: -0.3),
+            style: AppStyle.interNormal(
+                size: 12, color: textColor, letterSpacing: -0.3),
           ),
           const Spacer(),
           Row(
             children: [
               Text(
                 count,
-                style: Style.interSemi(
-                    size: 14.sp, color: textColor, letterSpacing: -0.6),
+                style: AppStyle.interSemi(
+                    size: 14, color: textColor, letterSpacing: -0.6),
               ),
               Container(
                 width: 6.r,
@@ -55,8 +54,8 @@ class StatisticsItem extends StatelessWidget {
               ),
               Text(
                 percentage,
-                style: Style.interSemi(
-                    size: 14.sp, color: textColor, letterSpacing: -0.6),
+                style: AppStyle.interSemi(
+                    size: 14, color: textColor, letterSpacing: -0.6),
               ),
             ],
           )

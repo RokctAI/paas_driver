@@ -71,6 +71,10 @@ class FoodExtras extends ConsumerWidget {
                           ? ImageExtras(
                               uiExtras: typedExtra.uiExtras,
                               groupIndex: typedExtra.groupIndex,
+                              // The manager create-order modal keeps no
+                              // active-image state, so the required callback
+                              // is a no-op (selection is handled by onUpdate).
+                              updateImage: (_) {},
                               onUpdate: (uiExtra) =>
                                   event.updateSelectedIndexes(
                                 typedExtra.groupIndex,

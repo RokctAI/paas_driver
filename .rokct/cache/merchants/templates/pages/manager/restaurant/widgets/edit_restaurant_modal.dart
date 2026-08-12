@@ -13,10 +13,10 @@ import 'package:intl_phone_field/phone_number.dart';
 import 'working_time_modal.dart';
 import 'package:${package}/presentation/routes/app_router.dart';
 import 'package:${package}/presentation/component/helper/horizontal_image_picker.dart';
-import 'package:${package}/presentation/component/helper/modal_drag.dart';
-import 'package:${package}/presentation/component/helper/modal_wrap.dart';
-import 'package:${package}/presentation/component/helper/shop_bordered_avatar.dart';
-import 'package:${package}/presentation/component/text_fields/underlined_text_field.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_drag.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_wrap.dart';
+import 'package:base_sdk/src/presentation/components/helper/shop_bordered_avatar.dart';
+import 'package:base_sdk/src/presentation/components/text_fields/underlined_text_field.dart';
 import 'package:${package}/presentation/components/restaurant/small_weekday_item.dart';
 import 'package:${package}/presentation/pages/main/widgets/buttons_bouncing_effect.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
@@ -36,12 +36,9 @@ import 'package:merchants_sdk/src/manager/application/restaurant/working_days/wo
 // edit_restaurant_modal.dart. Deltas: KeyboardDisable -> base_sdk's
 // KeyboardDismisser; AppValidators.emptyCheck -> isNotEmptyValidator (the
 // base name); the delivery-zone row routes to zones_sdk's installed
-// ManagerDeliveryZoneRoute (zones_sdk owns the zone page — S-1/S-1b);
-// AppConstants.isSpecificNumberEnabled is not in base_sdk yet, so the flag
-// is read straight from the same dart-define the legacy constant wrapped.
-const bool _isSpecificNumberEnabled =
-    bool.fromEnvironment('IS_SPECIFIC_NUMBER_ENABLED');
-
+// ManagerDeliveryZoneRoute (zones_sdk owns the zone page — S-1/S-1b); the
+// phone-field UI gate reads AppConstants.isSpecificNumberEnabled (base_sdk
+// 1.8.0, remote-config-overridable per paas_manager#28).
 class EditRestaurantModal extends ConsumerStatefulWidget {
   const EditRestaurantModal({super.key});
 
@@ -192,7 +189,7 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                   validator: AppValidators.isNotEmptyValidator,
                                 ),
                                 24.verticalSpace,
-                                if (_isSpecificNumberEnabled)
+                                if (AppConstants.isSpecificNumberEnabled)
                                   IntlPhoneField(
                                     disableLengthCheck:
                                         !AppConstants.isNumberLengthAlwaysSame,
@@ -266,7 +263,7 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                           const UnderlineInputBorder(),
                                     ),
                                   ),
-                                if (!_isSpecificNumberEnabled)
+                                if (!AppConstants.isSpecificNumberEnabled)
                                   UnderlinedTextField(
                                     initialText: state.shop?.phone,
                                     label: AppHelpers.getTranslation(

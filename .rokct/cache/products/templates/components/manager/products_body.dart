@@ -3,7 +3,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_product_data.dart';
-import 'package:${package}/presentation/component/loading/loading_list.dart';
+import 'package:base_sdk/src/presentation/components/loading/loading_list.dart';
 import 'package:${package}/presentation/components/foods/food_item.dart';
 
 /// The foods-tab product list, typed on `SellerProductData`. The legacy

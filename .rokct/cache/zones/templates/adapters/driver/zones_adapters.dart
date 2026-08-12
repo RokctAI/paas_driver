@@ -50,9 +50,18 @@ class DriverDeliveryZonesAdapter implements DeliveryZonesFacade {
   @override
   Future<ApiResult<void>> updateDeliveryZones({
     required List<List<double>> points,
-  }) {
-    return di.userRepository.updateDeliveryZones(
+  }) async {
+    // The host repository declares its own ApiResult type (today it happens
+    // to be base_sdk's, which is why the old pass-through compiled), but the
+    // facade must not depend on that, so the result is unwrapped and rebuilt
+    // — same bridging fetchDeliveryZones does above.
+    final response = await di.userRepository.updateDeliveryZones(
       points: points.map((p) => LatLng(p[0], p[1])).toList(),
+    );
+    return response.when(
+      success: (_) => const ApiResult.success(data: null),
+      failure: (error, statusCode) =>
+          ApiResult.failure(error: error, statusCode: statusCode),
     );
   }
 }

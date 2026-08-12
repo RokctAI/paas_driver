@@ -5,7 +5,9 @@ import 'package:base_sdk/src/domain/interface/auth.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/models/models.dart';
 
-class AuthRepository implements AuthRepositoryFacade {
+import 'package:auth_sdk/src/common/domain/interface/deferred_otp_email_resend.dart';
+
+class AuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
   @override
   Future<ApiResult<LoginResponse>> login({
     required String email,
@@ -214,6 +216,31 @@ class AuthRepository implements AuthRepositoryFacade {
       return const ApiResult.success(data: null);
     } catch (e) {
       debugPrint('==> signup failure: $e');
+      return ApiResult.failure(
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
+    }
+  }
+
+  // DeferredOtpEmailResend: email-OTP send for an account that already
+  // exists on the backend (deferred/offline-registered, now synced). The
+  // endpoint authorizes against the session user, so this is called with
+  // the synced account's own token active (requireAuth: true) — unlike the
+  // pre-registration sends above, which run unauthenticated.
+  @override
+  Future<ApiResult<dynamic>> resendVerificationEmail({
+    required String email,
+  }) async {
+    try {
+      final client = dioHttp.client(requireAuth: true);
+      await client.post(
+        '/api/method/paas.api.resend_verification_email',
+        data: {'email': email},
+      );
+      return const ApiResult.success(data: null);
+    } catch (e) {
+      debugPrint('==> resend verification email failure: $e');
       return ApiResult.failure(
         error: AppHelpers.errorHandler(e),
         statusCode: NetworkExceptions.getDioStatus(e),

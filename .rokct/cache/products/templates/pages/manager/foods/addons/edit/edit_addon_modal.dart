@@ -16,10 +16,10 @@ import 'package:products_sdk/src/manager/application/addons/addons_provider.dart
 import 'package:products_sdk/src/manager/application/addons/edit/edit_addon_provider.dart';
 import 'package:products_sdk/src/manager/application/addons/edit/units/edit_addon_units_provider.dart';
 import 'package:products_sdk/src/manager/utils/seller_form_helpers.dart';
-import 'package:${package}/presentation/component/custom_toggle.dart';
-import 'package:${package}/presentation/component/helper/modal_drag.dart';
-import 'package:${package}/presentation/component/helper/modal_wrap.dart';
-import 'package:${package}/presentation/component/text_fields/underlined_text_field.dart';
+import 'package:base_sdk/src/presentation/components/custom_toggle3.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_drag.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_wrap.dart';
+import 'package:base_sdk/src/presentation/components/text_fields/underlined_text_field.dart';
 
 class EditAddonModal extends StatefulWidget {
   final SellerProductData addon;

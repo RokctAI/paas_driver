@@ -11,8 +11,8 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_extras_group.dart';
 import 'package:products_sdk/src/manager/application/extras/delete/delete_extras_group_provider.dart';
 import 'package:products_sdk/src/manager/application/extras/extras_provider.dart';
-import 'package:${package}/presentation/component/helper/modal_drag.dart';
-import 'package:${package}/presentation/component/helper/modal_wrap.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_drag.dart';
+import 'package:base_sdk/src/presentation/components/helper/modal_wrap.dart';
 
 class DeleteExtrasGroupModal extends StatelessWidget {
   final SellerExtrasGroup group;

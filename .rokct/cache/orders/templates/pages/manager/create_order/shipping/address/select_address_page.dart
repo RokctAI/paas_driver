@@ -20,12 +20,6 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:orders_sdk/src/manager/application/order/shipping/address/order/order_address_provider.dart';
 import 'package:orders_sdk/src/manager/application/order/shipping/address/select_address_provider.dart';
 
-// Shared with merchants_sdk's main_page.dart FAB Hero: base_sdk's AppConstants
-// does not carry this tag (yet), so both sides use the same literal. If
-// base_sdk grows AppConstants.heroTagAddOrderButton, swap the literal for the
-// constant.
-const String _heroTagAddOrderButton = 'heroTagAddOrderButton';
-
 @RoutePage(name: 'ManagerSelectAddressRoute')
 class SelectAddressPage extends StatefulWidget {
   const SelectAddressPage({super.key});
@@ -227,7 +221,7 @@ class _SelectAddressPageState extends State<SelectAddressPage>
                   child: Row(
                     children: [
                       const PopButton(
-                        heroTag: _heroTagAddOrderButton,
+                        heroTag: AppConstants.heroTagAddOrderButton,
                       ),
                       8.horizontalSpace,
                       Expanded(

@@ -3,7 +3,9 @@ import 'package:base_sdk/src/domain/interface/auth.dart';
 import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/models/data/address_information.dart';
 
-class MockAuthRepository implements AuthRepositoryFacade {
+import 'package:auth_sdk/src/common/domain/interface/deferred_otp_email_resend.dart';
+
+class MockAuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
   final UserModel _demoUser = UserModel(
     id: "1",
     uuid: "demo_uuid",
@@ -123,6 +125,13 @@ class MockAuthRepository implements AuthRepositoryFacade {
   @override
   Future<ApiResult<dynamic>> sigUp({required String email}) async {
     return ApiResult.success(data: null);
+  }
+
+  @override
+  Future<ApiResult<dynamic>> resendVerificationEmail({
+    required String email,
+  }) async {
+    return const ApiResult.success(data: null);
   }
 
   @override
