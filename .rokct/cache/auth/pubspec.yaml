@@ -14,7 +14,7 @@ dependencies:
   auto_route: ^9.2.0
   crypto: ^3.0.3
   drift: ^2.31.0
-  firebase_auth: ^5.2.0
+  firebase_auth: ^5.4.0
   firebase_dynamic_links: ^6.0.5
   firebase_messaging: ^15.1.0
   flutter_facebook_auth: ^7.0.0
