@@ -248,8 +248,23 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
   }
 
   Future<void> logOut() async {
-    final fcm = await FirebaseMessaging.instance.getToken();
-    _userRepository.logoutAccount(fcm: fcm ?? "");
+    // firebase_messaging has no Windows/Linux implementation — on desktop
+    // getToken() throws [core/no-app] and the backend logout call below
+    // never fired. Same platform guard + fail-open idiom as comms'
+    // firebase boot hook: skip the token sync where FCM does not exist and
+    // proceed straight to the backend call.
+    String fcm = "";
+    if (!kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.macOS)) {
+      try {
+        fcm = await FirebaseMessaging.instance.getToken() ?? "";
+      } catch (e) {
+        debugPrint('==> logout fcm token skipped: $e');
+      }
+    }
+    _userRepository.logoutAccount(fcm: fcm);
   }
 
   Future<void> deleteAccount(BuildContext context) async {

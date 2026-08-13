@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import 'package:base_sdk/src/di/injection.dart';
+import 'package:base_sdk/src/services/app_ui_keys.dart';
 import 'package:base_sdk/src/models/data/count_of_notifications_data.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 
@@ -17,7 +19,8 @@ import 'package:comms_sdk/src/common/local_notifications.dart';
 /// host, played every 2 seconds like the POS `playMusic()` timer) while
 /// unseen notifications exist. On top of the sound, each count INCREASE
 /// raises a native Windows toast via [LocalNotifications.show] (initialized
-/// fail-open by [start] — see [_initToasts]).
+/// fail-open by [start] — see [_initToasts]) and an in-app SnackBar via
+/// base_sdk's AppUiKeys.scaffoldMessenger (see [_showInAppBanner]).
 ///
 /// Started from comms' `comms-desktop-notification-poller-boot` boot hook
 /// AFTER the first frame (the hook body runs before `LocalStorage.init()`
@@ -123,10 +126,12 @@ class DesktopNotificationPoller {
           unseenTotal.value = total;
           final int? last = _lastTotal;
           if (last != null && total > last) {
-            // New arrivals since the previous tick: loop the POS sound and
-            // raise a native toast (Windows action center).
+            // New arrivals since the previous tick: loop the POS sound,
+            // raise a native toast (Windows action center) and an in-app
+            // SnackBar (base_sdk 1.10.0 AppUiKeys surface).
             _startSound();
             unawaited(_showToast(total));
+            _showInAppBanner(total);
           } else if (total == 0 || (last != null && total < last)) {
             // Read (count dropped) or cleared: stop looping.
             _stopSound();
@@ -160,6 +165,33 @@ class DesktopNotificationPoller {
       );
     } catch (e) {
       debugPrint('==> notification toast skipped: $e');
+    }
+  }
+
+  /// In-app surface for the same count increase: a SnackBar through
+  /// base_sdk's AppUiKeys.scaffoldMessenger (wired into the composed
+  /// app_widget template's MaterialApp since base_sdk 1.10.0). Fail-open
+  /// like the toast: apps composed before the key existed (app_widget.dart
+  /// is host-owned after first compose) leave currentState null and simply
+  /// keep the sound + toast + badge behavior.
+  void _showInAppBanner(int total) {
+    try {
+      final ScaffoldMessengerState? messenger =
+          AppUiKeys.scaffoldMessenger.currentState;
+      if (messenger == null) {
+        return;
+      }
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('New notifications ($total)'),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    } catch (e) {
+      // Never let a UI nicety break the polling loop.
+      debugPrint('==> in-app notification banner skipped: $e');
     }
   }
 
