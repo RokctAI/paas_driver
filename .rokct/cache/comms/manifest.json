@@ -1,6 +1,6 @@
 {
   "name": "comms_sdk",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "installs": [],
   "routes": [],
   "integrations": [],
@@ -18,15 +18,16 @@
     {
       "id": "comms-firebase-fcm-boot",
       "order": 10,
-      "body": "if (Firebase.apps.isEmpty) {\n  await Firebase.initializeApp();\n}\nFirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);",
+      "body": "if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS)) {\n  try {\n    if (Firebase.apps.isEmpty) {\n      await Firebase.initializeApp();\n    }\n    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);\n  } catch (e) {\n    debugPrint('Firebase boot skipped: $e');\n  }\n}",
       "imports": [
+        "import 'package:flutter/foundation.dart';",
         "import 'package:firebase_core/firebase_core.dart';",
         "import 'package:firebase_messaging/firebase_messaging.dart';",
         "import 'package:comms_sdk/src/common/services/firebase_background_handler.dart';"
       ]
     }
   ],
-  "_comment_boot_hooks": "The Firebase/FCM boot every composed app needs before anything touches messaging - the follow-up _comment_app_type promised once The-Rokct-Protocol#160 landed (absorbed from paas_manager's retired hand-written main.dart, manager migration M5). Top level deliberately: comms_sdk is the push owner in every composition and the host android/ios templates already wire google-services. Firebase.apps.isEmpty-guarded so a host whose tracked main.dart still initializes Firebase by hand (paas_driver today) double-boots safely during its own migration window. firebaseMessagingBackgroundHandler is comms package code (src/common/services/firebase_background_handler.dart, vm:entry-point) because the background isolate cannot reach a host-private handler from an injected body. Version 1.1.0 -> 1.2.0 for cache reconciliation.",
+  "_comment_boot_hooks": "The Firebase/FCM boot every composed app needs before anything touches messaging - the follow-up _comment_app_type promised once The-Rokct-Protocol#160 landed (absorbed from paas_manager's retired hand-written main.dart, manager migration M5). Top level deliberately: comms_sdk is the push owner in every composition and the host android/ios templates already wire google-services. Firebase.apps.isEmpty-guarded so a host whose tracked main.dart still initializes Firebase by hand (paas_driver today) double-boots safely during its own migration window. firebaseMessagingBackgroundHandler is comms package code (src/common/services/firebase_background_handler.dart, vm:entry-point) because the background isolate cannot reach a host-private handler from an injected body. Version 1.1.0 -> 1.2.0 for cache reconciliation. 1.5.0: body is platform-guarded to android/iOS/macOS (firebase_messaging has no Windows/Linux implementation, and the unconditional await killed composed Windows exes before runApp so the runner never showed a window) and wrapped fail-open - a boot failure debugPrints instead of blanking the app.",
   "app_type": {
     "manager": {
       "installs": [
