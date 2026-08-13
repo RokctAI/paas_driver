@@ -33,6 +33,10 @@ class EditFoodDetailsNotifier extends StateNotifier<EditFoodDetailsState> {
     state = state.copyWith(tax: value.trim());
   }
 
+  void setCostPrice(String value) {
+    state = state.copyWith(costPrice: value.trim());
+  }
+
   void setInterval(String value) {
     state = state.copyWith(interval: value.trim());
   }
@@ -84,6 +88,7 @@ class EditFoodDetailsNotifier extends StateNotifier<EditFoodDetailsState> {
         titlesAndDescriptions: state.mapOfDesc,
         interval: state.interval,
         tax: state.tax,
+        costPrice: state.costPrice,
         maxQty: state.maxQty,
         minQty: state.minQty,
         qrcode: state.barcode == _oldBarcode ? null : state.barcode,
@@ -104,6 +109,7 @@ class EditFoodDetailsNotifier extends StateNotifier<EditFoodDetailsState> {
         final updatedProduct = state.product?.copyWith(
           translation: updatedTranslation,
           tax: num.tryParse(state.tax),
+          cost: num.tryParse(state.costPrice),
           maxQty: int.tryParse(state.maxQty),
           minQty: int.tryParse(state.minQty),
           barCode: state.barcode,
@@ -183,6 +189,7 @@ class EditFoodDetailsNotifier extends StateNotifier<EditFoodDetailsState> {
       minQty: product?.minQty?.toString() ?? '',
       maxQty: product?.maxQty?.toString() ?? '',
       tax: taxValue,
+      costPrice: product?.cost?.toString() ?? '',
       interval: product?.interval?.toString() ?? '',
       title: product?.translation?.title ?? '',
       description: product?.translation?.description ?? '',
@@ -214,6 +221,7 @@ class EditFoodDetailsNotifier extends StateNotifier<EditFoodDetailsState> {
           isLoading: false,
           listOfUrls: data.data?.galleries ?? [],
           tax: taxValue,
+          costPrice: data.data?.cost?.toString() ?? state.costPrice,
           active: data.data?.active ?? state.active,
         );
         if (data.data?.translations != null) {

@@ -234,6 +234,17 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
                             validator: SellerFormValidators.emptyCheck,
                           ),
                           24.verticalSpace,
+                          // Manager-only: cost price (optional). Never
+                          // rendered on customer-facing surfaces — this
+                          // template only installs under app_type=manager.
+                          UnderlinedTextField(
+                            label: AppHelpers.getTranslation(TrKeys.costPrice),
+                            inputType: TextInputType.number,
+                            textInputAction: TextInputAction.next,
+                            initialText: state.costPrice,
+                            onChanged: event.setCostPrice,
+                          ),
+                          24.verticalSpace,
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

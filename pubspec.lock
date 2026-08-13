@@ -1816,7 +1816,7 @@ packages:
       path: ".rokct/cache/products"
       relative: true
     source: path
-    version: "1.1.0"
+    version: "1.2.0"
   proste_indexed_stack:
     dependency: "direct main"
     description:

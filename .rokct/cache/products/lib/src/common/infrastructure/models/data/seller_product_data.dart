@@ -4,6 +4,12 @@ import 'package:products_sdk/src/common/infrastructure/models/data/seller_unit_d
 import 'package:base_sdk/src/models/data/translation.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_category_data.dart';
 
+/// The seller/manager-side product type, deserialized ONLY from token-gated
+/// seller endpoints. Per the "Shared vs. role-extended data models" decision
+/// (agent/decision_log.md): manager-only fields such as [cost] (cost price)
+/// live here and must NEVER be added to the customer-facing `ProductData`
+/// (base_sdk), which is fed by public, unauthenticated APIs — the security
+/// boundary is the type system, not UI visibility.
 class SellerProductData {
   SellerProductData({
     int? id,
@@ -12,6 +18,7 @@ class SellerProductData {
     int? shopId,
     int? categoryId,
     num? tax,
+    num? cost,
     num? interval,
     String? barCode,
     String? status,
@@ -42,6 +49,7 @@ class SellerProductData {
     _translations = translations;
     _categoryId = categoryId;
     _tax = tax;
+    _cost = cost;
     _interval = interval;
     _barCode = barCode;
     _status = status;
@@ -86,6 +94,11 @@ class SellerProductData {
     } else {
       _tax = null;
     }
+
+    // Manager-only cost price; present only in token-gated seller responses.
+    _cost = json['cost'] is num
+        ? json['cost']
+        : num.tryParse(json['cost']?.toString() ?? '');
 
     _interval = json['interval'];
     _barCode = json['bar_code'];
@@ -152,6 +165,7 @@ class SellerProductData {
   int? _shopId;
   int? _categoryId;
   num? _tax;
+  num? _cost;
   num? _interval;
   String? _barCode;
   String? _status;
@@ -180,6 +194,7 @@ class SellerProductData {
     int? shopId,
     int? categoryId,
     num? tax,
+    num? cost,
     num? interval,
     String? barCode,
     String? status,
@@ -207,6 +222,7 @@ class SellerProductData {
         shopId: shopId ?? _shopId,
         categoryId: categoryId ?? _categoryId,
         tax: tax ?? _tax,
+        cost: cost ?? _cost,
         galleries: galleries ?? _galleries,
         interval: interval ?? _interval,
         barCode: barCode ?? _barCode,
@@ -256,6 +272,11 @@ class SellerProductData {
   List<Translation>? get translations => _translations;
   int? get categoryId => _categoryId;
   num? get tax => _tax;
+
+  /// Manager-only cost price (the doctype's `cost` field). Only token-gated
+  /// seller endpoints return it; customer-facing `ProductData` must never
+  /// carry it.
+  num? get cost => _cost;
   num? get interval => _interval;
   String? get barCode => _barCode;
   String? get status => _status;
@@ -292,6 +313,7 @@ class SellerProductData {
     map['shop_id'] = _shopId;
     map['category_id'] = _categoryId;
     map['tax'] = _tax;
+    map['cost'] = _cost;
     map['bar_code'] = _barCode;
     map['status'] = _status;
     map['active'] = _active;
