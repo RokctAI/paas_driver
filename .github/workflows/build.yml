@@ -65,10 +65,10 @@ jobs:
       # lint job on the same SHA there. Every other event/branch keeps linting here.
       run_lint: ${{ github.event_name != 'push' || github.ref_name != 'main' }}
       run_ci: true
-      # Deployment Configuration (carried over from release.yml, which now only
-      # handles build_* pushes): weekly strategy — develop -> -dev prerelease,
-      # main -> stable/RC per version file.
-      release_strategy: 'weekly'
+      # Deployment Configuration: immediate strategy — main/develop pushes cut a
+      # release right away (pre-dedupe behavior). build_* pushes and scheduled
+      # promotion stay on the weekly strategy via release.yml.
+      release_strategy: 'immediate'
       # RC Cleanup: Delete RC releases/tags after promotion to stable
       cleanup_rc_releases: true
       # One-time cleanup: run cleanup once if past this date (marker file prevents re-runs)
