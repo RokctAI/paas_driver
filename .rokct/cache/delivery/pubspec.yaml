@@ -24,7 +24,11 @@ dependencies:
   intl: ^0.19.0
   pull_to_refresh: ^2.0.0
   shared_preferences: ^2.5.2
-  workmanager: ^0.5.1
+  # >=0.6 is the Flutter v2-embedding rewrite; 0.5.x still imports the deleted
+  # v1 shim (ShimPluginRegistry/PluginRegistrantCallback) and fails
+  # :workmanager:compileReleaseKotlin on Flutter 3.29+. 0.10.x needs
+  # Flutter >=3.38.0, matching this package's floor.
+  workmanager: ^0.10.7
 dev_dependencies:
   flutter_test:
     sdk: flutter
