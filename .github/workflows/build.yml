@@ -2,6 +2,12 @@ name: Build (Smart)
 
 permissions: write-all
 
+# A newer push to the same branch supersedes the in-flight CI run — cancel it
+# instead of queueing a full pipeline per intermediate commit.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [ main, develop ]
@@ -59,8 +65,16 @@ jobs:
       # lint job on the same SHA there. Every other event/branch keeps linting here.
       run_lint: ${{ github.event_name != 'push' || github.ref_name != 'main' }}
       run_ci: true
-      # Deployment Configuration (Immediate release on Main)
-      release_strategy: 'immediate'
+      # Deployment Configuration (carried over from release.yml, which now only
+      # handles build_* pushes): weekly strategy — develop -> -dev prerelease,
+      # main -> stable/RC per version file.
+      release_strategy: 'weekly'
+      # RC Cleanup: Delete RC releases/tags after promotion to stable
+      cleanup_rc_releases: true
+      # One-time cleanup: run cleanup once if past this date (marker file prevents re-runs)
+      one_time_cleanup_cutoff_date: '2026-01-30'
+      # Brain Endpoint (AI release notes)
+      brain_endpoint: https://platform.rokct.ai/api/method/brain.api.generate_release_notes
       build_android: true
       # Pin to 3.38.5 (Dart 3.10+) so processing_sdk's SDK constraint resolves
       flutter-version: ${{ inputs.flutter-version || '3.38.5' }}

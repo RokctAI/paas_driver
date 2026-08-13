@@ -2,7 +2,10 @@ name: Auto Release (Weekly)
 permissions: write-all
 on:
   push:
-    branches: [main, develop, "build_*"]
+    # main/develop are handled by Build (Smart) (build.yml), which carries the
+    # same weekly release configuration — this workflow is the sole pipeline
+    # for client build_* branches.
+    branches: ["build_*"]
 
 jobs:
   release:
@@ -13,10 +16,10 @@ jobs:
       # Dogfooding: Use the new Weekly Strategy
       release_strategy: 'weekly'
 
-      # Lint dedupe: on push to main Code Quality (linter.yml) lints, on push to
-      # develop Build (Smart) lints; only build_* pushes (where this workflow is the
-      # sole pipeline) and non-push events lint here.
-      run_lint: ${{ github.event_name != 'push' || startsWith(github.ref_name, 'build_') }}
+      # This workflow only fires on build_* pushes, where it is the sole
+      # pipeline — so it always lints (main is linted by Code Quality, develop
+      # by Build (Smart)).
+      run_lint: true
 
       # RC Cleanup: Delete RC releases/tags after promotion to stable
       cleanup_rc_releases: true
