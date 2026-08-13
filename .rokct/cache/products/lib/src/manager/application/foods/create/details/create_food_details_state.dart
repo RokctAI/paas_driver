@@ -7,6 +7,7 @@ class CreateFoodDetailsState {
     this.title = '',
     this.description = '',
     this.tax = '',
+    this.costPrice = '',
     this.minQty = '',
     this.maxQty = '',
     this.qrcode = '',
@@ -22,6 +23,10 @@ class CreateFoodDetailsState {
   final String title;
   final String description;
   final String tax;
+
+  /// Manager-only cost price; empty means "not provided" and the create
+  /// request omits the field entirely.
+  final String costPrice;
   final String minQty;
   final String maxQty;
   final String qrcode;
@@ -47,6 +52,7 @@ class CreateFoodDetailsState {
     String? title,
     String? description,
     String? tax,
+    String? costPrice,
     String? minQty,
     String? maxQty,
     String? qrcode,
@@ -63,6 +69,7 @@ class CreateFoodDetailsState {
         title: title ?? this.title,
         description: description ?? this.description,
         tax: tax ?? this.tax,
+        costPrice: costPrice ?? this.costPrice,
         minQty: minQty ?? this.minQty,
         maxQty: maxQty ?? this.maxQty,
         qrcode: qrcode ?? this.qrcode,

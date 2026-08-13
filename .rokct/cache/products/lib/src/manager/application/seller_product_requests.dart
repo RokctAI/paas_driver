@@ -29,12 +29,17 @@ Map<String, dynamic> buildCreateProductRequest({
   int? unitId,
   List<String>? images,
   bool isAddon = false,
+  String costPrice = '',
 }) {
   final String locale = LocalStorage.getLanguage()?.locale ?? 'en';
   return {
     'title': {locale: title},
     'description': {locale: description},
     'tax': num.tryParse(tax),
+    // Manager-only cost price ('cost' on the Product doctype). Sent only when
+    // the form actually holds a value so flows that don't surface the field
+    // (addon create/edit) never touch it server-side.
+    if (num.tryParse(costPrice) != null) 'cost': num.tryParse(costPrice),
     'interval': num.tryParse(interval),
     'min_qty': num.tryParse(minQty),
     'max_qty': num.tryParse(maxQty),
@@ -64,6 +69,7 @@ Map<String, dynamic> buildUpdateProductRequest({
   int? unitId,
   List<String>? images,
   bool needAddons = false,
+  String costPrice = '',
 }) =>
     {
       'title': {
@@ -75,6 +81,9 @@ Map<String, dynamic> buildUpdateProductRequest({
           entry.key: entry.value.isNotEmpty ? entry.value.last : '',
       },
       'tax': num.tryParse(tax),
+      // Same omit-when-empty contract as buildCreateProductRequest: a blank
+      // field leaves the stored cost untouched rather than nulling it.
+      if (num.tryParse(costPrice) != null) 'cost': num.tryParse(costPrice),
       'interval': num.tryParse(interval),
       'min_qty': int.tryParse(minQty),
       'max_qty': int.tryParse(maxQty),

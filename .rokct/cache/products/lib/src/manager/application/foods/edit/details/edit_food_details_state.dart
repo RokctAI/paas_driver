@@ -13,6 +13,7 @@ class EditFoodDetailsState {
     this.minQty = '',
     this.maxQty = '',
     this.tax = '',
+    this.costPrice = '',
     this.barcode = '',
     this.product,
     this.images = const [],
@@ -30,6 +31,10 @@ class EditFoodDetailsState {
   final String minQty;
   final String maxQty;
   final String tax;
+
+  /// Manager-only cost price; empty means "not provided" and the update
+  /// request omits the field (leaving the stored value untouched).
+  final String costPrice;
   final String barcode;
   final SellerProductData? product;
 
@@ -55,6 +60,7 @@ class EditFoodDetailsState {
     String? minQty,
     String? maxQty,
     String? tax,
+    String? costPrice,
     String? barcode,
     SellerProductData? product,
     List<String>? images,
@@ -72,6 +78,7 @@ class EditFoodDetailsState {
         minQty: minQty ?? this.minQty,
         maxQty: maxQty ?? this.maxQty,
         tax: tax ?? this.tax,
+        costPrice: costPrice ?? this.costPrice,
         barcode: barcode ?? this.barcode,
         product: product ?? this.product,
         images: images ?? this.images,

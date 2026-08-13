@@ -33,6 +33,7 @@ class CreateFoodDetailsNotifier extends StateNotifier<CreateFoodDetailsState> {
       minQty: '',
       maxQty: '',
       tax: '',
+      costPrice: '',
       qrcode: '',
       active: false,
       clearCreatedProduct: true,
@@ -69,6 +70,7 @@ class CreateFoodDetailsNotifier extends StateNotifier<CreateFoodDetailsState> {
         title: state.title,
         description: state.description,
         tax: state.tax,
+        costPrice: state.costPrice,
         minQty: state.minQty,
         maxQty: state.maxQty,
         active: state.active,
@@ -111,6 +113,10 @@ class CreateFoodDetailsNotifier extends StateNotifier<CreateFoodDetailsState> {
 
   void setTax(String value) {
     state = state.copyWith(tax: value.trim());
+  }
+
+  void setCostPrice(String value) {
+    state = state.copyWith(costPrice: value.trim());
   }
 
   void setDescription(String value) {
