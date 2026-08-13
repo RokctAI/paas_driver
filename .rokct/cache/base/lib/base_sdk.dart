@@ -47,6 +47,7 @@ export 'src/presentation/components/floating_nav/floating_bottom_nav.dart';
 
 // Kernel services
 export 'src/services/app_connectivity.dart';
+export 'src/services/app_ui_keys.dart';
 export 'src/services/customer_cart_store.dart';
 export 'src/services/telemetry.dart';
 export 'src/services/app_helpers.dart';

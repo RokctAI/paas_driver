@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/application/app_widget/app_provider.dart';
 import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/domain/interface/settings.dart';
+import 'package:base_sdk/src/services/app_ui_keys.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:${package}/presentation/routes/app_router.dart';
@@ -42,6 +43,10 @@ class AppWidget extends ConsumerWidget {
           builder: (context, child) {
             return MaterialApp.router(
               debugShowCheckedModeBanner: false,
+              // Root messenger handle: lets SDK services without a
+              // BuildContext (e.g. comms' DesktopNotificationPoller)
+              // surface SnackBars — see base_sdk AppUiKeys.
+              scaffoldMessengerKey: AppUiKeys.scaffoldMessenger,
               routerDelegate: _appRouter.delegate(),
               routeInformationParser: _appRouter.defaultRouteParser(),
               locale: Locale(state.activeLanguage?.locale ?? 'en'),

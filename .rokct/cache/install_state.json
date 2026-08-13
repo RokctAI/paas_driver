@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.9.0",
+      "version": "1.10.0",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -97,7 +97,7 @@
         "lib/presentation/theme/theme.dart": "4fd8344adbba5f9720346b6406d4d06056752d7dec07b2318d2e0180955511a7",
         "lib/presentation/theme/app_style.dart": "f202085343ef063bdfb3c285c6cda67eaac1e92e5d7fb32297783178eca55c63",
         "lib/main.dart": "3bcb58b2f98f53af5d7115bf93c6237bcf0778cf3c0ba42ba5196a5aea244f57",
-        "lib/presentation/app_widget.dart": "88fd39c79e8c6b228756184d15f6f2f0d962b57278764032bbce37d9fc3da081",
+        "lib/presentation/app_widget.dart": "6ac242937bf73740d1880ec433c8f923924a660bc01431bdd2fc4c8bc916960a",
         "lib/presentation/routes/app_router.dart": "e08b822163e08ac9e330bd6a0bffc42dbfd149d076449012092ddcdd0d2d2979",
         "lib/presentation/routes/route_pages.dart": "82dd7f21941054861f2e7b4f6c32fa227510fcc1535d06b1983c8a27aac8b9b7"
       },
@@ -442,7 +442,7 @@
       }
     },
     "comms_sdk": {
-      "version": "1.6.0",
+      "version": "1.7.0",
       "files": {
         "lib/application/notification/notification_state.dart": "ec4e92ba80840dbbd3bb0270a9d0f5617152178276166b81cf7cbb65940b28db",
         "lib/application/notification/notification_notifier.dart": "8a6fe7716778f1144dd982eaa179c72ca42dbc5f57cfa1680479f8b8fb6b007b",
@@ -612,7 +612,7 @@
       }
     },
     "merchants_sdk": {
-      "version": "1.9.0",
+      "version": "1.9.1",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
         "lib/presentation/pages/stores/story_page.dart": "9fdb3077a054b3eb16fe29059fd9379aa3e5efce1a5ce5d366da9b8361d0bd2f"
@@ -758,12 +758,12 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.9.0",
-      "hash": "6b7cbbe5c99e3e55"
+      "version": "1.10.0",
+      "hash": "ee0cab1c7d25fecf"
     },
     "comms": {
-      "version": "1.6.0",
-      "hash": "35218d07d1cd5366"
+      "version": "1.7.0",
+      "hash": "a9b19a45697ce8f3"
     },
     "auth": {
       "version": "1.6.0",
@@ -778,8 +778,8 @@
       "hash": "20e43ca66a635a51"
     },
     "merchants": {
-      "version": "1.9.0",
-      "hash": "8fd88f0a8f8cfc6b"
+      "version": "1.9.1",
+      "hash": "1929b1603f9ba94e"
     },
     "products": {
       "version": "1.2.2",
