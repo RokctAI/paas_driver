@@ -240,7 +240,7 @@
       "boot_hooks": []
     },
     "delivery_sdk": {
-      "version": "1.5.0",
+      "version": "1.5.1",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "fbd01e72fa569f0eca97e81f0338b299e274aadc68e27737db3495d6c4d2e78f",
         "lib/presentation/routes/delivery_adapters.dart": "87ce72a960fffd5a6c6a5902030fe4cc2269e9bd40732f054eaa4c19748aa6f4",
@@ -786,8 +786,8 @@
       "hash": "1bd3e8381498f9a7"
     },
     "delivery": {
-      "version": "1.5.0",
-      "hash": "3ee090279120da38"
+      "version": "1.5.1",
+      "hash": "e38dd98de2b458be"
     },
     "map": {
       "version": "1.1.0",

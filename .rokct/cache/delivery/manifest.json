@@ -1,6 +1,6 @@
 {
   "name": "delivery_sdk",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "home_sdk": true,
   "home_page": "templates/pages/driver/home/home_page.dart",
   "installs": [
