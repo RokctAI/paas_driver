@@ -147,7 +147,10 @@ dependencies:
   #   auto_size_text        - order list typography (orders_item.dart)
   #   calendar_date_picker2 - income date range (custom_date_picker.dart)
   #   charts_flutter        - income/statistics charts (income_page)
-  workmanager: ^0.5.1
+  # workmanager >=0.6 is the v2-embedding rewrite; 0.5.x still references the
+  # deleted Flutter v1 shim (ShimPluginRegistry/PluginRegistrantCallback) and
+  # fails :workmanager:compileReleaseKotlin on Flutter 3.29+.
+  workmanager: ^0.10.7
   percent_indicator: ^4.2.2
   calendar_date_picker2: ^1.1.5
   map_launcher: ^3.3.1
@@ -261,3 +264,10 @@ dependency_overrides:
   # same conflict.
   drift: 2.31.0
   sqlite3: 2.9.4
+  # workmanager must land on the v2-embedding rewrite (>=0.6): 0.5.x's Kotlin
+  # references the Flutter v1 shim, which Flutter 3.29+ deleted, so
+  # :workmanager:compileReleaseKotlin fails (Unresolved reference 'shim' /
+  # 'ShimPluginRegistry'). The composed delivery_sdk cache may still pin
+  # ^0.5.1 until its next compose picks up the zones-side bump; this override
+  # keeps resolution on 0.10.x regardless of cache staleness.
+  workmanager: ^0.10.7
