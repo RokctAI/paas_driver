@@ -3,7 +3,6 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
@@ -14,6 +13,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/domain/interface/auth.dart';
 import 'package:base_sdk/src/domain/interface/user.dart';
 import 'package:auth_sdk/src/common/application/confirmation/register_confirmation_state.dart';
+import 'package:auth_sdk/src/common/services/platform_support.dart';
 
 class RegisterConfirmationNotifier
     extends StateNotifier<RegisterConfirmationState> {
@@ -21,7 +21,7 @@ class RegisterConfirmationNotifier
   final UserRepositoryFacade _userRepositoryFacade;
 
   RegisterConfirmationNotifier(this._authRepository, this._userRepositoryFacade)
-      : super(const RegisterConfirmationState());
+    : super(const RegisterConfirmationState());
 
   Timer? _timer;
   int _initialTime = 30;
@@ -123,8 +123,7 @@ class RegisterConfirmationNotifier
       response.when(
         success: (data) async {
           await LocalStorage.setToken(data.token);
-          String? fcmToken = await FirebaseMessaging.instance.getToken();
-          _userRepositoryFacade.updateFirebaseToken(fcmToken);
+          await syncFcmToken(_userRepositoryFacade);
           state = state.copyWith(
             isLoading: false,
             isResetPasswordSuccess: true,
@@ -173,8 +172,7 @@ class RegisterConfirmationNotifier
         response.when(
           success: (data) async {
             await LocalStorage.setToken(data.token);
-            String? fcmToken = await FirebaseMessaging.instance.getToken();
-            _userRepositoryFacade.updateFirebaseToken(fcmToken);
+            await syncFcmToken(_userRepositoryFacade);
             state = state.copyWith(
               isLoading: false,
               isResetPasswordSuccess: true,

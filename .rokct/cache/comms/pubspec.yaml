@@ -8,10 +8,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_local_notifications: ^17.2.2
-  timezone: ^0.9.4
+  flutter_local_notifications: ^19.5.0 # 19.x adds Windows toasts (flutter_local_notifications_windows)
+  timezone: ^0.10.0 # floor required by flutter_local_notifications 19.x
   base_sdk:
     path: ../base
+  audioplayers: ^6.5.1 # POS notification sound (matches supacharge's host constraint)
   auto_route: ^9.2.0
   cloud_firestore: ^5.4.0
   firebase_core: ^3.10.0

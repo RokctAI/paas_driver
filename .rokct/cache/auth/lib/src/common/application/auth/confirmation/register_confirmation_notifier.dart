@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
@@ -18,6 +17,7 @@ import 'package:base_sdk/src/application/main/main_provider.dart';
 import 'package:auth_sdk/src/common/application/auth/confirmation/register_confirmation_state.dart';
 import 'package:auth_sdk/src/common/domain/interface/deferred_otp_email_resend.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service.dart';
+import 'package:auth_sdk/src/common/services/platform_support.dart';
 
 class RegisterConfirmationNotifier
     extends StateNotifier<RegisterConfirmationState> {
@@ -25,7 +25,7 @@ class RegisterConfirmationNotifier
   final UserRepositoryFacade _userRepositoryFacade;
 
   RegisterConfirmationNotifier(this._authRepository, this._userRepositoryFacade)
-      : super(const RegisterConfirmationState());
+    : super(const RegisterConfirmationState());
 
   Timer? _timer;
   int _initialTime = 30;
@@ -103,14 +103,18 @@ class RegisterConfirmationNotifier
             LocalStorage.setToken(data.data?.token);
             LocalStorage.setAddressSelected(
               AddressData(
-                title: data.data?.user?.addresses?.firstWhere(
-                      (element) => element.active ?? false,
-                      orElse: () {
-                        return AddressNewModel();
-                      },
-                    ).title ??
+                title:
+                    data.data?.user?.addresses
+                        ?.firstWhere(
+                          (element) => element.active ?? false,
+                          orElse: () {
+                            return AddressNewModel();
+                          },
+                        )
+                        .title ??
                     "",
-                address: data.data?.user?.addresses
+                address:
+                    data.data?.user?.addresses
                         ?.firstWhere(
                           (element) => element.active ?? false,
                           orElse: () {
@@ -215,8 +219,7 @@ class RegisterConfirmationNotifier
       response.when(
         success: (data) async {
           await LocalStorage.setToken(data.token);
-          String? fcmToken = await FirebaseMessaging.instance.getToken();
-          _userRepositoryFacade.updateFirebaseToken(fcmToken);
+          await syncFcmToken(_userRepositoryFacade);
           state = state.copyWith(
             isLoading: false,
             isResetPasswordSuccess: true,
@@ -266,8 +269,7 @@ class RegisterConfirmationNotifier
           response.when(
             success: (data) async {
               await LocalStorage.setToken(data.token);
-              String? fcmToken = await FirebaseMessaging.instance.getToken();
-              _userRepositoryFacade.updateFirebaseToken(fcmToken);
+              await syncFcmToken(_userRepositoryFacade);
               state = state.copyWith(
                 isLoading: false,
                 isResetPasswordSuccess: true,
@@ -311,14 +313,18 @@ class RegisterConfirmationNotifier
             LocalStorage.setToken(data.data?.token);
             LocalStorage.setAddressSelected(
               AddressData(
-                title: data.data?.user?.addresses?.firstWhere(
-                      (element) => element.active ?? false,
-                      orElse: () {
-                        return AddressNewModel();
-                      },
-                    ).title ??
+                title:
+                    data.data?.user?.addresses
+                        ?.firstWhere(
+                          (element) => element.active ?? false,
+                          orElse: () {
+                            return AddressNewModel();
+                          },
+                        )
+                        .title ??
                     "",
-                address: data.data?.user?.addresses
+                address:
+                    data.data?.user?.addresses
                         ?.firstWhere(
                           (element) => element.active ?? false,
                           orElse: () {

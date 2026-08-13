@@ -1,6 +1,6 @@
 {
   "name": "comms_sdk",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "installs": [],
   "routes": [],
   "integrations": [],
@@ -25,6 +25,16 @@
         "import 'package:firebase_messaging/firebase_messaging.dart';",
         "import 'package:comms_sdk/src/common/services/firebase_background_handler.dart';"
       ]
+    },
+    {
+      "id": "comms-desktop-notification-poller-boot",
+      "order": 20,
+      "body": "if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {\n  WidgetsBinding.instance.addPostFrameCallback((_) {\n    try {\n      DesktopNotificationPoller.instance.start();\n    } catch (e) {\n      debugPrint('Desktop notification poller boot skipped: $e');\n    }\n  });\n}",
+      "imports": [
+        "import 'package:flutter/foundation.dart';",
+        "import 'package:comms_sdk/src/common/services/desktop_notification_poller.dart';"
+      ],
+      "_comment": "Windows notification delivery, POS parity (1.6.0): firebase_messaging has no Windows implementation, so the FCM hook above deliberately excludes Windows and composed Windows exes shipped with NO notification path at all. This hook starts comms' DesktopNotificationPoller (10s REST count polling + looping POS notification.wav + ValueNotifier badge feed - see the service's doc comment) on Windows only. The start is deferred to addPostFrameCallback because boot-hook bodies run BEFORE LocalStorage.init() and the sdk-di block in the generated main.dart: by first frame both are done, and runApp is never delayed by a poll. Fail-open try/catch like the FCM hook - a boot failure debugPrints instead of blanking the app. WidgetsBinding resolves via main.dart's static material import; foundation dedupes with the FCM hook's wiring import. Toast layer (still 1.6.0, same unmerged PR): poller.start() also initializes LocalNotifications fail-open (flutter_local_notifications 19.x WindowsInitializationSettings - stable hardcoded GUID, APP_NAME/WINDOWS_AUMID dart-defines for branding, works unpackaged; MSIX identity optional host-side) and each count increase raises a native toast via LocalNotifications.show() alongside the sound - no hook body change needed, the toast path lives entirely inside the service."
     }
   ],
   "_comment_boot_hooks": "The Firebase/FCM boot every composed app needs before anything touches messaging - the follow-up _comment_app_type promised once The-Rokct-Protocol#160 landed (absorbed from paas_manager's retired hand-written main.dart, manager migration M5). Top level deliberately: comms_sdk is the push owner in every composition and the host android/ios templates already wire google-services. Firebase.apps.isEmpty-guarded so a host whose tracked main.dart still initializes Firebase by hand (paas_driver today) double-boots safely during its own migration window. firebaseMessagingBackgroundHandler is comms package code (src/common/services/firebase_background_handler.dart, vm:entry-point) because the background isolate cannot reach a host-private handler from an injected body. Version 1.1.0 -> 1.2.0 for cache reconciliation. 1.5.0: body is platform-guarded to android/iOS/macOS (firebase_messaging has no Windows/Linux implementation, and the unconditional await killed composed Windows exes before runApp so the runner never showed a window) and wrapped fail-open - a boot failure debugPrints instead of blanking the app.",

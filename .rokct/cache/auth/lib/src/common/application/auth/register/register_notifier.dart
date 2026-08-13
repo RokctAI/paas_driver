@@ -1,10 +1,12 @@
 import 'dart:async';
+
 import 'package:base_sdk/src/navigation/app_routes.dart';
+
 import 'dart:io';
+
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,6 +31,7 @@ import 'package:auth_sdk/src/common/application/auth/register/register_state.dar
 import 'package:auth_sdk/src/common/infrastructure/services/auth_sync_handler.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service.dart';
 import 'package:auth_sdk/src/common/presentation/pages/auth/registration/registration_steps_page.dart';
+import 'package:auth_sdk/src/common/services/platform_support.dart';
 
 class RegisterNotifier extends StateNotifier<RegisterState> {
   final AuthRepositoryFacade _authRepository;
@@ -36,7 +39,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
   final OfflineAuthService _offlineAuth = OfflineAuthService();
 
   RegisterNotifier(this._authRepository, this._userRepositoryFacade)
-      : super(const RegisterState());
+    : super(const RegisterState());
 
   void setPassword(String password) {
     state = state.copyWith(password: password.trim(), isPasswordInvalid: false);
@@ -120,6 +123,16 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
     BuildContext context,
     ValueChanged<String> onSuccess,
   ) async {
+    // Firebase phone verification has no desktop implementation — fail
+    // fast instead of hanging the spinner until the plugin call dies.
+    // (The backend-OTP branch below is plain HTTP and works everywhere.)
+    if (AppConstants.isPhoneFirebase && !isMobilePlatform) {
+      AppHelpers.showCheckTopSnackBar(
+        context,
+        AppHelpers.getTranslation(trPhoneVerificationNotAvailableOnDesktop),
+      );
+      return;
+    }
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isLoading: true, isSuccess: false);
@@ -229,14 +242,18 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           LocalStorage.setToken(data.token);
           LocalStorage.setAddressSelected(
             AddressData(
-              title: data.user?.addresses?.firstWhere(
-                    (element) => element.active ?? false,
-                    orElse: () {
-                      return AddressNewModel();
-                    },
-                  ).title ??
+              title:
+                  data.user?.addresses
+                      ?.firstWhere(
+                        (element) => element.active ?? false,
+                        orElse: () {
+                          return AddressNewModel();
+                        },
+                      )
+                      .title ??
                   "",
-              address: data.user?.addresses
+              address:
+                  data.user?.addresses
                       ?.firstWhere(
                         (element) => element.active ?? false,
                         orElse: () {
@@ -272,8 +289,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           // steps (school/grade capture, ...), then land on the same
           // destination as before — see RegistrationFlow.
           RegistrationFlow.completeRegistration(context, user: data.user);
-          String? fcmToken = await FirebaseMessaging.instance.getToken();
-          _userRepositoryFacade.updateFirebaseToken(fcmToken);
+          await syncFcmToken(_userRepositoryFacade);
         },
         failure: (failure, status) async {
           // The register call doubles as the reachability test: 5xx and
@@ -387,14 +403,18 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           LocalStorage.setToken(data.token);
           LocalStorage.setAddressSelected(
             AddressData(
-              title: data.user?.addresses?.firstWhere(
-                    (element) => element.active ?? false,
-                    orElse: () {
-                      return AddressNewModel();
-                    },
-                  ).title ??
+              title:
+                  data.user?.addresses
+                      ?.firstWhere(
+                        (element) => element.active ?? false,
+                        orElse: () {
+                          return AddressNewModel();
+                        },
+                      )
+                      .title ??
                   "",
-              address: data.user?.addresses
+              address:
+                  data.user?.addresses
                       ?.firstWhere(
                         (element) => element.active ?? false,
                         orElse: () {
@@ -430,8 +450,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           // steps (school/grade capture, ...), then land on the same
           // destination as before — see RegistrationFlow.
           RegistrationFlow.completeRegistration(context, user: data.user);
-          String? fcmToken = await FirebaseMessaging.instance.getToken();
-          _userRepositoryFacade.updateFirebaseToken(fcmToken);
+          await syncFcmToken(_userRepositoryFacade);
         },
         failure: (failure, status) {
           state = state.copyWith(isLoading: false);
@@ -485,7 +504,8 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
     );
     final activeToken = LocalStorage.getToken();
     final hasBackendSession =
-        activeToken.isNotEmpty && !OfflineAuthService.isOfflineToken(activeToken);
+        activeToken.isNotEmpty &&
+        !OfflineAuthService.isOfflineToken(activeToken);
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       final response = await _userRepositoryFacade.editProfile(
@@ -516,8 +536,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           // steps (school/grade capture, ...), then land on the same
           // destination as before — see RegistrationFlow.
           RegistrationFlow.completeRegistration(context, user: data.data);
-          String? fcmToken = await FirebaseMessaging.instance.getToken();
-          _userRepositoryFacade.updateFirebaseToken(fcmToken);
+          await syncFcmToken(_userRepositoryFacade);
         },
         failure: (failure, status) async {
           if (local.success && !_isDefinitiveRejection(status)) {
@@ -590,14 +609,18 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           LocalStorage.setToken(data.data?.accessToken ?? '');
           LocalStorage.setAddressSelected(
             AddressData(
-              title: data.data?.user?.addresses?.firstWhere(
-                    (element) => element.active ?? false,
-                    orElse: () {
-                      return AddressNewModel();
-                    },
-                  ).title ??
+              title:
+                  data.data?.user?.addresses
+                      ?.firstWhere(
+                        (element) => element.active ?? false,
+                        orElse: () {
+                          return AddressNewModel();
+                        },
+                      )
+                      .title ??
                   "",
-              address: data.data?.user?.addresses
+              address:
+                  data.data?.user?.addresses
                       ?.firstWhere(
                         (element) => element.active ?? false,
                         orElse: () {
@@ -635,8 +658,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           } else {
             AppHelpers.goHome(context);
           }
-          String? fcmToken = await FirebaseMessaging.instance.getToken();
-          _userRepositoryFacade.updateFirebaseToken(fcmToken);
+          await syncFcmToken(_userRepositoryFacade);
         },
         failure: (failure, status) {
           state = state.copyWith(isLoading: false);
@@ -677,15 +699,15 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
         final rawNonce = AppHelpers.generateNonce();
         final OAuthCredential credential =
             user.accessToken?.type == AccessTokenType.limited
-                ? OAuthCredential(
-                    providerId: 'facebook.com',
-                    signInMethod: 'oauth',
-                    idToken: user.accessToken!.tokenString,
-                    rawNonce: rawNonce,
-                  )
-                : FacebookAuthProvider.credential(
-                    user.accessToken?.tokenString ?? "",
-                  );
+            ? OAuthCredential(
+                providerId: 'facebook.com',
+                signInMethod: 'oauth',
+                idToken: user.accessToken!.tokenString,
+                rawNonce: rawNonce,
+              )
+            : FacebookAuthProvider.credential(
+                user.accessToken?.tokenString ?? "",
+              );
 
         final userObj = await FirebaseAuth.instance.signInWithCredential(
           credential,
@@ -704,14 +726,18 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
               LocalStorage.setToken(data.data?.accessToken ?? '');
               LocalStorage.setAddressSelected(
                 AddressData(
-                  title: data.data?.user?.addresses?.firstWhere(
-                        (element) => element.active ?? false,
-                        orElse: () {
-                          return AddressNewModel();
-                        },
-                      ).title ??
+                  title:
+                      data.data?.user?.addresses
+                          ?.firstWhere(
+                            (element) => element.active ?? false,
+                            orElse: () {
+                              return AddressNewModel();
+                            },
+                          )
+                          .title ??
                       "",
-                  address: data.data?.user?.addresses
+                  address:
+                      data.data?.user?.addresses
                           ?.firstWhere(
                             (element) => element.active ?? false,
                             orElse: () {
@@ -745,8 +771,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
               );
               context.router.popUntilRoot();
               AppHelpers.goHome(context);
-              String? fcmToken = await FirebaseMessaging.instance.getToken();
-              _userRepositoryFacade.updateFirebaseToken(fcmToken);
+              await syncFcmToken(_userRepositoryFacade);
             },
             failure: (failure, status) {
               state = state.copyWith(isLoading: false);
@@ -808,14 +833,18 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
             LocalStorage.setToken(data.data?.accessToken ?? '');
             LocalStorage.setAddressSelected(
               AddressData(
-                title: data.data?.user?.addresses?.firstWhere(
-                      (element) => element.active ?? false,
-                      orElse: () {
-                        return AddressNewModel();
-                      },
-                    ).title ??
+                title:
+                    data.data?.user?.addresses
+                        ?.firstWhere(
+                          (element) => element.active ?? false,
+                          orElse: () {
+                            return AddressNewModel();
+                          },
+                        )
+                        .title ??
                     "",
-                address: data.data?.user?.addresses
+                address:
+                    data.data?.user?.addresses
                         ?.firstWhere(
                           (element) => element.active ?? false,
                           orElse: () {
@@ -854,8 +883,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
             {
               AppHelpers.goHome(context);
             }
-            String? fcmToken = await FirebaseMessaging.instance.getToken();
-            _userRepositoryFacade.updateFirebaseToken(fcmToken);
+            await syncFcmToken(_userRepositoryFacade);
           },
           failure: (failure, s) {
             state = state.copyWith(isLoading: false);

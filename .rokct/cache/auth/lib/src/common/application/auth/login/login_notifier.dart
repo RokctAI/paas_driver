@@ -1,8 +1,8 @@
 import 'dart:io';
+
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,6 +24,7 @@ import 'package:base_sdk/src/domain/interface/settings.dart';
 import 'package:auth_sdk/src/common/application/auth/login/login_state.dart';
 import 'package:auth_sdk/src/common/domain/interface/auth_session_policy.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service.dart';
+import 'package:auth_sdk/src/common/services/platform_support.dart';
 
 class LoginNotifier extends StateNotifier<LoginState> {
   final AuthRepositoryFacade _authRepository;
@@ -162,7 +163,8 @@ class LoginNotifier extends StateNotifier<LoginState> {
   /// LocalStorage persists — identical logic to what each login variant
   /// used to inline four times over.
   AddressData _activeAddressOf(UserModel? user) {
-    final AddressNewModel active = user?.addresses?.firstWhere(
+    final AddressNewModel active =
+        user?.addresses?.firstWhere(
           (element) => element.active ?? false,
           orElse: () {
             return AddressNewModel();
@@ -205,8 +207,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
       context.router.popUntilRoot();
     }
     AuthSessionPolicy.I.onAuthenticated(context, role: role);
-    String? fcmToken = await FirebaseMessaging.instance.getToken();
-    _userRepositoryFacade.updateFirebaseToken(fcmToken);
+    await syncFcmToken(_userRepositoryFacade);
   }
 
   Future<void> login(BuildContext context) async {
@@ -341,15 +342,15 @@ class LoginNotifier extends StateNotifier<LoginState> {
         final rawNonce = AppHelpers.generateNonce();
         final OAuthCredential credential =
             user.accessToken?.type == AccessTokenType.limited
-                ? OAuthCredential(
-                    providerId: 'facebook.com',
-                    signInMethod: 'oauth',
-                    idToken: user.accessToken!.tokenString,
-                    rawNonce: rawNonce,
-                  )
-                : FacebookAuthProvider.credential(
-                    user.accessToken?.tokenString ?? "",
-                  );
+            ? OAuthCredential(
+                providerId: 'facebook.com',
+                signInMethod: 'oauth',
+                idToken: user.accessToken!.tokenString,
+                rawNonce: rawNonce,
+              )
+            : FacebookAuthProvider.credential(
+                user.accessToken?.tokenString ?? "",
+              );
 
         final userObj = await FirebaseAuth.instance.signInWithCredential(
           credential,
