@@ -1,3 +1,16 @@
+## 1.6.0
+
+* Desktop platform guards (`src/common/services/platform_support.dart`):
+  social sign-in buttons (Facebook/Google) are hidden on Windows/Linux,
+  where google_sign_in / flutter_facebook_auth have no implementation
+  (kept on Android/iOS/web/macOS, where they do); Firebase phone-OTP
+  sends fail fast with a translated snackbar on non-mobile platforms
+  instead of hanging a spinner (`verifyPhoneNumber` is Android/iOS-only);
+  and FCM token sync after login/register/confirm goes through a shared
+  `syncFcmToken` helper that silently skips on Windows/Linux (where
+  Firebase is never initialized) and swallows messaging failures instead
+  of throwing `[core/no-app]` into the auth flow.
+
 ## 1.4.0
 
 * `session_policy` fallback role (`"*"`): an `allowed_roles` entry with role

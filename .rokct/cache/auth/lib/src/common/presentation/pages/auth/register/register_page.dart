@@ -20,6 +20,7 @@ import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/presentation/theme/theme.dart';
 import 'package:auth_sdk/src/common/application/auth/auth.dart';
 import 'package:auth_sdk/src/common/presentation/pages/auth/confirmation/register_confirmation_page.dart';
+import 'package:auth_sdk/src/common/services/platform_support.dart';
 
 @RoutePage()
 class RegisterPage extends ConsumerStatefulWidget {
@@ -122,12 +123,14 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         Form(
                           key: phoneNumKey,
                           child: Directionality(
-                            textDirection:
-                                isLtr ? TextDirection.ltr : TextDirection.rtl,
+                            textDirection: isLtr
+                                ? TextDirection.ltr
+                                : TextDirection.rtl,
                             child: IntlPhoneField(
                               style: TextStyle(color: AppStyle.textPrimary),
-                              dropdownTextStyle:
-                                  TextStyle(color: AppStyle.textPrimary),
+                              dropdownTextStyle: TextStyle(
+                                color: AppStyle.textPrimary,
+                              ),
                               onChanged: (phoneNum) {
                                 event.setEmail(phoneNum.completeNumber);
                               },
@@ -154,8 +157,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               ],
                               autovalidateMode:
                                   AppConstants.isNumberLengthAlwaysSame
-                                      ? AutovalidateMode.onUserInteraction
-                                      : AutovalidateMode.disabled,
+                                  ? AutovalidateMode.onUserInteraction
+                                  : AutovalidateMode.disabled,
                               textAlignVertical: TextAlignVertical.center,
                               decoration: InputDecoration(
                                 counterText: '',
@@ -235,7 +238,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                 SizedBox(
                                   width:
                                       (MediaQuery.sizeOf(context).width - 40) /
-                                          2,
+                                      2,
                                   child: OutlinedBorderTextField(
                                     label: AppHelpers.getTranslation(
                                       TrKeys.firstname,
@@ -247,7 +250,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                 SizedBox(
                                   width:
                                       (MediaQuery.sizeOf(context).width - 40) /
-                                          2,
+                                      2,
                                   child: OutlinedBorderTextField(
                                     label: AppHelpers.getTranslation(
                                       TrKeys.surname,
@@ -259,9 +262,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             ),
                             30.verticalSpace,
                             OutlinedBorderTextField(
-                              label: AppHelpers.getTranslation(
-                                TrKeys.password,
-                              ).toUpperCase(),
+                              label: AppHelpers.getTranslation(TrKeys.password)
+                                  .toUpperCase(),
                               obscure: state.showPassword,
                               suffixIcon: IconButton(
                                 splashRadius: 25,
@@ -287,9 +289,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             ),
                             34.verticalSpace,
                             OutlinedBorderTextField(
-                              label: AppHelpers.getTranslation(
-                                TrKeys.password,
-                              ).toUpperCase(),
+                              label: AppHelpers.getTranslation(TrKeys.password)
+                                  .toUpperCase(),
                               obscure: state.showConfirmPassword,
                               suffixIcon: IconButton(
                                 splashRadius: 25,
@@ -316,9 +317,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             ),
                             30.verticalSpace,
                             OutlinedBorderTextField(
-                              label: AppHelpers.getTranslation(
-                                TrKeys.referral,
-                              ).toUpperCase(),
+                              label: AppHelpers.getTranslation(TrKeys.referral)
+                                  .toUpperCase(),
                               onChanged: event.setReferral,
                             ),
                           ],
@@ -399,7 +399,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               children: <Widget>[
                                 Expanded(
                                   child: Divider(
-                                    color: AppStyle.strokeDark.withOpacity(0.18),
+                                    color: AppStyle.strokeDark.withOpacity(
+                                      0.18,
+                                    ),
                                   ),
                                 ),
                                 Padding(
@@ -419,7 +421,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                 ),
                                 Expanded(
                                   child: Divider(
-                                    color: AppStyle.strokeDark.withOpacity(0.18),
+                                    color: AppStyle.strokeDark.withOpacity(
+                                      0.18,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -441,27 +445,32 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                   SocialButton(
                                     iconData:
                                         currentSignUpType == SignUpType.phone
-                                            ? Remix.mail_fill
-                                            : Remix.phone_fill,
+                                        ? Remix.mail_fill
+                                        : Remix.phone_fill,
                                     onPressed: toggleSignUpType,
                                     title: currentSignUpType == SignUpType.phone
                                         ? "Email"
                                         : "Phone",
                                   ),
-                                SocialButton(
-                                  iconData: Remix.facebook_fill,
-                                  onPressed: () {
-                                    event.loginWithFacebook(context);
-                                  },
-                                  title: "Facebook",
-                                ),
-                                SocialButton(
-                                  iconData: Remix.google_fill,
-                                  onPressed: () {
-                                    event.loginWithGoogle(context);
-                                  },
-                                  title: "Google",
-                                ),
+                                // No Windows/Linux implementation for
+                                // these plugins — hide instead of
+                                // throwing on tap.
+                                if (supportsSocialSignIn)
+                                  SocialButton(
+                                    iconData: Remix.facebook_fill,
+                                    onPressed: () {
+                                      event.loginWithFacebook(context);
+                                    },
+                                    title: "Facebook",
+                                  ),
+                                if (supportsSocialSignIn)
+                                  SocialButton(
+                                    iconData: Remix.google_fill,
+                                    onPressed: () {
+                                      event.loginWithGoogle(context);
+                                    },
+                                    title: "Google",
+                                  ),
                               ],
                             ),
                             22.verticalSpace,

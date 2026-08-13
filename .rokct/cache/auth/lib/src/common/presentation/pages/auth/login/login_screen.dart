@@ -19,6 +19,7 @@ import 'package:auth_sdk/src/common/presentation/pages/auth/reset/reset_password
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:auth_sdk/src/common/application/auth/auth.dart';
+import 'package:auth_sdk/src/common/services/platform_support.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -114,12 +115,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                         if (currentSignUpType == SignUpType.phone)
                           Directionality(
-                            textDirection:
-                                isLtr ? TextDirection.ltr : TextDirection.rtl,
+                            textDirection: isLtr
+                                ? TextDirection.ltr
+                                : TextDirection.rtl,
                             child: IntlPhoneField(
                               style: TextStyle(color: AppStyle.textPrimary),
-                              dropdownTextStyle:
-                                  TextStyle(color: AppStyle.textPrimary),
+                              dropdownTextStyle: TextStyle(
+                                color: AppStyle.textPrimary,
+                              ),
                               onChanged: (phoneNum) {
                                 event.setEmail(phoneNum.completeNumber);
                               },
@@ -146,8 +149,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               showDropdownIcon: AppConstants.showArrowIcon,
                               autovalidateMode:
                                   AppConstants.isNumberLengthAlwaysSame
-                                      ? AutovalidateMode.onUserInteraction
-                                      : AutovalidateMode.disabled,
+                                  ? AutovalidateMode.onUserInteraction
+                                  : AutovalidateMode.disabled,
                               textAlignVertical: TextAlignVertical.center,
                               decoration: InputDecoration(
                                 counterText: '',
@@ -213,9 +216,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         if (currentSignUpType == SignUpType.email)
                           OutlinedBorderTextField(
                             textCapitalization: TextCapitalization.none,
-                            label: AppHelpers.getTranslation(
-                              TrKeys.email,
-                            ).toUpperCase(),
+                            label: AppHelpers.getTranslation(TrKeys.email)
+                                .toUpperCase(),
                             onChanged: event.setEmail,
                             isError: state.isEmailNotValid,
                             validation: (s) {
@@ -234,9 +236,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                         34.verticalSpace,
                         OutlinedBorderTextField(
-                          label: AppHelpers.getTranslation(
-                            TrKeys.password,
-                          ).toUpperCase(),
+                          label: AppHelpers.getTranslation(TrKeys.password)
+                              .toUpperCase(),
                           obscure: state.showPassword,
                           suffixIcon: IconButton(
                             splashRadius: 25,
@@ -370,20 +371,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ? "Email"
                                   : "Phone",
                             ),
-                          SocialButton(
-                            iconData: Remix.facebook_fill,
-                            onPressed: () {
-                              event.loginWithFacebook(context);
-                            },
-                            title: "Facebook",
-                          ),
-                          SocialButton(
-                            iconData: Remix.google_fill,
-                            onPressed: () {
-                              event.loginWithGoogle(context);
-                            },
-                            title: "Google",
-                          ),
+                          // No Windows/Linux implementation for these
+                          // plugins — hide instead of throwing on tap.
+                          if (supportsSocialSignIn)
+                            SocialButton(
+                              iconData: Remix.facebook_fill,
+                              onPressed: () {
+                                event.loginWithFacebook(context);
+                              },
+                              title: "Facebook",
+                            ),
+                          if (supportsSocialSignIn)
+                            SocialButton(
+                              iconData: Remix.google_fill,
+                              onPressed: () {
+                                event.loginWithGoogle(context);
+                              },
+                              title: "Google",
+                            ),
                         ],
                       ),
                       22.verticalSpace,
@@ -417,7 +422,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                                   ' ${AppConstants.demoUserLogin}',
                                               style: AppStyle.interRegular(
                                                 letterSpacing: -0.3,
-                                                color: AppStyle.textDarkSecondary,
+                                                color:
+                                                    AppStyle.textDarkSecondary,
                                               ),
                                             ),
                                           ],
@@ -438,7 +444,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                                   ' ${AppConstants.demoUserPassword}',
                                               style: AppStyle.interRegular(
                                                 letterSpacing: -0.3,
-                                                color: AppStyle.textDarkSecondary,
+                                                color:
+                                                    AppStyle.textDarkSecondary,
                                               ),
                                             ),
                                           ],

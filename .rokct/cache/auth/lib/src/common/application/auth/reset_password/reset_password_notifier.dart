@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:base_sdk/src/navigation/app_routes.dart';
 
 import 'package:auto_route/auto_route.dart';
@@ -15,13 +16,14 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 // [refork] removed host router import
 
 import 'package:auth_sdk/src/common/application/auth/reset_password/reset_password_state.dart';
+import 'package:auth_sdk/src/common/services/platform_support.dart';
 
 class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
   final AuthRepositoryFacade _authRepository;
   final UserRepositoryFacade _userRepositoryFacade;
 
   ResetPasswordNotifier(this._authRepository, this._userRepositoryFacade)
-      : super(const ResetPasswordState());
+    : super(const ResetPasswordState());
 
   void setEmail(String text) {
     state = state.copyWith(email: text.trim(), isEmailError: false);
@@ -55,6 +57,15 @@ class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
   }
 
   Future<void> sendCodeToNumber(BuildContext context) async {
+    // Firebase phone verification (the only path this method has) has no
+    // desktop implementation — fail fast instead of hanging the spinner.
+    if (!isMobilePlatform) {
+      AppHelpers.showCheckTopSnackBar(
+        context,
+        AppHelpers.getTranslation(trPhoneVerificationNotAvailableOnDesktop),
+      );
+      return;
+    }
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isLoading: true, isSuccess: false);
