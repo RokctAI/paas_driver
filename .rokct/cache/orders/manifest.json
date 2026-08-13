@@ -1,6 +1,6 @@
 {
   "name": "orders_sdk",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "_comment_requires": "orders_sdk >= 1.4.0 requires base_sdk >= 1.6.0 (CustomerCartStore/kCartSyncOpType and SyncEngine.enqueueOrReplace from the offline-first Phase 3 customer cart, core PR #16; 1.3.0 needed only base_sdk >= 1.5.0's SyncEngine/SyncHandler APIs from Phase 0, core PR #15); the composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
   "installs": [],
   "integrations": [],

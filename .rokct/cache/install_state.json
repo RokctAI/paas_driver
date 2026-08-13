@@ -229,7 +229,7 @@
       "boot_hooks": []
     },
     "orders_sdk": {
-      "version": "1.5.0",
+      "version": "1.5.1",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -774,8 +774,8 @@
       "hash": "0c406a88759e0089"
     },
     "orders": {
-      "version": "1.5.0",
-      "hash": "20e43ca66a635a51"
+      "version": "1.5.1",
+      "hash": "16b16c65da7b2e91"
     },
     "merchants": {
       "version": "1.9.1",

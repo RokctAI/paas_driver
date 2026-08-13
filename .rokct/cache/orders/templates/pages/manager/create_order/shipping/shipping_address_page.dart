@@ -198,30 +198,30 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
                                         counterText: '',
                                         enabledBorder: UnderlineInputBorder(
                                             borderSide: BorderSide.merge(
-                                                const BorderSide(
-                                                    color: Style
+                                                BorderSide(
+                                                    color: AppStyle
                                                         .differBorderColor),
-                                                const BorderSide(
-                                                    color: Style
+                                                BorderSide(
+                                                    color: AppStyle
                                                         .differBorderColor))),
                                         errorBorder: UnderlineInputBorder(
                                             borderSide: BorderSide.merge(
-                                                const BorderSide(
-                                                    color: Style
+                                                BorderSide(
+                                                    color: AppStyle
                                                         .differBorderColor),
-                                                const BorderSide(
-                                                    color: Style
+                                                BorderSide(
+                                                    color: AppStyle
                                                         .differBorderColor))),
                                         border: const UnderlineInputBorder(),
                                         focusedErrorBorder:
                                             const UnderlineInputBorder(),
                                         disabledBorder: UnderlineInputBorder(
                                             borderSide: BorderSide.merge(
-                                                const BorderSide(
-                                                    color: Style
+                                                BorderSide(
+                                                    color: AppStyle
                                                         .differBorderColor),
-                                                const BorderSide(
-                                                    color: Style
+                                                BorderSide(
+                                                    color: AppStyle
                                                         .differBorderColor))),
                                         focusedBorder:
                                             const UnderlineInputBorder(),
