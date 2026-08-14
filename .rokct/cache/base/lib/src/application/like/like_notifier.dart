@@ -6,6 +6,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 
 import 'package:base_sdk/src/application/like/like_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class LikeNotifier extends StateNotifier<LikeState> {
   final ShopsRepositoryFacade _shopsRepository;

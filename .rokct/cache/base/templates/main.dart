@@ -1,7 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
+// Deep adaptive import (same reasoning as the theme import below): the
+// phone-only orientation lock reads AppBreakpoints.medium directly.
+import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
 // Deep theme import (not the base_sdk barrel — that would produce a
 // duplicate_import lint wherever an SDK's wiring imports also pull theme
 // symbols): this file itself references AppStyle.transparent in the
@@ -47,10 +51,15 @@ void main() async {
   // @generated-brandhook-end
 
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+  // Portrait lock is PHONE-ONLY: desktop platforms and tablet-sized devices
+  // (logical shortest side >= AppBreakpoints.medium) keep free rotation —
+  // pinning a wide window to portrait defeats the adaptive layouts.
+  if (_shouldLockPortrait()) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: AppStyle.transparent,
@@ -101,6 +110,31 @@ void main() async {
   AppRoutes.I = _HostAppRoutes();
 
   runApp(const ProviderScope(child: AppWidget()));
+}
+
+/// Whether this launch should pin the app to portrait.
+///
+/// Only phone-sized mobile devices lock: web and desktop never do, and a
+/// mobile device whose logical shortest side reaches [AppBreakpoints.medium]
+/// (a tablet) keeps free rotation. Runs before runApp, so the size comes
+/// from the platformDispatcher's views rather than a MediaQuery.
+bool _shouldLockPortrait() {
+  if (kIsWeb) return false;
+  switch (defaultTargetPlatform) {
+    case TargetPlatform.windows:
+    case TargetPlatform.linux:
+    case TargetPlatform.macOS:
+      return false;
+    case TargetPlatform.android:
+    case TargetPlatform.iOS:
+    case TargetPlatform.fuchsia:
+      break;
+  }
+  for (final view in WidgetsBinding.instance.platformDispatcher.views) {
+    final shortestSide = view.physicalSize.shortestSide / view.devicePixelRatio;
+    if (shortestSide >= AppBreakpoints.medium) return false;
+  }
+  return true;
 }
 
 class _HostEmbeddedWidgets implements EmbeddedWidgets {

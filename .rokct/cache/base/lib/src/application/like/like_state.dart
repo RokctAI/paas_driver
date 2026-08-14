@@ -3,7 +3,7 @@ import 'package:base_sdk/src/models/models.dart';
 part 'like_state.freezed.dart';
 
 @freezed
-class LikeState with _$LikeState {
+abstract class LikeState with _$LikeState {
   const factory LikeState({
     @Default(true) bool isShopLoading,
     @Default([]) List<ShopData> shops,

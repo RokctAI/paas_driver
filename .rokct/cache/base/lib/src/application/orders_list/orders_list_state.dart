@@ -5,7 +5,7 @@ import 'package:base_sdk/src/models/data/refund_data.dart';
 part 'orders_list_state.freezed.dart';
 
 @freezed
-class OrdersListState with _$OrdersListState {
+abstract class OrdersListState with _$OrdersListState {
   const factory OrdersListState({
     @Default(false) bool isActiveLoading,
     @Default(false) bool isHistoryLoading,

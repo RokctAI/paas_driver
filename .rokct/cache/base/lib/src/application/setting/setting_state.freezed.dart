@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,180 +9,274 @@ part of 'setting_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
 /// @nodoc
 mixin _$SettingState {
-  bool get isLoading => throw _privateConstructorUsedError;
-  List<NotificationData>? get notifications =>
-      throw _privateConstructorUsedError;
 
-  /// Create a copy of SettingState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $SettingStateCopyWith<SettingState> get copyWith =>
-      throw _privateConstructorUsedError;
+ bool get isLoading; List<NotificationData>? get notifications;
+/// Create a copy of SettingState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SettingStateCopyWith<SettingState> get copyWith => _$SettingStateCopyWithImpl<SettingState>(this as SettingState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SettingState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&const DeepCollectionEquality().equals(other.notifications, notifications));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isLoading,const DeepCollectionEquality().hash(notifications));
+
+@override
+String toString() {
+  return 'SettingState(isLoading: $isLoading, notifications: $notifications)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $SettingStateCopyWith<$Res> {
-  factory $SettingStateCopyWith(
-    SettingState value,
-    $Res Function(SettingState) then,
-  ) = _$SettingStateCopyWithImpl<$Res, SettingState>;
-  @useResult
-  $Res call({bool isLoading, List<NotificationData>? notifications});
-}
+abstract mixin class $SettingStateCopyWith<$Res>  {
+  factory $SettingStateCopyWith(SettingState value, $Res Function(SettingState) _then) = _$SettingStateCopyWithImpl;
+@useResult
+$Res call({
+ bool isLoading, List<NotificationData>? notifications
+});
 
+
+
+
+}
 /// @nodoc
-class _$SettingStateCopyWithImpl<$Res, $Val extends SettingState>
+class _$SettingStateCopyWithImpl<$Res>
     implements $SettingStateCopyWith<$Res> {
-  _$SettingStateCopyWithImpl(this._value, this._then);
+  _$SettingStateCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final SettingState _self;
+  final $Res Function(SettingState) _then;
 
-  /// Create a copy of SettingState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? isLoading = null, Object? notifications = freezed}) {
-    return _then(
-      _value.copyWith(
-            isLoading: null == isLoading
-                ? _value.isLoading
-                : isLoading // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            notifications: freezed == notifications
-                ? _value.notifications
-                : notifications // ignore: cast_nullable_to_non_nullable
-                      as List<NotificationData>?,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of SettingState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? notifications = freezed,}) {
+  return _then(_self.copyWith(
+isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as bool,notifications: freezed == notifications ? _self.notifications : notifications // ignore: cast_nullable_to_non_nullable
+as List<NotificationData>?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [SettingState].
+extension SettingStatePatterns on SettingState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _SettingState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _SettingState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _SettingState value)  $default,){
+final _that = this;
+switch (_that) {
+case _SettingState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _SettingState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _SettingState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  List<NotificationData>? notifications)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _SettingState() when $default != null:
+return $default(_that.isLoading,_that.notifications);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  List<NotificationData>? notifications)  $default,) {final _that = this;
+switch (_that) {
+case _SettingState():
+return $default(_that.isLoading,_that.notifications);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  List<NotificationData>? notifications)?  $default,) {final _that = this;
+switch (_that) {
+case _SettingState() when $default != null:
+return $default(_that.isLoading,_that.notifications);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
-abstract class _$$SettingStateImplCopyWith<$Res>
-    implements $SettingStateCopyWith<$Res> {
-  factory _$$SettingStateImplCopyWith(
-    _$SettingStateImpl value,
-    $Res Function(_$SettingStateImpl) then,
-  ) = __$$SettingStateImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({bool isLoading, List<NotificationData>? notifications});
+
+
+class _SettingState extends SettingState {
+  const _SettingState({this.isLoading = true, final  List<NotificationData>? notifications = null}): _notifications = notifications,super._();
+  
+
+@override@JsonKey() final  bool isLoading;
+ final  List<NotificationData>? _notifications;
+@override@JsonKey() List<NotificationData>? get notifications {
+  final value = _notifications;
+  if (value == null) return null;
+  if (_notifications is EqualUnmodifiableListView) return _notifications;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(value);
+}
+
+
+/// Create a copy of SettingState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SettingStateCopyWith<_SettingState> get copyWith => __$SettingStateCopyWithImpl<_SettingState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SettingState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&const DeepCollectionEquality().equals(other._notifications, _notifications));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isLoading,const DeepCollectionEquality().hash(_notifications));
+
+@override
+String toString() {
+  return 'SettingState(isLoading: $isLoading, notifications: $notifications)';
+}
+
+
 }
 
 /// @nodoc
-class __$$SettingStateImplCopyWithImpl<$Res>
-    extends _$SettingStateCopyWithImpl<$Res, _$SettingStateImpl>
-    implements _$$SettingStateImplCopyWith<$Res> {
-  __$$SettingStateImplCopyWithImpl(
-    _$SettingStateImpl _value,
-    $Res Function(_$SettingStateImpl) _then,
-  ) : super(_value, _then);
+abstract mixin class _$SettingStateCopyWith<$Res> implements $SettingStateCopyWith<$Res> {
+  factory _$SettingStateCopyWith(_SettingState value, $Res Function(_SettingState) _then) = __$SettingStateCopyWithImpl;
+@override @useResult
+$Res call({
+ bool isLoading, List<NotificationData>? notifications
+});
 
-  /// Create a copy of SettingState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? isLoading = null, Object? notifications = freezed}) {
-    return _then(
-      _$SettingStateImpl(
-        isLoading: null == isLoading
-            ? _value.isLoading
-            : isLoading // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        notifications: freezed == notifications
-            ? _value._notifications
-            : notifications // ignore: cast_nullable_to_non_nullable
-                  as List<NotificationData>?,
-      ),
-    );
-  }
+
+
+
 }
-
 /// @nodoc
+class __$SettingStateCopyWithImpl<$Res>
+    implements _$SettingStateCopyWith<$Res> {
+  __$SettingStateCopyWithImpl(this._self, this._then);
 
-class _$SettingStateImpl extends _SettingState {
-  const _$SettingStateImpl({
-    this.isLoading = true,
-    final List<NotificationData>? notifications = null,
-  }) : _notifications = notifications,
-       super._();
+  final _SettingState _self;
+  final $Res Function(_SettingState) _then;
 
-  @override
-  @JsonKey()
-  final bool isLoading;
-  final List<NotificationData>? _notifications;
-  @override
-  @JsonKey()
-  List<NotificationData>? get notifications {
-    final value = _notifications;
-    if (value == null) return null;
-    if (_notifications is EqualUnmodifiableListView) return _notifications;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
-  }
-
-  @override
-  String toString() {
-    return 'SettingState(isLoading: $isLoading, notifications: $notifications)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$SettingStateImpl &&
-            (identical(other.isLoading, isLoading) ||
-                other.isLoading == isLoading) &&
-            const DeepCollectionEquality().equals(
-              other._notifications,
-              _notifications,
-            ));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    isLoading,
-    const DeepCollectionEquality().hash(_notifications),
-  );
-
-  /// Create a copy of SettingState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$SettingStateImplCopyWith<_$SettingStateImpl> get copyWith =>
-      __$$SettingStateImplCopyWithImpl<_$SettingStateImpl>(this, _$identity);
+/// Create a copy of SettingState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? notifications = freezed,}) {
+  return _then(_SettingState(
+isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as bool,notifications: freezed == notifications ? _self._notifications : notifications // ignore: cast_nullable_to_non_nullable
+as List<NotificationData>?,
+  ));
 }
 
-abstract class _SettingState extends SettingState {
-  const factory _SettingState({
-    final bool isLoading,
-    final List<NotificationData>? notifications,
-  }) = _$SettingStateImpl;
-  const _SettingState._() : super._();
 
-  @override
-  bool get isLoading;
-  @override
-  List<NotificationData>? get notifications;
-
-  /// Create a copy of SettingState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$SettingStateImplCopyWith<_$SettingStateImpl> get copyWith =>
-      throw _privateConstructorUsedError;
 }
+
+// dart format on

@@ -1,3 +1,20 @@
+## 1.7.0
+
+* `sigUpWithData` sends an `X-Idempotency-Key` header (optional
+  `idempotencyKey` named param threaded through the base_sdk
+  `AuthRepositoryFacade`): the server's `register_user` endpoint is already
+  `@idempotent`, so a retried registration upload now replays the stored
+  response instead of double-registering. The key is stable per local
+  account row (`OfflineAuthService.registrationIdempotencyKey`, row id +
+  identifier, well under the backend's 140-char cap) and is shared by the
+  offline-sync push (`syncOne`) and the inline online register path, so a
+  retry through either flow dedupes against the other. Requires base_sdk
+  with the `idempotencyKey` param on `AuthRepositoryFacade.sigUpWithData` —
+  merge this SDK BEFORE that base_sdk change (implementers may carry extra
+  optional named params; the interface declaring one that implementers
+  lack would not compile). Direct callers without a natural stable key
+  simply send no header.
+
 ## 1.6.0
 
 * Desktop platform guards (`src/common/services/platform_support.dart`):

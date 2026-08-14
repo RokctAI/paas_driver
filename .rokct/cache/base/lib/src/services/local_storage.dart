@@ -4,6 +4,7 @@ import 'package:base_sdk/src/models/data/address_old_data.dart';
 import 'package:base_sdk/src/models/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:base_sdk/src/models/response/driver_show_response.dart';
+import 'package:base_sdk/src/services/secure_storage.dart';
 import 'package:base_sdk/src/services/storage_keys.dart';
 
 abstract class LocalStorage {
@@ -35,12 +36,38 @@ abstract class LocalStorage {
 
   static Future<void> setToken(String? token) async {
     await _preferences?.setString(StorageKeys.keyToken, token ?? '');
+    // Installing a new access token invalidates any stored refresh
+    // contract. Flows that hold a fresh pair (login's establish-session,
+    // TokenRefreshService) persist it straight after this call; every
+    // other token-minting flow (OTP verify, offline session) mints none,
+    // and a stale pair from a previous session must not linger under the
+    // new token — a proactive refresh against it would kill the session.
+    await deleteTokenExpiry();
+    await SecureStorage.deleteRefreshToken();
   }
 
   static String getToken() =>
       _preferences?.getString(StorageKeys.keyToken) ?? '';
 
   static void deleteToken() => _preferences?.remove(StorageKeys.keyToken);
+
+  /// Access-token expiry as returned by login/refresh
+  /// (`YYYY-MM-DD HH:MM:SS`, server time); empty when the session has no
+  /// recorded expiry. Null/empty [expiresAt] clears the stored value.
+  static Future<void> setTokenExpiry(String? expiresAt) async {
+    if (expiresAt == null || expiresAt.isEmpty) {
+      await _preferences?.remove(StorageKeys.keyTokenExpiry);
+    } else {
+      await _preferences?.setString(StorageKeys.keyTokenExpiry, expiresAt);
+    }
+  }
+
+  static String getTokenExpiry() =>
+      _preferences?.getString(StorageKeys.keyTokenExpiry) ?? '';
+
+  static Future<void> deleteTokenExpiry() async {
+    await _preferences?.remove(StorageKeys.keyTokenExpiry);
+  }
 
   static Future<void> setUiType(int type) async {
     await _preferences?.setInt(StorageKeys.keyUiType, type);
@@ -369,6 +396,8 @@ abstract class LocalStorage {
     deleteSearchList();
     _deleteUser();
     deleteToken();
+    deleteTokenExpiry();
+    SecureStorage.deleteRefreshToken();
     deleteAddressSelected();
     deleteAddressInformation();
     deleteBoard();

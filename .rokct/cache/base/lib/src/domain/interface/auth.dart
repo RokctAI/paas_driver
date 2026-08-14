@@ -17,7 +17,15 @@ abstract class AuthRepositoryFacade {
 
   Future<ApiResult<dynamic>> sigUp({required String email});
 
-  Future<ApiResult<VerifyData>> sigUpWithData({required UserModel user});
+  /// [idempotencyKey], when provided, is sent as `X-Idempotency-Key` so the
+  /// server-side @idempotent register endpoint replays a retried upload
+  /// instead of double-registering. Callers pass a key that is stable
+  /// across retries of the same registration (e.g. the offline row id), or
+  /// null to send no header.
+  Future<ApiResult<VerifyData>> sigUpWithData({
+    required UserModel user,
+    String? idempotencyKey,
+  });
 
   Future<ApiResult<VerifyData>> sigUpWithPhone({required UserModel user});
 

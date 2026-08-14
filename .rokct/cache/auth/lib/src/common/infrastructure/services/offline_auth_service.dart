@@ -1,3 +1,4 @@
+import 'package:base_sdk/src/handlers/api_result.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart';
@@ -125,6 +126,24 @@ class OfflineAuthService {
     return OfflineAuthResult.ok(id);
   }
 
+  /// Stable idempotency key for registering the local account
+  /// [localUserId] with the backend, sent as `X-Idempotency-Key` so the
+  /// @idempotent `register_user` endpoint replays instead of
+  /// double-registering on a retried upload. The same key is used by the
+  /// inline online register path and the sync path (both act on the same
+  /// local row), so a retry through either flow dedupes. The identifier is
+  /// mixed in because [registerOffline]'s row ids are epoch-derived, not
+  /// UUIDs, and registration runs as Guest server-side — the key must not
+  /// collide across devices. Well under the backend's 140-char key cap.
+  static String registrationIdempotencyKey(
+    String localUserId, {
+    String? email,
+    String? phone,
+  }) {
+    final identifier = (email?.isNotEmpty ?? false) ? email : phone;
+    return 'auth.register:$localUserId:${identifier ?? ''}';
+  }
+
   /// The local account row for [localUserId], or null when absent.
   Future<OfflineUserEntity?> findById(String localUserId) {
     final query = _db.select(_db.offlineUsersTable)
@@ -235,6 +254,13 @@ class OfflineAuthService {
         password: row.id,
         confirmPassword: row.id,
         referral: row.referral,
+      ),
+      // Stable per local row, so a re-push after an ambiguous failure
+      // replays the stored backend response instead of double-registering.
+      idempotencyKey: registrationIdempotencyKey(
+        row.id,
+        email: row.email,
+        phone: row.phone,
       ),
     );
     return response.when<Future<OfflineSyncOutcome>>(

@@ -13,6 +13,7 @@ import 'package:base_sdk/src/domain/interface/shops.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/presentation/components/add_address.dart';
 import 'package:base_sdk/src/application/map/view_map_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class ViewMapNotifier extends StateNotifier<ViewMapState> {
   final ShopsRepositoryFacade _shopsRepository;

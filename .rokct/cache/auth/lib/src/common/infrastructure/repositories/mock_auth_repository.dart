@@ -135,7 +135,10 @@ class MockAuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend
   }
 
   @override
-  Future<ApiResult<VerifyData>> sigUpWithData({required UserModel user}) async {
+  Future<ApiResult<VerifyData>> sigUpWithData({
+    required UserModel user,
+    String? idempotencyKey,
+  }) async {
     return ApiResult.success(
       data: VerifyData(token: "demo_token", user: _mapUserToProfile(user)),
     );

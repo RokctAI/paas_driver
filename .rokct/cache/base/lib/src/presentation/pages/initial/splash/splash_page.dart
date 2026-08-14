@@ -22,6 +22,8 @@ import 'package:base_sdk/src/application/splash/splash_provider.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
+import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
+import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
 
@@ -162,6 +164,18 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Adaptive splash: the phone-shaped splash image stretched across a
+    // wide (tablet/desktop) window looks bad, so only compact windows show
+    // it. Wider windows get a bare surface with a spinner (mirroring the
+    // POS splash) while the same boot flow above runs unchanged.
+    if (!windowSizeOf(context).isCompact) {
+      return Scaffold(
+        backgroundColor: AppStyle.white,
+        body: Center(
+          child: CircularProgressIndicator(color: AppStyle.black),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: Colors.white, // Ensure background color for dark theme
       body: SizedBox.expand(

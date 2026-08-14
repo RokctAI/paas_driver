@@ -10,7 +10,7 @@ import 'package:base_sdk/src/models/data/shop_data.dart';
 part 'order_state.freezed.dart';
 
 @freezed
-class OrderState with _$OrderState {
+abstract class OrderState with _$OrderState {
   const factory OrderState({
     @Default(false) bool isActive,
     @Default(false) bool isOrder,

@@ -20,6 +20,7 @@ import 'package:base_sdk/src/services/tpying_delay.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:base_sdk/src/application/shop_order/shop_order_state.dart';
 import 'package:http/http.dart' as http;
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class ShopOrderNotifier extends StateNotifier<ShopOrderState> {
   final CartRepositoryFacade _cartRepository;

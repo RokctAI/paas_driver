@@ -4,7 +4,7 @@ import 'package:base_sdk/src/models/models.dart';
 part 'language_state.freezed.dart';
 
 @freezed
-class LanguageState with _$LanguageState {
+abstract class LanguageState with _$LanguageState {
   const factory LanguageState({
     @Default([]) List<LanguageData> list,
     @Default(0) int index,

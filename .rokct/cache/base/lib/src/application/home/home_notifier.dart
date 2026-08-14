@@ -32,6 +32,7 @@ import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:base_sdk/src/domain/interface/brands.dart';
 import 'package:base_sdk/src/domain/interface/products.dart';
 import 'package:base_sdk/src/application/home/home_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class HomeNotifier extends StateNotifier<HomeState> {
   final CategoriesRepositoryFacade _categoriesRepository;

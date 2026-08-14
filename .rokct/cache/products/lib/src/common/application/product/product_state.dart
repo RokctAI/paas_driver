@@ -4,7 +4,7 @@ import 'package:base_sdk/src/models/models.dart';
 part 'product_state.freezed.dart';
 
 @freezed
-class ProductState with _$ProductState {
+abstract class ProductState with _$ProductState {
   const factory ProductState({
     @Default(false) bool isLoading,
     @Default(false) bool isAddLoading,

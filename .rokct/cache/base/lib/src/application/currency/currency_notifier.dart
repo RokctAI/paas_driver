@@ -7,6 +7,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 
 import 'package:base_sdk/src/application/currency/currency_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class CurrencyNotifier extends StateNotifier<CurrencyState> {
   final CurrenciesRepositoryFacade _currenciesRepository;

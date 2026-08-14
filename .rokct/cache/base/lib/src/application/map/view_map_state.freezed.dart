@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,249 +9,275 @@ part of 'view_map_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
 /// @nodoc
 mixin _$ViewMapState {
-  bool get isLoading => throw _privateConstructorUsedError;
-  bool get isActive => throw _privateConstructorUsedError;
-  AddressNewModel? get place => throw _privateConstructorUsedError;
-  bool get isSetAddress => throw _privateConstructorUsedError;
-  bool get isScrolling => throw _privateConstructorUsedError;
 
-  /// Create a copy of ViewMapState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $ViewMapStateCopyWith<ViewMapState> get copyWith =>
-      throw _privateConstructorUsedError;
+ bool get isLoading; bool get isActive; AddressNewModel? get place; bool get isSetAddress; bool get isScrolling;
+/// Create a copy of ViewMapState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ViewMapStateCopyWith<ViewMapState> get copyWith => _$ViewMapStateCopyWithImpl<ViewMapState>(this as ViewMapState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ViewMapState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.place, place) || other.place == place)&&(identical(other.isSetAddress, isSetAddress) || other.isSetAddress == isSetAddress)&&(identical(other.isScrolling, isScrolling) || other.isScrolling == isScrolling));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isLoading,isActive,place,isSetAddress,isScrolling);
+
+@override
+String toString() {
+  return 'ViewMapState(isLoading: $isLoading, isActive: $isActive, place: $place, isSetAddress: $isSetAddress, isScrolling: $isScrolling)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $ViewMapStateCopyWith<$Res> {
-  factory $ViewMapStateCopyWith(
-    ViewMapState value,
-    $Res Function(ViewMapState) then,
-  ) = _$ViewMapStateCopyWithImpl<$Res, ViewMapState>;
-  @useResult
-  $Res call({
-    bool isLoading,
-    bool isActive,
-    AddressNewModel? place,
-    bool isSetAddress,
-    bool isScrolling,
-  });
-}
+abstract mixin class $ViewMapStateCopyWith<$Res>  {
+  factory $ViewMapStateCopyWith(ViewMapState value, $Res Function(ViewMapState) _then) = _$ViewMapStateCopyWithImpl;
+@useResult
+$Res call({
+ bool isLoading, bool isActive, AddressNewModel? place, bool isSetAddress, bool isScrolling
+});
 
+
+
+
+}
 /// @nodoc
-class _$ViewMapStateCopyWithImpl<$Res, $Val extends ViewMapState>
+class _$ViewMapStateCopyWithImpl<$Res>
     implements $ViewMapStateCopyWith<$Res> {
-  _$ViewMapStateCopyWithImpl(this._value, this._then);
+  _$ViewMapStateCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final ViewMapState _self;
+  final $Res Function(ViewMapState) _then;
 
-  /// Create a copy of ViewMapState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? isLoading = null,
-    Object? isActive = null,
-    Object? place = freezed,
-    Object? isSetAddress = null,
-    Object? isScrolling = null,
-  }) {
-    return _then(
-      _value.copyWith(
-            isLoading: null == isLoading
-                ? _value.isLoading
-                : isLoading // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            isActive: null == isActive
-                ? _value.isActive
-                : isActive // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            place: freezed == place
-                ? _value.place
-                : place // ignore: cast_nullable_to_non_nullable
-                      as AddressNewModel?,
-            isSetAddress: null == isSetAddress
-                ? _value.isSetAddress
-                : isSetAddress // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            isScrolling: null == isScrolling
-                ? _value.isScrolling
-                : isScrolling // ignore: cast_nullable_to_non_nullable
-                      as bool,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of ViewMapState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? isActive = null,Object? place = freezed,Object? isSetAddress = null,Object? isScrolling = null,}) {
+  return _then(_self.copyWith(
+isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as bool,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as bool,place: freezed == place ? _self.place : place // ignore: cast_nullable_to_non_nullable
+as AddressNewModel?,isSetAddress: null == isSetAddress ? _self.isSetAddress : isSetAddress // ignore: cast_nullable_to_non_nullable
+as bool,isScrolling: null == isScrolling ? _self.isScrolling : isScrolling // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ViewMapState].
+extension ViewMapStatePatterns on ViewMapState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ViewMapState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ViewMapState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ViewMapState value)  $default,){
+final _that = this;
+switch (_that) {
+case _ViewMapState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ViewMapState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ViewMapState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  bool isActive,  AddressNewModel? place,  bool isSetAddress,  bool isScrolling)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ViewMapState() when $default != null:
+return $default(_that.isLoading,_that.isActive,_that.place,_that.isSetAddress,_that.isScrolling);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  bool isActive,  AddressNewModel? place,  bool isSetAddress,  bool isScrolling)  $default,) {final _that = this;
+switch (_that) {
+case _ViewMapState():
+return $default(_that.isLoading,_that.isActive,_that.place,_that.isSetAddress,_that.isScrolling);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  bool isActive,  AddressNewModel? place,  bool isSetAddress,  bool isScrolling)?  $default,) {final _that = this;
+switch (_that) {
+case _ViewMapState() when $default != null:
+return $default(_that.isLoading,_that.isActive,_that.place,_that.isSetAddress,_that.isScrolling);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
-abstract class _$$ViewMapStateImplCopyWith<$Res>
-    implements $ViewMapStateCopyWith<$Res> {
-  factory _$$ViewMapStateImplCopyWith(
-    _$ViewMapStateImpl value,
-    $Res Function(_$ViewMapStateImpl) then,
-  ) = __$$ViewMapStateImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    bool isLoading,
-    bool isActive,
-    AddressNewModel? place,
-    bool isSetAddress,
-    bool isScrolling,
-  });
+
+
+class _ViewMapState extends ViewMapState {
+  const _ViewMapState({this.isLoading = false, this.isActive = false, this.place = null, this.isSetAddress = false, this.isScrolling = false}): super._();
+  
+
+@override@JsonKey() final  bool isLoading;
+@override@JsonKey() final  bool isActive;
+@override@JsonKey() final  AddressNewModel? place;
+@override@JsonKey() final  bool isSetAddress;
+@override@JsonKey() final  bool isScrolling;
+
+/// Create a copy of ViewMapState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ViewMapStateCopyWith<_ViewMapState> get copyWith => __$ViewMapStateCopyWithImpl<_ViewMapState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ViewMapState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.place, place) || other.place == place)&&(identical(other.isSetAddress, isSetAddress) || other.isSetAddress == isSetAddress)&&(identical(other.isScrolling, isScrolling) || other.isScrolling == isScrolling));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isLoading,isActive,place,isSetAddress,isScrolling);
+
+@override
+String toString() {
+  return 'ViewMapState(isLoading: $isLoading, isActive: $isActive, place: $place, isSetAddress: $isSetAddress, isScrolling: $isScrolling)';
+}
+
+
 }
 
 /// @nodoc
-class __$$ViewMapStateImplCopyWithImpl<$Res>
-    extends _$ViewMapStateCopyWithImpl<$Res, _$ViewMapStateImpl>
-    implements _$$ViewMapStateImplCopyWith<$Res> {
-  __$$ViewMapStateImplCopyWithImpl(
-    _$ViewMapStateImpl _value,
-    $Res Function(_$ViewMapStateImpl) _then,
-  ) : super(_value, _then);
+abstract mixin class _$ViewMapStateCopyWith<$Res> implements $ViewMapStateCopyWith<$Res> {
+  factory _$ViewMapStateCopyWith(_ViewMapState value, $Res Function(_ViewMapState) _then) = __$ViewMapStateCopyWithImpl;
+@override @useResult
+$Res call({
+ bool isLoading, bool isActive, AddressNewModel? place, bool isSetAddress, bool isScrolling
+});
 
-  /// Create a copy of ViewMapState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? isLoading = null,
-    Object? isActive = null,
-    Object? place = freezed,
-    Object? isSetAddress = null,
-    Object? isScrolling = null,
-  }) {
-    return _then(
-      _$ViewMapStateImpl(
-        isLoading: null == isLoading
-            ? _value.isLoading
-            : isLoading // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        isActive: null == isActive
-            ? _value.isActive
-            : isActive // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        place: freezed == place
-            ? _value.place
-            : place // ignore: cast_nullable_to_non_nullable
-                  as AddressNewModel?,
-        isSetAddress: null == isSetAddress
-            ? _value.isSetAddress
-            : isSetAddress // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        isScrolling: null == isScrolling
-            ? _value.isScrolling
-            : isScrolling // ignore: cast_nullable_to_non_nullable
-                  as bool,
-      ),
-    );
-  }
+
+
+
 }
-
 /// @nodoc
+class __$ViewMapStateCopyWithImpl<$Res>
+    implements _$ViewMapStateCopyWith<$Res> {
+  __$ViewMapStateCopyWithImpl(this._self, this._then);
 
-class _$ViewMapStateImpl extends _ViewMapState {
-  const _$ViewMapStateImpl({
-    this.isLoading = false,
-    this.isActive = false,
-    this.place = null,
-    this.isSetAddress = false,
-    this.isScrolling = false,
-  }) : super._();
+  final _ViewMapState _self;
+  final $Res Function(_ViewMapState) _then;
 
-  @override
-  @JsonKey()
-  final bool isLoading;
-  @override
-  @JsonKey()
-  final bool isActive;
-  @override
-  @JsonKey()
-  final AddressNewModel? place;
-  @override
-  @JsonKey()
-  final bool isSetAddress;
-  @override
-  @JsonKey()
-  final bool isScrolling;
-
-  @override
-  String toString() {
-    return 'ViewMapState(isLoading: $isLoading, isActive: $isActive, place: $place, isSetAddress: $isSetAddress, isScrolling: $isScrolling)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ViewMapStateImpl &&
-            (identical(other.isLoading, isLoading) ||
-                other.isLoading == isLoading) &&
-            (identical(other.isActive, isActive) ||
-                other.isActive == isActive) &&
-            (identical(other.place, place) || other.place == place) &&
-            (identical(other.isSetAddress, isSetAddress) ||
-                other.isSetAddress == isSetAddress) &&
-            (identical(other.isScrolling, isScrolling) ||
-                other.isScrolling == isScrolling));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    isLoading,
-    isActive,
-    place,
-    isSetAddress,
-    isScrolling,
-  );
-
-  /// Create a copy of ViewMapState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$ViewMapStateImplCopyWith<_$ViewMapStateImpl> get copyWith =>
-      __$$ViewMapStateImplCopyWithImpl<_$ViewMapStateImpl>(this, _$identity);
+/// Create a copy of ViewMapState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? isActive = null,Object? place = freezed,Object? isSetAddress = null,Object? isScrolling = null,}) {
+  return _then(_ViewMapState(
+isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as bool,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as bool,place: freezed == place ? _self.place : place // ignore: cast_nullable_to_non_nullable
+as AddressNewModel?,isSetAddress: null == isSetAddress ? _self.isSetAddress : isSetAddress // ignore: cast_nullable_to_non_nullable
+as bool,isScrolling: null == isScrolling ? _self.isScrolling : isScrolling // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
 }
 
-abstract class _ViewMapState extends ViewMapState {
-  const factory _ViewMapState({
-    final bool isLoading,
-    final bool isActive,
-    final AddressNewModel? place,
-    final bool isSetAddress,
-    final bool isScrolling,
-  }) = _$ViewMapStateImpl;
-  const _ViewMapState._() : super._();
 
-  @override
-  bool get isLoading;
-  @override
-  bool get isActive;
-  @override
-  AddressNewModel? get place;
-  @override
-  bool get isSetAddress;
-  @override
-  bool get isScrolling;
-
-  /// Create a copy of ViewMapState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ViewMapStateImplCopyWith<_$ViewMapStateImpl> get copyWith =>
-      throw _privateConstructorUsedError;
 }
+
+// dart format on

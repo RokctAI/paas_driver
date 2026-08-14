@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/application/app_widget/app_provider.dart';
+import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
 import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/domain/interface/settings.dart';
 import 'package:base_sdk/src/services/app_ui_keys.dart';
@@ -37,24 +38,32 @@ class AppWidget extends ConsumerWidget {
         if (LocalStorage.getTranslations().isEmpty) _fetchSettings(),
       ]),
       builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-        return ScreenUtilInit(
-          useInheritedMediaQuery: false,
-          designSize: const Size(375, 812),
-          builder: (context, child) {
-            return MaterialApp.router(
-              debugShowCheckedModeBanner: false,
-              // Root messenger handle: lets SDK services without a
-              // BuildContext (e.g. comms' DesktopNotificationPoller)
-              // surface SnackBars — see base_sdk AppUiKeys.
-              scaffoldMessengerKey: AppUiKeys.scaffoldMessenger,
-              routerDelegate: _appRouter.delegate(),
-              routeInformationParser: _appRouter.defaultRouteParser(),
-              locale: Locale(state.activeLanguage?.locale ?? 'en'),
-              theme: ThemeData(useMaterial3: false),
-              themeMode: state.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-            );
-          },
-        );
+        return LayoutBuilder(builder: (context, constraints) {
+          // Adaptive ScreenUtil scaling: the phone design size only applies
+          // to phone-shaped (compact) windows. On wider windows the actual
+          // logical size is passed as the design size, so .w/.h/.sp resolve
+          // to ~1:1 instead of blowing a 375px design up to desktop width.
+          final logicalSize = constraints.biggest;
+          final isCompact = logicalSize.width < AppBreakpoints.medium;
+          return ScreenUtilInit(
+            useInheritedMediaQuery: false,
+            designSize: isCompact ? const Size(375, 812) : logicalSize,
+            builder: (context, child) {
+              return MaterialApp.router(
+                debugShowCheckedModeBanner: false,
+                // Root messenger handle: lets SDK services without a
+                // BuildContext (e.g. comms' DesktopNotificationPoller)
+                // surface SnackBars — see base_sdk AppUiKeys.
+                scaffoldMessengerKey: AppUiKeys.scaffoldMessenger,
+                routerDelegate: _appRouter.delegate(),
+                routeInformationParser: _appRouter.defaultRouteParser(),
+                locale: Locale(state.activeLanguage?.locale ?? 'en'),
+                theme: ThemeData(useMaterial3: false),
+                themeMode: state.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+              );
+            },
+          );
+        });
       },
     );
   }

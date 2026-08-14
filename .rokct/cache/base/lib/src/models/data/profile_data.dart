@@ -32,6 +32,7 @@ class ProfileData {
     ShopData? shop,
     Wallet? wallet,
     num? ringfencedBalance,
+    num? rate,
   }) {
     _notifications = notifications;
     _id = id;
@@ -57,6 +58,7 @@ class ProfileData {
     _shop = shop;
     _wallet = wallet;
     _ringfencedBalance = ringfencedBalance;
+    _rate = rate;
   }
 
   ProfileData.fromJson(dynamic json) {
@@ -98,6 +100,7 @@ class ProfileData {
     _shop = json['shop'] != null ? ShopData.fromJson(json['shop']) : null;
     _wallet = json['wallet'] != null ? Wallet.fromJson(json['wallet']) : null;
     _ringfencedBalance = json['ringfenced_balance'];
+    _rate = json['rate'];
   }
 
   String? _id;
@@ -125,6 +128,7 @@ class ProfileData {
   ShopData? _shop;
   Wallet? _wallet;
   num? _ringfencedBalance;
+  num? _rate;
 
   ProfileData copyWith({
     String? id,
@@ -147,6 +151,7 @@ class ProfileData {
     ShopData? shop,
     Wallet? wallet,
     num? ringfencedBalance,
+    num? rate,
   }) =>
       ProfileData(
         id: id ?? _id,
@@ -169,6 +174,7 @@ class ProfileData {
         shop: shop ?? _shop,
         wallet: wallet ?? _wallet,
         ringfencedBalance: ringfencedBalance ?? _ringfencedBalance,
+        rate: rate ?? _rate,
       );
 
   String? get id => _id;
@@ -221,6 +227,8 @@ class ProfileData {
 
   num? get ringfencedBalance => _ringfencedBalance;
 
+  num? get rate => _rate;
+
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['id'] = _id;
@@ -260,6 +268,7 @@ class ProfileData {
       map['wallet'] = _wallet?.toJson();
     }
     map['ringfenced_balance'] = _ringfencedBalance;
+    map['rate'] = _rate;
     return map;
   }
 }

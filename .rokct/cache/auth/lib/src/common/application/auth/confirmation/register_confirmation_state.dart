@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'register_confirmation_state.freezed.dart';
 
 @freezed
-class RegisterConfirmationState with _$RegisterConfirmationState {
+abstract class RegisterConfirmationState with _$RegisterConfirmationState {
   const factory RegisterConfirmationState({
     @Default(false) bool isLoading,
     @Default(false) bool isSuccess,

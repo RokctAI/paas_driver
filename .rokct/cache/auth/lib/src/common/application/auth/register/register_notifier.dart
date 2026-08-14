@@ -1,3 +1,4 @@
+import 'package:base_sdk/src/handlers/api_result.dart';
 import 'dart:async';
 
 import 'package:base_sdk/src/navigation/app_routes.dart';
@@ -225,6 +226,16 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           confirmPassword: state.confirmPassword,
           referral: state.referral,
         ),
+        // Same key the sync path would use for this local row, so a
+        // registration that failed ambiguously here dedupes against the
+        // later `auth.register` sync push (and vice versa).
+        idempotencyKey: local.success
+            ? OfflineAuthService.registrationIdempotencyKey(
+                local.localUserId!,
+                email: state.email,
+                phone: state.phone,
+              )
+            : null,
       );
 
       response.when(

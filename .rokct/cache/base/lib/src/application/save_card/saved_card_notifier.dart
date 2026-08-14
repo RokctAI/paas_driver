@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/application/save_card/saved_cards_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class SavedCardsNotifier extends StateNotifier<SavedCardsState> {
   SavedCardsNotifier() : super(const SavedCardsState()) {

@@ -5,6 +5,7 @@ import 'package:base_sdk/src/domain/interface/orders.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/application/promo_code/promo_code_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class PromoCodeNotifier extends StateNotifier<PromoCodeState> {
   final OrdersRepositoryFacade _orderRepository;

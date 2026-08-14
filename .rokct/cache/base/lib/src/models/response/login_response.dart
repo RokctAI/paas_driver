@@ -59,34 +59,57 @@ class LoginResponse {
 }
 
 class UserData {
-  UserData({String? accessToken, String? tokenType, UserModel? user}) {
+  UserData({
+    String? accessToken,
+    String? refreshToken,
+    String? expiresAt,
+    String? tokenType,
+    UserModel? user,
+  }) {
     _accessToken = accessToken;
+    _refreshToken = refreshToken;
+    _expiresAt = expiresAt;
     _tokenType = tokenType;
     _user = user;
   }
 
   UserData.fromJson(dynamic json) {
     _accessToken = json['access_token'];
+    _refreshToken = json['refresh_token'];
+    _expiresAt = json['expires_at']?.toString();
     _tokenType = json['token_type'];
     _user = json['user'] != null ? UserModel.fromJson(json['user']) : null;
   }
 
   String? _accessToken;
+  String? _refreshToken;
+  String? _expiresAt;
   String? _tokenType;
   UserModel? _user;
 
   UserData copyWith({
     String? accessToken,
+    String? refreshToken,
+    String? expiresAt,
     String? tokenType,
     UserModel? user,
   }) =>
       UserData(
         accessToken: accessToken ?? _accessToken,
+        refreshToken: refreshToken ?? _refreshToken,
+        expiresAt: expiresAt ?? _expiresAt,
         tokenType: tokenType ?? _tokenType,
         user: user ?? _user,
       );
 
   String? get accessToken => _accessToken;
+
+  /// Single-use rotation token from the login/refresh contract; absent on
+  /// flows that mint no refresh contract (Google login, OTP verify).
+  String? get refreshToken => _refreshToken;
+
+  /// Server-side access-token expiry (`YYYY-MM-DD HH:MM:SS`, server time).
+  String? get expiresAt => _expiresAt;
 
   String? get tokenType => _tokenType;
 
@@ -95,6 +118,8 @@ class UserData {
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['access_token'] = _accessToken;
+    map['refresh_token'] = _refreshToken;
+    map['expires_at'] = _expiresAt;
     map['token_type'] = _tokenType;
     if (_user != null) {
       map['user'] = _user?.toJson();

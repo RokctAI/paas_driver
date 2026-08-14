@@ -6,6 +6,7 @@ import 'package:base_sdk/src/models/data/parcel_order.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/application/parcels_list/parcel_list_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class ParcelListNotifier extends StateNotifier<ParcelListState> {
   final ParcelRepositoryFacade _parcelRepo;

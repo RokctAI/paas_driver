@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 import 'package:base_sdk/src/database/app_database.dart';
 import 'package:base_sdk/src/domain/interface/cart.dart';

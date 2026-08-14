@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:base_sdk/src/navigation/embedded_widgets.dart';
 import 'package:confetti/confetti.dart';

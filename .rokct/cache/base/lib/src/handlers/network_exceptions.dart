@@ -8,7 +8,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'network_exceptions.freezed.dart';
 
 @freezed
-class NetworkExceptions with _$NetworkExceptions {
+sealed class NetworkExceptions with _$NetworkExceptions {
   const factory NetworkExceptions.requestCancelled() = RequestCancelled;
 
   const factory NetworkExceptions.unauthorisedRequest() = UnauthorisedRequest;

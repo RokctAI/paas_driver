@@ -5,6 +5,9 @@ abstract class StorageKeys {
   static const String keyLangSelected = 'keyLangSelected';
   static const String keyUser = 'keyUser';
   static const String keyToken = 'keyToken';
+  // Access-token expiry (not secret — the refresh token itself lives in
+  // SecureStorage, not in shared preferences).
+  static const String keyTokenExpiry = 'keyTokenExpiry';
   static const String keyUiType = 'keyUiType';
   static const String keyLocaleCode = 'keyLocaleCode';
   static const String keyBoard = 'keyBoard';

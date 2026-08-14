@@ -14,6 +14,7 @@ import 'package:base_sdk/src/presentation/theme/theme.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/marker_image_cropper.dart';
 import 'package:base_sdk/src/application/edit_profile/edit_profile_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class EditProfileNotifier extends StateNotifier<EditProfileState> {
   final UserRepositoryFacade _userRepository;
