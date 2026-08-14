@@ -100,5 +100,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<!-- @sdk-ios-usage-keys-start -->
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Your location is shared with dispatch while you are online so orders can be routed to you, including while the app is in the background.</string>
+	<!-- @sdk-ios-usage-keys-end -->
 </dict>
 </plist>
