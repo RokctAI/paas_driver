@@ -19,6 +19,12 @@ export 'src/presentation/app_assets.dart';
 export 'src/presentation/components/glance_card.dart';
 export 'src/presentation/components/blur_wrap.dart';
 
+// Adaptive primitives: Material 3 window-size classes + the two layout
+// shells every composed app builds its phone/wide split from.
+export 'src/presentation/adaptive/breakpoints.dart';
+export 'src/presentation/adaptive/adaptive_shell.dart';
+export 'src/presentation/adaptive/split_pane.dart';
+
 // Shared widgets promoted from paas_manager's host lib/ (manager
 // lib/ regenerable migration, stage S2): composed manager templates
 // consume these via package:base_sdk imports.
@@ -50,6 +56,7 @@ export 'src/services/app_connectivity.dart';
 export 'src/services/app_ui_keys.dart';
 export 'src/services/customer_cart_store.dart';
 export 'src/services/telemetry.dart';
+export 'src/services/timing_telemetry.dart';
 export 'src/services/app_helpers.dart';
 export 'src/services/local_storage.dart';
 export 'src/services/storage_keys.dart';

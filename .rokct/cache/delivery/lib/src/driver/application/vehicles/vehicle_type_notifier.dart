@@ -1,3 +1,4 @@
+import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:delivery_sdk/src/driver/domain/interface/courier.dart';

@@ -40,6 +40,7 @@ import 'package:base_sdk/src/services/customer_cart_store.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:intl/intl.dart';
 import 'package:base_sdk/src/application/order/order_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class OrderNotifier extends StateNotifier<OrderState> {
   final OrdersRepositoryFacade _orderRepository;

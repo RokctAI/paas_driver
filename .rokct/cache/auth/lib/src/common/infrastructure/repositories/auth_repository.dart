@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
@@ -119,12 +120,22 @@ class AuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
   }
 
   @override
-  Future<ApiResult<VerifyData>> sigUpWithData({required UserModel user}) async {
+  Future<ApiResult<VerifyData>> sigUpWithData({
+    required UserModel user,
+    String? idempotencyKey,
+  }) async {
     try {
       final client = dioHttp.client(requireAuth: false);
       var res = await client.post(
         '/api/method/paas.api.register_user',
         data: user.toJsonForSignUp(),
+        // register_user is @idempotent server-side: a stable key makes an
+        // ambiguous-failure retry replay the stored response instead of
+        // double-registering. Callers without a natural stable key send no
+        // header (the server tolerates absence).
+        options: idempotencyKey == null
+            ? null
+            : Options(headers: {'X-Idempotency-Key': idempotencyKey}),
       );
       // This response will not contain tokens, adaptation needed
       return ApiResult.success(

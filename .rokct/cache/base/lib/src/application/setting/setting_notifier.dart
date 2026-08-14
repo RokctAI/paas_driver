@@ -7,6 +7,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 
 import 'package:base_sdk/src/models/data/notification_list_data.dart';
 import 'package:base_sdk/src/application/setting/setting_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class SettingNotifier extends StateNotifier<SettingState> {
   final SettingsRepositoryFacade _settingsRepository;

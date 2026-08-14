@@ -5,7 +5,7 @@ import 'package:base_sdk/src/models/response/languages_response.dart';
 part 'login_state.freezed.dart';
 
 @freezed
-class LoginState with _$LoginState {
+abstract class LoginState with _$LoginState {
   const factory LoginState({
     @Default(false) bool isLoading,
     @Default(false) bool showPassword,

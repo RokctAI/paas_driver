@@ -5,7 +5,7 @@ import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.
 part 'order_state.freezed.dart';
 
 @freezed
-class OrderState with _$OrderState {
+abstract class OrderState with _$OrderState {
   const factory OrderState({
     @Default(false) bool isActiveLoading,
     @Default(false) bool isLoading,

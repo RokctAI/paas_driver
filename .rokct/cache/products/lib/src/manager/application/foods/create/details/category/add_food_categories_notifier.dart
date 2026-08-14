@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:products_sdk/src/common/domain/interface/seller_catalog.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_category_data.dart';

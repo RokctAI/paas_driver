@@ -7,6 +7,7 @@ import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 
 import 'package:base_sdk/src/application/notification/notification_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class NotificationNotifier extends StateNotifier<NotificationState> {
   final NotificationRepositoryFacade _notificationRepository;

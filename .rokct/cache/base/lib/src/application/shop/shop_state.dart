@@ -8,7 +8,7 @@ import 'package:base_sdk/src/models/response/all_products_response.dart';
 part 'shop_state.freezed.dart';
 
 @freezed
-class ShopState with _$ShopState {
+abstract class ShopState with _$ShopState {
   const factory ShopState({
     @Default(false) bool isLoading,
     @Default(false) bool isFilterLoading,

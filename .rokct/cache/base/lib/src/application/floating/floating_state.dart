@@ -7,7 +7,7 @@ part 'floating_state.freezed.dart';
 /// `floating_button/` — nothing marketplace-specific about it, and
 /// [BottomNavigatorItem.shouldHide] reads exactly this signal.
 @freezed
-class FloatingState with _$FloatingState {
+abstract class FloatingState with _$FloatingState {
   const factory FloatingState({@Default(false) bool isScrolling}) =
       _FloatingState;
 

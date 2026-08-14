@@ -4,6 +4,7 @@ import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/domain/interface/payments.dart';
 import 'package:base_sdk/src/application/payment_methods/payment_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class PaymentNotifier extends StateNotifier<PaymentState> {
   final PaymentsRepositoryFacade _paymentsRepository;

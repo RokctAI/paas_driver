@@ -4,7 +4,7 @@ import 'package:base_sdk/src/models/data/parcel_order.dart';
 part 'parcel_state.freezed.dart';
 
 @freezed
-class ParcelState with _$ParcelState {
+abstract class ParcelState with _$ParcelState {
   const factory ParcelState({
     @Default(false) bool isActiveLoading,
     @Default(false) bool isLoading,

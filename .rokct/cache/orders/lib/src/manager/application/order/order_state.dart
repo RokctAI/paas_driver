@@ -5,7 +5,7 @@ import 'package:orders_sdk/src/manager/infrastructure/models/data/order_data.dar
 part 'order_state.freezed.dart';
 
 @freezed
-class OrderState with _$OrderState {
+abstract class OrderState with _$OrderState {
   const factory OrderState({
     @Default(false) bool paymentType,
     @Default(false) bool isLoading,

@@ -5,7 +5,7 @@ import 'package:orders_sdk/src/manager/infrastructure/models/models.dart';
 part 'accepted_orders_state.freezed.dart';
 
 @freezed
-class AcceptedOrdersState with _$AcceptedOrdersState {
+abstract class AcceptedOrdersState with _$AcceptedOrdersState {
   const factory AcceptedOrdersState({
     @Default(false) bool isLoading,
     @Default([]) List<OrderData> orders,

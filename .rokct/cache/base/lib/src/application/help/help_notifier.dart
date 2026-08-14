@@ -5,6 +5,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/domain/interface/settings.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/application/help/help_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class HelpNotifier extends StateNotifier<HelpState> {
   final SettingsRepositoryFacade _settingsRepository;

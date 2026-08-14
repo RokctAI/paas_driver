@@ -12,7 +12,7 @@ import 'package:base_sdk/src/models/data/profile_data.dart';
 part 'profile_state.freezed.dart';
 
 @freezed
-class ProfileState with _$ProfileState {
+abstract class ProfileState with _$ProfileState {
   const factory ProfileState({
     @Default(true) bool isLoading,
     @Default(null) ProfileData? userData,

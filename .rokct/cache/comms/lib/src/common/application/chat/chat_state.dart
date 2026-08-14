@@ -5,7 +5,7 @@ import 'package:base_sdk/src/models/data/chat_message_data.dart';
 part 'chat_state.freezed.dart';
 
 @freezed
-class ChatState with _$ChatState {
+abstract class ChatState with _$ChatState {
   const factory ChatState({
     @Default(false) bool isLoading,
     @Default(false) bool isMoreLoading,

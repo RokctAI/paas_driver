@@ -3,7 +3,7 @@ import 'package:base_sdk/src/models/models.dart';
 part 'currency_state.freezed.dart';
 
 @freezed
-class CurrencyState with _$CurrencyState {
+abstract class CurrencyState with _$CurrencyState {
   const factory CurrencyState({
     @Default([]) List<CurrencyData> list,
     @Default(true) bool isLoading,

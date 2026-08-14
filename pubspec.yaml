@@ -61,7 +61,7 @@ dependencies:
   flutter_bloc: ^8.1.3
   path_provider: ^2.1.2
   flutter_riverpod: ^2.5.1
-  freezed_annotation: ^2.4.4
+  freezed_annotation: ^3.1.0
   shared_preferences: ^2.5.2
   permission_handler: ^11.3.1
   flutter_displaymode: ^0.6.0
@@ -163,10 +163,15 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  freezed: ^2.5.7
-  build_runner: ^2.4.12
+  freezed: ^3.2.3
+  build_runner: ^2.10.4
   flutter_lints: ^5.0.0
-  auto_route_generator: ^9.0.0
+  # 9.x pins source_gen ^1.5/^2 which conflicts with freezed 3.x (source_gen
+  # >=3); 10.3.x is the first line on analyzer 8 (10.4+ moves to auto_route
+  # 11 / analyzer 10+, which drags freezed onto dev prereleases). Needs
+  # auto_route 10.x at
+  # runtime - arbitrated in dependency_overrides below.
+  auto_route_generator: '>=10.3.1 <10.4.0'
   flutter_launcher_icons: ^0.14.1
   cupertino_icons: ^1.0.6
 
@@ -255,9 +260,14 @@ dependency_overrides:
   get_it: ^8.0.0
   intl: ^0.20.2
   share_plus: ^12.0.1
-  freezed_annotation: ^2.4.4
   google_fonts: ^6.3.0
   http: ^1.2.0
+  # auto_route_generator 10.3.x (required by the freezed 3.x / source_gen 3
+  # toolchain) needs auto_route 10.x, while the composed SDKs still pin
+  # ^9.2.0. 10.1+ keeps the renamed 9.x APIs (e.g. replaceNamed) as deprecated
+  # aliases, so composed source compiles unchanged. Follow-up: bump the SDK
+  # auto_route pins, then this override can go.
+  auto_route: ^10.3.0
   # drift must stay on a release whose sqlite3 constraint admits the pinned
   # sqlite3 2.9.4 below (2.34.x moved to sqlite3 ^3.x and fails to compile
   # against it). Mirrors paas_manager's and supacharge's arbitration of the

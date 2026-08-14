@@ -5,6 +5,7 @@ import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 
 import 'package:base_sdk/src/application/splash/splash_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class SplashNotifier extends StateNotifier<SplashState> {
   final SettingsRepositoryFacade _settingsRepository;

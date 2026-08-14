@@ -57,22 +57,33 @@ class TelemetryClient {
     String? sessionId,
     Map<String, dynamic> context = const {},
   }) async {
-    final payload = <String, dynamic>{
-      'type': type,
-      if (sessionId != null) 'session_id': sessionId,
-      'timestamp': DateTime.now().toUtc().toIso8601String(),
-      'context': context,
-    };
-    // Local trail first — real even when the endpoint is unreachable.
-    debugPrint('==> telemetry ${jsonEncode(payload)}');
     try {
+      final payload = <String, dynamic>{
+        'type': type,
+        if (sessionId != null) 'session_id': sessionId,
+        'timestamp': DateTime.now().toUtc().toIso8601String(),
+        'context': context,
+      };
+      // Encode once, up front, INSIDE the try: a non-JSON-encodable value in
+      // [context] must degrade to a stub event, never throw out of an
+      // unawaited logError call.
+      String encoded;
+      try {
+        encoded = jsonEncode(payload);
+      } catch (e) {
+        payload['context'] = {'encode_error': e.toString()};
+        encoded = jsonEncode(payload);
+      }
+      // Local trail first — real even when the endpoint is unreachable.
+      // Debug builds only: release logs must not carry full payloads.
+      if (kDebugMode) debugPrint('==> telemetry $encoded');
       final getIt = GetIt.instance;
       if (!getIt.isRegistered<HttpService>()) return;
       await getIt.get<HttpService>().client(requireAuth: true).post(
         endpoint,
         data: {
           'error_message': type,
-          'context': jsonEncode(payload),
+          'context': encoded,
         },
       );
     } catch (e) {

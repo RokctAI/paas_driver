@@ -19,6 +19,7 @@ import 'package:base_sdk/src/domain/interface/gallery.dart';
 import 'package:base_sdk/src/domain/interface/shops.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/application/profile/profile_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class ProfileNotifier extends StateNotifier<ProfileState> {
   final UserRepositoryFacade _userRepository;

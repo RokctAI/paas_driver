@@ -6,7 +6,7 @@ import 'package:base_sdk/src/models/data/cart_product_data.dart';
 part 'shop_order_state.freezed.dart';
 
 @freezed
-class ShopOrderState with _$ShopOrderState {
+abstract class ShopOrderState with _$ShopOrderState {
   const factory ShopOrderState({
     @Default(false) bool isLoading,
     @Default(false) bool isStartGroupLoading,

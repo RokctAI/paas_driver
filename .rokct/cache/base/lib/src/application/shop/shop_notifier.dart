@@ -22,6 +22,7 @@ import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/models/data/translation.dart';
 import 'package:base_sdk/src/application/shop/shop_state.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 class ShopNotifier extends StateNotifier<ShopState> {
   final ProductsRepositoryFacade _productsRepository;
