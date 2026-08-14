@@ -137,16 +137,21 @@ dependencies:
     git:
       url: https://github.com/RendaniSinyage/payfast_flutter.git
 
-  # Driver-app-specific packages, i.e. not provided by base_sdk's template.
-  # Each is still referenced by app code that has not yet moved into an SDK;
-  # when a feature moves, its package should move to that SDK's pubspec and
-  # drop off this list.
-  #   workmanager           - background location reporting (home_page.dart)
-  #   percent_indicator     - push-order countdown ring (push_order_screen)
-  #   map_launcher          - hand off to an external maps app (order_item)
-  #   auto_size_text        - order list typography (orders_item.dart)
-  #   calendar_date_picker2 - income date range (custom_date_picker.dart)
-  #   charts_flutter        - income/statistics charts (income_page)
+  # Template-host packages. The features that use these have finished their
+  # move into SDK repos, but SDK templates are installed into the generated
+  # lib/ at compose time and compile against THIS pubspec, so the entries stay
+  # here by design (delivery_sdk's manifest documents them as host deps its
+  # templates additionally need).
+  #   workmanager           - delivery_sdk: courier_location_service lib code
+  #                           + home_page template (also in its own pubspec)
+  #   percent_indicator     - delivery_sdk: push-order countdown ring template
+  #   map_launcher          - delivery_sdk: external-maps handoff templates
+  #   auto_size_text        - delivery_sdk: order list typography templates
+  #   calendar_date_picker2 - base_sdk dep; delivery_sdk custom_date_picker
+  #                           template
+  #   charts_flutter        - revenue_sdk income template builds its chart
+  #                           Series host-side: revenue_sdk deliberately stays
+  #                           chart-library-agnostic, so the host owns this dep
   # workmanager >=0.6 is the v2-embedding rewrite; 0.5.x still references the
   # deleted Flutter v1 shim (ShimPluginRegistry/PluginRegistrantCallback) and
   # fails :workmanager:compileReleaseKotlin on Flutter 3.29+.
