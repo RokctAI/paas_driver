@@ -4,7 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
@@ -71,8 +71,10 @@ class _HomePageState extends ConsumerState<HomePage> {
   final _delayed = Delayed(milliseconds: 36000);
 
   Future<void> setCustomMarkerIcon() async {
-    final Uint8List markerMyIcon =
-        await CourierHelpers.getBytesFromAsset(AppAssets.pngMyLocation, 120);
+    final Uint8List markerMyIcon = await CourierHelpers.getBytesFromAsset(
+      AppAssets.pngMyLocation,
+      120,
+    );
     myIcon = BitmapDescriptor.fromBytes(markerMyIcon);
   }
 
@@ -92,42 +94,50 @@ class _HomePageState extends ConsumerState<HomePage> {
         );
       }
       if (message.data["type"] == "new_order") {
-        final res = await orderRepository
-            .showOrders(int.tryParse(message.data["id"].toString()) ?? 0);
+        final res = await orderRepository.showOrders(
+          int.tryParse(message.data["id"].toString()) ?? 0,
+        );
         res.map(
-            success: (s) {
-              attachOrder(s.data.data);
-            },
-            failure: (f) {});
+          success: (s) {
+            attachOrder(s.data.data);
+          },
+          failure: (f) {},
+        );
       } else if (message.data["type"] == "deliveryman") {
-        final res = await orderRepository
-            .showOrders(int.tryParse(message.data["id"].toString()) ?? 0);
+        final res = await orderRepository.showOrders(
+          int.tryParse(message.data["id"].toString()) ?? 0,
+        );
         res.map(
-            success: (s) {
-              newOrder(s.data.data);
-            },
-            failure: (f) {});
+          success: (s) {
+            newOrder(s.data.data);
+          },
+          failure: (f) {},
+        );
       }
     });
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
       debugPrint("New notification oped app: ${jsonEncode(message.data)}");
 
       if (message.data["type"] == "new_order") {
-        final res = await orderRepository
-            .showOrders(int.tryParse(message.data["id"].toString()) ?? 0);
+        final res = await orderRepository.showOrders(
+          int.tryParse(message.data["id"].toString()) ?? 0,
+        );
         res.map(
-            success: (s) {
-              attachOrder(s.data.data);
-            },
-            failure: (f) {});
+          success: (s) {
+            attachOrder(s.data.data);
+          },
+          failure: (f) {},
+        );
       } else if (message.data["type"] == "deliveryman") {
-        final res = await orderRepository
-            .showOrders(int.tryParse(message.data["id"].toString()) ?? 0);
+        final res = await orderRepository.showOrders(
+          int.tryParse(message.data["id"].toString()) ?? 0,
+        );
         res.map(
-            success: (s) {
-              newOrder(s.data.data);
-            },
-            failure: (f) {});
+          success: (s) {
+            newOrder(s.data.data);
+          },
+          failure: (f) {},
+        );
       }
     });
 
@@ -139,16 +149,18 @@ class _HomePageState extends ConsumerState<HomePage> {
         var loc = await Geolocator.getCurrentPosition();
         latLng = LatLng(loc.latitude, loc.longitude);
         CourierStorage.saveSelectedLocation(latLng);
-        googleMapController!
-            .animateCamera(CameraUpdate.newLatLngZoom(latLng, 15));
+        googleMapController!.animateCamera(
+          CameraUpdate.newLatLngZoom(latLng, 15),
+        );
       }
     } else {
       if (check != LocationPermission.deniedForever) {
         var loc = await Geolocator.getCurrentPosition();
         latLng = LatLng(loc.latitude, loc.longitude);
         CourierStorage.saveSelectedLocation(latLng);
-        googleMapController!
-            .animateCamera(CameraUpdate.newLatLngZoom(latLng, 15));
+        googleMapController!.animateCamera(
+          CameraUpdate.newLatLngZoom(latLng, 15),
+        );
       }
     }
   }
@@ -161,23 +173,27 @@ class _HomePageState extends ConsumerState<HomePage> {
         var loc = await Geolocator.getCurrentPosition();
         latLng = LatLng(loc.latitude, loc.longitude);
         CourierStorage.saveSelectedLocation(latLng);
-        googleMapController!
-            .animateCamera(CameraUpdate.newLatLngZoom(latLng, 15));
+        googleMapController!.animateCamera(
+          CameraUpdate.newLatLngZoom(latLng, 15),
+        );
       }
     } else {
       if (check != LocationPermission.deniedForever) {
         var loc = await Geolocator.getCurrentPosition();
         latLng = LatLng(loc.latitude, loc.longitude);
         CourierStorage.saveSelectedLocation(latLng);
-        googleMapController!
-            .animateCamera(CameraUpdate.newLatLngZoom(latLng, 15));
+        googleMapController!.animateCamera(
+          CameraUpdate.newLatLngZoom(latLng, 15),
+        );
       }
     }
   }
 
   void getSetProgressLocation() {
     timer = Timer.periodic(const Duration(seconds: 10), (Timer t) {
-      ref.read(homeProvider.notifier).getRouting(
+      ref
+          .read(homeProvider.notifier)
+          .getRouting(
             context: context,
             start: latLng,
             isOnline: (CourierStorage.getOnline()),
@@ -187,73 +203,78 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   void getCurrentLocation() async {
     getSetProgressLocation();
-    _geolocatorPlatform.getCurrentPosition().then(
-      (location) {
-        currentLocation = location;
-        latLng = LatLng(currentLocation?.latitude ?? latLng.latitude,
-            currentLocation?.longitude ?? latLng.longitude);
-      },
-    );
-    _geolocatorPlatform.getPositionStream().listen(
-      (newLoc) {
-        currentLocation = newLoc;
-        latLng = LatLng(currentLocation?.latitude ?? latLng.latitude,
-            currentLocation?.longitude ?? latLng.longitude);
-        _delayed.run(() {
-          CourierStorage.saveSelectedLocation(LatLng(
-              currentLocation?.latitude ?? latLng.latitude,
-              currentLocation?.longitude ?? latLng.longitude));
-        });
-      },
-    );
+    _geolocatorPlatform.getCurrentPosition().then((location) {
+      currentLocation = location;
+      latLng = LatLng(
+        currentLocation?.latitude ?? latLng.latitude,
+        currentLocation?.longitude ?? latLng.longitude,
+      );
+    });
+    _geolocatorPlatform.getPositionStream().listen((newLoc) {
+      currentLocation = newLoc;
+      latLng = LatLng(
+        currentLocation?.latitude ?? latLng.latitude,
+        currentLocation?.longitude ?? latLng.longitude,
+      );
+      _delayed.run(() {
+        CourierStorage.saveSelectedLocation(
+          LatLng(
+            currentLocation?.latitude ?? latLng.latitude,
+            currentLocation?.longitude ?? latLng.longitude,
+          ),
+        );
+      });
+    });
   }
 
   Future<void> attachOrder(OrderDetailData? push) async {
     AppHelpers.showAlertDialog(
       context: context,
-      child: PushOrder(
-        pushModel: push ?? OrderDetailData(),
-        isActive: false,
-      ),
+      child: PushOrder(pushModel: push ?? OrderDetailData(), isActive: false),
     );
     final ImageCropperForMarker image = ImageCropperForMarker();
-    ref.read(homeProvider.notifier).goMarket(
-        context: context,
-        orderId: (push?.id ?? 0).toString(),
-        order: push,
-        onSuccess: () async {
-          ref.read(homeProvider.notifier).getRoutingAll(
-                // ignore: use_build_context_synchronously
-                context: context,
-                start: LatLng(
+    ref
+        .read(homeProvider.notifier)
+        .goMarket(
+          context: context,
+          orderId: (push?.id ?? 0).toString(),
+          order: push,
+          onSuccess: () async {
+            ref
+                .read(homeProvider.notifier)
+                .getRoutingAll(
+                  // ignore: use_build_context_synchronously
+                  context: context,
+                  start: LatLng(
                     LocalStorage.getAddressSelected()?.latitude ??
                         AppConstants.demoLatitude,
                     LocalStorage.getAddressSelected()?.longitude ??
-                        AppConstants.demoLongitude),
-                end: LatLng(
-                  double.parse(push?.shop?.location?.latitude ?? "0"),
-                  double.parse(push?.shop?.location?.longitude ?? "0"),
-                ),
-                market: Marker(
-                  markerId: const MarkerId("Shop"),
-                  position: LatLng(
+                        AppConstants.demoLongitude,
+                  ),
+                  end: LatLng(
                     double.parse(push?.shop?.location?.latitude ?? "0"),
                     double.parse(push?.shop?.location?.longitude ?? "0"),
                   ),
-                  icon: await image.resizeAndCircle(
-                      push?.shop?.logoImg ?? "", 120),
-                ),
-              );
-        });
+                  market: Marker(
+                    markerId: const MarkerId("Shop"),
+                    position: LatLng(
+                      double.parse(push?.shop?.location?.latitude ?? "0"),
+                      double.parse(push?.shop?.location?.longitude ?? "0"),
+                    ),
+                    icon: await image.resizeAndCircle(
+                      push?.shop?.logoImg ?? "",
+                      120,
+                    ),
+                  ),
+                );
+          },
+        );
   }
 
   Future<void> newOrder(OrderDetailData? push) async {
     AppHelpers.showAlertDialog(
       context: context,
-      child: PushOrder(
-        pushModel: push ?? OrderDetailData(),
-        isActive: true,
-      ),
+      child: PushOrder(pushModel: push ?? OrderDetailData(), isActive: true),
     );
   }
 
@@ -301,14 +322,13 @@ class _HomePageState extends ConsumerState<HomePage> {
                 _map(context, ref),
                 state.isGoRestaurant || state.isGoUser
                     ? state.parcelDetail == null
-                        ? DeliverBottomSheetScreen(
-                            order: push ??
-                                (state.orderDetail ?? OrderDetailData()),
-                          )
-                        : ParcelBottomSheetScreen(parcel: state.parcelDetail)
-                    : BottomSheetScreen(
-                        isScrolling: state.isScrolling,
-                      ),
+                          ? DeliverBottomSheetScreen(
+                              order:
+                                  push ??
+                                  (state.orderDetail ?? OrderDetailData()),
+                            )
+                          : ParcelBottomSheetScreen(parcel: state.parcelDetail)
+                    : BottomSheetScreen(isScrolling: state.isScrolling),
                 state.isGoRestaurant || state.isGoUser
                     ? const SizedBox.shrink()
                     : _myFindButton(ref),
@@ -326,11 +346,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                             ref.watch(profileImageProvider);
                             return DriverAvatar(
                               imageUrl: LocalStorage.getUser()?.img,
-                              // base_sdk's ProfileData does not carry the
-                              // courier rating the legacy host model had;
-                              // follow-up: add `rate` to base ProfileData
-                              // (core PR), then read it here again.
-                              rate: null,
+                              rate: LocalStorage.getUser()?.rate,
                             );
                           },
                         ),
@@ -350,28 +366,33 @@ class _HomePageState extends ConsumerState<HomePage> {
                           children: [
                             Container(
                               decoration: BoxDecoration(
-                                  color: AppStyle.primary,
-                                  borderRadius: BorderRadius.circular(16.r)),
+                                color: AppStyle.primary,
+                                borderRadius: BorderRadius.circular(16.r),
+                              ),
                               margin: EdgeInsets.all(8.r),
                               child: IconButton(
-                                  onPressed: () =>
-                                      context.pushRoute(const OrdersRoute()),
-                                  icon: const Icon(
-                                    FlutterRemix.history_fill,
-                                    color: AppStyle.white,
-                                  )),
+                                onPressed: () =>
+                                    context.pushRoute(const OrdersRoute()),
+                                icon: const Icon(
+                                  Remix.history_fill,
+                                  color: AppStyle.white,
+                                ),
+                              ),
                             ),
                             Positioned(
-                                top: 2.r,
-                                right: 8.r,
-                                child: Text(
-                                  ref
-                                      .watch(orderProvider)
-                                      .totalActiveOrder
-                                      .toString(),
-                                  style: AppStyle.interBold(
-                                      color: AppStyle.black, size: 18),
-                                ))
+                              top: 2.r,
+                              right: 8.r,
+                              child: Text(
+                                ref
+                                    .watch(orderProvider)
+                                    .totalActiveOrder
+                                    .toString(),
+                                style: AppStyle.interBold(
+                                  color: AppStyle.black,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
                           ],
                         );
                       },
@@ -443,13 +464,16 @@ class _HomePageState extends ConsumerState<HomePage> {
           Marker(
             markerId: const MarkerId("source"),
             icon: myIcon,
-            position: LatLng(currentLocation?.latitude ?? latLng.latitude,
-                currentLocation?.longitude ?? latLng.longitude),
+            position: LatLng(
+              currentLocation?.latitude ?? latLng.latitude,
+              currentLocation?.longitude ?? latLng.longitude,
+            ),
           ),
-          ...ref.watch(homeProvider).markers
+          ...ref.watch(homeProvider).markers,
         },
         polygons: ref.watch(homeProvider).polygon,
-        polylines: ref.watch(homeProvider).isGoRestaurant ||
+        polylines:
+            ref.watch(homeProvider).isGoRestaurant ||
                 ref.watch(homeProvider).isGoUser
             ? {
                 Polyline(
@@ -485,8 +509,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           bottom: ref.watch(homeProvider).isGoRestaurant
               ? 90.h
               : ref.watch(homeProvider).isScrolling
-                  ? 60.h
-                  : 330.h,
+              ? 60.h
+              : 330.h,
         ),
       ),
     );
@@ -497,10 +521,11 @@ class _HomePageState extends ConsumerState<HomePage> {
       radius: BorderRadius.zero,
       blur: 1,
       child: Container(
-          width: MediaQuery.sizeOf(context).width,
-          height: MediaQuery.sizeOf(context).height,
-          color: AppStyle.white.withOpacity(0.3),
-          child: const Loading()),
+        width: MediaQuery.sizeOf(context).width,
+        height: MediaQuery.sizeOf(context).height,
+        color: AppStyle.white.withOpacity(0.3),
+        child: const Loading(),
+      ),
     );
   }
 
@@ -522,10 +547,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                 color: Color(0xFF7D7D7D),
                 blurRadius: 2,
                 offset: Offset(0, 2),
-              )
+              ),
             ],
           ),
-          child: const Icon(FlutterRemix.focus_3_fill),
+          child: const Icon(Remix.focus_3_fill),
         ),
       ),
     );

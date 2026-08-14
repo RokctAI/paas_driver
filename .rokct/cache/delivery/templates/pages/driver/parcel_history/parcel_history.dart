@@ -1,12 +1,11 @@
 import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:delivery_sdk/src/driver/application/parcel/parcel_provider.dart';
 import 'package:${package}/presentation/pages/parcel/parcel_item.dart';
-
 
 import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -61,7 +60,10 @@ class _ParcelHistoryPageState extends ConsumerState<ParcelHistoryPage> {
                 ),
                 Text(
                   AppHelpers.getTranslation(TrKeys.thereAreOrders),
-                  style: AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
+                  style: AppStyle.interRegular(
+                    size: 12.sp,
+                    letterSpacing: -0.3,
+                  ),
                 ),
               ],
             ),
@@ -76,34 +78,38 @@ class _ParcelHistoryPageState extends ConsumerState<ParcelHistoryPage> {
                     enablePullDown: true,
                     enablePullUp: true,
                     onRefresh: () {
-                      ref.read(parcelProvider.notifier).fetchHistoryOrdersPage(
-                          context, historyController,
-                          isRefresh: true);
-                    },
-                    onLoading: () {
-                      ref.read(parcelProvider.notifier).fetchHistoryOrdersPage(
+                      ref
+                          .read(parcelProvider.notifier)
+                          .fetchHistoryOrdersPage(
                             context,
                             historyController,
+                            isRefresh: true,
                           );
+                    },
+                    onLoading: () {
+                      ref
+                          .read(parcelProvider.notifier)
+                          .fetchHistoryOrdersPage(context, historyController);
                     },
                     controller: historyController,
                     child: ListView.builder(
-                        padding: EdgeInsets.only(
-                            left: 16.r,
-                            right: 16.r,
-                            top: 30.h,
-                            bottom:
-                                MediaQuery.paddingOf(context).bottom + 42.h),
-                        shrinkWrap: true,
-                        itemCount: state.historyOrders.length,
-                        physics: const BouncingScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return ParcelItem(
-                            isOrder: false,
-                            parcel: state.historyOrders[index],
-                            isSet: false,
-                          );
-                        }),
+                      padding: EdgeInsets.only(
+                        left: 16.r,
+                        right: 16.r,
+                        top: 30.h,
+                        bottom: MediaQuery.paddingOf(context).bottom + 42.h,
+                      ),
+                      shrinkWrap: true,
+                      itemCount: state.historyOrders.length,
+                      physics: const BouncingScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return ParcelItem(
+                          isOrder: false,
+                          parcel: state.historyOrders[index],
+                          isSet: false,
+                        );
+                      },
+                    ),
                   ),
                 ),
         ],
@@ -120,13 +126,12 @@ class _ParcelHistoryPageState extends ConsumerState<ParcelHistoryPage> {
             GestureDetector(
               onTap: () {
                 AppHelpers.showCustomModalBottomSheet(
-                    paddingTop: MediaQuery.paddingOf(context).top,
-                    context: context,
-                    radius: 12,
-                    modal: const FilterScreen(
-                      parcel: true,
-                    ),
-                    isDarkMode: true);
+                  paddingTop: MediaQuery.paddingOf(context).top,
+                  context: context,
+                  radius: 12,
+                  modal: const FilterScreen(parcel: true),
+                  isDarkMode: true,
+                );
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -134,9 +139,9 @@ class _ParcelHistoryPageState extends ConsumerState<ParcelHistoryPage> {
                   color: AppStyle.primary,
                 ),
                 padding: EdgeInsets.all(16.r),
-                child: const Icon(FlutterRemix.equalizer_fill),
+                child: const Icon(Remix.equalizer_fill),
               ),
-            )
+            ),
           ],
         ),
       ),

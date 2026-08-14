@@ -275,15 +275,15 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
     required int orderId,
     required int paymentId,
   }) async {
-    // Recorded gap: no Frappe counterpart of
-    // POST /api/v1/payments/order/{id}/transactions yet. The legacy-shaped
-    // call is kept so the checkout flow's contract stays visible; it fails
-    // through ApiResult.failure until the endpoint lands.
+    // Frappe counterpart of POST /api/v1/payments/order/{id}/transactions:
+    // pay-side wallet/frappe/src/api/payment/payment.py's
+    // create_order_transaction (idempotent; dedupes per order + gateway,
+    // amount/user read from the Order doc server-side).
     final data = {'order_id': orderId, 'payment_sys_id': paymentId};
     try {
       final client = dioHttp.client(requireAuth: true);
       final response = await client.post(
-        '/api/method/paas.api.payment.payment.create_order_transaction',
+        '/api/method/paas.api.payment.create_order_transaction',
         data: data,
       );
       return ApiResult.success(

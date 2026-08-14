@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'logout_modal.dart';
@@ -63,7 +63,7 @@ class LogoutButton extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Icon(
-                    FlutterRemix.logout_circle_r_line,
+                    Remix.logout_circle_r_line,
                     color: AppStyle.white,
                     size: 22.r,
                   ),

@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -18,10 +18,9 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:orders_sdk/src/manager/application/order/order_provider.dart';
 
-
 @RoutePage(name: 'ManagerOrderHistoryRoute')
 class OrderHistoryPage extends ConsumerStatefulWidget {
-  const OrderHistoryPage({super.key}) ;
+  const OrderHistoryPage({super.key});
 
   @override
   ConsumerState<OrderHistoryPage> createState() => _OrderHistoryPageState();
@@ -65,7 +64,10 @@ class _OrderHistoryPageState extends ConsumerState<OrderHistoryPage> {
                 ),
                 Text(
                   '${AppHelpers.getTranslation(TrKeys.thereAre)} ${state.totalCount} ${AppHelpers.getTranslation(TrKeys.orders)}',
-                  style: AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
+                  style: AppStyle.interRegular(
+                    size: 12.sp,
+                    letterSpacing: -0.3,
+                  ),
                 ),
               ],
             ),
@@ -89,33 +91,32 @@ class _OrderHistoryPageState extends ConsumerState<OrderHistoryPage> {
                       verticalPadding: 16,
                     )
                   : state.orders.isNotEmpty
-                      ? ListView.builder(
-                          padding: REdgeInsets.only(
-                            right: 16,
-                            left: 16,
-                            top: 16,
-                            bottom: 86,
-                          ),
-                          shrinkWrap: true,
-                          itemCount: state.orders.length,
-                          physics: const BouncingScrollPhysics(),
-                          itemBuilder: (context, index) => OrderItem(
+                  ? ListView.builder(
+                      padding: REdgeInsets.only(
+                        right: 16,
+                        left: 16,
+                        top: 16,
+                        bottom: 86,
+                      ),
+                      shrinkWrap: true,
+                      itemCount: state.orders.length,
+                      physics: const BouncingScrollPhysics(),
+                      itemBuilder: (context, index) => OrderItem(
+                        isHistoryOrder: true,
+                        order: state.orders[index],
+                        onTap: () => AppHelpers.showCustomModalBottomSheet(
+                          paddingTop: MediaQuery.paddingOf(context).top + 60,
+                          context: context,
+                          radius: 12,
+                          modal: OrderDetailsModal(
                             isHistoryOrder: true,
                             order: state.orders[index],
-                            onTap: () => AppHelpers.showCustomModalBottomSheet(
-                              paddingTop:
-                                  MediaQuery.paddingOf(context).top + 60,
-                              context: context,
-                              radius: 12,
-                              modal: OrderDetailsModal(
-                                isHistoryOrder: true,
-                                order: state.orders[index],
-                              ),
-                              isDarkMode: true,
-                            ),
                           ),
-                        )
-                      : const NoOrders(),
+                          isDarkMode: true,
+                        ),
+                      ),
+                    )
+                  : const NoOrders(),
             ),
           ),
         ],
@@ -135,10 +136,13 @@ class _OrderHistoryPageState extends ConsumerState<OrderHistoryPage> {
                 radius: 12,
                 modal: FilterScreen(
                   onChangeDay: (rangeDatePicker) {
-                    ref.read(orderProvider.notifier).fetchHistoryOrders(
-                        isRefresh: true,
-                        start: rangeDatePicker.last,
-                        end: rangeDatePicker.first);
+                    ref
+                        .read(orderProvider.notifier)
+                        .fetchHistoryOrders(
+                          isRefresh: true,
+                          start: rangeDatePicker.last,
+                          end: rangeDatePicker.first,
+                        );
                   },
                 ),
                 isDarkMode: true,
@@ -151,9 +155,9 @@ class _OrderHistoryPageState extends ConsumerState<OrderHistoryPage> {
                   color: AppStyle.primary,
                 ),
                 padding: REdgeInsets.all(16),
-                child: const Icon(FlutterRemix.equalizer_fill),
+                child: const Icon(Remix.equalizer_fill),
               ),
-            )
+            ),
           ],
         ),
       ),

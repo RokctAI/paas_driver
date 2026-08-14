@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:osm_nominatim/osm_nominatim.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
-
 
 class SearchedLocationItem extends StatelessWidget {
   final Place place;
@@ -33,11 +32,7 @@ class SearchedLocationItem extends StatelessWidget {
               alignment: Alignment.center,
               child: Row(
                 children: [
-                  Icon(
-                    FlutterRemix.search_2_line,
-                    color: AppStyle.black,
-                    size: 20.r,
-                  ),
+                  Icon(Remix.search_2_line, color: AppStyle.black, size: 20.r),
                   8.horizontalSpace,
                   Expanded(
                     child: Text(
@@ -51,7 +46,7 @@ class SearchedLocationItem extends StatelessWidget {
                         color: AppStyle.black,
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

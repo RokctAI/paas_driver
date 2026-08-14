@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -28,8 +28,8 @@ class SelectableAddonItem extends StatelessWidget {
             children: [
               Icon(
                 (addon.isSelectedAddon ?? false)
-                    ? FlutterRemix.checkbox_circle_fill
-                    : FlutterRemix.checkbox_blank_circle_line,
+                    ? Remix.checkbox_circle_fill
+                    : Remix.checkbox_blank_circle_line,
                 size: 24.r,
                 color: (addon.isSelectedAddon ?? false)
                     ? AppStyle.primary
@@ -42,14 +42,18 @@ class SelectableAddonItem extends StatelessWidget {
                   children: [
                     Text(
                       '${addon.translation?.title}',
-                      style:
-                          AppStyle.interSemi(size: 14.sp, letterSpacing: -0.3),
+                      style: AppStyle.interSemi(
+                        size: 14.sp,
+                        letterSpacing: -0.3,
+                      ),
                     ),
                     4.verticalSpace,
                     Text(
                       '${addon.translation?.description}',
                       style: AppStyle.interRegular(
-                          size: 12.sp, letterSpacing: -0.3),
+                        size: 12.sp,
+                        letterSpacing: -0.3,
+                      ),
                     ),
                   ],
                 ),

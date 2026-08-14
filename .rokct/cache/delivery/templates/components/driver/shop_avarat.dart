@@ -3,7 +3,7 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -65,20 +65,20 @@ class ShopAvatar extends StatelessWidget {
                         ),
                         alignment: Alignment.center,
                         child: const Icon(
-                          FlutterRemix.image_line,
+                          Remix.image_line,
                           color: AppStyle.black,
                         ),
                       );
                     },
                   )
                 : path != null
-                    ? Image.file(
-                        File(path!),
-                        width: size.r,
-                        height: size.r,
-                        fit: BoxFit.cover,
-                      )
-                    : null,
+                ? Image.file(
+                    File(path!),
+                    width: size.r,
+                    height: size.r,
+                    fit: BoxFit.cover,
+                  )
+                : null,
           ),
         ),
       ),

@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -98,23 +98,25 @@ class _CreateAddonModalState extends ConsumerState<CreateAddonModal> {
                                         label:
                                             '${AppHelpers.getTranslation(TrKeys.units)}*',
                                         suffixIcon: Icon(
-                                          FlutterRemix.arrow_down_s_line,
+                                          Remix.arrow_down_s_line,
                                           color: AppStyle.blackColor,
                                           size: 18.r,
                                         ),
                                         readOnly: true,
                                         validator:
                                             SellerFormValidators.emptyCheck,
-                                        onTap: () => AppHelpers
-                                            .showCustomModalBottomSheet(
-                                          paddingTop: MediaQuery.of(context)
-                                                  .padding
-                                                  .top +
-                                              300.h,
-                                          context: context,
-                                          modal: const CreateAddonUnitsModal(),
-                                          isDarkMode: false,
-                                        ),
+                                        onTap: () =>
+                                            AppHelpers.showCustomModalBottomSheet(
+                                              paddingTop:
+                                                  MediaQuery.of(
+                                                    context,
+                                                  ).padding.top +
+                                                  300.h,
+                                              context: context,
+                                              modal:
+                                                  const CreateAddonUnitsModal(),
+                                              isDarkMode: false,
+                                            ),
                                       );
                                     },
                                   ),
@@ -129,8 +131,9 @@ class _CreateAddonModalState extends ConsumerState<CreateAddonModal> {
                                   ),
                                   24.verticalSpace,
                                   UnderlinedTextField(
-                                    label:
-                                        AppHelpers.getTranslation(TrKeys.sku),
+                                    label: AppHelpers.getTranslation(
+                                      TrKeys.sku,
+                                    ),
                                     inputType: TextInputType.text,
                                     textInputAction: TextInputAction.done,
                                     onChanged: event.setBarcode,
@@ -172,7 +175,8 @@ class _CreateAddonModalState extends ConsumerState<CreateAddonModal> {
                                     children: [
                                       Text(
                                         AppHelpers.getTranslation(
-                                            TrKeys.active),
+                                          TrKeys.active,
+                                        ),
                                         style: AppStyle.interNormal(
                                           size: 14.sp,
                                           letterSpacing: -0.3,
@@ -202,7 +206,8 @@ class _CreateAddonModalState extends ConsumerState<CreateAddonModal> {
                                     AppHelpers.showCheckTopSnackBarDone(
                                       context,
                                       AppHelpers.getTranslation(
-                                          TrKeys.successfullyCreated),
+                                        TrKeys.successfullyCreated,
+                                      ),
                                     );
                                     addonsEvent.refreshAddons();
                                     context.router.popUntilRoot();

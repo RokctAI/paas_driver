@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -85,122 +85,119 @@ class _RestaurantPageState extends ConsumerState<RestaurantPage> {
             slivers: <Widget>[
               const ShopBanner(),
               SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    Consumer(
-                      builder: (context, ref, child) {
-                        final state = ref.watch(restaurantProvider);
-                        // base_sdk keeps the shop as raw JSON; typed state
-                        // first, cached JSON as fallback (legacy read the
-                        // typed LocalStorage.getShop()).
-                        final shopJson = LocalStorage.getShopJson();
-                        return ListView(
-                          physics: const NeverScrollableScrollPhysics(),
-                          padding: REdgeInsets.only(
-                            right: 16,
-                            left: 16,
-                            bottom: MediaQuery.paddingOf(context).bottom,
+                delegate: SliverChildListDelegate([
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final state = ref.watch(restaurantProvider);
+                      // base_sdk keeps the shop as raw JSON; typed state
+                      // first, cached JSON as fallback (legacy read the
+                      // typed LocalStorage.getShop()).
+                      final shopJson = LocalStorage.getShopJson();
+                      return ListView(
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: REdgeInsets.only(
+                          right: 16,
+                          left: 16,
+                          bottom: MediaQuery.paddingOf(context).bottom,
+                        ),
+                        shrinkWrap: true,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                RestaurantHelpers.truncate(
+                                  state.shop?.translation?.title ??
+                                      (shopJson?['translation']?['title']
+                                          as String?) ??
+                                      "",
+                                  16,
+                                ),
+                                style: AppStyle.interSemi(
+                                  size: 22.sp,
+                                  color: AppStyle.blackColor,
+                                ),
+                              ),
+                              Container(
+                                width: 4.w,
+                                height: 4.h,
+                                margin: REdgeInsets.symmetric(horizontal: 8),
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: AppStyle.textGrey,
+                                ),
+                              ),
+                              Icon(
+                                Remix.star_smile_fill,
+                                color: AppStyle.starColor,
+                                size: 20.r,
+                              ),
+                              4.horizontalSpace,
+                              Text(
+                                state.shop?.avgRate ?? '0.0',
+                                style: AppStyle.interNormal(
+                                  size: 12.sp,
+                                  color: AppStyle.blackColor,
+                                ),
+                              ),
+                              const Spacer(),
+                              Container(
+                                width: 22.w,
+                                height: 22.h,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: AppStyle.red,
+                                ),
+                                child: Icon(
+                                  Remix.percent_fill,
+                                  color: AppStyle.white,
+                                  size: 12.r,
+                                ),
+                              ),
+                              14.horizontalSpace,
+                              Container(
+                                width: 22.w,
+                                height: 22.h,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: AppStyle.primary,
+                                ),
+                                child: Icon(Remix.flashlight_fill, size: 16.r),
+                              ),
+                            ],
                           ),
-                          shrinkWrap: true,
-                          children: [
-                            Row(
+                          Text(
+                            '${state.shop?.translation?.description}',
+                            style: AppStyle.interNormal(
+                              size: 13.sp,
+                              color: AppStyle.blackColor,
+                            ),
+                          ),
+                          Container(
+                            height: 46.r,
+                            margin: EdgeInsets.only(top: 24.h, bottom: 10.h),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.r),
+                              border: Border.all(
+                                color: AppStyle.borderColor,
+                                width: 1.r,
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  RestaurantHelpers.truncate(
-                                    state.shop?.translation?.title ??
-                                        (shopJson?['translation']?['title']
-                                                as String?) ??
-                                        "",
-                                    16,
-                                  ),
-                                  style: AppStyle.interSemi(
-                                    size: 22.sp,
-                                    color: AppStyle.blackColor,
-                                  ),
-                                ),
-                                Container(
-                                  width: 4.w,
-                                  height: 4.h,
-                                  margin: REdgeInsets.symmetric(horizontal: 8),
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: AppStyle.textGrey,
-                                  ),
-                                ),
                                 Icon(
-                                  FlutterRemix.star_smile_fill,
-                                  color: AppStyle.starColor,
+                                  Remix.time_fill,
                                   size: 20.r,
+                                  color: AppStyle.blackColor,
                                 ),
-                                4.horizontalSpace,
-                                Text(
-                                  state.shop?.avgRate ?? '0.0',
-                                  style: AppStyle.interNormal(
-                                    size: 12.sp,
-                                    color: AppStyle.blackColor,
-                                  ),
-                                ),
-                                const Spacer(),
-                                Container(
-                                  width: 22.w,
-                                  height: 22.h,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: AppStyle.red,
-                                  ),
-                                  child: Icon(
-                                    FlutterRemix.percent_fill,
-                                    color: AppStyle.white,
-                                    size: 12.r,
-                                  ),
-                                ),
-                                14.horizontalSpace,
-                                Container(
-                                  width: 22.w,
-                                  height: 22.h,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: AppStyle.primary,
-                                  ),
-                                  child: Icon(
-                                    FlutterRemix.flashlight_fill,
-                                    size: 16.r,
-                                  ),
-                                )
-                              ],
-                            ),
-                            Text(
-                              '${state.shop?.translation?.description}',
-                              style: AppStyle.interNormal(
-                                size: 13.sp,
-                                color: AppStyle.blackColor,
-                              ),
-                            ),
-                            Container(
-                              height: 46.r,
-                              margin: EdgeInsets.only(top: 24.h, bottom: 10.h),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10.r),
-                                border: Border.all(
-                                  color: AppStyle.borderColor,
-                                  width: 1.r,
-                                ),
-                              ),
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    FlutterRemix.time_fill,
-                                    size: 20.r,
-                                    color: AppStyle.blackColor,
-                                  ),
-                                  10.horizontalSpace,
-                                  Builder(builder: (context) {
+                                10.horizontalSpace,
+                                Builder(
+                                  builder: (context) {
                                     final todayTime =
                                         RestaurantHelpers.workingTimeForToday(
-                                      state.shop,
-                                    );
+                                          state.shop,
+                                        );
                                     return RichText(
                                       text: TextSpan(
                                         text: todayTime == null
@@ -218,104 +215,105 @@ class _RestaurantPageState extends ConsumerState<RestaurantPage> {
                                               color: AppStyle.blackColor,
                                               size: 13.sp,
                                             ),
-                                          )
+                                          ),
                                         ],
                                       ),
                                     );
-                                  }),
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            height: 74.r,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.r),
+                              border: Border.all(color: AppStyle.borderColor),
+                            ),
+                            alignment: Alignment.center,
+                            child: Padding(
+                              padding: REdgeInsets.symmetric(horizontal: 24),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Remix.coins_fill,
+                                    size: 45.r,
+                                    color: AppStyle.blackColor,
+                                  ),
+                                  10.horizontalSpace,
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        AppHelpers.getTranslation(
+                                          TrKeys.balance,
+                                        ),
+                                        style: AppStyle.interNormal(
+                                          size: 14.sp,
+                                          color: AppStyle.blackColor,
+                                          letterSpacing: -0.3,
+                                        ),
+                                      ),
+                                      Text(
+                                        // Recorded backend gap: get_shop
+                                        // returns no seller wallet yet, so
+                                        // this reads the raw cached JSON
+                                        // (degrades to 0, nothing faked).
+                                        AppHelpers.numberFormat(
+                                          number:
+                                              shopJson?['seller']?['wallet']?['price']
+                                                  as num?,
+                                          symbol:
+                                              shopJson?['seller']?['wallet']?['symbol']
+                                                  as String?,
+                                        ),
+                                        style: AppStyle.interSemi(
+                                          size: 18.sp,
+                                          color: AppStyle.blackColor,
+                                          letterSpacing: -0.3,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  Container(
+                                    width: 1.r,
+                                    height: 46.r,
+                                    color: AppStyle.blackColor.withOpacity(0.1),
+                                  ),
+                                  const Spacer(),
+                                  Icon(
+                                    Remix.bar_chart_line,
+                                    size: 24.r,
+                                    color: AppStyle.blackColor,
+                                  ),
                                 ],
                               ),
                             ),
-                            Container(
-                              height: 74.r,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10.r),
-                                border:
-                                    Border.all(color: AppStyle.borderColor),
-                              ),
-                              alignment: Alignment.center,
-                              child: Padding(
-                                padding: REdgeInsets.symmetric(horizontal: 24),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      FlutterRemix.coins_fill,
-                                      size: 45.r,
-                                      color: AppStyle.blackColor,
-                                    ),
-                                    10.horizontalSpace,
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          AppHelpers.getTranslation(
-                                              TrKeys.balance),
-                                          style: AppStyle.interNormal(
-                                            size: 14.sp,
-                                            color: AppStyle.blackColor,
-                                            letterSpacing: -0.3,
-                                          ),
-                                        ),
-                                        Text(
-                                          // Recorded backend gap: get_shop
-                                          // returns no seller wallet yet, so
-                                          // this reads the raw cached JSON
-                                          // (degrades to 0, nothing faked).
-                                          AppHelpers.numberFormat(
-                                            number: shopJson?['seller']
-                                                    ?['wallet']?['price']
-                                                as num?,
-                                            symbol: shopJson?['seller']
-                                                    ?['wallet']?['symbol']
-                                                as String?,
-                                          ),
-                                          style: AppStyle.interSemi(
-                                            size: 18.sp,
-                                            color: AppStyle.blackColor,
-                                            letterSpacing: -0.3,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const Spacer(),
-                                    Container(
-                                      width: 1.r,
-                                      height: 46.r,
-                                      color:
-                                          AppStyle.blackColor.withOpacity(0.1),
-                                    ),
-                                    const Spacer(),
-                                    Icon(
-                                      FlutterRemix.bar_chart_line,
-                                      size: 24.r,
-                                      color: AppStyle.blackColor,
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                            16.verticalSpace,
-                            _sections(context),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                          ),
+                          16.verticalSpace,
+                          _sections(context),
+                        ],
+                      );
+                    },
+                  ),
+                ]),
               ),
             ],
           ),
-          Consumer(builder: (context, ref, child) {
-            return LogoutButton(
-              isOpen: ref.watch(restaurantProvider).shop?.open ?? false,
-              onChange: () {
-                ref.read(restaurantProvider.notifier).setOnlineOffline();
-              },
-            );
-          }),
+          Consumer(
+            builder: (context, ref, child) {
+              return LogoutButton(
+                isOpen: ref.watch(restaurantProvider).shop?.open ?? false,
+                onChange: () {
+                  ref.read(restaurantProvider.notifier).setOnlineOffline();
+                },
+              );
+            },
+          ),
         ],
       ),
     );
@@ -328,7 +326,7 @@ class _RestaurantPageState extends ConsumerState<RestaurantPage> {
         20.verticalSpace,
         SectionsItem(
           title: AppHelpers.getTranslation(TrKeys.restaurantSettings),
-          icon: FlutterRemix.restaurant_line,
+          icon: Remix.restaurant_line,
           onTap: () => AppHelpers.showCustomModalBottomSheet(
             paddingTop: MediaQuery.paddingOf(context).top + 60,
             context: context,
@@ -338,30 +336,30 @@ class _RestaurantPageState extends ConsumerState<RestaurantPage> {
         ),
         SectionsItem(
           title: AppHelpers.getTranslation(TrKeys.income),
-          icon: FlutterRemix.line_chart_line,
+          icon: Remix.line_chart_line,
           onTap: () => context.pushRoute(const ManagerIncomeRoute()),
         ),
         SectionsItem(
           title: AppHelpers.getTranslation(TrKeys.myOrderHistory),
-          icon: FlutterRemix.history_line,
+          icon: Remix.history_line,
           onTap: () => context.pushRoute(const ManagerOrderHistoryRoute()),
         ),
         SectionsItem(
           title: AppHelpers.getTranslation(TrKeys.notifications),
-          icon: FlutterRemix.notification_2_line,
+          icon: Remix.notification_2_line,
           onTap: () => context.pushRoute(const NotificationListRoute()),
         ),
         // Park-and-surface: records whose offline push the backend rejected,
         // with per-record retry/discard (merchants_sdk's own installed page).
         SectionsItem(
           title: AppHelpers.getTranslation(TrKeys.syncIssues),
-          icon: FlutterRemix.refresh_line,
+          icon: Remix.refresh_line,
           onTap: () => context.pushRoute(const ManagerSyncIssuesRoute()),
         ),
         if (!AppConstants.isDemo)
           SectionsItem(
             title: AppHelpers.getTranslation(TrKeys.deleteAccount),
-            icon: FlutterRemix.logout_box_r_line,
+            icon: Remix.logout_box_r_line,
             onTap: () {
               AppHelpers.showCustomModalBottomSheet(
                 context: context,
@@ -370,7 +368,7 @@ class _RestaurantPageState extends ConsumerState<RestaurantPage> {
               );
             },
           ),
-        100.verticalSpace
+        100.verticalSpace,
       ],
     );
   }

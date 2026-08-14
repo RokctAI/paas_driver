@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -44,7 +44,8 @@ class _AddCategoryModalState extends State<AddCategoryModal> {
                 children: [
                   const ModalDrag(),
                   TitleAndIcon(
-                      title: AppHelpers.getTranslation(TrKeys.addNewCategory)),
+                    title: AppHelpers.getTranslation(TrKeys.addNewCategory),
+                  ),
                   24.verticalSpace,
                   Consumer(
                     builder: (context, ref, child) {
@@ -55,7 +56,7 @@ class _AddCategoryModalState extends State<AddCategoryModal> {
                         label:
                             '${AppHelpers.getTranslation(TrKeys.subShopCategory)}*',
                         suffixIcon: Icon(
-                          FlutterRemix.arrow_down_s_line,
+                          Remix.arrow_down_s_line,
                           color: AppStyle.blackColor,
                           size: 18.r,
                         ),
@@ -64,9 +65,7 @@ class _AddCategoryModalState extends State<AddCategoryModal> {
                         onTap: () => AppHelpers.showCustomModalBottomSheet(
                           paddingTop: MediaQuery.paddingOf(context).top + 100.h,
                           context: context,
-                          modal: const FoodCategoriesModal(
-                            isSubCategory: true,
-                          ),
+                          modal: const FoodCategoriesModal(isSubCategory: true),
                           isDarkMode: false,
                         ),
                       );
@@ -102,29 +101,32 @@ class _AddCategoryModalState extends State<AddCategoryModal> {
                                 .updateCategories();
                             Navigator.pop(context);
                             AppHelpers.showAlertDialog(
-                                context: context,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      AppHelpers.getTranslation(
-                                          TrKeys.thanksForCategory),
-                                      style: AppStyle.interNormal(),
-                                      textAlign: TextAlign.center,
+                              context: context,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    AppHelpers.getTranslation(
+                                      TrKeys.thanksForCategory,
                                     ),
-                                    16.verticalSpace,
-                                    if (AppHelpers.getAppPhone() != null)
-                                      CustomButton(
-                                          title: AppHelpers.getAppPhone() ?? "",
-                                          onPressed: () {
-                                            final Uri launchUri = Uri(
-                                              scheme: 'tel',
-                                              path: AppHelpers.getAppPhone(),
-                                            );
-                                            launchUrl(launchUri);
-                                          })
-                                  ],
-                                ));
+                                    style: AppStyle.interNormal(),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  16.verticalSpace,
+                                  if (AppHelpers.getAppPhone() != null)
+                                    CustomButton(
+                                      title: AppHelpers.getAppPhone() ?? "",
+                                      onPressed: () {
+                                        final Uri launchUri = Uri(
+                                          scheme: 'tel',
+                                          path: AppHelpers.getAppPhone(),
+                                        );
+                                        launchUrl(launchUri);
+                                      },
+                                    ),
+                                ],
+                              ),
+                            );
                           },
                         );
                       }

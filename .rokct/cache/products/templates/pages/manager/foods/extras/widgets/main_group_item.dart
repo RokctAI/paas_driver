@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -32,7 +32,7 @@ class MainGroupItem extends StatelessWidget {
                 style: AppStyle.interNormal(),
               ),
               Icon(
-                FlutterRemix.arrow_right_s_line,
+                Remix.arrow_right_s_line,
                 size: 22.r,
                 color: AppStyle.blackColor,
               ),

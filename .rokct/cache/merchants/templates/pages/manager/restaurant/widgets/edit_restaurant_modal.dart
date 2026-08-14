@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
@@ -62,7 +62,8 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
             PhoneNumber? shopNumber;
             try {
               shopNumber = PhoneNumber.fromCompleteNumber(
-                  completeNumber: "+${state.shop?.phone?.replaceAll('+', "")}");
+                completeNumber: "+${state.shop?.phone?.replaceAll('+', "")}",
+              );
             } catch (e) {
               debugPrint(e.toString());
             }
@@ -86,7 +87,8 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                 const ModalDrag(),
                                 TitleAndIcon(
                                   title: AppHelpers.getTranslation(
-                                      TrKeys.restaurantSettings),
+                                    TrKeys.restaurantSettings,
+                                  ),
                                 ),
                                 24.verticalSpace,
                                 HorizontalImagePicker(
@@ -106,11 +108,12 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                           try {
                                             file = await ImagePicker()
                                                 .pickImage(
-                                                    source:
-                                                        ImageSource.gallery);
+                                                  source: ImageSource.gallery,
+                                                );
                                           } catch (ex) {
                                             debugPrint(
-                                                '===> trying to select image $ex');
+                                              '===> trying to select image $ex',
+                                            );
                                           }
                                           if (file != null) {
                                             event.setLogoImageFile(file.path);
@@ -123,22 +126,25 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                                 ? BlurWrap(
                                                     radius:
                                                         BorderRadius.circular(
-                                                            16),
+                                                          16,
+                                                        ),
                                                     child: Container(
                                                       width: 50.r,
                                                       height: 50.r,
-                                                      color: AppStyle
-                                                          .blackColor
+                                                      color: AppStyle.blackColor
                                                           .withOpacity(0.27),
                                                       alignment:
                                                           Alignment.center,
                                                       child: ClipRRect(
                                                         borderRadius:
-                                                            BorderRadius
-                                                                .circular(20.r),
+                                                            BorderRadius.circular(
+                                                              20.r,
+                                                            ),
                                                         child: Image.file(
-                                                          File(state
-                                                              .logoImageFile!),
+                                                          File(
+                                                            state
+                                                                .logoImageFile!,
+                                                          ),
                                                           width: 40.r,
                                                           height: 40.r,
                                                           fit: BoxFit.cover,
@@ -152,15 +158,14 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                                     imageUrl:
                                                         state.shop?.logoImg,
                                                     borderRadius: 16,
-                                                    bgColor: AppStyle
-                                                        .blackColor
+                                                    bgColor: AppStyle.blackColor
                                                         .withOpacity(0.27),
                                                   ),
                                             Icon(
-                                              FlutterRemix.camera_fill,
+                                              Remix.camera_fill,
                                               color: AppStyle.white,
                                               size: 20.r,
-                                            )
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -171,7 +176,8 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                         initialText:
                                             state.shop?.translation?.title,
                                         label: AppHelpers.getTranslation(
-                                            TrKeys.restaurantName),
+                                          TrKeys.restaurantName,
+                                        ),
                                         onChanged: event.setTitle,
                                         validator:
                                             AppValidators.isNotEmptyValidator,
@@ -184,7 +190,8 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                   initialText:
                                       state.shop?.translation?.description,
                                   label: AppHelpers.getTranslation(
-                                      TrKeys.description),
+                                    TrKeys.description,
+                                  ),
                                   onChanged: event.setDescription,
                                   validator: AppValidators.isNotEmptyValidator,
                                 ),
@@ -201,64 +208,72 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                               .isNumberLengthAlwaysSame &&
                                           (s?.isValidNumber() ?? true)) {
                                         return AppHelpers.getTranslation(
-                                            TrKeys.phoneNumberIsNotValid);
+                                          TrKeys.phoneNumberIsNotValid,
+                                        );
                                       }
                                       return null;
                                     },
                                     keyboardType: TextInputType.phone,
                                     initialCountryCode: shopNumber == null
                                         ? (shopNumber?.isValidNumber() ?? false)
-                                            ? shopNumber?.countryISOCode
-                                            : AppConstants.countryCodeISO
+                                              ? shopNumber?.countryISOCode
+                                              : AppConstants.countryCodeISO
                                         : AppConstants.countryCodeISO,
                                     initialValue: shopNumber == null
                                         ? (shopNumber?.isValidNumber() ?? false)
-                                            ? shopNumber?.number
-                                            : state.shop?.phone
+                                              ? shopNumber?.number
+                                              : state.shop?.phone
                                         : "",
                                     invalidNumberMessage:
                                         AppHelpers.getTranslation(
-                                            TrKeys.phoneNumberIsNotValid),
+                                          TrKeys.phoneNumberIsNotValid,
+                                        ),
                                     inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly
+                                      FilteringTextInputFormatter.digitsOnly,
                                     ],
                                     showCountryFlag: AppConstants.showFlag,
                                     showDropdownIcon:
                                         AppConstants.showArrowIcon,
                                     autovalidateMode:
                                         AppConstants.isNumberLengthAlwaysSame
-                                            ? AutovalidateMode.onUserInteraction
-                                            : AutovalidateMode.disabled,
+                                        ? AutovalidateMode.onUserInteraction
+                                        : AutovalidateMode.disabled,
                                     textAlignVertical: TextAlignVertical.center,
                                     decoration: InputDecoration(
                                       counterText: '',
                                       enabledBorder: UnderlineInputBorder(
-                                          borderSide: BorderSide.merge(
-                                              const BorderSide(
-                                                  color: AppStyle
-                                                      .differBorderColor),
-                                              const BorderSide(
-                                                  color: AppStyle
-                                                      .differBorderColor))),
+                                        borderSide: BorderSide.merge(
+                                          const BorderSide(
+                                            color: AppStyle.differBorderColor,
+                                          ),
+                                          const BorderSide(
+                                            color: AppStyle.differBorderColor,
+                                          ),
+                                        ),
+                                      ),
                                       errorBorder: UnderlineInputBorder(
-                                          borderSide: BorderSide.merge(
-                                              const BorderSide(
-                                                  color: AppStyle
-                                                      .differBorderColor),
-                                              const BorderSide(
-                                                  color: AppStyle
-                                                      .differBorderColor))),
+                                        borderSide: BorderSide.merge(
+                                          const BorderSide(
+                                            color: AppStyle.differBorderColor,
+                                          ),
+                                          const BorderSide(
+                                            color: AppStyle.differBorderColor,
+                                          ),
+                                        ),
+                                      ),
                                       border: const UnderlineInputBorder(),
                                       focusedErrorBorder:
                                           const UnderlineInputBorder(),
                                       disabledBorder: UnderlineInputBorder(
-                                          borderSide: BorderSide.merge(
-                                              const BorderSide(
-                                                  color: AppStyle
-                                                      .differBorderColor),
-                                              const BorderSide(
-                                                  color: AppStyle
-                                                      .differBorderColor))),
+                                        borderSide: BorderSide.merge(
+                                          const BorderSide(
+                                            color: AppStyle.differBorderColor,
+                                          ),
+                                          const BorderSide(
+                                            color: AppStyle.differBorderColor,
+                                          ),
+                                        ),
+                                      ),
                                       focusedBorder:
                                           const UnderlineInputBorder(),
                                     ),
@@ -267,7 +282,8 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                   UnderlinedTextField(
                                     initialText: state.shop?.phone,
                                     label: AppHelpers.getTranslation(
-                                        TrKeys.phoneNumber),
+                                      TrKeys.phoneNumber,
+                                    ),
                                     onChanged: event.setPhone,
                                     validator:
                                         AppValidators.isNotEmptyValidator,
@@ -330,7 +346,7 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                 child: Row(
                                   children: [
                                     Icon(
-                                      FlutterRemix.time_fill,
+                                      Remix.time_fill,
                                       size: 18.r,
                                       color: AppStyle.blackColor,
                                     ),
@@ -341,7 +357,8 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                       children: [
                                         Text(
                                           AppHelpers.getTranslation(
-                                              TrKeys.workingHours),
+                                            TrKeys.workingHours,
+                                          ),
                                           style: AppStyle.interNormal(
                                             size: 12.sp,
                                             color: AppStyle.blackColor,
@@ -355,26 +372,30 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                             ...(state.shop?.shopWorkingDays ??
                                                     [])
                                                 .map(
-                                              (ShopWorkingDay day) => Padding(
-                                                padding:
-                                                    REdgeInsets.only(right: 4),
-                                                child: SmallWeekdayItem(
-                                                  isSelected:
-                                                      !(day.disabled ?? false),
-                                                  day: day,
-                                                  size: 30,
-                                                  fontSize: 11,
-                                                  borderRadius: 6,
+                                                  (ShopWorkingDay day) =>
+                                                      Padding(
+                                                        padding:
+                                                            REdgeInsets.only(
+                                                              right: 4,
+                                                            ),
+                                                        child: SmallWeekdayItem(
+                                                          isSelected:
+                                                              !(day.disabled ??
+                                                                  false),
+                                                          day: day,
+                                                          size: 30,
+                                                          fontSize: 11,
+                                                          borderRadius: 6,
+                                                        ),
+                                                      ),
                                                 ),
-                                              ),
-                                            ),
                                           ],
                                         ),
                                       ],
                                     ),
                                     const Spacer(),
                                     Icon(
-                                      FlutterRemix.arrow_right_s_line,
+                                      Remix.arrow_right_s_line,
                                       size: 24.r,
                                       color: AppStyle.blackColor,
                                     ),
@@ -385,22 +406,21 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                           ),
                           const Divider(),
                           GestureDetector(
-                            onTap: () => context
-                                .pushRoute(const ManagerDeliveryZoneRoute()),
+                            onTap: () => context.pushRoute(
+                              const ManagerDeliveryZoneRoute(),
+                            ),
                             child: Container(
                               color: AppStyle.transparent,
                               child: Padding(
                                 padding: REdgeInsets.all(16),
                                 child: Row(
                                   children: [
-                                    Icon(
-                                      FlutterRemix.navigation_fill,
-                                      size: 20.r,
-                                    ),
+                                    Icon(Remix.navigation_fill, size: 20.r),
                                     8.horizontalSpace,
                                     Text(
                                       AppHelpers.getTranslation(
-                                          TrKeys.deliveryZone),
+                                        TrKeys.deliveryZone,
+                                      ),
                                       style: AppStyle.interNormal(
                                         size: 12.sp,
                                         color: AppStyle.blackColor,
@@ -408,7 +428,7 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                     ),
                                     const Spacer(),
                                     Icon(
-                                      FlutterRemix.arrow_right_s_line,
+                                      Remix.arrow_right_s_line,
                                       size: 24.r,
                                       color: AppStyle.blackColor,
                                     ),
@@ -427,8 +447,10 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                               onPressed: () {
                                 if (_formKey.currentState?.validate() ??
                                     false) {
-                                  event.updateShop(context,
-                                      updateSuccess: context.maybePop);
+                                  event.updateShop(
+                                    context,
+                                    updateSuccess: context.maybePop,
+                                  );
                                 }
                               },
                             ),

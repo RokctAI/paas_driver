@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/presentation/components/helper/common_image.dart';
@@ -28,17 +28,16 @@ class ImageDialog extends StatelessWidget {
               ),
             ),
             GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Padding(
-                  padding: REdgeInsets.all(4),
-                  child: const Icon(FlutterRemix.close_circle_line),
-                )),
+              onTap: () => Navigator.pop(context),
+              child: Padding(
+                padding: REdgeInsets.all(4),
+                child: const Icon(Remix.close_circle_line),
+              ),
+            ),
           ],
         ),
         12.verticalSpace,
-        CommonImage(
-          url: img,
-        ),
+        CommonImage(url: img),
       ],
     );
   }

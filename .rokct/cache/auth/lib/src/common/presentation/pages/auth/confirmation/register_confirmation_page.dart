@@ -254,6 +254,8 @@ class _RegisterConfirmationPageState
                                         ? notifier.confirmCode(
                                             context,
                                             ref,
+                                            isDeferredOtp:
+                                                widget.isDeferredOtp,
                                           ) // Pass ref here
                                         : notifier.confirmCodeWithPhone(
                                             context: context,
@@ -261,6 +263,8 @@ class _RegisterConfirmationPageState
                                                 widget.verificationId,
                                             ref: ref, // Pass ref here
                                             useBackendOtp:
+                                                widget.isDeferredOtp,
+                                            isDeferredOtp:
                                                 widget.isDeferredOtp,
                                             onSuccess: widget.editPhone
                                                 ? () {

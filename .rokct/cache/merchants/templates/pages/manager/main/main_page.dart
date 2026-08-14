@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:proste_indexed_stack/proste_indexed_stack.dart';
@@ -78,15 +78,11 @@ class _MainPageState extends State<MainPage> {
         child: Scaffold(
           resizeToAvoidBottomInset: false,
           body: Consumer(
-            builder: (
-              BuildContext context,
-              WidgetRef ref,
-              Widget? child,
-            ) =>
+            builder: (BuildContext context, WidgetRef ref, Widget? child) =>
                 ProsteIndexedStack(
-              index: ref.watch(mainProvider).selectedIndex,
-              children: list,
-            ),
+                  index: ref.watch(mainProvider).selectedIndex,
+                  children: list,
+                ),
           ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
@@ -102,8 +98,9 @@ class _MainPageState extends State<MainPage> {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 500),
                       decoration: BoxDecoration(
-                        color: AppStyle.bottomNavigationBarColor
-                            .withOpacity(0.6),
+                        color: AppStyle.bottomNavigationBarColor.withOpacity(
+                          0.6,
+                        ),
                         borderRadius: BorderRadius.circular(100.r),
                       ),
                       height: 60.r,
@@ -121,24 +118,21 @@ class _MainPageState extends State<MainPage> {
                               selectItem: () => event.selectIndex(0),
                               currentIndex: state.selectedIndex,
                               index: 0,
-                              selectIcon: FlutterRemix.file_list_2_fill,
-                              unSelectIcon: FlutterRemix.file_list_2_line,
+                              selectIcon: Remix.file_list_2_fill,
+                              unSelectIcon: Remix.file_list_2_line,
                             ),
                             BottomNavigatorItem(
                               isScrolling: state.isScrolling,
                               selectItem: () => event.selectIndex(1),
                               index: 1,
                               currentIndex: state.selectedIndex,
-                              selectIcon: FlutterRemix.restaurant_fill,
-                              unSelectIcon: FlutterRemix.restaurant_line,
+                              selectIcon: Remix.restaurant_fill,
+                              unSelectIcon: Remix.restaurant_line,
                             ),
-                            _profileItem(
-                              () {
-                                event.selectIndex(2);
-                                event.changeScrolling(false);
-                              },
-                              state.selectedIndex,
-                            ),
+                            _profileItem(() {
+                              event.selectIndex(2);
+                              event.changeScrolling(false);
+                            }, state.selectedIndex),
                           ],
                         ),
                       ),
@@ -159,8 +153,7 @@ class _MainPageState extends State<MainPage> {
                                 }
                               },
                               child: Container(
-                                margin:
-                                    EdgeInsetsDirectional.only(start: 8.r),
+                                margin: EdgeInsetsDirectional.only(start: 8.r),
                                 width: 56.r,
                                 height: 56.r,
                                 // Not const: AppStyle.primary is a getter
@@ -171,7 +164,7 @@ class _MainPageState extends State<MainPage> {
                                   color: AppStyle.primary,
                                 ),
                                 child: Icon(
-                                  FlutterRemix.add_line,
+                                  Remix.add_line,
                                   size: 26.r,
                                   color: AppStyle.blackColor,
                                 ),

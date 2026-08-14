@@ -1,14 +1,12 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:${package}/presentation/pages/profile/courier_statistics_provider.dart';
 import 'package:${package}/presentation/pages/profile/widgets/edit_profile_modal.dart';
-
-
 
 import 'package:${package}/presentation/routes/app_router.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -67,11 +65,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         ref.watch(profileImageProvider);
                         return DriverAvatar(
                           imageUrl: LocalStorage.getUser()?.img,
-                          // base_sdk's ProfileData does not carry the courier
-                          // rating the legacy host model had; follow-up: add
-                          // `rate` to base ProfileData (core PR), then read
-                          // it here again.
-                          rate: null,
+                          rate: LocalStorage.getUser()?.rate,
                         );
                       },
                     ),
@@ -107,7 +101,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           );
                         },
                         child: Icon(
-                          FlutterRemix.logout_circle_r_line,
+                          Remix.logout_circle_r_line,
                           size: 24.r,
                           color: AppStyle.black,
                         ),
@@ -140,21 +134,23 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               Text(
                                 AppHelpers.getTranslation(TrKeys.balance),
                                 style: AppStyle.interNormal(
-                                    size: 12.sp, letterSpacing: -0.3),
+                                  size: 12.sp,
+                                  letterSpacing: -0.3,
+                                ),
                               ),
                               Text(
                                 AppHelpers.numberFormat(
                                   number: LocalStorage.getUser()?.wallet?.price,
                                 ),
                                 style: AppStyle.interSemi(
-                                    size: 14.sp, letterSpacing: -0.3),
+                                  size: 14.sp,
+                                  letterSpacing: -0.3,
+                                ),
                               ),
                             ],
                           ),
                           const Spacer(),
-                          const VerticalDivider(
-                            color: AppStyle.borderColor,
-                          ),
+                          const VerticalDivider(color: AppStyle.borderColor),
                           10.horizontalSpace,
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,26 +158,31 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               Text(
                                 AppHelpers.getTranslation(TrKeys.lastProfit),
                                 style: AppStyle.interNormal(
-                                    size: 12.sp, letterSpacing: -0.3),
+                                  size: 12.sp,
+                                  letterSpacing: -0.3,
+                                ),
                               ),
                               Text(
                                 AppHelpers.numberFormat(
-                                  number: ref
+                                  number:
+                                      ref
                                           .watch(
-                                              courierProfileStatisticsProvider)
+                                            courierProfileStatisticsProvider,
+                                          )
                                           .statistics
                                           ?.data
                                           ?.totalPrice ??
                                       0,
                                 ),
                                 style: AppStyle.interSemi(
-                                    size: 14.sp,
-                                    letterSpacing: -0.3,
-                                    color: AppStyle.primary),
+                                  size: 14.sp,
+                                  letterSpacing: -0.3,
+                                  color: AppStyle.primary,
+                                ),
                               ),
                             ],
                           ),
-                          32.horizontalSpace
+                          32.horizontalSpace,
                         ],
                       ),
                     ),
@@ -195,10 +196,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     padding: EdgeInsets.all(12.r),
                     child: Row(
                       children: [
-                        Icon(
-                          FlutterRemix.checkbox_circle_fill,
-                          size: 30.r,
-                        ),
+                        Icon(Remix.checkbox_circle_fill, size: 30.r),
                         10.horizontalSpace,
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,19 +204,24 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             Text(
                               AppHelpers.getTranslation(TrKeys.deliveredOrder),
                               style: AppStyle.interNormal(
-                                  size: 12.sp, letterSpacing: -0.3),
+                                size: 12.sp,
+                                letterSpacing: -0.3,
+                              ),
                             ),
                             Text(
                               (ref
                                           .watch(
-                                              courierProfileStatisticsProvider)
+                                            courierProfileStatisticsProvider,
+                                          )
                                           .statistics
                                           ?.data
                                           ?.deliveredOrdersCount ??
                                       0)
                                   .toString(),
                               style: AppStyle.interSemi(
-                                  size: 14.sp, letterSpacing: -0.3),
+                                size: 14.sp,
+                                letterSpacing: -0.3,
+                              ),
                             ),
                           ],
                         ),
@@ -237,7 +240,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         //     child: Row(
                         //       children: [
                         //         Icon(
-                        //           FlutterRemix.close_circle_line,
+                        //           Remix.close_circle_line,
                         //           size: 30.r,
                         //           color: AppStyle.red,
                         //         ),
@@ -270,7 +273,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         //     ),
                         //   ),
                         // ),
-                        24.horizontalSpace
+                        24.horizontalSpace,
                       ],
                     ),
                   ),
@@ -278,7 +281,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   20.verticalSpace,
                   SectionsItem(
                     title: AppHelpers.getTranslation(TrKeys.profileSettings),
-                    icon: FlutterRemix.user_settings_line,
+                    icon: Remix.user_settings_line,
                     onTap: () {
                       AppHelpers.showCustomModalBottomSheet(
                         paddingTop: MediaQuery.paddingOf(context).top + 32.h,
@@ -290,7 +293,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                   SectionsItem(
                     title: AppHelpers.getTranslation(TrKeys.deliveryZone),
-                    icon: FlutterRemix.navigation_fill,
+                    icon: Remix.navigation_fill,
                     onTap: () async {
                       await context.pushRoute(const DriverDeliveryZoneRoute());
                       ref
@@ -300,41 +303,41 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                   SectionsItem(
                     title: AppHelpers.getTranslation(TrKeys.orders),
-                    icon: FlutterRemix.order_play_line,
+                    icon: Remix.order_play_line,
                     onTap: () {
                       context.pushRoute(const OrdersRoute());
                     },
                   ),
                   SectionsItem(
                     title: AppHelpers.getTranslation(TrKeys.parcels),
-                    icon: FlutterRemix.archive_line,
+                    icon: Remix.archive_line,
                     onTap: () {
                       context.pushRoute(const ParcelsRoute());
                     },
                   ),
                   SectionsItem(
                     title: AppHelpers.getTranslation(TrKeys.notifications),
-                    icon: FlutterRemix.notification_2_line,
+                    icon: Remix.notification_2_line,
                     onTap: () =>
                         context.pushRoute(const NotificationListRoute()),
                   ),
                   SectionsItem(
                     title: AppHelpers.getTranslation(TrKeys.orderHistory),
-                    icon: FlutterRemix.history_line,
+                    icon: Remix.history_line,
                     onTap: () {
                       context.pushRoute(const OrderHistoryRoute());
                     },
                   ),
                   SectionsItem(
                     title: AppHelpers.getTranslation(TrKeys.parcelHistory),
-                    icon: FlutterRemix.folder_history_fill,
+                    icon: Remix.folder_history_fill,
                     onTap: () {
                       context.pushRoute(const ParcelHistoryRoute());
                     },
                   ),
                   SectionsItem(
                     title: AppHelpers.getTranslation(TrKeys.income),
-                    icon: FlutterRemix.line_chart_line,
+                    icon: Remix.line_chart_line,
                     onTap: () {
                       context.pushRoute(const DriverIncomeRoute());
                     },
@@ -343,7 +346,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     builder: (context, ref, child) {
                       return SectionsItem(
                         title: AppHelpers.getTranslation(TrKeys.language),
-                        icon: FlutterRemix.global_line,
+                        icon: Remix.global_line,
                         onTap: () {
                           AppHelpers.showCustomModalBottomSheet(
                             isDismissible: true,
@@ -366,7 +369,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   if (!AppConstants.isDemo)
                     SectionsItem(
                       title: AppHelpers.getTranslation(TrKeys.deleteAccount),
-                      icon: FlutterRemix.logout_box_r_line,
+                      icon: Remix.logout_box_r_line,
                       onTap: () {
                         AppHelpers.showCustomModalBottomSheet(
                           context: context,
@@ -378,7 +381,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   100.verticalSpace,
                 ],
               ),
-            )
+            ),
           ],
         ),
         floatingActionButtonLocation:
@@ -403,12 +406,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     await launchUrl(launchUri);
                   },
                   icon: Icon(
-                    FlutterRemix.chat_smile_2_fill,
+                    Remix.chat_smile_2_fill,
                     color: AppStyle.white,
                     size: 20.r,
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -416,63 +419,63 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-// Widget _notifications(BuildContext context) {
-//   return Column(
-//     children: [
-//       24.verticalSpace,
-//       Row(
-//         children: [
-//           Container(
-//             decoration: const BoxDecoration(
-//               color: AppStyle.primary,
-//               shape: BoxShape.circle,
-//             ),
-//             height: 30.h,
-//             width: 30.w,
-//             child: Center(
-//               child: Text(
-//                 "4",
-//                 style: AppStyle.interSemi(size: 14.sp, color: AppStyle.blackColor),
-//               ),
-//             ),
-//           ),
-//           12.horizontalSpace,
-//           Text(
-//             AppHelpers.getTranslation(TrKeys.notifications),
-//             style: AppStyle.interSemi(size: 18.sp, color: AppStyle.blackColor),
-//           ),
-//           const Spacer(),
-//           GestureDetector(
-//             onTap: () {
-//               context.pushRoute(const ListNotificationRoute());
-//             },
-//             child: Padding(
-//               padding: const EdgeInsets.all(4.0),
-//               child: Text(
-//                 AppHelpers.getTranslation(TrKeys.seeAll),
-//                 style: AppStyle.interNormal(size: 14.sp, color: AppStyle.blue),
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//       16.verticalSpace,
-//       SizedBox(
-//         height: 136.h,
-//         child: ListView.builder(
-//           scrollDirection: Axis.horizontal,
-//           itemCount: 4,
-//           physics: const BouncingScrollPhysics(),
-//           itemBuilder: (context, index) {
-//             return const NotificationItem(
-//               date: "June 24",
-//               text: "Check your settings you have notifications turned off",
-//             );
-//           },
-//         ),
-//       ),
-//       40.verticalSpace,
-//     ],
-//   );
-// }
+  // Widget _notifications(BuildContext context) {
+  //   return Column(
+  //     children: [
+  //       24.verticalSpace,
+  //       Row(
+  //         children: [
+  //           Container(
+  //             decoration: const BoxDecoration(
+  //               color: AppStyle.primary,
+  //               shape: BoxShape.circle,
+  //             ),
+  //             height: 30.h,
+  //             width: 30.w,
+  //             child: Center(
+  //               child: Text(
+  //                 "4",
+  //                 style: AppStyle.interSemi(size: 14.sp, color: AppStyle.blackColor),
+  //               ),
+  //             ),
+  //           ),
+  //           12.horizontalSpace,
+  //           Text(
+  //             AppHelpers.getTranslation(TrKeys.notifications),
+  //             style: AppStyle.interSemi(size: 18.sp, color: AppStyle.blackColor),
+  //           ),
+  //           const Spacer(),
+  //           GestureDetector(
+  //             onTap: () {
+  //               context.pushRoute(const ListNotificationRoute());
+  //             },
+  //             child: Padding(
+  //               padding: const EdgeInsets.all(4.0),
+  //               child: Text(
+  //                 AppHelpers.getTranslation(TrKeys.seeAll),
+  //                 style: AppStyle.interNormal(size: 14.sp, color: AppStyle.blue),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //       16.verticalSpace,
+  //       SizedBox(
+  //         height: 136.h,
+  //         child: ListView.builder(
+  //           scrollDirection: Axis.horizontal,
+  //           itemCount: 4,
+  //           physics: const BouncingScrollPhysics(),
+  //           itemBuilder: (context, index) {
+  //             return const NotificationItem(
+  //               date: "June 24",
+  //               text: "Check your settings you have notifications turned off",
+  //             );
+  //           },
+  //         ),
+  //       ),
+  //       40.verticalSpace,
+  //     ],
+  //   );
+  // }
 }

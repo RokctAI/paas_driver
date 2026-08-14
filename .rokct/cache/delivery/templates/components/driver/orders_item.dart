@@ -1,11 +1,10 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.dart';
-
 
 import 'package:base_sdk/src/presentation/components/helper/shimmer.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -32,15 +31,16 @@ class OrdersItem extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         AppHelpers.showCustomModalBottomSheet(
-            paddingTop: MediaQuery.paddingOf(context).top,
-            context: context,
-            radius: 12,
-            modal: OrderDetail(
-              isOrder: isOrder,
-              order: order,
-              isActiveButton: isActiveButton,
-            ),
-            isDarkMode: true);
+          paddingTop: MediaQuery.paddingOf(context).top,
+          context: context,
+          radius: 12,
+          modal: OrderDetail(
+            isOrder: isOrder,
+            order: order,
+            isActiveButton: isActiveButton,
+          ),
+          isDarkMode: true,
+        );
       },
       child: Container(
         width: double.infinity,
@@ -64,16 +64,15 @@ class OrdersItem extends StatelessWidget {
                         height: 32.r,
                         width: 32.r,
                         decoration: const BoxDecoration(
-                            color: AppStyle.white, shape: BoxShape.circle),
+                          color: AppStyle.white,
+                          shape: BoxShape.circle,
+                        ),
                         child: ClipOval(
                           child: CachedNetworkImage(
                             imageUrl: "${order.shop?.logoImg}",
                             fit: BoxFit.cover,
                             progressIndicatorBuilder: (context, url, progress) {
-                              return ImageShimmer(
-                                isCircle: true,
-                                size: 32.r,
-                              );
+                              return ImageShimmer(isCircle: true, size: 32.r);
                             },
                             errorWidget: (context, url, error) {
                               return Container(
@@ -85,7 +84,7 @@ class OrdersItem extends StatelessWidget {
                                 ),
                                 alignment: Alignment.center,
                                 child: const Icon(
-                                  FlutterRemix.image_line,
+                                  Remix.image_line,
                                   color: AppStyle.black,
                                 ),
                               );
@@ -100,7 +99,9 @@ class OrdersItem extends StatelessWidget {
                           Text(
                             order.shop?.translation?.title ?? "",
                             style: AppStyle.interSemi(
-                                size: 14.sp, letterSpacing: -0.3),
+                              size: 14.sp,
+                              letterSpacing: -0.3,
+                            ),
                           ),
                           2.verticalSpace,
                           IntrinsicHeight(
@@ -109,19 +110,26 @@ class OrdersItem extends StatelessWidget {
                                 Text(
                                   '№ ${order.id}',
                                   style: AppStyle.interNormal(
-                                      size: 14.sp, letterSpacing: -0.3),
+                                    size: 14.sp,
+                                    letterSpacing: -0.3,
+                                  ),
                                 ),
                                 const VerticalDivider(),
                                 Text(
                                   intl.DateFormat("MMM dd hh:mm").format(
-                                      DateTime.parse(order.createdAt ??
-                                          DateTime.now().toString())),
+                                    DateTime.parse(
+                                      order.createdAt ??
+                                          DateTime.now().toString(),
+                                    ),
+                                  ),
                                   style: AppStyle.interNormal(
-                                      size: 14.sp, letterSpacing: -0.3),
+                                    size: 14.sp,
+                                    letterSpacing: -0.3,
+                                  ),
                                 ),
                               ],
                             ),
-                          )
+                          ),
                         ],
                       ),
                       const Spacer(),
@@ -129,10 +137,13 @@ class OrdersItem extends StatelessWidget {
                         width: 36.r,
                         height: 36.r,
                         decoration: const BoxDecoration(
-                            color: AppStyle.bgGrey, shape: BoxShape.circle),
+                          color: AppStyle.bgGrey,
+                          shape: BoxShape.circle,
+                        ),
                         child: const Center(
-                            child: Icon(FlutterRemix.bank_card_2_line)),
-                      )
+                          child: Icon(Remix.bank_card_2_line),
+                        ),
+                      ),
                     ],
                   ),
                   Padding(
@@ -144,16 +155,18 @@ class OrdersItem extends StatelessWidget {
                           height: 4.r,
                           margin: EdgeInsets.only(bottom: 6.h, top: 2.h),
                           decoration: const BoxDecoration(
-                              color: AppStyle.tabBarBorderColor,
-                              shape: BoxShape.circle),
+                            color: AppStyle.tabBarBorderColor,
+                            shape: BoxShape.circle,
+                          ),
                         ),
                         Container(
                           width: 4.r,
                           height: 4.r,
                           margin: EdgeInsets.only(bottom: 6.h),
                           decoration: const BoxDecoration(
-                              color: AppStyle.tabBarBorderColor,
-                              shape: BoxShape.circle),
+                            color: AppStyle.tabBarBorderColor,
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ],
                     ),
@@ -165,16 +178,15 @@ class OrdersItem extends StatelessWidget {
                         height: 32.r,
                         width: 32.r,
                         decoration: const BoxDecoration(
-                            color: AppStyle.white, shape: BoxShape.circle),
+                          color: AppStyle.white,
+                          shape: BoxShape.circle,
+                        ),
                         child: ClipOval(
                           child: CachedNetworkImage(
                             imageUrl: order.user?.img ?? "",
                             fit: BoxFit.cover,
                             progressIndicatorBuilder: (context, url, progress) {
-                              return ImageShimmer(
-                                isCircle: true,
-                                size: 32.r,
-                              );
+                              return ImageShimmer(isCircle: true, size: 32.r);
                             },
                             errorWidget: (context, url, error) {
                               return Container(
@@ -186,7 +198,7 @@ class OrdersItem extends StatelessWidget {
                                 ),
                                 alignment: Alignment.center,
                                 child: const Icon(
-                                  FlutterRemix.image_line,
+                                  Remix.image_line,
                                   color: AppStyle.black,
                                 ),
                               );
@@ -203,7 +215,9 @@ class OrdersItem extends StatelessWidget {
                             child: Text(
                               order.address?.address ?? "",
                               style: AppStyle.interSemi(
-                                  size: 14.sp, letterSpacing: -0.3),
+                                size: 14.sp,
+                                letterSpacing: -0.3,
+                              ),
                               maxLines: 2,
                               overflow: TextOverflow.visible,
                             ),
@@ -217,10 +231,13 @@ class OrdersItem extends StatelessWidget {
                                   child: AutoSizeText(
                                     order.user == null
                                         ? AppHelpers.getTranslation(
-                                            TrKeys.deletedUser)
+                                            TrKeys.deletedUser,
+                                          )
                                         : order.user?.firstname ?? "",
                                     style: AppStyle.interNormal(
-                                        size: 14.sp, letterSpacing: -0.3),
+                                      size: 14.sp,
+                                      letterSpacing: -0.3,
+                                    ),
                                     maxLines: 1,
                                     minFontSize: 14,
                                   ),
@@ -236,14 +253,16 @@ class OrdersItem extends StatelessWidget {
                                   child: AutoSizeText(
                                     order.user?.phone ?? "",
                                     style: AppStyle.interNormal(
-                                        size: 14.sp, letterSpacing: -0.3),
+                                      size: 14.sp,
+                                      letterSpacing: -0.3,
+                                    ),
                                     maxLines: 1,
                                     minFontSize: 14,
                                   ),
                                 ),
                               ],
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ],
@@ -252,9 +271,7 @@ class OrdersItem extends StatelessWidget {
               ),
             ),
             16.verticalSpace,
-            Divider(
-              color: AppStyle.shimmerBase,
-            ),
+            Divider(color: AppStyle.shimmerBase),
             8.verticalSpace,
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -269,10 +286,7 @@ class OrdersItem extends StatelessWidget {
                       maxLines: 1,
                     ),
                   ),
-                  Icon(
-                    FlutterRemix.takeaway_fill,
-                    size: 18.sp,
-                  ),
+                  Icon(Remix.takeaway_fill, size: 18.sp),
                   10.horizontalSpace,
                   Expanded(
                     child: AutoSizeText(
@@ -285,12 +299,14 @@ class OrdersItem extends StatelessWidget {
                     width: 36.r,
                     height: 36.r,
                     decoration: const BoxDecoration(
-                        color: AppStyle.bgGrey, shape: BoxShape.circle),
-                    child: const Icon(FlutterRemix.arrow_right_s_line),
-                  )
+                      color: AppStyle.bgGrey,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Remix.arrow_right_s_line),
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

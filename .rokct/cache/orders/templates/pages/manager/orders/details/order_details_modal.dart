@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -54,10 +54,9 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-          (_) =>
-          ref
-              .read(orderDetailsProvider.notifier)
-              .fetchOrderDetails(order: widget.order),
+      (_) => ref
+          .read(orderDetailsProvider.notifier)
+          .fetchOrderDetails(order: widget.order),
     );
   }
 
@@ -74,7 +73,8 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
               final appbarState = ref.watch(homeAppbarProvider);
               final event = ref.read(orderDetailsProvider.notifier);
               final appbarEvent = ref.read(homeAppbarProvider.notifier);
-              bool isHistoryOrder = widget.isHistoryOrder ??
+              bool isHistoryOrder =
+                  widget.isHistoryOrder ??
                   (state.order?.status == OrderStatus.delivered.name ||
                       state.order?.status == OrderStatus.canceled.name);
               return Column(
@@ -85,8 +85,10 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                       color: AppStyle.white,
                       borderRadius: BorderRadius.circular(10.r),
                     ),
-                    padding:
-                    REdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    padding: REdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 16,
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -107,11 +109,9 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                                     Text(
                                       state.order?.user == null
                                           ? AppHelpers.getTranslation(
-                                          TrKeys.deletedUser)
-                                          : '${state.order?.user?.firstname ??
-                                          AppHelpers.getTranslation(
-                                              TrKeys.noName)} ${state.order
-                                          ?.user?.lastname ?? ''}',
+                                              TrKeys.deletedUser,
+                                            )
+                                          : '${state.order?.user?.firstname ?? AppHelpers.getTranslation(TrKeys.noName)} ${state.order?.user?.lastname ?? ''}',
                                       style: AppStyle.interRegular(
                                         size: 14.sp,
                                         color: AppStyle.blackColor,
@@ -120,19 +120,20 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                                     4.verticalSpace,
                                     Text(
                                       isHistoryOrder
-                                          ? AppHelpers.getTranslation(state
-                                          .order
-                                          ?.transaction
-                                          ?.paymentSystem
-                                          ?.tag ??
-                                          "")
-                                          : '${AppHelpers.getTranslation(
-                                          TrKeys.order)} - №${state.order?.id}',
+                                          ? AppHelpers.getTranslation(
+                                              state
+                                                      .order
+                                                      ?.transaction
+                                                      ?.paymentSystem
+                                                      ?.tag ??
+                                                  "",
+                                            )
+                                          : '${AppHelpers.getTranslation(TrKeys.order)} - №${state.order?.id}',
                                       style: AppStyle.interNormal(
                                         size: 12.sp,
                                         color: AppStyle.blackColor,
                                       ),
-                                    )
+                                    ),
                                   ],
                                 ),
                               ),
@@ -141,9 +142,9 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                         ),
                         6.horizontalSpace,
                         Icon(
-                          state.order?.deliveryType == TrKeys.dineIn ? Icons
-                              .table_restaurant_outlined : FlutterRemix
-                              .bank_card_2_line,
+                          state.order?.deliveryType == TrKeys.dineIn
+                              ? Icons.table_restaurant_outlined
+                              : Remix.bank_card_2_line,
                           size: 20.r,
                           color: AppStyle.blackColor,
                         ),
@@ -153,12 +154,15 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                           children: [
                             Text(
                               AppHelpers.getTranslation(
-                                  state.order?.deliveryType == TrKeys.dineIn
-                                      ? TrKeys.table
-                                      :
-                                  state
-                                      .order?.transaction?.paymentSystem?.tag ??
-                                      TrKeys.noTransaction),
+                                state.order?.deliveryType == TrKeys.dineIn
+                                    ? TrKeys.table
+                                    : state
+                                              .order
+                                              ?.transaction
+                                              ?.paymentSystem
+                                              ?.tag ??
+                                          TrKeys.noTransaction,
+                              ),
                               style: AppStyle.interNormal(
                                 size: 12,
                                 color: AppStyle.blackColor,
@@ -166,19 +170,23 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                             ),
                             4.verticalSpace,
                             Text(
-                              state.order?.deliveryType == TrKeys.dineIn ? state
-                                  .order?.table?.name ?? '' :
-                              AppHelpers.numberFormat(number: state.order?.totalPrice?.isNegative ?? true
-                                      ? 0
-                                      : state.order?.totalPrice ?? 0,
-                                  symbol: state.order?.currency?.symbol),
+                              state.order?.deliveryType == TrKeys.dineIn
+                                  ? state.order?.table?.name ?? ''
+                                  : AppHelpers.numberFormat(
+                                      number:
+                                          state.order?.totalPrice?.isNegative ??
+                                              true
+                                          ? 0
+                                          : state.order?.totalPrice ?? 0,
+                                      symbol: state.order?.currency?.symbol,
+                                    ),
                               style: AppStyle.interSemi(
                                 size: 14,
                                 color: AppStyle.blackColor,
                               ),
                             ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -195,8 +203,7 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '${AppHelpers.getTranslation(
-                                TrKeys.order)} - №${state.order?.id}',
+                            '${AppHelpers.getTranslation(TrKeys.order)} - №${state.order?.id}',
                             style: AppStyle.interNormal(
                               size: 14.sp,
                               color: AppStyle.blackColor,
@@ -204,13 +211,7 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                             ),
                           ),
                           Text(
-                            '${DateFormat('hh:mm, EE').format(
-                                DateTime.tryParse(state.order?.createdAt ?? '')
-                                    ?.toLocal() ??
-                                    DateTime.now())} — ${DateFormat('hh:mm, EE')
-                                .format(
-                                DateTime.tryParse(state.order?.updatedAt ?? '')
-                                    ?.toLocal() ?? DateTime.now())}',
+                            '${DateFormat('hh:mm, EE').format(DateTime.tryParse(state.order?.createdAt ?? '')?.toLocal() ?? DateTime.now())} — ${DateFormat('hh:mm, EE').format(DateTime.tryParse(state.order?.updatedAt ?? '')?.toLocal() ?? DateTime.now())}',
                             style: AppStyle.interNormal(
                               size: 14.sp,
                               color: AppStyle.blackColor,
@@ -235,7 +236,7 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                               padding: REdgeInsets.all(12),
                               child: Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
                                     decoration: const BoxDecoration(
@@ -245,7 +246,7 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                                     padding: EdgeInsets.all(10.r),
                                     child: Center(
                                       child: Icon(
-                                        FlutterRemix.wallet_3_fill,
+                                        Remix.wallet_3_fill,
                                         color: AppStyle.white,
                                         size: 18.r,
                                       ),
@@ -255,11 +256,12 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           AppHelpers.getTranslation(
-                                              TrKeys.yourBenefit),
+                                            TrKeys.yourBenefit,
+                                          ),
                                           style: AppStyle.interNormal(
                                             size: 12.sp,
                                             color: AppStyle.blackColor,
@@ -267,9 +269,12 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                                           ),
                                         ),
                                         Text(
-                                          AppHelpers.numberFormat(number: state.order?.deliveryFee ?? 0,
-                                              symbol: state
-                                                  .order?.currency?.symbol),
+                                          AppHelpers.numberFormat(
+                                            number:
+                                                state.order?.deliveryFee ?? 0,
+                                            symbol:
+                                                state.order?.currency?.symbol,
+                                          ),
                                           style: AppStyle.interSemi(
                                             size: 14.sp,
                                             color: AppStyle.blackColor,
@@ -294,7 +299,7 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                               padding: EdgeInsets.all(12.r),
                               child: Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
                                     decoration: const BoxDecoration(
@@ -313,11 +318,12 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           AppHelpers.getTranslation(
-                                              TrKeys.foodymanBenefit),
+                                            TrKeys.foodymanBenefit,
+                                          ),
                                           style: AppStyle.interNormal(
                                             size: 12.sp,
                                             color: AppStyle.blackColor,
@@ -327,9 +333,12 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                         Text(
-                                          AppHelpers.numberFormat(number: state.order?.commissionFee ?? 0,
-                                              symbol: state
-                                                  .order?.currency?.symbol),
+                                          AppHelpers.numberFormat(
+                                            number:
+                                                state.order?.commissionFee ?? 0,
+                                            symbol:
+                                                state.order?.currency?.symbol,
+                                          ),
                                           style: AppStyle.interSemi(
                                             size: 14.sp,
                                             color: AppStyle.blackColor,
@@ -353,7 +362,8 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                         AppHelpers.showAlertDialog(
                           context: context,
                           child: ImageDialog(
-                              img: state.order?.afterDeliveredImage),
+                            img: state.order?.afterDeliveredImage,
+                          ),
                         );
                       },
                       child: Container(
@@ -376,58 +386,55 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                               ),
                             ),
                             12.horizontalSpace,
-                            const Icon(FlutterRemix.gallery_fill),
+                            const Icon(Remix.gallery_fill),
                           ],
                         ),
                       ),
                     ),
                   8.verticalSpace,
                   (state.order?.details != null &&
-                      (state.order?.details?.isNotEmpty ?? false) &&
-                      state.order != null)
+                          (state.order?.details?.isNotEmpty ?? false) &&
+                          state.order != null)
                       ? Container(
-                    decoration: BoxDecoration(
-                      color: AppStyle.white,
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                    padding: REdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 16,
-                    ),
-                    child: ListView.builder(
-                      itemCount: state.order?.details?.length,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) =>
-                          OrderProductItem(
-                            currencyData: state.order?.currency,
-                            orderDetail: state.order!.details![index],
-                            isLoading: state.isLoading,
-                            isLast: state.order?.details?.length ==
-                                index + 1,
-                            onToggle: () =>
-                                event
-                                    .toggleOrderDetailChecked(index: index),
+                          decoration: BoxDecoration(
+                            color: AppStyle.white,
+                            borderRadius: BorderRadius.circular(10.r),
                           ),
-                    ),
-                  )
+                          padding: REdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
+                          child: ListView.builder(
+                            itemCount: state.order?.details?.length,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) => OrderProductItem(
+                              currencyData: state.order?.currency,
+                              orderDetail: state.order!.details![index],
+                              isLoading: state.isLoading,
+                              isLast: state.order?.details?.length == index + 1,
+                              onToggle: () =>
+                                  event.toggleOrderDetailChecked(index: index),
+                            ),
+                          ),
+                        )
                       : const SizedBox.shrink(),
-                  if (state.order?.note
-                      ?.trim()
-                      .isNotEmpty ?? false)
+                  if (state.order?.note?.trim().isNotEmpty ?? false)
                     Container(
                       decoration: BoxDecoration(
                         color: AppStyle.white,
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       margin: REdgeInsets.only(top: 8),
-                      padding:
-                      REdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                      padding: REdgeInsets.symmetric(
+                        vertical: 14,
+                        horizontal: 16,
+                      ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Icon(
-                            FlutterRemix.chat_1_fill,
+                            Remix.chat_1_fill,
                             size: 24.r,
                             color: AppStyle.blackColor,
                           ),
@@ -451,8 +458,10 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                       borderRadius: BorderRadius.circular(10.r),
                     ),
                     margin: REdgeInsets.only(top: 8),
-                    padding:
-                    REdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                    padding: REdgeInsets.symmetric(
+                      vertical: 14,
+                      horizontal: 16,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -474,157 +483,172 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                             ),
                           ],
                         ),
-
-
                       ],
                     ),
                   ),
-                  PriceInformation(order: state.order,
-                      isHistoryOrder: widget.isHistoryOrder),
+                  PriceInformation(
+                    order: state.order,
+                    isHistoryOrder: widget.isHistoryOrder,
+                  ),
                   isHistoryOrder
                       ? const SizedBox.shrink()
                       : Column(
-                    children: [
-                      20.verticalSpace,
-                      state.isUpdating
-                          ? const Loading()
-                          : CustomButton(
-                        title: SellerOrderStatus.changeStatusButtonText(
-                            state.order?.status),
-                        onPressed: () =>
-                            event.updateOrderStatus(
-                              context,
-                              status: SellerOrderStatus.getUpdatableStatus(
-                                  state.order?.status),
-                              success: () {
-                                Navigator.pop(context);
-                                switch (AppHelpers.getOrderStatus(
-                                    state.order?.status)) {
-                                  case OrderStatus.open:
-                                    ref
-                                        .read(
-                                        newOrdersProvider.notifier)
-                                        .fetchNewOrders(
-                                      context: context,
-                                      isRefresh: true,
-                                      activeTabIndex:
-                                      appbarState.index,
-                                      updateTotal: (count) =>
-                                          appbarEvent
-                                              .setAppbarDetails(
-                                            AppHelpers.getTranslation(
-                                                TrKeys.newOrders),
-                                            count,
+                          children: [
+                            20.verticalSpace,
+                            state.isUpdating
+                                ? const Loading()
+                                : CustomButton(
+                                    title:
+                                        SellerOrderStatus.changeStatusButtonText(
+                                          state.order?.status,
+                                        ),
+                                    onPressed: () => event.updateOrderStatus(
+                                      context,
+                                      status:
+                                          SellerOrderStatus.getUpdatableStatus(
+                                            state.order?.status,
                                           ),
-                                    );
-                                    ref
-                                        .read(acceptedOrdersProvider
-                                        .notifier)
-                                        .fetchAcceptedOrders(
-                                      isRefresh: true,
-                                      refreshController: widget
-                                          .acceptedOrdersController,
-                                    );
-                                    break;
-                                  case OrderStatus.accepted:
-                                    ref
-                                        .read(acceptedOrdersProvider
-                                        .notifier)
-                                        .fetchAcceptedOrders(
-                                      isRefresh: true,
-                                      refreshController: widget
-                                          .acceptedOrdersController,
-                                      updateTotal: (count) =>
-                                          appbarEvent
-                                              .setAppbarDetails(
-                                            AppHelpers.getTranslation(
-                                                TrKeys.acceptedOrders),
-                                            count,
-                                          ),
-                                    );
-                                    ref
-                                        .read(readyOrdersProvider
-                                        .notifier)
-                                        .fetchReadyOrders(
-                                      isRefresh: true,
-                                      refreshController: widget
-                                          .readyOrdersController,
-                                    );
-                                    break;
-                                  case OrderStatus.ready:
-                                    ref
-                                        .read(readyOrdersProvider
-                                        .notifier)
-                                        .fetchReadyOrders(
-                                      isRefresh: true,
-                                      refreshController: widget
-                                          .readyOrdersController,
-                                      updateTotal: (count) =>
-                                          appbarEvent
-                                              .setAppbarDetails(
-                                            AppHelpers.getTranslation(
-                                                TrKeys.readyOrders),
-                                            count,
-                                          ),
-                                    );
-                                    ref
-                                        .read(onAWayOrdersProvider
-                                        .notifier)
-                                        .fetchOnAWayOrders(
-                                      isRefresh: true,
-                                      refreshController: widget
-                                          .onAWayOrdersController,
-                                    );
-                                    break;
-                                  case OrderStatus.onWay:
-                                    ref
-                                        .read(onAWayOrdersProvider
-                                        .notifier)
-                                        .fetchOnAWayOrders(
-                                      isRefresh: true,
-                                      refreshController: widget
-                                          .onAWayOrdersController,
-                                      updateTotal: (count) =>
-                                          appbarEvent
-                                              .setAppbarDetails(
-                                            AppHelpers.getTranslation(
-                                                TrKeys.onAWayOrders),
-                                            count,
-                                          ),
-                                    );
-                                    ref
-                                        .read(onAWayOrdersProvider
-                                        .notifier)
-                                        .fetchOnAWayOrders(
-                                      isRefresh: true,
-                                      refreshController: widget
-                                          .onAWayOrdersController,
-                                    );
-                                    break;
-                                  default:
-                                    ref
-                                        .read(
-                                        newOrdersProvider.notifier)
-                                        .fetchNewOrders(
-                                      context: context,
-                                      isRefresh: true,
-                                      activeTabIndex:
-                                      appbarState.index,
-                                      updateTotal: (count) =>
-                                          appbarEvent
-                                              .setAppbarDetails(
-                                            AppHelpers.getTranslation(
-                                                TrKeys.newOrders),
-                                            count,
-                                          ),
-                                    );
-                                    break;
-                                }
-                              },
-                            ),
-                      ),
-                    ],
-                  ),
+                                      success: () {
+                                        Navigator.pop(context);
+                                        switch (AppHelpers.getOrderStatus(
+                                          state.order?.status,
+                                        )) {
+                                          case OrderStatus.open:
+                                            ref
+                                                .read(
+                                                  newOrdersProvider.notifier,
+                                                )
+                                                .fetchNewOrders(
+                                                  context: context,
+                                                  isRefresh: true,
+                                                  activeTabIndex:
+                                                      appbarState.index,
+                                                  updateTotal: (count) =>
+                                                      appbarEvent.setAppbarDetails(
+                                                        AppHelpers.getTranslation(
+                                                          TrKeys.newOrders,
+                                                        ),
+                                                        count,
+                                                      ),
+                                                );
+                                            ref
+                                                .read(
+                                                  acceptedOrdersProvider
+                                                      .notifier,
+                                                )
+                                                .fetchAcceptedOrders(
+                                                  isRefresh: true,
+                                                  refreshController: widget
+                                                      .acceptedOrdersController,
+                                                );
+                                            break;
+                                          case OrderStatus.accepted:
+                                            ref
+                                                .read(
+                                                  acceptedOrdersProvider
+                                                      .notifier,
+                                                )
+                                                .fetchAcceptedOrders(
+                                                  isRefresh: true,
+                                                  refreshController: widget
+                                                      .acceptedOrdersController,
+                                                  updateTotal: (count) =>
+                                                      appbarEvent.setAppbarDetails(
+                                                        AppHelpers.getTranslation(
+                                                          TrKeys.acceptedOrders,
+                                                        ),
+                                                        count,
+                                                      ),
+                                                );
+                                            ref
+                                                .read(
+                                                  readyOrdersProvider.notifier,
+                                                )
+                                                .fetchReadyOrders(
+                                                  isRefresh: true,
+                                                  refreshController: widget
+                                                      .readyOrdersController,
+                                                );
+                                            break;
+                                          case OrderStatus.ready:
+                                            ref
+                                                .read(
+                                                  readyOrdersProvider.notifier,
+                                                )
+                                                .fetchReadyOrders(
+                                                  isRefresh: true,
+                                                  refreshController: widget
+                                                      .readyOrdersController,
+                                                  updateTotal: (count) =>
+                                                      appbarEvent.setAppbarDetails(
+                                                        AppHelpers.getTranslation(
+                                                          TrKeys.readyOrders,
+                                                        ),
+                                                        count,
+                                                      ),
+                                                );
+                                            ref
+                                                .read(
+                                                  onAWayOrdersProvider.notifier,
+                                                )
+                                                .fetchOnAWayOrders(
+                                                  isRefresh: true,
+                                                  refreshController: widget
+                                                      .onAWayOrdersController,
+                                                );
+                                            break;
+                                          case OrderStatus.onWay:
+                                            ref
+                                                .read(
+                                                  onAWayOrdersProvider.notifier,
+                                                )
+                                                .fetchOnAWayOrders(
+                                                  isRefresh: true,
+                                                  refreshController: widget
+                                                      .onAWayOrdersController,
+                                                  updateTotal: (count) =>
+                                                      appbarEvent.setAppbarDetails(
+                                                        AppHelpers.getTranslation(
+                                                          TrKeys.onAWayOrders,
+                                                        ),
+                                                        count,
+                                                      ),
+                                                );
+                                            ref
+                                                .read(
+                                                  onAWayOrdersProvider.notifier,
+                                                )
+                                                .fetchOnAWayOrders(
+                                                  isRefresh: true,
+                                                  refreshController: widget
+                                                      .onAWayOrdersController,
+                                                );
+                                            break;
+                                          default:
+                                            ref
+                                                .read(
+                                                  newOrdersProvider.notifier,
+                                                )
+                                                .fetchNewOrders(
+                                                  context: context,
+                                                  isRefresh: true,
+                                                  activeTabIndex:
+                                                      appbarState.index,
+                                                  updateTotal: (count) =>
+                                                      appbarEvent.setAppbarDetails(
+                                                        AppHelpers.getTranslation(
+                                                          TrKeys.newOrders,
+                                                        ),
+                                                        count,
+                                                      ),
+                                                );
+                                            break;
+                                        }
+                                      },
+                                    ),
+                                  ),
+                          ],
+                        ),
                   20.verticalSpace,
                 ],
               );

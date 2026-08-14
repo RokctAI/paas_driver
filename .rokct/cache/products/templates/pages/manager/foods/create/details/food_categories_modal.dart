@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -29,16 +29,14 @@ class _FoodCategoriesModalState extends ConsumerState<FoodCategoriesModal> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) {
-        if (widget.isSubCategory) {
-          ref.read(addFoodCategoriesProvider.notifier).updateCategoriesSub();
-        }
-        ref
-            .read(addFoodCategoriesProvider.notifier)
-            .setCategories(ref.watch(foodCategoriesProvider).categories);
-      },
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.isSubCategory) {
+        ref.read(addFoodCategoriesProvider.notifier).updateCategoriesSub();
+      }
+      ref
+          .read(addFoodCategoriesProvider.notifier)
+          .setCategories(ref.watch(foodCategoriesProvider).categories);
+    });
   }
 
   @override
@@ -59,7 +57,7 @@ class _FoodCategoriesModalState extends ConsumerState<FoodCategoriesModal> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    FlutterRemix.play_list_add_line,
+                    Remix.play_list_add_line,
                     color: AppStyle.blue,
                     size: 18.r,
                   ),
@@ -111,30 +109,36 @@ class _FoodCategoriesModalState extends ConsumerState<FoodCategoriesModal> {
                               onTap: () {
                                 widget.isSubCategory
                                     ? ref
-                                        .read(
-                                            addFoodCategoriesProvider.notifier)
-                                        .setActiveIndexSub(index)
+                                          .read(
+                                            addFoodCategoriesProvider.notifier,
+                                          )
+                                          .setActiveIndexSub(index)
                                     : ref
-                                        .read(
-                                            addFoodCategoriesProvider.notifier)
-                                        .setActiveIndex(index);
+                                          .read(
+                                            addFoodCategoriesProvider.notifier,
+                                          )
+                                          .setActiveIndex(index);
                                 Navigator.pop(context);
                               },
-                              isSelected: (widget.isSubCategory
+                              isSelected:
+                                  (widget.isSubCategory
                                       ? state.activeSubIndex
                                       : state.activeIndex) ==
                                   index,
-                              onDelete: (widget.isSubCategory
+                              onDelete:
+                                  (widget.isSubCategory
                                           ? state.categoriesSub[index].shopId
                                           : state.categories[index].shopId) ==
                                       (LocalStorage.getShopJson()?['id']
                                           as int?)
                                   ? () {
                                       ref
-                                          .read(addFoodCategoriesProvider
-                                              .notifier)
+                                          .read(
+                                            addFoodCategoriesProvider.notifier,
+                                          )
                                           .deleteCategories(
-                                              state.categories[index]);
+                                            state.categories[index],
+                                          );
                                     }
                                   : null,
                             );

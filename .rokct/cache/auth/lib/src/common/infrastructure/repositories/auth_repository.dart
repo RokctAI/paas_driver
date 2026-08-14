@@ -6,9 +6,23 @@ import 'package:base_sdk/src/domain/interface/auth.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/models/models.dart';
 
-import 'package:auth_sdk/src/common/domain/interface/deferred_otp_email_resend.dart';
+import 'package:base_sdk/src/handlers/token_refresh_service.dart';
 
-class AuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
+import 'package:auth_sdk/src/common/domain/interface/deferred_otp_email_resend.dart';
+import 'package:auth_sdk/src/common/domain/interface/session_password_rotation.dart';
+import 'package:auth_sdk/src/common/domain/interface/session_token_refresh.dart';
+
+class AuthRepository
+    implements
+        AuthRepositoryFacade,
+        DeferredOtpEmailResend,
+        SessionPasswordRotation,
+        SessionTokenRefresh {
+  // SessionTokenRefresh: delegates to base_sdk's single-flight service so
+  // an explicit renewal and the automatic 401/expiry path can never race.
+  @override
+  Future<bool> refreshSession() => TokenRefreshService.refresh();
+
   @override
   Future<ApiResult<LoginResponse>> login({
     required String email,
@@ -19,7 +33,7 @@ class AuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
       // NOTE: Frappe's core login endpoint is `/api/method/login`
       // NOTE: Using custom PaaS login endpoint to match frontend behavior
       final response = await client.post(
-        '/api/method/paas.api.user.user.login',
+        '/api/method/paas.api.user.login',
         data: {'usr': email, 'pwd': password},
       );
       // Assuming a successful login returns user data that can be adapted to LoginResponse
@@ -40,7 +54,7 @@ class AuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
     try {
       final client = dioHttp.client(requireAuth: false);
       final response = await client.post(
-        '/api/method/paas.api.send_phone_verification_code',
+        '/api/method/paas.api.user.send_phone_verification_code',
         data: data,
       );
       // The response from this endpoint is simple, may need to adjust RegisterResponse model
@@ -61,7 +75,7 @@ class AuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
     try {
       final client = dioHttp.client(requireAuth: false);
       final response = await client.get(
-        '/api/method/paas.api.verify_my_email',
+        '/api/method/paas.tenant.api.verify_my_email',
         queryParameters: {'token': verifyCode},
       );
       return ApiResult.success(
@@ -84,7 +98,7 @@ class AuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
     try {
       final client = dioHttp.client(requireAuth: false);
       final response = await client.post(
-        '/api/method/paas.api.verify_phone_code',
+        '/api/method/paas.api.user.verify_phone_code',
         data: {"phone": verifyId, "otp": verifyCode},
       );
       return ApiResult.success(
@@ -106,7 +120,7 @@ class AuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
     try {
       final client = dioHttp.client(requireAuth: false);
       final response = await client.post(
-        '/api/method/paas.api.forgot_password',
+        '/api/method/paas.api.user.forgot_password',
         data: {'user': email},
       );
       return ApiResult.success(data: RegisterResponse.fromJson(response.data));
@@ -127,7 +141,7 @@ class AuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
     try {
       final client = dioHttp.client(requireAuth: false);
       var res = await client.post(
-        '/api/method/paas.api.register_user',
+        '/api/method/paas.api.user.register_user',
         data: user.toJsonForSignUp(),
         // register_user is @idempotent server-side: a stable key makes an
         // ambiguous-failure retry replay the stored response instead of
@@ -159,7 +173,7 @@ class AuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
     try {
       final client = dioHttp.client(requireAuth: false);
       final response = await client.post(
-        '/api/method/paas.api.forgot_password_confirm',
+        '/api/method/paas.api.user.forgot_password_confirm',
         data: {'verify_code': verifyCode, 'email': email},
       );
       return ApiResult.success(
@@ -198,7 +212,7 @@ class AuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
     try {
       final client = dioHttp.client(requireAuth: false);
       final response = await client.post(
-        '/api/method/paas.api.login_with_google',
+        '/api/method/paas.api.user.login_with_google',
         data: {
           'email': email,
           'display_name': displayName,
@@ -221,7 +235,7 @@ class AuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
     try {
       final client = dioHttp.client(requireAuth: false);
       await client.post(
-        '/api/method/paas.api.register_user',
+        '/api/method/paas.api.user.register_user',
         data: {'email': email},
       );
       return const ApiResult.success(data: null);
@@ -235,23 +249,60 @@ class AuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
   }
 
   // DeferredOtpEmailResend: email-OTP send for an account that already
-  // exists on the backend (deferred/offline-registered, now synced). The
-  // endpoint authorizes against the session user, so this is called with
-  // the synced account's own token active (requireAuth: true) — unlike the
-  // pre-registration sends above, which run unauthenticated.
+  // exists on the backend (deferred/offline-registered, now synced). Sent
+  // unauthenticated (requireAuth: false): the endpoint is allow_guest and
+  // identifies the account by the email parameter, and at this point in
+  // the deferred flow the only stored token may be the local
+  // `offline:<id>` placeholder — sending that as a Bearer credential was
+  // dishonest and only worked because the backend's Bearer parser happens
+  // to fall through to Guest on malformed tokens.
   @override
   Future<ApiResult<dynamic>> resendVerificationEmail({
     required String email,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
+      final client = dioHttp.client(requireAuth: false);
       await client.post(
-        '/api/method/paas.api.resend_verification_email',
+        '/api/method/paas.api.user.resend_verification_email',
         data: {'email': email},
       );
       return const ApiResult.success(data: null);
     } catch (e) {
       debugPrint('==> resend verification email failure: $e');
+      return ApiResult.failure(
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
+    }
+  }
+
+  // SessionPasswordRotation: set the CURRENT session user's backend
+  // password (used to rotate a deferred account's sync-time password to a
+  // fresh random secret right after OTP verification mints a real token).
+  // Same endpoint the reset-password flow uses via users_sdk, called here
+  // directly so auth_sdk doesn't depend on which UserRepositoryFacade
+  // implementation the host composed in. Requires a real token —
+  // update_password rejects Guest.
+  @override
+  Future<ApiResult<dynamic>> updateSessionPassword({
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    try {
+      final client = dioHttp.client(requireAuth: true);
+      await client.post(
+        // The registered composed alias is paas.api.user.update_password
+        // (users/frappe manifest whitelisted_methods) — NOT
+        // paas.api.user.user.update_password, the raw module path.
+        '/api/method/paas.api.user.update_password',
+        data: {
+          'password': password,
+          'password_confirmation': passwordConfirmation,
+        },
+      );
+      return const ApiResult.success(data: null);
+    } catch (e) {
+      debugPrint('==> update session password failure: $e');
       return ApiResult.failure(
         error: AppHelpers.errorHandler(e),
         statusCode: NetworkExceptions.getDioStatus(e),
@@ -266,7 +317,7 @@ class AuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
     try {
       final client = dioHttp.client(requireAuth: false);
       final response = await client.post(
-        '/api/method/paas.api.register_user',
+        '/api/method/paas.api.user.register_user',
         data: user.toJsonForSignUp(),
       );
       return ApiResult.success(

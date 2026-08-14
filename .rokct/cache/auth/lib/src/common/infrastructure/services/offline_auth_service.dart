@@ -4,9 +4,15 @@ import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart';
 import 'package:base_sdk/src/database/app_database.dart';
 import 'package:base_sdk/src/domain/interface/auth.dart';
+// Brings ApiResult's freezed-v3 pattern-match extension (`when`) into
+// scope — since base_sdk's freezed 3 migration it is an extension on the
+// sealed class, not a mixin method, so it must be imported explicitly.
+import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 
+import '../../domain/interface/session_password_rotation.dart';
+import '../../services/secure_password.dart';
 import '../database/offline_user_table.dart';
 
 /// Result of an offline register/login attempt — deliberately not the same
@@ -68,6 +74,26 @@ class OfflineAuthService {
   /// account as limited until OTP completes.
   static const String pendingOtpKey = 'pending_otp_verification';
 
+  /// Key under [authFlagsBox]: map of localUserId -> ISO timestamp for
+  /// synced offline accounts whose backend password still needs a forced
+  /// rotation (see [onDeferredVerificationCompleted]). Entries are only
+  /// removed when the rotation call succeeds, so a failed attempt is
+  /// retried on the next boot/resume/verify trigger — never blocking
+  /// login or verification.
+  static const String pendingPasswordRotationKey =
+      'pending_password_rotations';
+
+  /// Random backend password for each row's sync push, generated ONCE per
+  /// row per app run and held in memory until the sync succeeds. A retry
+  /// after an ambiguous network failure therefore re-sends the SAME
+  /// password: whether the server replays a stored idempotent response or
+  /// rejects the duplicate registration outright, the account never ends
+  /// up with a password the client can't reason about mid-lifecycle. The
+  /// map is deliberately not persisted — after sync the account is
+  /// accessed via OTP verification (which mints the session token), and
+  /// password login remains recoverable through the forgot-password flow.
+  static final Map<String, String> _syncPasswords = {};
+
   /// Invoked right after [syncOne] records [pendingOtpKey], so the UX layer
   /// can react to a sync that completes mid-session instead of waiting for
   /// the next boot/resume. PendingOtpGate.install() assigns this; kept as a
@@ -104,6 +130,9 @@ class OfflineAuthService {
           'An offline account already exists for this phone/email on this device.');
     }
 
+    // Local-only row identifier. Predictable (epoch-derived) and therefore
+    // NEVER usable as a credential — the sync push sends a random secret
+    // instead (see [syncOne]); this id only keys the row on this device.
     final id = DateTime.now().microsecondsSinceEpoch.toString();
     await _db.into(_db.offlineUsersTable).insert(
           OfflineUsersTableCompanion.insert(
@@ -241,18 +270,26 @@ class OfflineAuthService {
     AuthRepositoryFacade authRepository, {
     bool activateOnSuccess = true,
   }) async {
+    // The backend gets a freshly-generated cryptographically random
+    // password (256 bits via Random.secure, see generateSecurePassword) —
+    // NOT the local row id (predictable) and not the local hash (which
+    // can't be reversed and shouldn't be sent anywhere). It becomes the
+    // account's durable login password server-side, so it must be
+    // unguessable; the client then discards it on sync success — real
+    // credential verification is the OTP step that follows sync, and
+    // password login stays recoverable via the forgot-password flow.
+    // Held in [_syncPasswords] until success so a retried push re-sends
+    // the same value (see the field comment for why).
+    final syncPassword =
+        _syncPasswords.putIfAbsent(row.id, generateSecurePassword);
     final response = await authRepository.sigUpWithData(
       user: UserModel(
         email: row.email,
         firstname: row.firstName,
         lastname: row.lastName,
         phone: row.phone,
-        // The backend gets a freshly-generated random password, not the
-        // local hash (which can't be reversed and shouldn't be sent
-        // anywhere) — real credential verification is the OTP step that
-        // follows sync, not this password.
-        password: row.id,
-        confirmPassword: row.id,
+        password: syncPassword,
+        confirmPassword: syncPassword,
         referral: row.referral,
       ),
       // Stable per local row, so a re-push after an ambiguous failure
@@ -265,6 +302,8 @@ class OfflineAuthService {
     );
     return response.when<Future<OfflineSyncOutcome>>(
       success: (data) async {
+        // The random password did its job (the account exists); discard it.
+        _syncPasswords.remove(row.id);
         final backendUserId = data.user?.id?.toString();
         await (_db.update(_db.offlineUsersTable)
               ..where((t) => t.id.equals(row.id)))
@@ -314,4 +353,126 @@ class OfflineAuthService {
   /// Clear the deferred-OTP flag once the user completes verification.
   Future<void> clearPendingOtpVerification() =>
       _db.deleteItem(authFlagsBox, pendingOtpKey);
+
+  /// Called by the confirmation notifier when a deferred (offline-
+  /// registered, background-synced) account completes OTP verification and
+  /// receives its first real session token. Two jobs:
+  ///
+  ///  1. refresh the local row with the verified session's token/id (the
+  ///     verify endpoints re-mint api_key/api_secret, so any token the
+  ///     sync recorded is stale from here on) — this is also what lets
+  ///     [retryPendingPasswordRotations] match the row to the active
+  ///     session later;
+  ///  2. flag the account for forced password rotation and attempt it
+  ///     immediately. Accounts synced by OLD app versions were registered
+  ///     with a guessable backend password (the epoch-derived row id);
+  ///     rotating to a fresh random secret here kills that credential.
+  ///     For accounts synced by current code the password is already
+  ///     random-and-discarded, so the extra rotation is harmless
+  ///     defense-in-depth — cheaper than trying to tell the two apart.
+  ///
+  /// Never throws: rotation is strictly best-effort. On failure the
+  /// pending flag survives and [retryPendingPasswordRotations] retries on
+  /// a later trigger; verification/login are never blocked.
+  Future<void> onDeferredVerificationCompleted({
+    required String localUserId,
+    String? backendUserId,
+    String? freshToken,
+    required AuthRepositoryFacade authRepository,
+  }) async {
+    try {
+      if (localUserId.isEmpty) return;
+      final row = await findById(localUserId);
+      if (row == null) return;
+      await markSynced(
+        localUserId,
+        backendUserId: backendUserId ?? row.backendUserId,
+        backendToken: (freshToken != null && freshToken.isNotEmpty)
+            ? freshToken
+            : row.backendToken,
+      );
+      await _addPendingRotation(localUserId);
+      await retryPendingPasswordRotations(authRepository);
+    } catch (_) {
+      // Best-effort by contract; a persisted pending flag (or none, if we
+      // failed before writing it) is retried/recreated on later triggers.
+    }
+  }
+
+  /// Best-effort forced credential rotation for every account still
+  /// flagged under [pendingPasswordRotationKey]. Safe to call from any
+  /// trigger (PendingOtpGate calls it post-frame on boot and app resume):
+  ///
+  ///  * requires [authRepository] to implement [SessionPasswordRotation]
+  ///    (auth_sdk's own repositories do; a third-party facade that
+  ///    doesn't simply leaves the flag set);
+  ///  * only ever rotates the account whose OWN session is active — the
+  ///    backend endpoint operates on the session user, so the row's
+  ///    recorded backendToken must exactly match the live token (never
+  ///    an `offline:` placeholder);
+  ///  * the fresh random password is discarded on success (recovery is
+  ///    the forgot-password flow); the flag is only cleared on success,
+  ///    so failures retry on the next trigger and never block anything.
+  Future<void> retryPendingPasswordRotations(
+    AuthRepositoryFacade authRepository,
+  ) async {
+    if (authRepository is! SessionPasswordRotation) return;
+    // Explicit cast: SessionPasswordRotation is unrelated to the facade
+    // type, so the `is` check can't promote `authRepository`.
+    final rotator = authRepository as SessionPasswordRotation;
+    final pending = await _db.getItem(authFlagsBox, pendingPasswordRotationKey);
+    if (pending == null || pending.isEmpty) return;
+    final activeToken = LocalStorage.getToken();
+    if (activeToken.isEmpty || isOfflineToken(activeToken)) return;
+    for (final localUserId in pending.keys.toList()) {
+      final row = await findById(localUserId);
+      if (row == null) {
+        // Row discarded; the flag can never be actioned, drop it.
+        await _removePendingRotation(localUserId);
+        continue;
+      }
+      final rowToken = row.backendToken ?? '';
+      if (rowToken.isEmpty || rowToken != activeToken) {
+        // Not this session's account (or the row has no verified token
+        // yet); leave the flag for a later trigger.
+        continue;
+      }
+      final newPassword = generateSecurePassword();
+      final result = await rotator.updateSessionPassword(
+        password: newPassword,
+        passwordConfirmation: newPassword,
+      );
+      var rotated = false;
+      result.when(
+        success: (_) => rotated = true,
+        failure: (_, __) => rotated = false,
+      );
+      if (rotated) {
+        await _removePendingRotation(localUserId);
+      }
+      // newPassword goes out of scope here in both cases: discarded by
+      // design (see class docs) — the account is used via its session
+      // token, and password login is recoverable via forgot-password.
+    }
+  }
+
+  Future<void> _addPendingRotation(String localUserId) async {
+    final current =
+        await _db.getItem(authFlagsBox, pendingPasswordRotationKey) ??
+            <String, dynamic>{};
+    current[localUserId] = DateTime.now().toIso8601String();
+    await _db.putItem(authFlagsBox, pendingPasswordRotationKey, current);
+  }
+
+  Future<void> _removePendingRotation(String localUserId) async {
+    final current =
+        await _db.getItem(authFlagsBox, pendingPasswordRotationKey);
+    if (current == null) return;
+    current.remove(localUserId);
+    if (current.isEmpty) {
+      await _db.deleteItem(authFlagsBox, pendingPasswordRotationKey);
+    } else {
+      await _db.putItem(authFlagsBox, pendingPasswordRotationKey, current);
+    }
+  }
 }

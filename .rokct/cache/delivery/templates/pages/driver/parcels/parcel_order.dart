@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -23,11 +23,12 @@ class ParcelOrderPage extends StatelessWidget {
   final bool isOrder;
   final bool isSet;
 
-  const ParcelOrderPage(
-      {super.key,
-      required this.parcel,
-      required this.isOrder,
-      required this.isSet});
+  const ParcelOrderPage({
+    super.key,
+    required this.parcel,
+    required this.isOrder,
+    required this.isSet,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +51,10 @@ class ParcelOrderPage extends StatelessWidget {
                       width: MediaQuery.sizeOf(context).width - 180.w,
                       child: Text(
                         parcel?.addressFrom?.address ?? "",
-                        style:
-                            AppStyle.interSemi(size: 14.sp, letterSpacing: -0.3),
+                        style: AppStyle.interSemi(
+                          size: 14.sp,
+                          letterSpacing: -0.3,
+                        ),
                       ),
                     ),
                     2.verticalSpace,
@@ -61,43 +64,42 @@ class ParcelOrderPage extends StatelessWidget {
                           Text(
                             "№ ${parcel?.id}",
                             style: AppStyle.interNormal(
-                                size: 14.sp, letterSpacing: -0.3),
+                              size: 14.sp,
+                              letterSpacing: -0.3,
+                            ),
                           ),
                           const VerticalDivider(),
                           Text(
-                            intl.DateFormat("hh:mm")
-                                .format(parcel?.updatedAt ?? DateTime.now()),
+                            intl.DateFormat(
+                              "hh:mm",
+                            ).format(parcel?.updatedAt ?? DateTime.now()),
                             style: AppStyle.interNormal(
-                                size: 14.sp, letterSpacing: -0.3),
+                              size: 14.sp,
+                              letterSpacing: -0.3,
+                            ),
                           ),
                           16.horizontalSpace,
-                          Icon(
-                            FlutterRemix.building_fill,
-                            size: 18.r,
-                          ),
+                          Icon(Remix.building_fill, size: 18.r),
                           IconButton(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 6.w,
-                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 6.w),
                             onPressed: () async {
                               AppHelpers.showCustomModalBottomSheet(
-                                  context: context,
-                                  modal: MapsList(
-                                      location: Coords(
-                                        parcel?.addressFrom?.latitude ?? 0,
-                                        parcel?.addressFrom?.longitude ?? 0,
-                                      ),
-                                      title: "A"),
-                                  isDarkMode: false);
+                                context: context,
+                                modal: MapsList(
+                                  location: Coords(
+                                    parcel?.addressFrom?.latitude ?? 0,
+                                    parcel?.addressFrom?.longitude ?? 0,
+                                  ),
+                                  title: "A",
+                                ),
+                                isDarkMode: false,
+                              );
                             },
-                            icon: Icon(
-                              FlutterRemix.map_2_fill,
-                              size: 18.r,
-                            ),
-                          )
+                            icon: Icon(Remix.map_2_fill, size: 18.r),
+                          ),
                         ],
                       ),
-                    )
+                    ),
                   ],
                 ),
                 const Spacer(),
@@ -115,10 +117,12 @@ class ParcelOrderPage extends StatelessWidget {
                         height: 38.r,
                         width: 38.r,
                         decoration: const BoxDecoration(
-                            color: AppStyle.black, shape: BoxShape.circle),
+                          color: AppStyle.black,
+                          shape: BoxShape.circle,
+                        ),
                         margin: EdgeInsets.all(4.r),
                         child: Icon(
-                          FlutterRemix.phone_fill,
+                          Remix.phone_fill,
                           color: AppStyle.white,
                           size: 20.r,
                         ),
@@ -136,10 +140,12 @@ class ParcelOrderPage extends StatelessWidget {
                         height: 38.r,
                         width: 38.r,
                         decoration: const BoxDecoration(
-                            color: AppStyle.black, shape: BoxShape.circle),
+                          color: AppStyle.black,
+                          shape: BoxShape.circle,
+                        ),
                         margin: EdgeInsets.all(4.r),
                         child: Icon(
-                          FlutterRemix.chat_1_fill,
+                          Remix.chat_1_fill,
                           color: AppStyle.white,
                           size: 20.r,
                         ),
@@ -180,8 +186,10 @@ class ParcelOrderPage extends StatelessWidget {
                         width: MediaQuery.sizeOf(context).width - 190.w,
                         child: Text(
                           parcel?.addressTo?.address ?? "",
-                          style:
-                              AppStyle.interSemi(size: 14.sp, letterSpacing: -0.3),
+                          style: AppStyle.interSemi(
+                            size: 14.sp,
+                            letterSpacing: -0.3,
+                          ),
                           maxLines: 1,
                         ),
                       ),
@@ -193,36 +201,39 @@ class ParcelOrderPage extends StatelessWidget {
                               child: Text(
                                 parcel?.usernameTo ?? "",
                                 style: AppStyle.interNormal(
-                                    size: 12.sp, letterSpacing: -0.3),
+                                  size: 12.sp,
+                                  letterSpacing: -0.3,
+                                ),
                               ),
                             ),
                             const VerticalDivider(),
                             Text(
                               parcel?.phoneTo ?? "",
                               style: AppStyle.interNormal(
-                                  size: 12.sp, letterSpacing: -0.3),
+                                size: 12.sp,
+                                letterSpacing: -0.3,
+                              ),
                             ),
                             IconButton(
                               padding: EdgeInsets.symmetric(horizontal: 6.w),
                               onPressed: () {
                                 AppHelpers.showCustomModalBottomSheet(
-                                    context: context,
-                                    modal: MapsList(
-                                        location: Coords(
-                                          parcel?.addressTo?.latitude ?? 0,
-                                          parcel?.addressTo?.longitude ?? 0,
-                                        ),
-                                        title: "B"),
-                                    isDarkMode: false);
+                                  context: context,
+                                  modal: MapsList(
+                                    location: Coords(
+                                      parcel?.addressTo?.latitude ?? 0,
+                                      parcel?.addressTo?.longitude ?? 0,
+                                    ),
+                                    title: "B",
+                                  ),
+                                  isDarkMode: false,
+                                );
                               },
-                              icon: Icon(
-                                FlutterRemix.map_2_fill,
-                                size: 18.r,
-                              ),
-                            )
+                              icon: Icon(Remix.map_2_fill, size: 18.r),
+                            ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -241,10 +252,12 @@ class ParcelOrderPage extends StatelessWidget {
                         height: 38.r,
                         width: 38.r,
                         decoration: const BoxDecoration(
-                            color: AppStyle.black, shape: BoxShape.circle),
+                          color: AppStyle.black,
+                          shape: BoxShape.circle,
+                        ),
                         margin: EdgeInsets.all(4.r),
                         child: Icon(
-                          FlutterRemix.phone_fill,
+                          Remix.phone_fill,
                           color: AppStyle.white,
                           size: 20.r,
                         ),
@@ -262,17 +275,19 @@ class ParcelOrderPage extends StatelessWidget {
                         height: 38.r,
                         width: 38.r,
                         decoration: const BoxDecoration(
-                            color: AppStyle.black, shape: BoxShape.circle),
+                          color: AppStyle.black,
+                          shape: BoxShape.circle,
+                        ),
                         margin: EdgeInsets.all(4.r),
                         child: Icon(
-                          FlutterRemix.chat_1_fill,
+                          Remix.chat_1_fill,
                           color: AppStyle.white,
                           size: 20.r,
                         ),
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ],
@@ -290,33 +305,40 @@ class ParcelOrderPage extends StatelessWidget {
                           if (parcel?.deliveryman == null) {
                             final ImageCropperForMarker image =
                                 ImageCropperForMarker();
-                            ref.read(homeProvider.notifier).goMarketParcel(
-                                context: context,
-                                parcelId: parcel?.id.toString(),
-                                setOrder: isSet,
-                                parcel: parcel);
-                            ref.read(homeProvider.notifier).getRoutingAll(
-                                // ignore: use_build_context_synchronously
-                                context: context,
-                                start: LatLng(
+                            ref
+                                .read(homeProvider.notifier)
+                                .goMarketParcel(
+                                  context: context,
+                                  parcelId: parcel?.id.toString(),
+                                  setOrder: isSet,
+                                  parcel: parcel,
+                                );
+                            ref
+                                .read(homeProvider.notifier)
+                                .getRoutingAll(
+                                  // ignore: use_build_context_synchronously
+                                  context: context,
+                                  start: LatLng(
                                     LocalStorage.getAddressSelected()
                                             ?.latitude ??
                                         AppConstants.demoLatitude,
                                     LocalStorage.getAddressSelected()
                                             ?.longitude ??
-                                        AppConstants.demoLongitude),
-                                end: LatLng(
-                                  parcel?.addressFrom?.latitude ?? 0,
-                                  parcel?.addressFrom?.longitude ?? 0,
-                                ),
-                                market: Marker(
+                                        AppConstants.demoLongitude,
+                                  ),
+                                  end: LatLng(
+                                    parcel?.addressFrom?.latitude ?? 0,
+                                    parcel?.addressFrom?.longitude ?? 0,
+                                  ),
+                                  market: Marker(
                                     markerId: const MarkerId("Shop"),
                                     position: LatLng(
                                       parcel?.addressFrom?.latitude ?? 0,
                                       parcel?.addressFrom?.longitude ?? 0,
                                     ),
-                                    icon:
-                                        await image.resizeAndCircle("", 120)));
+                                    icon: await image.resizeAndCircle("", 120),
+                                  ),
+                                );
                             if (context.mounted) {
                               context.router.popUntilRoot();
                             }
@@ -325,12 +347,17 @@ class ParcelOrderPage extends StatelessWidget {
                                 ImageCropperForMarker();
 
                             if (parcel?.status != "on_a_way") {
-                              ref.read(homeProvider.notifier).goMarketParcel(
-                                  context: context,
-                                  parcelId: "",
-                                  parcel: parcel,
-                                  setOrder: isSet);
-                              ref.read(homeProvider.notifier).getRoutingAll(
+                              ref
+                                  .read(homeProvider.notifier)
+                                  .goMarketParcel(
+                                    context: context,
+                                    parcelId: "",
+                                    parcel: parcel,
+                                    setOrder: isSet,
+                                  );
+                              ref
+                                  .read(homeProvider.notifier)
+                                  .getRoutingAll(
                                     // ignore: use_build_context_synchronously
                                     context: context,
                                     start: LatLng(
@@ -351,15 +378,23 @@ class ParcelOrderPage extends StatelessWidget {
                                         parcel?.addressFrom?.latitude ?? 0,
                                         parcel?.addressFrom?.longitude ?? 0,
                                       ),
-                                      icon:
-                                          await image.resizeAndCircle("", 120),
+                                      icon: await image.resizeAndCircle(
+                                        "",
+                                        120,
+                                      ),
                                     ),
                                   );
                             } else {
-                              ref.read(homeProvider.notifier).goClientParcel(
-                                  context, int.tryParse(parcel?.id ?? ''),
-                                  parcel: parcel);
-                              ref.read(homeProvider.notifier).getRoutingAll(
+                              ref
+                                  .read(homeProvider.notifier)
+                                  .goClientParcel(
+                                    context,
+                                    int.tryParse(parcel?.id ?? ''),
+                                    parcel: parcel,
+                                  );
+                              ref
+                                  .read(homeProvider.notifier)
+                                  .getRoutingAll(
                                     // ignore: use_build_context_synchronously
                                     context: context,
                                     start: LatLng(
@@ -380,8 +415,10 @@ class ParcelOrderPage extends StatelessWidget {
                                         parcel?.addressTo?.latitude ?? 0,
                                         parcel?.addressTo?.longitude ?? 0,
                                       ),
-                                      icon:
-                                          await image.resizeAndCircle("", 120),
+                                      icon: await image.resizeAndCircle(
+                                        "",
+                                        120,
+                                      ),
                                     ),
                                   );
                             }
@@ -397,7 +434,7 @@ class ParcelOrderPage extends StatelessWidget {
                   16.verticalSpace,
                 ],
               )
-            : const SizedBox.shrink()
+            : const SizedBox.shrink(),
       ],
     );
   }

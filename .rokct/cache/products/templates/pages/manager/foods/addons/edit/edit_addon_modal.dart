@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -91,7 +91,7 @@ class _EditAddonModalState extends State<EditAddonModal> {
                                     label:
                                         '${AppHelpers.getTranslation(TrKeys.units)}*',
                                     suffixIcon: Icon(
-                                      FlutterRemix.arrow_down_s_line,
+                                      Remix.arrow_down_s_line,
                                       color: AppStyle.blackColor,
                                       size: 18.r,
                                     ),
@@ -99,13 +99,15 @@ class _EditAddonModalState extends State<EditAddonModal> {
                                     validator: SellerFormValidators.emptyCheck,
                                     onTap: () =>
                                         AppHelpers.showCustomModalBottomSheet(
-                                      paddingTop:
-                                          MediaQuery.paddingOf(context).top +
+                                          paddingTop:
+                                              MediaQuery.paddingOf(
+                                                context,
+                                              ).top +
                                               300.h,
-                                      context: context,
-                                      modal: const EditAddonUnitsModal(),
-                                      isDarkMode: false,
-                                    ),
+                                          context: context,
+                                          modal: const EditAddonUnitsModal(),
+                                          isDarkMode: false,
+                                        ),
                                   ),
                                   24.verticalSpace,
                                   UnderlinedTextField(
@@ -143,9 +145,10 @@ class _EditAddonModalState extends State<EditAddonModal> {
                                           onChanged: event.setPrice,
                                           validator:
                                               SellerFormValidators.emptyCheck,
-                                          initialText: SellerAddonHelpers
-                                              .getInitialAddonPrice(
-                                                  widget.addon),
+                                          initialText:
+                                              SellerAddonHelpers.getInitialAddonPrice(
+                                                widget.addon,
+                                              ),
                                         ),
                                       ),
                                       10.horizontalSpace,
@@ -158,9 +161,10 @@ class _EditAddonModalState extends State<EditAddonModal> {
                                           onChanged: event.setQuantity,
                                           validator:
                                               SellerFormValidators.emptyCheck,
-                                          initialText: SellerAddonHelpers
-                                              .getInitialAddonQuantity(
-                                                  widget.addon),
+                                          initialText:
+                                              SellerAddonHelpers.getInitialAddonQuantity(
+                                                widget.addon,
+                                              ),
                                         ),
                                       ),
                                     ],
@@ -172,7 +176,8 @@ class _EditAddonModalState extends State<EditAddonModal> {
                                     children: [
                                       Text(
                                         AppHelpers.getTranslation(
-                                            TrKeys.active),
+                                          TrKeys.active,
+                                        ),
                                         style: AppStyle.interNormal(
                                           size: 14.sp,
                                           letterSpacing: -0.3,
@@ -181,7 +186,8 @@ class _EditAddonModalState extends State<EditAddonModal> {
                                       ),
                                       CustomToggle(
                                         controller: ValueNotifier<bool>(
-                                            widget.addon.active ?? false),
+                                          widget.addon.active ?? false,
+                                        ),
                                         onChange: event.setActive,
                                       ),
                                     ],
@@ -203,7 +209,8 @@ class _EditAddonModalState extends State<EditAddonModal> {
                                     AppHelpers.showCheckTopSnackBarDone(
                                       context,
                                       AppHelpers.getTranslation(
-                                          TrKeys.successfullyCreated),
+                                        TrKeys.successfullyCreated,
+                                      ),
                                     );
                                     addonsEvent.refreshAddons();
                                     context.router.popUntilRoot();

@@ -1,3 +1,77 @@
+## 1.8.3
+
+* `AuthRepository` calls the registered composed aliases instead of
+  unregistered paths that 404 on composed backends:
+  `paas.api.user.user.login` -> `paas.api.user.login`; bare
+  `paas.api.<fn>` -> `paas.api.user.<fn>` for
+  `send_phone_verification_code`, `verify_phone_code`, `forgot_password`,
+  `register_user` (x3), `forgot_password_confirm`, `login_with_google`;
+  `paas.api.verify_my_email` -> `paas.tenant.api.verify_my_email` (the
+  only registered name for that endpoint, in auth/frappe/manifest.json);
+  and `paas.api.resend_verification_email` ->
+  `paas.api.user.resend_verification_email` (consistency only — the short
+  form is also registered). Completes the users_sdk alias fix (#20),
+  which deliberately deferred this file behind #16.
+
+## 1.8.2
+
+Security release. (Versioned above main's 1.8.0 and the 1.8.1 claimed by
+the in-flight AuthRepository alias-fix PR, Users #24.)
+
+* **Random sync password** (`OfflineAuthService.syncOne`): the offline-sync
+  push used to register the backend account with the local row id — a
+  predictable epoch-microsecond timestamp — as its durable login password.
+  It now sends a cryptographically random secret (32 bytes from
+  `Random.secure()`, base64url, 256 bits — `generateSecurePassword` in
+  `src/common/services/secure_password.dart`), generated once per row per
+  app run and held in memory until the sync succeeds (so a retried push
+  re-sends the same value), then discarded: post-sync access is OTP
+  verification -> session token, and password login stays recoverable via
+  the forgot-password flow.
+* **Forced credential rotation** (`SessionPasswordRotation` +
+  `OfflineAuthService.onDeferredVerificationCompleted` /
+  `retryPendingPasswordRotations`): accounts synced by older releases still
+  carry the guessable timestamp password on the backend. The moment a
+  deferred account completes OTP verification and receives its first real
+  session token, the client now calls the backend's session-scoped
+  `update_password` with a fresh random secret (also discarded). Failures
+  are non-fatal: a persisted pending flag is retried post-frame by
+  `PendingOtpGate` on every boot and app resume, and never blocks login or
+  verification. Accounts that BOTH synced AND verified under old releases
+  are not client-identifiable (verification re-mints the session token, so
+  the stored row token is stale) and are not rotated — see the PR for the
+  declared limitation.
+* **Honest deferred email resend**: `resendVerificationEmail` now sends
+  `requireAuth: false`. The endpoint is allow_guest and identifies the
+  account by the email parameter; previously the call presented the local
+  `offline:<id>` placeholder as a Bearer credential and only worked because
+  the backend's Bearer parser falls through to Guest on malformed tokens.
+* Comment fixes: the offline row id is documented as a local-only
+  epoch-derived identifier (it was mislabeled "local UUID"), never a
+  credential.
+* Rotation calls the registered composed alias
+  `paas.api.user.update_password` (per the users/frappe manifest's
+  whitelisted_methods), not the unregistered raw module path
+  `paas.api.user.user.update_password` — same double-segment bug class
+  Users #20/#24 fixed elsewhere.
+
+## 1.8.0
+
+* Session token refresh (requires base_sdk >= 1.12.0). Login now persists
+  the backend's full token contract — `refresh_token` (to secure
+  keystore/keychain storage) and `expires_at` — instead of dropping both,
+  so base_sdk's new single-flight `TokenRefreshService` can silently
+  rotate the 24h access token (proactively at expiry, and on 401 with one
+  retry) instead of dumping the user on the login screen every day. New
+  `SessionTokenRefresh` capability interface (same pattern as
+  `DeferredOtpEmailResend`): `AuthRepository` implements it by delegating
+  to the base_sdk service; facade implementations that skip it simply get
+  no explicit renewal hook, the automatic interceptor path still applies.
+  When rotation itself fails at the auth level, the stored session is
+  cleared and the existing per-notifier 401 -> login routing takes over.
+  Version 1.7.0 is claimed by the idempotency-key PR (Users #16), hence
+  1.8.0. (The offline-password PR, Users #19, ships above this as 1.8.2.)
+
 ## 1.7.0
 
 * `sigUpWithData` sends an `X-Idempotency-Key` header (optional

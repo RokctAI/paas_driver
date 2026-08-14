@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -61,11 +61,9 @@ class RestaurantItem extends StatelessWidget {
                       ),
                       Padding(
                         padding: EdgeInsets.only(
-                            left: MediaQuery.sizeOf(context).width - 220.w),
-                        child: Icon(
-                          FlutterRemix.building_fill,
-                          size: 16.r,
+                          left: MediaQuery.sizeOf(context).width - 220.w,
                         ),
+                        child: Icon(Remix.building_fill, size: 16.r),
                       ),
                       8.horizontalSpace,
                       Text(

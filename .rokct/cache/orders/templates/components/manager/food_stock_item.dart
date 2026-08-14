@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -13,8 +13,11 @@ class FoodStockItem extends StatelessWidget {
   final Stock? product;
   final Function() onDelete;
 
-  const FoodStockItem(
-      {super.key, required this.product, required this.onDelete});
+  const FoodStockItem({
+    super.key,
+    required this.product,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +50,7 @@ class FoodStockItem extends StatelessWidget {
                       ),
                       alignment: Alignment.center,
                       child: Icon(
-                        FlutterRemix.close_fill,
+                        Remix.close_fill,
                         color: AppStyle.white,
                         size: 24.r,
                       ),
@@ -101,52 +104,56 @@ class FoodStockItem extends StatelessWidget {
                       letterSpacing: -0.3,
                     ),
                   ),
-                  ...?product?.stock?.extras?.map((e) => Padding(
-                        padding: REdgeInsets.only(right: 4, top: 4),
-                        child: Row(
-                          children: [
-                            Text(
-                              "${e.group?.translation?.title ?? ''}: ",
-                              style: AppStyle.interNormal(
-                                size: 12.sp,
-                                color: AppStyle.textGrey,
-                                letterSpacing: -0.3,
-                              ),
+                  ...?product?.stock?.extras?.map(
+                    (e) => Padding(
+                      padding: REdgeInsets.only(right: 4, top: 4),
+                      child: Row(
+                        children: [
+                          Text(
+                            "${e.group?.translation?.title ?? ''}: ",
+                            style: AppStyle.interNormal(
+                              size: 12.sp,
+                              color: AppStyle.textGrey,
+                              letterSpacing: -0.3,
                             ),
-                            Text(
-                              AppHelpers.getTranslation(e.value ?? ''),
-                              style: AppStyle.interNormal(
-                                size: 12.sp,
-                                color: AppStyle.black,
-                                letterSpacing: -0.3,
-                              ),
+                          ),
+                          Text(
+                            AppHelpers.getTranslation(e.value ?? ''),
+                            style: AppStyle.interNormal(
+                              size: 12.sp,
+                              color: AppStyle.black,
+                              letterSpacing: -0.3,
                             ),
-                          ],
-                        ),
-                      )),
-                  ...?product?.addons?.map((e) => Padding(
-                        padding: REdgeInsets.only(right: 4, top: 4),
-                        child: Row(
-                          children: [
-                            Text(
-                              e.product?.translation?.title ?? '',
-                              style: AppStyle.interNormal(
-                                size: 12.sp,
-                                color: AppStyle.textGrey,
-                                letterSpacing: -0.3,
-                              ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  ...?product?.addons?.map(
+                    (e) => Padding(
+                      padding: REdgeInsets.only(right: 4, top: 4),
+                      child: Row(
+                        children: [
+                          Text(
+                            e.product?.translation?.title ?? '',
+                            style: AppStyle.interNormal(
+                              size: 12.sp,
+                              color: AppStyle.textGrey,
+                              letterSpacing: -0.3,
                             ),
-                            Text(
-                              "  ${AppHelpers.numberFormat(number: (e.totalPrice ?? 0) / (e.quantity ?? 1))} x ${e.quantity ?? 1}",
-                              style: AppStyle.interNormal(
-                                size: 12.sp,
-                                color: AppStyle.black,
-                                letterSpacing: -0.3,
-                              ),
+                          ),
+                          Text(
+                            "  ${AppHelpers.numberFormat(number: (e.totalPrice ?? 0) / (e.quantity ?? 1))} x ${e.quantity ?? 1}",
+                            style: AppStyle.interNormal(
+                              size: 12.sp,
+                              color: AppStyle.black,
+                              letterSpacing: -0.3,
                             ),
-                          ],
-                        ),
-                      )),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   8.verticalSpace,
                   if (product?.shopBonus ?? false)
                     Text(

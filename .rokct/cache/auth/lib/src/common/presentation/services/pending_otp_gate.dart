@@ -69,6 +69,8 @@ class PendingOtpGate with WidgetsBindingObserver {
   bool _frameCallbackScheduled = false;
   bool _prompting = false;
   bool _installed = false;
+  bool _rotationFrameScheduled = false;
+  bool _rotationInFlight = false;
 
   /// Boot-hook entry point (see auth_sdk's manifest `boot_hooks`). Runs in
   /// `main()` right after `WidgetsFlutterBinding.ensureInitialized()`, so
@@ -82,12 +84,47 @@ class PendingOtpGate with WidgetsBindingObserver {
       WidgetsBinding.instance.addObserver(instance);
     }
     instance.recheck();
+    // Retry any pending forced password rotation (deferred accounts whose
+    // rotation call failed at verify time). Post-frame like everything
+    // else here: LocalStorage isn't initialized yet at install() time.
+    instance._scheduleRotationRetry();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       recheck();
+      _scheduleRotationRetry();
+    }
+  }
+
+  /// Arms a one-shot post-frame retry of any pending forced password
+  /// rotation (see OfflineAuthService.retryPendingPasswordRotations).
+  /// Strictly best-effort: it only acts when a real (non-`offline:`)
+  /// session token is active, swallows every failure, and leaves the
+  /// persisted pending flag in place for the next boot/resume trigger —
+  /// it can never block or break startup, login, or verification.
+  void _scheduleRotationRetry() {
+    if (_rotationFrameScheduled) return;
+    _rotationFrameScheduled = true;
+    final binding = WidgetsBinding.instance;
+    binding.addPostFrameCallback(_onRotationFrame);
+    binding.scheduleFrame();
+  }
+
+  Future<void> _onRotationFrame(Duration _) async {
+    _rotationFrameScheduled = false;
+    if (_rotationInFlight) return;
+    _rotationInFlight = true;
+    try {
+      final token = LocalStorage.getToken();
+      if (token.isEmpty || OfflineAuthService.isOfflineToken(token)) return;
+      final repo = GetIt.instance<AuthRepositoryFacade>();
+      await OfflineAuthService().retryPendingPasswordRotations(repo);
+    } catch (_) {
+      // Non-fatal by contract; retried on the next boot/resume.
+    } finally {
+      _rotationInFlight = false;
     }
   }
 

@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -55,12 +55,18 @@ class OrderItem extends StatelessWidget {
                   Text(
                     AppHelpers.getTranslation(TrKeys.restaurantHome),
                     style: AppStyle.interNormal(
-                        size: 12.sp, color: AppStyle.black, letterSpacing: -0.3),
+                      size: 12.sp,
+                      color: AppStyle.black,
+                      letterSpacing: -0.3,
+                    ),
                   ),
                   Text(
                     "${(order.distance ?? 0).toString()} ${AppHelpers.getTranslation(TrKeys.km)}",
                     style: AppStyle.interSemi(
-                        size: 14.sp, color: AppStyle.black, letterSpacing: -0.3),
+                      size: 14.sp,
+                      color: AppStyle.black,
+                      letterSpacing: -0.3,
+                    ),
                   ),
                 ],
               ),
@@ -71,16 +77,18 @@ class OrderItem extends StatelessWidget {
                         Text(
                           AppHelpers.getTranslation(TrKeys.home),
                           style: AppStyle.interNormal(
-                              size: 12.sp,
-                              color: AppStyle.black,
-                              letterSpacing: -0.3),
+                            size: 12.sp,
+                            color: AppStyle.black,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                         Text(
                           order.address?.house ?? "",
                           style: AppStyle.interSemi(
-                              size: 14.sp,
-                              color: AppStyle.black,
-                              letterSpacing: -0.3),
+                            size: 14.sp,
+                            color: AppStyle.black,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                       ],
                     )
@@ -92,16 +100,18 @@ class OrderItem extends StatelessWidget {
                         Text(
                           AppHelpers.getTranslation(TrKeys.entr),
                           style: AppStyle.interNormal(
-                              size: 12.sp,
-                              color: AppStyle.black,
-                              letterSpacing: -0.3),
+                            size: 12.sp,
+                            color: AppStyle.black,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                         Text(
                           order.address?.office ?? "",
                           style: AppStyle.interSemi(
-                              size: 14.sp,
-                              color: AppStyle.black,
-                              letterSpacing: -0.3),
+                            size: 14.sp,
+                            color: AppStyle.black,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                       ],
                     )
@@ -113,16 +123,18 @@ class OrderItem extends StatelessWidget {
                         Text(
                           AppHelpers.getTranslation(TrKeys.apart),
                           style: AppStyle.interNormal(
-                              size: 12.sp,
-                              color: AppStyle.black,
-                              letterSpacing: -0.3),
+                            size: 12.sp,
+                            color: AppStyle.black,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                         Text(
                           order.address?.floor ?? "",
                           style: AppStyle.interSemi(
-                              size: 14.sp,
-                              color: AppStyle.black,
-                              letterSpacing: -0.3),
+                            size: 14.sp,
+                            color: AppStyle.black,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                       ],
                     )
@@ -146,12 +158,18 @@ class OrderItem extends StatelessWidget {
                   Text(
                     AppHelpers.getTranslation(TrKeys.askThisCodeFromCustomer),
                     style: AppStyle.interNormal(
-                        size: 12.sp, color: AppStyle.black, letterSpacing: -0.3),
+                      size: 12.sp,
+                      color: AppStyle.black,
+                      letterSpacing: -0.3,
+                    ),
                   ),
                   Text(
                     (order.otp ?? 0).toString(),
                     style: AppStyle.interSemi(
-                        size: 14.sp, color: AppStyle.black, letterSpacing: -0.3),
+                      size: 14.sp,
+                      color: AppStyle.black,
+                      letterSpacing: -0.3,
+                    ),
                   ),
                 ],
               ),
@@ -162,16 +180,18 @@ class OrderItem extends StatelessWidget {
                         Text(
                           AppHelpers.getTranslation(TrKeys.home),
                           style: AppStyle.interNormal(
-                              size: 12.sp,
-                              color: AppStyle.black,
-                              letterSpacing: -0.3),
+                            size: 12.sp,
+                            color: AppStyle.black,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                         Text(
                           order.address?.house ?? "",
                           style: AppStyle.interSemi(
-                              size: 14.sp,
-                              color: AppStyle.black,
-                              letterSpacing: -0.3),
+                            size: 14.sp,
+                            color: AppStyle.black,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                       ],
                     )
@@ -183,16 +203,18 @@ class OrderItem extends StatelessWidget {
                         Text(
                           AppHelpers.getTranslation(TrKeys.entr),
                           style: AppStyle.interNormal(
-                              size: 12.sp,
-                              color: AppStyle.black,
-                              letterSpacing: -0.3),
+                            size: 12.sp,
+                            color: AppStyle.black,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                         Text(
                           order.address?.office ?? "",
                           style: AppStyle.interSemi(
-                              size: 14.sp,
-                              color: AppStyle.black,
-                              letterSpacing: -0.3),
+                            size: 14.sp,
+                            color: AppStyle.black,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                       ],
                     )
@@ -204,16 +226,18 @@ class OrderItem extends StatelessWidget {
                         Text(
                           AppHelpers.getTranslation(TrKeys.apart),
                           style: AppStyle.interNormal(
-                              size: 12.sp,
-                              color: AppStyle.black,
-                              letterSpacing: -0.3),
+                            size: 12.sp,
+                            color: AppStyle.black,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                         Text(
                           order.address?.floor ?? "",
                           style: AppStyle.interSemi(
-                              size: 14.sp,
-                              color: AppStyle.black,
-                              letterSpacing: -0.3),
+                            size: 14.sp,
+                            color: AppStyle.black,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                       ],
                     )
@@ -232,30 +256,21 @@ class OrderItem extends StatelessWidget {
           padding: EdgeInsets.all(16.r),
           child: Row(
             children: [
-              SvgPicture.asset(
-                "assets/svg/cutter.svg",
-                width: 18.r,
-              ),
+              SvgPicture.asset("assets/svg/cutter.svg", width: 18.r),
               10.horizontalSpace,
               Text(
                 AppHelpers.numberFormat(number: order.totalPrice ?? 0),
                 style: AppStyle.interSemi(size: 12.sp),
               ),
               const Spacer(),
-              Icon(
-                FlutterRemix.takeaway_fill,
-                size: 18.sp,
-              ),
+              Icon(Remix.takeaway_fill, size: 18.sp),
               10.horizontalSpace,
               Text(
                 AppHelpers.numberFormat(number: order.deliveryFee ?? 0),
                 style: AppStyle.interSemi(size: 12.sp),
               ),
               const Spacer(),
-              Icon(
-                FlutterRemix.bank_card_2_line,
-                size: 18.sp,
-              ),
+              Icon(Remix.bank_card_2_line, size: 18.sp),
               10.horizontalSpace,
               Text(
                 order.transaction?.paymentSystem?.tag ?? "",
@@ -279,16 +294,15 @@ class OrderItem extends StatelessWidget {
               height: 32.r,
               width: 32.r,
               decoration: const BoxDecoration(
-                  color: AppStyle.white, shape: BoxShape.circle),
+                color: AppStyle.white,
+                shape: BoxShape.circle,
+              ),
               child: ClipOval(
                 child: CachedNetworkImage(
                   imageUrl: "${order.shop?.logoImg}",
                   fit: BoxFit.cover,
                   progressIndicatorBuilder: (context, url, progress) {
-                    return ImageShimmer(
-                      isCircle: true,
-                      size: 32.r,
-                    );
+                    return ImageShimmer(isCircle: true, size: 32.r);
                   },
                   errorWidget: (context, url, error) {
                     return Container(
@@ -300,7 +314,7 @@ class OrderItem extends StatelessWidget {
                       ),
                       alignment: Alignment.center,
                       child: const Icon(
-                        FlutterRemix.image_line,
+                        Remix.image_line,
                         color: AppStyle.black,
                       ),
                     );
@@ -322,53 +336,52 @@ class OrderItem extends StatelessWidget {
                     children: [
                       Text(
                         "№ ${order.id}",
-                        style:
-                            AppStyle.interNormal(size: 14.sp, letterSpacing: -0.3),
+                        style: AppStyle.interNormal(
+                          size: 14.sp,
+                          letterSpacing: -0.3,
+                        ),
                       ),
                       const VerticalDivider(),
                       Text(
-                        intl.DateFormat("hh:mm").format(DateTime.tryParse(
-                                    order.updatedAt ??
-                                        DateTime.now().toString())
-                                ?.toLocal() ??
-                            DateTime.now()),
-                        style:
-                            AppStyle.interNormal(size: 14.sp, letterSpacing: -0.3),
+                        intl.DateFormat("hh:mm").format(
+                          DateTime.tryParse(
+                                order.updatedAt ?? DateTime.now().toString(),
+                              )?.toLocal() ??
+                              DateTime.now(),
+                        ),
+                        style: AppStyle.interNormal(
+                          size: 14.sp,
+                          letterSpacing: -0.3,
+                        ),
                       ),
                       16.horizontalSpace,
-                      Icon(
-                        FlutterRemix.building_fill,
-                        size: 18.r,
-                      ),
+                      Icon(Remix.building_fill, size: 18.r),
                       IconButton(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 6.w,
-                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 6.w),
                         onPressed: () async {
                           AppHelpers.showCustomModalBottomSheet(
-                              context: context,
-                              modal: MapsList(
-                                  location: Coords(
-                                    double.tryParse(
-                                            order.shop?.location?.latitude ??
-                                                "0") ??
-                                        0,
-                                    double.tryParse(
-                                            order.shop?.location?.longitude ??
-                                                "0") ??
-                                        0,
-                                  ),
-                                  title: "Shop"),
-                              isDarkMode: false);
+                            context: context,
+                            modal: MapsList(
+                              location: Coords(
+                                double.tryParse(
+                                      order.shop?.location?.latitude ?? "0",
+                                    ) ??
+                                    0,
+                                double.tryParse(
+                                      order.shop?.location?.longitude ?? "0",
+                                    ) ??
+                                    0,
+                              ),
+                              title: "Shop",
+                            ),
+                            isDarkMode: false,
+                          );
                         },
-                        icon: Icon(
-                          FlutterRemix.map_2_fill,
-                          size: 18.r,
-                        ),
-                      )
+                        icon: Icon(Remix.map_2_fill, size: 18.r),
+                      ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
             const Spacer(),
@@ -387,10 +400,12 @@ class OrderItem extends StatelessWidget {
                           height: 38.r,
                           width: 38.r,
                           decoration: const BoxDecoration(
-                              color: AppStyle.black, shape: BoxShape.circle),
+                            color: AppStyle.black,
+                            shape: BoxShape.circle,
+                          ),
                           margin: EdgeInsets.all(4.r),
                           child: Icon(
-                            FlutterRemix.phone_fill,
+                            Remix.phone_fill,
                             color: AppStyle.white,
                             size: 20.r,
                           ),
@@ -408,10 +423,12 @@ class OrderItem extends StatelessWidget {
                           height: 38.r,
                           width: 38.r,
                           decoration: const BoxDecoration(
-                              color: AppStyle.black, shape: BoxShape.circle),
+                            color: AppStyle.black,
+                            shape: BoxShape.circle,
+                          ),
                           margin: EdgeInsets.all(4.r),
                           child: Icon(
-                            FlutterRemix.chat_1_fill,
+                            Remix.chat_1_fill,
                             color: AppStyle.white,
                             size: 20.r,
                           ),
@@ -421,24 +438,28 @@ class OrderItem extends StatelessWidget {
                   )
                 : const SizedBox.shrink(),
             isSetCurrentOrder
-                ? Consumer(builder: (context, ref, child) {
-                    return CustomToggle(
-                      isOrder: true,
-                      isOnline: order.current ?? false,
-                      onChange: (bool value) {
-                        if (value) {
-                          ref
-                              .read(orderProvider.notifier)
-                              .setCurrentOrder(context, order.id ?? 0, () {
-                            ref
-                                .read(homeProvider.notifier)
-                                .fetchCurrentOrder(context);
-                          });
-                        }
-                      },
-                    );
-                  })
-                : const SizedBox.shrink()
+                ? Consumer(
+                    builder: (context, ref, child) {
+                      return CustomToggle(
+                        isOrder: true,
+                        isOnline: order.current ?? false,
+                        onChange: (bool value) {
+                          if (value) {
+                            ref.read(orderProvider.notifier).setCurrentOrder(
+                              context,
+                              order.id ?? 0,
+                              () {
+                                ref
+                                    .read(homeProvider.notifier)
+                                    .fetchCurrentOrder(context);
+                              },
+                            );
+                          }
+                        },
+                      );
+                    },
+                  )
+                : const SizedBox.shrink(),
           ],
         ),
         Padding(
@@ -449,18 +470,20 @@ class OrderItem extends StatelessWidget {
               Container(
                 width: 4.r,
                 height: 4.r,
-                margin: EdgeInsets.only(
-                  bottom: 6.h,
-                ),
+                margin: EdgeInsets.only(bottom: 6.h),
                 decoration: const BoxDecoration(
-                    color: AppStyle.orderStatusProgressBack, shape: BoxShape.circle),
+                  color: AppStyle.orderStatusProgressBack,
+                  shape: BoxShape.circle,
+                ),
               ),
               Container(
                 width: 4.r,
                 height: 4.r,
                 margin: EdgeInsets.only(bottom: 4.h),
                 decoration: const BoxDecoration(
-                    color: AppStyle.orderStatusProgressBack, shape: BoxShape.circle),
+                  color: AppStyle.orderStatusProgressBack,
+                  shape: BoxShape.circle,
+                ),
               ),
             ],
           ),
@@ -472,16 +495,15 @@ class OrderItem extends StatelessWidget {
               height: 32.r,
               width: 32.r,
               decoration: const BoxDecoration(
-                  color: AppStyle.white, shape: BoxShape.circle),
+                color: AppStyle.white,
+                shape: BoxShape.circle,
+              ),
               child: ClipOval(
                 child: CachedNetworkImage(
                   imageUrl: "${order.user?.img}",
                   fit: BoxFit.cover,
                   progressIndicatorBuilder: (context, url, progress) {
-                    return ImageShimmer(
-                      isCircle: true,
-                      size: 32.r,
-                    );
+                    return ImageShimmer(isCircle: true, size: 32.r);
                   },
                   errorWidget: (context, url, error) {
                     return Container(
@@ -493,7 +515,7 @@ class OrderItem extends StatelessWidget {
                       ),
                       alignment: Alignment.center,
                       child: const Icon(
-                        FlutterRemix.image_line,
+                        Remix.image_line,
                         color: AppStyle.black,
                       ),
                     );
@@ -511,7 +533,10 @@ class OrderItem extends StatelessWidget {
                     width: MediaQuery.sizeOf(context).width - 190.w,
                     child: Text(
                       order.address?.address ?? "",
-                      style: AppStyle.interSemi(size: 14.sp, letterSpacing: -0.3),
+                      style: AppStyle.interSemi(
+                        size: 14.sp,
+                        letterSpacing: -0.3,
+                      ),
                       maxLines: 1,
                     ),
                   ),
@@ -525,42 +550,45 @@ class OrderItem extends StatelessWidget {
                                 ? AppHelpers.getTranslation(TrKeys.deletedUser)
                                 : order.user?.firstname ?? "",
                             style: AppStyle.interNormal(
-                                size: 12.sp, letterSpacing: -0.3),
+                              size: 12.sp,
+                              letterSpacing: -0.3,
+                            ),
                           ),
                         ),
                         const VerticalDivider(),
                         Text(
                           order.user?.phone ?? "",
                           style: AppStyle.interNormal(
-                              size: 12.sp, letterSpacing: -0.3),
+                            size: 12.sp,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                         IconButton(
                           padding: EdgeInsets.symmetric(horizontal: 6.w),
                           onPressed: () {
                             AppHelpers.showCustomModalBottomSheet(
-                                context: context,
-                                modal: MapsList(
-                                    location: Coords(
-                                      double.tryParse(
-                                              order.location?.latitude ??
-                                                  "0") ??
-                                          0,
-                                      double.tryParse(
-                                              order.location?.longitude ??
-                                                  "0") ??
-                                          0,
-                                    ),
-                                    title: "User"),
-                                isDarkMode: false);
+                              context: context,
+                              modal: MapsList(
+                                location: Coords(
+                                  double.tryParse(
+                                        order.location?.latitude ?? "0",
+                                      ) ??
+                                      0,
+                                  double.tryParse(
+                                        order.location?.longitude ?? "0",
+                                      ) ??
+                                      0,
+                                ),
+                                title: "User",
+                              ),
+                              isDarkMode: false,
+                            );
                           },
-                          icon: Icon(
-                            FlutterRemix.map_2_fill,
-                            size: 18.r,
-                          ),
-                        )
+                          icon: Icon(Remix.map_2_fill, size: 18.r),
+                        ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -580,10 +608,12 @@ class OrderItem extends StatelessWidget {
                           height: 38.r,
                           width: 38.r,
                           decoration: const BoxDecoration(
-                              color: AppStyle.black, shape: BoxShape.circle),
+                            color: AppStyle.black,
+                            shape: BoxShape.circle,
+                          ),
                           margin: EdgeInsets.all(4.r),
                           child: Icon(
-                            FlutterRemix.phone_fill,
+                            Remix.phone_fill,
                             color: AppStyle.white,
                             size: 20.r,
                           ),
@@ -601,10 +631,12 @@ class OrderItem extends StatelessWidget {
                           height: 38.r,
                           width: 38.r,
                           decoration: const BoxDecoration(
-                              color: AppStyle.black, shape: BoxShape.circle),
+                            color: AppStyle.black,
+                            shape: BoxShape.circle,
+                          ),
                           margin: EdgeInsets.all(4.r),
                           child: Icon(
-                            FlutterRemix.chat_1_fill,
+                            Remix.chat_1_fill,
                             color: AppStyle.white,
                             size: 20.r,
                           ),
@@ -629,14 +661,14 @@ class OrderItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Icon(FlutterRemix.chat_1_fill),
+          const Icon(Remix.chat_1_fill),
           12.horizontalSpace,
           Expanded(
             child: Text(
               order.note ?? "",
               style: AppStyle.interRegular(size: 13.sp, color: AppStyle.black),
             ),
-          )
+          ),
         ],
       ),
     );

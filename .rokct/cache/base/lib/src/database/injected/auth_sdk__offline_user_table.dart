@@ -13,7 +13,11 @@ import 'package:drift/drift.dart';
 /// hash is never sent anywhere.
 @DataClassName('OfflineUserEntity')
 class OfflineUsersTable extends Table {
-  TextColumn get id => text().clientDefault(() => '')(); // local UUID
+  // Local-only row identifier (epoch-derived, NOT a UUID — see
+  // OfflineAuthService.registerOffline). Predictable by design constraints,
+  // so it must never double as a credential; the sync push registers the
+  // backend account with a random secret instead.
+  TextColumn get id => text().clientDefault(() => '')();
   TextColumn get phone => text().nullable()();
   TextColumn get email => text().nullable()();
   TextColumn get firstName => text().nullable()();

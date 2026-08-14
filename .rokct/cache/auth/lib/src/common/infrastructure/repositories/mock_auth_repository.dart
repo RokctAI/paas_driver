@@ -4,8 +4,13 @@ import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/models/data/address_information.dart';
 
 import 'package:auth_sdk/src/common/domain/interface/deferred_otp_email_resend.dart';
+import 'package:auth_sdk/src/common/domain/interface/session_password_rotation.dart';
 
-class MockAuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend {
+class MockAuthRepository
+    implements
+        AuthRepositoryFacade,
+        DeferredOtpEmailResend,
+        SessionPasswordRotation {
   final UserModel _demoUser = UserModel(
     id: "1",
     uuid: "demo_uuid",
@@ -130,6 +135,14 @@ class MockAuthRepository implements AuthRepositoryFacade, DeferredOtpEmailResend
   @override
   Future<ApiResult<dynamic>> resendVerificationEmail({
     required String email,
+  }) async {
+    return const ApiResult.success(data: null);
+  }
+
+  @override
+  Future<ApiResult<dynamic>> updateSessionPassword({
+    required String password,
+    required String passwordConfirmation,
   }) async {
     return const ApiResult.success(data: null);
   }

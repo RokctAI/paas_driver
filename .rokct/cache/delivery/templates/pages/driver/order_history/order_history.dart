@@ -1,11 +1,10 @@
 import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:delivery_sdk/src/driver/application/order/order_provider.dart';
-
 
 import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -61,7 +60,10 @@ class _OrderHistoryPageState extends ConsumerState<OrderHistoryPage> {
                 ),
                 Text(
                   AppHelpers.getTranslation(TrKeys.thereAreOrders),
-                  style: AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
+                  style: AppStyle.interRegular(
+                    size: 12.sp,
+                    letterSpacing: -0.3,
+                  ),
                 ),
               ],
             ),
@@ -76,31 +78,35 @@ class _OrderHistoryPageState extends ConsumerState<OrderHistoryPage> {
                     enablePullDown: true,
                     enablePullUp: true,
                     onRefresh: () {
-                      ref.read(orderProvider.notifier).fetchHistoryOrdersPage(
-                          context, historyController,
-                          isRefresh: true);
-                    },
-                    onLoading: () {
-                      ref.read(orderProvider.notifier).fetchHistoryOrdersPage(
+                      ref
+                          .read(orderProvider.notifier)
+                          .fetchHistoryOrdersPage(
                             context,
                             historyController,
+                            isRefresh: true,
                           );
+                    },
+                    onLoading: () {
+                      ref
+                          .read(orderProvider.notifier)
+                          .fetchHistoryOrdersPage(context, historyController);
                     },
                     controller: historyController,
                     child: ListView.builder(
-                        padding: EdgeInsets.only(
-                            top: 30.h,
-                            bottom:
-                                MediaQuery.paddingOf(context).bottom + 42.h),
-                        shrinkWrap: true,
-                        itemCount: state.historyOrders.length,
-                        physics: const BouncingScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return OrdersItem(
-                            isOrder: false,
-                            order: state.historyOrders[index],
-                          );
-                        }),
+                      padding: EdgeInsets.only(
+                        top: 30.h,
+                        bottom: MediaQuery.paddingOf(context).bottom + 42.h,
+                      ),
+                      shrinkWrap: true,
+                      itemCount: state.historyOrders.length,
+                      physics: const BouncingScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return OrdersItem(
+                          isOrder: false,
+                          order: state.historyOrders[index],
+                        );
+                      },
+                    ),
                   ),
                 ),
         ],
@@ -117,11 +123,12 @@ class _OrderHistoryPageState extends ConsumerState<OrderHistoryPage> {
             GestureDetector(
               onTap: () {
                 AppHelpers.showCustomModalBottomSheet(
-                    paddingTop: MediaQuery.paddingOf(context).top,
-                    context: context,
-                    radius: 12,
-                    modal: const FilterScreen(),
-                    isDarkMode: true);
+                  paddingTop: MediaQuery.paddingOf(context).top,
+                  context: context,
+                  radius: 12,
+                  modal: const FilterScreen(),
+                  isDarkMode: true,
+                );
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -129,9 +136,9 @@ class _OrderHistoryPageState extends ConsumerState<OrderHistoryPage> {
                   color: AppStyle.primary,
                 ),
                 padding: EdgeInsets.all(16.r),
-                child: const Icon(FlutterRemix.equalizer_fill),
+                child: const Icon(Remix.equalizer_fill),
               ),
-            )
+            ),
           ],
         ),
       ),

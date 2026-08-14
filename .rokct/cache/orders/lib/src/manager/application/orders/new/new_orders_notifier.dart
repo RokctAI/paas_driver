@@ -28,7 +28,10 @@ class NewOrdersNotifier extends StateNotifier<NewOrdersState> {
     if (isRefresh) {
       _page = 0;
       _hasMore = true;
-      if (activeTabIndex == 0) {
+      // position guard: on the wide-screen board no SmartRefresher is built,
+      // so the controller is unattached and requestRefresh() would throw.
+      // Board callers also pass activeTabIndex -1 for the same reason.
+      if (activeTabIndex == 0 && state.refreshController?.position != null) {
         state.refreshController?.requestRefresh();
       }
       state.refreshController?.resetNoData();

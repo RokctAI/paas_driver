@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -51,36 +51,45 @@ class _StoryPageState extends ConsumerState<StoryPage>
     {
       'text': AppHelpers.getTranslation(TrKeys.deliverymanbottomslide1),
       'style': AppStyle.interNormal(
-          size: 32, letterSpacing: -0.3, color: AppStyle.white),
+        size: 32,
+        letterSpacing: -0.3,
+        color: AppStyle.white,
+      ),
     },
     {
       'text': AppHelpers.getTranslation(TrKeys.deliverymanbottomslide2),
       'style': AppStyle.interNormal(
-          size: 32, letterSpacing: -0.3, color: AppStyle.white),
+        size: 32,
+        letterSpacing: -0.3,
+        color: AppStyle.white,
+      ),
     },
     {
       'text': AppHelpers.getTranslation(TrKeys.deliverymanbottomslide3),
       'style': AppStyle.interNormal(
-          size: 32, letterSpacing: -0.3, color: AppStyle.white),
+        size: 32,
+        letterSpacing: -0.3,
+        color: AppStyle.white,
+      ),
     },
   ];
 
   @override
   void initState() {
-    controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 5),
-    )..addListener(() {
-        setState(() {});
-        if (controller.value > 0.99) {
-          if (ref.watch(storyProvider).currentIndex == 2) {
-            context.router.maybePop();
-          }
-          pageController.nextPage(
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeIn);
-        }
-      });
+    controller =
+        AnimationController(vsync: this, duration: const Duration(seconds: 5))
+          ..addListener(() {
+            setState(() {});
+            if (controller.value > 0.99) {
+              if (ref.watch(storyProvider).currentIndex == 2) {
+                context.router.maybePop();
+              }
+              pageController.nextPage(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeIn,
+              );
+            }
+          });
     controller.repeat();
     super.initState();
   }
@@ -96,18 +105,19 @@ class _StoryPageState extends ConsumerState<StoryPage>
     final state = ref.watch(storyProvider);
     final event = ref.read(storyProvider.notifier);
     return Scaffold(
-        body: Stack(
-      children: [
-        PageView(
-          physics: const ClampingScrollPhysics(),
-          controller: pageController,
-          onPageChanged: (s) {
-            event.changeIndex(s);
-            controller.reset();
-            controller.repeat();
-          },
-          children: [
-            ...image.map((e) => Stack(
+      body: Stack(
+        children: [
+          PageView(
+            physics: const ClampingScrollPhysics(),
+            controller: pageController,
+            onPageChanged: (s) {
+              event.changeIndex(s);
+              controller.reset();
+              controller.repeat();
+            },
+            children: [
+              ...image.map(
+                (e) => Stack(
                   children: [
                     Container(
                       width: MediaQuery.sizeOf(context).width,
@@ -120,7 +130,7 @@ class _StoryPageState extends ConsumerState<StoryPage>
                             AppStyle.primary.withOpacity(0.26),
                             AppStyle.primary.withOpacity(0),
                             AppStyle.primary.withOpacity(0),
-                            AppStyle.primary.withOpacity(0.26)
+                            AppStyle.primary.withOpacity(0.26),
                           ],
                         ),
                       ),
@@ -133,7 +143,7 @@ class _StoryPageState extends ConsumerState<StoryPage>
                             end: Alignment.bottomCenter,
                             colors: [
                               AppStyle.blackColor.withOpacity(0.4),
-                              AppStyle.blackColor.withOpacity(0.4)
+                              AppStyle.blackColor.withOpacity(0.4),
                             ],
                           ),
                         ),
@@ -143,10 +153,7 @@ class _StoryPageState extends ConsumerState<StoryPage>
                           height: MediaQuery.sizeOf(context).height,
                           fit: BoxFit.cover,
                           progressIndicatorBuilder: (context, url, progress) {
-                            return const ImageShimmer(
-                              isCircle: false,
-                              size: 0,
-                            );
+                            return const ImageShimmer(isCircle: false, size: 0);
                           },
                           errorWidget: (context, url, error) {
                             return Container(
@@ -156,7 +163,7 @@ class _StoryPageState extends ConsumerState<StoryPage>
                               ),
                               alignment: Alignment.center,
                               child: const Icon(
-                                FlutterRemix.image_line,
+                                Remix.image_line,
                                 color: AppStyle.blackColor,
                               ),
                             );
@@ -184,8 +191,9 @@ class _StoryPageState extends ConsumerState<StoryPage>
                         GestureDetector(
                           onTap: () {
                             pageController.previousPage(
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.easeIn);
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.easeIn,
+                            );
                           },
                           child: Container(
                             height: MediaQuery.sizeOf(context).height,
@@ -196,8 +204,9 @@ class _StoryPageState extends ConsumerState<StoryPage>
                         GestureDetector(
                           onTap: () {
                             pageController.nextPage(
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.easeIn);
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.easeIn,
+                            );
                           },
                           child: Container(
                             height: MediaQuery.sizeOf(context).height,
@@ -217,7 +226,7 @@ class _StoryPageState extends ConsumerState<StoryPage>
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Icon(
-                            FlutterRemix.close_fill,
+                            Remix.close_fill,
                             color: AppStyle.white,
                             size: 30.r,
                           ),
@@ -225,17 +234,18 @@ class _StoryPageState extends ConsumerState<StoryPage>
                       ),
                     ),
                   ],
-                ))
-          ],
-        ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: SafeArea(
-            child: Container(
-              height: 4.h,
-              width: MediaQuery.sizeOf(context).width,
-              margin: EdgeInsets.only(left: 20.w, bottom: 10.h),
-              child: ListView.builder(
+                ),
+              ),
+            ],
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SafeArea(
+              child: Container(
+                height: 4.h,
+                width: MediaQuery.sizeOf(context).width,
+                margin: EdgeInsets.only(left: 20.w, bottom: 10.h),
+                child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: 3,
                   itemBuilder: (context, index) {
@@ -259,27 +269,31 @@ class _StoryPageState extends ConsumerState<StoryPage>
                               child: LinearProgressIndicator(
                                 value: controller.value,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppStyle.primary),
+                                  AppStyle.primary,
+                                ),
                                 backgroundColor: AppStyle.white,
                               ),
                             )
                           : state.currentIndex > index
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(122.r),
-                                  child: LinearProgressIndicator(
-                                    value: 1,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        AppStyle.primary),
-                                    backgroundColor: AppStyle.white,
-                                  ),
-                                )
-                              : const SizedBox.shrink(),
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(122.r),
+                              child: LinearProgressIndicator(
+                                value: 1,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppStyle.primary,
+                                ),
+                                backgroundColor: AppStyle.white,
+                              ),
+                            )
+                          : const SizedBox.shrink(),
                     );
-                  }),
+                  },
+                ),
+              ),
             ),
           ),
-        ),
-      ],
-    ));
+        ],
+      ),
+    );
   }
 }

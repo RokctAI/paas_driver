@@ -110,7 +110,7 @@ class OrdersRepository implements OrdersRepositoryFacade {
     try {
       final client = dioHttp.client(requireAuth: true);
       var res = await client.post(
-        '/api/method/paas.api.payment.payment.initiate_${name.toLowerCase()}_payment',
+        '/api/method/paas.api.payment.initiate_${name.toLowerCase()}_payment',
         data: {'order_id': orderBody.cartId},
       );
       return ApiResult.success(data: res.data["redirect_url"]);
@@ -147,7 +147,7 @@ class OrdersRepository implements OrdersRepositoryFacade {
       final data = {"order": orderId, "cause": title};
       final client = dioHttp.client(requireAuth: true);
       await client.post(
-        '/api/method/paas.api.user.user.create_order_refund',
+        '/api/method/paas.api.user.create_order_refund',
         data: data,
       );
       return const ApiResult.success(data: null);
@@ -236,7 +236,7 @@ class OrdersRepository implements OrdersRepositoryFacade {
     try {
       final client = dioHttp.client(requireAuth: true);
       final response = await client.get(
-        '/api/method/paas.api.user.user.get_user_order_refunds',
+        '/api/method/paas.api.user.get_user_order_refunds',
         queryParameters: data,
       );
       return ApiResult.success(data: RefundOrdersModel.fromJson(response.data));

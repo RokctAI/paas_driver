@@ -1,6 +1,6 @@
 {
   "name": "merchants_sdk",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "_comment_requires": "merchants_sdk >= 1.6.0 requires base_sdk >= 1.5.0 (SyncEngine/SyncHandler APIs from the offline-first Phase 0, core PR #15); merchants_sdk >= 1.7.0 requires base_sdk >= 1.7.0 (SyncEngine.parkedOps/retryOp/deleteOp backing the sync-issues screen). The composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
   "home_sdk": true,
   "home_page": "templates/pages/manager/main/main_page.dart",
@@ -128,6 +128,16 @@
           "_comment": "Sync-issues screen (park-and-surface): parked needs_attention records across the three manager boxes with per-record Retry/Discard. New path, no legacy paas_manager counterpart; route name follows the Manager prefix convention. Reached from the restaurant tab's sections list."
         }
       ],
+      "app_routes": [
+        {
+          "method": "replaceMainRoute",
+          "body": "context.router.replace(MainRoute());",
+          "imports": [
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        }
+      ],
+      "_comment_app_routes": "merchants_sdk is the manager home SDK: it owns the app's main destination, so it implements AppRoutes.replaceMainRoute (what base_sdk's AppHelpers.goHome() calls after splash/login). Without this, _HostAppRoutes' noSuchMethod throws a StateError the moment the shell tries to navigate home. Mirrors launch_sdk's and lms_sdk's declarations.",
       "di_hooks": [
         {
           "id": "merchants-manager-role-di",

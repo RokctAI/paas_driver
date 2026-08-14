@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -49,8 +49,9 @@ class EditableFoodStockItem extends StatelessWidget {
                   label: '${AppHelpers.getTranslation(TrKeys.price)}*',
                   inputType: TextInputType.number,
                   textInputAction: TextInputAction.next,
-                  initialText:
-                      stock.price == null ? '' : stock.price.toString(),
+                  initialText: stock.price == null
+                      ? ''
+                      : stock.price.toString(),
                   onChanged: onPriceChange,
                   validator: SellerFormValidators.emptyCheck,
                 ),
@@ -61,8 +62,9 @@ class EditableFoodStockItem extends StatelessWidget {
                   label: '${AppHelpers.getTranslation(TrKeys.quantity)}*',
                   inputType: TextInputType.number,
                   textInputAction: TextInputAction.next,
-                  initialText:
-                      stock.quantity == null ? '' : stock.quantity.toString(),
+                  initialText: stock.quantity == null
+                      ? ''
+                      : stock.quantity.toString(),
                   onChanged: onQuantityChange,
                   validator: SellerFormValidators.emptyCheck,
                 ),
@@ -80,10 +82,7 @@ class EditableFoodStockItem extends StatelessWidget {
                         color: AppStyle.bgGrey,
                       ),
                       alignment: Alignment.center,
-                      child: Icon(
-                        FlutterRemix.delete_bin_line,
-                        size: 18.r,
-                      ),
+                      child: Icon(Remix.delete_bin_line, size: 18.r),
                     ),
                   ),
                 ),

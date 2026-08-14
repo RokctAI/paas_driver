@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -20,8 +20,10 @@ class DriverAvatar extends StatelessWidget {
           Container(
             height: 50.r,
             width: 50.r,
-            decoration:
-                const BoxDecoration(color: AppStyle.white, shape: BoxShape.circle),
+            decoration: const BoxDecoration(
+              color: AppStyle.white,
+              shape: BoxShape.circle,
+            ),
             padding: REdgeInsets.all(2),
             child: ClipOval(child: CommonImage(url: imageUrl)),
           ),
@@ -38,7 +40,7 @@ class DriverAvatar extends StatelessWidget {
               child: Row(
                 children: [
                   Icon(
-                    FlutterRemix.star_smile_fill,
+                    Remix.star_smile_fill,
                     color: AppStyle.white,
                     size: 12.r,
                   ),
@@ -49,7 +51,7 @@ class DriverAvatar extends StatelessWidget {
                       color: AppStyle.white,
                       letterSpacing: -0.26,
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

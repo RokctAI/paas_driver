@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/services/enums.dart';
 import 'package:${package}/presentation/components/orders/driver_avatar.dart';
@@ -27,7 +27,7 @@ class OrdersItem extends StatelessWidget {
     required this.status,
     required this.onTap,
     this.paymentType = '',
-  }) ;
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -58,42 +58,48 @@ class OrdersItem extends StatelessWidget {
                   children: [
                     Text(
                       paymentType,
-                      style: AppStyle.interSemi(size: 12.sp, letterSpacing: -0.3),
+                      style: AppStyle.interSemi(
+                        size: 12.sp,
+                        letterSpacing: -0.3,
+                      ),
                     ),
                     status == OrderStatus.delivered
                         ? const SizedBox.shrink()
                         : status == OrderStatus.canceled
-                            ? Container(
-                                width: 10.r,
-                                height: 10.r,
-                                decoration: const BoxDecoration(
-                                    shape: BoxShape.circle, color: Colors.red),
-                              )
-                            : Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 8.w, vertical: 6.h),
-                                decoration: BoxDecoration(
-                                  color: AppStyle.bgGrey,
-                                  borderRadius: BorderRadius.circular(100.r),
+                        ? Container(
+                            width: 10.r,
+                            height: 10.r,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.red,
+                            ),
+                          )
+                        : Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8.w,
+                              vertical: 6.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppStyle.bgGrey,
+                              borderRadius: BorderRadius.circular(100.r),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(Remix.time_fill, size: 16.r),
+                                4.horizontalSpace,
+                                Text(
+                                  "41:00",
+                                  style: AppStyle.interSemi(
+                                    size: 14.sp,
+                                    color: AppStyle.blackColor,
+                                  ),
                                 ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      FlutterRemix.time_fill,
-                                      size: 16.r,
-                                    ),
-                                    4.horizontalSpace,
-                                    Text(
-                                      "41:00",
-                                      style: AppStyle.interSemi(
-                                          size: 14.sp, color: AppStyle.blackColor),
-                                    )
-                                  ],
-                                ),
-                              ),
+                              ],
+                            ),
+                          ),
                   ],
-                )
+                ),
               ],
             ),
             const Divider(color: AppStyle.bgGrey),
@@ -102,24 +108,30 @@ class OrdersItem extends StatelessWidget {
                 children: [
                   Text(
                     number,
-                    style:
-                        AppStyle.interNormal(size: 14.sp, color: AppStyle.blackColor),
+                    style: AppStyle.interNormal(
+                      size: 14.sp,
+                      color: AppStyle.blackColor,
+                    ),
                   ),
                   const VerticalDivider(color: AppStyle.bgGrey),
                   Text(
                     time,
-                    style:
-                        AppStyle.interNormal(size: 14.sp, color: AppStyle.blackColor),
+                    style: AppStyle.interNormal(
+                      size: 14.sp,
+                      color: AppStyle.blackColor,
+                    ),
                   ),
                   const Spacer(),
                   Text(
                     "\$$price",
-                    style:
-                        AppStyle.interNormal(size: 14.sp, color: AppStyle.blackColor),
+                    style: AppStyle.interNormal(
+                      size: 14.sp,
+                      color: AppStyle.blackColor,
+                    ),
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

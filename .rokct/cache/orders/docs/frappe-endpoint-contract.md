@@ -21,7 +21,7 @@ only Laravel-specific part was the URL.
 | `getOrderDetails` | `GET .../seller/orders/{id}` | `seller_order.get_seller_order_details` | **Yes** — verify nested shape (details/stock/addons/user/table/transaction) against `OrderData.fromJson`. |
 | `updateOrderStatus` | `POST .../seller/order/{id}/status` | `seller_order.update_seller_order_status` | **Yes.** Wire statuses unchanged: `new/accepted/ready/on_a_way/delivered/canceled`. |
 | `createOrder` | `POST /api/v1/dashboard/seller/orders` | `paas.api.order.order.create_order` (`order_data` = the legacy seller body verbatim) | Customer-shaped endpoint exists; **gap: seller-scoped create** (accepts `user_id`/`phone` for walk-in customer, `table_id` for dine-in, stock+addon lines). |
-| `createTransaction` | `POST /api/v1/payments/order/{id}/transactions` | `paas.api.payment.payment.create_order_transaction` | **No — gap.** |
+| `createTransaction` | `POST /api/v1/payments/order/{id}/transactions` | `paas.api.payment.create_order_transaction` | **Yes** — pay-side `wallet/frappe/src/api/payment/payment.py`, reached via the composed manifest alias `paas.api.payment.create_order_transaction` (`wallet/frappe/manifest.json` `whitelisted_methods`); `@idempotent` + content-level dedupe per order/gateway, amount and user read from the Order doc. |
 | `getPayments` | `GET .../seller/shop-payments` | `paas.api.payment.payment.get_seller_shop_payments` | **No — gap** (POS filters the result to cash/wallet client-side). |
 | `getCalculate` | `GET .../seller/order/products/calculate` (stock-list query) | `paas.api.order.order.get_products_calculate` | **No — gap** (FORK_MAPPING §3 Ask #6: existing `get_calculate` is cart-id based; POS needs the stock-list shape). Query contract preserved verbatim. |
 

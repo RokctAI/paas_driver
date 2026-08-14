@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -54,13 +54,13 @@ class _SyncIssuesPageState extends ConsumerState<SyncIssuesPage> {
   IconData _boxIcon(String box) {
     switch (box) {
       case 'manager_shops':
-        return FlutterRemix.store_2_line;
+        return Remix.store_2_line;
       case 'manager_products':
-        return FlutterRemix.shopping_bag_3_line;
+        return Remix.shopping_bag_3_line;
       case 'manager_orders':
-        return FlutterRemix.file_list_3_line;
+        return Remix.file_list_3_line;
     }
-    return FlutterRemix.error_warning_line;
+    return Remix.error_warning_line;
   }
 
   Future<void> _retry(SyncIssue issue) async {
@@ -138,25 +138,25 @@ class _SyncIssuesPageState extends ConsumerState<SyncIssuesPage> {
             child: state.isLoading && state.issues.isEmpty
                 ? const Center(child: CircularProgressIndicator.adaptive())
                 : state.issues.isEmpty
-                    ? _empty()
-                    : RefreshIndicator.adaptive(
-                        onRefresh: () =>
-                            ref.read(syncIssuesProvider.notifier).fetch(),
-                        child: ListView.builder(
-                          physics: const AlwaysScrollableScrollPhysics(
-                            parent: BouncingScrollPhysics(),
-                          ),
-                          padding: REdgeInsets.only(
-                            left: 16,
-                            right: 16,
-                            top: 16,
-                            bottom: 100,
-                          ),
-                          itemCount: state.issues.length,
-                          itemBuilder: (context, index) =>
-                              _issueItem(state.issues[index]),
-                        ),
+                ? _empty()
+                : RefreshIndicator.adaptive(
+                    onRefresh: () =>
+                        ref.read(syncIssuesProvider.notifier).fetch(),
+                    child: ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
                       ),
+                      padding: REdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        top: 16,
+                        bottom: 100,
+                      ),
+                      itemCount: state.issues.length,
+                      itemBuilder: (context, index) =>
+                          _issueItem(state.issues[index]),
+                    ),
+                  ),
           ),
         ],
       ),
@@ -171,17 +171,14 @@ class _SyncIssuesPageState extends ConsumerState<SyncIssuesPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            FlutterRemix.checkbox_circle_line,
+            Remix.checkbox_circle_line,
             size: 48.r,
             color: AppStyle.textGrey,
           ),
           12.verticalSpace,
           Text(
             AppHelpers.getTranslation(TrKeys.noData),
-            style: AppStyle.interNormal(
-              size: 14.sp,
-              color: AppStyle.textGrey,
-            ),
+            style: AppStyle.interNormal(size: 14.sp, color: AppStyle.textGrey),
           ),
         ],
       ),
@@ -201,11 +198,7 @@ class _SyncIssuesPageState extends ConsumerState<SyncIssuesPage> {
         children: [
           Row(
             children: [
-              Icon(
-                _boxIcon(issue.box),
-                size: 20.r,
-                color: AppStyle.blackColor,
-              ),
+              Icon(_boxIcon(issue.box), size: 20.r, color: AppStyle.blackColor),
               8.horizontalSpace,
               Text(
                 _boxLabel(issue.box),
@@ -219,19 +212,13 @@ class _SyncIssuesPageState extends ConsumerState<SyncIssuesPage> {
           8.verticalSpace,
           Text(
             issue.summary,
-            style: AppStyle.interSemi(
-              size: 16.sp,
-              color: AppStyle.blackColor,
-            ),
+            style: AppStyle.interSemi(size: 16.sp, color: AppStyle.blackColor),
           ),
           if (issue.error != null && issue.error!.isNotEmpty) ...[
             6.verticalSpace,
             Text(
               issue.error!,
-              style: AppStyle.interNormal(
-                size: 13.sp,
-                color: AppStyle.red,
-              ),
+              style: AppStyle.interNormal(size: 13.sp, color: AppStyle.red),
             ),
           ],
           16.verticalSpace,

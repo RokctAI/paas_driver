@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -70,11 +70,13 @@ class FoodItem extends StatelessWidget {
                         isOutOfStock
                             ? AppHelpers.getTranslation(TrKeys.outOfStock)
                             : AppHelpers.numberFormat(
-                                number: product.stocks?.first.price ?? 0),
+                                number: product.stocks?.first.price ?? 0,
+                              ),
                         style: AppStyle.interSemi(
                           size: 14.sp,
-                          color:
-                              isOutOfStock ? AppStyle.red : AppStyle.blackColor,
+                          color: isOutOfStock
+                              ? AppStyle.red
+                              : AppStyle.blackColor,
                           letterSpacing: -0.3,
                         ),
                       ),
@@ -117,7 +119,7 @@ class FoodItem extends StatelessWidget {
                         ),
                         6.horizontalSpace,
                         Icon(
-                          FlutterRemix.arrow_down_s_line,
+                          Remix.arrow_down_s_line,
                           size: 18.r,
                           color: AppStyle.blackColor,
                         ),
@@ -139,8 +141,8 @@ class FoodItem extends StatelessWidget {
                       children: [
                         Icon(
                           product.status == 'pending'
-                              ? FlutterRemix.time_fill
-                              : FlutterRemix.check_double_line,
+                              ? Remix.time_fill
+                              : Remix.check_double_line,
                           size: 20.r,
                           color: AppStyle.white,
                         ),

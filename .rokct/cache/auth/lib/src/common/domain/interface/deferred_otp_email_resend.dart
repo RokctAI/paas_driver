@@ -16,7 +16,9 @@ import 'package:base_sdk/src/handlers/handlers.dart';
 /// no deferred email prompt (the flag stays set, nothing breaks).
 abstract class DeferredOtpEmailResend {
   /// Ask the backend to (re)send the verification email for [email].
-  /// Requires the account's session token — the deferred flow only runs
-  /// while the synced account's own token is active, so that holds.
+  /// Sent unauthenticated: the endpoint is allow_guest and identifies the
+  /// account by the email parameter — at this point in the deferred flow
+  /// the only stored token may be the local `offline:<id>` placeholder,
+  /// which must never be presented as a real credential.
   Future<ApiResult<dynamic>> resendVerificationEmail({required String email});
 }

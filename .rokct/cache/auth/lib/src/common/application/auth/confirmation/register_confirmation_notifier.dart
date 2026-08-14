@@ -44,12 +44,19 @@ class RegisterConfirmationNotifier
   // that already exists on the backend, and only verifyPhone lifts the
   // backend's unverified-account limit (a Firebase credential exchange
   // never reaches the backend at all).
+  //
+  // [isDeferredOtp] marks the deferred flow explicitly (the page passes
+  // widget.isDeferredOtp): on verify success it triggers the forced
+  // backend-password rotation for the synced offline account — fire and
+  // forget, never blocking verification (see
+  // OfflineAuthService.onDeferredVerificationCompleted).
   Future<void> confirmCodeWithPhone({
     required BuildContext context,
     required String verificationId,
     VoidCallback? onSuccess,
     required WidgetRef ref,
     bool useBackendOtp = false,
+    bool isDeferredOtp = false,
   }) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
@@ -98,9 +105,28 @@ class RegisterConfirmationNotifier
             ref.read(mainProvider.notifier).resetToInitialPage();
             state = state.copyWith(isLoading: false, isSuccess: true);
             _timer?.cancel();
+            final offlineAuth = OfflineAuthService();
+            // Read the flag BEFORE clearing: it carries the local row id
+            // the rotation below needs.
+            final pendingOtp = await offlineAuth.pendingOtpVerification();
             // Deferred-OTP accounts are fully verified from here on.
-            await OfflineAuthService().clearPendingOtpVerification();
-            LocalStorage.setToken(data.data?.token);
+            await offlineAuth.clearPendingOtpVerification();
+            await LocalStorage.setToken(data.data?.token);
+            if (isDeferredOtp && pendingOtp != null) {
+              // Forced credential rotation: accounts synced by old app
+              // versions carry a guessable sync-time backend password.
+              // Fire and forget — failures leave a persisted flag that
+              // PendingOtpGate retries on later boots/resumes, and
+              // verification itself is never blocked.
+              unawaited(
+                offlineAuth.onDeferredVerificationCompleted(
+                  localUserId: (pendingOtp['localUserId'] ?? '') as String,
+                  backendUserId: pendingOtp['backendUserId'] as String?,
+                  freshToken: data.data?.token,
+                  authRepository: _authRepository,
+                ),
+              );
+            }
             LocalStorage.setAddressSelected(
               AddressData(
                 title:
@@ -169,8 +195,14 @@ class RegisterConfirmationNotifier
     }
   }
 
-  // For email confirmation
-  Future<void> confirmCode(BuildContext context, WidgetRef ref) async {
+  // For email confirmation. [isDeferredOtp]: same contract as
+  // [confirmCodeWithPhone] — triggers the forced backend-password rotation
+  // for a synced offline account on verify success.
+  Future<void> confirmCode(
+    BuildContext context,
+    WidgetRef ref, {
+    bool isDeferredOtp = false,
+  }) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isLoading: true, isSuccess: false);
@@ -182,8 +214,33 @@ class RegisterConfirmationNotifier
           ref.read(mainProvider.notifier).resetToInitialPage();
           state = state.copyWith(isLoading: false, isSuccess: true);
           _timer?.cancel();
+          final offlineAuth = OfflineAuthService();
+          // Read the flag BEFORE clearing: it carries the local row id
+          // the rotation below needs.
+          final pendingOtp = await offlineAuth.pendingOtpVerification();
           // Deferred-OTP accounts are fully verified from here on.
-          await OfflineAuthService().clearPendingOtpVerification();
+          await offlineAuth.clearPendingOtpVerification();
+          if (isDeferredOtp && pendingOtp != null) {
+            final freshToken = data.data?.token;
+            if (freshToken != null && freshToken.isNotEmpty) {
+              // The verify endpoint minted this session's first real
+              // token; store it so the rotation call (and everything
+              // after) runs as the verified account instead of the
+              // `offline:<id>` placeholder.
+              await LocalStorage.setToken(freshToken);
+            }
+            // Forced credential rotation — same contract as the phone
+            // path: fire and forget, retried by PendingOtpGate on
+            // failure, never blocks verification.
+            unawaited(
+              offlineAuth.onDeferredVerificationCompleted(
+                localUserId: (pendingOtp['localUserId'] ?? '') as String,
+                backendUserId: pendingOtp['backendUserId'] as String?,
+                freshToken: freshToken,
+                authRepository: _authRepository,
+              ),
+            );
+          }
         },
         failure: (failure, status) {
           state = state.copyWith(

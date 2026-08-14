@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -19,7 +19,7 @@ class PaymentItem extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
     this.isLast = false,
-  }) ;
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +32,8 @@ class PaymentItem extends StatelessWidget {
               children: [
                 Icon(
                   isSelected
-                      ? FlutterRemix.checkbox_circle_fill
-                      : FlutterRemix.checkbox_circle_line,
+                      ? Remix.checkbox_circle_fill
+                      : Remix.checkbox_circle_line,
                   size: 24.r,
                   color: isSelected ? AppStyle.primary : AppStyle.blackColor,
                 ),
@@ -48,11 +48,7 @@ class PaymentItem extends StatelessWidget {
               Column(
                 children: [
                   14.verticalSpace,
-                  Divider(
-                    thickness: 1.r,
-                    height: 1.r,
-                    color: AppStyle.bgGrey,
-                  ),
+                  Divider(thickness: 1.r, height: 1.r, color: AppStyle.bgGrey),
                   14.verticalSpace,
                 ],
               ),

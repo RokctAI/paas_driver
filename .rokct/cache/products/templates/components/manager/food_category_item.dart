@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -71,12 +71,9 @@ class FoodCategoryItem extends StatelessWidget {
                           ButtonsBouncingEffect(
                             child: GestureDetector(
                               onTap: onDelete,
-                              child: Icon(
-                                FlutterRemix.delete_bin_line,
-                                size: 21.r,
-                              ),
+                              child: Icon(Remix.delete_bin_line, size: 21.r),
                             ),
-                          )
+                          ),
                       ],
                     ),
                   ],

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -31,8 +31,8 @@ class ExtrasItem extends StatelessWidget {
             children: [
               Icon(
                 (extras.isChecked ?? false)
-                    ? FlutterRemix.checkbox_circle_fill
-                    : FlutterRemix.checkbox_blank_circle_line,
+                    ? Remix.checkbox_circle_fill
+                    : Remix.checkbox_blank_circle_line,
                 color: (extras.isChecked ?? false)
                     ? AppStyle.primary
                     : AppStyle.blackColor,

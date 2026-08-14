@@ -33,4 +33,4 @@ dev_dependencies:
 # codegen/analysis. Ignored when a host app is the resolution root.
 dependency_overrides:
   base_sdk:
-    path: ../../../core/base/dart
+    path: ../base

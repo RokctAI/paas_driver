@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -61,7 +61,7 @@ class _ExtrasGroupDetailsModalState
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      FlutterRemix.play_list_add_line,
+                      Remix.play_list_add_line,
                       color: AppStyle.blue,
                       size: 18.r,
                     ),
@@ -87,7 +87,8 @@ class _ExtrasGroupDetailsModalState
                 modal: UpdateExtrasGroupModal(group: widget.group),
                 isDarkMode: true,
               ),
-              suffixIcon: widget.group.shopId ==
+              suffixIcon:
+                  widget.group.shopId ==
                       (LocalStorage.getShopJson()?['id'] as int?)
                   ? GestureDetector(
                       onTap: () => AppHelpers.showCustomModalBottomSheet(
@@ -96,7 +97,7 @@ class _ExtrasGroupDetailsModalState
                         modal: DeleteExtrasGroupModal(group: widget.group),
                       ),
                       child: Icon(
-                        FlutterRemix.delete_bin_fill,
+                        Remix.delete_bin_fill,
                         size: 24.r,
                         color: AppStyle.red,
                       ),
@@ -125,25 +126,25 @@ class _ExtrasGroupDetailsModalState
                           itemCount: state.extras.length,
                           itemBuilder: (context, index) =>
                               GroupDetailExtrasItem(
-                            extras: state.extras[index],
-                            onEditTap: () =>
-                                AppHelpers.showCustomModalBottomSheet(
-                              context: context,
-                              modal: EditExtrasItemModal(
-                                group: widget.group,
                                 extras: state.extras[index],
+                                onEditTap: () =>
+                                    AppHelpers.showCustomModalBottomSheet(
+                                      context: context,
+                                      modal: EditExtrasItemModal(
+                                        group: widget.group,
+                                        extras: state.extras[index],
+                                      ),
+                                      isDarkMode: false,
+                                    ),
+                                onDeleteTap: () =>
+                                    AppHelpers.showCustomModalBottomSheet(
+                                      context: context,
+                                      modal: DeleteExtrasItemModal(
+                                        extras: state.extras[index],
+                                      ),
+                                      isDarkMode: false,
+                                    ),
                               ),
-                              isDarkMode: false,
-                            ),
-                            onDeleteTap: () =>
-                                AppHelpers.showCustomModalBottomSheet(
-                              context: context,
-                              modal: DeleteExtrasItemModal(
-                                extras: state.extras[index],
-                              ),
-                              isDarkMode: false,
-                            ),
-                          ),
                         );
                 },
               ),

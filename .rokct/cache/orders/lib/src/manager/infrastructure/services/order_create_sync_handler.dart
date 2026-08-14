@@ -74,7 +74,7 @@ class OrderCreateSyncHandler extends SyncHandler {
         localId,
         backendId: backendId?.toString(),
       );
-      await _createTransaction(client, backendId, payload['payment_id']);
+      await _createTransaction(client, op.id, backendId, payload['payment_id']);
       return SyncResult.synced(
         idMappings:
             backendId == null ? const {} : {localId: backendId.toString()},
@@ -118,14 +118,19 @@ class OrderCreateSyncHandler extends SyncHandler {
   /// op and re-create the order, which is worse than a missing transaction.
   Future<void> _createTransaction(
     Dio client,
+    String opId,
     int? orderId,
     dynamic paymentId,
   ) async {
     if (orderId == null || paymentId is! int) return;
     try {
       await client.post(
-        '/api/method/paas.api.payment.payment.create_order_transaction',
+        '/api/method/paas.api.payment.create_order_transaction',
         data: {'order_id': orderId, 'payment_sys_id': paymentId},
+        // Derived from the same op id as the order-create call but
+        // distinct from it — the two creates must not share a key (the
+        // server stores one response per key per endpoint).
+        options: Options(headers: {'X-Idempotency-Key': '$opId:txn'}),
       );
     } catch (e) {
       debugPrint('==> queued order transaction failed (order $orderId): $e');

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -47,7 +47,7 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
               color: AppStyle.black.withOpacity(0.25),
               blurRadius: 40,
               offset: const Offset(0, -2),
-            )
+            ),
           ],
         ),
         padding: EdgeInsets.only(
@@ -71,10 +71,7 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
                 18.verticalSpace,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _balance(context),
-                    _benefit(context),
-                  ],
+                  children: [_balance(context), _benefit(context)],
                 ),
                 SizedBox(
                   height: 186.h,
@@ -83,12 +80,10 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
                     scrollDirection: Axis.horizontal,
                     itemCount: image.length,
                     itemBuilder: (context, index) {
-                      return StoresPage(
-                        image: image[index],
-                      );
+                      return StoresPage(image: image[index]);
                     },
                   ),
-                )
+                ),
               ],
             ),
           ],
@@ -119,10 +114,7 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
                 shape: BoxShape.circle,
                 color: AppStyle.black,
               ),
-              child: Icon(
-                FlutterRemix.file_list_2_fill,
-                color: AppStyle.primary,
-              ),
+              child: Icon(Remix.file_list_2_fill, color: AppStyle.primary),
             ),
             14.horizontalSpace,
             Column(
@@ -133,24 +125,34 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
                   width: 60.w,
                   child: Text(
                     AppHelpers.getTranslation(TrKeys.foodymanBenefit),
-                    style: AppStyle.interNormal(size: 12.sp, letterSpacing: -0.3),
+                    style: AppStyle.interNormal(
+                      size: 12.sp,
+                      letterSpacing: -0.3,
+                    ),
                     maxLines: 1,
                   ),
                 ),
-                Consumer(builder: (context, ref, child) {
-                  return Text(
-                    AppHelpers.numberFormat(
-                        number: (ref
+                Consumer(
+                  builder: (context, ref, child) {
+                    return Text(
+                      AppHelpers.numberFormat(
+                        number:
+                            (ref
                                 .watch(courierProfileStatisticsProvider)
                                 .statistics
                                 ?.data
                                 ?.totalPrice ??
-                            0)),
-                    style: AppStyle.interSemi(size: 14.sp, letterSpacing: -0.3),
-                  );
-                })
+                            0),
+                      ),
+                      style: AppStyle.interSemi(
+                        size: 14.sp,
+                        letterSpacing: -0.3,
+                      ),
+                    );
+                  },
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -184,15 +186,21 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
                   AppHelpers.getTranslation(TrKeys.balance),
                   style: AppStyle.interNormal(size: 12.sp, letterSpacing: -0.3),
                 ),
-                Consumer(builder: (context, ref, child) {
-                  return Text(
-                    AppHelpers.numberFormat(
-                        number: LocalStorage.getUser()?.wallet?.price),
-                    style: AppStyle.interSemi(size: 14.sp, letterSpacing: -0.3),
-                  );
-                })
+                Consumer(
+                  builder: (context, ref, child) {
+                    return Text(
+                      AppHelpers.numberFormat(
+                        number: LocalStorage.getUser()?.wallet?.price,
+                      ),
+                      style: AppStyle.interSemi(
+                        size: 14.sp,
+                        letterSpacing: -0.3,
+                      ),
+                    );
+                  },
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),

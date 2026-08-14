@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -49,7 +49,7 @@ class GroupDetailExtrasItem extends StatelessWidget {
                     child: GestureDetector(
                       onTap: onEditTap,
                       child: Icon(
-                        FlutterRemix.pencil_fill,
+                        Remix.pencil_fill,
                         size: 20.r,
                         color: AppStyle.blackColor,
                       ),
@@ -60,7 +60,7 @@ class GroupDetailExtrasItem extends StatelessWidget {
                     child: GestureDetector(
                       onTap: onDeleteTap,
                       child: Icon(
-                        FlutterRemix.delete_bin_line,
+                        Remix.delete_bin_line,
                         size: 20.r,
                         color: AppStyle.blackColor,
                       ),

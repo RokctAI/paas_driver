@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -10,11 +10,12 @@ class SectionsItem extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
-  const SectionsItem(
-      {super.key,
-      required this.title,
-      required this.icon,
-      required this.onTap});
+  const SectionsItem({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +35,16 @@ class SectionsItem extends StatelessWidget {
               16.horizontalSpace,
               Text(
                 title,
-                style: AppStyle.interRegular(size: 16.sp, color: AppStyle.black),
+                style: AppStyle.interRegular(
+                  size: 16.sp,
+                  color: AppStyle.black,
+                ),
               ),
               const Spacer(),
               const Icon(
-                FlutterRemix.arrow_right_s_line,
+                Remix.arrow_right_s_line,
                 color: AppStyle.tabBarBorderColor,
-              )
+              ),
             ],
           ),
         ),

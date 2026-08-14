@@ -1,4 +1,4 @@
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -27,7 +27,7 @@ class OrderFoodItem extends StatelessWidget {
     final bool hasDiscount = isOutOfStock
         ? false
         : (product.stocks!.first.discount != null &&
-            (product.stocks!.first.discount ?? 0) > 0);
+              (product.stocks!.first.discount ?? 0) > 0);
     return ButtonsBouncingEffect(
       child: GestureDetector(
         onTap: onTap,
@@ -92,76 +92,87 @@ class OrderFoodItem extends StatelessWidget {
                                 ),
                               )
                             : (hasDiscount
-                                ? Row(
-                                    children: [
-                                      Text(
-                                        AppHelpers.numberFormat(number: (product
-                                                      .stocks?.first.price ??
-                                                  0) +
-                                              (product.stocks?.first.tax ?? 0),
+                                  ? Row(
+                                      children: [
+                                        Text(
+                                          AppHelpers.numberFormat(
+                                            number:
+                                                (product.stocks?.first.price ??
+                                                    0) +
+                                                (product.stocks?.first.tax ??
+                                                    0),
+                                          ),
+                                          style: AppStyle.interSemi(
+                                            size: 14.sp,
+                                            color: AppStyle.blackColor,
+                                            letterSpacing: -0.3,
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                          ),
                                         ),
-                                        style: AppStyle.interSemi(
-                                          size: 14.sp,
-                                          color: AppStyle.blackColor,
-                                          letterSpacing: -0.3,
-                                          decoration:
-                                              TextDecoration.lineThrough,
-                                        ),
-                                      ),
-                                      10.horizontalSpace,
-                                      Container(
-                                        padding: REdgeInsets.only(
-                                          top: 4,
-                                          bottom: 4,
-                                          left: 4,
-                                          right: 10,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(30.r),
-                                          color: AppStyle.redBg,
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: Row(
-                                          children: [
-                                            Container(
-                                              width: 20.r,
-                                              height: 20.r,
-                                              decoration: const BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: AppStyle.red,
-                                              ),
-                                              child: Icon(
-                                                FlutterRemix.percent_fill,
-                                                size: 12.r,
-                                                color: AppStyle.white,
-                                              ),
+                                        10.horizontalSpace,
+                                        Container(
+                                          padding: REdgeInsets.only(
+                                            top: 4,
+                                            bottom: 4,
+                                            left: 4,
+                                            right: 10,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              30.r,
                                             ),
-                                            8.horizontalSpace,
-                                            Text(
-                                              AppHelpers.numberFormat(number: product.stocks?.first
+                                            color: AppStyle.redBg,
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                width: 20.r,
+                                                height: 20.r,
+                                                decoration: const BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: AppStyle.red,
+                                                ),
+                                                child: Icon(
+                                                  Remix.percent_fill,
+                                                  size: 12.r,
+                                                  color: AppStyle.white,
+                                                ),
+                                              ),
+                                              8.horizontalSpace,
+                                              Text(
+                                                AppHelpers.numberFormat(
+                                                  number:
+                                                      product
+                                                          .stocks
+                                                          ?.first
                                                           .totalPrice ??
-                                                      0),
-                                              style: AppStyle.interSemi(
-                                                size: 14.sp,
-                                                color: AppStyle.blackColor,
-                                                letterSpacing: -0.3,
+                                                      0,
+                                                ),
+                                                style: AppStyle.interSemi(
+                                                  size: 14.sp,
+                                                  color: AppStyle.blackColor,
+                                                  letterSpacing: -0.3,
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
+                                      ],
+                                    )
+                                  : Text(
+                                      AppHelpers.numberFormat(
+                                        number:
+                                            product.stocks?.first.totalPrice ??
+                                            0,
                                       ),
-                                    ],
-                                  )
-                                : Text(
-                                    AppHelpers.numberFormat(number: product.stocks?.first.totalPrice ??
-                                                0),
-                                    style: AppStyle.interSemi(
-                                      size: 14.sp,
-                                      color: AppStyle.blackColor,
-                                      letterSpacing: -0.3,
-                                    ),
-                                  )),
+                                      style: AppStyle.interSemi(
+                                        size: 14.sp,
+                                        color: AppStyle.blackColor,
+                                        letterSpacing: -0.3,
+                                      ),
+                                    )),
                       ],
                     ),
                   ),

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/models/data/parcel_order.dart';
 
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.dart';
-
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:${package}/presentation/pages/home/widgets/add_comment.dart';
@@ -33,9 +32,7 @@ class _RateCustomerState extends State<RateCustomer> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 16.w,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -58,10 +55,8 @@ class _RateCustomerState extends State<RateCustomer> {
             ),
             padding: EdgeInsets.all(16.r),
             child: RatingBar.builder(
-              itemBuilder: (context, index) => Icon(
-                FlutterRemix.star_fill,
-                color: AppStyle.primary,
-              ),
+              itemBuilder: (context, index) =>
+                  Icon(Remix.star_fill, color: AppStyle.primary),
               itemCount: 5,
               itemPadding: EdgeInsets.symmetric(horizontal: 11.r),
               direction: Axis.horizontal,
@@ -81,17 +76,23 @@ class _RateCustomerState extends State<RateCustomer> {
                 onPressed: () {
                   Navigator.pop(context);
                   if (widget.order == null) {
-                    ref.read(homeProvider.notifier).addReviewParcel(
-                        context: context,
-                        parcelId: int.tryParse(widget.parcel?.id ?? ''),
-                        rating: rate,
-                        comment: note);
+                    ref
+                        .read(homeProvider.notifier)
+                        .addReviewParcel(
+                          context: context,
+                          parcelId: int.tryParse(widget.parcel?.id ?? ''),
+                          rating: rate,
+                          comment: note,
+                        );
                   } else {
-                    ref.read(homeProvider.notifier).addReview(
-                        context: context,
-                        orderId: widget.order?.id,
-                        rating: rate,
-                        comment: note);
+                    ref
+                        .read(homeProvider.notifier)
+                        .addReview(
+                          context: context,
+                          orderId: widget.order?.id,
+                          rating: rate,
+                          comment: note,
+                        );
                   }
                 },
               );
@@ -124,14 +125,14 @@ class _RateCustomerState extends State<RateCustomer> {
         padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
         child: Row(
           children: [
-            const Icon(FlutterRemix.chat_1_fill),
+            const Icon(Remix.chat_1_fill),
             12.horizontalSpace,
             Text(
               note.isEmpty
                   ? AppHelpers.getTranslation(TrKeys.noteAboutClient)
                   : note,
               style: AppStyle.interRegular(size: 13.sp, color: AppStyle.black),
-            )
+            ),
           ],
         ),
       ),

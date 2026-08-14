@@ -16,6 +16,7 @@ import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/app_validators.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/services/secure_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 // [refork] removed host router import
 import 'package:permission_handler/permission_handler.dart';
@@ -202,7 +203,12 @@ class LoginNotifier extends StateNotifier<LoginState> {
       AuthSessionPolicy.I.onRejected(context, role: role);
       return;
     }
-    LocalStorage.setToken(data?.accessToken ?? '');
+    // setToken clears any stale refresh contract, so persist the fresh
+    // one strictly after it. Flows that mint none (Google login) simply
+    // store nothing — their sessions are never proactively refreshed.
+    await LocalStorage.setToken(data?.accessToken ?? '');
+    await SecureStorage.setRefreshToken(data?.refreshToken);
+    await LocalStorage.setTokenExpiry(data?.expiresAt);
     LocalStorage.setAddressSelected(_activeAddressOf(data?.user));
     if (popUntilRoot) {
       context.router.popUntilRoot();

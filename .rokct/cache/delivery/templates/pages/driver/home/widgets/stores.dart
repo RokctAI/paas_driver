@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:${package}/presentation/routes/app_router.dart';
@@ -29,7 +29,7 @@ class StoresPage extends StatelessWidget {
             end: Alignment.bottomCenter,
             colors: [
               AppStyle.primary.withOpacity(0),
-              AppStyle.primary.withOpacity(0.8)
+              AppStyle.primary.withOpacity(0.8),
             ],
           ),
         ),
@@ -40,10 +40,7 @@ class StoresPage extends StatelessWidget {
             imageUrl: image,
             fit: BoxFit.cover,
             progressIndicatorBuilder: (context, url, progress) {
-              return ImageShimmer(
-                isCircle: false,
-                size: 16.r,
-              );
+              return ImageShimmer(isCircle: false, size: 16.r);
             },
             errorWidget: (context, url, error) {
               return Container(
@@ -54,10 +51,7 @@ class StoresPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16.r),
                 ),
                 alignment: Alignment.center,
-                child: const Icon(
-                  FlutterRemix.image_line,
-                  color: AppStyle.black,
-                ),
+                child: const Icon(Remix.image_line, color: AppStyle.black),
               );
             },
           ),

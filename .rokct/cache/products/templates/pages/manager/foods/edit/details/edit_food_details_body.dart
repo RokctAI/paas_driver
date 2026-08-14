@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -34,8 +34,11 @@ class EditFoodDetailsBody extends ConsumerStatefulWidget {
   final Function() onSave;
   final ScrollController controller;
 
-  const EditFoodDetailsBody(
-      {super.key, required this.onSave, required this.controller});
+  const EditFoodDetailsBody({
+    super.key,
+    required this.onSave,
+    required this.controller,
+  });
 
   @override
   ConsumerState<EditFoodDetailsBody> createState() =>
@@ -48,19 +51,19 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) {
-        final kitchen = ref.read(editFoodDetailsProvider).product?.kitchen;
-        if (kitchen != null) {
-          ref.read(kitchenPickerProvider.notifier).initialise(
-                selected: KitchenModel(
-                  id: kitchen.id,
-                  translation: Translation(title: kitchen.title),
-                ),
-              );
-        }
-      },
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final kitchen = ref.read(editFoodDetailsProvider).product?.kitchen;
+      if (kitchen != null) {
+        ref
+            .read(kitchenPickerProvider.notifier)
+            .initialise(
+              selected: KitchenModel(
+                id: kitchen.id,
+                translation: Translation(title: kitchen.title),
+              ),
+            );
+      }
+    });
   }
 
   @override
@@ -128,7 +131,7 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
                             label:
                                 '${AppHelpers.getTranslation(TrKeys.productCategory)}*',
                             suffixIcon: Icon(
-                              FlutterRemix.arrow_down_s_line,
+                              Remix.arrow_down_s_line,
                               color: AppStyle.blackColor,
                               size: 18.r,
                             ),
@@ -148,7 +151,7 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
                             label:
                                 '${AppHelpers.getTranslation(TrKeys.units)}*',
                             suffixIcon: Icon(
-                              FlutterRemix.arrow_down_s_line,
+                              Remix.arrow_down_s_line,
                               color: AppStyle.blackColor,
                               size: 18.r,
                             ),
@@ -167,7 +170,7 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
                             textController: kitchenState.kitchenController,
                             label: AppHelpers.getTranslation(TrKeys.kitchen),
                             suffixIcon: Icon(
-                              FlutterRemix.arrow_down_s_line,
+                              Remix.arrow_down_s_line,
                               color: AppStyle.blackColor,
                               size: 18.r,
                             ),
@@ -188,8 +191,8 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
                             textCapitalization: TextCapitalization.sentences,
                             textInputAction: TextInputAction.next,
                             onChanged: event.setInterval,
-                            initialText:
-                                (state.product?.interval ?? 1).toString(),
+                            initialText: (state.product?.interval ?? 1)
+                                .toString(),
                             validator: SellerFormValidators.emptyCheck,
                           ),
                           24.verticalSpace,
@@ -218,8 +221,11 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
                                   initialText:
                                       state.product?.maxQty.toString() ?? '',
                                   onChanged: event.setMaxQty,
-                                  validator: (value) => SellerFormValidators
-                                      .maxQtyCheck(value, state.minQty),
+                                  validator: (value) =>
+                                      SellerFormValidators.maxQtyCheck(
+                                        value,
+                                        state.minQty,
+                                      ),
                                 ),
                               ),
                             ],
@@ -277,15 +283,16 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
                                     AppHelpers.showCheckTopSnackBarDone(
                                       context,
                                       AppHelpers.getTranslation(
-                                          TrKeys.successfullyUpdated),
+                                        TrKeys.successfullyUpdated,
+                                      ),
                                     );
                                     foodsEvent.updateSingleProduct(product);
                                   },
-                                  failed: () =>
-                                      AppHelpers.showCheckTopSnackBar(
+                                  failed: () => AppHelpers.showCheckTopSnackBar(
                                     context,
                                     AppHelpers.getTranslation(
-                                        TrKeys.updateFailed),
+                                      TrKeys.updateFailed,
+                                    ),
                                   ),
                                 );
                               }

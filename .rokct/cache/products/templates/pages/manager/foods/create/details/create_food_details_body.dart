@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -89,7 +89,7 @@ class _CreateFoodDetailsBodyState extends State<CreateFoodDetailsBody> {
                           label:
                               '${AppHelpers.getTranslation(TrKeys.productCategory)}*',
                           suffixIcon: Icon(
-                            FlutterRemix.arrow_down_s_line,
+                            Remix.arrow_down_s_line,
                             color: AppStyle.blackColor,
                             size: 18.r,
                           ),
@@ -112,7 +112,7 @@ class _CreateFoodDetailsBodyState extends State<CreateFoodDetailsBody> {
                           textController: unitState.unitController,
                           label: '${AppHelpers.getTranslation(TrKeys.units)}*',
                           suffixIcon: Icon(
-                            FlutterRemix.arrow_down_s_line,
+                            Remix.arrow_down_s_line,
                             color: AppStyle.blackColor,
                             size: 18.r,
                           ),
@@ -135,7 +135,7 @@ class _CreateFoodDetailsBodyState extends State<CreateFoodDetailsBody> {
                           textController: kitchenState.kitchenController,
                           label: AppHelpers.getTranslation(TrKeys.kitchen),
                           suffixIcon: Icon(
-                            FlutterRemix.arrow_down_s_line,
+                            Remix.arrow_down_s_line,
                             color: AppStyle.blackColor,
                             size: 18.r,
                           ),
@@ -182,8 +182,11 @@ class _CreateFoodDetailsBodyState extends State<CreateFoodDetailsBody> {
                             inputType: TextInputType.number,
                             textInputAction: TextInputAction.next,
                             onChanged: event.setMaxQty,
-                            validator: (value) => SellerFormValidators
-                                .maxQtyCheck(value, state.minQty),
+                            validator: (value) =>
+                                SellerFormValidators.maxQtyCheck(
+                                  value,
+                                  state.minQty,
+                                ),
                           ),
                         ),
                       ],
@@ -231,27 +234,32 @@ class _CreateFoodDetailsBodyState extends State<CreateFoodDetailsBody> {
                       onPressed: () {
                         if (_formKey.currentState?.validate() ?? false) {
                           event.createProduct(
-                              categoryId: categoryState
-                                  .categories[categoryState.activeIndex].id,
-                              unitId: unitState.units[unitState.activeIndex].id,
-                              kitchenId: kitchenState.selected?.id,
-                              created: () {
-                            widget.onSave();
-                            AppHelpers.showCheckTopSnackBarDone(
-                              context,
-                              AppHelpers.getTranslation(
-                                  TrKeys.successfullyCreated),
-                            );
-                            foodsEvent.fetchProducts(
-                              isRefresh: true,
-                              categoryId: categoriesState.activeIndex == 1
-                                  ? null
-                                  : categoriesState
-                                      .categories[
-                                          categoriesState.activeIndex - 2]
-                                      .id,
-                            );
-                          }, onError: () {});
+                            categoryId: categoryState
+                                .categories[categoryState.activeIndex]
+                                .id,
+                            unitId: unitState.units[unitState.activeIndex].id,
+                            kitchenId: kitchenState.selected?.id,
+                            created: () {
+                              widget.onSave();
+                              AppHelpers.showCheckTopSnackBarDone(
+                                context,
+                                AppHelpers.getTranslation(
+                                  TrKeys.successfullyCreated,
+                                ),
+                              );
+                              foodsEvent.fetchProducts(
+                                isRefresh: true,
+                                categoryId: categoriesState.activeIndex == 1
+                                    ? null
+                                    : categoriesState
+                                          .categories[categoriesState
+                                                  .activeIndex -
+                                              2]
+                                          .id,
+                              );
+                            },
+                            onError: () {},
+                          );
                         }
                       },
                     ),

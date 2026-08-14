@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:delivery_sdk/src/driver/application/profile/notifier/profile_edit_notifier.dart';
@@ -12,7 +12,6 @@ import 'package:delivery_sdk/src/driver/application/profile/provider/profile_ima
 import 'package:delivery_sdk/src/driver/application/profile/state/profile_edit_state.dart';
 import 'package:delivery_sdk/src/driver/application/profile/state/profile_image_state.dart';
 import 'package:base_sdk/src/services/img_service.dart';
-
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 
@@ -60,30 +59,41 @@ class _EditCarState extends ConsumerState<EditCar> {
     super.initState();
 
     brand = TextEditingController(
-        text: LocalStorage.getDeliveryInfo()?.data?.brand ?? "");
+      text: LocalStorage.getDeliveryInfo()?.data?.brand ?? "",
+    );
     model = TextEditingController(
-        text: LocalStorage.getDeliveryInfo()?.data?.model ?? "");
+      text: LocalStorage.getDeliveryInfo()?.data?.model ?? "",
+    );
     number = TextEditingController(
-        text: LocalStorage.getDeliveryInfo()?.data?.number ?? "");
+      text: LocalStorage.getDeliveryInfo()?.data?.number ?? "",
+    );
     color = TextEditingController(
-        text: LocalStorage.getDeliveryInfo()?.data?.color ?? "");
+      text: LocalStorage.getDeliveryInfo()?.data?.color ?? "",
+    );
 
     height = TextEditingController(
-        text: LocalStorage.getDeliveryInfo()?.data?.height ?? "");
+      text: LocalStorage.getDeliveryInfo()?.data?.height ?? "",
+    );
     weight = TextEditingController(
-        text: LocalStorage.getDeliveryInfo()?.data?.kg ?? "");
+      text: LocalStorage.getDeliveryInfo()?.data?.kg ?? "",
+    );
     length = TextEditingController(
-        text: LocalStorage.getDeliveryInfo()?.data?.length ?? "");
+      text: LocalStorage.getDeliveryInfo()?.data?.length ?? "",
+    );
     width = TextEditingController(
-        text: LocalStorage.getDeliveryInfo()?.data?.width ?? "");
+      text: LocalStorage.getDeliveryInfo()?.data?.width ?? "",
+    );
 
     // Set initial dropdown value from storage or empty string
     final storedValue = LocalStorage.getDeliveryInfo()?.data?.typeOfTechnique;
     dropdownValue = storedValue ?? "";
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(profileImageProvider.notifier).setUrlCar(
-          LocalStorage.getDeliveryInfo()?.data?.galleries?.first.path);
+      ref
+          .read(profileImageProvider.notifier)
+          .setUrlCar(
+            LocalStorage.getDeliveryInfo()?.data?.galleries?.first.path,
+          );
     });
   }
 
@@ -159,8 +169,10 @@ class _EditCarState extends ConsumerState<EditCar> {
                 vehicleTypeState.when(
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
-                  error: (msg) => Text('Error: $msg',
-                      style: const TextStyle(color: Colors.red)),
+                  error: (msg) => Text(
+                    'Error: $msg',
+                    style: const TextStyle(color: Colors.red),
+                  ),
                   data: (types) {
                     vehicleTypes = types; // Store the types for later use
                     final keys = types.map((e) => e.key).toList();
@@ -191,13 +203,15 @@ class _EditCarState extends ConsumerState<EditCar> {
                     return DropdownButtonFormField<String>(
                       value: dropdownValue.isEmpty ? null : dropdownValue,
                       items: types
-                          .map((vehicleType) => DropdownMenuItem(
-                                value: vehicleType.key,
-                                child: Text(
-                                  vehicleType.name,
-                                  style: AppStyle.interNormal(size: 14.sp),
-                                ),
-                              ))
+                          .map(
+                            (vehicleType) => DropdownMenuItem(
+                              value: vehicleType.key,
+                              child: Text(
+                                vehicleType.name,
+                                style: AppStyle.interNormal(size: 14.sp),
+                              ),
+                            ),
+                          )
                           .toList(),
                       onChanged: CourierHelpers.getDriverCantEdit()
                           ? null
@@ -211,28 +225,35 @@ class _EditCarState extends ConsumerState<EditCar> {
                       autovalidateMode: AutovalidateMode.disabled,
                       validator: null, // Remove any validation
                       decoration: InputDecoration(
-                        labelText:
-                            AppHelpers.getTranslation(TrKeys.typeTechnique)
-                                .toUpperCase(),
-                        labelStyle:
-                            AppStyle.interNormal(size: 14.sp, color: AppStyle.black),
-                        contentPadding:
-                            REdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                        labelText: AppHelpers.getTranslation(
+                          TrKeys.typeTechnique,
+                        ).toUpperCase(),
+                        labelStyle: AppStyle.interNormal(
+                          size: 14.sp,
+                          color: AppStyle.black,
+                        ),
+                        contentPadding: REdgeInsets.symmetric(
+                          horizontal: 0,
+                          vertical: 8,
+                        ),
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppStyle.shimmerBase)),
+                          borderSide: BorderSide(color: AppStyle.shimmerBase),
+                        ),
                         border: const UnderlineInputBorder(),
                         focusedBorder: const UnderlineInputBorder(),
                         errorBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: AppStyle.shimmerBase)), // Same as enabled
+                          borderSide: BorderSide(color: AppStyle.shimmerBase),
+                        ), // Same as enabled
                         focusedErrorBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: AppStyle.shimmerBase)), // Same as enabled
+                          borderSide: BorderSide(color: AppStyle.shimmerBase),
+                        ), // Same as enabled
                         disabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppStyle.shimmerBase)),
-                        errorStyle:
-                            const TextStyle(height: 0), // Hide error text
+                          borderSide: BorderSide(color: AppStyle.shimmerBase),
+                        ),
+                        errorStyle: const TextStyle(
+                          height: 0,
+                        ), // Hide error text
                       ),
                     );
                   },
@@ -266,7 +287,8 @@ class _EditCarState extends ConsumerState<EditCar> {
                         textController: number,
                         onChanged: (_) {
                           setState(
-                              () {}); // Just trigger rebuild for button state
+                            () {},
+                          ); // Just trigger rebuild for button state
                         },
                       ),
                     ),
@@ -279,7 +301,8 @@ class _EditCarState extends ConsumerState<EditCar> {
                         textController: color,
                         onChanged: (_) {
                           setState(
-                              () {}); // Just trigger rebuild for button state
+                            () {},
+                          ); // Just trigger rebuild for button state
                         },
                       ),
                     ),
@@ -297,7 +320,8 @@ class _EditCarState extends ConsumerState<EditCar> {
                         inputType: TextInputType.number,
                         onChanged: (_) {
                           setState(
-                              () {}); // Just trigger rebuild for button state
+                            () {},
+                          ); // Just trigger rebuild for button state
                         },
                       ),
                     ),
@@ -314,7 +338,8 @@ class _EditCarState extends ConsumerState<EditCar> {
                             inputType: TextInputType.number,
                             onChanged: (_) {
                               setState(
-                                  () {}); // Just trigger rebuild for button state
+                                () {},
+                              ); // Just trigger rebuild for button state
                             },
                           ),
                           if (selectedVehicleType != null) ...[
@@ -322,8 +347,9 @@ class _EditCarState extends ConsumerState<EditCar> {
                             Text(
                               'Max: ${selectedVehicleType!.weightCapacity}kg',
                               style: AppStyle.interRegular(
-                                  size: 12.sp,
-                                  color: AppStyle.textGrey.withOpacity(0.6)),
+                                size: 12.sp,
+                                color: AppStyle.textGrey.withOpacity(0.6),
+                              ),
                             ),
                           ],
                         ],
@@ -378,36 +404,39 @@ class _EditCarState extends ConsumerState<EditCar> {
               height: 160.h,
               margin: EdgeInsets.all(16.r),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20.r),
-                  border: Border.all(color: AppStyle.black)),
+                borderRadius: BorderRadius.circular(20.r),
+                border: Border.all(color: AppStyle.black),
+              ),
               child: stateImage.carImageUrl == null
                   ? imagePath == null
-                      ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              FlutterRemix.upload_cloud_2_line,
-                              size: 36.sp,
-                              color: AppStyle.blue,
-                            ),
-                            16.verticalSpace,
-                            Text(
-                              AppHelpers.getTranslation(TrKeys.carPicture),
-                              style: AppStyle.interSemi(size: 14.sp),
-                            ),
-                            Text(
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Remix.upload_cloud_2_line,
+                                size: 36.sp,
+                                color: AppStyle.blue,
+                              ),
+                              16.verticalSpace,
+                              Text(
+                                AppHelpers.getTranslation(TrKeys.carPicture),
+                                style: AppStyle.interSemi(size: 14.sp),
+                              ),
+                              Text(
                                 AppHelpers.getTranslation(
-                                    TrKeys.recommendedSize),
-                                style: AppStyle.interRegular(size: 14.sp)),
-                          ],
-                        )
-                      : ClipRRect(
-                          borderRadius: BorderRadius.circular(20.r),
-                          child: Image.file(
-                            File(imagePath!),
-                            fit: BoxFit.cover,
-                          ),
-                        )
+                                  TrKeys.recommendedSize,
+                                ),
+                                style: AppStyle.interRegular(size: 14.sp),
+                              ),
+                            ],
+                          )
+                        : ClipRRect(
+                            borderRadius: BorderRadius.circular(20.r),
+                            child: Image.file(
+                              File(imagePath!),
+                              fit: BoxFit.cover,
+                            ),
+                          )
                   : CommonImage(
                       url: stateImage.carImageUrl,
                       height: 160,

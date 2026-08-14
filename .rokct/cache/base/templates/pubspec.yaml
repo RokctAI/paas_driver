@@ -49,10 +49,6 @@ dependencies:
   blur: ^4.0.0
   palette_generator: ^0.3.3
   url_launcher: ^6.3.0
-  # DEPRECATED - remixicon is the icon standard (agent decision_log.md). Kept
-  # only because commerce orders/products/merchants manager+driver templates
-  # still import flutter_remix; remove once commerce migrates those templates.
-  flutter_remix: ^0.0.3
   webview_flutter: ^4.10.0
   intl_phone_field: ^3.2.0
   connectivity_plus: ^6.0.5
@@ -71,7 +67,7 @@ dependencies:
   flutter_staggered_grid_view: ^0.7.0
   flutter_staggered_animations: ^1.1.1
   app_tracking_transparency: ^2.0.6
-  remixicon: ^1.2.0
+  remixicon: ^1.4.1
   super_tooltip: ^2.0.7
   shimmer: ^2.0.0 #Added
   package_info_plus: ^8.2.1
@@ -119,7 +115,10 @@ dev_dependencies:
   freezed: ^3.2.3
   build_runner: ^2.10.4
   flutter_lints: ^5.0.0
-  auto_route_generator: ^9.0.0
+  # freezed 3 compat: the ^9.x generator line needs source_gen <3, which
+  # freezed 3's builder rejects. 10.3.x is the analyzer-8 line; 10.4+
+  # drags analyzer 10+ and freezed dev prereleases.
+  auto_route_generator: '>=10.3.1 <10.4.0'
   flutter_launcher_icons: ^0.14.1
   cupertino_icons: ^1.0.6
 
@@ -159,3 +158,7 @@ dependency_overrides:
   google_fonts: ^6.3.0
   http: ^1.2.0
   sqlite3: 2.9.4
+  # auto_route_generator 10.3.x needs auto_route 10.x, but the cached SDKs
+  # pin auto_route ^9.2.0. 10.1+ keeps the 9.x APIs as @Deprecated aliases,
+  # so overriding is source-compatible. Drop once the SDKs move to 10.x.
+  auto_route: ^10.3.0
