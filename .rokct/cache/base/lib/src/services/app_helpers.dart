@@ -16,9 +16,11 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
+import 'package:base_sdk/src/handlers/network_exceptions.dart';
 import 'package:base_sdk/src/models/data/address_old_data.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/enums.dart';
+import 'package:base_sdk/src/services/telemetry.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 
 abstract class AppHelpers {
@@ -532,6 +534,85 @@ abstract class AppHelpers {
   }
 
   static String errorHandler(e) {
+    if (e is DioException && _isConnectionFailure(e)) {
+      // No HTTP response ever arrived (offline, DNS failure, timeout).
+      // The raw exception carries nothing a student can act on — the old
+      // extraction chain null-shorted it down to the literal "null" — so
+      // surface the friendly line and send the detail to telemetry for
+      // the admin side.
+      _reportConnectionFailure(e);
+      return _connectionErrorMessage();
+    }
+    return _presentable(_extractErrorMessage(e));
+  }
+
+  /// Connection-class DioException: never got an HTTP response — offline,
+  /// DNS failure, connection refused, or a timeout. Anything with a real
+  /// response (DioExceptionType.badResponse) carries a server message and
+  /// keeps the existing extraction path untouched.
+  static bool _isConnectionFailure(DioException e) {
+    if (e.response != null) return false;
+    final classified = NetworkExceptions.getDioException(e);
+    return classified is NoInternetConnection ||
+        classified is RequestTimeout ||
+        classified is SendTimeout;
+  }
+
+  /// Student-facing one-liner for connection failures — the same
+  /// translation key every offline surface already shows, with a hard
+  /// fallback for callers that run before LocalStorage is initialized.
+  static String _connectionErrorMessage() {
+    try {
+      final message = getTranslation(TrKeys.checkYourNetworkConnection).trim();
+      if (message.isNotEmpty && message != 'null') return message;
+    } catch (_) {
+      // Fall through to the literal below.
+    }
+    return "Couldn't connect. Please check your internet and try again.";
+  }
+
+  /// Admin-side detail for a connection failure whose student-facing
+  /// message is the friendly one-liner. Fire-and-forget: TelemetryClient
+  /// swallows its own delivery failures (an offline telemetry POST dies
+  /// silently), and the guard here keeps errorHandler itself unable to
+  /// throw. No recursion: nothing in TelemetryClient's failure path calls
+  /// errorHandler.
+  static void _reportConnectionFailure(DioException e) {
+    try {
+      String url = '';
+      try {
+        url = e.requestOptions.uri.toString();
+      } catch (_) {}
+      TelemetryClient.I.logError(
+        type: 'network_unreachable',
+        context: {
+          'exception': e.type.name,
+          'message': e.message ?? '',
+          if (url.isNotEmpty) 'url': url,
+        },
+      );
+    } catch (_) {
+      // Telemetry must never break error handling.
+    }
+  }
+
+  /// Last line of defense: no student-facing surface may ever receive the
+  /// literal "null" (a null-shorted `.toString()`) or an empty string.
+  static String _presentable(String message) {
+    final trimmed = message.trim();
+    if (trimmed.isEmpty || trimmed == 'null') {
+      try {
+        return getTranslation(TrKeys.somethingWentWrongWithTheServer);
+      } catch (_) {
+        return 'Something went wrong. Please try again.';
+      }
+    }
+    return message;
+  }
+
+  /// The pre-existing best-effort extraction chain, unchanged: server
+  /// message, then HTML `<title>`, then `error.message`, then toString().
+  static String _extractErrorMessage(e) {
     try {
       return (e.runtimeType == DioException)
           ? ((e as DioException).response?.data["message"] == "Bad request."

@@ -1,3 +1,11 @@
+## 1.6.2
+
+* Freezed 3 follow-through for the pockets PR #28 missed: `OrdersBoardState`,
+  `CanceledOrdersState`, and `DeliveredOrdersState` migrated to the
+  `abstract class` form, and their notifiers given the direct
+  `package:base_sdk/src/handlers/api_result.dart` import that brings the
+  legacy `when`/`map` extensions into scope. No behavior change.
+
 ## 1.6.1
 
 * Rewrite the last three double-segment API call paths in

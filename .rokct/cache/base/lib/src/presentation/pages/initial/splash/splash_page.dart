@@ -17,13 +17,13 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/application/splash/splash_provider.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
+import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
 
@@ -46,11 +46,14 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
   Future<void> _initializeApp() async {
     try {
-      // First, check if app is in maintenance mode
-      if (AppConstants.isMaintain) {
+      // Backend-triggered maintenance gate: the tenant's api_status
+      // endpoint reports "maintenance" while the site's maintenance_mode
+      // site_config flag is set (replaces the old compile-time isMaintain).
+      final backendStatus = await AppConnectivity.backendStatus();
+      if (backendStatus == BackendStatus.maintenance) {
         if (!mounted) return;
         FlutterNativeSplash.remove();
-        AppRoutes.I.replaceClosedRoute(context);
+        AppRoutes.I.replaceMaintenanceRoute(context);
         return;
       }
 

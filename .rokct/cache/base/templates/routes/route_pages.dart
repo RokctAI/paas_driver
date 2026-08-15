@@ -6,7 +6,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
-import 'package:base_sdk/src/presentation/pages/initial/closed/closed_page.dart' as pages;
+import 'package:base_sdk/src/presentation/pages/initial/maintenance/maintenance_page.dart' as pages;
 import 'package:base_sdk/src/presentation/pages/initial/no_connection/no_connection_page.dart' as pages;
 import 'package:base_sdk/src/presentation/pages/initial/splash/splash_page.dart' as pages;
 import 'package:base_sdk/src/presentation/pages/initial/ui_type/ui_type_page.dart' as pages;
@@ -29,13 +29,13 @@ class NoConnectionRouteView extends StatelessWidget {
   Widget build(BuildContext context) => const pages.NoConnectionPage();
 }
 
-/// Host route shell for [pages.ClosedPage] (base_sdk-resident page).
-@RoutePage(name: 'ClosedRoute')
-class ClosedRouteView extends StatelessWidget {
-  const ClosedRouteView({super.key});
+/// Host route shell for [pages.MaintenancePage] (base_sdk-resident page).
+@RoutePage(name: 'MaintenanceRoute')
+class MaintenanceRouteView extends StatelessWidget {
+  const MaintenanceRouteView({super.key});
 
   @override
-  Widget build(BuildContext context) => const pages.ClosedPage();
+  Widget build(BuildContext context) => const pages.MaintenancePage();
 }
 
 /// Host route shell for [pages.UiTypePage] (base_sdk-resident page).

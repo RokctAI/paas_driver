@@ -5,7 +5,7 @@ import 'package:orders_sdk/src/manager/infrastructure/models/models.dart';
 part 'canceled_orders_state.freezed.dart';
 
 @freezed
-class CanceledOrdersState with _$CanceledOrdersState {
+abstract class CanceledOrdersState with _$CanceledOrdersState {
   const factory CanceledOrdersState({
     @Default(false) bool isLoading,
     @Default([]) List<OrderData> orders,

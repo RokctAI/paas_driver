@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'package:base_sdk/src/domain/interface/notification.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/models/response/notification_response.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';

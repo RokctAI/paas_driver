@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 import '../../domain/interface/processing_contract.dart';
 import '../../domain/interface/processing_repository_facade.dart';

@@ -16,6 +16,7 @@ import 'package:base_sdk/src/services/img_service.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 
 import 'package:delivery_sdk/src/driver/application/vehicles/vehicle_providers.dart';
+import 'package:delivery_sdk/src/driver/application/vehicles/vehicle_type_state.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/delivery_vehicle_type.dart';
 import 'package:${package}/presentation/component/helper/keyboard_disable.dart';
 import 'package:${package}/presentation/component/text_fields/underline_bordered_text_field.dart';

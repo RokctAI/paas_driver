@@ -61,7 +61,7 @@ class PendingOtpGate with WidgetsBindingObserver {
   static const Set<String> _blockedTopRoutes = {
     'SplashRoute',
     'NoConnectionRoute',
-    'ClosedRoute',
+    'MaintenanceRoute',
   };
 
   _PendingOtpTarget? _pendingRow;

@@ -34,6 +34,19 @@ import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service
 import 'package:auth_sdk/src/common/presentation/pages/auth/registration/registration_steps_page.dart';
 import 'package:auth_sdk/src/common/services/platform_support.dart';
 
+/// TrKeys-style key for the offline sign-up hand-off (same convention as
+/// [trPhoneVerificationNotAvailableOnDesktop]): backend translations can
+/// override it; AppHelpers.getTranslation's fallback renders it as "You are
+/// offline we will finish sign up and verify your email once back online".
+const String trOfflineSignUpDeferred =
+    'you_are_offline_we_will_finish_sign_up_and_verify_your_email_once_back_online';
+
+/// Phone twin of [trOfflineSignUpDeferred] (same TrKeys-style convention):
+/// AppHelpers.getTranslation's fallback renders it as "You are offline we
+/// will finish sign up and verify your number once back online".
+const String trOfflineSignUpDeferredPhone =
+    'you_are_offline_we_will_finish_sign_up_and_verify_your_number_once_back_online';
+
 class RegisterNotifier extends StateNotifier<RegisterState> {
   final AuthRepositoryFacade _authRepository;
   final UserRepositoryFacade _userRepositoryFacade;
@@ -85,45 +98,83 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
     return AppValidators.isValidEmail(state.email);
   }
 
-  Future<void> sendCode(BuildContext context, VoidCallback onSuccess) async {
-    final connected = await AppConnectivity.connectivity();
-    if (connected) {
-      if (!AppValidators.isValidEmail(state.email)) {
-        state = state.copyWith(isEmailInvalid: true);
-        return;
-      }
-      state = state.copyWith(isLoading: true, isSuccess: false);
-      final response = await _authRepository.sigUp(email: state.email);
-      response.when(
-        success: (data) async {
-          state = state.copyWith(isLoading: false, isSuccess: true);
-          onSuccess();
-        },
-        failure: (failure, status) {
-          state = state.copyWith(isLoading: false, isSuccess: false);
-          if (status == 400) {
-            AppHelpers.showCheckTopSnackBar(
-              context,
-              AppHelpers.getTranslation(
-                AppHelpers.getTranslation(TrKeys.emailAlreadyExists),
-              ),
-            );
-          } else {
-            AppHelpers.showCheckTopSnackBar(context, failure);
-          }
-        },
-      );
-    } else {
-      if (context.mounted) {
-        AppHelpers.showNoConnectionSnackBar(context);
-      }
+  Future<void> sendCode(
+    BuildContext context,
+    VoidCallback onSuccess, {
+    VoidCallback? onOffline,
+  }) async {
+    if (!AppValidators.isValidEmail(state.email)) {
+      state = state.copyWith(isEmailInvalid: true);
+      return;
     }
+    final connected = await AppConnectivity.connectivity();
+    if (!connected) {
+      // Transport says offline: skip the emailed-code round-trip and hand
+      // the user straight to the local-first flow (Ray's flow).
+      _continueSignUpOffline(context, onOffline);
+      return;
+    }
+    state = state.copyWith(isLoading: true, isSuccess: false);
+    final response = await _authRepository.sigUp(email: state.email);
+    response.when(
+      success: (data) async {
+        state = state.copyWith(isLoading: false, isSuccess: true);
+        onSuccess();
+      },
+      failure: (failure, status) {
+        state = state.copyWith(isLoading: false, isSuccess: false);
+        if (!_isDefinitiveRejection(status)) {
+          // The transport-level connectivity guard false-passes on
+          // Wi-Fi-without-internet/captive networks, so the sigUp call is
+          // the real reachability test — same classification as [register]:
+          // connection errors and timeouts surface as 500/408, only a
+          // concrete 4xx is a definitive backend rejection.
+          _continueSignUpOffline(context, onOffline);
+          return;
+        }
+        if (status == 400) {
+          AppHelpers.showCheckTopSnackBar(
+            context,
+            AppHelpers.getTranslation(
+              AppHelpers.getTranslation(TrKeys.emailAlreadyExists),
+            ),
+          );
+        } else {
+          AppHelpers.showCheckTopSnackBar(context, failure);
+        }
+      },
+    );
+  }
+
+  /// Offline entry into the local-first registration: instead of a dead-end
+  /// error, the user goes forward to the details form in deferred-
+  /// verification mode — [onOffline] performs the exact navigation the OTP
+  /// sheet's verify-success takes (see RegisterPage / the
+  /// RegisterConfirmationPage isSuccess listener). The details form's
+  /// [register] then writes the local account row, queues `auth.register`
+  /// on the SyncEngine (idempotency-keyed, so a later online retry can't
+  /// double-register), and PendingOtpGate routes the synced registration
+  /// into email OTP verification once connectivity returns.
+  void _continueSignUpOffline(BuildContext context, VoidCallback? onOffline) {
+    state = state.copyWith(isLoading: false, isSuccess: false);
+    if (!context.mounted) return;
+    if (onOffline == null) {
+      // Callers not wired for the deferred flow keep the old behavior.
+      AppHelpers.showNoConnectionSnackBar(context);
+      return;
+    }
+    AppHelpers.showCheckTopSnackBarInfo(
+      context,
+      AppHelpers.getTranslation(trOfflineSignUpDeferred),
+    );
+    onOffline();
   }
 
   Future<void> sendCodeToNumber(
     BuildContext context,
-    ValueChanged<String> onSuccess,
-  ) async {
+    ValueChanged<String> onSuccess, {
+    VoidCallback? onOffline,
+  }) async {
     // Firebase phone verification has no desktop implementation — fail
     // fast instead of hanging the spinner until the plugin call dies.
     // (The backend-OTP branch below is plain HTTP and works everywhere.)
@@ -135,55 +186,98 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
       return;
     }
     final connected = await AppConnectivity.connectivity();
-    if (connected) {
-      state = state.copyWith(isLoading: true, isSuccess: false);
-      if (AppConstants.isPhoneFirebase) {
-        await FirebaseAuth.instance.verifyPhoneNumber(
-          phoneNumber: state.email,
-          verificationCompleted: (PhoneAuthCredential credential) {},
-          verificationFailed: (FirebaseAuthException e) {
-            AppHelpers.showCheckTopSnackBar(
-              context,
-              AppHelpers.getTranslation(e.message ?? ""),
-            );
-            state = state.copyWith(isLoading: false, isSuccess: false);
-          },
-          codeSent: (String verificationId, int? resendToken) {
-            state = state.copyWith(
-              verificationId: verificationId,
-              phone: state.email,
-              isLoading: false,
-              isSuccess: true,
-            );
-            onSuccess(verificationId);
-          },
-          codeAutoRetrievalTimeout: (String verificationId) {
-            state = state.copyWith(isLoading: false, isSuccess: false);
-          },
-        );
-      } else {
-        final response = await _authRepository.sendOtp(phone: state.email);
-        response.when(
-          success: (success) {
-            state = state.copyWith(
-              verificationId: success.data?.verifyId ?? '',
-              phone: state.email,
-              isLoading: false,
-              isSuccess: true,
-            );
-            onSuccess(success.data?.verifyId ?? '');
-          },
-          failure: (failure, status) {
-            AppHelpers.showCheckTopSnackBar(context, failure);
-            state = state.copyWith(isLoading: false, isSuccess: false);
-          },
-        );
-      }
-    } else {
-      if (context.mounted) {
-        AppHelpers.showNoConnectionSnackBar(context);
-      }
+    if (!connected) {
+      // Transport says offline: skip the OTP round-trip and hand the user
+      // straight to the local-first flow (same as [sendCode] for email).
+      _continuePhoneSignUpOffline(context, onOffline);
+      return;
     }
+    state = state.copyWith(isLoading: true, isSuccess: false);
+    if (AppConstants.isPhoneFirebase) {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: state.email,
+        verificationCompleted: (PhoneAuthCredential credential) {},
+        verificationFailed: (FirebaseAuthException e) {
+          if (e.code == 'network-request-failed') {
+            // The transport-level connectivity guard false-passes on
+            // Wi-Fi-without-internet/captive networks; Firebase surfaces
+            // that as network-request-failed — same offline hand-off.
+            _continuePhoneSignUpOffline(context, onOffline);
+            return;
+          }
+          AppHelpers.showCheckTopSnackBar(
+            context,
+            AppHelpers.getTranslation(e.message ?? ""),
+          );
+          state = state.copyWith(isLoading: false, isSuccess: false);
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          state = state.copyWith(
+            verificationId: verificationId,
+            phone: state.email,
+            isLoading: false,
+            isSuccess: true,
+          );
+          onSuccess(verificationId);
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          state = state.copyWith(isLoading: false, isSuccess: false);
+        },
+      );
+    } else {
+      final response = await _authRepository.sendOtp(phone: state.email);
+      response.when(
+        success: (success) {
+          state = state.copyWith(
+            verificationId: success.data?.verifyId ?? '',
+            phone: state.email,
+            isLoading: false,
+            isSuccess: true,
+          );
+          onSuccess(success.data?.verifyId ?? '');
+        },
+        failure: (failure, status) {
+          if (!_isDefinitiveRejection(status)) {
+            // The sendOtp call is the real reachability test — same
+            // classification as [sendCode]: connection errors and timeouts
+            // surface as 500/408, only a concrete 4xx is a definitive
+            // backend rejection.
+            _continuePhoneSignUpOffline(context, onOffline);
+            return;
+          }
+          AppHelpers.showCheckTopSnackBar(context, failure);
+          state = state.copyWith(isLoading: false, isSuccess: false);
+        },
+      );
+    }
+  }
+
+  /// Phone twin of [_continueSignUpOffline]. One extra job: the sign-up
+  /// form's single identifier field stores the phone number in the EMAIL
+  /// slot of the state (see RegisterPage's IntlPhoneField -> setEmail and
+  /// the [sendCodeToNumber]/[registerWithPhone] convention), so before the
+  /// details form's [register] runs, the number is moved into the phone
+  /// slot and the email slot cleared — the local row and the queued
+  /// `auth.register` payload must carry it as a phone, not an email, for
+  /// the backend registration and the deferred phone OTP (PendingOtpGate's
+  /// phone branch) to work.
+  void _continuePhoneSignUpOffline(
+    BuildContext context,
+    VoidCallback? onOffline,
+  ) {
+    state = state.copyWith(isLoading: false, isSuccess: false);
+    if (!context.mounted) return;
+    if (onOffline == null) {
+      // Callers not wired for the deferred flow keep the old behavior.
+      AppHelpers.showNoConnectionSnackBar(context);
+      return;
+    }
+    state = state.copyWith(phone: state.email, email: '');
+    AppHelpers.showCheckTopSnackBarInfo(
+      context,
+      AppHelpers.getTranslation(trOfflineSignUpDeferredPhone),
+    );
+    onOffline();
   }
 
   /// Local-first registration (Ray's flow): the account is written to the
@@ -207,8 +301,12 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
     }
     state = state.copyWith(isLoading: true);
     final local = await _offlineAuth.registerOffline(
-      phone: state.phone,
-      email: state.email,
+      // Empty slots become null so the local row (and the `auth.register`
+      // payload built from it in syncOne) only carries real identifiers —
+      // a phone offline sign-up reaches here with the phone slot filled
+      // and the email slot empty (see _continuePhoneSignUpOffline).
+      phone: state.phone.isEmpty ? null : state.phone,
+      email: state.email.isEmpty ? null : state.email,
       firstName: state.firstName,
       lastName: state.lastName,
       password: state.password,

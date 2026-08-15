@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:base_sdk/src/domain/interface/gallery.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/services/enums.dart';
 
 import 'package:delivery_sdk/src/driver/di/driver_delivery_di.dart';

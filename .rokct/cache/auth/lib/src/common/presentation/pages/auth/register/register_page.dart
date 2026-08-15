@@ -350,6 +350,20 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                 ),
                                 isDarkMode: isDarkMode,
                               );
+                            }, onOffline: () {
+                              // Offline: skip the emailed-code step and go
+                              // straight to the details form — the same
+                              // navigation RegisterConfirmationPage takes on
+                              // verify success. The email lives on in the
+                              // shared registerProvider state; register()
+                              // finishes locally and syncs (then OTP-
+                              // verifies via PendingOtpGate) once online.
+                              Navigator.pop(context);
+                              AppHelpers.showCustomModalBottomSheet(
+                                context: context,
+                                modal: RegisterPage(isOnlyEmail: false),
+                                isDarkMode: isDarkMode,
+                              );
                             });
                           } else {
                             if (currentSignUpType == SignUpType.phone) {
@@ -373,6 +387,19 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                     confirmPassword: state.confirmPassword,
                                   ),
                                 ),
+                                isDarkMode: isDarkMode,
+                              );
+                            }, onOffline: () {
+                              // Offline: skip the OTP step and go straight
+                              // to the details form, exactly like the email
+                              // path above. The notifier has moved the
+                              // number into the phone slot; register()
+                              // finishes locally and syncs (then phone-OTP
+                              // verifies via PendingOtpGate) once online.
+                              Navigator.pop(context);
+                              AppHelpers.showCustomModalBottomSheet(
+                                context: context,
+                                modal: RegisterPage(isOnlyEmail: false),
                                 isDarkMode: isDarkMode,
                               );
                             });

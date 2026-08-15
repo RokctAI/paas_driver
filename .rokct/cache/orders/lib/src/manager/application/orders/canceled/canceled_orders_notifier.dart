@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 
 import 'canceled_orders_state.dart';
 import 'package:orders_sdk/src/manager/domain/interface/seller_orders.dart';

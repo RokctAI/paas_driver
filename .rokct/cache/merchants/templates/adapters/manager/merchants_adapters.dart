@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
+import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:merchants_sdk/src/manager/di/manager_merchants_di.dart';
 import 'package:merchants_sdk/src/manager/domain/interface/seller_shop.dart';
 import 'package:merchants_sdk/src/manager/presentation/widgets/shop_setup_slide.dart';

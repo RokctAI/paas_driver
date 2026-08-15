@@ -1,3 +1,11 @@
+## 1.2.1
+
+* Freezed 3 follow-through for the installed profile template (the fleet
+  migration covered `lib/src` only): `profile_notifier.dart` now imports
+  `package:base_sdk/src/handlers/api_result.dart` directly so its
+  `ApiResult.when` call sites resolve against freezed-3 base_sdk
+  (`ProfileState` was already `abstract`). No behavior change.
+
 ## 1.1.1
 
 * API path fix: every call string in `user_repository.dart` (profile,

@@ -56,10 +56,6 @@ abstract class AppConstants {
   /// newStores and Recommendation Time
   static int newShopDays = 60;
 
-  /// Operating time
-  static String isOpen = '6am';
-  static String isClosed = '10pm';
-  static bool isMaintain = false;
   static bool bgImg = true;
 
   /// Google Maps POI

@@ -496,8 +496,8 @@ class TrKeys {
   static const String introbriefslide4 = 'introbrief_slide4';
   static const String introbriefslide5 = 'introbrief_slide5';
 
-  static const String closedslide1 = 'closed_slide1';
-  static const String closedbriefslide1 = 'closedbrief_slide1';
+  static const String maintenanceTitle = 'maintenance_title';
+  static const String maintenanceBrief = 'maintenance_brief';
   static const String hello = 'hello';
   static const String hey = 'hey';
   static const String there = 'there';
