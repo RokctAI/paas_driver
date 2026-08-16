@@ -84,7 +84,8 @@ android {
 
     defaultConfig {
         applicationId dartDefines.DRIVER_ANDROID_PACKAGE_NAME
-        minSdkVersion 23
+        minSdkVersion flutter.minSdkVersion
+        multiDexEnabled true
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -109,11 +110,15 @@ android {
         debug {
             signingConfig signingConfigs.debug
             minifyEnabled false
+            shrinkResources false
             debuggable true
         }
-        
+
         release {
             signingConfig signingConfigs.release
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
             // Add debug symbols
             ndk {
