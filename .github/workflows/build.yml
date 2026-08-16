@@ -74,7 +74,7 @@ jobs:
       # One-time cleanup: run cleanup once if past this date (marker file prevents re-runs)
       one_time_cleanup_cutoff_date: '2026-01-30'
       # Brain Endpoint (AI release notes)
-      brain_endpoint: https://platform.rokct.ai/api/method/rokct.platform.api
+      brain_endpoint: https://platform.rokct.ai/api/v1/method/rokct.platform.api
       build_android: true
       # Pin to 3.38.5 (Dart 3.10+) so processing_sdk's SDK constraint resolves
       flutter-version: ${{ inputs.flutter-version || '3.38.5' }}
