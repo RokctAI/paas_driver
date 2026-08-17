@@ -3,11 +3,12 @@ import 'package:flutter/foundation.dart';
 
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/handlers/http_service.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/secure_storage.dart';
 
 /// Single-flight client for the backend's token-rotation endpoint
-/// (`paas.api.auth.refresh` — users/auth/frappe/src/api/auth/auth.py).
+/// (gateway cmd [refreshCmd] — users/auth/frappe/src/api/auth/auth.py).
 ///
 /// The backend rotates EVERYTHING on each call (api_key, api_secret,
 /// refresh token, expiry), and the refresh token is single-use: two
@@ -27,8 +28,10 @@ import 'package:base_sdk/src/services/secure_storage.dart';
 abstract class TokenRefreshService {
   TokenRefreshService._();
 
-  /// Endpoint path (composed tenant alias of `auth.api.auth.auth.refresh`).
-  static const String refreshPath = '/api/method/paas.api.auth.refresh';
+  /// Gateway cmd (prefix-free tenant alias of `auth.api.auth.auth.refresh`,
+  /// registered in the auth module's frappe manifest). The exchange is a
+  /// `POST` to [kPlatformGatewayPath] carrying this cmd.
+  static const String refreshCmd = 'api.auth.refresh';
 
   /// Seconds of clock skew tolerated when deciding an access token is
   /// about to expire ([isAccessTokenExpired]). The stored `expires_at` is
@@ -97,8 +100,11 @@ abstract class TokenRefreshService {
     try {
       final Dio dio = (dioFactoryOverride ?? _bareDio)();
       final Response<dynamic> response = await dio.post(
-        refreshPath,
-        data: {'refresh_token': refreshToken},
+        kPlatformGatewayPath,
+        data: {
+          'cmd': refreshCmd,
+          'payload': {'refresh_token': refreshToken},
+        },
       );
       dynamic body = response.data;
       // Frappe wraps whitelisted-method dicts under `message`. The bare
@@ -193,7 +199,12 @@ class TokenRefreshInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final RequestOptions options = err.requestOptions;
     final bool isAuthed = options.headers.containsKey('Authorization');
-    final bool isRefreshCall = options.path == TokenRefreshService.refreshPath;
+    // Every call shares the gateway path, so the refresh exchange is
+    // identified by its cmd in the request body, not by path.
+    final dynamic body = options.data;
+    final bool isRefreshCall = options.path == kPlatformGatewayPath &&
+        body is Map &&
+        body['cmd'] == TokenRefreshService.refreshCmd;
     final bool alreadyRetried = options.extra[retriedFlag] == true;
     if (err.response?.statusCode != 401 ||
         !isAuthed ||

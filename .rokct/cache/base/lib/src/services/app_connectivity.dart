@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:base_sdk/src/constants/app_constants.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 
 /// Result of [AppConnectivity.backendStatus]: the backend answered normally
@@ -42,12 +43,16 @@ abstract class AppConnectivity {
   }) async {
     try {
       if (!await connectivity()) return BackendStatus.down;
-      final uri = Uri.parse(
-        '${AppConstants.baseUrl}/api/method/paas.api.system.api_status',
-      );
+      // Raw http (pre-DI) — POST the platform gateway envelope directly;
+      // the DI'd PlatformGateway client is not in play here. The gateway
+      // returns the same single `message` envelope a direct dotted call
+      // did, so the parsing below is unchanged.
+      final uri = Uri.parse('${AppConstants.baseUrl}$kPlatformGatewayPath');
+      final headers = {'Content-Type': 'application/json'};
+      final body = jsonEncode({'cmd': 'api.system.api_status'});
       final response = await (client == null
-              ? http.get(uri)
-              : client.get(uri))
+              ? http.post(uri, headers: headers, body: body)
+              : client.post(uri, headers: headers, body: body))
           .timeout(timeout);
       if (response.statusCode != 200) return BackendStatus.down;
       final dynamic message = jsonDecode(response.body)['message'];

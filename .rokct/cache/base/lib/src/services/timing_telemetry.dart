@@ -79,10 +79,10 @@ class TimingTelemetry {
 
   /// Records one completed (or failed) request. [path] should be the URI
   /// path only — no query, no host — so stats aggregate per endpoint.
+  /// Callers must not record telemetry delivery itself (see the cmd check
+  /// in [TimingInterceptor]) — a slow flush must not feed back into the
+  /// next report.
   void recordRequest(String path, Duration elapsed, {required bool ok}) {
-    // Never time telemetry delivery itself — a slow flush must not feed
-    // back into the next report.
-    if (path.endsWith(TelemetryClient.endpoint)) return;
     final stats = _requests.putIfAbsent(path, _RequestStats.new);
     stats.count++;
     if (!ok) stats.errors++;
@@ -175,6 +175,11 @@ class TimingInterceptor extends Interceptor {
     try {
       final start = options.extra[_startKey];
       if (start is! Stopwatch) return;
+      // Never time telemetry delivery itself — a slow flush must not feed
+      // back into the next report. Delivery rides the shared gateway path,
+      // so telemetry's own calls are identified by cmd, not by path.
+      final dynamic data = options.data;
+      if (data is Map && data['cmd'] == TelemetryClient.cmd) return;
       TimingTelemetry.I.recordRequest(
         options.uri.path,
         start.elapsed,

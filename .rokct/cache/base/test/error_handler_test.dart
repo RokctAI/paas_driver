@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
@@ -22,8 +23,10 @@ void main() {
     await LocalStorage.init();
   });
 
-  RequestOptions options() =>
-      RequestOptions(path: '/api/method/paas.api.user.register_user');
+  RequestOptions options() => RequestOptions(
+        path: kPlatformGatewayPath,
+        data: {'cmd': 'api.user.register_user'},
+      );
 
   test(
       'connection-class DioException (null response) returns the friendly '

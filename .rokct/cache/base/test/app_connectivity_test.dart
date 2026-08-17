@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 
 /// Frappe wraps whitelisted-method returns under `message`; api_status's
@@ -59,9 +60,9 @@ Future<void> main() async {
 
     test('HTTP 200 with status ok reports up', () async {
       stubRadio(['wifi']);
-      late Uri requested;
+      late http.Request requested;
       final client = MockClient((request) async {
-        requested = request.url;
+        requested = request;
         return http.Response(apiStatusBody('ok'), 200);
       });
 
@@ -69,9 +70,13 @@ Future<void> main() async {
         await AppConnectivity.backendStatus(client: client),
         BackendStatus.up,
       );
+      // The probe rides the universal gateway envelope: a POST to the
+      // shared gateway path with the prefix-free dotted cmd.
+      expect(requested.method, 'POST');
+      expect(requested.url.path, endsWith(kPlatformGatewayPath));
       expect(
-        requested.path,
-        endsWith('api/method/paas.api.system.api_status'),
+        jsonDecode(requested.body),
+        {'cmd': 'api.system.api_status'},
       );
       expect(
           await AppConnectivity.backendAvailability(client: client), isTrue);

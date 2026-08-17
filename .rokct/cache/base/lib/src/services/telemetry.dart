@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 
 import '../handlers/http_service.dart';
+import '../handlers/platform_gateway.dart';
 
 /// telemetry_sdk's Dart client side (ADR-006 — previously zero files).
 ///
@@ -44,10 +45,10 @@ class TelemetryClient {
 
   static final TelemetryClient I = TelemetryClient._();
 
-  /// `{app_name}.tenant.api.log_frontend_error` per the telemetry manifest's
-  /// whitelisted_methods mapping.
-  static const String endpoint =
-      '/api/method/paas.tenant.api.log_frontend_error';
+  /// Gateway cmd (prefix-free) for the telemetry manifest's
+  /// `tenant.api.log_frontend_error` whitelisted_methods mapping; delivery
+  /// is a `POST` to [kPlatformGatewayPath] carrying this cmd.
+  static const String cmd = 'tenant.api.log_frontend_error';
 
   /// Fire-and-forget structured event: {type, context, session_id,
   /// timestamp}. [type] is a stable machine-readable class (snake_case);
@@ -80,10 +81,13 @@ class TelemetryClient {
       final getIt = GetIt.instance;
       if (!getIt.isRegistered<HttpService>()) return;
       await getIt.get<HttpService>().client(requireAuth: true).post(
-        endpoint,
+        kPlatformGatewayPath,
         data: {
-          'error_message': type,
-          'context': encoded,
+          'cmd': cmd,
+          'payload': {
+            'error_message': type,
+            'context': encoded,
+          },
         },
       );
     } catch (e) {

@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/handlers/token_refresh_service.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/secure_storage.dart';
@@ -116,8 +117,11 @@ Future<void> main() async {
           );
 
       await TokenRefreshService.refresh();
-      expect(seen.path, TokenRefreshService.refreshPath);
-      expect(seen.data, {'refresh_token': 'the-stored-refresh-token'});
+      expect(seen.path, kPlatformGatewayPath);
+      expect(seen.data, {
+        'cmd': TokenRefreshService.refreshCmd,
+        'payload': {'refresh_token': 'the-stored-refresh-token'},
+      });
     });
 
     test(
@@ -327,7 +331,8 @@ Future<void> main() async {
         authed: true,
         respond: (options) => throw unauthorized(options),
       );
-      final response = await dio.get('/api/method/paas.api.anything');
+      final response = await dio
+          .post(kPlatformGatewayPath, data: {'cmd': 'api.anything'});
       expect(response.statusCode, 200);
       expect(response.data, {'ok': true});
       expect(retries, 1);
@@ -353,7 +358,7 @@ Future<void> main() async {
         respond: (options) => throw unauthorized(options),
       );
       await expectLater(
-        dio.get('/api/method/paas.api.anything'),
+        dio.post(kPlatformGatewayPath, data: {'cmd': 'api.anything'}),
         throwsA(isA<DioException>().having(
           (e) => e.response?.statusCode,
           'statusCode',
@@ -391,7 +396,7 @@ Future<void> main() async {
         respond: (options) => throw unauthorized(options),
       );
       await expectLater(
-        dio.get('/api/method/paas.api.anything'),
+        dio.post(kPlatformGatewayPath, data: {'cmd': 'api.anything'}),
         throwsA(isA<DioException>()),
       );
       // One refresh for the first 401; the retried request's second 401
@@ -415,7 +420,7 @@ Future<void> main() async {
         respond: (options) => throw unauthorized(options),
       );
       await expectLater(
-        dio.post('/api/method/paas.api.user.user.login'),
+        dio.post(kPlatformGatewayPath, data: {'cmd': 'api.user.login'}),
         throwsA(isA<DioException>()),
       );
       expect(refreshCalls, 0);
@@ -437,7 +442,13 @@ Future<void> main() async {
         respond: (options) => throw unauthorized(options),
       );
       await expectLater(
-        dio.post(TokenRefreshService.refreshPath),
+        dio.post(
+          kPlatformGatewayPath,
+          data: {
+            'cmd': TokenRefreshService.refreshCmd,
+            'payload': {'refresh_token': 'stale'},
+          },
+        ),
         throwsA(isA<DioException>()),
       );
       expect(refreshCalls, 0);
