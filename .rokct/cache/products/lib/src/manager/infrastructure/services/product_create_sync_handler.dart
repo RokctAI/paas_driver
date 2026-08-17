@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 
 import 'package:base_sdk/src/database/app_database.dart';
-import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/sync/sync_handler.dart';
 
@@ -55,15 +55,17 @@ class ProductCreateSyncHandler extends SyncHandler {
     }
 
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.post(
-        '/api/method/paas.api.seller_product.seller_product.create_product',
-        data: payload['product'],
+      // merchants' seller_product.create_product(product_data) via the
+      // universal platform gateway (whitelisted-method key registered
+      // alongside this change in merchants/frappe/manifest.json).
+      final response = await const PlatformGateway().call(
+        'api.seller_product.create_product',
+        payload: {'product_data': payload['product']},
         // op.id doubles as the idempotency key so an ambiguous-failure retry
         // does not double-create (backend dedupe per the Phase 0 contract).
         options: Options(headers: {'X-Idempotency-Key': op.id}),
       );
-      final data = response.data is Map ? response.data['data'] : null;
+      final data = response is Map ? response['data'] : null;
       final backendId =
           data is Map ? data['id']?.toString() : null;
       final backendUuid =

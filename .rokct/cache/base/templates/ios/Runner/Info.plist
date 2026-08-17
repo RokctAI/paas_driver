@@ -114,5 +114,7 @@
 	<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<!-- @sdk-ios-usage-keys-start -->
+	<!-- @sdk-ios-usage-keys-end -->
 </dict>
 </plist>

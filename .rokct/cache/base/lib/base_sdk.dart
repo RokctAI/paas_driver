@@ -9,6 +9,7 @@ export 'src/handlers/api_result.dart';
 export 'src/handlers/http_service.dart';
 export 'src/handlers/network_exceptions.dart';
 export 'src/handlers/network_helpers.dart';
+export 'src/handlers/platform_gateway.dart';
 export 'src/handlers/token_interceptor.dart';
 
 // Constants + assets

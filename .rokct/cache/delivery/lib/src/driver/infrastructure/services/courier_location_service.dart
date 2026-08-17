@@ -1,8 +1,29 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import 'package:dio/dio.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:workmanager/workmanager.dart';
 
 import 'package:base_sdk/src/constants/app_constants.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 
 /// Workmanager task id for the periodic courier-location report.
@@ -28,10 +49,17 @@ const String fetchBackground = 'fetchBackground';
 /// Without this the driver app silently stops reporting location the moment
 /// it leaves the foreground, which is the one thing dispatch depends on.
 ///
-/// Still posts to the legacy /api/v1 path directly rather than through a
-/// repository: it runs in a separate isolate with no GetIt registrations, so
-/// it cannot reach the composed DI graph. Endpoint recorded in paas_driver's
-/// docs/fork-endpoint-handoff.md.
+/// Posts directly with a raw Dio client rather than through a repository:
+/// it runs in a separate isolate with no GetIt registrations, so it cannot
+/// reach the composed DI graph (which is also why it builds the universal
+/// platform gateway request by hand — same [kPlatformGatewayPath] and
+/// `{"cmd", "payload"}` body shape as [PlatformGateway], same base URL and
+/// token retrieval as before, without the DI-resolved HttpService).
+/// Rewired from the dead legacy
+/// `/api/v1/dashboard/deliveryman/settings/location` path to the working
+/// Frappe endpoint (prefix-free cmd `api.driver.update_location` per map's
+/// manifest), which writes Deliveryman Profile.latitude/longitude — the
+/// position the server-side route optimizer starts from.
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
@@ -57,10 +85,13 @@ void callbackDispatcher() {
           ),
         );
         await client.post(
-          '${AppConstants.baseUrl}/api/v1/dashboard/deliveryman/settings/location',
+          '${AppConstants.baseUrl}$kPlatformGatewayPath',
           data: {
-            "location":
-                "{'latitude': '${userLocation.latitude}', 'longitude': '${userLocation.longitude}'}"
+            "cmd": "api.driver.update_location",
+            "payload": {
+              "latitude": userLocation.latitude,
+              "longitude": userLocation.longitude,
+            },
           },
         );
         break;

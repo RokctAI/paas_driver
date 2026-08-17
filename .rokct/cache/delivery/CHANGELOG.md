@@ -1,3 +1,113 @@
+## 1.7.2
+
+* Repointed the driver repositories' remaining legacy
+  `/api/v1/dashboard/*` call sites that have a real Frappe equivalent to
+  the versioned method surface:
+  * orders repository: `setCurrentOrder`, `uploadImage` and `setOrder`
+    (attach) now go through the universal platform gateway to the map
+    module's whitelisted driver_order defs
+    (`api.driver_order.set_current_order` / `.upload_order_image` /
+    `.attach_order_to_me` — the map manifest registers those alias keys
+    in this wave); `cancelOrder` goes through the gateway to the
+    registered `api.driver_order.update_driver_order_status` (the alias
+    1.7.1 added), same as its sibling `updateOrder`.
+    `setOrder` answers an empty `OrderDetailModel` on success (the def's
+    raw doc dict is not OrderDetailData-shaped and the only caller
+    ignores it); `cancelOrder`'s legacy `note` is not persisted (the def
+    takes no note kwarg — known gap).
+  * parcel repository: `setCurrentOrder`, `addReviewParcel` and
+    `setParcel` (attach) now go through the universal platform gateway
+    to the delivery module's whitelisted driver_parcel defs
+    (`api.driver_parcel.set_current_parcel_order` /
+    `.add_parcel_order_review` / `.attach_parcel_order_to_me` — alias
+    keys the delivery manifest registers in this wave).
+  * courier repository: `setOnline` goes through the universal platform
+    gateway to the registered `api.delivery_man.
+    update_deliveryman_settings` method, expressing the legacy
+    server-side toggle as the explicit desired value from the same
+    `CourierStorage` cache its caller flips on success.
+* Sites with NO registered Frappe equivalent or a genuine payload/shape
+  mismatch were deliberately left on their (dead) legacy paths and are
+  listed as decision items in zones PR #30: available/history/current
+  order+parcel lists, single order/parcel show, order review,
+  deliveryman settings (get + vehicle update), profile update,
+  request-models (get + create) and the courier delivery-zone polygon
+  read/write.
+
+## 1.7.1
+
+* Routed every driver call site added in the 1.6.0 (COD) and 1.7.0
+  (routing) waves through base_sdk's universal platform gateway
+  (`PlatformGateway`, per the 2026-08-15 fleet rule): the old direct
+  `/api/method/paas.api.*` dotted paths become prefix-free gateway cmds
+  (`api.driver_order.*`, `api.driver_parcel.*`, `api.dispatch_route.*`,
+  `api.delivery_man.get_deliveryman_settings`, `api.driver.update_location`)
+  mirroring the owning modules' `manifest.json` whitelisted-method keys.
+  GET-style reads (`get_driver_orders_paginate`, `get_driver_route`,
+  `get_my_dispatch_route`, `get_deliveryman_settings`) become gateway
+  POSTs. The Workmanager background-isolate location report builds the
+  same gateway request by hand (no DI in that isolate) against
+  `kPlatformGatewayPath`. Registered the two whitelisted-method manifest
+  keys the gateway needs to dispatch the status updates
+  (`api.driver_order.update_driver_order_status` in map,
+  `api.driver_parcel.update_driver_parcel_order_status` in delivery) —
+  they were only reachable by their direct composed dotted paths before.
+  Pre-existing legacy `/api/v1/*` calls are untouched.
+
+## 1.7.0
+
+* Driver route optimization wave:
+  * New "My Route" page (`/driver-route`, launched from a route button on
+    the courier home map): numbered, server-ordered stop cards — label,
+    stop type, leg distance, per-stop quantity+unit, "Cash to collect"
+    chip — with the next pending stop highlighted; tapping a stop hands
+    off to `map_launcher` (existing MapsList sheet). The backend
+    (`get_driver_route`) is authoritative for ordering: greedy
+    nearest-next from the driver's position, pickups before their own
+    drop-offs, coordinate-less stops flagged at the tail.
+  * Admin-composed Dispatch Routes (Pickup or Delivery mode, per-stop
+    quantities — the water-run case) surface on the same page via
+    `get_my_dispatch_route`; dispatch stops carry Done / Skip actions
+    (`complete_dispatch_stop`) and the list re-fetches (and re-orders)
+    after every completion.
+  * Rewired `getActiveOrders` from the dead legacy
+    `/api/v1/dashboard/deliveryman/orders/paginate` path to the working
+    `get_driver_orders_paginate` Frappe endpoint (now returning
+    data+meta with parsed coordinates, nested shop and payment tag);
+    `OrderDetailData.id` parses tolerantly since Frappe names are
+    strings.
+  * Rewired courier location reporting (10-minute Workmanager background
+    task + foreground `setCurrentLocation`) from the dead legacy
+    `/api/v1/dashboard/deliveryman/settings/location` path to
+    `paas.api.driver.driver.update_location` with
+    `{latitude, longitude}` — this position seeds the route optimizer.
+  * New driver tr_keys: `myRoute`, `pickupRoute`, `deliveryRoute`,
+    `noRouteStops`, `noLocationForStop`, `quantity`.
+
+## 1.6.0
+
+* Driver COD (cash-on-delivery) wave:
+  * Prominent "Cash to collect" line on cash orders in the courier order
+    card, the push-order sheet and the delivery bottom sheet (tag ==
+    'cash' via `order.transaction?.paymentSystem?.tag`).
+  * Delivered flow on cash orders now confirms the amount actually
+    received (prefilled with the order total, editable) after the
+    proof-of-delivery photo and BEFORE `deliveredFinish`; a failed
+    backend confirm keeps the dialog open so the order is never
+    delivered-but-unrecorded. Drivers whose `can_convert_cod_to_credit`
+    capability is enabled get a secondary "Record as credit" action.
+  * Parcel delivered flow: parcels with a sender-declared
+    `codAmount` (base_sdk ParcelOrder) show "Collect from recipient" and
+    confirm the collected cash (backend settles deliveryman wallet ->
+    sender wallet) before `deliveredFinishParcel`.
+  * Rewired `updateOrder` / `updateParcel` status posts and the new COD
+    endpoints from the dead legacy `/api/v1/dashboard/deliveryman/*`
+    surface to the Frappe `/api/method/paas.api.*` convention; new
+    `getDeliverymanSettingsRaw()` reads the per-driver capability flag
+    without touching the legacy `DeliveryResponse` model.
+  * New driver tr_keys: `cashToCollect`, `codConfirmed`,
+    `collectFromRecipient`, `howMuchCashReceived`, `recordAsCredit`.
+
 ## 1.5.0
 
 * Post-compose APK fix round for paas_driver (Build (Smart) run 31635788470,

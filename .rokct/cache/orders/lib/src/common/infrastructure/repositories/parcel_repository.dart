@@ -7,21 +7,29 @@ import 'package:base_sdk/src/models/response/parcel_paginate_response.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 
 class ParcelRepository implements ParcelRepositoryFacade {
+  /// Universal platform gateway (fleet rule 2026-08-15): parcel cmds are the
+  /// zones delivery module's `manifest.json` whitelisted-method keys with the
+  /// app segment dropped (`api.parcel.*`).
+  static const _gateway = PlatformGateway();
+
   @override
   Future<ApiResult<void>> addReview(
     String orderId, {
     required double rating,
     required String comment,
   }) async {
-    final data = {'rating': rating, if (comment != "") 'comment': comment};
+    // Backend kwargs are parcel_id/rating/review (parcel.add_parcel_review);
+    // the old body sent no parcel id and used 'comment'.
+    final data = {
+      'parcel_id': orderId,
+      'rating': rating,
+      if (comment != "") 'review': comment,
+    };
     try {
-      final client = dioHttp.client(requireAuth: true);
-      await client.post(
-        '/api/method/paas.api.parcel.parcel.add_parcel_review',
-        data: data,
-      );
+      await _gateway.tenant('api.parcel.add_parcel_review', data);
       return const ApiResult.success(data: null);
     } catch (e) {
       debugPrint('==> add parcel review failure: $e');
@@ -36,13 +44,13 @@ class ParcelRepository implements ParcelRepositoryFacade {
   Future<ApiResult<ParcelTypeResponse>> getTypes() async {
     final data = {'lang': LocalStorage.getLanguage()?.locale};
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.post(
-        '/api/method/paas.api.parcel.parcel.get_types',
-        data: data,
+      final response = await _gateway.call(
+        'api.parcel.get_types',
+        payload: data,
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: ParcelTypeResponse.fromJson(response.data),
+        data: ParcelTypeResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get parcel type failure: $e');
@@ -59,23 +67,23 @@ class ParcelRepository implements ParcelRepositoryFacade {
     required LocationModel from,
     required LocationModel to,
   }) async {
+    // Backend kwargs are type_id/address_from/address_to maps
+    // (parcel.calculate_price); the old bracket-style keys never matched.
     final data = {
       'lang': LocalStorage.getLanguage()?.locale,
       'type_id': typeId,
       'currency_id': LocalStorage.getSelectedCurrency()?.id,
-      'address_from[latitude]': from.latitude,
-      'address_from[longitude]': from.longitude,
-      'address_to[latitude]': to.latitude,
-      'address_to[longitude]': to.longitude,
+      'address_from': {'latitude': from.latitude, 'longitude': from.longitude},
+      'address_to': {'latitude': to.latitude, 'longitude': to.longitude},
     };
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.post(
-        '/api/method/paas.api.parcel.parcel.calculate_price',
-        data: data,
+      final response = await _gateway.call(
+        'api.parcel.calculate_price',
+        payload: data,
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: ParcelCalculateResponse.fromJson(response.data),
+        data: ParcelCalculateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get parcel type failure: $e');
@@ -107,6 +115,7 @@ class ParcelRepository implements ParcelRepositoryFacade {
     required String instruction,
     required bool notify,
     required String usernameFrom,
+    num? codAmount,
   }) async {
     final data = {
       'lang': LocalStorage.getLanguage()?.locale,
@@ -138,14 +147,16 @@ class ParcelRepository implements ParcelRepositoryFacade {
       'notify': notify ? 1 : 0,
       'username_from': usernameFrom,
       'username_to': usernameTo,
+      // Optional COD: sender asks the driver to collect this cash amount
+      // from the recipient. Omitted entirely when the sender didn't opt in.
+      if (codAmount != null && codAmount > 0) 'cod_amount': codAmount,
     };
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final res = await client.post(
-        '/api/method/paas.api.parcel.parcel.create_parcel_order',
-        data: {'order_data': data},
+      final res = await _gateway.tenant(
+        'api.parcel.create_parcel_order',
+        {'order_data': data},
       );
-      return ApiResult.success(data: res.data["data"]["id"]);
+      return ApiResult.success(data: res["data"]["id"]);
     } catch (e) {
       debugPrint('==> get parcel order failure: $e');
       return ApiResult.failure(
@@ -170,7 +181,6 @@ class ParcelRepository implements ParcelRepositoryFacade {
       "perPage": 10,
     };
     try {
-      final client = dioHttp.client(requireAuth: true);
       // Status filtering logic as implemented in previous session
       if (data['statuses[0]'] != null) {
         data['status'] = [
@@ -181,12 +191,9 @@ class ParcelRepository implements ParcelRepositoryFacade {
         ];
         data.removeWhere((key, value) => key.startsWith('statuses'));
       }
-      final response = await client.post(
-        '/api/method/paas.api.parcel.parcel.get_parcel_orders',
-        data: data,
-      );
+      final response = await _gateway.tenant('api.parcel.get_parcel_orders', data);
       return ApiResult.success(
-        data: ParcelPaginateResponse.fromJson(response.data),
+        data: ParcelPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get open parcel failure: $e');
@@ -210,17 +217,13 @@ class ParcelRepository implements ParcelRepositoryFacade {
       "page": page,
     };
     try {
-      final client = dioHttp.client(requireAuth: true);
       if (data['statuses[0]'] != null) {
         data['status'] = [data['statuses[0]'], data['statuses[1]']];
         data.removeWhere((key, value) => key.startsWith('statuses'));
       }
-      final response = await client.post(
-        '/api/method/paas.api.parcel.parcel.get_parcel_orders',
-        data: data,
-      );
+      final response = await _gateway.tenant('api.parcel.get_parcel_orders', data);
       return ApiResult.success(
-        data: ParcelPaginateResponse.fromJson(response.data),
+        data: ParcelPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get canceled parcel failure: $e');
@@ -239,13 +242,12 @@ class ParcelRepository implements ParcelRepositoryFacade {
       'lang': LocalStorage.getLanguage()?.locale,
     };
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.post(
-        '/api/method/paas.api.parcel.parcel.get_user_parcel_order',
-        data: {'name': orderId},
+      final response = await _gateway.tenant(
+        'api.parcel.get_user_parcel_order',
+        {'name': orderId},
       );
       return ApiResult.success(
-        data: ParcelOrder.fromJson(response.data["data"]),
+        data: ParcelOrder.fromJson(response["data"]),
       );
     } catch (e) {
       debugPrint('==> get single parcel failure: $e');

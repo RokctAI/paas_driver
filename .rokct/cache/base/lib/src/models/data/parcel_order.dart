@@ -19,6 +19,7 @@ class ParcelOrder {
   Address? addressTo;
   String? typeId;
   num? deliveryFee;
+  num? codAmount;
   DateTime? deliveryDate;
   String? deliveryTime;
   String? phoneFrom;
@@ -47,6 +48,7 @@ class ParcelOrder {
     this.addressTo,
     this.typeId,
     this.deliveryFee,
+    this.codAmount,
     this.deliveryDate,
     this.deliveryTime,
     this.phoneFrom,
@@ -76,6 +78,7 @@ class ParcelOrder {
     Address? addressTo,
     String? typeId,
     num? deliveryFee,
+    num? codAmount,
     DateTime? deliveryDate,
     String? deliveryTime,
     String? phoneFrom,
@@ -104,6 +107,7 @@ class ParcelOrder {
         addressTo: addressTo ?? this.addressTo,
         typeId: typeId ?? this.typeId,
         deliveryFee: deliveryFee ?? this.deliveryFee,
+        codAmount: codAmount ?? this.codAmount,
         deliveryDate: deliveryDate ?? this.deliveryDate,
         deliveryTime: deliveryTime ?? this.deliveryTime,
         phoneFrom: phoneFrom ?? this.phoneFrom,
@@ -140,6 +144,9 @@ class ParcelOrder {
           json["review"] == null ? null : ReviewData.fromJson(json["review"]),
       typeId: json["type_id"]?.toString(),
       deliveryFee: json["delivery_fee"],
+      codAmount: json["cod_amount"] == null
+          ? null
+          : num.tryParse(json["cod_amount"].toString()),
       deliveryDate: json["delivery_date"] == null
           ? null
           : DateTime.parse(json["delivery_date"]),
@@ -176,6 +183,7 @@ class ParcelOrder {
         "address_to": addressTo?.toJson(),
         "type_id": typeId,
         "delivery_fee": deliveryFee,
+        "cod_amount": codAmount,
         "delivery_date":
             "${deliveryDate!.year.toString().padLeft(4, '0')}-${deliveryDate!.month.toString().padLeft(2, '0')}-${deliveryDate!.day.toString().padLeft(2, '0')}",
         "delivery_time": deliveryTime,

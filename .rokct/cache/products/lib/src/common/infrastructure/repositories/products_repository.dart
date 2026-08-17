@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/domain/interface/products.dart';
 import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/models/response/all_products_response.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 
 class ProductsRepository implements ProductsRepositoryFacade {
+  /// Universal platform gateway (fleet rule 2026-08-15): product cmds are the
+  /// products module's `manifest.json` whitelisted-method keys with the app
+  /// segment dropped (`api.product.*`).
+  static const _gateway = PlatformGateway();
+
   @override
   Future<ApiResult<ProductsPaginateResponse>> searchProducts({
     required String text,
@@ -18,13 +23,13 @@ class ProductsRepository implements ProductsRepositoryFacade {
       'limit_page_length': 14,
     };
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.product.product.get_products',
-        queryParameters: params,
+      final response = await _gateway.call(
+        'api.product.get_products',
+        payload: params,
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: ProductsPaginateResponse.fromJson(response.data),
+        data: ProductsPaginateResponse.fromJson(response),
       );
     } catch (e) {
       return ApiResult.failure(
@@ -39,13 +44,13 @@ class ProductsRepository implements ProductsRepositoryFacade {
     String uuid,
   ) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.product.product.get_product_by_uuid',
-        queryParameters: {'uuid': uuid},
+      final response = await _gateway.call(
+        'api.product.get_product_by_uuid',
+        payload: {'uuid': uuid},
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: SingleProductResponse.fromJson(response.data),
+        data: SingleProductResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get product details failure: $e');
@@ -73,13 +78,13 @@ class ProductsRepository implements ProductsRepositoryFacade {
       if (orderBy != null) 'order_by': orderBy,
     };
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.product.product.get_products',
-        queryParameters: params,
+      final response = await _gateway.call(
+        'api.product.get_products',
+        payload: params,
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: ProductsPaginateResponse.fromJson(response.data),
+        data: ProductsPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> getProductsPaginate failure: $e');
@@ -103,13 +108,13 @@ class ProductsRepository implements ProductsRepositoryFacade {
       if (brandId != null) 'brand_id': brandId,
     };
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.product.product.most_sold_products',
-        queryParameters: params,
+      final response = await _gateway.call(
+        'api.product.most_sold_products',
+        payload: params,
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: ProductsPaginateResponse.fromJson(response.data),
+        data: ProductsPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get most sold products failure: $e');
@@ -129,13 +134,13 @@ class ProductsRepository implements ProductsRepositoryFacade {
         .toList();
 
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.post(
-        '/api/method/paas.api.product.product.order_products_calculate',
-        data: {'products': products},
+      final response = await _gateway.call(
+        'api.product.order_products_calculate',
+        payload: {'products': products},
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: ProductCalculateResponse.fromJson(response.data),
+        data: ProductCalculateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get all calculations failure: $e');
@@ -151,13 +156,13 @@ class ProductsRepository implements ProductsRepositoryFacade {
     List<String> ids,
   ) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.product.product.get_products_by_ids',
-        queryParameters: {'ids': ids},
+      final response = await _gateway.call(
+        'api.product.get_products_by_ids',
+        payload: {'ids': ids},
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: ProductsPaginateResponse.fromJson(response.data),
+        data: ProductsPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get products by ids failure: $e');
@@ -181,11 +186,7 @@ class ProductsRepository implements ProductsRepositoryFacade {
       if (comment.isNotEmpty) 'comment': comment,
     };
     try {
-      final client = dioHttp.client(requireAuth: true);
-      await client.post(
-        '/api/method/paas.api.product.product.add_product_review',
-        data: data,
-      );
+      await _gateway.tenant('api.product.add_product_review', data);
       return const ApiResult.success(data: null);
     } catch (e) {
       debugPrint('==> add review failure: $e');
@@ -211,13 +212,13 @@ class ProductsRepository implements ProductsRepositoryFacade {
       if (brandId != null) 'brand_id': brandId,
     };
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.product.product.get_discounted_products',
-        queryParameters: params,
+      final response = await _gateway.call(
+        'api.product.get_discounted_products',
+        payload: params,
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: ProductsPaginateResponse.fromJson(response.data),
+        data: ProductsPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get discount products failure: $e');
@@ -244,13 +245,13 @@ class ProductsRepository implements ProductsRepositoryFacade {
     required String shopId,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.product.product.get_products',
-        queryParameters: {'shop_id': shopId, 'limit_page_length': 100},
+      final response = await _gateway.call(
+        'api.product.get_products',
+        payload: {'shop_id': shopId, 'limit_page_length': 100},
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: AllProductsResponse.fromJson(response.data),
+        data: AllProductsResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get all products failure: $e');

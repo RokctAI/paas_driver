@@ -4,21 +4,26 @@ import 'package:base_sdk/src/domain/interface/cart.dart';
 import 'package:base_sdk/src/models/data/cart_data.dart';
 import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/network_exceptions.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 
 import 'dart:convert';
 import 'package:base_sdk/src/models/request/cart_request.dart';
 
 class CartRepository implements CartRepositoryFacade {
+  /// Universal platform gateway (fleet rule 2026-08-15): cart cmds are the
+  /// orders module's `manifest.json` whitelisted-method keys with the app
+  /// segment dropped (`api.cart.*`).
+  static const _gateway = PlatformGateway();
+
   @override
   Future<ApiResult<CartModel>> getCart(String shopId) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '/api/method/paas.api.cart.cart.get_cart',
-        queryParameters: {'shop_id': shopId},
+      final response = await _gateway.tenant(
+        'api.cart.get_cart',
+        {'shop_id': shopId},
       );
-      return ApiResult.success(data: CartModel.fromJson(response.data));
+      return ApiResult.success(data: CartModel.fromJson(response));
     } catch (e) {
       debugPrint('==> getCart failure: $e');
       return ApiResult.failure(
@@ -50,12 +55,8 @@ class CartRepository implements CartRepositoryFacade {
       if (cartUuid != null) 'cart_uuid': cartUuid,
     };
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '/api/method/paas.api.get_cart_in_group',
-        queryParameters: params,
-      );
-      return ApiResult.success(data: CartModel.fromJson(response.data));
+      final response = await _gateway.tenant('api.cart.get_cart_in_group', params);
+      return ApiResult.success(data: CartModel.fromJson(response));
     } catch (e) {
       debugPrint('==> getCartInGroup failure: $e');
       return ApiResult.failure(
@@ -89,10 +90,9 @@ class CartRepository implements CartRepositoryFacade {
     required String? cartId,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      await client.post(
-        '/api/method/paas.api.change_status',
-        data: {'user_uuid': userUuid, 'cart_id': cartId},
+      await _gateway.tenant(
+        'api.cart.change_status',
+        {'user_uuid': userUuid, 'cart_id': cartId},
       );
       return const ApiResult.success(data: null);
     } catch (e) {
@@ -107,12 +107,11 @@ class CartRepository implements CartRepositoryFacade {
   @override
   Future<ApiResult<CartModel>> deleteCart({required String cartId}) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.post(
-        '/api/method/paas.api.delete_cart',
-        data: {'cart_id': cartId},
+      final response = await _gateway.tenant(
+        'api.cart.delete_cart',
+        {'cart_id': cartId},
       );
-      return ApiResult.success(data: CartModel.fromJson(response.data));
+      return ApiResult.success(data: CartModel.fromJson(response));
     } catch (e) {
       debugPrint('==> deleteCart failure: $e');
       return ApiResult.failure(
@@ -128,10 +127,9 @@ class CartRepository implements CartRepositoryFacade {
     required String userId,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      await client.post(
-        '/api/method/paas.api.delete_user',
-        data: {'cart_id': cartId, 'user_id': userId},
+      await _gateway.tenant(
+        'api.cart.delete_user',
+        {'cart_id': cartId, 'user_id': userId},
       );
       return const ApiResult.success(data: null);
     } catch (e) {
@@ -149,12 +147,11 @@ class CartRepository implements CartRepositoryFacade {
     List<String>? listOfId,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.post(
-        '/api/method/paas.api.cart.cart.remove_product_cart',
-        data: {'cart_detail_id': cartDetailId},
+      final response = await _gateway.tenant(
+        'api.cart.remove_product_cart',
+        {'cart_detail_id': cartDetailId},
       );
-      return ApiResult.success(data: CartModel.fromJson(response.data));
+      return ApiResult.success(data: CartModel.fromJson(response));
     } catch (e) {
       debugPrint('==> removeProductCart failure: $e');
       return ApiResult.failure(
@@ -174,7 +171,6 @@ class CartRepository implements CartRepositoryFacade {
   @override
   Future<ApiResult<CartModel>> insertCart({required CartRequest cart}) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
       final params = cart.toJson();
       // Ensure specific keys are used for the add_to_cart endpoint if needed
       if (cart.productId != null) params['item_code'] = cart.productId;
@@ -183,11 +179,8 @@ class CartRepository implements CartRepositoryFacade {
       if (cart.carts != null) {
         params['addons'] = jsonEncode(cart.toJsonCart());
       }
-      final response = await client.post(
-        '/api/method/paas.api.cart.cart.add_to_cart',
-        data: params,
-      );
-      return ApiResult.success(data: CartModel.fromJson(response.data));
+      final response = await _gateway.tenant('api.cart.add_to_cart', params);
+      return ApiResult.success(data: CartModel.fromJson(response));
     } catch (e) {
       debugPrint('==> insertCart failure: $e');
       return ApiResult.failure(

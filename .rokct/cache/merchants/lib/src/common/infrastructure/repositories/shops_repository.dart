@@ -3,11 +3,19 @@ import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/domain/interface/shops.dart';
 import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:base_sdk/src/models/data/filter_model.dart';
 
 class ShopsRepository implements ShopsRepositoryFacade {
+  /// Universal platform gateway (fleet rule 2026-08-15): cmds mirror the
+  /// owning modules' `manifest.json` whitelisted-method keys with the app
+  /// segment dropped (`api.shop.*`, plus cross-module `api.cart.join_order`,
+  /// `api.delivery.check_delivery_zone`, `api.story.get_story`,
+  /// `api.tag.get_tags`, `api.product.get_suggest_price`).
+  static const _gateway = PlatformGateway();
+
   @override
   Future<ApiResult<ShopsPaginateResponse>> searchShops({
     required String text,
@@ -18,13 +26,13 @@ class ShopsRepository implements ShopsRepositoryFacade {
       if (categoryId != null) 'category_id': categoryId,
     };
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.shop.shop.search_shops',
-        queryParameters: params,
+      final response = await _gateway.call(
+        'api.shop.search_shops',
+        payload: params,
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: ShopsPaginateResponse.fromJson(response.data),
+        data: ShopsPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> search shops failure: $e');
@@ -52,13 +60,13 @@ class ShopsRepository implements ShopsRepositoryFacade {
       if (verify ?? false) 'verify': 1,
     };
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.shop.shop.get_shops',
-        queryParameters: params,
+      final response = await _gateway.call(
+        'api.shop.get_shops',
+        payload: params,
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: ShopsPaginateResponse.fromJson(response.data),
+        data: ShopsPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get all shops failure: $e');
@@ -96,17 +104,18 @@ class ShopsRepository implements ShopsRepositoryFacade {
     String? shopId,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
       final data = {
         'latitude': location.latitude,
         'longitude': location.longitude,
         if (shopId != null) 'shop_id': shopId,
       };
-      final response = await client.get(
-        '/api/method/paas.api.shop.shop.check_delivery_zone',
-        queryParameters: data,
+      // zones delivery module owns check_delivery_zone.
+      final response = await _gateway.call(
+        'api.delivery.check_delivery_zone',
+        payload: data,
+        requireAuth: false,
       );
-      return ApiResult.success(data: response.data["status"] == "success");
+      return ApiResult.success(data: response["status"] == "success");
     } catch (e) {
       debugPrint('==> get delivery zone failure: $e');
       return ApiResult.failure(
@@ -136,13 +145,13 @@ class ShopsRepository implements ShopsRepositoryFacade {
   ) async {
     final params = {'latitude': latitude, 'longitude': longitude};
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.shop.shop.get_nearby_shops',
-        queryParameters: params,
+      final response = await _gateway.call(
+        'api.shop.get_nearby_shops',
+        payload: params,
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: ShopsPaginateResponse.fromJson(response.data),
+        data: ShopsPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get nearby shops failure: $e');
@@ -180,10 +189,11 @@ class ShopsRepository implements ShopsRepositoryFacade {
     required String cartId,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      await client.post(
-        '/api/method/paas.api.shop.shop.join_order',
-        data: {'shop_id': shopId, 'name': name, 'cart_id': cartId},
+      // Group-order join lives in orders' cart module (cart.join_order);
+      // its kwargs are cart_id/user_name.
+      await _gateway.tenant(
+        'api.cart.join_order',
+        {'cart_id': cartId, 'user_name': name, 'shop_id': shopId},
       );
       return const ApiResult.success(data: null);
     } catch (e) {
@@ -228,13 +238,15 @@ class ShopsRepository implements ShopsRepositoryFacade {
     List<String> shopIds,
   ) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.shop.shop.get_shops_by_ids',
-        queryParameters: {'ids': shopIds},
+      // Backend kwarg is shop_ids (shop.get_shops_by_ids); the old 'ids'
+      // key was never read server-side.
+      final response = await _gateway.call(
+        'api.shop.get_shops_by_ids',
+        payload: {'shop_ids': shopIds},
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: ShopsPaginateResponse.fromJson(response.data),
+        data: ShopsPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get shops by ids failure: $e');
@@ -279,11 +291,9 @@ class ShopsRepository implements ShopsRepositoryFacade {
       if (backgroundImage != null) 'background': backgroundImage,
     };
     try {
-      final client = dioHttp.client(requireAuth: true);
-      await client.post(
-        '/api/method/paas.api.shop.shop.create_shop',
-        data: data,
-      );
+      // Backend signature is create_shop(shop_data) — the fields ride inside
+      // a single shop_data map.
+      await _gateway.tenant('api.shop.create_shop', {'shop_data': data});
       return const ApiResult.success(data: null);
     } catch (e) {
       debugPrint('==> create shop failure: $e');
@@ -297,13 +307,16 @@ class ShopsRepository implements ShopsRepositoryFacade {
   @override
   Future<ApiResult<ShopsPaginateResponse>> getShopsRecommend(int page) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.shop.shop.get_shops_recommend',
-        queryParameters: {'page': page},
+      // NOTE: backend get_shops_recommend(latitude, longitude) requires
+      // coordinates this facade does not receive — recorded contract gap;
+      // the call is at least routed to the real endpoint now.
+      final response = await _gateway.call(
+        'api.shop.get_shops_recommend',
+        payload: {'page': page},
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: ShopsPaginateResponse.fromJson(response.data),
+        data: ShopsPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get recommended shops failure: $e');
@@ -317,13 +330,13 @@ class ShopsRepository implements ShopsRepositoryFacade {
   @override
   Future<ApiResult<List<List<StoryModel?>?>?>> getStory(int page) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.get_story',
-        queryParameters: {'page': page},
+      final response = await _gateway.call(
+        'api.story.get_story',
+        payload: {'page': page},
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: storyModelFromJson(response.data['message']),
+        data: storyModelFromJson(response['message']),
       );
     } catch (e) {
       debugPrint('==> get story failure: $e');
@@ -337,12 +350,13 @@ class ShopsRepository implements ShopsRepositoryFacade {
   @override
   Future<ApiResult<TagResponse>> getTags(String categoryId) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.shop.shop.get_tags',
-        queryParameters: {'category_id': categoryId},
+      // Tags live in products' tag module (tag.get_tags).
+      final response = await _gateway.call(
+        'api.tag.get_tags',
+        payload: {'category_id': categoryId},
+        requireAuth: false,
       );
-      return ApiResult.success(data: TagResponse.fromJson(response.data));
+      return ApiResult.success(data: TagResponse.fromJson(response));
     } catch (e) {
       debugPrint('==> get tags failure: $e');
       return ApiResult.failure(
@@ -355,12 +369,14 @@ class ShopsRepository implements ShopsRepositoryFacade {
   @override
   Future<ApiResult<PriceModel>> getSuggestPrice() async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.shop.shop.get_suggest_price',
+      // Suggested price lives in products' product module
+      // (product.get_suggest_price).
+      final response = await _gateway.call(
+        'api.product.get_suggest_price',
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: PriceModel.fromJson(response.data['message']),
+        data: PriceModel.fromJson(response['message']),
       );
     } catch (e) {
       debugPrint('==> get suggest price failure: $e');

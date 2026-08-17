@@ -8,6 +8,7 @@ import 'package:orders_sdk/src/common/application/parcel/parcel_state.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/presentation/components/buttons/animation_button_effect.dart';
+import 'package:base_sdk/src/presentation/components/custom_toggle.dart';
 import 'package:base_sdk/src/presentation/components/text_fields/outline_bordered_text_field.dart';
 // [refork] removed host router import
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -25,6 +26,7 @@ class RecipientWidget extends StatelessWidget {
   final TextEditingController description;
   final TextEditingController addInstruction;
   final TextEditingController value;
+  final TextEditingController codAmount;
 
   const RecipientWidget({
     super.key,
@@ -37,6 +39,7 @@ class RecipientWidget extends StatelessWidget {
     required this.description,
     required this.addInstruction,
     required this.value,
+    required this.codAmount,
   });
 
   @override
@@ -310,6 +313,58 @@ class RecipientWidget extends StatelessWidget {
                   ),
                 ),
               ),
+              16.verticalSpace,
+              Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppHelpers.getTranslation(
+                          'driver_collects_cash_from_recipient',
+                        ),
+                        style: AppStyle.interSemi(size: 16),
+                      ),
+                      Text(
+                        AppHelpers.getTranslation(
+                          'cash_to_collect_from_recipient',
+                        ),
+                        style: AppStyle.interRegular(size: 14),
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: CustomToggle(
+                      controller: ValueNotifier<bool>(state.codEnabled),
+                      title: "",
+                      isChecked: state.codEnabled,
+                      onChange: () => event.changeCodEnabled(),
+                    ),
+                  ),
+                ],
+              ),
+              if (state.codEnabled) ...[
+                16.verticalSpace,
+                OutlinedBorderTextField(
+                  inputType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  label: AppHelpers.getTranslation(
+                    'cash_to_collect_from_recipient',
+                  ),
+                  textController: codAmount,
+                  validation: (s) {
+                    if (!state.codEnabled) {
+                      return null;
+                    }
+                    if ((num.tryParse(s ?? "") ?? 0) > 0) {
+                      return null;
+                    }
+                    return AppHelpers.getTranslation(
+                      'enter_cash_amount_greater_than_zero',
+                    );
+                  },
+                ),
+              ],
               16.verticalSpace,
             ],
           ),
