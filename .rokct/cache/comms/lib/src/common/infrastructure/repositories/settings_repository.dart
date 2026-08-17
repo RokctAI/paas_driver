@@ -7,18 +7,21 @@ import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/models/data/translation.dart';
 
 class SettingsRepository implements SettingsRepositoryFacade {
+  static const _gateway = PlatformGateway();
+
   @override
   Future<ApiResult<GlobalSettingsResponse>> getGlobalSettings() async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.system.system.get_global_settings',
+      final data = await _gateway.call(
+        'api.system.get_global_settings',
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: GlobalSettingsResponse.fromJson(response.data),
+        data: GlobalSettingsResponse.fromJson(data),
       );
     } catch (e) {
       debugPrint('==> get settings failure: $e');
@@ -53,23 +56,23 @@ class SettingsRepository implements SettingsRepositoryFacade {
   @override
   Future<ApiResult<LanguagesResponse>> getLanguages() async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.system.system.get_languages',
+      final data = await _gateway.call(
+        'api.system.get_languages',
+        requireAuth: false,
       );
       if (LocalStorage.getLanguage() == null ||
-          !(LanguagesResponse.fromJson(response.data)
+          !(LanguagesResponse.fromJson(data)
                   .data
                   ?.map((e) => e.id)
                   .contains(LocalStorage.getLanguage()?.id) ??
               true)) {
-        LanguagesResponse.fromJson(response.data).data?.forEach((element) {
+        LanguagesResponse.fromJson(data).data?.forEach((element) {
           if (element.isDefault ?? false) {
             LocalStorage.setLanguageData(element);
           }
         });
       }
-      return ApiResult.success(data: LanguagesResponse.fromJson(response.data));
+      return ApiResult.success(data: LanguagesResponse.fromJson(data));
     } catch (e) {
       debugPrint('==> get languages failure: $e');
       return ApiResult.failure(
@@ -82,11 +85,8 @@ class SettingsRepository implements SettingsRepositoryFacade {
   @override
   Future<ApiResult<HelpModel>> getFaq() async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '/api/method/paas.api.admin_content.admin_content.get_admin_faqs',
-      );
-      return ApiResult.success(data: HelpModel.fromJson(response.data));
+      final data = await _gateway.tenant('api.admin_content.get_admin_faqs');
+      return ApiResult.success(data: HelpModel.fromJson(data));
     } catch (e) {
       debugPrint('==> get faq failure: $e');
       return ApiResult.failure(
@@ -99,14 +99,14 @@ class SettingsRepository implements SettingsRepositoryFacade {
   @override
   Future<ApiResult<Translation>> getTerm() async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.page.page.get_page',
-        queryParameters: {'slug': 'term'},
+      final data = await _gateway.call(
+        'api.page.get_page',
+        payload: {'slug': 'term'},
+        requireAuth: false,
       );
       // Response structure adaptation needed. Assuming get_page returns the page doc.
       // Translation.fromJson expects map.
-      return ApiResult.success(data: Translation.fromJson(response.data));
+      return ApiResult.success(data: Translation.fromJson(data));
     } catch (e) {
       debugPrint('==> get term failure: $e');
       return ApiResult.failure(
@@ -119,12 +119,12 @@ class SettingsRepository implements SettingsRepositoryFacade {
   @override
   Future<ApiResult<Translation>> getPolicy() async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.page.page.get_page',
-        queryParameters: {'slug': 'policy'},
+      final data = await _gateway.call(
+        'api.page.get_page',
+        payload: {'slug': 'policy'},
+        requireAuth: false,
       );
-      return ApiResult.success(data: Translation.fromJson(response.data));
+      return ApiResult.success(data: Translation.fromJson(data));
     } catch (e) {
       debugPrint('==> get policy failure: $e');
       return ApiResult.failure(
@@ -137,13 +137,12 @@ class SettingsRepository implements SettingsRepositoryFacade {
   @override
   Future<ApiResult<NotificationsListModel>> getNotificationList() async {
     try {
-      final client = dioHttp.client(requireAuth: true);
       // Using parities with NotificationRepository or dedicated settings endpoint
-      final response = await client.get(
-        '/api/method/paas.api.notification.notification.get_notification_settings',
+      final data = await _gateway.tenant(
+        'api.notification.get_notification_settings',
       );
       return ApiResult.success(
-        data: notificationsListModelFromJson(response.data) ??
+        data: notificationsListModelFromJson(data) ??
             NotificationsListModel(),
       );
     } catch (e) {
@@ -160,15 +159,14 @@ class SettingsRepository implements SettingsRepositoryFacade {
     List<NotificationData>? notifications,
   ) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
       final data = {
         'notifications': notifications
             ?.map((n) => {'notification_id': n.id, 'active': n.active})
             .toList(),
       };
-      await client.post(
-        '/api/method/paas.api.notification.notification.update_notification_settings',
-        data: data,
+      await _gateway.tenant(
+        'api.notification.update_notification_settings',
+        data,
       );
       return const ApiResult.success(data: null);
     } catch (e) {

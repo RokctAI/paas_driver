@@ -5,8 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:base_sdk/src/constants/app_constants.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 
-/// Boot-time tenant remote config (the `paas.api.get_remote_config` API base
+/// Boot-time tenant remote config (the `paas.api.remote_config.get_remote_config` API base
 /// itself maps in its Frappe manifest).
 ///
 /// Absorbed from paas_manager's retired host `lib/utils/app_initializer.dart`
@@ -39,14 +40,20 @@ import 'package:base_sdk/src/constants/app_constants.dart';
 abstract class RemoteConfigService {
   RemoteConfigService._();
 
-  /// Fetches `paas.api.get_remote_config?app_type=[appType]` from the tenant
-  /// site ([AppConstants.baseUrl]) and applies any present overrides.
+  /// Fetches the remote config (gateway cmd `api.remote_config.get_remote_config`
+  /// with `app_type` in the payload) from the tenant site
+  /// ([AppConstants.baseUrl]) and applies any present overrides. Runs over
+  /// plain http (boot happens before DI is up, so the DI'd PlatformGateway
+  /// client is not available), but still speaks the gateway envelope.
   static Future<void> initialize({required String appType}) async {
     try {
-      final response = await http.get(
-        Uri.parse(
-          '${AppConstants.baseUrl}/api/method/paas.api.get_remote_config?app_type=$appType',
-        ),
+      final response = await http.post(
+        Uri.parse('${AppConstants.baseUrl}$kPlatformGatewayPath'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'cmd': 'api.remote_config.get_remote_config',
+          'payload': {'app_type': appType},
+        }),
       );
       if (response.statusCode != 200) {
         debugPrint(
