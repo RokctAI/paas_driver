@@ -47,6 +47,7 @@ class _ParcelPageState extends ConsumerState<ParcelPage> {
   final TextEditingController comment = TextEditingController();
   final TextEditingController itemValue = TextEditingController();
   final TextEditingController instruction = TextEditingController();
+  final TextEditingController codAmount = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
@@ -109,6 +110,7 @@ class _ParcelPageState extends ConsumerState<ParcelPage> {
                                             description: note,
                                             addInstruction: instruction,
                                             value: itemValue,
+                                            codAmount: codAmount,
                                           ),
                                         ],
                                       ),
@@ -237,6 +239,9 @@ class _ParcelPageState extends ConsumerState<ParcelPage> {
                             value: itemValue.text,
                             instruction: instruction.text,
                             totalPrice: state.calculate?.data?.price ?? 0,
+                            codAmount: state.codEnabled
+                                ? num.tryParse(codAmount.text)
+                                : null,
                           );
                         }
                       }

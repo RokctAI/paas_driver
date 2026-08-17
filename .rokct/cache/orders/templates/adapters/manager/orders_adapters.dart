@@ -1,5 +1,6 @@
 import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:get_it/get_it.dart';
 import 'package:orders_sdk/src/manager/domain/interface/pos_customers.dart';
@@ -50,18 +51,18 @@ class ManagerPosSectionsTablesAdapter implements PosSectionsTablesFacade {
     String? query,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        // Recorded gap: seller_operations.py has menus/kitchens/receipts but
-        // no shop-section listing yet.
-        '/api/method/paas.api.seller_operations.seller_operations.get_seller_sections',
-        queryParameters: {
+      // merchants' seller_operations.get_seller_sections via the universal
+      // platform gateway (whitelisted-method key registered alongside this
+      // change in merchants/frappe/manifest.json).
+      final response = await const PlatformGateway().tenant(
+        'api.seller_operations.get_seller_sections',
+        {
           if (page != null) 'page': page,
           if (query != null && query.isNotEmpty) 'search': query,
         },
       );
       return ApiResult.success(
-        data: ShopSectionResponse.fromJson(response.data),
+        data: ShopSectionResponse.fromJson(response),
       );
     } catch (e) {
       return ApiResult.failure(
@@ -78,17 +79,18 @@ class ManagerPosSectionsTablesAdapter implements PosSectionsTablesFacade {
     int? shopSectionId,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        // Recorded gap: no seller table listing endpoint yet.
-        '/api/method/paas.api.seller_operations.seller_operations.get_seller_tables',
-        queryParameters: {
+      // merchants' seller_operations.get_seller_tables via the universal
+      // platform gateway (whitelisted-method key registered alongside this
+      // change in merchants/frappe/manifest.json).
+      final response = await const PlatformGateway().tenant(
+        'api.seller_operations.get_seller_tables',
+        {
           if (page != null) 'page': page,
           if (query != null && query.isNotEmpty) 'search': query,
           if (shopSectionId != null) 'shop_section_id': shopSectionId,
         },
       );
-      return ApiResult.success(data: TableResponse.fromJson(response.data));
+      return ApiResult.success(data: TableResponse.fromJson(response));
     } catch (e) {
       return ApiResult.failure(
         error: AppHelpers.errorHandler(e),

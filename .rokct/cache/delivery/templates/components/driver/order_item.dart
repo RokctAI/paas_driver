@@ -1,3 +1,23 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
@@ -254,28 +274,55 @@ class OrderItem extends StatelessWidget {
             borderRadius: BorderRadius.circular(10.r),
           ),
           padding: EdgeInsets.all(16.r),
-          child: Row(
+          child: Column(
             children: [
-              SvgPicture.asset("assets/svg/cutter.svg", width: 18.r),
-              10.horizontalSpace,
-              Text(
-                AppHelpers.numberFormat(number: order.totalPrice ?? 0),
-                style: AppStyle.interSemi(size: 12.sp),
+              Row(
+                children: [
+                  SvgPicture.asset("assets/svg/cutter.svg", width: 18.r),
+                  10.horizontalSpace,
+                  Text(
+                    AppHelpers.numberFormat(number: order.totalPrice ?? 0),
+                    style: AppStyle.interSemi(size: 12.sp),
+                  ),
+                  const Spacer(),
+                  Icon(Remix.takeaway_fill, size: 18.sp),
+                  10.horizontalSpace,
+                  Text(
+                    AppHelpers.numberFormat(number: order.deliveryFee ?? 0),
+                    style: AppStyle.interSemi(size: 12.sp),
+                  ),
+                  const Spacer(),
+                  Icon(Remix.bank_card_2_line, size: 18.sp),
+                  10.horizontalSpace,
+                  Text(
+                    order.transaction?.paymentSystem?.tag ?? "",
+                    style: AppStyle.interSemi(size: 12.sp),
+                  ),
+                ],
               ),
-              const Spacer(),
-              Icon(Remix.takeaway_fill, size: 18.sp),
-              10.horizontalSpace,
-              Text(
-                AppHelpers.numberFormat(number: order.deliveryFee ?? 0),
-                style: AppStyle.interSemi(size: 12.sp),
-              ),
-              const Spacer(),
-              Icon(Remix.bank_card_2_line, size: 18.sp),
-              10.horizontalSpace,
-              Text(
-                order.transaction?.paymentSystem?.tag ?? "",
-                style: AppStyle.interSemi(size: 12.sp),
-              ),
+              // COD: make the amount the driver must physically collect
+              // unmissable.
+              if ((order.transaction?.paymentSystem?.tag ?? '')
+                      .toLowerCase() ==
+                  'cash') ...[
+                12.verticalSpace,
+                Row(
+                  children: [
+                    Icon(Remix.money_dollar_circle_fill,
+                        size: 20.sp, color: AppStyle.primary),
+                    10.horizontalSpace,
+                    Expanded(
+                      child: Text(
+                        "${AppHelpers.getTranslation(TrKeys.cashToCollect)}: ${AppHelpers.numberFormat(number: order.totalPrice ?? 0)}",
+                        style: AppStyle.interBold(
+                          size: 14.sp,
+                          color: AppStyle.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),

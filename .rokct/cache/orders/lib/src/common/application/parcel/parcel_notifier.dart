@@ -17,6 +17,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:base_sdk/src/domain/interface/draw.dart';
 import 'package:orders_sdk/src/common/application/parcel/parcel_state.dart';
+import 'package:orders_sdk/src/common/infrastructure/repositories/parcel_repository.dart';
 
 class ParcelNotifier extends StateNotifier<ParcelState> {
   final ParcelRepositoryFacade _parcelRepository;
@@ -67,6 +68,10 @@ class ParcelNotifier extends StateNotifier<ParcelState> {
 
   changeAnonymous() {
     state = state.copyWith(anonymous: !state.anonymous);
+  }
+
+  changeCodEnabled() {
+    state = state.copyWith(codEnabled: !state.codEnabled);
   }
 
   Future<void> fetchTypes(BuildContext context) async {
@@ -133,9 +138,17 @@ class ParcelNotifier extends StateNotifier<ParcelState> {
     required String value,
     required String instruction,
     required num totalPrice,
+    num? codAmount,
   }) async {
     if (state.selectPayment == null) {
       AppHelpers.showCheckTopSnackBar(context, TrKeys.selectPaymentMethod);
+      return;
+    }
+    if (state.codEnabled && (codAmount == null || codAmount <= 0)) {
+      AppHelpers.showCheckTopSnackBarInfo(
+        context,
+        AppHelpers.getTranslation('enter_cash_amount_greater_than_zero'),
+      );
       return;
     }
     final num wallet = LocalStorage.getWalletData()?.price ?? 0;
@@ -149,7 +162,11 @@ class ParcelNotifier extends StateNotifier<ParcelState> {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isLoading: true);
-      final response = await _parcelRepository.orderParcel(
+      // base_sdk owns ParcelRepositoryFacade and cannot be extended from this
+      // repo, so the optional COD extension lives on the concrete
+      // ParcelRepository that OrdersSdkDependencies always registers.
+      final response = await (_parcelRepository as ParcelRepository).orderParcel(
+        codAmount: state.codEnabled ? codAmount : null,
         typeId: state.types[state.selectType]?.id ?? "",
         from: state.locationFrom ?? LocationModel(),
         to: state.locationTo ?? LocationModel(),

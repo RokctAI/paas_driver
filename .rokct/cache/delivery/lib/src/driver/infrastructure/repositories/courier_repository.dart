@@ -1,3 +1,23 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -5,6 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:base_sdk/src/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/models/response/driver_show_response.dart';
 import 'package:base_sdk/src/models/response/profile_response.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -22,6 +43,8 @@ import 'package:delivery_sdk/src/driver/infrastructure/services/courier_storage.
 /// endpoints, unchanged bodies. Endpoint inventory recorded in paas_driver's
 /// docs/fork-endpoint-handoff.md.
 class CourierRepository implements CourierRepositoryFacade {
+  static const _gateway = PlatformGateway();
+
   @override
   Future<ApiResult<DeliveryResponse>> getDriverDetails() async {
     try {
@@ -34,6 +57,27 @@ class CourierRepository implements CourierRepositoryFacade {
       );
     } catch (e) {
       debugPrint('===> error driver settings $e');
+      return ApiResult.failure(
+          error: AppHelpers.errorHandler(e),
+          statusCode: NetworkExceptions.getDioStatus(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<Map<String, dynamic>>> getDeliverymanSettingsRaw() async {
+    try {
+      // Frappe convention endpoint (not the dead legacy `/api/v1` path),
+      // called through the universal platform gateway — the prefix-free
+      // cmd mirrors delivery's `manifest.json` whitelisted-method key.
+      // FrappeResponseInterceptor already unwraps the top-level `message`
+      // key, so the gateway answer is the settings map itself.
+      final data =
+          await _gateway.tenant('api.delivery_man.get_deliveryman_settings');
+      return ApiResult.success(
+        data: data is Map ? Map<String, dynamic>.from(data) : {},
+      );
+    } catch (e) {
+      debugPrint('===> error deliveryman settings raw $e');
       return ApiResult.failure(
           error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
@@ -196,10 +240,17 @@ class CourierRepository implements CourierRepositoryFacade {
   @override
   Future<ApiResult> setOnline() async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      await client.post(
-        '/api/v1/dashboard/deliveryman/settings/online',
-      );
+      // Repointed from the dead legacy
+      // `/api/v1/dashboard/deliveryman/settings/online` toggle to the
+      // registered Frappe method (delivery manifest key
+      // `api.delivery_man.update_deliveryman_settings`) through the
+      // universal platform gateway. The legacy endpoint flipped the flag
+      // server-side; the Frappe def takes the desired value, so the
+      // toggle is expressed from the same local cache the only caller
+      // (home_notifier.setOnline) flips on success.
+      await _gateway.tenant('api.delivery_man.update_deliveryman_settings', {
+        'settings_data': {'online': CourierStorage.getOnline() ? 0 : 1},
+      });
       return const ApiResult.success(data: null);
     } catch (e) {
       debugPrint('==> update online token failure: $e');
@@ -228,17 +279,19 @@ class CourierRepository implements CourierRepositoryFacade {
   @override
   Future<ApiResult> setCurrentLocation(LatLng location) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final res = await client.post(
-        '/api/v1/dashboard/deliveryman/settings/location',
-        data: {
-          "location": {
-            'latitude': location.latitude,
-            'longitude': location.longitude,
-          }
+      // Rewired from the dead legacy
+      // `/api/v1/dashboard/deliveryman/settings/location` path to the
+      // working Frappe endpoint (writes Deliveryman Profile
+      // latitude/longitude), now through the universal platform gateway.
+      // The response is a plain status payload, not the legacy
+      // DeliveryResponse, so nothing is cached here anymore.
+      await _gateway.tenant(
+        'api.driver.update_location',
+        {
+          'latitude': location.latitude,
+          'longitude': location.longitude,
         },
       );
-      CourierStorage.setDeliveryInfo(DeliveryResponse.fromJson(res.data));
       return const ApiResult.success(
         data: null,
       );

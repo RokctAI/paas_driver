@@ -22,6 +22,7 @@ abstract class ParcelState with _$ParcelState {
     @Default(0) int selectType,
     @Default(false) bool expand,
     @Default(false) bool anonymous,
+    @Default(false) bool codEnabled,
     @Default(null) ParcelOrder? parcel,
     @Default(null) PaymentData? selectPayment,
     @Default({}) Map<MarkerId, Marker> markers,

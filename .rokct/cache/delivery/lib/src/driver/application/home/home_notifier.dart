@@ -1,3 +1,23 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'dart:collection';
 
@@ -381,6 +401,117 @@ class HomeNotifier extends StateNotifier<HomeState> {
     );
     if (await AppConnectivity.connectivity()) {
       parcelRepository.updateParcel(parcelId ?? 0, "delivered");
+    } else {
+      if (context.mounted) {
+        AppHelpers.showNoConnectionSnackBar(context);
+      }
+    }
+  }
+
+  /// Reads the driver's `can_convert_cod_to_credit` capability from the raw
+  /// deliveryman settings map (Deliveryman Profile). Defaults to false on
+  /// any failure so the credit action never shows up by accident.
+  Future<bool> fetchCanConvertCodToCredit() async {
+    if (!await AppConnectivity.connectivity()) {
+      return false;
+    }
+    final response = await courierRepository.getDeliverymanSettingsRaw();
+    return response.when(
+      success: (data) {
+        final value = data['can_convert_cod_to_credit'];
+        return value == true || value == 1 || value == '1';
+      },
+      failure: (failure, status) => false,
+    );
+  }
+
+  /// Confirms the cash amount physically received on a COD order. Only
+  /// calls [onSuccess] when the backend accepted the confirmation, so a
+  /// failed confirm never advances the delivered flow.
+  Future<void> confirmCodCollection({
+    required BuildContext context,
+    int? orderId,
+    required num amountReceived,
+    VoidCallback? onSuccess,
+  }) async {
+    if (await AppConnectivity.connectivity()) {
+      final response =
+          await orderRepository.confirmCodCollection(orderId, amountReceived);
+      response.when(
+        success: (data) {
+          onSuccess?.call();
+        },
+        failure: (failure, status) {
+          if (context.mounted) {
+            AppHelpers.showCheckTopSnackBar(
+              context,
+              AppHelpers.getTranslation(failure),
+            );
+          }
+        },
+      );
+    } else {
+      if (context.mounted) {
+        AppHelpers.showNoConnectionSnackBar(context);
+      }
+    }
+  }
+
+  /// Flips an uncollected cash order to Credit (customer owes the shop).
+  /// Backend enforces the per-driver capability; [onSuccess] only fires on
+  /// acceptance.
+  Future<void> convertCodToCredit({
+    required BuildContext context,
+    int? orderId,
+    VoidCallback? onSuccess,
+  }) async {
+    if (await AppConnectivity.connectivity()) {
+      final response = await orderRepository.convertCodToCredit(orderId);
+      response.when(
+        success: (data) {
+          onSuccess?.call();
+        },
+        failure: (failure, status) {
+          if (context.mounted) {
+            AppHelpers.showCheckTopSnackBar(
+              context,
+              AppHelpers.getTranslation(failure),
+            );
+          }
+        },
+      );
+    } else {
+      if (context.mounted) {
+        AppHelpers.showNoConnectionSnackBar(context);
+      }
+    }
+  }
+
+  /// Confirms the sender-declared cash collected from a parcel recipient.
+  /// The backend settles the amount from the deliveryman's wallet to the
+  /// sender's wallet; [onSuccess] only fires on acceptance.
+  Future<void> confirmParcelCodCollection({
+    required BuildContext context,
+    int? parcelId,
+    required num amountReceived,
+    VoidCallback? onSuccess,
+  }) async {
+    if (await AppConnectivity.connectivity()) {
+      final response = await parcelRepository.confirmParcelCodCollection(
+          parcelId, amountReceived);
+      response.when(
+        success: (data) {
+          onSuccess?.call();
+        },
+        failure: (failure, status) {
+          if (context.mounted) {
+            AppHelpers.showCheckTopSnackBar(
+              context,
+              AppHelpers.getTranslation(failure),
+            );
+          }
+        },
+      );
     } else {
       if (context.mounted) {
         AppHelpers.showNoConnectionSnackBar(context);

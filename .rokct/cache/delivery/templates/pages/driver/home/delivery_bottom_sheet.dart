@@ -1,3 +1,23 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -29,13 +49,129 @@ class DeliverBottomSheetScreen extends StatefulWidget {
 
 class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
   TextEditingController noteCon = TextEditingController();
+  TextEditingController amountCon = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
+  final cashFormKey = GlobalKey<FormState>();
+
+  bool get _isCashOrder =>
+      (widget.order.transaction?.paymentSystem?.tag ?? '').toLowerCase() ==
+      'cash';
 
   @override
   void dispose() {
     noteCon.dispose();
+    amountCon.dispose();
     super.dispose();
+  }
+
+  /// The original (non-cash) delivered epilogue: finish the order, close
+  /// the bottom sheet and ask for a customer rating.
+  void _finishDelivery(BuildContext context, WidgetRef ref) {
+    ref.read(homeProvider.notifier).deliveredFinish(
+          context: context,
+          orderId: widget.order.id,
+        );
+    Navigator.pop(context);
+    AppHelpers.showCustomModalBottomSheet(
+        context: context,
+        modal: RateCustomer(
+          order: widget.order,
+        ),
+        isDarkMode: false);
+  }
+
+  /// Cash orders only: after the proof-of-delivery photo, confirm how much
+  /// cash was actually received (server stays the authority on the expected
+  /// amount) before the order is finished. When the driver's
+  /// can_convert_cod_to_credit capability is enabled, a secondary action
+  /// records the order as Credit (goods left, customer owes the shop)
+  /// instead. A failed backend call keeps the dialog open and does NOT
+  /// advance the status, so the order is never delivered-but-unrecorded.
+  void _showCashCollectionDialog(
+      BuildContext context, WidgetRef ref, bool canConvertToCredit) {
+    amountCon.text = (widget.order.totalPrice ?? 0).toString();
+    AppHelpers.showAlertDialog(
+      context: context,
+      child: StatefulBuilder(
+        builder: (dialogContext, setState) {
+          return Container(
+            decoration: BoxDecoration(
+              color: AppStyle.white,
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            padding: EdgeInsets.symmetric(vertical: 30.h, horizontal: 24.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  AppHelpers.getTranslation(TrKeys.howMuchCashReceived),
+                  textAlign: TextAlign.center,
+                  style: AppStyle.interSemi(size: 16.sp),
+                ),
+                Form(
+                  key: cashFormKey,
+                  child: UnderlinedBorderTextField(
+                    textController: amountCon,
+                    label: AppHelpers.getTranslation(TrKeys.cashToCollect),
+                    inputType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    validator: (value) {
+                      final parsed = double.tryParse(value?.trim() ?? '');
+                      if (parsed == null || parsed < 0) {
+                        return AppHelpers.getTranslation(TrKeys.cannotBeEmpty);
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      setState(() {});
+                    },
+                  ),
+                ),
+                32.verticalSpace,
+                CustomButton(
+                  title: AppHelpers.getTranslation(TrKeys.confirmation),
+                  background: AppStyle.black,
+                  textColor: AppStyle.white,
+                  onPressed: () {
+                    if (cashFormKey.currentState?.validate() ?? false) {
+                      ref.read(homeProvider.notifier).confirmCodCollection(
+                            context: context,
+                            orderId: widget.order.id,
+                            amountReceived:
+                                double.parse(amountCon.text.trim()),
+                            onSuccess: () {
+                              Navigator.pop(dialogContext);
+                              _finishDelivery(context, ref);
+                            },
+                          );
+                    }
+                  },
+                ),
+                if (canConvertToCredit) ...[
+                  10.verticalSpace,
+                  CustomButton(
+                    title: AppHelpers.getTranslation(TrKeys.recordAsCredit),
+                    background: AppStyle.transparent,
+                    borderColor: AppStyle.black,
+                    onPressed: () {
+                      ref.read(homeProvider.notifier).convertCodToCredit(
+                            context: context,
+                            orderId: widget.order.id,
+                            onSuccess: () {
+                              Navigator.pop(dialogContext);
+                              _finishDelivery(context, ref);
+                            },
+                          );
+                    },
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -94,6 +230,26 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                           isDeliveryClient: ref.watch(homeProvider).isGoUser,
                         ),
                         24.verticalSpace,
+                        if (_isCashOrder) ...[
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(16.r),
+                            decoration: BoxDecoration(
+                              color: AppStyle.white,
+                              borderRadius: BorderRadius.circular(10.r),
+                              border: Border.all(color: AppStyle.primary),
+                            ),
+                            child: Text(
+                              "${AppHelpers.getTranslation(TrKeys.cashToCollect)}: ${AppHelpers.numberFormat(number: widget.order.totalPrice ?? 0)}",
+                              textAlign: TextAlign.center,
+                              style: AppStyle.interBold(
+                                size: 16.sp,
+                                color: AppStyle.primary,
+                              ),
+                            ),
+                          ),
+                          16.verticalSpace,
+                        ],
                         ref.watch(homeProvider).isGoRestaurant
                             ? Column(
                                 children: [
@@ -142,19 +298,19 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                                             path: path,
                                           );
                                     }
-                                    ref
-                                        .read(homeProvider.notifier)
-                                        .deliveredFinish(
-                                          context: context,
-                                          orderId: widget.order.id,
-                                        );
-                                    Navigator.pop(context);
-                                    AppHelpers.showCustomModalBottomSheet(
-                                        context: context,
-                                        modal: RateCustomer(
-                                          order: widget.order,
-                                        ),
-                                        isDarkMode: false);
+                                    if (_isCashOrder) {
+                                      // Cash orders confirm the received
+                                      // amount (or record credit) BEFORE
+                                      // the order is finished.
+                                      final canConvertToCredit = await ref
+                                          .read(homeProvider.notifier)
+                                          .fetchCanConvertCodToCredit();
+                                      if (!context.mounted) return;
+                                      _showCashCollectionDialog(
+                                          context, ref, canConvertToCredit);
+                                    } else {
+                                      _finishDelivery(context, ref);
+                                    }
                                   }
                                 },
                               );

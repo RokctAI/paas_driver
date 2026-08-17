@@ -1,3 +1,20 @@
+## 1.9.4
+
+* Routed the broken direct `/api/method/paas.api.*` call sites through
+  base_sdk's universal platform gateway (`PlatformGateway`, fleet rule
+  2026-08-15): shops repository (`api.shop.search_shops`/`get_shops`/
+  `get_nearby_shops`/`get_shops_by_ids`/`create_shop`/`get_shops_recommend`,
+  cross-module `api.cart.join_order`, `api.delivery.check_delivery_zone`,
+  `api.story.get_story`, `api.tag.get_tags`, `api.product.get_suggest_price`)
+  and the offline shop-create sync handler (`api.shop.create_shop`,
+  idempotency header preserved). Fixed payload keys that never matched the
+  backend kwargs: get_shops_by_ids `shop_ids`, join_order
+  `cart_id`/`user_name`, create_shop wrapped in `shop_data`. Registered the
+  missing `api.seller_operations.get_seller_sections`/`get_seller_tables` and
+  `api.seller_product.create_product` whitelisted-method keys in
+  merchants/frappe/manifest.json. Recorded endpoint gaps
+  (get_shop_by_uuid/get_shop_branch/get_pickup_shops) are untouched.
+
 ## 1.9.3
 
 * Freezed 3 follow-through (PR #28 missed the templates dir): the installed

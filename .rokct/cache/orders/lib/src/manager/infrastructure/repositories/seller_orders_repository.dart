@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/models/data/location.dart';
 import 'package:base_sdk/src/models/response/transactions_response.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -30,6 +31,11 @@ import 'package:orders_sdk/src/manager/infrastructure/models/response/single_ord
 const _base = '/api/method/paas.api.seller_order.seller_order';
 
 class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
+  /// Universal platform gateway (fleet rule 2026-08-15): cmds mirror the
+  /// owning modules' `manifest.json` whitelisted-method keys with the app
+  /// segment dropped.
+  static const _gateway = PlatformGateway();
+
   /// The wire strings are the legacy ones; base_sdk's `OrderStatus.open` is
   /// the manager fork's old `newOrder` ('new'), `onWay` is 'on_a_way'.
   String? _statusText(OrderStatus? status) {
@@ -174,8 +180,9 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
   }) async {
     // Body shape is the legacy seller create-order contract, byte for byte —
     // the POS depends on it. The wrapping `order_data` argument matches
-    // `paas.api.order.order.create_order(order_data)`; the seller-scoped
-    // variant is a recorded endpoint gap.
+    // orders' `create_order(order_data)` (gateway cmd
+    // `api.order.create_order`); the seller-scoped variant is a recorded
+    // endpoint gap.
     List<Map<String, dynamic>> products = [];
     for (final stock in stocks) {
       List<Map<String, dynamic>> addons = [];
@@ -227,17 +234,16 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
       if (paymentId != null) 'payment_id': paymentId,
     });
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.post(
-        '/api/method/paas.api.order.order.create_order',
-        data: {'order_data': order},
+      final response = await _gateway.tenant(
+        'api.order.create_order',
+        {'order_data': order},
       );
       // Backend reachable and accepted: it is authoritative from here on
       // (the order queues refetch supplies the row), so the write-through
       // record goes.
       await ManagerOrdersLocalStore.delete(localId);
       return ApiResult.success(
-        data: CreateOrderResponse.fromJson(response.data),
+        data: CreateOrderResponse.fromJson(response),
       );
     } catch (e) {
       final status = NetworkExceptions.getDioStatus(e);
@@ -296,15 +302,13 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
 
   @override
   Future<ApiResult<PaymentsResponse>> getPayments() async {
-    // Recorded gap: seller shop-payments listing
-    // (GET /api/v1/dashboard/seller/shop-payments) has no Frappe counterpart
-    // yet; see docs/frappe-endpoint-contract.md.
+    // Frappe counterpart of GET /api/v1/dashboard/seller/shop-payments:
+    // merchants' seller_transactions.get_seller_shop_payments, via the
+    // universal platform gateway.
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '/api/method/paas.api.payment.payment.get_seller_shop_payments',
-      );
-      return ApiResult.success(data: PaymentsResponse.fromJson(response.data));
+      final response =
+          await _gateway.tenant('api.seller_transactions.get_seller_shop_payments');
+      return ApiResult.success(data: PaymentsResponse.fromJson(response));
     } catch (e) {
       return _fail(e, 'get seller payments');
     }

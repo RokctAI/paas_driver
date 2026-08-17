@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:base_sdk/src/database/app_database.dart';
 import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/sync/sync_handler.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/response/create_order_response.dart';
@@ -61,15 +62,15 @@ class OrderCreateSyncHandler extends SyncHandler {
     _restoreNumericIds(order);
     try {
       final client = dioHttp.client(requireAuth: true);
-      final response = await client.post(
-        '/api/method/paas.api.order.order.create_order',
-        data: {'order_data': order},
+      final response = await const PlatformGateway().call(
+        'api.order.create_order',
+        payload: {'order_data': order},
         // op.id doubles as the idempotency key so an ambiguous-failure retry
         // does not double-create (backend dedupe per the Phase 0 contract).
         options: Options(headers: {'X-Idempotency-Key': op.id}),
       );
       final int? backendId =
-          CreateOrderResponse.fromJson(response.data).data?.id;
+          CreateOrderResponse.fromJson(response).data?.id;
       await ManagerOrdersLocalStore.markSynced(
         localId,
         backendId: backendId?.toString(),

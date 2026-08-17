@@ -1,3 +1,23 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import 'package:get_it/get_it.dart';
 
 import 'package:base_sdk/src/domain/interface/draw.dart';
@@ -8,9 +28,11 @@ import 'package:base_sdk/src/handlers/http_service.dart';
 import 'package:delivery_sdk/src/driver/domain/interface/courier.dart';
 import 'package:delivery_sdk/src/driver/domain/interface/orders.dart';
 import 'package:delivery_sdk/src/driver/domain/interface/parcel.dart';
+import 'package:delivery_sdk/src/driver/domain/interface/route.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/repositories/courier_repository.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/repositories/orders_repository.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/repositories/parcel_repository.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/repositories/route_repository.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/services/courier_storage.dart';
 
 /// Driver-role DI hook (revenue_sdk `DriverRevenueDependencies` precedent).
@@ -39,6 +61,11 @@ class DriverDeliveryDependencies {
     if (!getIt.isRegistered<CourierRepositoryFacade>()) {
       getIt.registerSingleton<CourierRepositoryFacade>(CourierRepository());
     }
+    if (!getIt.isRegistered<CourierRouteRepositoryFacade>()) {
+      getIt.registerSingleton<CourierRouteRepositoryFacade>(
+        CourierRouteRepository(),
+      );
+    }
     // Pre-warm the synchronous CourierStorage.getOnline() read; fire and
     // forget is safe (see CourierStorage docs).
     CourierStorage.init();
@@ -60,6 +87,9 @@ CourierParcelRepositoryFacade get parcelRepository =>
 
 CourierRepositoryFacade get courierRepository =>
     _getIt.get<CourierRepositoryFacade>();
+
+CourierRouteRepositoryFacade get routeRepository =>
+    _getIt.get<CourierRouteRepositoryFacade>();
 
 /// Registered by map_sdk's `MapSdkDependencies.register` (map_sdk is part of
 /// every driver compose — driver.json).

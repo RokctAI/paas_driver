@@ -1,3 +1,24 @@
+## 1.7.1
+
+* Routed the broken direct `/api/method/paas.api.*` call sites through
+  base_sdk's universal platform gateway (`PlatformGateway`, fleet rule
+  2026-08-15): cart (`api.cart.*` — get/add/remove/change_status/delete_cart/
+  delete_user/get_cart_in_group), customer orders (`api.order.*` —
+  create/list/details/review/cancel/get_calculate), coupon
+  (`api.coupon.check_coupon`), parcel (`api.parcel.*` — review/types/
+  calculate_price/create/list/single), seller POS create-order + offline sync
+  handler (`api.order.create_order`, idempotency header preserved), seller
+  shop payments (`api.seller_transactions.get_seller_shop_payments`), and the
+  manager POS adapters (`api.seller_operations.get_seller_sections`/
+  `get_seller_tables`, keys registered in merchants/frappe/manifest.json).
+  Fixed payload keys that never matched the backend kwargs: check_coupon
+  `code`/`shop_id`, get_calculate `coupon_code`, tip_process `tip_amount`,
+  get_driver_location `driver_id`, add_parcel_review `parcel_id`/`review`,
+  calculate_price nested `address_from`/`address_to`. Alias-only paths
+  (`paas.api.repeating_order.*`, `paas.api.user.*`,
+  `paas.api.payment.create_order_transaction`) and recorded endpoint gaps
+  are untouched.
+
 ## 1.6.2
 
 * Freezed 3 follow-through for the pockets PR #28 missed: `OrdersBoardState`,
