@@ -1,3 +1,24 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -32,12 +53,18 @@ class GlanceCardItem {
   /// tapping the row body and dismissing it are two different actions.
   final VoidCallback? onDismiss;
 
+  /// Optional per-row text style. Absent = the shell's default 13px text,
+  /// exactly as before; secondary notice lines (e.g. the active-order
+  /// card's weather line) pass a muted style instead.
+  final TextStyle? textStyle;
+
   const GlanceCardItem({
     required this.icon,
     required this.text,
     this.onTap,
     this.avatar,
     this.onDismiss,
+    this.textStyle,
   });
 }
 
@@ -124,7 +151,8 @@ class GlanceCard extends StatelessWidget {
                           Expanded(
                             child: Text(
                               item.text,
-                              style: const TextStyle(fontSize: 13),
+                              style: item.textStyle ??
+                                  const TextStyle(fontSize: 13),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -238,6 +266,12 @@ class _ActiveOrderGlanceCardState extends ConsumerState<ActiveOrderGlanceCard> {
                 currentOrder.status!.substring(1)
             : '';
 
+        // Optional severe-weather line: the backend's server-authored calm
+        // one-liner riding along on the order payload (weather_notice.text).
+        // Absent or malformed = no line at all — the card renders exactly
+        // as it always has.
+        final weatherText = currentOrder.weatherNoticeText;
+
         return ValueListenableBuilder<String>(
           valueListenable: _etaTextNotifier,
           builder: (context, etaText, _) {
@@ -262,6 +296,21 @@ class _ActiveOrderGlanceCardState extends ConsumerState<ActiveOrderGlanceCard> {
                     orderId: (currentOrder.id ?? ''),
                   ),
                 ),
+                if (weatherText != null && weatherText.isNotEmpty)
+                  // One muted notice line (the lms_sdk schedule-glance
+                  // style: small secondary text) under the order row.
+                  GlanceCardItem(
+                    icon: Icons.cloud_outlined,
+                    text: weatherText,
+                    textStyle: TextStyle(
+                      fontSize: 12,
+                      color: AppStyle.textDarkSecondary,
+                    ),
+                    onTap: () => AppRoutes.I.pushOrderProgressRoute(
+                      context,
+                      orderId: (currentOrder.id ?? ''),
+                    ),
+                  ),
               ],
             );
           },

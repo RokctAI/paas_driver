@@ -1,3 +1,24 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+
 // Copyright (c) 2024 RokctAI
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,6 +36,7 @@
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:base_sdk/src/application/splash/splash_provider.dart';
@@ -36,6 +58,22 @@ class SplashPage extends ConsumerStatefulWidget {
 }
 
 class _SplashPageState extends ConsumerState<SplashPage> {
+  /// Removes the native splash AND re-asserts the app's full-frame chrome.
+  ///
+  /// The splash theme runs with `windowFullscreen` (flutter_native_splash's
+  /// `fullscreen: true`), so the edge-to-edge mode main() requested is
+  /// applied while the splash window flags are still in force and is lost
+  /// when they clear — leaving the app sitting ABOVE an opaque black
+  /// navigation bar (the "bottom of the phone eats the app" band under the
+  /// gesture pill). Re-asserting the mode and the shared overlay style here,
+  /// at the exact moment the splash goes away, restores the full frame:
+  /// content draws behind both transparent bars with white icons.
+  static void _removeSplash() {
+    FlutterNativeSplash.remove();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setSystemUIOverlayStyle(AppStyle.systemUiOverlay);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -52,7 +90,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       final backendStatus = await AppConnectivity.backendStatus();
       if (backendStatus == BackendStatus.maintenance) {
         if (!mounted) return;
-        FlutterNativeSplash.remove();
+        _removeSplash();
         AppRoutes.I.replaceMaintenanceRoute(context);
         return;
       }
@@ -69,7 +107,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
           await _proceedOffline();
         } else {
           // No offline data and no internet - show no connection page
-          FlutterNativeSplash.remove();
+          _removeSplash();
           if (!mounted) return;
           AppRoutes.I.replaceNoConnectionRoute(context);
           return;
@@ -84,7 +122,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       if (hasOfflineData) {
         await _proceedOffline();
       } else {
-        FlutterNativeSplash.remove();
+        _removeSplash();
         if (!mounted) return;
         AppRoutes.I.replaceNoConnectionRoute(context);
       }
@@ -124,17 +162,17 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       ref.read(splashProvider.notifier).getToken(
         context,
         goMain: () {
-          FlutterNativeSplash.remove();
+          _removeSplash();
           if (!mounted) return;
           AppHelpers.goHome(context);
         },
         goLogin: () {
-          FlutterNativeSplash.remove();
+          _removeSplash();
           if (!mounted) return;
           AppRoutes.I.replaceLoginRoute(context);
         },
         goNoInternet: () {
-          FlutterNativeSplash.remove();
+          _removeSplash();
           if (!mounted) return;
           AppRoutes.I.replaceNoConnectionRoute(context);
         },
@@ -152,7 +190,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     // Check if user was previously logged in
     final token = LocalStorage.getToken();
 
-    FlutterNativeSplash.remove();
+    _removeSplash();
 
     if (token.isNotEmpty) {
       // User was logged in, go to main page

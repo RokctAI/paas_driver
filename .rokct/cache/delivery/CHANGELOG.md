@@ -1,3 +1,26 @@
+## 1.8.0
+
+* Courier home: severe-weather heads-up banner. The home bottom sheet
+  (`templates/pages/driver/home/bottom_sheet_screen.dart`) now renders
+  weather_sdk's `weatherWarningsBanner` through base_sdk's
+  `EmbeddedWidgets.I` seam (ADR-005 - no weather_sdk import), docked just
+  above the fixed-height sheet card so a variable-height notice can never
+  overflow it.
+  * Fail-closed by construction: the seam call is dispatched dynamically
+    inside a try/catch because weather_sdk is optional in courier
+    compositions - without it the host's `EmbeddedWidgets` has no
+    `weatherWarningsBanner` implementation (base_sdk's interface does not
+    declare the method either, so a static call would not even compile)
+    and `noSuchMethod` throws; the guard turns that into
+    `SizedBox.shrink()`, so the courier home renders nothing extra and
+    never crashes. When weather_sdk IS composed, the banner itself renders
+    nothing unless there is an active notice.
+  * The banner resolves the courier's own position via the
+    `WeatherSdkConfig.locationResolver` wired by weather_sdk 1.4.0's new
+    driver-flavor template (base_sdk's selected-address slot, which
+    `CourierStorage.saveSelectedLocation` keeps at the courier's live map
+    position).
+
 ## 1.7.2
 
 * Repointed the driver repositories' remaining legacy

@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.15.4",
+      "version": "1.17.0",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -94,12 +94,12 @@
         "assets/svgs/adress.svg": "774120f4d4cd801898852fc3062683a456a8c07bf8253a0c608fc5429f604697",
         "assets/svgs/home3.svg": "be4804b6ccf3245e0fcbca4f5c1b3cd54d217024fa59011193c7c3cf5747fbdc",
         "assets/svgs/foodyman.svg": "8d9dd7f7cf44328d4ed2b7364163eb218a17636763d3cb886d9d9e4b6ab48261",
-        "lib/presentation/theme/theme.dart": "4fd8344adbba5f9720346b6406d4d06056752d7dec07b2318d2e0180955511a7",
-        "lib/presentation/theme/app_style.dart": "f202085343ef063bdfb3c285c6cda67eaac1e92e5d7fb32297783178eca55c63",
-        "lib/main.dart": "7f239d9754504d3646898b928df7cae67a3920df366830941f0ebd2da973debd",
-        "lib/presentation/app_widget.dart": "a606d55e0d7d61dbeef16927d666018c4be829524c77cb527353748c77ab81b8",
-        "lib/presentation/routes/app_router.dart": "e08b822163e08ac9e330bd6a0bffc42dbfd149d076449012092ddcdd0d2d2979",
-        "lib/presentation/routes/route_pages.dart": "a01b9a4376b9b0426cdddd0ef9a76ddbb85eec1afffc77a3c0a435320cbac7eb"
+        "lib/presentation/theme/theme.dart": "783392447627f1bbef343a96c2b095a055341a62df01f8360d24cf59db60f81c",
+        "lib/presentation/theme/app_style.dart": "60b7bbe880e2686fc2533cc9d2e99d0ece80823caf107ecf5c04b960eea27aec",
+        "lib/main.dart": "4267c5c9ca27f230c6074e3be5c833590134b9b466ac9ba385708c04594e9c4f",
+        "lib/presentation/app_widget.dart": "6ca2ecfecc8fc466dbd63e681452abdfff44805c9068537a56cc3d45f8cee28d",
+        "lib/presentation/routes/app_router.dart": "5cfd98f48dc1ff7d6cff21a1fa878153f3064bca27bae5031297593c3f1616f9",
+        "lib/presentation/routes/route_pages.dart": "dcaefd44480b9fe04075bad4c8855a798c810a24d0502385f55d0a281ec8afd2"
       },
       "routes": [
         {
@@ -240,12 +240,12 @@
       "boot_hooks": []
     },
     "delivery_sdk": {
-      "version": "1.7.2",
+      "version": "1.8.0",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "64a963e0766b5fec57213476dd688aead2d928807d6743b9bec6c7494aa593ce",
         "lib/presentation/routes/delivery_adapters.dart": "be620290a87b59b0dd2af1ca308c0babe29847b4d82271905540b25d5e045fa6",
         "lib/presentation/pages/home/parcel_bottom_sheet.dart": "3c235dbff0f9e6132a6661d05575635a125e5ff0f5a2940de3db77ea5d22ee5c",
-        "lib/presentation/pages/home/bottom_sheet_screen.dart": "6f71eaed74fa2debd00a4cea2de95c1334fa287ff54b5bc1a68f864fcd57609e",
+        "lib/presentation/pages/home/bottom_sheet_screen.dart": "27160de8fa31200fe30dbefcf4aec7c8aaed9749d67634d8d6ff1c69b470da1e",
         "lib/presentation/pages/home/home_page.dart": "58f88120ff82ab019d558521d95e84312bb001652c7d382f1f23f71d248aa6ed",
         "lib/presentation/pages/home/delivery_bottom_sheet.dart": "d8739603bd50949e222460614e5e3595186b59a1d2bd3a7333c04cd94c5efbd1",
         "lib/presentation/pages/home/widgets/outside_painter.dart": "62b3e7be8f6ce0b370055b0ebe44d8f6d543cbeeba97970e2292d79810cb2481",
@@ -776,8 +776,8 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.15.4",
-      "hash": "806ea75e512bd279"
+      "version": "1.17.0",
+      "hash": "eb99343c9bf3bfed"
     },
     "comms": {
       "version": "1.9.0",
@@ -804,8 +804,8 @@
       "hash": "60230601e2f485b2"
     },
     "delivery": {
-      "version": "1.7.2",
-      "hash": "36d197c88249149b"
+      "version": "1.8.0",
+      "hash": "faf1d9aa20be90ad"
     },
     "map": {
       "version": "1.1.0",

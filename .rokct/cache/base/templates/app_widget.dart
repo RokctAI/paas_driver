@@ -1,3 +1,24 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,7 +79,19 @@ class AppWidget extends ConsumerWidget {
                 routerDelegate: _appRouter.delegate(),
                 routeInformationParser: _appRouter.defaultRouteParser(),
                 locale: Locale(state.activeLanguage?.locale ?? 'en'),
-                theme: ThemeData(useMaterial3: false),
+                // AppBarTheme.systemOverlayStyle: without it every Material
+                // AppBar derives a style from its background luminance —
+                // SystemUiOverlayStyle.light on these dark screens — which
+                // repaints the navigation bar opaque black (eating the full
+                // frame) and leaves non-AppBar screens with mismatched
+                // status icons. Pinning the shared token keeps both bars
+                // transparent with white icons everywhere.
+                theme: ThemeData(
+                  useMaterial3: false,
+                  appBarTheme: const AppBarTheme(
+                    systemOverlayStyle: AppStyle.systemUiOverlay,
+                  ),
+                ),
                 themeMode: state.isDarkMode ? ThemeMode.dark : ThemeMode.light,
               );
             },

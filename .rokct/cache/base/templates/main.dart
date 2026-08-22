@@ -1,3 +1,24 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,8 +29,8 @@ import 'package:get_it/get_it.dart';
 import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
 // Deep theme import (not the base_sdk barrel — that would produce a
 // duplicate_import lint wherever an SDK's wiring imports also pull theme
-// symbols): this file itself references AppStyle.transparent in the
-// SystemUiOverlayStyle below, so the import must be static, not left to
+// symbols): this file itself references AppStyle.systemUiOverlay in the
+// SystemChrome call below, so the import must be static, not left to
 // the generated wiring blocks (no SDK is obliged to inject it).
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:${package}/presentation/app_widget.dart';
@@ -60,16 +81,10 @@ void main() async {
       DeviceOrientation.portraitDown,
     ]);
   }
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: AppStyle.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      statusBarBrightness: Brightness.dark,
-      systemNavigationBarColor: AppStyle.transparent,
-      systemNavigationBarDividerColor: AppStyle.transparent,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ),
-  );
+  // White status/nav icons over transparent bars — the shared token also
+  // backs the theme's AppBarTheme and the splash's edge-to-edge re-assert,
+  // so the battery/clock stay visible (light) on every screen.
+  SystemChrome.setSystemUIOverlayStyle(AppStyle.systemUiOverlay);
 
   await LocalStorage.init();
   // base_sdk's import and DI registration are injected into the generated

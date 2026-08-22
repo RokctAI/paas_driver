@@ -1,3 +1,24 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+
 import 'package:base_sdk/src/models/data/repeat_data.dart';
 import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/models/data/addons_data.dart';
@@ -36,6 +57,7 @@ class OrderActiveModel {
     this.refunds,
     this.ponumHistories,
     this.afterDeliveredImage,
+    this.weatherNoticeText,
   });
 
   String? id;
@@ -70,6 +92,24 @@ class OrderActiveModel {
   TransactionData? transaction;
   dynamic review;
   List<dynamic>? ponumHistories;
+
+  /// Optional severe-weather heads-up for the order's drop-off area, when
+  /// the backend rode one along on the order payload (the orders module's
+  /// additive `weather_notice` field - server-authored calm copy). Null
+  /// whenever the field is absent or malformed; consumers render nothing
+  /// then, exactly as before the field existed.
+  String? weatherNoticeText;
+
+  /// Defensive read of `weather_notice.text` from a raw order map: the
+  /// field is optional and cross-module (present only on shells composing
+  /// the weather module), so anything unexpected parses as null rather
+  /// than throwing.
+  static String? _weatherNoticeText(dynamic order) {
+    final notice = order is Map ? order['weather_notice'] : null;
+    final text = notice is Map ? notice['text'] : null;
+    if (text is String && text.trim().isNotEmpty) return text;
+    return null;
+  }
 
   factory OrderActiveModel.fromJson(Map<String, dynamic> json) =>
       OrderActiveModel(
@@ -130,6 +170,7 @@ class OrderActiveModel {
               )
             : [],
         review: json["data"]["review"],
+        weatherNoticeText: _weatherNoticeText(json["data"]),
       );
 
   factory OrderActiveModel.fromJsonWithoutData(Map<String, dynamic> json) {
@@ -174,6 +215,7 @@ class OrderActiveModel {
           ? TransactionData.fromJson(json["transaction"])
           : null,
       review: json["review"],
+      weatherNoticeText: _weatherNoticeText(json),
     );
   }
 
@@ -210,6 +252,7 @@ class OrderActiveModel {
     TransactionData? transaction,
     dynamic review,
     List<dynamic>? ponumHistories,
+    String? weatherNoticeText,
   }) =>
       OrderActiveModel(
         id: id ?? this.id,
@@ -244,6 +287,7 @@ class OrderActiveModel {
         transaction: transaction ?? this.transaction,
         review: review ?? this.review,
         ponumHistories: ponumHistories ?? this.ponumHistories,
+        weatherNoticeText: weatherNoticeText ?? this.weatherNoticeText,
       );
 
   Map<String, dynamic> toJson({bool isPayment = true}) => {

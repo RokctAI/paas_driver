@@ -39,6 +39,15 @@ dependencies:
   path_provider: ^2.1.2
   path: ^1.9.0
   drift: ^2.19.0
+  # AppDatabase (src/database/app_database.dart) opens drift's NativeDatabase
+  # through package:sqlite3, which dlopens libsqlite3.so at runtime. Many
+  # physical devices satisfy that from the platform library, but stock
+  # Android emulator images (e.g. api-34 google_apis, the CI guided-tour /
+  # verify emulators) do not expose it to app linker namespaces - the app
+  # dies at boot with "Failed to load dynamic library libsqlite3.so".
+  # sqlite3_flutter_libs bundles the library into every APK/AAB so the open
+  # is deterministic on all devices. No Dart code changes needed.
+  sqlite3_flutter_libs: ^0.5.24
   pull_to_refresh: ^2.0.0
   remixicon: ^1.2.0
   share_plus: ^10.1.1

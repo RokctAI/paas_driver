@@ -1,4 +1,26 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -110,6 +132,28 @@ abstract class AppStyle {
   static const Color switchBg = Color(0xFFD3D3D3);
   static const Color white = Color(0xFFFFFFFF);
   static const Color transparent = Color(0x00FFFFFF);
+
+  /// The ONE system-chrome style every composed app runs under: both bars
+  /// fully transparent (the app draws full frame behind them — no OS scrim
+  /// either), with white status/nav icons, because these apps' top and
+  /// bottom regions are dark-on-dark by design (dark theme + brand
+  /// primaries), so light icons are what keeps the clock/battery visible.
+  /// Referenced by the composed main.dart (boot default), the shell theme's
+  /// AppBarTheme.systemOverlayStyle (Material AppBars otherwise repaint the
+  /// navigation bar opaque black via SystemUiOverlayStyle.light) and the
+  /// splash's edge-to-edge re-assert. A screen with a genuinely light top
+  /// region can still override locally with an
+  /// AnnotatedRegion<SystemUiOverlayStyle>.
+  static const SystemUiOverlayStyle systemUiOverlay = SystemUiOverlayStyle(
+    statusBarColor: transparent,
+    statusBarIconBrightness: Brightness.light,
+    statusBarBrightness: Brightness.dark,
+    systemStatusBarContrastEnforced: false,
+    systemNavigationBarColor: transparent,
+    systemNavigationBarDividerColor: transparent,
+    systemNavigationBarIconBrightness: Brightness.light,
+    systemNavigationBarContrastEnforced: false,
+  );
   static const Color black = Color(0xFF232B2F);
   static const Color blackWithOpacity = Color(0x20232B2F);
   static const Color whiteWithOpacity = Color(0x90FFFFFF);
