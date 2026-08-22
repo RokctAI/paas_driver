@@ -1,4 +1,4 @@
-package org.foodyman.deliveryman.demo
+package com.app.demo
 
 import io.flutter.embedding.android.FlutterActivity
 

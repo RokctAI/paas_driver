@@ -43,12 +43,13 @@ worth confirming the server accepts both before treating either as canonical.
 `orders_repository.dart:187` hardcodes an absolute URL:
 
 ```text
-https://api.foodyman.org/api/v1/dashboard/deliveryman/orders/{orderId}/image
+https://<upstream-vendor-api-host>/api/v1/dashboard/deliveryman/orders/{orderId}/image
 ```
 
 Every other call in the app is a relative path resolved against
 `AppConstants.baseUrl` (`String.fromEnvironment('BASE_URL')`). This one is
-not, so driver proof-of-delivery photos are POSTed to `api.foodyman.org`
+not, so driver proof-of-delivery photos are POSTed to the upstream
+vendor's own API host
 regardless of how the app is configured — including in production builds. It
 is the only such URL in `lib/`.
 
