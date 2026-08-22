@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.17.0",
+      "version": "1.18.1",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -96,7 +96,8 @@
         "lib/main.dart": "4267c5c9ca27f230c6074e3be5c833590134b9b466ac9ba385708c04594e9c4f",
         "lib/presentation/app_widget.dart": "6ca2ecfecc8fc466dbd63e681452abdfff44805c9068537a56cc3d45f8cee28d",
         "lib/presentation/routes/app_router.dart": "5cfd98f48dc1ff7d6cff21a1fa878153f3064bca27bae5031297593c3f1616f9",
-        "lib/presentation/routes/route_pages.dart": "dcaefd44480b9fe04075bad4c8855a798c810a24d0502385f55d0a281ec8afd2"
+        "lib/presentation/routes/route_pages.dart": "dcaefd44480b9fe04075bad4c8855a798c810a24d0502385f55d0a281ec8afd2",
+        "android/app/src/main/kotlin/com/app/demo/JuvoApplication.kt": "18870e8ca0b87482d3ad45fecc6211762fde11d19fd46791aba40a49b4d31d07"
       },
       "routes": [
         {
@@ -196,7 +197,6 @@
         "assets/svgs/discount.svg",
         "assets/svgs/empty.svg",
         "assets/svgs/filter.svg",
-        "assets/svgs/foodyman.svg",
         "assets/svgs/orderTime.svg",
         "assets/svgs/pickUpFrom.svg",
         "assets/svgs/star.svg",
@@ -226,7 +226,7 @@
       "boot_hooks": []
     },
     "orders_sdk": {
-      "version": "1.7.1",
+      "version": "1.7.2",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -457,12 +457,12 @@
       }
     },
     "comms_sdk": {
-      "version": "1.9.0",
+      "version": "1.10.1",
       "files": {
-        "lib/application/notification/notification_state.dart": "7ab54af08a2da2b9ad554e879a92931cbd95eb7d29ba769086fa75670d607c64",
-        "lib/application/notification/notification_notifier.dart": "1327ed98609422a5e070c5e5b9cd0056da6fbbd7f79f6cc7d198399cf85cdbb0",
-        "lib/application/notification/notification_provider.dart": "ecec7f51867a72bb5780c1ba4e0121f7dd9ed2782164862890cbfa5a020ec12e",
-        "lib/presentation/pages/profile/notification_list_page.dart": "1c09245fcb568282685216ed1c83d0ec002d722c31198bbd39bf41208ea974fa"
+        "lib/application/notification/notification_state.dart": "ece1b61b4b796d1aa99933484c0abe4f4103e673413d6e56d6a9127a8ff8bd4e",
+        "lib/application/notification/notification_notifier.dart": "c69ece45e0ede2a966c1315298818ddaf73c35b09798dc0b8fa3b23a1812d8cf",
+        "lib/application/notification/notification_provider.dart": "73a8f37463e67815894ba34a57cc48e17efcb06c219b05126b63fc80ce090f2d",
+        "lib/presentation/pages/profile/notification_list_page.dart": "ef63e203a09786244778bb1792a5ca83c2916a55608e23ef537cebb1e2f1e754"
       },
       "routes": [
         {
@@ -627,10 +627,10 @@
       }
     },
     "merchants_sdk": {
-      "version": "1.9.4",
+      "version": "1.9.5",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
-        "lib/presentation/pages/stores/story_page.dart": "71b3156066f7c373631d3a48e646c661551b41f5b10b3e58e276f4f109a4189e"
+        "lib/presentation/pages/stores/story_page.dart": "bd4582d76dd66c5132cdb43bdf5577f0a0f1189b3df99257e5850051861e7c25"
       },
       "routes": [
         {
@@ -661,7 +661,7 @@
       }
     },
     "products_sdk": {
-      "version": "1.3.2",
+      "version": "1.3.3",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -769,16 +769,59 @@
           "step": "if (from < 16) { await m.createTable(offlineUsersTable); }"
         }
       }
+    },
+    "weather_sdk": {
+      "version": "1.5.0",
+      "files": {
+        "lib/presentation/components/weather/weather_widget.dart": "d91d1c3c8e2ef9ce77d9db6e4a1c9bf3580dc1c5bf52196d2d04b530ca7c6958"
+      },
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "registration_steps": [],
+      "embedded_widgets": [
+        {
+          "method": "weatherHeaderWidget",
+          "body": "return const AppWeatherWidget(inlineExpansion: false);",
+          "imports": [
+            "import 'package:${package}/presentation/components/weather/weather_widget.dart';"
+          ],
+          "_comment": "Header slot (ADR-005): shells embed the compact adaptive widget without importing weather_sdk directly. inlineExpansion=false because headers are height-constrained; on small screens that leaves just the minimal icon+temp chip, and the popup-free WeatherInlineForecast card is placed in body flow via the weather_sdk barrel (it takes a WeatherState argument, so it cannot ride the zero-arg embedded-widget seam)."
+        },
+        {
+          "method": "weatherWarningsBanner",
+          "body": "return const SevereWeatherBanner();",
+          "imports": [
+            "import 'package:weather_sdk/weather_sdk.dart';"
+          ],
+          "_comment": "Severe-weather heads-up banner (zero-arg seam, ADR-005): hosts place it in body flow; it renders SizedBox.shrink() whenever there are no active warnings, the warnings cmd fails, or the composed backend does not expose tenant.api.get_weather_warnings yet - so embedding it is always safe, in any merge order with the backend rollout. Location comes from the same WeatherSdkConfig.locationResolver the header widget's install template wires."
+        }
+      ],
+      "di_hooks": [],
+      "boot_hooks": [
+        {
+          "id": "weather-driver-configure-location",
+          "order": 20,
+          "body": "configureWeatherSdk();",
+          "imports": [
+            "import 'package:${package}/presentation/components/weather/weather_widget.dart';"
+          ],
+          "_comment": "Driver shells render no weather header widget (whose build is what lazily runs configureWeatherSdk() on pos/manager), so without this hook nothing would set the courier locationResolver before the severe-weather banner's first warnings fetch. One idempotent call at startup; cheap no-op if the host later renders AppWeatherWidget too."
+        }
+      ],
+      "tr_keys": {
+        "asOf": "as.of"
+      }
     }
   },
   "sdk_cache": {
     "base": {
-      "version": "1.17.0",
-      "hash": "eb99343c9bf3bfed"
+      "version": "1.18.1",
+      "hash": "f74279b1749911cb"
     },
     "comms": {
-      "version": "1.9.0",
-      "hash": "8d4c5fced6c2a288"
+      "version": "1.10.1",
+      "hash": "21447afa0b1095e2"
     },
     "auth": {
       "version": "1.8.4",
@@ -789,16 +832,16 @@
       "hash": "000344d7a13282f6"
     },
     "orders": {
-      "version": "1.7.1",
-      "hash": "e6e31bfc22b8f1d9"
+      "version": "1.7.2",
+      "hash": "565cb9186db2aad3"
     },
     "merchants": {
-      "version": "1.9.4",
-      "hash": "f9bf60c59ed446c9"
+      "version": "1.9.5",
+      "hash": "b49508ef76ab9546"
     },
     "products": {
-      "version": "1.3.2",
-      "hash": "60230601e2f485b2"
+      "version": "1.3.3",
+      "hash": "44bfef3cb3dd790f"
     },
     "delivery": {
       "version": "1.8.0",
@@ -827,6 +870,10 @@
     "revenue": {
       "version": "1.3.2",
       "hash": "b532b393a5c67ed4"
+    },
+    "weather": {
+      "version": "1.5.0",
+      "hash": "c3cc0a6f3695311a"
     }
   }
 }

@@ -71,6 +71,7 @@ class TrKeys {
   static const String deliverymanbottomslide3 = 'deliveryman_bottom_slide3';
   static const String deliverymanTransactions = 'deliveryman_transactions';
   static const String doneOrders = 'Done orders';
+  static const String asOf = 'as.of';
   // @sdk-tr-keys-end
 
   static const String bgPicture = 'bg_picture';
@@ -357,7 +358,6 @@ class TrKeys {
   static const String county = 'country';
   static const String orAccessQuickly = 'or_access_quickly';
   static const String keepLogged = 'keep_me_logged_in';
-  static const String foodyman = 'foodyman';
   static const String shopList = 'shop_list';
   static const String viewMap = 'view_map';
   static const String address = 'address';
@@ -742,7 +742,12 @@ class TrKeys {
   static const String enterOpeningHours = 'enter_the_restaurant_opening_hours';
   static const String fm = 'fm';
   static const String foods = 'foods';
-  static const String foodymanBenefit = 'foodyman_benefit';
+  static const String juvoBenefit = 'juvo_benefit';
+  // TEMPORARY back-compat alias: zones/delivery and commerce/orders still
+  // reference TrKeys.foodymanBenefit at their current mains. Remove this
+  // alias once their juvoBenefit rename PRs are merged.
+  @Deprecated('Use juvoBenefit; remove after zones/commerce rename PRs merge')
+  static const String foodymanBenefit = juvoBenefit;
   static const String inactiveTime = 'choose_inactive_meal_time';
   static const String income = 'income';
   static const String keepMeLoggedIn = 'keep_me_logged_in';

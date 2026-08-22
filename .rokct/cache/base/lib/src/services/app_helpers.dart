@@ -278,7 +278,10 @@ abstract class AppHelpers {
         return setting.value;
       }
     }
-    return 'JUVO';
+    // No server 'title' setting: fall back to the composed app's own brand
+    // name (compose-time override of AppConstants.appTitle; 'JUVO' for apps
+    // that declare nothing — the historical hardcoded fallback).
+    return AppConstants.appTitle;
   }
 
   static String? getAppLogo() {

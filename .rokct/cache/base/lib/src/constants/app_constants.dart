@@ -45,6 +45,23 @@ abstract class AppConstants {
   static const bool use24Format = true;
   static const double radius = 16;
 
+  /// App identity: the display name and brand motto of THIS composed app.
+  ///
+  /// The kernel ships the neutral JUVO defaults only. Each app re-points
+  /// these at its own brand constants through its home SDK manifest's
+  /// "constants" overrides — the same compose-time seam that already
+  /// re-points [baseUrl]/[webUrl] at e.g. SupachargeConstants (see
+  /// update_constants_overrides() in the shared installer). Consumers:
+  ///  - AppHelpers.getAppName() falls back to [appTitle] when the server
+  ///    settings carry no 'title' key;
+  ///  - comms_sdk's MockSettingsRepository seeds the demo 'title' setting
+  ///    and the demo 'motto' translation from these, so a demo build of
+  ///    every composed app shows that app's own name and motto instead of
+  ///    one shared hardcoded pair.
+  /// Apps that override nothing keep today's exact behavior.
+  static const String appTitle = 'JUVO';
+  static const String appMotto = 'To the next level';
+
   /// api urls
   static const String baseUrl = String.fromEnvironment('BASE_URL');
   static const String wsBaseUrl = String.fromEnvironment('WS_BASE_URL');

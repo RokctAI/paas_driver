@@ -34,6 +34,8 @@ dependencies:
     path: .rokct/cache/map
   zones_sdk:
     path: .rokct/cache/zones
+  weather_sdk:
+    path: .rokct/cache/weather
   revenue_sdk:
     path: .rokct/cache/revenue
   merchants_sdk:

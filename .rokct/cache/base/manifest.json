@@ -1,8 +1,8 @@
 {
   "name": "base_sdk",
-  "version": "1.17.0",
+  "version": "1.18.1",
   "home_page": "templates/routes/route_pages.dart",
-  "_comment_app_assets": "app_assets registers these files in the host app's pubspec 'sdk-app-assets' block so they are bundled into the build. Only assets referenced by SDK code are kept here; foodyman-era driver/manager assets were removed (they live in paas_driver/paas_manager develop, and custodianship copies moved to delivery_sdk/merchants_sdk).",
+  "_comment_app_assets": "app_assets registers these files in the host app's pubspec 'sdk-app-assets' block so they are bundled into the build. Only assets referenced by SDK code are kept here; legacy upstream-era driver/manager assets were removed (they live in paas_driver/paas_manager develop, and custodianship copies moved to delivery_sdk/merchants_sdk).",
   "app_assets": [
     "assets/images/app_logo.png",
     "assets/images/card.png",
@@ -38,7 +38,6 @@
     "assets/svgs/discount.svg",
     "assets/svgs/empty.svg",
     "assets/svgs/filter.svg",
-    "assets/svgs/foodyman.svg",
     "assets/svgs/orderTime.svg",
     "assets/svgs/pickUpFrom.svg",
     "assets/svgs/star.svg",

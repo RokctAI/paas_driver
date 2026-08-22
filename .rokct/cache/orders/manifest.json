@@ -1,6 +1,6 @@
 {
   "name": "orders_sdk",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "_comment_requires": "orders_sdk >= 1.6.0 requires base_sdk >= 1.11.0 (AdaptiveShell/SplitPane/window-size classes from core PR #35 — the wide-screen order board and split create-order layouts import them; >= 1.4.0 required base_sdk >= 1.6.0: CustomerCartStore/kCartSyncOpType and SyncEngine.enqueueOrReplace from the offline-first Phase 3 customer cart, core PR #16; 1.3.0 needed only base_sdk >= 1.5.0's SyncEngine/SyncHandler APIs from Phase 0, core PR #15); the composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
   "installs": [],
   "integrations": [],
@@ -136,6 +136,7 @@
       ],
       "tr_keys": {
         "addUser": "add.user",
+        "juvoBenefit": "juvo_benefit",
         "approximateTime": "spproximate_preparation_time: ",
         "canceled": "canceled",
         "clearAllOrders": "clear_all_orders",

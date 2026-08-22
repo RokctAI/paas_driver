@@ -31,7 +31,6 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 //import '../../../infrastructure/services/tr_keys.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
-//import 'package:foodyman/application/shop/shop_provider.dart';
 //import '../../../infrastructure/services/local_storage.dart';
 //import '../../../utils/utils.dart';
 

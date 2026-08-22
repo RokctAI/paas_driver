@@ -1,6 +1,6 @@
 {
   "name": "comms_sdk",
-  "version": "1.9.0",
+  "version": "1.10.1",
   "_comment_platform_permissions": "comms_sdk owns push: POST_NOTIFICATIONS is required on Android 13+ before any FCM notification can render, and VIBRATE backs the notification channels it creates. Injected into the host AndroidManifest.xml marker block by update_platform_permissions(); hosts that already declare either outside the block keep their own copy.",
   "platform_permissions": {
     "android": [

@@ -1,18 +1,30 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+
 // // ignore_for_file: unused_result
 //
 // import 'package:flutter/material.dart';
 // import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:flutter_screenutil/flutter_screenutil.dart';
-// import 'package:foodyman/application/add_card/add_card_provider.dart';
-// import 'package:foodyman/infrastructure/services/app_helpers.dart';
-// import 'package:foodyman/infrastructure/services/local_storage.dart';
 // import 'package:flutter_masked_text2/flutter_masked_text2.dart';
-// import 'package:foodyman/infrastructure/services/tr_keys.dart';
-// import 'package:foodyman/presentation/components/buttons/custom_button.dart';
-// import 'package:foodyman/presentation/components/keyboard_dismisser.dart';
-// import 'package:foodyman/presentation/components/text_fields/outline_bordered_text_field.dart';
-// import 'package:foodyman/presentation/components/title_icon.dart';
-// import 'package:foodyman/presentation/theme/theme.dart';
 // import 'widgets/add_card.dart';
 // import 'widgets/card_clear_dialog.dart';
 //
@@ -76,14 +88,9 @@
 //                       height: 4.h,
 //                       width: 48.w,
 //                       decoration: BoxDecoration(
-// <<<<<<< Updated upstream
-//                           color: Style.dragElement,
-//                           borderRadius: BorderRadius.all(Radius.circular(40.r))),
-// =======
 //                           color: AppStyle.dragElement,
 //                           borderRadius:
 //                               BorderRadius.all(Radius.circular(40.r))),
-// >>>>>>> Stashed changes
 //                     ),
 //                   ),
 //                   24.verticalSpace,
@@ -156,19 +163,10 @@
 //                     padding: EdgeInsets.only(
 //                         bottom: MediaQuery.paddingOf(context).bottom),
 //                     child: CustomButton(
-// <<<<<<< Updated upstream
-//                       background: state.isActiveCard
-//                           ? Style.brandGreen
-//                           : Style.white,
-//                       textColor: state.isActiveCard
-//                           ? Style.black
-//                           : Style.textGrey,
-// =======
 //                       background:
 //                           state.isActiveCard ? AppStyle.primary : AppStyle.white,
 //                       textColor:
 //                           state.isActiveCard ? AppStyle.black : AppStyle.textGrey,
-// >>>>>>> Stashed changes
 //                       title: AppHelpers.getTranslation(TrKeys.save),
 //                       onPressed: state.isActiveCard
 //                           ? () {
