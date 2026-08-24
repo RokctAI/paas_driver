@@ -237,12 +237,12 @@
       "boot_hooks": []
     },
     "delivery_sdk": {
-      "version": "1.8.0",
+      "version": "1.8.1",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "64a963e0766b5fec57213476dd688aead2d928807d6743b9bec6c7494aa593ce",
         "lib/presentation/routes/delivery_adapters.dart": "be620290a87b59b0dd2af1ca308c0babe29847b4d82271905540b25d5e045fa6",
         "lib/presentation/pages/home/parcel_bottom_sheet.dart": "3c235dbff0f9e6132a6661d05575635a125e5ff0f5a2940de3db77ea5d22ee5c",
-        "lib/presentation/pages/home/bottom_sheet_screen.dart": "27160de8fa31200fe30dbefcf4aec7c8aaed9749d67634d8d6ff1c69b470da1e",
+        "lib/presentation/pages/home/bottom_sheet_screen.dart": "a9369bb2958b7ccf5d77a57be8a3827e16108f0d0b765609244c4acc4fd7eb37",
         "lib/presentation/pages/home/home_page.dart": "58f88120ff82ab019d558521d95e84312bb001652c7d382f1f23f71d248aa6ed",
         "lib/presentation/pages/home/delivery_bottom_sheet.dart": "d8739603bd50949e222460614e5e3595186b59a1d2bd3a7333c04cd94c5efbd1",
         "lib/presentation/pages/home/widgets/outside_painter.dart": "62b3e7be8f6ce0b370055b0ebe44d8f6d543cbeeba97970e2292d79810cb2481",
@@ -431,6 +431,7 @@
         "firstnameCannotBeEmpty": "firstname_cannot_be_empty",
         "howMuchCashReceived": "how.much.cash.received",
         "iDeliveredTheOrder": "delivered_the_order",
+        "juvoBenefit": "juvo_benefit",
         "inActive": "in_active",
         "lastProfit": "last.profit",
         "lastnameCannotBeEmpty": "lastname_cannot_be_empty",
@@ -523,7 +524,7 @@
       "boot_hooks": []
     },
     "corporate_sdk": {
-      "version": "1.1.1",
+      "version": "1.1.2",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -844,8 +845,8 @@
       "hash": "44bfef3cb3dd790f"
     },
     "delivery": {
-      "version": "1.8.0",
-      "hash": "faf1d9aa20be90ad"
+      "version": "1.8.1",
+      "hash": "c23e8a7dcf9271c1"
     },
     "map": {
       "version": "1.1.0",
@@ -864,8 +865,8 @@
       "hash": "4b342062ee23dfaf"
     },
     "corporate": {
-      "version": "1.1.1",
-      "hash": "d3cab1602db9259d"
+      "version": "1.1.2",
+      "hash": "1a56d3b907707222"
     },
     "revenue": {
       "version": "1.3.2",

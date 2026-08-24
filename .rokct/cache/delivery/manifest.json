@@ -1,6 +1,6 @@
 {
   "name": "delivery_sdk",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "home_sdk": true,
   "home_page": "templates/pages/driver/home/home_page.dart",
   "installs": [
@@ -18,7 +18,7 @@
     "assets/image/my_location.png",
     "assets/svg/balance.svg"
   ],
-  "_comment_app_assets": "Home SDKs ship the splash/login background images (base_sdk's splash_page and auth_sdk's login_page reference assets/images/splash*.png). Each home SDK provides its own copies so every composed app can brand them independently; app_assets gets them into the host pubspec's sdk-app-assets block so they are actually bundled. If base_sdk also installed identical files first, the file copy is skipped (already-present guard) and only the pubspec declaration matters. marker.png and empty-box.json are custodianship copies from paas_driver develop (foodyman-era driver assets evicted from base_sdk). my_location.png and balance.svg are custodianship copies from paas_driver main (referenced by the courier home/profile pages via the asset_keys below; paas_driver's own tracked assets/ copies survive, so the already-present guard skips the file copy there).",
+  "_comment_app_assets": "Home SDKs ship the splash/login background images (base_sdk's splash_page and auth_sdk's login_page reference assets/images/splash*.png). Each home SDK provides its own copies so every composed app can brand them independently; app_assets gets them into the host pubspec's sdk-app-assets block so they are actually bundled. If base_sdk also installed identical files first, the file copy is skipped (already-present guard) and only the pubspec declaration matters. marker.png and empty-box.json are custodianship copies from paas_driver develop (legacy upstream-era driver assets evicted from base_sdk). my_location.png and balance.svg are custodianship copies from paas_driver main (referenced by the courier home/profile pages via the asset_keys below; paas_driver's own tracked assets/ copies survive, so the already-present guard skips the file copy there).",
   "asset_keys": {
     "pngMyLocation": "assets/image/my_location.png",
     "svgBalance": "assets/svg/balance.svg"
@@ -295,6 +295,7 @@
         "firstnameCannotBeEmpty": "firstname_cannot_be_empty",
         "howMuchCashReceived": "how.much.cash.received",
         "iDeliveredTheOrder": "delivered_the_order",
+        "juvoBenefit": "juvo_benefit",
         "inActive": "in_active",
         "lastProfit": "last.profit",
         "lastnameCannotBeEmpty": "lastname_cannot_be_empty",
