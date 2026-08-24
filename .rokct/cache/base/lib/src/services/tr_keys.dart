@@ -743,11 +743,6 @@ class TrKeys {
   static const String fm = 'fm';
   static const String foods = 'foods';
   static const String juvoBenefit = 'juvo_benefit';
-  // TEMPORARY back-compat alias: zones/delivery and commerce/orders still
-  // reference TrKeys.foodymanBenefit at their current mains. Remove this
-  // alias once their juvoBenefit rename PRs are merged.
-  @Deprecated('Use juvoBenefit; remove after zones/commerce rename PRs merge')
-  static const String foodymanBenefit = juvoBenefit;
   static const String inactiveTime = 'choose_inactive_meal_time';
   static const String income = 'income';
   static const String keepMeLoggedIn = 'keep_me_logged_in';

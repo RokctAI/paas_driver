@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.18.1",
+      "version": "1.19.0",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -813,12 +813,34 @@
       "tr_keys": {
         "asOf": "as.of"
       }
+    },
+    "hms_sdk": {
+      "version": "1.0.0",
+      "files": {},
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "registration_steps": [],
+      "embedded_widgets": [],
+      "di_hooks": [],
+      "boot_hooks": [
+        {
+          "id": "hms-push-boot",
+          "order": 30,
+          "body": "if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {\n  try {\n    await HmsPushBootstrap.instance.initialize();\n  } catch (e) {\n    debugPrint('HMS push boot skipped: $e');\n  }\n}",
+          "imports": [
+            "import 'package:flutter/foundation.dart';",
+            "import 'package:hms_sdk/src/services/hms_push_bootstrap.dart';"
+          ],
+          "_comment": "Order 30: after comms' Firebase/FCM boot (10) and its desktop notification poller (20) - order 20 is already taken and duplicate orders draw a composer warning. Android-only and fail-open like comms' hooks. The initialize() call itself is a strict no-op unless DeviceServices proves the device GMS-free AND HMS-capable, so GMS devices and detection errors keep comms_sdk's FCM path as the sole push owner. The await is cheap: initialize() only awaits the availability probe and turnOnPush - the push token arrives asynchronously on Push Kit's token stream, so runApp is never delayed by a token round-trip."
+        }
+      ]
     }
   },
   "sdk_cache": {
     "base": {
-      "version": "1.18.1",
-      "hash": "f74279b1749911cb"
+      "version": "1.19.0",
+      "hash": "10fbb4528a9c0df9"
     },
     "comms": {
       "version": "1.10.1",
@@ -875,6 +897,10 @@
     "weather": {
       "version": "1.5.0",
       "hash": "c3cc0a6f3695311a"
+    },
+    "hms": {
+      "version": "1.0.0",
+      "hash": "b02abafb5e19f40d"
     }
   }
 }
