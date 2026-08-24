@@ -246,9 +246,6 @@ flutter:
     - assets/images/splash.png  # Add this line to explicitly include splash.png
     - assets/images/splash1.png
     - assets/images/splash2.png
-    - assets/images/intro/
-    - assets/images/poi/
-    - assets/images/water/
 flutter_native_splash:
   background_image: 'assets/images/splash2.png'
   fullscreen: true
