@@ -33,6 +33,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// compliance-ignore-file: flutter-http-timeout
+// The package:dio import below is only for the FormData/MultipartFile types.
+// The actual client comes from base_sdk's dioHttp (HttpService), which sets
+// connectTimeout and receiveTimeout (30s) centrally on its BaseOptions; no
+// unconfigured HTTP client is created in this file.
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:base_sdk/src/di/injection.dart';

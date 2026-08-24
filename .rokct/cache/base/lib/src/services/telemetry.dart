@@ -19,6 +19,12 @@
 // SOFTWARE.
 
 
+// compliance-ignore-file: flutter-http-timeout
+// The package:dio import below is only for interceptor/exception types. The
+// actual client comes from base_sdk's HttpService (dioHttp), which sets
+// connectTimeout and receiveTimeout (30s) centrally on its BaseOptions; no
+// unconfigured HTTP client is created in this file.
+
 import 'dart:convert';
 import 'dart:math' as math;
 

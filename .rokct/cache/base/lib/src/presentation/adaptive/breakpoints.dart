@@ -41,6 +41,13 @@ abstract class AppBreakpoints {
 
   /// Width at which a window becomes [WindowSize.expanded].
   static const double expanded = 840;
+
+  /// Widest a modal bottom sheet may grow, in logical pixels.
+  ///
+  /// On windows wider than this the framework centers the sheet at this
+  /// width instead of letting it span edge-to-edge; on phone windows the
+  /// cap is wider than the window and changes nothing.
+  static const double sheetMaxWidth = 560;
 }
 
 /// Classifies the current window by its REAL logical width.

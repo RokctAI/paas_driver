@@ -300,6 +300,32 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                                     selectImageId: state.selectImage?.id,
                                   ),
                                 ),
+                              // 18+ (adults only) badge — mirrors the
+                              // base_sdk ProductCard badge, driven by the
+                              // backend `is_adult` flag.
+                              if (state.productData?.isAdult == true)
+                                Positioned(
+                                  top: 8.r,
+                                  right: 8.r,
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8.w,
+                                      vertical: 4.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppStyle.red,
+                                      borderRadius:
+                                          BorderRadius.circular(100.r),
+                                    ),
+                                    child: Text(
+                                      "18+",
+                                      style: AppStyle.interNoSemi(
+                                        size: 10,
+                                        color: AppStyle.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                           state.selectedStock?.bonus != null

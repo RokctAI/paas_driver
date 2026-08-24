@@ -1,3 +1,23 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 // ignore_for_file: use_build_context_synchronously
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
@@ -10,6 +30,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
+import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
 import 'package:auth_sdk/src/common/presentation/pages/auth/register/register_page.dart';
 // [refork] removed host router import
 import 'package:auth_sdk/src/common/application/auth/login/login_provider.dart';
@@ -163,6 +184,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     final bool isDarkMode = LocalStorage.getAppThemeMode();
     final bool isLtr = LocalStorage.getLangLtr();
+    final bool isWideWindow = windowSizeOf(context).isAtLeastMedium;
     return Directionality(
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
       child: Scaffold(
@@ -175,7 +197,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage(splashImage),
-                    fit: BoxFit.fill,
+                    // fill matches the phone look the portrait asset was
+                    // drawn for; on wider windows it stretches the art out
+                    // of shape, so cover-crop from the center instead.
+                    fit: isWideWindow ? BoxFit.cover : BoxFit.fill,
+                    alignment: Alignment.center,
                   ),
                 ),
                 child: SafeArea(
@@ -258,7 +284,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         // content — and stays bottom-pinned — when it fits.
                         Flexible(
                           child: SingleChildScrollView(
-                            child: Column(
+                            // Cap the action column: on desktop windows the
+                            // full-width CustomButtons and the terms card
+                            // used to span the entire window. Phones are
+                            // narrower than the cap, so compact rendering is
+                            // unchanged.
+                            child: Center(
+                              child: ConstrainedBox(
+                                constraints:
+                                    const BoxConstraints(maxWidth: 440),
+                                child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             CustomButton(
@@ -357,6 +392,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             ),
                             20.verticalSpace,
                           ],
+                                ),
+                              ),
                             ),
                           ),
                         ),

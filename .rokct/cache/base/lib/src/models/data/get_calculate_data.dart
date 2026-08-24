@@ -38,6 +38,8 @@ class GetCalculateModel {
     this.deliveryFee,
     this.serviceFee,
     this.couponPrice,
+    this.containsAdultItems = false,
+    this.requiresBirthDate = false,
   });
 
   num? totalTax;
@@ -50,6 +52,12 @@ class GetCalculateModel {
   num? serviceFee;
   num? couponPrice;
 
+  /// Whether the order contains age-restricted (18+) items.
+  bool containsAdultItems;
+
+  /// Whether the backend requires the customer's birth date to proceed.
+  bool requiresBirthDate;
+
   factory GetCalculateModel.fromJson(Map<String, dynamic> json) =>
       GetCalculateModel(
         totalTax: json["total_tax"],
@@ -61,6 +69,12 @@ class GetCalculateModel {
         deliveryFee: json["delivery_fee"],
         serviceFee: json["service_fee"],
         couponPrice: json["coupon_price"],
+        containsAdultItems: json["contains_adult_items"] == true ||
+            json["contains_adult_items"] == 1 ||
+            json["contains_adult_items"] == '1',
+        requiresBirthDate: json["requires_birth_date"] == true ||
+            json["requires_birth_date"] == 1 ||
+            json["requires_birth_date"] == '1',
       );
 
   Map<String, dynamic> toJson() => {
@@ -73,5 +87,7 @@ class GetCalculateModel {
         "delivery_fee": deliveryFee,
         "rate": serviceFee,
         "coupon_price": couponPrice,
+        "contains_adult_items": containsAdultItems,
+        "requires_birth_date": requiresBirthDate,
       };
 }

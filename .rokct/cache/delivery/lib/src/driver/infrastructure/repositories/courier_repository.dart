@@ -18,6 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// compliance-ignore-file: flutter-http-timeout
+// The package:dio import below is only for its request/response types.
+// The actual client comes from base_sdk's dioHttp (HttpService), which sets
+// connectTimeout and receiveTimeout (30s) centrally on its BaseOptions; no
+// unconfigured HTTP client is created in this file.
+
 import 'dart:convert';
 
 import 'package:dio/dio.dart';

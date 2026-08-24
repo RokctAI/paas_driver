@@ -70,6 +70,17 @@ class MockProductsRepository implements ProductsRepositoryFacade {
             id: "2",
             translation: Translation(title: "Another Product"),
           ),
+          // Demo seed for the 18+ (adults only) feature: exercises the
+          // customer-facing badge and the checkout age gate in demo builds.
+          _demoProduct.copyWith(
+            id: "3",
+            isAdult: true,
+            translation: Translation(
+              title: "Adults Only Demo Product",
+              description: "Demo 18+ (adults only) product",
+              locale: "en",
+            ),
+          ),
         ],
       ),
     );

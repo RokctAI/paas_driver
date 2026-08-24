@@ -198,6 +198,9 @@ class Product {
   bool? active;
   bool? addon;
   bool? vegetarian;
+
+  /// Whether the product is age-restricted (18+). Defaults to false.
+  bool isAdult;
   String? img;
   int? minQty;
   int? maxQty;
@@ -216,6 +219,7 @@ class Product {
     this.active,
     this.addon,
     this.vegetarian,
+    this.isAdult = false,
     this.img,
     this.minQty,
     this.maxQty,
@@ -235,6 +239,7 @@ class Product {
     bool? active,
     bool? addon,
     bool? vegetarian,
+    bool? isAdult,
     String? img,
     int? minQty,
     int? maxQty,
@@ -253,6 +258,7 @@ class Product {
         active: active ?? this.active,
         addon: addon ?? this.addon,
         vegetarian: vegetarian ?? this.vegetarian,
+        isAdult: isAdult ?? this.isAdult,
         img: img ?? this.img,
         minQty: minQty ?? this.minQty,
         maxQty: maxQty ?? this.maxQty,
@@ -273,6 +279,9 @@ class Product {
       active: json["active"],
       addon: json["addon"],
       vegetarian: json["vegetarian"],
+      isAdult: json["is_adult"] == 1 ||
+          json["is_adult"] == true ||
+          json["is_adult"] == '1',
       img: json["img"],
       minQty: json["min_qty"],
       maxQty: json["max_qty"],
@@ -297,6 +306,7 @@ class Product {
         "active": active,
         "addon": addon,
         "vegetarian": vegetarian,
+        "is_adult": isAdult,
         "img": img,
         "min_qty": minQty,
         "max_qty": maxQty,

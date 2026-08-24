@@ -105,6 +105,17 @@ class ProductCard extends ConsumerWidget {
       description,
     );
 
+    // Age-restricted (18+) flag from the backend `is_adult` field, with the
+    // legacy keyword detection kept as a fallback.
+    bool isAdultProduct = keywords.isAdult;
+    if (!isAdultProduct) {
+      try {
+        isAdultProduct = product.isAdult == true;
+      } catch (_) {
+        // Model without an isAdult member; keyword fallback already applied.
+      }
+    }
+
     // Calculate price per unit if needed
     String? pricePerUnit;
     if (showPerUnitPrice && !isLowStock) {
@@ -368,7 +379,7 @@ class ProductCard extends ConsumerWidget {
             ),
 
           // Adult content badge (18+)
-          if (keywords.isAdult)
+          if (isAdultProduct)
             Positioned(
               top: 40.r,
               right: 8.r,

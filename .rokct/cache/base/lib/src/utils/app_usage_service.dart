@@ -64,7 +64,7 @@ class AppUsageService {
             'app_version': appVersion,
             'build_number': buildNumber,
           }),
-        );
+        ).timeout(const Duration(seconds: 30));
 
         if (response.statusCode == 200) {
           // Save that we've recorded today
@@ -113,7 +113,7 @@ class AppUsageService {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-      );
+      ).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);

@@ -37,7 +37,7 @@ final aboutProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
         'cmd': 'api.page.get_page',
         'payload': {'route': 'about'},
       }),
-    );
+    ).timeout(const Duration(seconds: 30));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

@@ -43,6 +43,7 @@ class SellerProductData {
     String? barCode,
     String? status,
     bool? active,
+    bool? isAdult,
     bool? addon,
     String? img,
     int? minQty,
@@ -74,6 +75,7 @@ class SellerProductData {
     _barCode = barCode;
     _status = status;
     _active = active;
+    _isAdult = isAdult;
     _addon = addon;
     _img = img;
     _minQty = minQty;
@@ -127,6 +129,12 @@ class SellerProductData {
     // FIXED: Active field parsing
     _active = json['active'] is bool ? json['active'] :
     (json['active'] == 1 || json['active'] == '1' || json['active'] == true);
+
+    _isAdult = json['is_adult'] is bool
+        ? json['is_adult']
+        : (json['is_adult'] == 1 ||
+            json['is_adult'] == '1' ||
+            json['is_adult'] == true);
 
     _addon = json['addon'];
     _img = json['img'];
@@ -190,6 +198,7 @@ class SellerProductData {
   String? _barCode;
   String? _status;
   bool? _active;
+  bool? _isAdult;
   bool? _addon;
   String? _img;
   int? _minQty;
@@ -219,6 +228,7 @@ class SellerProductData {
     String? barCode,
     String? status,
     bool? active,
+    bool? isAdult,
     bool? addon,
     String? img,
     int? minQty,
@@ -248,6 +258,7 @@ class SellerProductData {
         barCode: barCode ?? _barCode,
         status: status ?? _status,
         active: active ?? _active,
+        isAdult: isAdult ?? _isAdult,
         addon: addon ?? _addon,
         translations: translations ?? _translations,
         img: img ?? _img,
@@ -301,6 +312,9 @@ class SellerProductData {
   String? get barCode => _barCode;
   String? get status => _status;
   bool? get active => _active;
+
+  /// 18+ (adults only) flag mirrored from the Product doctype's `is_adult`.
+  bool? get isAdult => _isAdult;
   bool? get addon => _addon;
   String? get img => _img;
   int? get minQty => _minQty;
@@ -337,6 +351,7 @@ class SellerProductData {
     map['bar_code'] = _barCode;
     map['status'] = _status;
     map['active'] = _active;
+    map['is_adult'] = _isAdult;
     map['img'] = _img;
     map['min_qty'] = _minQty;
     map['max_qty'] = _maxQty;

@@ -26,9 +26,11 @@ import 'package:base_sdk/src/constants/app_constants.dart';
 
 final deliveryProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
   try {
-    final response = await http.get(
-      Uri.parse('${AppConstants.baseUrl}/api/v1/rest/pages/delivery'),
-    );
+    final response = await http
+        .get(
+          Uri.parse('${AppConstants.baseUrl}/api/v1/rest/pages/delivery'),
+        )
+        .timeout(const Duration(seconds: 30));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

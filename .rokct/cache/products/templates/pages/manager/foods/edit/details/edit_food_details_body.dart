@@ -288,6 +288,24 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
                               ),
                             ],
                           ),
+                          24.verticalSpace,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                AppHelpers.getTranslation(TrKeys.adultsOnly),
+                                style: AppStyle.interNormal(
+                                  size: 14.sp,
+                                  letterSpacing: -0.3,
+                                  color: AppStyle.blackColor,
+                                ),
+                              ),
+                              CustomToggle(
+                                controller: ValueNotifier<bool>(state.isAdult),
+                                onChange: event.setIsAdult,
+                              ),
+                            ],
+                          ),
                           40.verticalSpace,
                           CustomButton(
                             title: AppHelpers.getTranslation(TrKeys.save),

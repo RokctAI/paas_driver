@@ -75,7 +75,7 @@ abstract class RemoteConfigService {
           'cmd': 'api.remote_config.get_remote_config',
           'payload': {'app_type': appType},
         }),
-      );
+      ).timeout(const Duration(seconds: 30));
       if (response.statusCode != 200) {
         debugPrint(
           '==> remote config fetch failed, status: ${response.statusCode}',

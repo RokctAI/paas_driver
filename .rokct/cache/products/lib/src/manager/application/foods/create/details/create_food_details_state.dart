@@ -33,6 +33,7 @@ class CreateFoodDetailsState {
     this.qrcode = '',
     this.interval = '',
     this.active = true,
+    this.isAdult = false,
     this.isCreating = false,
     this.images = const [],
     this.listOfUrls = const [],
@@ -52,6 +53,9 @@ class CreateFoodDetailsState {
   final String qrcode;
   final String interval;
   final bool active;
+
+  /// 18+ (adults only) flag sent as `is_adult` on the create request.
+  final bool isAdult;
   final bool isCreating;
 
   /// Local file paths picked but not yet uploaded.
@@ -78,6 +82,7 @@ class CreateFoodDetailsState {
     String? qrcode,
     String? interval,
     bool? active,
+    bool? isAdult,
     bool? isCreating,
     List<String>? images,
     List<SellerGallery>? listOfUrls,
@@ -95,6 +100,7 @@ class CreateFoodDetailsState {
         qrcode: qrcode ?? this.qrcode,
         interval: interval ?? this.interval,
         active: active ?? this.active,
+        isAdult: isAdult ?? this.isAdult,
         isCreating: isCreating ?? this.isCreating,
         images: images ?? this.images,
         listOfUrls: listOfUrls ?? this.listOfUrls,

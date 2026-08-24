@@ -19,6 +19,12 @@
 // SOFTWARE.
 
 
+// compliance-ignore-file: flutter-http-timeout
+// The package:dio import below is only for the TimingInterceptor types wired
+// into base_sdk's HttpService (dioHttp), which sets connectTimeout and
+// receiveTimeout (30s) centrally on its BaseOptions; no unconfigured HTTP
+// client is created in this file.
+
 import 'package:dio/dio.dart';
 import 'package:flutter/scheduler.dart';
 

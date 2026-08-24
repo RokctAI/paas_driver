@@ -1,3 +1,23 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 // Host composition file (ADR-005). auth_sdk's real pages (LoginPage,
 // RegisterPage, ResetPasswordPage, RegisterConfirmationPage) are
 // @RoutePage()-annotated inside auth_sdk itself, but auto_route's codegen
@@ -25,10 +45,26 @@ import 'package:auth_sdk/src/common/presentation/pages/auth/login/login_page.dar
 import 'package:auth_sdk/src/common/presentation/pages/auth/register/register_page.dart';
 import 'package:auth_sdk/src/common/presentation/pages/auth/confirmation/register_confirmation_page.dart';
 import 'package:auth_sdk/src/common/presentation/pages/auth/reset/reset_password_page.dart';
+// Imported unconditionally so a manifest-contributed line in
+// applyComposedRegistrationConfig below always compiles.
+import 'package:auth_sdk/src/common/services/registration_config.dart';
 // The session-policy shell installed next to this file (${package} is
 // substituted with the host app's package name at install time, same as the
 // manifest "routes" imports).
 import 'package:${package}/presentation/routes/auth_session_policy.dart';
+
+/// Composition hook for registration capabilities (the registration twin of
+/// applyComposedSessionPolicy): which EXTRA fields this app's register form
+/// asks for is composition data, declared by the app's home SDK through a
+/// manifest "integrations" entry targeting the placeholder below — e.g.
+/// lms_sdk contributing `AuthRegistrationConfig.collectsBirthDate = true;`
+/// so registration captures a date of birth. With no contribution the block
+/// stays empty, every AuthRegistrationConfig flag keeps its off default,
+/// and the form (and the register_user payload) is exactly the pre-terms
+/// one — apps without the need are untouched.
+void applyComposedRegistrationConfig() {
+  // @auth-registration-config
+}
 
 @RoutePage(name: 'LoginRoute')
 class LoginRouteView extends StatelessWidget {
@@ -41,9 +77,23 @@ class LoginRouteView extends StatelessWidget {
     // every sign-in path goes through this route, so this is the one wiring
     // point the policy needs. A no-op when the app declares no policy.
     applyComposedSessionPolicy();
+    // Registration capabilities ride the same wiring point: the register
+    // sheet opens from the login page, so the flags are in force before any
+    // register form builds.
+    applyComposedRegistrationConfig();
     return const LoginPage();
   }
 }
+
+// RegisterPage, RegisterConfirmationPage and ResetPasswordPage are written
+// as bottom-sheet CONTENT: in the normal flow showModalBottomSheet wraps
+// them in the sheet's own Material, so they carry none of their own. Routed
+// directly (deep link, or any replaceNamed to these paths) nothing provides
+// that ancestor and their AppBarBottomSheet's IconButton throws "No
+// Material widget found", rendering the red error screen. The Material
+// wrapper below restores the routed path without touching the sheet path
+// (a second Material under the sheet's is harmless and never built there —
+// these wrappers only build when the page is ROUTED to).
 
 @RoutePage(name: 'RegisterRoute')
 class RegisterRouteView extends StatelessWidget {
@@ -52,8 +102,14 @@ class RegisterRouteView extends StatelessWidget {
   const RegisterRouteView({super.key, this.isOnlyEmail = false});
 
   @override
-  Widget build(BuildContext context) =>
-      RegisterPage(isOnlyEmail: isOnlyEmail);
+  Widget build(BuildContext context) {
+    // Deep-linked registration never passes through LoginRoute, so the
+    // composed registration capabilities are applied here too (idempotent).
+    applyComposedRegistrationConfig();
+    return Material(
+      child: RegisterPage(isOnlyEmail: isOnlyEmail),
+    );
+  }
 }
 
 @RoutePage(name: 'RegisterConfirmationRoute')
@@ -70,10 +126,12 @@ class RegisterConfirmationRouteView extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => RegisterConfirmationPage(
-        userModel: userModel,
-        verificationId: verificationId,
-        isResetPassword: isResetPassword,
+  Widget build(BuildContext context) => Material(
+        child: RegisterConfirmationPage(
+          userModel: userModel,
+          verificationId: verificationId,
+          isResetPassword: isResetPassword,
+        ),
       );
 }
 
@@ -82,5 +140,7 @@ class ResetPasswordRouteView extends StatelessWidget {
   const ResetPasswordRouteView({super.key});
 
   @override
-  Widget build(BuildContext context) => const ResetPasswordPage();
+  Widget build(BuildContext context) => const Material(
+        child: ResetPasswordPage(),
+      );
 }

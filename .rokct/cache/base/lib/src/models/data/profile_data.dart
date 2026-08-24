@@ -94,7 +94,7 @@ class ProfileData {
     _referralFromWithdrawPrice = json["referral_from_withdraw_price"];
     _email = json['email'];
     _phone = json['phone'];
-    _birthday = json['birthday'];
+    _birthday = json['birthday'] ?? json['birth_date'];
     _gender = json['gender'];
     _emailVerifiedAt = json['email_verified_at'];
     _registeredAt = json['registered_at'];

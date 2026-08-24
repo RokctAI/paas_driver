@@ -1,3 +1,15 @@
+## 1.3.0
+
+* New guided-tour fragment `templates/tour/users.tour.yaml` (fragment name
+  `users`, per the fleet naming registry): a three-step account chapter —
+  the signed-in account surface at `/profile` (tolerant `onFailure`
+  navigation for compositions that keep the account surface elsewhere),
+  the edit-profile sheet opened via the `TrKeys.profileSettings` tile
+  (finder-guarded), and an action-only cleanup step that closes the sheet.
+  Brand-neutral: finders go through `AppHelpers.getTranslation(TrKeys.*)`
+  and captions use `{app_name}` placeholders, mirroring auth_sdk's
+  `auth.tour.yaml`. Additive only — no installs, routes, or lib changes.
+
 ## 1.2.1
 
 * Freezed 3 follow-through for the installed profile template (the fleet

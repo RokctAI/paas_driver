@@ -77,6 +77,13 @@ class EditFoodDetailsNotifier extends StateNotifier<EditFoodDetailsState> {
     state = state.copyWith(product: product);
   }
 
+  void setIsAdult(bool? value) {
+    final bool newValue = value ?? !state.isAdult;
+    state = state.copyWith(isAdult: newValue);
+    final product = state.product?.copyWith(isAdult: newValue);
+    state = state.copyWith(product: product);
+  }
+
   Future<void> updateProduct({
     SellerUnitData? unit,
     int? kitchenId,
@@ -114,6 +121,7 @@ class EditFoodDetailsNotifier extends StateNotifier<EditFoodDetailsState> {
         minQty: state.minQty,
         qrcode: state.barcode == _oldBarcode ? null : state.barcode,
         active: state.product?.active ?? false,
+        isAdult: state.product?.isAdult ?? state.isAdult,
         categoryId: category?.id,
         unitId: unit?.id,
         kitchenId: kitchenId,
@@ -135,6 +143,7 @@ class EditFoodDetailsNotifier extends StateNotifier<EditFoodDetailsState> {
           minQty: int.tryParse(state.minQty),
           barCode: state.barcode,
           active: state.active,
+          isAdult: state.isAdult,
           interval: num.tryParse(state.interval),
           categoryId: category?.id,
           category: category,
@@ -216,6 +225,7 @@ class EditFoodDetailsNotifier extends StateNotifier<EditFoodDetailsState> {
       description: product?.translation?.description ?? '',
       barcode: product?.barCode ?? '',
       active: product?.active ?? false,
+      isAdult: product?.isAdult ?? false,
     );
     _oldBarcode = product?.barCode;
     if (product?.uuid?.isNotEmpty == true) {
@@ -244,6 +254,7 @@ class EditFoodDetailsNotifier extends StateNotifier<EditFoodDetailsState> {
           tax: taxValue,
           costPrice: data.data?.cost?.toString() ?? state.costPrice,
           active: data.data?.active ?? state.active,
+          isAdult: data.data?.isAdult ?? state.isAdult,
         );
         if (data.data?.translations != null) {
           final Map<String, List<String>> temp = Map.from(state.mapOfDesc);

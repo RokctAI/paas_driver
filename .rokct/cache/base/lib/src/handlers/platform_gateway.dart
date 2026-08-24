@@ -19,6 +19,12 @@
 // SOFTWARE.
 
 
+// compliance-ignore-file: flutter-http-timeout
+// The package:dio import below is only for the Response/Options types. The
+// actual client is resolved from base_sdk's dioHttp (HttpService), which sets
+// connectTimeout and receiveTimeout (30s) centrally on its BaseOptions; no
+// unconfigured HTTP client is created in this file.
+
 import 'package:dio/dio.dart';
 
 import 'package:base_sdk/src/di/injection.dart';

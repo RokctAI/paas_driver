@@ -842,7 +842,7 @@ class ShopNotifier extends StateNotifier<ShopState> {
     final res = await http.post(
       Uri.parse(dynamicLink),
       body: jsonEncode(dataShare),
-    );
+    ).timeout(const Duration(seconds: 30));
 
     shareLink = jsonDecode(res.body)['shortLink'];
     debugPrint("share link: shop_notifier $shareLink \n$dataShare");

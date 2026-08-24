@@ -1,3 +1,23 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,10 +37,23 @@ import 'package:base_sdk/src/presentation/components/buttons/social_button.dart'
 import 'package:base_sdk/src/presentation/components/keyboard_dismisser.dart';
 import 'package:base_sdk/src/presentation/components/text_fields/outline_bordered_text_field.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
+import 'package:base_sdk/src/navigation/embedded_widgets.dart';
 import 'package:base_sdk/src/presentation/theme/theme.dart';
 import 'package:auth_sdk/src/common/application/auth/auth.dart';
 import 'package:auth_sdk/src/common/presentation/pages/auth/confirmation/register_confirmation_page.dart';
 import 'package:auth_sdk/src/common/services/platform_support.dart';
+import 'package:auth_sdk/src/common/services/registration_config.dart';
+
+/// TrKeys-style keys for the register form's terms line and the
+/// composition-gated date-of-birth field (same convention as
+/// [trOfflineSignUpDeferred]): backend translations can override them;
+/// AppHelpers.getTranslation's fallback renders them as "By creating an
+/// account you agree to the", "Date of birth" and "Date of birth is
+/// required".
+const String trByCreatingAnAccountYouAgreeToThe =
+    'by_creating_an_account_you_agree_to_the';
+const String trDateOfBirth = 'date_of_birth';
+const String trDateOfBirthIsRequired = 'date_of_birth_is_required';
 
 @RoutePage()
 class RegisterPage extends ConsumerStatefulWidget {
@@ -38,6 +71,13 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   // Add local SignUpType variable to track the current state
   late SignUpType currentSignUpType;
 
+  // Composition-gated date of birth (AuthRegistrationConfig.collectsBirthDate;
+  // OFF unless the app's home SDK asked for it). Page-local on purpose: the
+  // freezed RegisterState is generated code, and the value only needs to
+  // reach the register_user payload (via RegistrationTerms) once, on submit.
+  DateTime? _birthDate;
+  bool _birthDateMissing = false;
+
   @override
   void initState() {
     super.initState();
@@ -54,6 +94,80 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         currentSignUpType = SignUpType.phone;
       }
     });
+  }
+
+  Future<void> _pickBirthDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      // Preselect the adult/minor boundary — the least-scrolling start for
+      // both an adult and a school-age student.
+      initialDate: _birthDate ?? DateTime(now.year - 18, now.month, now.day),
+      firstDate: DateTime(1900),
+      lastDate: now,
+    );
+    if (picked != null) {
+      setState(() {
+        _birthDate = picked;
+        _birthDateMissing = false;
+      });
+    }
+  }
+
+  /// The inline acceptance line under the register action (there is no
+  /// separate terms step, checkbox or forced read — the register action
+  /// itself records the acceptance server-side). The links open the same
+  /// embedded terms/policy pages the login footer links to.
+  Widget _termsLine(BuildContext context) {
+    final linkStyle = AppStyle.interNormal(
+      size: 12.sp,
+      color: AppStyle.textGrey,
+    ).copyWith(decoration: TextDecoration.underline);
+    return Padding(
+      padding: EdgeInsets.only(top: 12.h),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(
+            "${AppHelpers.getTranslation(trByCreatingAnAccountYouAgreeToThe)} ",
+            style: AppStyle.interNormal(size: 12.sp, color: AppStyle.textGrey),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EmbeddedWidgets.I.termPage(),
+                ),
+              );
+            },
+            child: Text(
+              AppHelpers.getTranslation(TrKeys.terms),
+              style: linkStyle,
+            ),
+          ),
+          Text(
+            " & ",
+            style: AppStyle.interNormal(size: 12.sp, color: AppStyle.textGrey),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EmbeddedWidgets.I.policyPage(),
+                ),
+              );
+            },
+            child: Text(
+              AppHelpers.getTranslation(TrKeys.privacyPolicy),
+              style: linkStyle,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -321,6 +435,47 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                   .toUpperCase(),
                               onChanged: event.setReferral,
                             ),
+                            // Composition-gated date of birth (see
+                            // AuthRegistrationConfig): tap-to-pick, no free
+                            // typing, so the stored value is always a real
+                            // past date.
+                            if (AuthRegistrationConfig.collectsBirthDate) ...[
+                              30.verticalSpace,
+                              InkWell(
+                                onTap: _pickBirthDate,
+                                child: InputDecorator(
+                                  decoration: InputDecoration(
+                                    labelText: AppHelpers.getTranslation(
+                                      trDateOfBirth,
+                                    ).toUpperCase(),
+                                    labelStyle: TextStyle(
+                                      color: AppStyle.hintColor,
+                                    ),
+                                    border: const UnderlineInputBorder(),
+                                    enabledBorder: const UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: AppStyle.differBorderColor,
+                                      ),
+                                    ),
+                                    errorText: _birthDateMissing
+                                        ? AppHelpers.getTranslation(
+                                            trDateOfBirthIsRequired,
+                                          )
+                                        : null,
+                                  ),
+                                  child: Text(
+                                    _birthDate == null
+                                        ? ' '
+                                        : RegistrationTerms.formatBirthDate(
+                                            _birthDate!,
+                                          ),
+                                    style: TextStyle(
+                                      color: AppStyle.textPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                     ],
@@ -405,6 +560,17 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             });
                           }
                         } else {
+                          if (AuthRegistrationConfig.collectsBirthDate &&
+                              _birthDate == null) {
+                            setState(() => _birthDateMissing = true);
+                            return;
+                          }
+                          // Creating the account IS the acceptance (the
+                          // inline terms line under this button):
+                          // register_user records it server-side from
+                          // these slots.
+                          RegistrationTerms.termsAccepted = true;
+                          RegistrationTerms.birthDate = _birthDate;
                           if (state.verificationId.isEmpty) {
                             event.register(context);
                           } else {
@@ -418,6 +584,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       },
                     ),
                   ),
+                  _termsLine(context),
                   widget.isOnlyEmail
                       ? Column(
                           children: [

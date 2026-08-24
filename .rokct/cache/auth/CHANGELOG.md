@@ -1,3 +1,16 @@
+## 1.8.5
+
+* `MockAuthRepository._demoRolesByEmail` gains `driver@demo.rokct.ai` ->
+  `deliveryman` and `manager@demo.rokct.ai` -> `seller`, so guided tours
+  (and manual demo sign-ins) can enter the paas_driver and paas_manager
+  compositions through their real login flows. The role strings are the
+  exact values those apps' declared session policies admit
+  (zones/delivery manifest `app_type.driver.session_policy`: deliveryman
+  -> /home; commerce/merchants manifest
+  `app_type.manager.session_policy`: seller -> /main). Additive only —
+  the existing partner/admin mappings and the default customer role are
+  unchanged.
+
 ## 1.8.3
 
 * `AuthRepository` calls the registered composed aliases instead of

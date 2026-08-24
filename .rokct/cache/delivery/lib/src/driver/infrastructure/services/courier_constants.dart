@@ -18,6 +18,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// compliance-ignore-file: obs-flutter-trace
+// Constants-only file: it makes no HTTP calls and holds no client; it is
+// flagged solely because it lives under infrastructure/services/.
+
 /// Courier-only constants carried out of paas_driver's host `AppConstants`.
 ///
 /// base_sdk's AppConstants has no counterparts for these and the composer's

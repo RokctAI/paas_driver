@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.19.0",
+      "version": "1.20.0",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -215,7 +215,7 @@
       ]
     },
     "users_sdk": {
-      "version": "1.2.1",
+      "version": "1.3.0",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -226,7 +226,7 @@
       "boot_hooks": []
     },
     "orders_sdk": {
-      "version": "1.7.2",
+      "version": "1.8.0",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -237,13 +237,13 @@
       "boot_hooks": []
     },
     "delivery_sdk": {
-      "version": "1.8.1",
+      "version": "1.8.2",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "64a963e0766b5fec57213476dd688aead2d928807d6743b9bec6c7494aa593ce",
         "lib/presentation/routes/delivery_adapters.dart": "be620290a87b59b0dd2af1ca308c0babe29847b4d82271905540b25d5e045fa6",
         "lib/presentation/pages/home/parcel_bottom_sheet.dart": "3c235dbff0f9e6132a6661d05575635a125e5ff0f5a2940de3db77ea5d22ee5c",
         "lib/presentation/pages/home/bottom_sheet_screen.dart": "a9369bb2958b7ccf5d77a57be8a3827e16108f0d0b765609244c4acc4fd7eb37",
-        "lib/presentation/pages/home/home_page.dart": "58f88120ff82ab019d558521d95e84312bb001652c7d382f1f23f71d248aa6ed",
+        "lib/presentation/pages/home/home_page.dart": "78e9d13601dd17bca761dd41c7467099bd2980f313495dfef87e8b12c03cd118",
         "lib/presentation/pages/home/delivery_bottom_sheet.dart": "d8739603bd50949e222460614e5e3595186b59a1d2bd3a7333c04cd94c5efbd1",
         "lib/presentation/pages/home/widgets/outside_painter.dart": "62b3e7be8f6ce0b370055b0ebe44d8f6d543cbeeba97970e2292d79810cb2481",
         "lib/presentation/pages/home/widgets/rate_customer.dart": "cccc32002a6e309e1404f938f362336a71dd385300670e601b7eba799854b681",
@@ -628,7 +628,7 @@
       }
     },
     "merchants_sdk": {
-      "version": "1.9.5",
+      "version": "1.9.6",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
         "lib/presentation/pages/stores/story_page.dart": "bd4582d76dd66c5132cdb43bdf5577f0a0f1189b3df99257e5850051861e7c25"
@@ -662,7 +662,7 @@
       }
     },
     "products_sdk": {
-      "version": "1.3.3",
+      "version": "1.4.0",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -693,11 +693,11 @@
       "boot_hooks": []
     },
     "auth_sdk": {
-      "version": "1.8.4",
+      "version": "1.8.6",
       "files": {
-        "lib/presentation/routes/auth_route_pages.dart": "d653ecfbd5affa02fc93ec9d8d5aa04916c6a83d59e9e00ab8b7befcf88de62d",
-        "lib/presentation/routes/registration_step_pages.dart": "6173d2dcda9d444e4e7ece9b5b15e73f72dbaf833bac04be38f7708186ac3a62",
-        "lib/presentation/routes/auth_session_policy.dart": "8369d222afb939d90d1e9341757d2bef2da19b088060cbf01eabce6d2493f612"
+        "lib/presentation/routes/auth_route_pages.dart": "72dfce677286beda738c07ba19f1b0f774ca619914ace8f545830284a6ad620b",
+        "lib/presentation/routes/registration_step_pages.dart": "73e43c48ad35f5681c9d089dad9c48fbb9094b0bb77e9026f91fce6ce1cfdd0f",
+        "lib/presentation/routes/auth_session_policy.dart": "8809e5c797f7509b61a63251c4c93c8bbe2276e7fb26a59601d7921b1dd7b51d"
       },
       "routes": [
         {
@@ -835,40 +835,51 @@
           "_comment": "Order 30: after comms' Firebase/FCM boot (10) and its desktop notification poller (20) - order 20 is already taken and duplicate orders draw a composer warning. Android-only and fail-open like comms' hooks. The initialize() call itself is a strict no-op unless DeviceServices proves the device GMS-free AND HMS-capable, so GMS devices and detection errors keep comms_sdk's FCM path as the sole push owner. The await is cheap: initialize() only awaits the availability probe and turnOnPush - the push token arrives asynchronously on Push Kit's token stream, so runApp is never delayed by a token round-trip."
         }
       ]
+    },
+    "desktop_sdk": {
+      "version": "1.1.1",
+      "files": {},
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "registration_steps": [],
+      "embedded_widgets": [],
+      "di_hooks": [],
+      "boot_hooks": []
     }
   },
   "sdk_cache": {
     "base": {
-      "version": "1.19.0",
-      "hash": "10fbb4528a9c0df9"
+      "version": "1.20.0",
+      "hash": "92b7dd354c1c888a"
     },
     "comms": {
       "version": "1.10.1",
       "hash": "21447afa0b1095e2"
     },
     "auth": {
-      "version": "1.8.4",
-      "hash": "6c5d84609184e5e5"
+      "version": "1.8.6",
+      "hash": "ccc2d59cc667cd62"
     },
     "users": {
-      "version": "1.2.1",
-      "hash": "000344d7a13282f6"
+      "version": "1.3.0",
+      "hash": "5f452bca3f88ad38"
     },
     "orders": {
-      "version": "1.7.2",
-      "hash": "565cb9186db2aad3"
+      "version": "1.8.0",
+      "hash": "40914eeef903fabe"
     },
     "merchants": {
-      "version": "1.9.5",
-      "hash": "b49508ef76ab9546"
+      "version": "1.9.6",
+      "hash": "022d6e05ed1ca028"
     },
     "products": {
-      "version": "1.3.3",
-      "hash": "44bfef3cb3dd790f"
+      "version": "1.4.0",
+      "hash": "9cf6e6b4a6934347"
     },
     "delivery": {
-      "version": "1.8.1",
-      "hash": "c23e8a7dcf9271c1"
+      "version": "1.8.2",
+      "hash": "7cb4ef8fede87d83"
     },
     "map": {
       "version": "1.1.0",
@@ -901,6 +912,10 @@
     "hms": {
       "version": "1.0.0",
       "hash": "b02abafb5e19f40d"
+    },
+    "desktop": {
+      "version": "1.1.1",
+      "hash": "f89d6e3d39a2d809"
     }
   }
 }

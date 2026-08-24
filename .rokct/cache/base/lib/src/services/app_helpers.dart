@@ -37,6 +37,7 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
+import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
 import 'package:base_sdk/src/handlers/network_exceptions.dart';
 import 'package:base_sdk/src/models/data/address_old_data.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
@@ -477,6 +478,7 @@ abstract class AppHelpers {
     bool isDrag = true,
     bool isDismissible = true,
     double paddingTop = 200,
+    double maxWidth = AppBreakpoints.sheetMaxWidth,
   }) {
     showModalBottomSheet(
       isDismissible: isDismissible,
@@ -490,6 +492,7 @@ abstract class AppHelpers {
       isScrollControlled: true,
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height - paddingTop.r,
+        maxWidth: maxWidth,
       ),
       backgroundColor: AppStyle.transparent,
       context: context,
@@ -506,6 +509,7 @@ abstract class AppHelpers {
     bool isDismissible = true,
     double paddingTop = 100,
     double maxChildSize = 0.9,
+    double maxWidth = AppBreakpoints.sheetMaxWidth,
   }) {
     showModalBottomSheet(
       isDismissible: isDismissible,
@@ -519,6 +523,7 @@ abstract class AppHelpers {
       isScrollControlled: true,
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height - paddingTop.r,
+        maxWidth: maxWidth,
       ),
       backgroundColor: AppStyle.transparent,
       context: context,

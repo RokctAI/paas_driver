@@ -1,3 +1,23 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'dart:io';
 
@@ -26,6 +46,7 @@ import 'package:base_sdk/src/domain/interface/settings.dart';
 import 'package:auth_sdk/src/common/application/auth/login/login_state.dart';
 import 'package:auth_sdk/src/common/domain/interface/auth_session_policy.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service.dart';
+import 'package:auth_sdk/src/common/services/auth_error_presenter.dart';
 import 'package:auth_sdk/src/common/services/platform_support.dart';
 
 class LoginNotifier extends StateNotifier<LoginState> {
@@ -97,7 +118,14 @@ class LoginNotifier extends StateNotifier<LoginState> {
           },
           failure: (failure, status) {
             state = state.copyWith(isSelectLanguage: false);
-            AppHelpers.showCheckTopSnackBar(context, failure);
+            // Settings fetch: never user-actionable — friendly line only,
+            // real cause to telemetry (entry-56 rule).
+            AuthErrorPresenter.showTechnical(
+              context,
+              type: 'auth_languages_load_failed',
+              detail: failure,
+              statusCode: status,
+            );
           },
         );
       } else {
@@ -123,7 +151,12 @@ class LoginNotifier extends StateNotifier<LoginState> {
           },
           failure: (failure, status) {
             state = state.copyWith(isSelectLanguage: false);
-            AppHelpers.showCheckTopSnackBar(context, failure);
+            AuthErrorPresenter.showTechnical(
+              context,
+              type: 'auth_languages_load_failed',
+              detail: failure,
+              statusCode: status,
+            );
           },
         );
       } else {
@@ -147,7 +180,12 @@ class LoginNotifier extends StateNotifier<LoginState> {
           LocalStorage.setTranslations(data.data);
         },
         failure: (failure, status) {
-          AppHelpers.showCheckTopSnackBar(context, failure);
+          AuthErrorPresenter.showTechnical(
+            context,
+            type: 'auth_translations_load_failed',
+            detail: failure,
+            statusCode: status,
+          );
         },
       );
     } else {
@@ -243,7 +281,16 @@ class LoginNotifier extends StateNotifier<LoginState> {
         },
         failure: (failure, status) {
           state = state.copyWith(isLoading: false, isLoginError: true);
-          AppHelpers.showCheckTopSnackBar(context, failure);
+          // Refusal split: a definitive 4xx carries the backend's own
+          // user-actionable copy (wrong credentials) and stays verbatim;
+          // anything else shows a friendly line and the raw detail goes
+          // to telemetry (entry-56 rule).
+          AuthErrorPresenter.show(
+            context,
+            type: 'auth_login_failed',
+            failure: failure,
+            statusCode: status,
+          );
         },
       );
     } else {
@@ -312,7 +359,13 @@ class LoginNotifier extends StateNotifier<LoginState> {
         },
         failure: (failure, status) {
           state = state.copyWith(isLoading: false);
-          AppHelpers.showCheckTopSnackBar(context, failure);
+          AuthErrorPresenter.show(
+            context,
+            type: 'auth_social_login_failed',
+            failure: failure,
+            statusCode: status,
+            extra: const {'provider': 'google'},
+          );
         },
       );
     } else {
@@ -377,7 +430,13 @@ class LoginNotifier extends StateNotifier<LoginState> {
             },
             failure: (failure, status) {
               state = state.copyWith(isLoading: false);
-              AppHelpers.showCheckTopSnackBar(context, failure);
+              AuthErrorPresenter.show(
+                context,
+                type: 'auth_social_login_failed',
+                failure: failure,
+                statusCode: status,
+                extra: const {'provider': 'facebook'},
+              );
             },
           );
         } else {
@@ -436,7 +495,13 @@ class LoginNotifier extends StateNotifier<LoginState> {
           },
           failure: (failure, s) {
             state = state.copyWith(isLoading: false);
-            AppHelpers.showCheckTopSnackBar(context, failure);
+            AuthErrorPresenter.show(
+              context,
+              type: 'auth_social_login_failed',
+              failure: failure,
+              statusCode: s,
+              extra: const {'provider': 'apple'},
+            );
           },
         );
       } catch (e) {

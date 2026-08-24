@@ -149,7 +149,7 @@
       "path": "../hardware/desktop/dart",
       "ref": "main",
       "sha256": "188774abbcb8de7dee95dba1444f2c1913a37241826453a987b283646ba756de",
-      "_comment": "TEMPORARY (desktop test wave for Ray) - revert candidate. Native desktop runner scaffolding: the SDK's app_type.driver block (hardware PR #19) installs windows/ into the host with ${package}-parameterized CMake naming (driver.exe, project name, window title, exe metadata). This repo commits the composed windows/ tree; the installer's host-file guard keeps it authoritative. The build_windows CI flag stays host-side in build.yml (workflows cannot be SDK-installed - the CI guard blocks workflow deploys). Mirrors manager.json/supacharge."
+      "_comment": "TEMPORARY (desktop testing convenience, revert candidate): added to every app profile so all composed apps pull desktop support and can be viewed/tested on desktop. Pin = sha256 of hardware desktop/dart/install.py at main head 84aa6ed, same value as supacharge.json's entry."
     },
     {
       "name": "hms_sdk",

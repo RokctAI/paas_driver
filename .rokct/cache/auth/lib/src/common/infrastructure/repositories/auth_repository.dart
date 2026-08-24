@@ -1,7 +1,33 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+// compliance-ignore-file: flutter-http-timeout (no HTTP client is constructed
+// or configured in this file: every call rides base_sdk's PlatformGateway,
+// whose shared Dio client sets connectTimeout/receiveTimeout/sendTimeout (30s)
+// in base_sdk http_service.dart; the dio import here exists only for Options,
+// used to stamp the X-Idempotency-Key header)
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/domain/interface/auth.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/models/models.dart';
@@ -11,6 +37,7 @@ import 'package:base_sdk/src/handlers/token_refresh_service.dart';
 import 'package:auth_sdk/src/common/domain/interface/deferred_otp_email_resend.dart';
 import 'package:auth_sdk/src/common/domain/interface/session_password_rotation.dart';
 import 'package:auth_sdk/src/common/domain/interface/session_token_refresh.dart';
+import 'package:auth_sdk/src/common/services/registration_config.dart';
 
 class AuthRepository
     implements
@@ -18,6 +45,12 @@ class AuthRepository
         DeferredOtpEmailResend,
         SessionPasswordRotation,
         SessionTokenRefresh {
+  /// Universal platform gateway: every backend call is a POST to the single
+  /// gateway endpoint with a prefix-free `cmd`. Cmds are the users/auth
+  /// modules' `manifest.json` whitelisted-method keys with the app segment
+  /// dropped (`api.user.*`, `tenant.api.*`).
+  static const _gateway = PlatformGateway();
+
   // SessionTokenRefresh: delegates to base_sdk's single-flight service so
   // an explicit renewal and the automatic 401/expiry path can never race.
   @override
@@ -29,16 +62,17 @@ class AuthRepository
     required String password,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      // NOTE: Frappe's core login endpoint is `/api/method/login`
-      // NOTE: Using custom PaaS login endpoint to match frontend behavior
-      final response = await client.post(
-        '/api/method/paas.api.user.login',
-        data: {'usr': email, 'pwd': password},
+      // NOTE: Frappe's core login endpoint is `/api/method/login`; this is
+      // the platform's own login cmd, which mints the Bearer token pair in
+      // the JSON body — so it rides the gateway envelope like any other cmd.
+      final response = await _gateway.call(
+        'api.user.login',
+        payload: {'usr': email, 'pwd': password},
+        requireAuth: false,
       );
       // Assuming a successful login returns user data that can be adapted to LoginResponse
       // This part will need careful adaptation based on the actual Frappe response
-      return ApiResult.success(data: LoginResponse.fromJson(response.data));
+      return ApiResult.success(data: LoginResponse.fromJson(response));
     } catch (e) {
       debugPrint('==> login failure: $e');
       return ApiResult.failure(
@@ -52,13 +86,13 @@ class AuthRepository
   Future<ApiResult<RegisterResponse>> sendOtp({required String phone}) async {
     final data = {'phone': phone.replaceAll('+', "")};
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.post(
-        '/api/method/paas.api.user.send_phone_verification_code',
-        data: data,
+      final response = await _gateway.call(
+        'api.user.send_phone_verification_code',
+        payload: data,
+        requireAuth: false,
       );
       // The response from this endpoint is simple, may need to adjust RegisterResponse model
-      return ApiResult.success(data: RegisterResponse.fromJson(response.data));
+      return ApiResult.success(data: RegisterResponse.fromJson(response));
     } catch (e) {
       debugPrint('==> send otp failure: $e');
       return ApiResult.failure(
@@ -73,13 +107,15 @@ class AuthRepository
     required String verifyCode,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.tenant.api.verify_my_email',
-        queryParameters: {'token': verifyCode},
+      // Formerly a GET with a `token` query parameter; the gateway carries
+      // the same argument as payload kwargs.
+      final response = await _gateway.call(
+        'tenant.api.verify_my_email',
+        payload: {'token': verifyCode},
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: VerifyPhoneResponse.fromJson(response.data),
+        data: VerifyPhoneResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> verify email failure: $e');
@@ -96,13 +132,13 @@ class AuthRepository
     required String verifyCode,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.post(
-        '/api/method/paas.api.user.verify_phone_code',
-        data: {"phone": verifyId, "otp": verifyCode},
+      final response = await _gateway.call(
+        'api.user.verify_phone_code',
+        payload: {"phone": verifyId, "otp": verifyCode},
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: VerifyPhoneResponse.fromJson(response.data),
+        data: VerifyPhoneResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> verify phone failure: $e');
@@ -118,12 +154,12 @@ class AuthRepository
     required String email,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.post(
-        '/api/method/paas.api.user.forgot_password',
-        data: {'user': email},
+      final response = await _gateway.call(
+        'api.user.forgot_password',
+        payload: {'user': email},
+        requireAuth: false,
       );
-      return ApiResult.success(data: RegisterResponse.fromJson(response.data));
+      return ApiResult.success(data: RegisterResponse.fromJson(response));
     } catch (e) {
       debugPrint('==> forgot password failure: $e');
       return ApiResult.failure(
@@ -139,10 +175,18 @@ class AuthRepository
     String? idempotencyKey,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      var res = await client.post(
-        '/api/method/paas.api.user.register_user',
-        data: user.toJsonForSignUp(),
+      var res = await _gateway.call(
+        'api.user.register_user',
+        // The register form's pending terms acceptance + optional birth
+        // date ride on top of the fixed UserModel payload (see
+        // RegistrationTerms — base_sdk's facade/UserModel cannot widen).
+        // Both server params are optional, so the payload stays exactly
+        // the old one when the form recorded nothing.
+        payload: {
+          ...user.toJsonForSignUp(),
+          ...RegistrationTerms.signUpExtras(),
+        },
+        requireAuth: false,
         // register_user is @idempotent server-side: a stable key makes an
         // ambiguous-failure retry replay the stored response instead of
         // double-registering. Callers without a natural stable key send no
@@ -153,7 +197,7 @@ class AuthRepository
       );
       // This response will not contain tokens, adaptation needed
       return ApiResult.success(
-        data: VerifyData.fromJson(res.data['data'] ?? res.data),
+        data: VerifyData.fromJson(res['data'] ?? res),
       );
     } catch (e) {
       return ApiResult.failure(
@@ -171,13 +215,13 @@ class AuthRepository
     required String email,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.post(
-        '/api/method/paas.api.user.forgot_password_confirm',
-        data: {'verify_code': verifyCode, 'email': email},
+      final response = await _gateway.call(
+        'api.user.forgot_password_confirm',
+        payload: {'verify_code': verifyCode, 'email': email},
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: VerifyData.fromJson(response.data['data'] ?? response.data),
+        data: VerifyData.fromJson(response['data'] ?? response),
       );
     } catch (e) {
       debugPrint('==> forgot password confirm failure: $e');
@@ -210,17 +254,17 @@ class AuthRepository
     required String avatar,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.post(
-        '/api/method/paas.api.user.login_with_google',
-        data: {
+      final response = await _gateway.call(
+        'api.user.login_with_google',
+        payload: {
           'email': email,
           'display_name': displayName,
           'id': id,
           'avatar': avatar,
         },
+        requireAuth: false,
       );
-      return ApiResult.success(data: LoginResponse.fromJson(response.data));
+      return ApiResult.success(data: LoginResponse.fromJson(response));
     } catch (e) {
       debugPrint('==> login with google failure: $e');
       return ApiResult.failure(
@@ -233,10 +277,10 @@ class AuthRepository
   @override
   Future<ApiResult> sigUp({required String email}) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      await client.post(
-        '/api/method/paas.api.user.register_user',
-        data: {'email': email},
+      await _gateway.call(
+        'api.user.register_user',
+        payload: {'email': email},
+        requireAuth: false,
       );
       return const ApiResult.success(data: null);
     } catch (e) {
@@ -261,10 +305,10 @@ class AuthRepository
     required String email,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      await client.post(
-        '/api/method/paas.api.user.resend_verification_email',
-        data: {'email': email},
+      await _gateway.call(
+        'api.user.resend_verification_email',
+        payload: {'email': email},
+        requireAuth: false,
       );
       return const ApiResult.success(data: null);
     } catch (e) {
@@ -289,13 +333,13 @@ class AuthRepository
     required String passwordConfirmation,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      await client.post(
-        // The registered composed alias is paas.api.user.update_password
-        // (users/frappe manifest whitelisted_methods) — NOT
-        // paas.api.user.user.update_password, the raw module path.
-        '/api/method/paas.api.user.update_password',
-        data: {
+      await _gateway.tenant(
+        // The registered manifest alias key ends in
+        // `api.user.update_password` (users/frappe manifest
+        // whitelisted_methods) — NOT `api.user.user.update_password`, the
+        // raw module path — so that is the prefix-free cmd.
+        'api.user.update_password',
+        {
           'password': password,
           'password_confirmation': passwordConfirmation,
         },
@@ -315,13 +359,18 @@ class AuthRepository
     required UserModel user,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.post(
-        '/api/method/paas.api.user.register_user',
-        data: user.toJsonForSignUp(),
+      final response = await _gateway.call(
+        'api.user.register_user',
+        // Same terms/birth-date ride-along as sigUpWithData — the phone
+        // path is the same register_user endpoint.
+        payload: {
+          ...user.toJsonForSignUp(),
+          ...RegistrationTerms.signUpExtras(),
+        },
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: VerifyData.fromJson(response.data['data'] ?? response.data),
+        data: VerifyData.fromJson(response['data'] ?? response),
       );
     } catch (e) {
       debugPrint('==> signup with phone failure: $e');

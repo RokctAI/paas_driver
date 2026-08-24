@@ -20,6 +20,7 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:remixicon/remixicon.dart';
@@ -70,22 +71,37 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
-    FirebaseMessaging.instance.requestPermission(
-      sound: true,
-      alert: true,
-      badge: false,
-    );
-    FirebaseMessaging.onBackgroundMessage((RemoteMessage message) async {
-      await Firebase.initializeApp();
-    });
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {});
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      AppHelpers.showCheckTopSnackBarDone(
-        // ignore: use_build_context_synchronously
-        context,
-        "${AppHelpers.getTranslation(TrKeys.id)} #${message.notification?.title} ${message.notification?.body}",
-      );
-    });
+    // firebase_messaging has no Windows/Linux implementation — on desktop
+    // Firebase is (correctly) never initialized, so an unguarded
+    // FirebaseMessaging.instance throws [core/no-app] synchronously and the
+    // whole route mounts as a blank ErrorWidget in release builds. Same
+    // platform guard + fail-open idiom as comms' firebase boot hook; Windows
+    // notifications go through the comms desktop notification poller instead.
+    if (!kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.macOS)) {
+      try {
+        FirebaseMessaging.instance.requestPermission(
+          sound: true,
+          alert: true,
+          badge: false,
+        );
+        FirebaseMessaging.onBackgroundMessage((RemoteMessage message) async {
+          await Firebase.initializeApp();
+        });
+        FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {});
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+          AppHelpers.showCheckTopSnackBarDone(
+            // ignore: use_build_context_synchronously
+            context,
+            "${AppHelpers.getTranslation(TrKeys.id)} #${message.notification?.title} ${message.notification?.body}",
+          );
+        });
+      } catch (e) {
+        debugPrint('==> main page FCM setup skipped: $e');
+      }
+    }
     super.initState();
   }
 

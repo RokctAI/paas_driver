@@ -27,6 +27,7 @@ class EditFoodDetailsState {
   const EditFoodDetailsState({
     this.isLoading = false,
     this.active = false,
+    this.isAdult = false,
     this.title = '',
     this.interval = '',
     this.description = '',
@@ -45,6 +46,9 @@ class EditFoodDetailsState {
 
   final bool isLoading;
   final bool active;
+
+  /// 18+ (adults only) flag sent as `is_adult` on the update request.
+  final bool isAdult;
   final String title;
   final String interval;
   final String description;
@@ -74,6 +78,7 @@ class EditFoodDetailsState {
   EditFoodDetailsState copyWith({
     bool? isLoading,
     bool? active,
+    bool? isAdult,
     String? title,
     String? interval,
     String? description,
@@ -92,6 +97,7 @@ class EditFoodDetailsState {
       EditFoodDetailsState(
         isLoading: isLoading ?? this.isLoading,
         active: active ?? this.active,
+        isAdult: isAdult ?? this.isAdult,
         title: title ?? this.title,
         interval: interval ?? this.interval,
         description: description ?? this.description,

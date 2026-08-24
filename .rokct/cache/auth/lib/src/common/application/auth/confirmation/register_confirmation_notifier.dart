@@ -1,3 +1,23 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,6 +37,7 @@ import 'package:base_sdk/src/application/main/main_provider.dart';
 import 'package:auth_sdk/src/common/application/auth/confirmation/register_confirmation_state.dart';
 import 'package:auth_sdk/src/common/domain/interface/deferred_otp_email_resend.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service.dart';
+import 'package:auth_sdk/src/common/services/auth_error_presenter.dart';
 import 'package:auth_sdk/src/common/services/platform_support.dart';
 
 class RegisterConfirmationNotifier
@@ -79,11 +100,17 @@ class RegisterConfirmationNotifier
           );
         } catch (e) {
           if (context.mounted) {
-            AppHelpers.showCheckTopSnackBar(
+            // Firebase's error text is third-party provider wording, never
+            // student copy — friendly line only, detail to telemetry
+            // (entry-56 rule).
+            AuthErrorPresenter.showTechnical(
               context,
-              AppHelpers.getTranslation(
-                (e as FirebaseAuthException).message ?? "",
-              ),
+              type: 'auth_otp_verify_failed',
+              detail: e is FirebaseAuthException
+                  ? '${e.code}: ${e.message ?? ''}'
+                  : e.toString(),
+              friendly: AppHelpers.getTranslation(trCouldNotVerifyCode),
+              extra: const {'provider': 'firebase'},
             );
           }
           state = state.copyWith(
@@ -180,7 +207,13 @@ class RegisterConfirmationNotifier
               isCodeError: true,
               isSuccess: false,
             );
-            AppHelpers.showCheckTopSnackBar(context, failure);
+            AuthErrorPresenter.show(
+              context,
+              type: 'auth_otp_verify_failed',
+              failure: failure,
+              statusCode: status,
+              friendly: AppHelpers.getTranslation(trCouldNotVerifyCode),
+            );
             debugPrint('==> confirm code failure: $failure');
           },
         );
@@ -248,7 +281,13 @@ class RegisterConfirmationNotifier
             isCodeError: true,
             isSuccess: false,
           );
-          AppHelpers.showCheckTopSnackBar(context, failure);
+          AuthErrorPresenter.show(
+            context,
+            type: 'auth_otp_verify_failed',
+            failure: failure,
+            statusCode: status,
+            friendly: AppHelpers.getTranslation(trCouldNotVerifyCode),
+          );
           debugPrint('==> confirm code failure: $failure');
         },
       );
@@ -284,9 +323,13 @@ class RegisterConfirmationNotifier
         },
         failure: (failure, status) {
           state = state.copyWith(isLoading: false, isCodeError: true);
-          AppHelpers.showCheckTopSnackBar(
+          // Was: the bare HTTP status number on screen.
+          AuthErrorPresenter.show(
             context,
-            AppHelpers.getTranslation(status.toString()),
+            type: 'auth_reset_code_verify_failed',
+            failure: failure,
+            statusCode: status,
+            friendly: AppHelpers.getTranslation(trCouldNotVerifyCode),
           );
           debugPrint('==> confirm reset code failure: $failure');
         },
@@ -334,20 +377,27 @@ class RegisterConfirmationNotifier
             },
             failure: (failure, status) {
               state = state.copyWith(isLoading: false, isCodeError: true);
-              AppHelpers.showCheckTopSnackBar(
+              // Was: the bare HTTP status number on screen.
+              AuthErrorPresenter.show(
                 context,
-                AppHelpers.getTranslation(status.toString()),
+                type: 'auth_reset_code_verify_failed',
+                failure: failure,
+                statusCode: status,
+                friendly: AppHelpers.getTranslation(trCouldNotVerifyCode),
               );
               debugPrint('==> confirm reset code failure: $failure');
             },
           );
         } catch (e) {
           if (context.mounted) {
-            AppHelpers.showCheckTopSnackBar(
+            AuthErrorPresenter.showTechnical(
               context,
-              AppHelpers.getTranslation(
-                (e as FirebaseAuthException).message ?? "",
-              ),
+              type: 'auth_reset_code_verify_failed',
+              detail: e is FirebaseAuthException
+                  ? '${e.code}: ${e.message ?? ''}'
+                  : e.toString(),
+              friendly: AppHelpers.getTranslation(trCouldNotVerifyCode),
+              extra: const {'provider': 'firebase'},
             );
           }
           state = state.copyWith(isLoading: false, isCodeError: true);
@@ -420,7 +470,13 @@ class RegisterConfirmationNotifier
               isCodeError: true,
               isResetPasswordSuccess: false,
             );
-            AppHelpers.showCheckTopSnackBar(context, failure);
+            AuthErrorPresenter.show(
+              context,
+              type: 'auth_otp_verify_failed',
+              failure: failure,
+              statusCode: status,
+              friendly: AppHelpers.getTranslation(trCouldNotVerifyCode),
+            );
             debugPrint('==> confirm code failure: $failure');
           },
         );
@@ -466,9 +522,12 @@ class RegisterConfirmationNotifier
         },
         failure: (failure, status) {
           state = state.copyWith(isResending: false);
-          AppHelpers.showCheckTopSnackBar(
+          // Was: the bare HTTP status number on screen.
+          AuthErrorPresenter.show(
             context,
-            AppHelpers.getTranslation(status.toString()),
+            type: 'auth_otp_resend_failed',
+            failure: failure,
+            statusCode: status,
           );
           debugPrint('==> send otp failure: $failure');
         },
@@ -495,13 +554,31 @@ class RegisterConfirmationNotifier
     if (connected) {
       state = state.copyWith(isResending: true);
       if (AppConstants.isPhoneFirebase && !useBackendOtp) {
+        // Firebase phone verification has no desktop implementation — fail
+        // fast instead of throwing [core/no-app] (defensive: the guarded
+        // send flows keep desktop off this page, but the resend must not be
+        // the one unguarded path).
+        if (!isMobilePlatform) {
+          state = state.copyWith(isResending: false);
+          if (context.mounted) {
+            AppHelpers.showCheckTopSnackBar(
+              context,
+              AppHelpers.getTranslation(
+                trPhoneVerificationNotAvailableOnDesktop,
+              ),
+            );
+          }
+          return;
+        }
         await FirebaseAuth.instance.verifyPhoneNumber(
           phoneNumber: phoneNumber,
           verificationCompleted: (PhoneAuthCredential credential) {},
           verificationFailed: (FirebaseAuthException e) {
-            AppHelpers.showCheckTopSnackBar(
+            AuthErrorPresenter.showTechnical(
               context,
-              AppHelpers.getTranslation(e.message ?? ""),
+              type: 'auth_otp_resend_failed',
+              detail: '${e.code}: ${e.message ?? ''}',
+              extra: const {'provider': 'firebase'},
             );
             state = state.copyWith(isResending: false);
           },
@@ -523,7 +600,12 @@ class RegisterConfirmationNotifier
             );
           },
           failure: (failure, status) {
-            AppHelpers.showCheckTopSnackBar(context, failure);
+            AuthErrorPresenter.show(
+              context,
+              type: 'auth_otp_resend_failed',
+              failure: failure,
+              statusCode: status,
+            );
             state = state.copyWith(isResending: false);
           },
         );
@@ -543,13 +625,29 @@ class RegisterConfirmationNotifier
     if (connected) {
       state = state.copyWith(isResending: true);
       if (AppConstants.isPhoneFirebase) {
+        // Same desktop fail-fast as sendCodeToNumber above: firebase_auth's
+        // verifyPhoneNumber would throw [core/no-app] on Windows/Linux.
+        if (!isMobilePlatform) {
+          state = state.copyWith(isResending: false);
+          if (context.mounted) {
+            AppHelpers.showCheckTopSnackBar(
+              context,
+              AppHelpers.getTranslation(
+                trPhoneVerificationNotAvailableOnDesktop,
+              ),
+            );
+          }
+          return;
+        }
         await FirebaseAuth.instance.verifyPhoneNumber(
           phoneNumber: phoneNumber,
           verificationCompleted: (PhoneAuthCredential credential) {},
           verificationFailed: (FirebaseAuthException e) {
-            AppHelpers.showCheckTopSnackBar(
+            AuthErrorPresenter.showTechnical(
               context,
-              AppHelpers.getTranslation(e.message ?? ""),
+              type: 'auth_reset_code_resend_failed',
+              detail: '${e.code}: ${e.message ?? ''}',
+              extra: const {'provider': 'firebase'},
             );
             state = state.copyWith(isResending: false);
           },
@@ -573,7 +671,12 @@ class RegisterConfirmationNotifier
             );
           },
           failure: (failure, status) {
-            AppHelpers.showCheckTopSnackBar(context, failure);
+            AuthErrorPresenter.show(
+              context,
+              type: 'auth_reset_code_resend_failed',
+              failure: failure,
+              statusCode: status,
+            );
             state = state.copyWith(isResending: false);
           },
         );

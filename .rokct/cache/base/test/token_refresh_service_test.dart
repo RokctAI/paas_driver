@@ -92,6 +92,7 @@ Future<void> main() async {
 
   Future<void> seedSession({
     String token = 'oldkey:oldsecret',
+    // compliance-ignore: flutter-hardcoded-secret (synthetic test fixture: patterned dummy refresh token seeded into the mock secure store; not a real credential)
     String refreshToken = 'refresh-token-32-chars-aaaaaaaaa',
     String? expiresAt,
   }) async {

@@ -1,3 +1,19 @@
+## 1.8.0
+
+* 18+ (adults only) checkout support. `get_calculate` now answers the
+  additive `contains_adult_items` / `requires_birth_date` flags (parsed by
+  base_sdk's `GetCalculateModel`), and the order sheet's `_createOrder` gains
+  an age gate mirroring the phone-gate precedent: when the cart holds an
+  adult item and the profile has no birth date, a date-of-birth bottom sheet
+  (`AgeVerifyModal`) collects it, writes it through the universal platform
+  gateway (`api.user.update_user_profile`, `birth_date` "YYYY-MM-DD"), then
+  re-runs calculate + order creation. The backend `create_order` failure
+  markers `AGE_VERIFICATION_REQUIRED` and `UNDERAGE_PURCHASE_BLOCKED` are
+  mapped in the customer orders repository onto distinct friendly,
+  translatable messages (wire-key strings, declared in the manifest's
+  customer tr_keys). Manager POS orders are exempt server-side (face-to-face
+  ID check), so the POS flow is untouched.
+
 ## 1.7.1
 
 * Routed the broken direct `/api/method/paas.api.*` call sites through

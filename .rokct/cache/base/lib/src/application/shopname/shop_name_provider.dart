@@ -41,7 +41,7 @@ final shopNameProvider = FutureProvider.family<String, String>((
         'shops': [shopId],
       },
     }),
-  );
+  ).timeout(const Duration(seconds: 30));
 
   if (response.statusCode == 200) {
     final responseData = jsonDecode(response.body);

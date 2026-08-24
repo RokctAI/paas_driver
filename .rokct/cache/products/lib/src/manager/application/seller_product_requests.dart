@@ -49,6 +49,7 @@ Map<String, dynamic> buildCreateProductRequest({
   int? unitId,
   List<String>? images,
   bool isAddon = false,
+  bool isAdult = false,
   String costPrice = '',
 }) {
   final String locale = LocalStorage.getLanguage()?.locale ?? 'en';
@@ -64,6 +65,7 @@ Map<String, dynamic> buildCreateProductRequest({
     'min_qty': num.tryParse(minQty),
     'max_qty': num.tryParse(maxQty),
     'active': active ? 1 : 0,
+    'is_adult': isAdult ? 1 : 0,
     if (qrcode.isNotEmpty) 'sku': qrcode,
     if (kitchenId != null) 'kitchen_id': kitchenId,
     if (categoryId != null) 'category_id': categoryId,
@@ -89,6 +91,7 @@ Map<String, dynamic> buildUpdateProductRequest({
   int? unitId,
   List<String>? images,
   bool needAddons = false,
+  bool isAdult = false,
   String costPrice = '',
 }) =>
     {
@@ -108,6 +111,7 @@ Map<String, dynamic> buildUpdateProductRequest({
       'min_qty': int.tryParse(minQty),
       'max_qty': int.tryParse(maxQty),
       'active': active ? 1 : 0,
+      'is_adult': isAdult ? 1 : 0,
       if (qrcode != null) 'bar_code': qrcode,
       if (categoryId != null) 'category_id': categoryId,
       if (kitchenId != null) 'kitchen_id': kitchenId,

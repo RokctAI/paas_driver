@@ -37,6 +37,7 @@ class ProductData {
     int? minQty,
     int? maxQty,
     bool? active,
+    bool? isAdult,
     String? img,
     String? createdAt,
     String? updatedAt,
@@ -66,6 +67,7 @@ class ProductData {
     _minQty = minQty;
     _maxQty = maxQty;
     _active = active;
+    _isAdult = isAdult;
     _img = img;
     _createdAt = createdAt;
     _updatedAt = updatedAt;
@@ -96,6 +98,9 @@ class ProductData {
     _interval = json['interval'];
     _minQty = json['min_qty'];
     _maxQty = json['max_qty'];
+    _isAdult = json['is_adult'] == 1 ||
+        json['is_adult'] == true ||
+        json['is_adult'] == '1';
     _img = json['img'] ?? json['image'];
     _createdAt = json['created_at'];
     _updatedAt = json['updated_at'];
@@ -138,6 +143,7 @@ class ProductData {
   int? _minQty;
   int? _maxQty;
   bool? _active;
+  bool? _isAdult;
   String? _img;
   String? _createdAt;
   String? _updatedAt;
@@ -169,6 +175,7 @@ class ProductData {
     int? minQty,
     int? maxQty,
     bool? active,
+    bool? isAdult,
     String? img,
     String? createdAt,
     String? updatedAt,
@@ -198,6 +205,7 @@ class ProductData {
         minQty: minQty ?? _minQty,
         maxQty: maxQty ?? _maxQty,
         active: active ?? _active,
+        isAdult: isAdult ?? _isAdult,
         img: img ?? _img,
         createdAt: createdAt ?? _createdAt,
         updatedAt: updatedAt ?? _updatedAt,
@@ -235,6 +243,9 @@ class ProductData {
   int? get maxQty => _maxQty;
 
   bool? get active => _active;
+
+  /// Whether the product is age-restricted (18+). Defaults to false.
+  bool get isAdult => _isAdult ?? false;
 
   String? get img => _img;
 
@@ -283,6 +294,7 @@ class ProductData {
     map['min_qty'] = _minQty;
     map['max_qty'] = _maxQty;
     map['active'] = _active;
+    map['is_adult'] = _isAdult;
     map['img'] = _img;
     map['created_at'] = _createdAt;
     map['updated_at'] = _updatedAt;

@@ -22,6 +22,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:remixicon/remixicon.dart';
@@ -100,67 +101,85 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   checkPermission() async {
-    FirebaseMessaging.instance.requestPermission(
-      sound: true,
-      alert: true,
-      badge: false,
-    );
+    // firebase_messaging has no Windows/Linux implementation — on desktop
+    // Firebase is (correctly) never initialized, so an unguarded
+    // FirebaseMessaging.instance throws [core/no-app]. Same platform guard +
+    // fail-open idiom as comms' firebase boot hook (defensive: driver is
+    // mobile-only today, but this matches the merchants main-page fix).
+    if (!kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.macOS)) {
+      try {
+        FirebaseMessaging.instance.requestPermission(
+          sound: true,
+          alert: true,
+          badge: false,
+        );
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      debugPrint("New notification on message: ${jsonEncode(message.data)}");
-      if (message.data["id"] != null && mounted) {
-        AppHelpers.showCheckTopSnackBarInfo(
-          context,
-          "${message.notification?.body}",
-        );
-      }
-      if (message.data["type"] == "new_order") {
-        final res = await orderRepository.showOrders(
-          int.tryParse(message.data["id"].toString()) ?? 0,
-        );
-        res.map(
-          success: (s) {
-            attachOrder(s.data.data);
-          },
-          failure: (f) {},
-        );
-      } else if (message.data["type"] == "deliveryman") {
-        final res = await orderRepository.showOrders(
-          int.tryParse(message.data["id"].toString()) ?? 0,
-        );
-        res.map(
-          success: (s) {
-            newOrder(s.data.data);
-          },
-          failure: (f) {},
-        );
-      }
-    });
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      debugPrint("New notification oped app: ${jsonEncode(message.data)}");
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+          debugPrint(
+            "New notification on message: ${jsonEncode(message.data)}",
+          );
+          if (message.data["id"] != null && mounted) {
+            AppHelpers.showCheckTopSnackBarInfo(
+              context,
+              "${message.notification?.body}",
+            );
+          }
+          if (message.data["type"] == "new_order") {
+            final res = await orderRepository.showOrders(
+              int.tryParse(message.data["id"].toString()) ?? 0,
+            );
+            res.map(
+              success: (s) {
+                attachOrder(s.data.data);
+              },
+              failure: (f) {},
+            );
+          } else if (message.data["type"] == "deliveryman") {
+            final res = await orderRepository.showOrders(
+              int.tryParse(message.data["id"].toString()) ?? 0,
+            );
+            res.map(
+              success: (s) {
+                newOrder(s.data.data);
+              },
+              failure: (f) {},
+            );
+          }
+        });
+        FirebaseMessaging.onMessageOpenedApp.listen((
+          RemoteMessage message,
+        ) async {
+          debugPrint("New notification oped app: ${jsonEncode(message.data)}");
 
-      if (message.data["type"] == "new_order") {
-        final res = await orderRepository.showOrders(
-          int.tryParse(message.data["id"].toString()) ?? 0,
-        );
-        res.map(
-          success: (s) {
-            attachOrder(s.data.data);
-          },
-          failure: (f) {},
-        );
-      } else if (message.data["type"] == "deliveryman") {
-        final res = await orderRepository.showOrders(
-          int.tryParse(message.data["id"].toString()) ?? 0,
-        );
-        res.map(
-          success: (s) {
-            newOrder(s.data.data);
-          },
-          failure: (f) {},
-        );
+          if (message.data["type"] == "new_order") {
+            final res = await orderRepository.showOrders(
+              int.tryParse(message.data["id"].toString()) ?? 0,
+            );
+            res.map(
+              success: (s) {
+                attachOrder(s.data.data);
+              },
+              failure: (f) {},
+            );
+          } else if (message.data["type"] == "deliveryman") {
+            final res = await orderRepository.showOrders(
+              int.tryParse(message.data["id"].toString()) ?? 0,
+            );
+            res.map(
+              success: (s) {
+                newOrder(s.data.data);
+              },
+              failure: (f) {},
+            );
+          }
+        });
+      } catch (e) {
+        debugPrint('==> driver home FCM setup skipped: $e');
       }
-    });
+    }
 
     check = await _geolocatorPlatform.checkPermission();
     if (check == LocationPermission.denied) {

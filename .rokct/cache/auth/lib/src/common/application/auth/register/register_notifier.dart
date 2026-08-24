@@ -1,3 +1,23 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'dart:async';
 
@@ -30,6 +50,7 @@ import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:auth_sdk/src/common/application/auth/register/register_state.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/auth_sync_handler.dart';
+import 'package:auth_sdk/src/common/services/auth_error_presenter.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service.dart';
 import 'package:auth_sdk/src/common/presentation/pages/auth/registration/registration_steps_page.dart';
 import 'package:auth_sdk/src/common/services/platform_support.dart';
@@ -140,7 +161,12 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
             ),
           );
         } else {
-          AppHelpers.showCheckTopSnackBar(context, failure);
+          AuthErrorPresenter.show(
+            context,
+            type: 'auth_signup_code_send_failed',
+            failure: failure,
+            statusCode: status,
+          );
         }
       },
     );
@@ -205,9 +231,13 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
             _continuePhoneSignUpOffline(context, onOffline);
             return;
           }
-          AppHelpers.showCheckTopSnackBar(
+          // Firebase's error text is third-party provider wording, never
+          // student copy — friendly line only, detail to telemetry.
+          AuthErrorPresenter.showTechnical(
             context,
-            AppHelpers.getTranslation(e.message ?? ""),
+            type: 'auth_phone_otp_send_failed',
+            detail: '${e.code}: ${e.message ?? ''}',
+            extra: const {'provider': 'firebase'},
           );
           state = state.copyWith(isLoading: false, isSuccess: false);
         },
@@ -245,7 +275,12 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
             _continuePhoneSignUpOffline(context, onOffline);
             return;
           }
-          AppHelpers.showCheckTopSnackBar(context, failure);
+          AuthErrorPresenter.show(
+            context,
+            type: 'auth_phone_otp_send_failed',
+            failure: failure,
+            statusCode: status,
+          );
           state = state.copyWith(isLoading: false, isSuccess: false);
         },
       );
@@ -422,7 +457,12 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
               ),
             );
           } else {
-            AppHelpers.showCheckTopSnackBar(context, failure);
+            AuthErrorPresenter.show(
+              context,
+              type: 'auth_register_failed',
+              failure: failure,
+              statusCode: status,
+            );
           }
         },
       );
@@ -571,7 +611,12 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
               ),
             );
           } else {
-            AppHelpers.showCheckTopSnackBar(context, failure);
+            AuthErrorPresenter.show(
+              context,
+              type: 'auth_register_failed',
+              failure: failure,
+              statusCode: status,
+            );
           }
         },
       );
@@ -673,7 +718,12 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
               ),
             );
           } else {
-            AppHelpers.showCheckTopSnackBar(context, failure);
+            AuthErrorPresenter.show(
+              context,
+              type: 'auth_register_failed',
+              failure: failure,
+              statusCode: status,
+            );
           }
         },
       );
@@ -695,9 +745,11 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
         state = state.copyWith(isLoading: false);
         debugPrint('===> login with google exception: $e');
         if (context.mounted) {
-          AppHelpers.showCheckTopSnackBar(
+          AuthErrorPresenter.showTechnical(
             context,
-            AppHelpers.getTranslation(e.toString()),
+            type: 'auth_social_login_failed',
+            detail: e.toString(),
+            extra: const {'provider': 'google'},
           );
         }
       }
@@ -771,7 +823,13 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
         },
         failure: (failure, status) {
           state = state.copyWith(isLoading: false);
-          AppHelpers.showCheckTopSnackBar(context, failure);
+          AuthErrorPresenter.show(
+            context,
+            type: 'auth_social_login_failed',
+            failure: failure,
+            statusCode: status,
+            extra: const {'provider': 'google'},
+          );
         },
       );
     } else {
@@ -884,7 +942,13 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
             },
             failure: (failure, status) {
               state = state.copyWith(isLoading: false);
-              AppHelpers.showCheckTopSnackBar(context, failure);
+              AuthErrorPresenter.show(
+                context,
+                type: 'auth_social_login_failed',
+                failure: failure,
+                statusCode: status,
+                extra: const {'provider': 'facebook'},
+              );
             },
           );
         } else {
@@ -996,9 +1060,13 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           },
           failure: (failure, s) {
             state = state.copyWith(isLoading: false);
-            AppHelpers.showCheckTopSnackBar(
+            // Was: the bare HTTP status number on screen.
+            AuthErrorPresenter.show(
               context,
-              AppHelpers.getTranslation(s.toString()),
+              type: 'auth_social_login_failed',
+              failure: failure,
+              statusCode: s,
+              extra: const {'provider': 'apple'},
             );
           },
         );
@@ -1006,9 +1074,11 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
         state = state.copyWith(isLoading: false);
         debugPrint('===> login with apple exception: $e');
         if (context.mounted) {
-          AppHelpers.showCheckTopSnackBar(
+          AuthErrorPresenter.showTechnical(
             context,
-            AppHelpers.getTranslation(e.toString()),
+            type: 'auth_social_login_failed',
+            detail: e.toString(),
+            extra: const {'provider': 'apple'},
           );
         }
       }

@@ -860,7 +860,7 @@ class ShopOrderNotifier extends StateNotifier<ShopOrderState> {
     final res = await http.post(
       Uri.parse(dynamicLink),
       body: jsonEncode(dataShare),
-    );
+    ).timeout(const Duration(seconds: 30));
 
     state = state.copyWith(shareLink: jsonDecode(res.body)['shortLink']);
 

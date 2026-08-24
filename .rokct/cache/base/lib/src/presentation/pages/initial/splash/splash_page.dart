@@ -37,6 +37,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:base_sdk/src/application/splash/splash_provider.dart';
@@ -205,22 +207,90 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Adaptive splash: the phone-shaped splash image stretched across a
-    // wide (tablet/desktop) window looks bad, so only compact windows show
-    // it. Wider windows get a bare surface with a spinner (mirroring the
-    // POS splash) while the same boot flow above runs unchanged.
+    // Adaptive splash: the phone-shaped splash image stretched edge-to-edge
+    // across a wide (tablet/desktop) window looks bad (and per core#35 no
+    // image belongs there at all), so only compact windows fill the screen
+    // with it. Wider windows show the app's display name at the center of
+    // the screen with a slow "breathing" pulse — the same mechanics as
+    // paas_pos's LoadingAnimation splash — so the desktop boot screen is
+    // branded without any artwork or a bare spinner.
     if (!windowSizeOf(context).isCompact) {
-      return Scaffold(
+      return const Scaffold(
         backgroundColor: AppStyle.white,
-        body: Center(
-          child: CircularProgressIndicator(color: AppStyle.black),
-        ),
+        body: Center(child: _BreathingBrandName()),
       );
     }
     return Scaffold(
       backgroundColor: Colors.white, // Ensure background color for dark theme
       body: SizedBox.expand(
         child: Image.asset("assets/images/splash.png", fit: BoxFit.fill),
+      ),
+    );
+  }
+}
+
+/// The wide-window boot brand: the app's display name "breathing" at the
+/// center of the screen.
+///
+/// Mechanics mirror paas_pos's LoadingAnimation reference: an
+/// [AnimationController] at [AppConstants.animationDuration] x11 (~4.1 s per
+/// half-cycle) repeating with `reverse: true` through an easeInOut curve,
+/// driving opacity 0.5 -> 1.0 and scale 0.95 -> 1.0 together. The name is
+/// resolved the way the rest of base_sdk does it (server 'title' setting via
+/// [AppHelpers.getAppName], falling back to the composed app's
+/// [AppConstants.appTitle]) and sized off the window width (20%, clamped
+/// 40-80) exactly like the reference.
+class _BreathingBrandName extends StatefulWidget {
+  const _BreathingBrandName();
+
+  @override
+  State<_BreathingBrandName> createState() => _BreathingBrandNameState();
+}
+
+class _BreathingBrandNameState extends State<_BreathingBrandName>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: AppConstants.animationDuration * 11,
+      vsync: this,
+    )..repeat(reverse: true);
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double fontSize =
+        (MediaQuery.sizeOf(context).width * 0.2).clamp(40.0, 80.0).toDouble();
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Opacity(
+          opacity: 0.5 + (_animation.value * 0.5),
+          child: Transform.scale(
+            scale: 0.95 + (_animation.value * 0.05),
+            child: child,
+          ),
+        );
+      },
+      child: Text(
+        AppHelpers.getAppName() ?? AppConstants.appTitle,
+        textAlign: TextAlign.center,
+        style: GoogleFonts.inter(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+          color: AppStyle.black,
+        ),
       ),
     );
   }

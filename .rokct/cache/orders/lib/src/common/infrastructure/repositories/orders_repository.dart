@@ -47,10 +47,31 @@ class OrdersRepository implements OrdersRepositoryFacade {
       return ApiResult.success(data: OrderActiveModel.fromJson(response));
     } catch (e) {
       return ApiResult.failure(
-        error: AppHelpers.errorHandler(e),
+        error: _mapAdultGateError(e),
         statusCode: NetworkExceptions.getDioStatus(e),
       );
     }
+  }
+
+  /// Maps the backend 18+ gate markers from `create_order` onto friendly,
+  /// translatable messages; anything else falls through to the standard
+  /// error handler. Keys are wire-key strings (declared in this SDK's
+  /// manifest tr_keys) because lib/ analyzes against raw base_sdk where
+  /// composer-injected TrKeys constants don't exist.
+  static String _mapAdultGateError(Object e) {
+    final String raw = AppHelpers.errorHandler(e);
+    final String probe = '$raw $e';
+    if (probe.contains('UNDERAGE_PURCHASE_BLOCKED')) {
+      return AppHelpers.getTranslation(
+        'you_must_be_18_or_older_to_order_adults_only_items',
+      );
+    }
+    if (probe.contains('AGE_VERIFICATION_REQUIRED')) {
+      return AppHelpers.getTranslation(
+        'age_verification_is_required_to_order_adults_only_items',
+      );
+    }
+    return raw;
   }
 
   Future<ApiResult<OrderPaginateResponse>> getOrders({

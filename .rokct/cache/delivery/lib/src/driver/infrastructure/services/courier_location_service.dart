@@ -76,6 +76,11 @@ void callbackDispatcher() {
 
         final Dio client = Dio(
           BaseOptions(
+            // Same 30s bounds base_sdk's HttpService sets on its central
+            // BaseOptions; this isolate cannot reach that DI-resolved client.
+            connectTimeout: const Duration(seconds: 30),
+            receiveTimeout: const Duration(seconds: 30),
+            sendTimeout: const Duration(seconds: 30),
             headers: {
               'Accept':
                   'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',

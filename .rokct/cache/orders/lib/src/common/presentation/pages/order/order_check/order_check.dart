@@ -47,6 +47,7 @@ import 'package:base_sdk/src/services/enums.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
 import 'package:orders_sdk/src/common/presentation/pages/order/order_check/price_information.dart';
+import 'package:orders_sdk/src/common/presentation/pages/order/order_check/widgets/age_verify_modal.dart';
 import 'package:orders_sdk/src/common/presentation/pages/order/order_check/widgets/auto_order_modal.dart';
 import 'package:orders_sdk/src/common/presentation/pages/order/order_screen/widgets/image_dialog.dart';
 // [refork] embed via EmbeddedWidgets
@@ -194,6 +195,54 @@ class _OrderCheckState extends ConsumerState<OrderCheck> {
       AppHelpers.showCustomModalBottomSheet(
         context: context,
         modal: EmbeddedWidgets.I.phoneVerify(),
+        isDarkMode: false,
+        paddingTop: MediaQuery.paddingOf(context).top,
+      );
+      return;
+    }
+
+    // 18+ (adults only) gate — same just-in-time pattern as the phone gate
+    // above. get_calculate flags the cart additively; when the profile has
+    // no birth date yet, collect it first so create_order (the enforcement
+    // point, throwing AGE_VERIFICATION_REQUIRED / UNDERAGE_PURCHASE_BLOCKED)
+    // can succeed on the retry.
+    if ((state.calculateData?.containsAdultItems ?? false) &&
+        (state.calculateData?.requiresBirthDate ?? false)) {
+      AppHelpers.showCustomModalBottomSheet(
+        context: context,
+        modal: AgeVerifyModal(
+          onVerified: () async {
+            // Refresh the quote (requires_birth_date flips server-side),
+            // then re-run this flow with fresh state.
+            await event.getCalculate(
+              context: context,
+              cartId: stateOrderShop.cart?.id ?? "",
+              long: stateMap.place?.location?.last ??
+                  LocalStorage.getAddressSelected()?.location?.longitude ??
+                  AppConstants.demoLongitude,
+              lat: stateMap.place?.location?.first ??
+                  LocalStorage.getAddressSelected()?.location?.latitude ??
+                  AppConstants.demoLatitude,
+              type: state.tabIndex == 0
+                  ? DeliveryTypeEnum.delivery
+                  : (state.tabIndex == 1
+                      ? DeliveryTypeEnum.pickup
+                      : DeliveryTypeEnum.pickupPoint),
+              isLoading: false,
+            );
+            if (!mounted) return;
+            _createOrder(
+              state: ref.read(orderProvider),
+              event: event,
+              stateOrderShop: ref.read(shopOrderProvider),
+              eventShopOrder: eventShopOrder,
+              stateMap: stateMap,
+              paymentState: ref.read(paymentProvider),
+              stateProfile: stateProfile,
+              eventOrderList: eventOrderList,
+            );
+          },
+        ),
         isDarkMode: false,
         paddingTop: MediaQuery.paddingOf(context).top,
       );

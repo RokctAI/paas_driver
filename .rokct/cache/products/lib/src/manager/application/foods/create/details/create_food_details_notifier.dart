@@ -57,6 +57,7 @@ class CreateFoodDetailsNotifier extends StateNotifier<CreateFoodDetailsState> {
       costPrice: '',
       qrcode: '',
       active: false,
+      isAdult: false,
       clearCreatedProduct: true,
     );
   }
@@ -95,6 +96,7 @@ class CreateFoodDetailsNotifier extends StateNotifier<CreateFoodDetailsState> {
         minQty: state.minQty,
         maxQty: state.maxQty,
         active: state.active,
+        isAdult: state.isAdult,
         qrcode: state.qrcode,
         interval: state.interval,
         categoryId: categoryId,
@@ -122,6 +124,10 @@ class CreateFoodDetailsNotifier extends StateNotifier<CreateFoodDetailsState> {
 
   void setActive(bool? value) {
     state = state.copyWith(active: !state.active);
+  }
+
+  void setIsAdult(bool? value) {
+    state = state.copyWith(isAdult: !state.isAdult);
   }
 
   void setMaxQty(String value) {

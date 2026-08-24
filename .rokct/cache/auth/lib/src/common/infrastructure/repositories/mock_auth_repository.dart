@@ -1,3 +1,23 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/domain/interface/auth.dart';
 import 'package:base_sdk/src/models/models.dart';
@@ -11,6 +31,29 @@ class MockAuthRepository
         AuthRepositoryFacade,
         DeferredOtpEmailResend,
         SessionPasswordRotation {
+  /// Demo-only email -> role mapping so the guided tour (and manual demo
+  /// sign-ins) can pick a mode by signing in with a well-known address.
+  /// Any other email keeps the default "customer" role.
+  ///
+  /// Role strings are the exact values the composed apps' session policies
+  /// gate on (auth_session_policy.dart DeclaredSessionPolicy.roleLandings,
+  /// declared as "session_policy" in each home SDK's manifest.json):
+  ///  - 'deliveryman': zones/delivery dart/manifest.json (app_type.driver)
+  ///    admits deliveryman -> /home, so driver@ lands the paas_driver
+  ///    courier home instead of the '*' fallback /become-driver.
+  ///  - 'seller': commerce/merchants dart/manifest.json (app_type.manager)
+  ///    admits only seller -> /main, so manager@ is the address that can
+  ///    sign in to paas_manager at all.
+  static const Map<String, String> _demoRolesByEmail = <String, String>{
+    'partner@demo.rokct.ai': 'partner',
+    'admin@demo.rokct.ai': 'admin',
+    'driver@demo.rokct.ai': 'deliveryman',
+    'manager@demo.rokct.ai': 'seller',
+  };
+
+  static String _roleForEmail(String email) =>
+      _demoRolesByEmail[email.trim().toLowerCase()] ?? 'customer';
+
   final UserModel _demoUser = UserModel(
     id: "1",
     uuid: "demo_uuid",
@@ -90,7 +133,7 @@ class MockAuthRepository
         data: UserData(
           accessToken: "demo_access_token",
           tokenType: "Bearer",
-          user: _demoUser.copyWith(email: email),
+          user: _demoUser.copyWith(email: email, role: _roleForEmail(email)),
         ),
       ),
     );
