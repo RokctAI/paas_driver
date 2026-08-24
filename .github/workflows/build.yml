@@ -76,6 +76,10 @@ jobs:
       # Brain Endpoint (AI release notes)
       brain_endpoint: https://platform.rokct.ai/api/v1/method/rokct.platform.api
       build_android: true
+      # TEMPORARY (desktop test wave for Ray) - revert candidate. Build Windows desktop
+      # app and attach it to releases (windows/ scaffolding is installed by desktop_sdk
+      # at compose time and committed back like android/ etc.)
+      build_windows: true
       # Opt into Huawei Mobile Services wiring (hms_sdk in composer.json). Gracefully
       # skips to a GMS-only build until agconnect-services.json exists in Occultation.
       build_hms: true
