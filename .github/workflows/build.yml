@@ -56,7 +56,7 @@ jobs:
   # --- 2. UNIFIED PIPELINE (Smart) ---
   pipeline:
     needs: detect
-    uses: RokctAI/shared-workflows/.github/workflows/universal-pipeline.yml@b9c47be3df4a94d94862827ca149a345ce1572c5 # shared-workflows main (gateway envelope + release windows CXXFLAGS fix)
+    uses: RokctAI/shared-workflows/.github/workflows/universal-pipeline.yml@3d7610a646cc9e6e8b1e5837f2e5fa2acbaaef3d # shared-workflows main (build_hms input + guided-tour/store-listing lanes)
     with:
       project_type: ${{ needs.detect.outputs.is_flutter == 'true' && 'flutter' || (needs.detect.outputs.is_node == 'true' && 'node' || 'frappe') }}
       # Quality Gate Toggles
@@ -76,6 +76,9 @@ jobs:
       # Brain Endpoint (AI release notes)
       brain_endpoint: https://platform.rokct.ai/api/v1/method/rokct.platform.api
       build_android: true
+      # Opt into Huawei Mobile Services wiring (hms_sdk in composer.json). Gracefully
+      # skips to a GMS-only build until agconnect-services.json exists in Occultation.
+      build_hms: true
       # Pin to 3.38.5 (Dart 3.10+) so processing_sdk's SDK constraint resolves
       flutter-version: ${{ inputs.flutter-version || '3.38.5' }}
       app-type: 'driver'
