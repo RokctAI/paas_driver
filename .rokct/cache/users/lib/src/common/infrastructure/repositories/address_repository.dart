@@ -47,11 +47,11 @@ class AddressRepository implements AddressRepositoryFacade {
   }
 
   @override
-  Future<ApiResult<void>> deleteAddress(int addressId) async {
+  Future<ApiResult<void>> deleteAddress(String addressId) async {
     try {
       await _gateway.tenant(
         'api.user.delete_user_address',
-        {'name': addressId.toString()},
+        {'name': addressId},
       );
       return const ApiResult.success(data: null);
     } catch (e) {

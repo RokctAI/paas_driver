@@ -60,7 +60,7 @@ class MockAddressRepository implements AddressRepositoryFacade {
   }
 
   @override
-  Future<ApiResult<void>> deleteAddress(int addressId) async {
+  Future<ApiResult<void>> deleteAddress(String addressId) async {
     return ApiResult.success(data: null);
   }
 

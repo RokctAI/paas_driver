@@ -35,6 +35,7 @@ import 'package:base_sdk/src/domain/interface/user.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/error_presenter.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:${package}/presentation/routes/app_router.dart';
 
@@ -45,9 +46,11 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
 
   ProfileNotifier(this._usersRepository) : super(const ProfileState());
 
-  Future<void> fetchUser(BuildContext context,
-      {RefreshController? refreshController,
-      ValueChanged<String?>? onSuccess}) async {
+  Future<void> fetchUser(
+    BuildContext context, {
+    RefreshController? refreshController,
+    ValueChanged<String?>? onSuccess,
+  }) async {
     if (LocalStorage.getToken().isNotEmpty) {
       final connected = await AppConnectivity.connectivity();
       if (connected) {
@@ -75,7 +78,15 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
               context.router.popUntilRoot();
               context.replaceRoute(const LoginRoute());
             }
-            AppHelpers.showCheckTopSnackBar(context, failure);
+            // Standing rule (entry 56): friendly line on screen, verbatim
+            // detail to telemetry. A server-authored 4xx line still shows
+            // as-is; raw technical detail no longer reaches the snackbar.
+            ErrorPresenter.show(
+              context,
+              type: 'manager_profile_fetch_failed',
+              failure: failure,
+              statusCode: status,
+            );
           },
         );
       } else {
@@ -99,7 +110,14 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
         },
         failure: (fail, status) {
           state = state.copyWith(isLoading: false);
-          AppHelpers.showCheckTopSnackBar(context, fail);
+          // Standing rule (entry 56): friendly line on screen, verbatim
+          // detail to telemetry.
+          ErrorPresenter.show(
+            context,
+            type: 'manager_account_delete_failed',
+            failure: fail,
+            statusCode: status,
+          );
         },
       );
     } else {
