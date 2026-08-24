@@ -27,6 +27,8 @@
 /// create/update asymmetry of `sku` vs `bar_code`).
 library;
 
+import 'package:flutter/foundation.dart';
+
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_extras.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_stock.dart';
@@ -44,9 +46,9 @@ Map<String, dynamic> buildCreateProductRequest({
   required String maxQty,
   required String qrcode,
   required bool active,
-  int? categoryId,
-  int? kitchenId,
-  int? unitId,
+  String? categoryId,
+  String? kitchenId,
+  String? unitId,
   List<String>? images,
   bool isAddon = false,
   bool isAdult = false,
@@ -86,9 +88,9 @@ Map<String, dynamic> buildUpdateProductRequest({
   required String maxQty,
   required bool active,
   String? qrcode,
-  int? categoryId,
-  int? kitchenId,
-  int? unitId,
+  String? categoryId,
+  String? kitchenId,
+  String? unitId,
   List<String>? images,
   bool needAddons = false,
   bool isAdult = false,
@@ -122,23 +124,36 @@ Map<String, dynamic> buildUpdateProductRequest({
 
 /// Per-stock entries for `updateStocks` — extra-value ids deduplicated, addon
 /// product ids deduplicated, `stock_id` only for stocks that exist server-side.
+///
+/// Ids are Frappe docname strings. An entry without an id cannot be
+/// referenced server-side, so it is dropped (with a debug log) rather than
+/// replaced by a sentinel the backend would silently no-op on.
 List<Map<String, dynamic>> buildStocksRequest(List<SellerStock> stocks) {
   final List<Map<String, dynamic>> request = [];
   for (final stock in stocks) {
-    List<int> ids = [
-      for (final extras in stock.extras ?? <SellerExtras>[]) extras.id ?? 0,
+    List<String> ids = [
+      for (final extras in stock.extras ?? <SellerExtras>[])
+        if (extras.id != null) extras.id!,
     ];
+    if (ids.length != (stock.extras?.length ?? 0)) {
+      debugPrint('==> stocks request: dropped extra value(s) without an id');
+    }
     ids = ids.toSet().toList();
-    List<int> addonIds = [
+    List<String> addonIds = [
       for (final addon in stock.localAddons ?? <SellerAddonData>[])
-        addon.product?.id ?? 0,
+        if (addon.product?.id != null) addon.product!.id!,
     ];
+    if (addonIds.length != (stock.localAddons?.length ?? 0)) {
+      debugPrint('==> stocks request: dropped addon(s) without a product id');
+    }
     addonIds = addonIds.toSet().toList();
     request.add({
       'price': stock.price,
       if (stock.sku?.isNotEmpty ?? false) 'sku': stock.sku,
       'quantity': stock.quantity,
-      if (stock.id != -1 && stock.id != null) 'stock_id': stock.id,
+      // '-1' is the legacy local-only sentinel for a stock that does not
+      // exist server-side yet.
+      if (stock.id != null && stock.id != '-1') 'stock_id': stock.id,
       'ids': ids,
       if (addonIds.isNotEmpty) 'addons': addonIds,
     });

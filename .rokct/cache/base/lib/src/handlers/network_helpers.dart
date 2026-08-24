@@ -18,7 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 // compliance-ignore-file: flutter-http-timeout
 // The package:dio import below is only for the DioException type used in
 // error-message parsing. The actual client comes from base_sdk's HttpService
@@ -27,9 +26,47 @@
 
 import 'package:dio/dio.dart';
 
+import 'package:base_sdk/src/services/error_presenter.dart';
+
 abstract class NetworkHelpers {
   NetworkHelpers._();
 
+  /// Friendly-by-default counterpart of [errorHandler] for STUDENT-FACING
+  /// surfaces (standing rule, decision-log entry 56: a student sees one
+  /// friendly line; admin detail goes to telemetry).
+  ///
+  /// Extracts the raw detail with the unchanged [errorHandler] chain, then
+  /// hands it to [ErrorPresenter.resolve]: a definitive 4xx whose message
+  /// is server-authored user copy comes back verbatim; every other failure
+  /// fires fire-and-forget telemetry (`TelemetryClient` →
+  /// `log_frontend_error`) carrying the verbatim detail plus status code,
+  /// and returns only [friendly] (defaulting to the translated "something
+  /// went wrong" line). Strictly additive: admin surfaces keep calling
+  /// [errorHandler] and see the raw string exactly as before.
+  ///
+  /// [type] is a stable snake_case event class for telemetry, e.g.
+  /// 'subscription_fetch_failed'.
+  static String friendlyErrorHandler(
+    dynamic e, {
+    required String type,
+    String? friendly,
+    Map<String, String> extra = const {},
+  }) {
+    final int? statusCode = e is DioException ? e.response?.statusCode : null;
+    return ErrorPresenter.resolve(
+      type: type,
+      detail: errorHandler(e),
+      statusCode: statusCode,
+      friendly: friendly,
+      extra: extra,
+    );
+  }
+
+  /// Raw (admin-grade) extraction chain: the server's `message` field,
+  /// then HTML `<title>` scraping, then `error.message`, then
+  /// `e.toString()`. Unchanged behavior, kept for admin surfaces and
+  /// existing consumers; student-facing surfaces should prefer
+  /// [friendlyErrorHandler].
   static String errorHandler(dynamic e) {
     try {
       return (e.runtimeType == DioException)

@@ -47,7 +47,7 @@ abstract class SellerProductsRepositoryFacade {
   Future<ApiResult<SellerProductsPaginateResponse>> getProducts({
     int? page,
     String? query,
-    int? categoryId,
+    String? categoryId,
     bool needAddons = false,
     String? status,
   });
@@ -68,7 +68,7 @@ abstract class SellerProductsRepositoryFacade {
   Future<ApiResult<SingleSellerProductResponse>> updateStocks({
     required String uuid,
     required List<Map<String, dynamic>> stocks,
-    List<int> deletedStockIds = const [],
+    List<String> deletedStockIds = const [],
     bool isAddon = false,
   });
 
@@ -85,27 +85,30 @@ abstract class SellerProductsRepositoryFacade {
     bool needOnlyValid = true,
   });
 
-  Future<ApiResult<SellerGroupExtrasResponse>> getExtras({int? groupId});
+  /// [groupId] is the Product Extra Group docname (hash string).
+  Future<ApiResult<SellerGroupExtrasResponse>> getExtras({
+    required String groupId,
+  });
 
   Future<ApiResult<SingleSellerExtrasGroupResponse>> createExtrasGroup({
     required Map<String, dynamic> group,
   });
 
   Future<ApiResult<SingleSellerExtrasGroupResponse>> updateExtrasGroup({
-    required int groupId,
+    required String groupId,
     required Map<String, dynamic> group,
   });
 
-  Future<ApiResult<void>> deleteExtrasGroup({int? groupId});
+  Future<ApiResult<void>> deleteExtrasGroup({required String groupId});
 
   Future<ApiResult<CreateSellerExtrasResponse>> createExtrasItem({
     required Map<String, dynamic> item,
   });
 
   Future<ApiResult<CreateSellerExtrasResponse>> updateExtrasItem({
-    required int extrasId,
+    required String extrasId,
     required Map<String, dynamic> item,
   });
 
-  Future<ApiResult<void>> deleteExtrasItem({required List<int> ids});
+  Future<ApiResult<void>> deleteExtrasItem({required List<String> ids});
 }

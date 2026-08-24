@@ -117,8 +117,8 @@ class ManagerProductsLocalStore {
     return SellerProductData(
       uuid: localId,
       shopId: null,
-      categoryId: (product['category_id'] as num?)?.toInt(),
-      unitId: (product['unit_id'] as num?)?.toInt(),
+      categoryId: product['category_id']?.toString(),
+      unitId: product['unit_id']?.toString(),
       tax: product['tax'] as num?,
       interval: product['interval'] as num?,
       minQty: (product['min_qty'] as num?)?.toInt(),

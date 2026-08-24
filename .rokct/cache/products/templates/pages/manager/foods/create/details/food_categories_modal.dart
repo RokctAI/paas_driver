@@ -149,8 +149,10 @@ class _FoodCategoriesModalState extends ConsumerState<FoodCategoriesModal> {
                                   (widget.isSubCategory
                                           ? state.categoriesSub[index].shopId
                                           : state.categories[index].shopId) ==
-                                      (LocalStorage.getShopJson()?['id']
-                                          as int?)
+                                      // Shop ids are shop_name docname
+                                      // strings, never ints.
+                                      LocalStorage.getShopJson()?['id']
+                                          ?.toString()
                                   ? () {
                                       ref
                                           .read(

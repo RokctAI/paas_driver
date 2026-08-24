@@ -46,7 +46,9 @@ class NotificationResponse {
 }
 
 class NotificationModel {
-  int? id;
+  /// Notification Log docname (a Frappe hash string), mapped from the
+  /// backend's `name` field when no `id` is present.
+  String? id;
   String? type;
   String? title;
   String? body;
@@ -75,7 +77,7 @@ class NotificationModel {
   });
 
   NotificationModel copyWith({
-    int? id,
+    String? id,
     String? type,
     String? title,
     String? body,
@@ -105,7 +107,7 @@ class NotificationModel {
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) =>
       NotificationModel(
-        id: json["id"],
+        id: (json["id"] ?? json["name"])?.toString(),
         type: json["type"],
         title: json["title"],
         body: json["body"],

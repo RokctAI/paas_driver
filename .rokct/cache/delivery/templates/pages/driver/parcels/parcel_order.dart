@@ -329,7 +329,7 @@ class ParcelOrderPage extends StatelessWidget {
                                 .read(homeProvider.notifier)
                                 .goMarketParcel(
                                   context: context,
-                                  parcelId: parcel?.id.toString(),
+                                  parcelId: parcel?.id,
                                   setOrder: isSet,
                                   parcel: parcel,
                                 );
@@ -409,7 +409,7 @@ class ParcelOrderPage extends StatelessWidget {
                                   .read(homeProvider.notifier)
                                   .goClientParcel(
                                     context,
-                                    int.tryParse(parcel?.id ?? ''),
+                                    parcel?.id,
                                     parcel: parcel,
                                   );
                               ref

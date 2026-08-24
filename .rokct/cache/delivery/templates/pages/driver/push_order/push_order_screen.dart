@@ -189,7 +189,7 @@ class _PushOrderState extends ConsumerState<PushOrder> {
                                     .read(homeProvider.notifier)
                                     .goMarket(
                                       context: context,
-                                      orderId: widget.pushModel.id.toString(),
+                                      orderId: widget.pushModel.id,
                                       order: widget.pushModel,
                                       setOrder: true,
                                       onSuccess: () async {

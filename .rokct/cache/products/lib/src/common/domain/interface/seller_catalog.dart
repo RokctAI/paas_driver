@@ -61,5 +61,9 @@ abstract class SellerCatalogRepositoryFacade {
     required String input,
   });
 
-  Future<ApiResult<void>> deleteCategory({required int? id});
+  /// [id] is the category's `uuid` (the lookup key
+  /// `delete_seller_category(uuid)` resolves), falling back to the Category
+  /// docname string. Callers must abort with a debug log when neither is
+  /// available — never send a numeric or empty sentinel.
+  Future<ApiResult<void>> deleteCategory({required String id});
 }

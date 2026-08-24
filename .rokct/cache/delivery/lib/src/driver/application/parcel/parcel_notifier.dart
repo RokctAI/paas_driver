@@ -49,7 +49,7 @@ class ParcelNotifier extends StateNotifier<ParcelState> {
     state = state.copyWith(paymentType: isActive);
   }
 
-  Future<void> showOrder(BuildContext context, int orderId) async {
+  Future<void> showOrder(BuildContext context, String orderId) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(

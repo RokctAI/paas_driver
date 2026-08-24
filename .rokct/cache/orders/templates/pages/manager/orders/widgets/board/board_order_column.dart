@@ -60,7 +60,7 @@ class BoardOrderColumn extends StatefulWidget {
 
   /// Ids of orders whose status change is in flight — their cards are dimmed
   /// and locked.
-  final Set<int> updatingIds;
+  final Set<String> updatingIds;
 
   final VoidCallback onRefresh;
   final Future<void> Function() onLoadMore;

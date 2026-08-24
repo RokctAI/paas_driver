@@ -21,9 +21,9 @@
 import 'package:base_sdk/src/models/data/translation.dart';
 
 class KitchenModel {
-  int? id;
+  String? id;
   int? active;
-  int? shopId;
+  String? shopId;
   Translation? translation;
 
   KitchenModel({
@@ -34,9 +34,9 @@ class KitchenModel {
   });
 
   KitchenModel copyWith({
-    int? id,
+    String? id,
     int? active,
-    int? shopId,
+    String? shopId,
     Translation? translation,
   }) =>
       KitchenModel(
@@ -47,9 +47,9 @@ class KitchenModel {
       );
 
   factory KitchenModel.fromJson(Map<String, dynamic> json) => KitchenModel(
-    id: json["id"],
+    id: (json["id"] ?? json["name"])?.toString(),
     active: json["active"],
-    shopId: json["shop_id"],
+    shopId: json["shop_id"]?.toString(),
     translation: json["translation"] == null ? null : Translation.fromJson(json["translation"]),
   );
 

@@ -58,6 +58,10 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
       (widget.order.transaction?.paymentSystem?.tag ?? '').toLowerCase() ==
       'cash';
 
+  /// 18+ order: the backend refuses to complete it until the courier
+  /// confirms he checked the recipient's ID at the door.
+  bool get _isAdultOrder => widget.order.containsAdultItems ?? false;
+
   @override
   void dispose() {
     noteCon.dispose();
@@ -65,12 +69,25 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
     super.dispose();
   }
 
-  /// The original (non-cash) delivered epilogue: finish the order, close
-  /// the bottom sheet and ask for a customer rating.
+  /// The delivered epilogue: finish the order, close the bottom sheet
+  /// and ask for a customer rating. 18+ orders are intercepted first by
+  /// a required ID-check confirmation dialog - every path that finishes
+  /// a delivery (plain, cash collection, record-as-credit) funnels
+  /// through here, so a flagged order can never complete unconfirmed.
   void _finishDelivery(BuildContext context, WidgetRef ref) {
+    if (_isAdultOrder) {
+      _showAgeVerificationDialog(context, ref);
+      return;
+    }
+    _completeDelivery(context, ref, recipientAgeVerified: false);
+  }
+
+  void _completeDelivery(BuildContext context, WidgetRef ref,
+      {required bool recipientAgeVerified}) {
     ref.read(homeProvider.notifier).deliveredFinish(
           context: context,
           orderId: widget.order.id,
+          recipientAgeVerified: recipientAgeVerified,
         );
     Navigator.pop(context);
     AppHelpers.showCustomModalBottomSheet(
@@ -79,6 +96,67 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
           order: widget.order,
         ),
         isDarkMode: false);
+  }
+
+  /// 18+ orders only (cash-collection dialog precedent): the courier
+  /// must confirm he checked the recipient's ID (18 or older) before
+  /// the order can be finished. Only this yes/no confirmation is
+  /// recorded - no ID image or document data is ever captured or
+  /// stored. Cancel leaves the order un-finished.
+  void _showAgeVerificationDialog(BuildContext context, WidgetRef ref) {
+    AppHelpers.showAlertDialog(
+      context: context,
+      child: StatefulBuilder(
+        builder: (dialogContext, setState) {
+          return Container(
+            decoration: BoxDecoration(
+              color: AppStyle.white,
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            padding: EdgeInsets.symmetric(vertical: 30.h, horizontal: 24.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  AppHelpers.getTranslation(TrKeys.checkRecipientId18Plus),
+                  textAlign: TextAlign.center,
+                  style: AppStyle.interSemi(size: 16.sp),
+                ),
+                32.verticalSpace,
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomButton(
+                        title: AppHelpers.getTranslation(TrKeys.cancel),
+                        background: AppStyle.red,
+                        textColor: AppStyle.white,
+                        onPressed: () {
+                          Navigator.pop(dialogContext);
+                        },
+                      ),
+                    ),
+                    10.horizontalSpace,
+                    Expanded(
+                      child: CustomButton(
+                        title:
+                            AppHelpers.getTranslation(TrKeys.confirmation),
+                        background: AppStyle.black,
+                        textColor: AppStyle.white,
+                        onPressed: () {
+                          Navigator.pop(dialogContext);
+                          _completeDelivery(context, ref,
+                              recipientAgeVerified: true);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 
   /// Cash orders only: after the proof-of-delivery photo, confirm how much
@@ -406,9 +484,7 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                                                                 context:
                                                                     context,
                                                                 orderId: widget
-                                                                        .order
-                                                                        .id ??
-                                                                    0,
+                                                                    .order.id!,
                                                                 note: noteCon
                                                                     .text);
                                                         Navigator.pop(context);

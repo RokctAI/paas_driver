@@ -46,7 +46,7 @@ abstract class PosSectionsTablesFacade {
   Future<ApiResult<TableResponse>> getTables({
     int? page,
     String? query,
-    int? shopSectionId,
+    String? shopSectionId,
   });
 }
 
@@ -79,7 +79,7 @@ class _UnwiredPosSectionsTables implements PosSectionsTablesFacade {
   Future<ApiResult<TableResponse>> getTables({
     int? page,
     String? query,
-    int? shopSectionId,
+    String? shopSectionId,
   }) async =>
       const ApiResult.failure(error: _message, statusCode: 501);
 }

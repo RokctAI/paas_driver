@@ -80,11 +80,14 @@ class SettingsRepository implements SettingsRepositoryFacade {
         'api.system.get_languages',
         requireAuth: false,
       );
-      if (LocalStorage.getLanguage() == null ||
+      // A null stored id must never count as "found" (two missing ids used
+      // to read as a match through contains(null)).
+      final storedLanguageId = LocalStorage.getLanguage()?.id;
+      if (storedLanguageId == null ||
           !(LanguagesResponse.fromJson(data)
                   .data
                   ?.map((e) => e.id)
-                  .contains(LocalStorage.getLanguage()?.id) ??
+                  .contains(storedLanguageId) ??
               true)) {
         LanguagesResponse.fromJson(data).data?.forEach((element) {
           if (element.isDefault ?? false) {
@@ -179,18 +182,19 @@ class SettingsRepository implements SettingsRepositoryFacade {
     List<NotificationData>? notifications,
   ) async {
     try {
-      final data = {
-        'notifications': notifications
-            ?.map((n) => {'notification_id': n.id, 'active': n.active})
-            .toList(),
-      };
-      await _gateway.tenant(
-        'api.notification.update_notification_settings',
-        data,
-      );
+      // The backend's update_notification_settings(type, active) updates one
+      // notification type per call and keys on `type`, not an id (settings
+      // rows carry no usable id).
+      for (final n in notifications ?? const <NotificationData>[]) {
+        if (n.type == null) continue;
+        await _gateway.tenant(
+          'api.notification.update_notification_settings',
+          {'type': n.type, 'active': (n.active ?? false) ? 1 : 0},
+        );
+      }
       return const ApiResult.success(data: null);
     } catch (e) {
-      debugPrint('==> get languages failure: $e');
+      debugPrint('==> update notification settings failure: $e');
       return ApiResult.failure(
         error: AppHelpers.errorHandler(e),
         statusCode: NetworkExceptions.getDioStatus(e),

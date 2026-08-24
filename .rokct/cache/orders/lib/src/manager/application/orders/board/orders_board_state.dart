@@ -25,7 +25,7 @@ part 'orders_board_state.freezed.dart';
 @freezed
 abstract class OrdersBoardState with _$OrdersBoardState {
   const factory OrdersBoardState({
-    @Default(<int>{}) Set<int> updatingIds,
+    @Default(<String>{}) Set<String> updatingIds,
   }) = _OrdersBoardState;
 
   const OrdersBoardState._();

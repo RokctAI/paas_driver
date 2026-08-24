@@ -23,8 +23,8 @@ import 'package:base_sdk/src/models/data/translation.dart';
 
 class SellerExtrasGroup {
   SellerExtrasGroup({
-    int? id,
-    int? shopId,
+    String? id,
+    String? shopId,
     String? type,
     bool? isChecked,
     Translation? translation,
@@ -41,9 +41,9 @@ class SellerExtrasGroup {
   }
 
   SellerExtrasGroup.fromJson(dynamic json) {
-    _id = json['id'];
+    _id = (json['id'] ?? json['name'])?.toString();
     _type = json['type'];
-    _shopId = json['shop_id'];
+    _shopId = json['shop_id']?.toString();
     _isChecked = false;
     _translation = json['translation'] != null
         ? Translation.fromJson(json['translation'])
@@ -57,8 +57,8 @@ class SellerExtrasGroup {
     }
   }
 
-  int? _id;
-  int? _shopId;
+  String? _id;
+  String? _shopId;
   String? _type;
   bool? _isChecked;
   Translation? _translation;
@@ -66,8 +66,8 @@ class SellerExtrasGroup {
   List<SellerExtras>? _extraValues;
 
   SellerExtrasGroup copyWith({
-    int? id,
-    int? shopId,
+    String? id,
+    String? shopId,
     String? type,
     bool? isChecked,
     Translation? translation,
@@ -84,9 +84,9 @@ class SellerExtrasGroup {
         extraValues: extraValues ?? _extraValues,
       );
 
-  int? get id => _id;
+  String? get id => _id;
 
-  int? get shopId => _shopId;
+  String? get shopId => _shopId;
 
   String? get type => _type;
 

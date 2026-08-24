@@ -31,9 +31,9 @@ abstract class BannersRepositoryFacade {
     required int page,
   });
 
-  Future<ApiResult<BannerData>> getBannerById(int? bannerId);
+  Future<ApiResult<BannerData>> getBannerById(String bannerId);
 
-  Future<ApiResult<BannerData>> getAdsById(int? bannerId);
+  Future<ApiResult<BannerData>> getAdsById(String bannerId);
 
-  Future<ApiResult<void>> likeBanner(int? bannerId);
+  Future<ApiResult<void>> likeBanner(String bannerId);
 }

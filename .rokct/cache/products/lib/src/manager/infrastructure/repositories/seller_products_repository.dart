@@ -45,7 +45,7 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
   Future<ApiResult<SellerProductsPaginateResponse>> getProducts({
     int? page,
     String? query,
-    int? categoryId,
+    String? categoryId,
     bool needAddons = false,
     String? status,
   }) async {
@@ -157,7 +157,7 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
   Future<ApiResult<SingleSellerProductResponse>> updateStocks({
     required String uuid,
     required List<Map<String, dynamic>> stocks,
-    List<int> deletedStockIds = const [],
+    List<String> deletedStockIds = const [],
     bool isAddon = false,
   }) =>
       _postProduct('$_base.update_product_stocks', {
@@ -202,7 +202,9 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
   }
 
   @override
-  Future<ApiResult<SellerGroupExtrasResponse>> getExtras({int? groupId}) async {
+  Future<ApiResult<SellerGroupExtrasResponse>> getExtras({
+    required String groupId,
+  }) async {
     try {
       final client = dioHttp.client(requireAuth: true);
       final response = await client.get(
@@ -229,7 +231,7 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
 
   @override
   Future<ApiResult<SingleSellerExtrasGroupResponse>> updateExtrasGroup({
-    required int groupId,
+    required String groupId,
     required Map<String, dynamic> group,
   }) =>
       _postGroup('$_base.update_seller_extra_group', {
@@ -238,7 +240,7 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
       });
 
   @override
-  Future<ApiResult<void>> deleteExtrasGroup({int? groupId}) async {
+  Future<ApiResult<void>> deleteExtrasGroup({required String groupId}) async {
     try {
       final client = dioHttp.client(requireAuth: true);
       await client.post(
@@ -260,7 +262,7 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
 
   @override
   Future<ApiResult<CreateSellerExtrasResponse>> updateExtrasItem({
-    required int extrasId,
+    required String extrasId,
     required Map<String, dynamic> item,
   }) =>
       _postExtrasValue('$_base.update_seller_extra_value', {
@@ -269,7 +271,9 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
       });
 
   @override
-  Future<ApiResult<void>> deleteExtrasItem({required List<int> ids}) async {
+  Future<ApiResult<void>> deleteExtrasItem({
+    required List<String> ids,
+  }) async {
     try {
       final client = dioHttp.client(requireAuth: true);
       await client.post('$_base.delete_extras_value', data: {'ids': ids});

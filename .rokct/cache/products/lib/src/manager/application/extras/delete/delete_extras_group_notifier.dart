@@ -34,8 +34,13 @@ class DeleteExtrasGroupNotifier extends StateNotifier<DeleteExtrasGroupState> {
 
   Future<void> deleteExtrasGroup({
     VoidCallback? success,
-    int? groupId,
+    String? groupId,
   }) async {
+    // Group ids are Product Extra Group docnames (hash strings).
+    if (groupId == null) {
+      debugPrint('===> delete extras group skipped: no group id');
+      return;
+    }
     state = state.copyWith(isLoading: true);
     final response = await _repository.deleteExtrasGroup(groupId: groupId);
     response.when(

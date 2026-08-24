@@ -32,11 +32,11 @@ import 'package:products_sdk/src/common/infrastructure/models/data/seller_catego
 /// boundary is the type system, not UI visibility.
 class SellerProductData {
   SellerProductData({
-    int? id,
+    String? id,
     int? cartCount,
     String? uuid,
-    int? shopId,
-    int? categoryId,
+    String? shopId,
+    String? categoryId,
     num? tax,
     num? cost,
     num? interval,
@@ -57,7 +57,7 @@ class SellerProductData {
     List<SellerGallery>? galleries,
     SellerStock? stock,
     SellerProductKitchen? kitchen,
-    int? unitId,
+    String? unitId,
     List<SellerProductDiscount>? discounts,
     bool? isSelectedAddon,
   }) {
@@ -92,11 +92,11 @@ class SellerProductData {
   }
 
   SellerProductData.fromJson(dynamic json) {
-    _id = json['id'];
+    _id = (json['id'] ?? json['name'])?.toString();
     _cartCount = 0;
     _uuid = json['uuid'];
-    _shopId = json['shop_id'];
-    _categoryId = int.tryParse(json['category_id'].toString());
+    _shopId = json['shop_id']?.toString();
+    _categoryId = json['category_id']?.toString();
 
     // FIXED: Read tax from product level first (this is where user input is stored)
     if (json['tax'] != null) {
@@ -167,7 +167,7 @@ class SellerProductData {
       });
     }
 
-    _unitId = json['unit_id'];
+    _unitId = json['unit_id']?.toString();
 
     if (json['discounts'] != null) {
       _discounts = [];
@@ -186,12 +186,12 @@ class SellerProductData {
     _isSelectedAddon = false;
   }
 
-  int? _id;
+  String? _id;
   List<SellerGallery>? _galleries;
   int? _cartCount;
   String? _uuid;
-  int? _shopId;
-  int? _categoryId;
+  String? _shopId;
+  String? _categoryId;
   num? _tax;
   num? _cost;
   num? _interval;
@@ -211,17 +211,17 @@ class SellerProductData {
   List<SellerStock>? _stocks;
   SellerStock? _stock;
   SellerProductKitchen? _kitchen;
-  int? _unitId;
+  String? _unitId;
   List<SellerProductDiscount>? _discounts;
   bool? _isSelectedAddon;
 
   SellerProductData copyWith({
-    int? id,
+    String? id,
     int? cartCount,
     List<SellerGallery>? galleries,
     String? uuid,
-    int? shopId,
-    int? categoryId,
+    String? shopId,
+    String? categoryId,
     num? tax,
     num? cost,
     num? interval,
@@ -240,7 +240,7 @@ class SellerProductData {
     List<SellerStock>? stocks,
     List<Translation>? translations,
     SellerStock? stock,
-    int? unitId,
+    String? unitId,
     List<SellerProductDiscount>? discounts,
     bool? isSelectedAddon,
     SellerProductKitchen? kitchen,
@@ -295,13 +295,13 @@ class SellerProductData {
     return tax?.toString() ?? '';
   }
 
-  int? get id => _id;
+  String? get id => _id;
   int? get cartCount => _cartCount;
   String? get uuid => _uuid;
-  int? get shopId => _shopId;
+  String? get shopId => _shopId;
   List<SellerGallery>? get galleries => _galleries;
   List<Translation>? get translations => _translations;
-  int? get categoryId => _categoryId;
+  String? get categoryId => _categoryId;
   num? get tax => _tax;
 
   /// Manager-only cost price (the doctype's `cost` field). Only token-gated
@@ -326,7 +326,7 @@ class SellerProductData {
   SellerProductKitchen? get kitchen => _kitchen;
   List<SellerStock>? get stocks => _stocks;
   SellerStock? get stock => _stock;
-  int? get unitId => _unitId;
+  String? get unitId => _unitId;
   List<SellerProductDiscount>? get discounts => _discounts;
   bool? get isSelectedAddon => _isSelectedAddon;
 
@@ -369,8 +369,8 @@ class SellerProductData {
 
 class SellerProductDiscount {
   SellerProductDiscount({
-    int? id,
-    int? shopId,
+    String? id,
+    String? shopId,
     String? type,
     num? price,
     String? start,
@@ -391,8 +391,8 @@ class SellerProductDiscount {
   }
 
   SellerProductDiscount.fromJson(dynamic json) {
-    _id = json['id'];
-    _shopId = json['shop_id'];
+    _id = (json['id'] ?? json['name'])?.toString();
+    _shopId = json['shop_id']?.toString();
     _type = json['type'];
     _price = json['price'];
     _start = json['start'];
@@ -402,8 +402,8 @@ class SellerProductDiscount {
     _pivot = json['pivot'] != null ? SellerProductPivot.fromJson(json['pivot']) : null;
   }
 
-  int? _id;
-  int? _shopId;
+  String? _id;
+  String? _shopId;
   String? _type;
   num? _price;
   String? _start;
@@ -413,8 +413,8 @@ class SellerProductDiscount {
   SellerProductPivot? _pivot;
 
   SellerProductDiscount copyWith({
-    int? id,
-    int? shopId,
+    String? id,
+    String? shopId,
     String? type,
     num? price,
     String? start,
@@ -435,8 +435,8 @@ class SellerProductDiscount {
         pivot: pivot ?? _pivot,
       );
 
-  int? get id => _id;
-  int? get shopId => _shopId;
+  String? get id => _id;
+  String? get shopId => _shopId;
   String? get type => _type;
   num? get price => _price;
   String? get start => _start;
@@ -463,26 +463,26 @@ class SellerProductDiscount {
 }
 
 class SellerProductPivot {
-  SellerProductPivot({int? productId, int? discountId}) {
+  SellerProductPivot({String? productId, String? discountId}) {
     _productId = productId;
     _discountId = discountId;
   }
 
   SellerProductPivot.fromJson(dynamic json) {
-    _productId = json['product_id'];
-    _discountId = json['discount_id'];
+    _productId = json['product_id']?.toString();
+    _discountId = json['discount_id']?.toString();
   }
 
-  int? _productId;
-  int? _discountId;
+  String? _productId;
+  String? _discountId;
 
-  SellerProductPivot copyWith({int? productId, int? discountId}) => SellerProductPivot(
+  SellerProductPivot copyWith({String? productId, String? discountId}) => SellerProductPivot(
     productId: productId ?? _productId,
     discountId: discountId ?? _discountId,
   );
 
-  int? get productId => _productId;
-  int? get discountId => _discountId;
+  String? get productId => _productId;
+  String? get discountId => _discountId;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -501,12 +501,12 @@ class SellerProductPivot {
 class SellerProductKitchen {
   SellerProductKitchen({this.id, this.title});
 
-  final int? id;
+  final String? id;
   final String? title;
 
   factory SellerProductKitchen.fromJson(Map<String, dynamic> json) =>
       SellerProductKitchen(
-        id: json['id'],
+        id: (json['id'] ?? json['name'])?.toString(),
         title: json['translation'] == null
             ? json['title'] as String?
             : json['translation']['title'] as String?,

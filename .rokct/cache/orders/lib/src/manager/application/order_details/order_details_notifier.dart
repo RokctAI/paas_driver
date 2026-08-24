@@ -38,10 +38,18 @@ class OrderDetailsNotifier extends StateNotifier<OrderDetailsState> {
     required OrderStatus status,
     VoidCallback? success,
   }) async {
+    // Order docnames are Frappe hash strings; a missing id means the row
+    // never carried one, so abort instead of sending a sentinel the backend
+    // would silently no-op on.
+    final String? orderId = state.order?.id;
+    if (orderId == null) {
+      debugPrint('===> update order status skipped: order has no id');
+      return;
+    }
     state = state.copyWith(isUpdating: true);
     final response = await _ordersRepository.updateOrderStatus(
       status: status,
-      orderId: state.order?.id,
+      orderId: orderId,
     );
     response.when(
       success: (data) {
@@ -70,9 +78,14 @@ class OrderDetailsNotifier extends StateNotifier<OrderDetailsState> {
   }
 
   Future<void> fetchOrderDetails({OrderData? order}) async {
+    final String? orderId = order?.id;
+    if (orderId == null) {
+      debugPrint('===> fetch order details skipped: order has no id');
+      return;
+    }
     state = state.copyWith(isLoading: true, order: order);
     final response =
-        await _ordersRepository.getOrderDetails(orderId: order?.id);
+        await _ordersRepository.getOrderDetails(orderId: orderId);
     response.when(
       success: (data) {
         state = state.copyWith(isLoading: false, order: data.data);

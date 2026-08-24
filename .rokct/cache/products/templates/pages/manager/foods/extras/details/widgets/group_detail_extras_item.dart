@@ -61,8 +61,9 @@ class GroupDetailExtrasItem extends StatelessWidget {
                 letterSpacing: -0.3,
               ),
             ),
+            // Shop ids are shop_name docname strings, never ints.
             if (extras.group?.shopId ==
-                (LocalStorage.getShopJson()?['id'] as int?))
+                LocalStorage.getShopJson()?['id']?.toString())
               Row(
                 children: [
                   ButtonsBouncingEffect(

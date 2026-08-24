@@ -58,7 +58,7 @@ class NotificationData {
     this.active,
   });
 
-  int? id;
+  String? id;
   String? type;
   bool? active;
   DateTime? createdAt;
@@ -67,7 +67,7 @@ class NotificationData {
 
   factory NotificationData.fromJson(Map<String, dynamic> json) =>
       NotificationData(
-        id: json["id"],
+        id: (json["id"] ?? json["name"])?.toString(),
         type: json["type"],
         createdAt: DateTime.tryParse(json["created_at"])?.toLocal(),
         updatedAt: DateTime.tryParse(json["updated_at"])?.toLocal(),

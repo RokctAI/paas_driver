@@ -144,19 +144,15 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
                                       null) {
                                     // The installed modal is typed on
                                     // orders_sdk's manager OrderData and
-                                    // refetches details by id, so only the
-                                    // id needs to cross the model seam
-                                    // (base's NotificationModel carries it
-                                    // as String, the SDK model as int).
+                                    // refetches details by id; both models
+                                    // now carry the Order docname as String,
+                                    // so the id passes straight through.
                                     AppHelpers.showCustomModalBottomSheet(
                                         context: context,
                                         modal: OrderDetailsModal(
                                             order: sdk.OrderData(
-                                                id: int.tryParse(state
-                                                        .notifications[index]
-                                                        .orderData
-                                                        ?.id ??
-                                                    ''))),
+                                                id: state.notifications[index]
+                                                    .orderData?.id)),
                                         isDarkMode: false);
                                   }
                                 } else if (state

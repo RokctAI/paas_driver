@@ -86,7 +86,7 @@ class EditFoodDetailsNotifier extends StateNotifier<EditFoodDetailsState> {
 
   Future<void> updateProduct({
     SellerUnitData? unit,
-    int? kitchenId,
+    String? kitchenId,
     SellerCategoryData? category,
     Function(SellerProductData?)? updated,
     VoidCallback? failed,

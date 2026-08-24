@@ -129,7 +129,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           }
           if (message.data["type"] == "new_order") {
             final res = await orderRepository.showOrders(
-              int.tryParse(message.data["id"].toString()) ?? 0,
+              message.data["id"].toString(),
             );
             res.map(
               success: (s) {
@@ -139,7 +139,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             );
           } else if (message.data["type"] == "deliveryman") {
             final res = await orderRepository.showOrders(
-              int.tryParse(message.data["id"].toString()) ?? 0,
+              message.data["id"].toString(),
             );
             res.map(
               success: (s) {
@@ -156,7 +156,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
           if (message.data["type"] == "new_order") {
             final res = await orderRepository.showOrders(
-              int.tryParse(message.data["id"].toString()) ?? 0,
+              message.data["id"].toString(),
             );
             res.map(
               success: (s) {
@@ -166,7 +166,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             );
           } else if (message.data["type"] == "deliveryman") {
             final res = await orderRepository.showOrders(
-              int.tryParse(message.data["id"].toString()) ?? 0,
+              message.data["id"].toString(),
             );
             res.map(
               success: (s) {
@@ -277,7 +277,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         .read(homeProvider.notifier)
         .goMarket(
           context: context,
-          orderId: (push?.id ?? 0).toString(),
+          orderId: push?.id,
           order: push,
           onSuccess: () async {
             ref

@@ -40,7 +40,7 @@ import 'package:orders_sdk/src/manager/application/order/shipping/table/table_pr
 
 @RoutePage(name: 'ManagerSelectTableRoute')
 class SelectTablePage extends ConsumerStatefulWidget {
-  final int? sectionId;
+  final String? sectionId;
   const SelectTablePage( {super.key,required this.sectionId,});
 
   @override

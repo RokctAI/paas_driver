@@ -55,7 +55,10 @@ class SettingNotifier extends StateNotifier<SettingState> {
             success: (d) {
               for (int i = 0; i < data.data!.length; i++) {
                 d.data?.notifications?.forEach((element) {
-                  if (data.data?[i].id == element.id) {
+                  // Notification settings are keyed by their `type` (the
+                  // settings endpoint emits no usable id).
+                  if (data.data?[i].type != null &&
+                      data.data?[i].type == element.type) {
                     updateData(context, i, element.active ?? false);
                   }
                 });

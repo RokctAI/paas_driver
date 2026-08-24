@@ -120,7 +120,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
   Future<void> readOne(
     BuildContext context, {
-    int? id,
+    String? id,
     required int index,
   }) async {
     List<NotificationModel> notif = List.from(state.notifications);

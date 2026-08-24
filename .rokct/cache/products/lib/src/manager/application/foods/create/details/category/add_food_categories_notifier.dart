@@ -142,7 +142,14 @@ class AddFoodCategoriesNotifier extends StateNotifier<AddFoodCategoriesState> {
   }
 
   Future<void> deleteCategories(SellerCategoryData category) async {
-    final res = await _repository.deleteCategory(id: category.id);
+    // Categories are keyed by uuid (docname as fallback); never send a
+    // sentinel — a missing key means the row cannot be deleted remotely.
+    final String? key = category.uuid ?? category.id;
+    if (key == null) {
+      debugPrint('==> delete category skipped: category has no uuid/id');
+      return;
+    }
+    final res = await _repository.deleteCategory(id: key);
     res.when(
       success: (success) {
         final List<SellerCategoryData> list = List.from(state.categories)

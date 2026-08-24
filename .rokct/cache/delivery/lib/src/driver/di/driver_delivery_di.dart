@@ -20,6 +20,7 @@
 
 import 'package:get_it/get_it.dart';
 
+import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/domain/interface/draw.dart';
 import 'package:base_sdk/src/domain/interface/gallery.dart';
 import 'package:base_sdk/src/domain/interface/user.dart';
@@ -30,6 +31,10 @@ import 'package:delivery_sdk/src/driver/domain/interface/orders.dart';
 import 'package:delivery_sdk/src/driver/domain/interface/parcel.dart';
 import 'package:delivery_sdk/src/driver/domain/interface/route.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/repositories/courier_repository.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_courier_orders_repository.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_courier_parcel_repository.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_courier_repository.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_courier_route_repository.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/repositories/orders_repository.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/repositories/parcel_repository.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/repositories/route_repository.dart';
@@ -48,22 +53,31 @@ class DriverDeliveryDependencies {
     if (!getIt.isRegistered<HttpService>()) {
       getIt.registerSingleton<HttpService>(HttpService());
     }
+    // Demo mode (--dart-define=IS_DEMO=true) swaps every courier facade for
+    // its Demo* twin serving DemoDeliverySeed data offline — the same
+    // isDemo split auth_sdk's MockAuthRepository and lms_sdk's
+    // DemoLmsRepository use. Zero behavior change when IS_DEMO is off, and
+    // a host may still pre-register its own implementations before this
+    // runs (idempotent guards below).
+    final bool isDemo = AppConstants.isDemo;
     if (!getIt.isRegistered<CourierOrdersRepositoryFacade>()) {
       getIt.registerSingleton<CourierOrdersRepositoryFacade>(
-        CourierOrdersRepository(),
+        isDemo ? DemoCourierOrdersRepository() : CourierOrdersRepository(),
       );
     }
     if (!getIt.isRegistered<CourierParcelRepositoryFacade>()) {
       getIt.registerSingleton<CourierParcelRepositoryFacade>(
-        CourierParcelRepository(),
+        isDemo ? DemoCourierParcelRepository() : CourierParcelRepository(),
       );
     }
     if (!getIt.isRegistered<CourierRepositoryFacade>()) {
-      getIt.registerSingleton<CourierRepositoryFacade>(CourierRepository());
+      getIt.registerSingleton<CourierRepositoryFacade>(
+        isDemo ? DemoCourierRepository() : CourierRepository(),
+      );
     }
     if (!getIt.isRegistered<CourierRouteRepositoryFacade>()) {
       getIt.registerSingleton<CourierRouteRepositoryFacade>(
-        CourierRouteRepository(),
+        isDemo ? DemoCourierRouteRepository() : CourierRouteRepository(),
       );
     }
     // Pre-warm the synchronous CourierStorage.getOnline() read; fire and

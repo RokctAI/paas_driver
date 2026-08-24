@@ -18,7 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 library base_sdk;
 
 // Shared kernel for all RokctAI feature SDKs. This barrel carries the
@@ -77,6 +76,7 @@ export 'src/presentation/components/floating_nav/floating_bottom_nav.dart';
 export 'src/services/app_connectivity.dart';
 export 'src/services/app_ui_keys.dart';
 export 'src/services/customer_cart_store.dart';
+export 'src/services/error_presenter.dart';
 export 'src/services/telemetry.dart';
 export 'src/services/timing_telemetry.dart';
 export 'src/services/app_helpers.dart';

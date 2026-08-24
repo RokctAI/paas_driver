@@ -22,54 +22,79 @@
 // excluded_product_ids.dart
 
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flutter/foundation.dart';
 
 List<int> excludedProductIds = [];
 List<int> excludedCategoryIds = [];
 
+// firebase_remote_config has no Windows/Linux implementation — on desktop
+// Firebase is (correctly) never initialized, so FirebaseRemoteConfig.instance
+// throws [core/no-app]. Same platform guard + fail-open idiom as comms'
+// firebase boot hook: off the Firebase platforms both initializers keep the
+// compiled-in defaults (empty exclusion lists) instead of throwing.
+
 Future<void> initializeExcludedProductIds() async {
-  final remoteConfig = FirebaseRemoteConfig.instance;
+  if (!kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.macOS)) {
+    try {
+      final remoteConfig = FirebaseRemoteConfig.instance;
 
-  // Set the default value for excludedProductIds
-  await remoteConfig.setDefaults(<String, dynamic>{
-    'excludedProductIds': '', // Default value is an empty string
-  });
+      // Set the default value for excludedProductIds
+      await remoteConfig.setDefaults(<String, dynamic>{
+        'excludedProductIds': '', // Default value is an empty string
+      });
 
-  // Fetch the latest value for excludedProductIds
-  await remoteConfig.fetchAndActivate();
+      // Fetch the latest value for excludedProductIds
+      await remoteConfig.fetchAndActivate();
 
-  // Update excludedProductIds with the fetched value from Remote Config
-  final excludedProductIdsFromRemoteConfig = remoteConfig
-      .getString('excludedProductIds')
-      .split(',')
-      .map((id) => int.tryParse(id.trim()))
-      .where((id) => id != null)
-      .cast<int>()
-      .toList();
+      // Update excludedProductIds with the fetched value from Remote Config
+      final excludedProductIdsFromRemoteConfig = remoteConfig
+          .getString('excludedProductIds')
+          .split(',')
+          .map((id) => int.tryParse(id.trim()))
+          .where((id) => id != null)
+          .cast<int>()
+          .toList();
 
-  excludedProductIds = excludedProductIdsFromRemoteConfig;
-  // print('Excluded Product IDs: $excludedProductIds');
+      excludedProductIds = excludedProductIdsFromRemoteConfig;
+      // print('Excluded Product IDs: $excludedProductIds');
+    } catch (e) {
+      debugPrint('==> excluded product ids remote config skipped: $e');
+    }
+  }
 }
 
 Future<void> initializeExcludedCategoryIds() async {
-  final remoteConfig = FirebaseRemoteConfig.instance;
+  if (!kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.macOS)) {
+    try {
+      final remoteConfig = FirebaseRemoteConfig.instance;
 
-  // Set the default value for excludedCategoryIds
-  await remoteConfig.setDefaults(<String, dynamic>{
-    'excludedCategoryIds': '', // Default value is an empty string
-  });
+      // Set the default value for excludedCategoryIds
+      await remoteConfig.setDefaults(<String, dynamic>{
+        'excludedCategoryIds': '', // Default value is an empty string
+      });
 
-  // Fetch the latest value for excludedCategoryIds
-  await remoteConfig.fetchAndActivate();
+      // Fetch the latest value for excludedCategoryIds
+      await remoteConfig.fetchAndActivate();
 
-  // Update excludedCategoryIds with the fetched value from Remote Config
-  final excludedCategoryIdsFromRemoteConfig = remoteConfig
-      .getString('excludedCategoryIds')
-      .split(',')
-      .map((id) => int.tryParse(id.trim()))
-      .where((id) => id != null)
-      .cast<int>()
-      .toList();
+      // Update excludedCategoryIds with the fetched value from Remote Config
+      final excludedCategoryIdsFromRemoteConfig = remoteConfig
+          .getString('excludedCategoryIds')
+          .split(',')
+          .map((id) => int.tryParse(id.trim()))
+          .where((id) => id != null)
+          .cast<int>()
+          .toList();
 
-  excludedCategoryIds = excludedCategoryIdsFromRemoteConfig;
-  // print('Excluded Category IDs: $excludedCategoryIds');
+      excludedCategoryIds = excludedCategoryIdsFromRemoteConfig;
+      // print('Excluded Category IDs: $excludedCategoryIds');
+    } catch (e) {
+      debugPrint('==> excluded category ids remote config skipped: $e');
+    }
+  }
 }

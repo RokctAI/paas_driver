@@ -37,11 +37,17 @@ class UpdateExtrasGroupNotifier extends StateNotifier<UpdateExtrasGroupState> {
 
   Future<void> updateExtrasGroup({
     VoidCallback? success,
-    int? groupId,
+    String? groupId,
   }) async {
+    // Group ids are Product Extra Group docnames (hash strings); abort
+    // instead of sending a sentinel the backend would no-op on.
+    if (groupId == null) {
+      debugPrint('===> update extras group skipped: no group id');
+      return;
+    }
     state = state.copyWith(isLoading: true);
     final response = await _repository.updateExtrasGroup(
-      groupId: groupId ?? 0,
+      groupId: groupId,
       group: {
         'title': {LocalStorage.getLanguage()?.locale ?? 'en': _title},
         'type': 'text',

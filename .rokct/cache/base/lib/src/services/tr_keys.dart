@@ -30,6 +30,7 @@ class TrKeys {
   static const String availableParcels = 'available_parcels';
   static const String canceled = 'canceled';
   static const String cashToCollect = 'cash.to.collect';
+  static const String checkRecipientId18Plus = 'check.recipient.id.18.plus';
   static const String deliveryRoute = 'delivery.route';
   static const String myRoute = 'my.route';
   static const String noLocationForStop = 'no.location.for.stop';
@@ -46,6 +47,7 @@ class TrKeys {
   static const String evaluation = 'evaluation';
   static const String firstnameCannotBeEmpty = 'firstname_cannot_be_empty';
   static const String howMuchCashReceived = 'how.much.cash.received';
+  static const String idRequired18Plus = 'id.required.18.plus';
   static const String iDeliveredTheOrder = 'delivered_the_order';
   static const String inActive = 'in_active';
   static const String lastProfit = 'last.profit';

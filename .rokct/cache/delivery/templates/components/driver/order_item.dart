@@ -59,6 +59,41 @@ class OrderItem extends StatelessWidget {
     return Column(
       children: [
         _orderAvatar(context),
+        // 18+ order: the courier must check the recipient's ID at the
+        // door. Surfaced up front - this component renders on the order
+        // card AND in the delivery bottom sheet - so the courier knows
+        // an ID check is required BEFORE arriving at the customer.
+        if (order.containsAdultItems ?? false) ...[
+          16.verticalSpace,
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(16.r),
+            decoration: BoxDecoration(
+              color: AppStyle.white,
+              borderRadius: BorderRadius.circular(10.r),
+              border: Border.all(color: AppStyle.red),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Remix.error_warning_fill,
+                  size: 20.sp,
+                  color: AppStyle.red,
+                ),
+                10.horizontalSpace,
+                Expanded(
+                  child: Text(
+                    AppHelpers.getTranslation(TrKeys.idRequired18Plus),
+                    style: AppStyle.interBold(
+                      size: 14.sp,
+                      color: AppStyle.red,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         16.verticalSpace,
         Container(
           decoration: BoxDecoration(
@@ -491,10 +526,10 @@ class OrderItem extends StatelessWidget {
                         isOrder: true,
                         isOnline: order.current ?? false,
                         onChange: (bool value) {
-                          if (value) {
+                          if (value && order.id != null) {
                             ref.read(orderProvider.notifier).setCurrentOrder(
                               context,
-                              order.id ?? 0,
+                              order.id!,
                               () {
                                 ref
                                     .read(homeProvider.notifier)

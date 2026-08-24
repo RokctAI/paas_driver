@@ -57,11 +57,16 @@ abstract class SellerOrdersRepositoryFacade {
     String? to,
   });
 
-  Future<ApiResult<SingleOrderResponse>> getOrderDetails({int? orderId});
+  /// [orderId] is the Order docname (Frappe hash string, e.g. `a1b2c3d4e5`)
+  /// — never a numeric id; callers must abort (with a debug log) instead of
+  /// passing a sentinel when no id is available.
+  Future<ApiResult<SingleOrderResponse>> getOrderDetails({
+    required String orderId,
+  });
 
   Future<ApiResult<OrderStatusResponse>> updateOrderStatus({
     required OrderStatus status,
-    int? orderId,
+    required String orderId,
   });
 
   /// [paymentId] rides along for the local-first path only: an order queued
@@ -76,15 +81,15 @@ abstract class SellerOrdersRepositoryFacade {
     UserData? user,
     LocationModel? location,
     String? entrance,
-    int? tableId,
+    String? tableId,
     String? floor,
     String? house,
-    int? paymentId,
+    String? paymentId,
   });
 
   Future<ApiResult<TransactionsResponse>> createTransaction({
-    required int orderId,
-    required int paymentId,
+    required String orderId,
+    required String paymentId,
   });
 
   Future<ApiResult<PaymentsResponse>> getPayments();

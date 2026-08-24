@@ -170,9 +170,15 @@ class EditFoodStocksNotifier extends StateNotifier<EditFoodStocksState> {
       );
       return;
     }
+    // Group ids are Product Extra Group docnames (hash strings).
+    final String? groupId = state.groups[groupIndex].id;
+    if (groupId == null) {
+      debugPrint('===> fetch group extras skipped: group has no id');
+      return;
+    }
     state = state.copyWith(isLoading: true);
     final response = await _repository.getExtras(
-      groupId: state.groups[groupIndex].id,
+      groupId: groupId,
     );
     response.when(
       success: (data) {
@@ -207,8 +213,11 @@ class EditFoodStocksNotifier extends StateNotifier<EditFoodStocksState> {
   }
 
   void deleteStock(int index) {
-    final List<int> list = List.from(state.deleteStocks)
-      ..add(_localStocks[index].id ?? 0);
+    // Stock ids are Frappe docnames (hash strings). A stock without one
+    // never existed server-side, so there is nothing to delete remotely.
+    final String? stockId = _localStocks[index].id;
+    final List<String> list = List.from(state.deleteStocks);
+    if (stockId != null && stockId != '-1') list.add(stockId);
     _localStocks.removeAt(index);
     state = state.copyWith(stocks: _localStocks, deleteStocks: list);
   }

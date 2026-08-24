@@ -96,7 +96,7 @@ class CourierParcelRepository implements CourierParcelRepositoryFacade {
   }
 
   @override
-  Future<ApiResult<ParcelOrder>> showParcel(int id) async {
+  Future<ApiResult<ParcelOrder>> showParcel(String id) async {
     final data = {
       'currency_id': LocalStorage.getSelectedCurrency()?.id,
       'lang': LocalStorage.getLanguage()?.locale ?? 'en',
@@ -149,7 +149,7 @@ class CourierParcelRepository implements CourierParcelRepositoryFacade {
   }
 
   @override
-  Future<ApiResult<dynamic>> setCurrentOrder(int? orderId) async {
+  Future<ApiResult<dynamic>> setCurrentOrder(String? orderId) async {
     try {
       // Repointed from the dead legacy
       // `/api/v1/dashboard/deliveryman/parcel-orders/{id}/current` path
@@ -173,7 +173,8 @@ class CourierParcelRepository implements CourierParcelRepositoryFacade {
   }
 
   @override
-  Future<ApiResult<dynamic>> updateParcel(int? parcelId, String? status) async {
+  Future<ApiResult<dynamic>> updateParcel(
+      String? parcelId, String? status) async {
     try {
       // Rewired from the dead legacy
       // `/api/v1/dashboard/deliveryman/parcel-orders/{id}/status/update`
@@ -197,7 +198,7 @@ class CourierParcelRepository implements CourierParcelRepositoryFacade {
 
   @override
   Future<ApiResult<dynamic>> confirmParcelCodCollection(
-      int? parcelId, num amountReceived) async {
+      String? parcelId, num amountReceived) async {
     try {
       // FrappeResponseInterceptor already unwraps the top-level `message`
       // key, so the gateway answer is the endpoint's payload itself.
@@ -216,7 +217,7 @@ class CourierParcelRepository implements CourierParcelRepositoryFacade {
 
   @override
   Future<ApiResult<void>> addReviewParcel(
-    num orderId, {
+    String orderId, {
     required double rating,
     required String comment,
   }) async {

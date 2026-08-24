@@ -164,9 +164,15 @@ class CreateFoodStocksNotifier extends StateNotifier<CreateFoodStocksState> {
       );
       return;
     }
+    // Group ids are Product Extra Group docnames (hash strings).
+    final String? groupId = state.groups[groupIndex].id;
+    if (groupId == null) {
+      debugPrint('===> fetch group extras skipped: group has no id');
+      return;
+    }
     state = state.copyWith(isLoading: true);
     final response = await _repository.getExtras(
-      groupId: state.groups[groupIndex].id,
+      groupId: groupId,
     );
     response.when(
       success: (data) {

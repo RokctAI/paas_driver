@@ -37,10 +37,19 @@ class CreateNewGroupItemNotifier
 
   String _title = '';
 
-  Future<void> createExtrasItem({VoidCallback? success, int? groupId}) async {
+  Future<void> createExtrasItem({
+    VoidCallback? success,
+    String? groupId,
+  }) async {
+    // Group ids are Product Extra Group docnames (hash strings); abort
+    // instead of sending a sentinel the backend would no-op on.
+    if (groupId == null) {
+      debugPrint('===> create extras item skipped: no group id');
+      return;
+    }
     state = state.copyWith(isLoading: true);
     final response = await _repository.createExtrasItem(
-      item: {'value': _title, 'extra_group_id': groupId ?? 0},
+      item: {'value': _title, 'extra_group_id': groupId},
     );
     response.when(
       success: (data) {

@@ -41,7 +41,7 @@ class EditFoodStocksState {
   final bool isFetchingGroups;
 
   /// Ids of stocks removed locally, sent as `delete_ids` on save.
-  final List<int> deleteStocks;
+  final List<String> deleteStocks;
   final List<SellerExtrasGroup> groups;
   final List<SellerStock> stocks;
   final List<SellerExtras> activeGroupExtras;
@@ -56,7 +56,7 @@ class EditFoodStocksState {
     bool? isLoading,
     bool? isSaving,
     bool? isFetchingGroups,
-    List<int>? deleteStocks,
+    List<String>? deleteStocks,
     List<SellerExtrasGroup>? groups,
     List<SellerStock>? stocks,
     List<SellerExtras>? activeGroupExtras,

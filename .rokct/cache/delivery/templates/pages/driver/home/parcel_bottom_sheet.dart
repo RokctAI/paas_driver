@@ -50,7 +50,7 @@ class ParcelBottomSheetScreen extends StatelessWidget {
   void _finishParcelDelivery(BuildContext context, WidgetRef ref) {
     ref.read(homeProvider.notifier).deliveredFinishParcel(
           context: context,
-          parcelId: int.tryParse(parcel?.id ?? ''),
+          parcelId: parcel?.id,
         );
     AppHelpers.showCustomModalBottomSheet(
       context: context,
@@ -117,7 +117,7 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                           .read(homeProvider.notifier)
                           .confirmParcelCodCollection(
                             context: context,
-                            parcelId: int.tryParse(parcel?.id ?? ''),
+                            parcelId: parcel?.id,
                             amountReceived:
                                 double.parse(amountCon.text.trim()),
                             onSuccess: () {

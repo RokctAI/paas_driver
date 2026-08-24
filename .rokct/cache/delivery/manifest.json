@@ -1,6 +1,6 @@
 {
   "name": "delivery_sdk",
-  "version": "1.8.2",
+  "version": "1.10.0",
   "home_sdk": true,
   "home_page": "templates/pages/driver/home/home_page.dart",
   "installs": [
@@ -278,6 +278,7 @@
         "availableParcels": "available_parcels",
         "canceled": "canceled",
         "cashToCollect": "cash.to.collect",
+        "checkRecipientId18Plus": "check.recipient.id.18.plus",
         "deliveryRoute": "delivery.route",
         "myRoute": "my.route",
         "noLocationForStop": "no.location.for.stop",
@@ -294,6 +295,7 @@
         "evaluation": "evaluation",
         "firstnameCannotBeEmpty": "firstname_cannot_be_empty",
         "howMuchCashReceived": "how.much.cash.received",
+        "idRequired18Plus": "id.required.18.plus",
         "iDeliveredTheOrder": "delivered_the_order",
         "juvoBenefit": "juvo_benefit",
         "inActive": "in_active",

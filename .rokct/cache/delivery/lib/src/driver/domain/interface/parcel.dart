@@ -21,10 +21,13 @@
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/models/data/parcel_order.dart';
 
+// Parcel order ids are Frappe Parcel Order docnames — strings (default
+// hash autoname), not ints; base_sdk's ParcelOrder.id is already a
+// String. Every parcel/order-id parameter below is a String.
 abstract class CourierParcelRepositoryFacade {
-  Future<ApiResult<ParcelOrder>> showParcel(int id);
+  Future<ApiResult<ParcelOrder>> showParcel(String id);
 
-  Future<ApiResult<dynamic>> setCurrentOrder(int? orderId);
+  Future<ApiResult<dynamic>> setCurrentOrder(String? orderId);
 
   Future<ApiResult<List<ParcelOrder>>> getActiveOrders(int page);
 
@@ -33,13 +36,13 @@ abstract class CourierParcelRepositoryFacade {
   Future<ApiResult<List<ParcelOrder>>> getHistoryOrders(int page,
       {DateTime? start, DateTime? end});
 
-  Future<ApiResult<dynamic>> updateParcel(int? parcelId, String? status);
+  Future<ApiResult<dynamic>> updateParcel(String? parcelId, String? status);
 
   Future<ApiResult<dynamic>> confirmParcelCodCollection(
-      int? parcelId, num amountReceived);
+      String? parcelId, num amountReceived);
 
   Future<ApiResult<void>> addReviewParcel(
-    num orderId, {
+    String orderId, {
     required double rating,
     required String comment,
   });

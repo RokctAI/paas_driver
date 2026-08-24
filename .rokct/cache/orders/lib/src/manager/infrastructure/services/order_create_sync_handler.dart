@@ -40,7 +40,7 @@ import 'manager_orders_local_store.dart';
 ///
 /// Payload contract (written by `SellerOrdersRepository.createOrder`):
 /// `{"localId": "offline:<uuid>", "order": {...create_order body...},
-/// "payment_id": <int?>}`. `dependsOn` carries the ops minting any temp
+/// "payment_id": <String?>}`. `dependsOn` carries the ops minting any temp
 /// entities the body references (offline shop / products), so by the time
 /// this handler runs the engine has rewritten those tokens to backend ids.
 class OrderCreateSyncHandler extends SyncHandler {
@@ -79,7 +79,7 @@ class OrderCreateSyncHandler extends SyncHandler {
     }
 
     final order = (payload['order'] as Map?)?.cast<String, dynamic>() ?? {};
-    _restoreNumericIds(order);
+    _restoreReferenceIds(order);
     try {
       final client = dioHttp.client(requireAuth: true);
       final response = await const PlatformGateway().call(
@@ -89,16 +89,15 @@ class OrderCreateSyncHandler extends SyncHandler {
         // does not double-create (backend dedupe per the Phase 0 contract).
         options: Options(headers: {'X-Idempotency-Key': op.id}),
       );
-      final int? backendId =
+      final String? backendId =
           CreateOrderResponse.fromJson(response).data?.id;
       await ManagerOrdersLocalStore.markSynced(
         localId,
-        backendId: backendId?.toString(),
+        backendId: backendId,
       );
       await _createTransaction(client, op.id, backendId, payload['payment_id']);
       return SyncResult.synced(
-        idMappings:
-            backendId == null ? const {} : {localId: backendId.toString()},
+        idMappings: backendId == null ? const {} : {localId: backendId},
         entityType: 'order',
       );
     } catch (e) {
@@ -116,19 +115,21 @@ class OrderCreateSyncHandler extends SyncHandler {
   }
 
   /// The engine's temp-id substitution replaces `offline:<uuid>` tokens with
-  /// backend ids as JSON *strings*; the create-order contract sends numeric
-  /// ids, so rewritten reference fields are parsed back to ints.
-  void _restoreNumericIds(Map<String, dynamic> order) {
-    int? asInt(dynamic v) => v is String ? int.tryParse(v) : null;
-    final shopId = asInt(order['shop_id']);
+  /// backend ids as JSON *strings* — which is exactly what the backend
+  /// expects: reference ids are Frappe docnames (hash strings), never
+  /// numeric. This normalizes any legacy numeric value to its string form
+  /// and otherwise passes the payload through untouched.
+  void _restoreReferenceIds(Map<String, dynamic> order) {
+    String? asId(dynamic v) => v?.toString();
+    final shopId = asId(order['shop_id']);
     if (shopId != null) order['shop_id'] = shopId;
-    final userId = asInt(order['user_id']);
+    final userId = asId(order['user_id']);
     if (userId != null) order['user_id'] = userId;
     final products = order['products'];
     if (products is List) {
       for (final product in products) {
         if (product is! Map) continue;
-        final stockId = asInt(product['stock_id']);
+        final stockId = asId(product['stock_id']);
         if (stockId != null) product['stock_id'] = stockId;
       }
     }
@@ -140,14 +141,18 @@ class OrderCreateSyncHandler extends SyncHandler {
   Future<void> _createTransaction(
     Dio client,
     String opId,
-    int? orderId,
+    String? orderId,
     dynamic paymentId,
   ) async {
-    if (orderId == null || paymentId is! int) return;
+    // Payment ids are Payment docname strings (legacy queued payloads may
+    // still carry ints; either way the wire value is its string form).
+    final String? paymentDocname =
+        (paymentId is String || paymentId is int) ? paymentId.toString() : null;
+    if (orderId == null || paymentDocname == null) return;
     try {
       await client.post(
         '/api/method/paas.api.payment.create_order_transaction',
-        data: {'order_id': orderId, 'payment_sys_id': paymentId},
+        data: {'order_id': orderId, 'payment_sys_id': paymentDocname},
         // Derived from the same op id as the order-create call but
         // distinct from it — the two creates must not share a key (the
         // server stores one response per key per endpoint).

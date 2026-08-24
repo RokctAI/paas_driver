@@ -23,7 +23,7 @@ import 'dart:convert';
 class PushModel {
   final String? shopImage;
   final String? shopName;
-  final int? orderId;
+  final String? orderId;
   final String? startTime;
   final String? customerImge;
   final AddressModel? addressName;
@@ -63,7 +63,11 @@ class PushModel {
     return PushModel(
       shopImage: jsonDecode(data["order"])["shop"]["logo_img"],
       shopName: jsonDecode(data["order"])["shop"]["translation"]["title"],
-      orderId: jsonDecode(data["order"])["id"],
+      // Order docnames are strings; prefer the always-present `name`,
+      // falling back to the legacy numeric `id` for older payloads.
+      orderId: (jsonDecode(data["order"])["name"] ??
+              jsonDecode(data["order"])["id"])
+          ?.toString(),
       startTime: jsonDecode(data["order"])["updated_at"],
       customerImge: jsonDecode(data["order"])["user"]["img"],
       addressName: AddressModel.fromJson(jsonDecode(data["order"])["address"]),
@@ -86,7 +90,9 @@ class PushModel {
     return PushModel(
       shopImage: jsonDecode(data["order"])["shop"]["logo_img"],
       shopName: jsonDecode(data["order"])["shop"]["translation"]["title"],
-      orderId: jsonDecode(data["order"])["id"],
+      orderId: (jsonDecode(data["order"])["name"] ??
+              jsonDecode(data["order"])["id"])
+          ?.toString(),
       startTime: jsonDecode(data["order"])["updated_at"],
       customerImge: jsonDecode(data["order"])["user"]["img"],
       addressName: AddressModel.fromJson(jsonDecode(data["order"])["address"]),

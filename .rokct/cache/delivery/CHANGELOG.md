@@ -1,3 +1,60 @@
+## 1.10.0
+
+* Driver order ids migrated int -> String (the fleet-wide docname
+  migration's last straggler; the customer path was already done).
+  Order docnames are Frappe default hash strings (the commerce Order
+  doctype has no autoname), so the driver flavor's `int? orderId`
+  surface could only ever address numerically-named orders:
+  * `OrderDetailData.id`, `Details.orderId` and `PushModel.orderId` are
+    now `String?`; `fromJson` prefers the always-present `name` key and
+    falls back to the legacy numeric `id` for older payloads.
+  * `CourierOrdersRepositoryFacade` / `CourierParcelRepositoryFacade`
+    and their HTTP + demo implementations now take String order/parcel
+    ids throughout (base_sdk's `ParcelOrder.id` was already a String —
+    the parcel templates were round-tripping it through `int.tryParse`,
+    which nulled out every hash docname).
+  * FIXED silent delivered no-op: `deliveredFinish` (and the parcel
+    twin) used to send `orderId ?? 0` — on a hash docname the serializer
+    emits `id: null`, so the driver marked the order delivered while the
+    backend updated nothing. A null id now aborts with a logged error
+    instead of sending 0, and the delivered status update's result is
+    checked, surfacing backend failures to the courier.
+  * Wire-compatible: the backend endpoints are untyped and
+    `serialize_deliveryman_order` already always emits `name` (its
+    numeric-only legacy `id` emission is kept for old builds) — no
+    frappe changes.
+  * Demo seed order ids became strings ("900001"), matching real
+    docnames end-to-end in demo mode.
+
+## 1.9.2
+
+* Driver ID verification for 18+ orders (`contains_adult_items`, the
+  additive flag the commerce module stamps on orders with adult
+  products):
+  * `OrderDetailData` gains `containsAdultItems` (backend key
+    `contains_adult_items`, absent-when-false, defaults to false), so
+    old payloads keep parsing unchanged.
+  * Upfront notice: the driver `OrderItem` component - rendered on the
+    order card and in the delivery bottom sheet - shows an
+    "ID required, recipient must be 18+" banner on flagged orders, so
+    the courier knows BEFORE arriving at the customer.
+  * Completion gate: every delivered path (plain, cash collection,
+    record-as-credit) now funnels through a required
+    "Check recipient's ID: 18 or older?" confirm dialog on flagged
+    orders (cash-collection dialog precedent); only on confirm does
+    `deliveredFinish` run, threading `recipient_age_verified: true`
+    through `updateOrder` into the gateway payload. Only the yes/no
+    confirmation travels - no ID image or document data is ever
+    captured or stored.
+  * Backend counterpart: map's `update_driver_order_status` accepts the
+    OPTIONAL `recipient_age_verified` param and refuses to complete a
+    flagged order without it (`AGE_VERIFICATION_REQUIRED`); delivery's
+    `serialize_deliveryman_order` emits the additive
+    `contains_adult_items` key (weather_notice absent-when-false
+    precedent). Old driver builds keep working for all non-adult orders;
+    flagged orders require a recomposed app - intended enforcement.
+  * New driver tr_keys: `idRequired18Plus`, `checkRecipientId18Plus`.
+
 ## 1.8.0
 
 * Courier home: severe-weather heads-up banner. The home bottom sheet

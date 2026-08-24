@@ -406,7 +406,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> fetchAdsById(BuildContext context, int bannerId) async {
+  Future<void> fetchAdsById(BuildContext context, String bannerId) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isBannerLoading: true);
@@ -427,7 +427,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> fetchBannerById(BuildContext context, int bannerId) async {
+  Future<void> fetchBannerById(BuildContext context, String bannerId) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isBannerLoading: true);

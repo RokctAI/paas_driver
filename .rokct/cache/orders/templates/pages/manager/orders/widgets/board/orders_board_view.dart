@@ -161,7 +161,7 @@ class _OrdersBoardViewState extends ConsumerState<OrdersBoardView> {
   }
 
   void _onAccept(OrderStatus target, BoardDragData data) {
-    final int? orderId = data.order.id;
+    final String? orderId = data.order.id;
     if (orderId == null) {
       return;
     }

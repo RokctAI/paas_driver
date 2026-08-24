@@ -33,7 +33,12 @@ class ExtrasGroupDetailsNotifier
 
   final SellerProductsRepositoryFacade _repository;
 
-  Future<void> fetchGroupExtras({int? groupId}) async {
+  Future<void> fetchGroupExtras({String? groupId}) async {
+    // Group ids are Product Extra Group docnames (hash strings).
+    if (groupId == null) {
+      debugPrint('===> fetch group extras skipped: no group id');
+      return;
+    }
     state = state.copyWith(isLoading: true);
     final response = await _repository.getExtras(groupId: groupId);
     response.when(

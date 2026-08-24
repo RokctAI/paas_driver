@@ -22,6 +22,7 @@
 // ignore_for_file: unused_result
 
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,12 +52,28 @@ class ChatPage extends ConsumerStatefulWidget {
 }
 
 class _ChatPageState extends ConsumerState<ChatPage> {
-  final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
+  // cloud_firestore has no Windows/Linux implementation — on desktop
+  // Firebase is (correctly) never initialized, so an eager
+  // FirebaseFirestore.instance field initializer throws [core/no-app] the
+  // moment the route mounts (a blank ErrorWidget in release builds). Same
+  // platform guard + fail-open idiom as comms' firebase boot hook: the
+  // field stays null there and build() renders the connection-error copy.
+  FirebaseFirestore? _fireStore;
   ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    if (!kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.macOS)) {
+      try {
+        _fireStore = FirebaseFirestore.instance;
+      } catch (e) {
+        debugPrint('==> chat page firestore skipped: $e');
+      }
+    }
     ref.refresh(chatProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(chatProvider.notifier).fetchChats(context, widget.roleId);
@@ -119,8 +136,21 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                 16.verticalSpace,
                 // Chat messages
                 Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: _fireStore
+                  child: _fireStore == null
+                      ? Center(
+                          child: Text(
+                            AppHelpers.getTranslation(
+                              TrKeys.errorWithConnectingToFirebase,
+                            ),
+                            textAlign: TextAlign.center,
+                            style: AppStyle.interNormal(
+                              size: 14,
+                              color: AppStyle.black,
+                            ),
+                          ),
+                        )
+                      : StreamBuilder<QuerySnapshot>(
+                    stream: _fireStore!
                         .collection('messages')
                         .where('chat_id', isEqualTo: state.chatId)
                         .snapshots(),

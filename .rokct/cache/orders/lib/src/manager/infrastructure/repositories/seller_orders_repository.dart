@@ -145,7 +145,9 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
   }
 
   @override
-  Future<ApiResult<SingleOrderResponse>> getOrderDetails({int? orderId}) async {
+  Future<ApiResult<SingleOrderResponse>> getOrderDetails({
+    required String orderId,
+  }) async {
     try {
       final client = dioHttp.client(requireAuth: true);
       final response = await client.get(
@@ -166,7 +168,7 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
   @override
   Future<ApiResult<OrderStatusResponse>> updateOrderStatus({
     required OrderStatus status,
-    int? orderId,
+    required String orderId,
   }) async {
     final data = {'order_id': orderId, 'status': _statusText(status)};
     debugPrint('===> update order status request ${jsonEncode(data)}');
@@ -193,10 +195,10 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
     UserData? user,
     LocationModel? location,
     String? entrance,
-    int? tableId,
+    String? tableId,
     String? floor,
     String? house,
-    int? paymentId,
+    String? paymentId,
   }) async {
     // Body shape is the legacy seller create-order contract, byte for byte —
     // the POS depends on it. The wrapping `order_data` argument matches
@@ -298,8 +300,8 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
 
   @override
   Future<ApiResult<TransactionsResponse>> createTransaction({
-    required int orderId,
-    required int paymentId,
+    required String orderId,
+    required String paymentId,
   }) async {
     // Frappe counterpart of POST /api/v1/payments/order/{id}/transactions:
     // pay-side wallet/frappe/src/api/payment/payment.py's

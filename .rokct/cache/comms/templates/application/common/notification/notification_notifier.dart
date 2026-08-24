@@ -127,7 +127,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
   }
 
   Future<void> readOne(BuildContext context,
-      {int? id, required int index}) async {
+      {String? id, required int index}) async {
     List<NotificationModel> notif = List.from(state.notifications);
     notif[index] = notif[index].copyWith(
       readAt: DateTime.now(),

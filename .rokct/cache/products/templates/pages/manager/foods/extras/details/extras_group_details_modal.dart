@@ -108,8 +108,9 @@ class _ExtrasGroupDetailsModalState
                 isDarkMode: true,
               ),
               suffixIcon:
+                  // Shop ids are shop_name docname strings, never ints.
                   widget.group.shopId ==
-                      (LocalStorage.getShopJson()?['id'] as int?)
+                      LocalStorage.getShopJson()?['id']?.toString()
                   ? GestureDetector(
                       onTap: () => AppHelpers.showCustomModalBottomSheet(
                         context: context,

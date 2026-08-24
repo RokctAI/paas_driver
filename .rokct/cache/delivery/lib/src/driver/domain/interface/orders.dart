@@ -23,10 +23,12 @@ import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_paginat
 
 import 'package:base_sdk/src/handlers/handlers.dart';
 
+// Order ids are Frappe Order docnames — strings (default hash autoname),
+// not ints. Every order-id parameter below is a String.
 abstract class CourierOrdersRepositoryFacade {
-  Future<ApiResult<OrderDetailModel>> showOrders(int id);
+  Future<ApiResult<OrderDetailModel>> showOrders(String id);
 
-  Future<ApiResult<dynamic>> setCurrentOrder(int? orderId);
+  Future<ApiResult<dynamic>> setCurrentOrder(String? orderId);
 
   Future<ApiResult<OrderPaginateResponse>> getActiveOrders(int page);
 
@@ -35,22 +37,27 @@ abstract class CourierOrdersRepositoryFacade {
   Future<ApiResult<List<OrderDetailData>>> getHistoryOrders(int page,
       {DateTime? start, DateTime? end});
 
-  Future<ApiResult<dynamic>> updateOrder(int? orderId, String? status);
+  /// [recipientAgeVerified] is only meaningful when moving an 18+
+  /// (contains_adult_items) order to "delivered": it is the courier's
+  /// confirmation that he checked the recipient's ID at the door. The
+  /// backend refuses to complete a flagged order without it.
+  Future<ApiResult<dynamic>> updateOrder(String? orderId, String? status,
+      {bool recipientAgeVerified = false});
 
   Future<ApiResult<dynamic>> confirmCodCollection(
-      int? orderId, num amountReceived);
+      String? orderId, num amountReceived);
 
-  Future<ApiResult<dynamic>> convertCodToCredit(int? orderId);
+  Future<ApiResult<dynamic>> convertCodToCredit(String? orderId);
 
-  Future<ApiResult<dynamic>> uploadImage(int? orderId, String? image);
+  Future<ApiResult<dynamic>> uploadImage(String? orderId, String? image);
 
   Future<ApiResult<void>> addReview(
-    num orderId, {
+    String orderId, {
     required double rating,
     required String comment,
   });
 
-  Future<ApiResult<void>> cancelOrder(int orderId, String note);
+  Future<ApiResult<void>> cancelOrder(String orderId, String note);
 
   Future<ApiResult<OrderPaginateResponse>> fetchCurrentOrder();
 

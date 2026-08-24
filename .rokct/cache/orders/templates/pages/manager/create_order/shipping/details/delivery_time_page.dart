@@ -351,7 +351,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                                   .payments[paymentState.selectedIndex]
                                   .payment
                                   ?.id,
-                              orderSuccess: (int orderId) {
+                              orderSuccess: (String orderId) {
                                 context.router.popUntilRoot();
                                 ref.read(orderCartProvider.notifier).clearAll();
                                 ref

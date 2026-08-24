@@ -63,9 +63,9 @@ class CreateFoodDetailsNotifier extends StateNotifier<CreateFoodDetailsState> {
   }
 
   Future<void> createProduct({
-    int? categoryId,
-    int? unitId,
-    int? kitchenId,
+    String? categoryId,
+    String? unitId,
+    String? kitchenId,
     VoidCallback? created,
     VoidCallback? onError,
   }) async {

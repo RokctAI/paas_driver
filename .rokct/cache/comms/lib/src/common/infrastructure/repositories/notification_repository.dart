@@ -69,11 +69,11 @@ class NotificationRepositoryImpl extends NotificationRepositoryFacade {
   }
 
   @override
-  Future<ApiResult<dynamic>> readOne({int? id}) async {
+  Future<ApiResult<dynamic>> readOne({String? id}) async {
     try {
       await _gateway.tenant(
         'api.notification.read_one_notification',
-        {'notification_id': id},
+        {'name': id},
       );
       return const ApiResult.success(data: null);
     } catch (e) {

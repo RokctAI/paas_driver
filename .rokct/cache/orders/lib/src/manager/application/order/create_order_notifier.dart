@@ -38,13 +38,13 @@ class CreateOrderNotifier extends StateNotifier<CreateOrderState> {
     required List<Stock> stocks,
     required String deliveryDate,
     required String address,
-    required int? tableId,
+    required String? tableId,
     LocationModel? location,
     required String entrance,
     required String floor,
     required String house,
-    int? paymentId,
-    ValueChanged<int>? orderSuccess,
+    String? paymentId,
+    ValueChanged<String>? orderSuccess,
     ValueChanged<String>? orderQueued,
     Function(String)? failed,
   }) async {
@@ -72,7 +72,17 @@ class CreateOrderNotifier extends StateNotifier<CreateOrderState> {
           // transaction later, so the POS must not call createTransaction.
           orderQueued?.call(data.localId!);
         } else {
-          orderSuccess?.call(data.data?.id ?? 0);
+          // The backend serves the Order docname (a hash string); never
+          // substitute a sentinel — a missing id means nothing downstream
+          // (navigation, transaction create) can act on the order.
+          final String? orderId = data.data?.id;
+          if (orderId == null) {
+            debugPrint(
+                '===> create order succeeded but returned no id; skipping '
+                'success callback');
+            return;
+          }
+          orderSuccess?.call(orderId);
         }
       },
       failure: (failure,status) {

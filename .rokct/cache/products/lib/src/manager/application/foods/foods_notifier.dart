@@ -40,7 +40,7 @@ class FoodsNotifier extends StateNotifier<FoodsState> {
   bool _hasMore = true;
   Timer? _timer;
   String _query = '';
-  int? _categoryId;
+  String? _categoryId;
 
   @override
   void dispose() {
@@ -91,7 +91,7 @@ class FoodsNotifier extends StateNotifier<FoodsState> {
   }
 
   Future<void> fetchCategoryProducts({
-    int? categoryId,
+    String? categoryId,
     RefreshController? refreshController,
   }) async {
     _categoryId = categoryId;
@@ -186,7 +186,7 @@ class FoodsNotifier extends StateNotifier<FoodsState> {
     }
   }
 
-  void setQuery({required String query, int? categoryId}) {
+  void setQuery({required String query, String? categoryId}) {
     if (_query == query) return;
     _query = query.trim();
     _timer?.cancel();
@@ -202,7 +202,7 @@ class FoodsNotifier extends StateNotifier<FoodsState> {
     RefreshController? refreshController,
     bool isRefresh = false,
     bool isOpeningPage = false,
-    int? categoryId,
+    String? categoryId,
   }) async {
     if (isRefresh) {
       _page = 0;

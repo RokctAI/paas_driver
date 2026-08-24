@@ -52,7 +52,8 @@ class CartRequest {
     if (parentId != null) map["parent_id"] = parentId;
     if (quantity != null) map["quantity"] = quantity;
     map["rate"] = LocalStorage.getSelectedCurrency()?.rate ?? 1;
-    map["currency_id"] = LocalStorage.getSelectedCurrency()?.id ?? 0;
+    final currencyId = LocalStorage.getSelectedCurrency()?.id;
+    if (currencyId != null) map["currency_id"] = currencyId;
     return map;
   }
 
@@ -61,7 +62,8 @@ class CartRequest {
     if (shopId != null) map["shop_id"] = shopId;
     map["lang"] = LocalStorage.getLanguage()?.locale;
     map["rate"] = LocalStorage.getSelectedCurrency()?.rate ?? 1;
-    map["currency_id"] = LocalStorage.getSelectedCurrency()?.id ?? 0;
+    final currencyId = LocalStorage.getSelectedCurrency()?.id;
+    if (currencyId != null) map["currency_id"] = currencyId;
     if (cartId != null) map["cart_id"] = cartId;
     if (userUuid != null) map["user_cart_uuid"] = userUuid;
     if (carts != null) map["products"] = toJsonCart();

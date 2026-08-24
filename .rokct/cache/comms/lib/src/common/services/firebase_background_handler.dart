@@ -19,6 +19,12 @@
 // SOFTWARE.
 
 
+// compliance-ignore-file: obs-flutter-trace
+// False positive: this file makes no outgoing HTTP calls — it is the FCM
+// background-isolate entry point (native messaging plugin callback) and only
+// guards Firebase.initializeApp(). Flagged solely because its path contains
+// 'services'; there is no request to stamp with a trace id.
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 

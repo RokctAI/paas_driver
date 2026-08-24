@@ -21,7 +21,7 @@
 
 class CurrencyData {
   CurrencyData({
-    int? id,
+    String? id,
     String? symbol,
     String? title,
     num? rate,
@@ -41,7 +41,8 @@ class CurrencyData {
   }
 
   CurrencyData.fromJson(dynamic json) {
-    _id = json['id'];
+    // Currency docname (e.g. "USD"): backend emits `name`, older payloads `id`.
+    _id = (json['id'] ?? json['name'])?.toString();
     _symbol = json['symbol'];
     _title = json['title'];
     _rate = json['rate'];
@@ -51,7 +52,7 @@ class CurrencyData {
     _position = json['position'];
   }
 
-  int? _id;
+  String? _id;
   String? _symbol;
   String? _title;
   num? _rate;
@@ -61,7 +62,7 @@ class CurrencyData {
   String? _position;
 
   CurrencyData copyWith({
-    int? id,
+    String? id,
     String? symbol,
     String? title,
     num? rate,
@@ -81,7 +82,7 @@ class CurrencyData {
         position: position ?? _position,
       );
 
-  int? get id => _id;
+  String? get id => _id;
 
   String? get symbol => _symbol;
 

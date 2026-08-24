@@ -111,12 +111,13 @@ class SellerCatalogRepository implements SellerCatalogRepositoryFacade {
   }
 
   @override
-  Future<ApiResult<void>> deleteCategory({required int? id}) async {
+  Future<ApiResult<void>> deleteCategory({required String id}) async {
     try {
       final client = dioHttp.client(requireAuth: true);
       await client.post(
         '$_base.delete_seller_category',
-        data: {'ids': [id]},
+        // The endpoint resolves the category by its `uuid` argument.
+        data: {'uuid': id},
       );
       return const ApiResult.success(data: null);
     } catch (e) {

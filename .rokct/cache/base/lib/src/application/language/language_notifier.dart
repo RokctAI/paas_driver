@@ -74,9 +74,10 @@ class LanguageNotifier extends StateNotifier<LanguageState> {
             return;
           }
 
-          // Otherwise, find the index of the current language
+          // Otherwise, find the index of the current language. Guard on a
+          // non-null stored id so two missing ids never read as a match.
           for (int i = 0; i < languages.length; i++) {
-            if (languages[i].id == lang?.id) {
+            if (lang?.id != null && languages[i].id == lang?.id) {
               index = i;
               break;
             }

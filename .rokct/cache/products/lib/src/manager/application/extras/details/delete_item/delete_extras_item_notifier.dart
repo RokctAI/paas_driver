@@ -33,10 +33,17 @@ class DeleteExtrasItemNotifier extends StateNotifier<DeleteExtrasItemState> {
 
   final SellerProductsRepositoryFacade _repository;
 
-  Future<void> deleteExtrasItem({VoidCallback? success, int? extrasId}) async {
+  Future<void> deleteExtrasItem({
+    VoidCallback? success,
+    String? extrasId,
+  }) async {
+    // Extra value ids are Frappe docnames (hash strings).
+    if (extrasId == null) {
+      debugPrint('===> delete extras item skipped: no extras id');
+      return;
+    }
     state = state.copyWith(isLoading: true);
-    final response =
-        await _repository.deleteExtrasItem(ids: [extrasId ?? 0]);
+    final response = await _repository.deleteExtrasItem(ids: [extrasId]);
     response.when(
       success: (data) {
         state = state.copyWith(isLoading: false);

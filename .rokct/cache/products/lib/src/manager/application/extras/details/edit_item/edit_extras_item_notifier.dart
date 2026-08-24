@@ -37,13 +37,19 @@ class EditExtrasItemNotifier extends StateNotifier<EditExtrasItemState> {
 
   Future<void> updateExtrasItem({
     VoidCallback? success,
-    int? groupId,
-    int? extrasId,
+    String? groupId,
+    String? extrasId,
   }) async {
+    // Extras/group ids are Frappe docnames (hash strings); abort instead of
+    // sending a sentinel the backend would no-op on.
+    if (extrasId == null || groupId == null) {
+      debugPrint('===> update extras item skipped: missing extras/group id');
+      return;
+    }
     state = state.copyWith(isLoading: true);
     final response = await _repository.updateExtrasItem(
-      extrasId: extrasId ?? 0,
-      item: {'value': _title, 'extra_group_id': groupId ?? 0},
+      extrasId: extrasId,
+      item: {'value': _title, 'extra_group_id': groupId},
     );
     response.when(
       success: (data) {

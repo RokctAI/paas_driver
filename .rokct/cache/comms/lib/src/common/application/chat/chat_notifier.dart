@@ -28,7 +28,14 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:comms_sdk/src/common/application/chat/chat_state.dart';
 
 class ChatNotifier extends StateNotifier<ChatState> {
-  final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
+  // cloud_firestore has no Windows/Linux implementation — on desktop
+  // Firebase is (correctly) never initialized, so an eager
+  // FirebaseFirestore.instance field initializer throws [core/no-app] while
+  // the provider is being constructed, before any try/catch can run. `late`
+  // defers the throw to first access — fetchChats' and sendMessage's
+  // existing try/catch blocks — which surface
+  // errorWithConnectingToFirebase instead of crashing the route.
+  late final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
   String roleId = "";
 
   ChatNotifier()

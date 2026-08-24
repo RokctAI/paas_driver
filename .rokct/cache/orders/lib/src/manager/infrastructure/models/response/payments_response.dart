@@ -52,8 +52,8 @@ class PaymentsResponse {
 
 class Payment {
   Payment({
-    int? id,
-    int? shopId,
+    String? id,
+    String? shopId,
     int? status,
     String? clientId,
     String? secretId,
@@ -68,8 +68,8 @@ class Payment {
   }
 
   Payment.fromJson(dynamic json) {
-    _id = json['id'];
-    _shopId = json['shop_id'];
+    _id = (json['id'] ?? json['name'])?.toString();
+    _shopId = json['shop_id']?.toString();
     _status = json['status'];
     _clientId = json['client_id'];
     _secretId = json['secret_id'];
@@ -77,16 +77,16 @@ class Payment {
         json['payment'] != null ? PaymentData.fromJson(json['payment']) : null;
   }
 
-  int? _id;
-  int? _shopId;
+  String? _id;
+  String? _shopId;
   int? _status;
   String? _clientId;
   String? _secretId;
   PaymentData? _payment;
 
   Payment copyWith({
-    int? id,
-    int? shopId,
+    String? id,
+    String? shopId,
     int? status,
     String? clientId,
     String? secretId,
@@ -101,9 +101,9 @@ class Payment {
         payment: payment ?? _payment,
       );
 
-  int? get id => _id;
+  String? get id => _id;
 
-  int? get shopId => _shopId;
+  String? get shopId => _shopId;
 
   int? get status => _status;
 

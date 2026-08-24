@@ -85,9 +85,15 @@ class OrderPaymentNotifier extends StateNotifier<OrderPaymentState> {
   }
 
   Future<void> createTransaction(
-      BuildContext context, int orderId, int? paymentId) async {
+      BuildContext context, String orderId, String? paymentId) async {
+    // Payment docnames are strings; aborting beats sending a sentinel the
+    // backend would fail (or silently no-op) on.
+    if (paymentId == null) {
+      debugPrint('====> create transaction skipped: no payment id');
+      return;
+    }
     var response = await _ordersRepository.createTransaction(
-        orderId: orderId, paymentId: paymentId ?? 0);
+        orderId: orderId, paymentId: paymentId);
     response.when(
       success: (data) {},
       failure: (error, status) {

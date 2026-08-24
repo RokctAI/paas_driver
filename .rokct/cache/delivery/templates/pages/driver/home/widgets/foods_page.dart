@@ -51,7 +51,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref
             .read(orderProvider.notifier)
-            .showOrder(context, widget.order.id ?? 0);
+            .showOrder(context, widget.order.id ?? '');
       });
     }
     super.initState();

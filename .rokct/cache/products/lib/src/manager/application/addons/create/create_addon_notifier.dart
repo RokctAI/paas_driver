@@ -62,7 +62,7 @@ class CreateAddonNotifier extends StateNotifier<CreateAddonState> {
   }
 
   Future<void> createAddon({
-    int? unitId,
+    String? unitId,
     VoidCallback? created,
     VoidCallback? failed,
   }) async {

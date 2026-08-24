@@ -23,7 +23,7 @@ import 'package:base_sdk/src/models/data/currency_data.dart';
 
 class UserData {
   UserData({
-    int? id,
+    String? id,
     String? uuid,
     String? firstname,
     String? lastname,
@@ -55,7 +55,7 @@ class UserData {
   }
 
   UserData.fromJson(dynamic json) {
-    _id = json['id'];
+    _id = (json['id'] ?? json['name'])?.toString();
     _uuid = json['uuid'];
     _firstname = json['firstname'];
     _lastname = json['lastname'];
@@ -78,7 +78,7 @@ class UserData {
 
   }
 
-  int? _id;
+  String? _id;
   String? _uuid;
   String? _firstname;
   String? _lastname;
@@ -94,7 +94,7 @@ class UserData {
 
 
   UserData copyWith({
-    int? id,
+    String? id,
     String? uuid,
     String? firstname,
     String? lastname,
@@ -126,7 +126,7 @@ class UserData {
 
       );
 
-  int? get id => _id;
+  String? get id => _id;
   String? get uuid => _uuid;
   String? get firstname => _firstname;
   String? get lastname => _lastname;
@@ -168,7 +168,7 @@ class UserData {
 class Wallet {
   Wallet({
     String? uuid,
-    int? userId,
+    String? userId,
     int? currencyId,
     num? price,
     String? symbol,
@@ -188,7 +188,7 @@ class Wallet {
 
   Wallet.fromJson(dynamic json) {
     _uuid = json['uuid'];
-    _userId = json['user_id'];
+    _userId = json['user_id']?.toString();
     _currencyId = json['currency_id'];
     _price = json['price'];
     _symbol = json['symbol'];
@@ -200,7 +200,7 @@ class Wallet {
   }
 
   String? _uuid;
-  int? _userId;
+  String? _userId;
   int? _currencyId;
   num? _price;
   String? _symbol;
@@ -210,7 +210,7 @@ class Wallet {
 
   Wallet copyWith({
     String? uuid,
-    int? userId,
+    String? userId,
     int? currencyId,
     num? price,
     String? symbol,
@@ -230,7 +230,7 @@ class Wallet {
       );
 
   String? get uuid => _uuid;
-  int? get userId => _userId;
+  String? get userId => _userId;
   int? get currencyId => _currencyId;
   num? get price => _price;
   String? get symbol => _symbol;

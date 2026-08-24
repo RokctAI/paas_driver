@@ -75,7 +75,7 @@ class MockSettingsRepository implements SettingsRepositoryFacade {
       data: LanguagesResponse(
         data: [
           LanguageData(
-            id: 1,
+            id: "en",
             title: "English",
             backward: false,
             isDefault: true,
@@ -112,7 +112,7 @@ class MockSettingsRepository implements SettingsRepositoryFacade {
       data: NotificationsListModel(
         data: [
           NotificationData(
-            id: 1,
+            id: "order",
             type: "order",
             createdAt: DateTime.now(),
             payload: ["Order Update", "Your order has been placed."],

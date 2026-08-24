@@ -100,7 +100,7 @@ class _RateCustomerState extends State<RateCustomer> {
                         .read(homeProvider.notifier)
                         .addReviewParcel(
                           context: context,
-                          parcelId: int.tryParse(widget.parcel?.id ?? ''),
+                          parcelId: widget.parcel?.id,
                           rating: rate,
                           comment: note,
                         );

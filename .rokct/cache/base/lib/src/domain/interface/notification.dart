@@ -26,7 +26,7 @@ import 'package:base_sdk/src/models/response/notification_response.dart';
 abstract class NotificationRepositoryFacade {
   Future<ApiResult<NotificationResponse>> getNotifications({int? page});
 
-  Future<ApiResult<dynamic>> readOne({int? id});
+  Future<ApiResult<dynamic>> readOne({String? id});
 
   Future<ApiResult<NotificationResponse>> readAll();
 

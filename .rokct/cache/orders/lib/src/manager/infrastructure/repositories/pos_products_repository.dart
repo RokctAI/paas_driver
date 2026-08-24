@@ -48,7 +48,7 @@ class PosProductsRepository implements PosProductsRepositoryFacade {
   Future<ApiResult<ProductsPaginateResponse>> getProducts({
     bool active = true,
     int? page,
-    int? categoryId,
+    String? categoryId,
     String? query,
     String? status,
   }) async {

@@ -42,7 +42,7 @@ class OrdersBoardNotifier extends StateNotifier<OrdersBoardState> {
 
   Future<void> updateOrderStatus(
     BuildContext context, {
-    required int orderId,
+    required String orderId,
     required OrderStatus status,
     VoidCallback? success,
   }) async {

@@ -64,7 +64,8 @@ class OrderBodyData {
   Map toJson() {
     return {
       "cart_id": cartId,
-      "currency_id": LocalStorage.getSelectedCurrency()?.id ?? 0,
+      if (LocalStorage.getSelectedCurrency()?.id != null)
+        "currency_id": LocalStorage.getSelectedCurrency()?.id,
       "rate": LocalStorage.getSelectedCurrency()?.rate ?? 1,
       "shop_id": shopId,
       if (deliveryPointId != null) "delivery_point_id": deliveryPointId,

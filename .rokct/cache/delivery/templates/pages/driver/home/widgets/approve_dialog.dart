@@ -87,7 +87,7 @@ class ApproveOrderDialog extends StatelessWidget {
                           final ImageCropperForMarker image = ImageCropperForMarker();
                           ref
                               .read(homeProvider.notifier)
-                              .goClientParcel(context, int.tryParse(parcel?.id ?? ''));
+                              .goClientParcel(context, parcel?.id);
                           ref.read(homeProvider.notifier).getRoutingAll(
                                 // ignore: use_build_context_synchronously
                                 context: context,

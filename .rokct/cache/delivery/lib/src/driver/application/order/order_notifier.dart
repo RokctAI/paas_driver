@@ -48,7 +48,7 @@ class OrderNotifier extends StateNotifier<OrderState> {
     state = state.copyWith(paymentType: isActive);
   }
 
-  Future<void> showOrder(BuildContext context, int orderId) async {
+  Future<void> showOrder(BuildContext context, String orderId) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(
@@ -81,7 +81,7 @@ class OrderNotifier extends StateNotifier<OrderState> {
   }
 
   Future<void> setCurrentOrder(
-      BuildContext context, int orderId, VoidCallback onSuccess) async {
+      BuildContext context, String orderId, VoidCallback onSuccess) async {
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       List<OrderDetailData> list = List.from(state.activeOrders);

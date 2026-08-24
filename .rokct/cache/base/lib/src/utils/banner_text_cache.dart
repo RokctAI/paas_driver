@@ -20,9 +20,9 @@
 
 
 class BannerTextCache {
-  static final Map<int, String> _buttonTexts = {};
+  static final Map<String, String> _buttonTexts = {};
 
-  static void storeButtonText(int? bannerId, String? buttonText) {
+  static void storeButtonText(String? bannerId, String? buttonText) {
     if (bannerId != null && buttonText != null) {
       // print("CACHE DEBUG: Storing '$buttonText' for banner ID: $bannerId");
       _buttonTexts[bannerId] = buttonText;
@@ -30,7 +30,7 @@ class BannerTextCache {
     }
   }
 
-  static String? getButtonText(int? bannerId) {
+  static String? getButtonText(String? bannerId) {
     if (bannerId == null) return null;
     String? result = _buttonTexts[bannerId];
     // print("CACHE DEBUG: Retrieved '${result}' for banner ID: $bannerId");

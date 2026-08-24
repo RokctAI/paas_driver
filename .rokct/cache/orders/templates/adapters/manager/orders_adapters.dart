@@ -96,7 +96,7 @@ class ManagerPosSectionsTablesAdapter implements PosSectionsTablesFacade {
   Future<ApiResult<TableResponse>> getTables({
     int? page,
     String? query,
-    int? shopSectionId,
+    String? shopSectionId,
   }) async {
     try {
       // merchants' seller_operations.get_seller_tables via the universal

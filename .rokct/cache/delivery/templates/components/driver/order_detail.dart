@@ -97,7 +97,7 @@ class OrderDetail extends StatelessWidget {
                                 .read(homeProvider.notifier)
                                 .goMarket(
                                   context: context,
-                                  orderId: order.id.toString(),
+                                  orderId: order.id,
                                   setOrder: !isActiveButton && true,
                                   order: order,
                                   onSuccess: () async {

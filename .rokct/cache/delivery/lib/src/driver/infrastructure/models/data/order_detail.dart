@@ -41,7 +41,7 @@ class OrderDetailModel {
 }
 
 class OrderDetailData {
-  int? id;
+  String? id;
   int? userId;
   num? totalPrice;
   num? rate;
@@ -72,6 +72,11 @@ class OrderDetailData {
   List<Details>? details;
   Transaction? transaction;
   dynamic review;
+
+  /// 18+ order (backend `contains_adult_items`, additive absent-when-false
+  /// key): the courier must check the recipient's ID at the door before
+  /// completing the delivery. Defaults to false when the key is absent.
+  bool? containsAdultItems;
 
   OrderDetailData(
       {this.id,
@@ -104,13 +109,15 @@ class OrderDetailData {
       this.transaction,
       this.totalDiscount,
       this.couponPrice,
-      this.review});
+      this.review,
+      this.containsAdultItems});
 
   OrderDetailData.fromJson(Map<String, dynamic> json) {
-    // Frappe order names are strings; the working list endpoint sends
-    // `id` only when the name is numeric, so parse tolerantly instead of
-    // assuming an int.
-    id = json['id'] is int ? json['id'] : int.tryParse('${json['id']}');
+    // Frappe order docnames are strings (default hash autoname). The
+    // working endpoints always send `name` and only send the legacy
+    // numeric `id` when the name happens to be numeric, so prefer `name`
+    // and fall back to `id` for older payloads.
+    id = (json['name'] ?? json['id'])?.toString();
     userId = json['user_id'];
     totalPrice = json['total_price'];
     serviceFee = json['service_fee'];
@@ -156,6 +163,13 @@ class OrderDetailData {
         ? Transaction.fromJson(json['transaction'])
         : null;
     review = json['review'];
+    // Additive backend key (1 when flagged, absent otherwise); tolerate
+    // int/bool encodings like `current` above.
+    containsAdultItems = json['contains_adult_items'] == null
+        ? false
+        : ((json['contains_adult_items'].runtimeType == int)
+            ? (json['contains_adult_items'] != 0)
+            : json['contains_adult_items'] == true);
   }
 
   Map<String, dynamic> toJson() {
@@ -200,6 +214,7 @@ class OrderDetailData {
       data['transaction'] = transaction!.toJson();
     }
     data['review'] = review;
+    data['contains_adult_items'] = containsAdultItems;
     return data;
   }
 }
@@ -479,7 +494,7 @@ class User {
 class Details {
   String? note;
   int? id;
-  int? orderId;
+  String? orderId;
   int? stockId;
   num? originPrice;
   num? totalPrice;
@@ -508,7 +523,8 @@ class Details {
 
   Details.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    orderId = json['order_id'];
+    // Order docnames are strings (see OrderDetailData.fromJson).
+    orderId = json['order_id']?.toString();
     stockId = json['stock_id'];
     originPrice = json['origin_price'];
     totalPrice = json['total_price'];

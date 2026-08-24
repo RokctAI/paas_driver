@@ -306,7 +306,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> goClient(BuildContext context, int? orderId,
+  Future<void> goClient(BuildContext context, String? orderId,
       {OrderDetailData? order}) async {
     state = state.copyWith(isGoUser: true, isGoRestaurant: false);
     if (await AppConnectivity.connectivity()) {
@@ -314,8 +314,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
         state = state.copyWith(orderDetail: order);
         return;
       }
+      if (orderId == null) {
+        debugPrint('==> goClient aborted: order id is null');
+        return;
+      }
       final response =
-          await orderRepository.updateOrder(orderId ?? 0, "on_a_way");
+          await orderRepository.updateOrder(orderId, "on_a_way");
       response.when(
         success: (data) {},
         failure: (failure, status) {
@@ -333,7 +337,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> goClientParcel(BuildContext context, int? parcelId,
+  Future<void> goClientParcel(BuildContext context, String? parcelId,
       {ParcelOrder? parcel}) async {
     state = state.copyWith(isGoUser: true, isGoRestaurant: false);
     if (await AppConnectivity.connectivity()) {
@@ -341,8 +345,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
         state = state.copyWith(parcelDetail: parcel);
         return;
       }
+      if (parcelId == null) {
+        debugPrint('==> goClientParcel aborted: parcel id is null');
+        return;
+      }
       final response =
-          await parcelRepository.updateParcel(parcelId ?? 0, "on_a_way");
+          await parcelRepository.updateParcel(parcelId, "on_a_way");
       response.when(
         success: (data) {},
         failure: (failure, status) {
@@ -364,9 +372,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
       {required BuildContext context,
       String? comment,
       double? rating,
-      int? orderId}) async {
+      String? orderId}) async {
+    if (orderId == null) {
+      debugPrint('==> addReview aborted: order id is null');
+      return;
+    }
     if (await AppConnectivity.connectivity()) {
-      orderRepository.addReview(orderId ?? 0,
+      orderRepository.addReview(orderId,
           rating: rating ?? 0, comment: comment ?? "");
     } else {
       if (context.mounted) {
@@ -379,9 +391,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
       {required BuildContext context,
       String? comment,
       double? rating,
-      int? parcelId}) async {
+      String? parcelId}) async {
+    if (parcelId == null) {
+      debugPrint('==> addReviewParcel aborted: parcel id is null');
+      return;
+    }
     if (await AppConnectivity.connectivity()) {
-      parcelRepository.addReviewParcel(parcelId ?? 0,
+      parcelRepository.addReviewParcel(parcelId,
           rating: rating ?? 0, comment: comment ?? "");
     } else {
       if (context.mounted) {
@@ -391,7 +407,16 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }
 
   Future<void> deliveredFinishParcel(
-      {required BuildContext context, int? parcelId}) async {
+      {required BuildContext context, String? parcelId}) async {
+    // Parcel Order docnames are strings; a missing id used to be sent as
+    // the literal 0, which the backend silently ignored — abort loudly
+    // instead so the delivered update is never a silent no-op.
+    if (parcelId == null) {
+      debugPrint(
+          '==> deliveredFinishParcel aborted: parcel id is null, delivered '
+          'update NOT sent');
+      return;
+    }
     state = state.copyWith(
       isGoUser: false,
       isGoRestaurant: false,
@@ -400,7 +425,20 @@ class HomeNotifier extends StateNotifier<HomeState> {
       markers: {},
     );
     if (await AppConnectivity.connectivity()) {
-      parcelRepository.updateParcel(parcelId ?? 0, "delivered");
+      final response =
+          await parcelRepository.updateParcel(parcelId, "delivered");
+      response.when(
+        success: (data) {},
+        failure: (failure, status) {
+          debugPrint('==> parcel delivered status update failure: $failure');
+          if (context.mounted) {
+            AppHelpers.showCheckTopSnackBar(
+              context,
+              AppHelpers.getTranslation(failure),
+            );
+          }
+        },
+      );
     } else {
       if (context.mounted) {
         AppHelpers.showNoConnectionSnackBar(context);
@@ -430,7 +468,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   /// failed confirm never advances the delivered flow.
   Future<void> confirmCodCollection({
     required BuildContext context,
-    int? orderId,
+    String? orderId,
     required num amountReceived,
     VoidCallback? onSuccess,
   }) async {
@@ -462,7 +500,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   /// acceptance.
   Future<void> convertCodToCredit({
     required BuildContext context,
-    int? orderId,
+    String? orderId,
     VoidCallback? onSuccess,
   }) async {
     if (await AppConnectivity.connectivity()) {
@@ -492,7 +530,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   /// sender's wallet; [onSuccess] only fires on acceptance.
   Future<void> confirmParcelCodCollection({
     required BuildContext context,
-    int? parcelId,
+    String? parcelId,
     required num amountReceived,
     VoidCallback? onSuccess,
   }) async {
@@ -519,8 +557,23 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// [recipientAgeVerified] threads the courier's ID-check confirmation
+  /// for 18+ (contains_adult_items) orders through to the backend; the
+  /// server refuses to complete a flagged order without it.
   Future<void> deliveredFinish(
-      {required BuildContext context, int? orderId}) async {
+      {required BuildContext context,
+      String? orderId,
+      bool recipientAgeVerified = false}) async {
+    // Order docnames are Frappe hash strings; a missing id used to be sent
+    // as the literal 0, which the backend silently ignored — the courier
+    // saw the sheet close while the order never left "on_a_way". Abort
+    // loudly instead, and surface a failed status update.
+    if (orderId == null) {
+      debugPrint(
+          '==> deliveredFinish aborted: order id is null, delivered update '
+          'NOT sent');
+      return;
+    }
     state = state.copyWith(
       isGoUser: false,
       isGoRestaurant: false,
@@ -529,7 +582,20 @@ class HomeNotifier extends StateNotifier<HomeState> {
       markers: {},
     );
     if (await AppConnectivity.connectivity()) {
-      orderRepository.updateOrder(orderId ?? 0, "delivered");
+      final response = await orderRepository.updateOrder(orderId, "delivered",
+          recipientAgeVerified: recipientAgeVerified);
+      response.when(
+        success: (data) {},
+        failure: (failure, status) {
+          debugPrint('==> delivered status update failure: $failure');
+          if (context.mounted) {
+            AppHelpers.showCheckTopSnackBar(
+              context,
+              AppHelpers.getTranslation(failure),
+            );
+          }
+        },
+      );
     } else {
       if (context.mounted) {
         AppHelpers.showNoConnectionSnackBar(context);
@@ -539,7 +605,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   Future<void> cancelOrder(
       {required BuildContext context,
-      required int orderId,
+      required String orderId,
       required String note}) async {
     state = state.copyWith(isLoading: true);
     if (await AppConnectivity.connectivity()) {
@@ -561,7 +627,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   Future<void> uploadImage({
     required BuildContext context,
-    required int? orderId,
+    required String? orderId,
     required String path,
   }) async {
     final res = await galleryRepository.uploadImage(path, UploadType.products);
