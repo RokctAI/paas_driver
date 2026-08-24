@@ -42,6 +42,8 @@ dependencies:
     path: .rokct/cache/merchants
   products_sdk:
     path: .rokct/cache/products
+  hms_sdk:
+    path: .rokct/cache/hms
   flutter:
     sdk: flutter
   uuid: ^4.4.0
