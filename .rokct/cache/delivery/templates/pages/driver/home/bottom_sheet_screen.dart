@@ -188,7 +188,7 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
                 SizedBox(
                   width: 60.w,
                   child: Text(
-                    AppHelpers.getTranslation(TrKeys.foodymanBenefit),
+                    AppHelpers.getTranslation(TrKeys.juvoBenefit),
                     style: AppStyle.interNormal(
                       size: 12.sp,
                       letterSpacing: -0.3,

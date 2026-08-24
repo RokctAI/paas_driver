@@ -290,7 +290,7 @@ class CourierOrdersRepository implements CourierOrdersRepositoryFacade {
     try {
       // Repointed from the dead legacy
       // `/api/v1/dashboard/deliveryman/orders/{id}/image` path (pre-fork
-      // code even hardcoded https://api.foodyman.org here) to the
+      // code even hardcoded the upstream vendor's API host here) to the
       // whitelisted Frappe def, through the universal platform gateway
       // (map's manifest registers the
       // `{app_name}.api.driver_order.upload_order_image` alias). Payload

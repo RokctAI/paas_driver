@@ -24,8 +24,6 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/application/profile/profile_provider.dart';
-//import 'package:foodyman/infrastructure/services/app_helpers.dart';
-//import 'package:foodyman/infrastructure/services/tr_keys.dart';
 import 'package:base_sdk/src/presentation/components/buttons/pop_button.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/theme/theme.dart';
