@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.20.3",
+      "version": "1.22.0",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -237,7 +237,7 @@
       "boot_hooks": []
     },
     "delivery_sdk": {
-      "version": "1.10.0",
+      "version": "1.10.1",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "64a963e0766b5fec57213476dd688aead2d928807d6743b9bec6c7494aa593ce",
         "lib/presentation/routes/delivery_adapters.dart": "be620290a87b59b0dd2af1ca308c0babe29847b4d82271905540b25d5e045fa6",
@@ -385,11 +385,13 @@
         {
           "id": "delivery-driver-courier-location-workmanager",
           "order": 5,
-          "body": "await Workmanager().initialize(callbackDispatcher);",
+          "body": "if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS)) {\n  try {\n    await Workmanager().initialize(callbackDispatcher);\n  } catch (e) {\n    debugPrint('Workmanager boot skipped: $e');\n  }\n}",
           "imports": [
+            "import 'package:flutter/foundation.dart';",
             "import 'package:workmanager/workmanager.dart';",
             "import 'package:delivery_sdk/src/driver/infrastructure/services/courier_location_service.dart';"
-          ]
+          ],
+          "_comment": "Guarded like comms' firebase-fcm boot hook (platform allowlist + fail-open try/catch): workmanager only has Android/iOS implementations, so on a composed Windows exe the old unguarded 'await Workmanager().initialize(...)' threw 'No implementation found for workmanager on this platform' inside main() BEFORE runApp - the driver desktop build died before its first frame (window never shown). The allowlist mirrors the hms hook's capability-narrowed platform set; desktop/web now skip the courier background tracker entirely, which they never supported anyway."
         }
       ],
       "session_policy": {
@@ -457,6 +459,14 @@
       "asset_keys": {
         "pngMyLocation": "assets/image/my_location.png",
         "svgBalance": "assets/svg/balance.svg"
+      },
+      "platform_permissions": {
+        "android": [
+          "android.permission.ACCESS_BACKGROUND_LOCATION"
+        ],
+        "ios": {
+          "NSLocationAlwaysAndWhenInUseUsageDescription": "Your location is shared with dispatch while you are online so orders can be routed to you, including while the app is in the background."
+        }
       }
     },
     "comms_sdk": {
@@ -512,7 +522,14 @@
           ],
           "_comment": "Windows notification delivery, POS parity (1.6.0): firebase_messaging has no Windows implementation, so the FCM hook above deliberately excludes Windows and composed Windows exes shipped with NO notification path at all. This hook starts comms' DesktopNotificationPoller (10s REST count polling + looping POS notification.wav + ValueNotifier badge feed - see the service's doc comment) on Windows only. The start is deferred to addPostFrameCallback because boot-hook bodies run BEFORE LocalStorage.init() and the sdk-di block in the generated main.dart: by first frame both are done, and runApp is never delayed by a poll. Fail-open try/catch like the FCM hook - a boot failure debugPrints instead of blanking the app. WidgetsBinding resolves via main.dart's static material import; foundation dedupes with the FCM hook's wiring import. Toast layer (still 1.6.0, same unmerged PR): poller.start() also initializes LocalNotifications fail-open (flutter_local_notifications 19.x WindowsInitializationSettings - stable hardcoded GUID, APP_NAME/WINDOWS_AUMID dart-defines for branding, works unpackaged; MSIX identity optional host-side) and each count increase raises a native toast via LocalNotifications.show() alongside the sound - no hook body change needed, the toast path lives entirely inside the service."
         }
-      ]
+      ],
+      "platform_permissions": {
+        "android": [
+          "android.permission.POST_NOTIFICATIONS",
+          "android.permission.VIBRATE"
+        ],
+        "ios": {}
+      }
     },
     "processing_sdk": {
       "version": "1.0.1",
@@ -848,12 +865,23 @@
       "embedded_widgets": [],
       "di_hooks": [],
       "boot_hooks": []
+    },
+    "telemetry_sdk": {
+      "version": "1.0.0",
+      "files": {},
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "registration_steps": [],
+      "embedded_widgets": [],
+      "di_hooks": [],
+      "boot_hooks": []
     }
   },
   "sdk_cache": {
     "base": {
-      "version": "1.20.3",
-      "hash": "59dc0152572117ca"
+      "version": "1.22.0",
+      "hash": "4d7c4efb2bf64b28"
     },
     "comms": {
       "version": "1.10.3",
@@ -880,8 +908,8 @@
       "hash": "1a664bbfa87ed834"
     },
     "delivery": {
-      "version": "1.10.0",
-      "hash": "70fed341c695a55c"
+      "version": "1.10.1",
+      "hash": "9a02a747d3d86bbb"
     },
     "map": {
       "version": "1.1.0",
@@ -918,6 +946,10 @@
     "desktop": {
       "version": "1.1.1",
       "hash": "f89d6e3d39a2d809"
+    },
+    "telemetry": {
+      "version": "1.0.0",
+      "hash": "3bba74070c266db1"
     }
   }
 }

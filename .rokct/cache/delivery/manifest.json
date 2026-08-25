@@ -1,6 +1,6 @@
 {
   "name": "delivery_sdk",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "home_sdk": true,
   "home_page": "templates/pages/driver/home/home_page.dart",
   "installs": [
@@ -226,11 +226,13 @@
         {
           "id": "delivery-driver-courier-location-workmanager",
           "order": 5,
-          "body": "await Workmanager().initialize(callbackDispatcher);",
+          "body": "if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS)) {\n  try {\n    await Workmanager().initialize(callbackDispatcher);\n  } catch (e) {\n    debugPrint('Workmanager boot skipped: $e');\n  }\n}",
           "imports": [
+            "import 'package:flutter/foundation.dart';",
             "import 'package:workmanager/workmanager.dart';",
             "import 'package:delivery_sdk/src/driver/infrastructure/services/courier_location_service.dart';"
-          ]
+          ],
+          "_comment": "Guarded like comms' firebase-fcm boot hook (platform allowlist + fail-open try/catch): workmanager only has Android/iOS implementations, so on a composed Windows exe the old unguarded 'await Workmanager().initialize(...)' threw 'No implementation found for workmanager on this platform' inside main() BEFORE runApp - the driver desktop build died before its first frame (window never shown). The allowlist mirrors the hms hook's capability-narrowed platform set; desktop/web now skip the courier background tracker entirely, which they never supported anyway."
         }
       ],
       "_comment_boot_hooks": "Driver migration M4 - the last two host-owned startup lines from paas_driver's retired hand-written main.dart. Splash preserve: the home SDK holds the native splash until the router decides where to go (mirrors merchants-manager-splash-preserve, order 1). Workmanager: callbackDispatcher (the periodic courier-location report) is delivery_sdk package code (src/driver/infrastructure/services/courier_location_service.dart, vm:entry-point) because Workmanager invokes it by entry-point reference in a separate isolate - a host-private function could never be referenced from an injected hook body; the installed home page registers/cancels the task by its fetchBackground id from the same file.",

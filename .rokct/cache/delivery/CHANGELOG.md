@@ -1,3 +1,18 @@
+## 1.10.1
+
+* FIXED Windows driver build dying before its first frame: the
+  `delivery-driver-courier-location-workmanager` boot hook ran an
+  unguarded `await Workmanager().initialize(callbackDispatcher);` in the
+  composed `main()` before `runApp`. workmanager only ships Android/iOS
+  implementations, so on a composed Windows exe the call threw
+  "No implementation found for workmanager on this platform" and the app
+  exited with no window (taskbar icon flash only). The hook body is now
+  wrapped in the fleet boot-hook guard idiom (Android/iOS platform
+  allowlist + fail-open try/catch with a debugPrint, same shape as
+  comms' firebase-fcm boot hook) - desktop and web skip the courier
+  background tracker, which they never supported anyway. No behavior
+  change on Android/iOS.
+
 ## 1.10.0
 
 * Driver order ids migrated int -> String (the fleet-wide docname

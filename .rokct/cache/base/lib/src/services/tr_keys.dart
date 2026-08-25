@@ -23,6 +23,57 @@ class TrKeys {
   TrKeys._();
 
   // @sdk-tr-keys-start
+  static const String activeParcels = 'active_parcels';
+  static const String apart = 'apart';
+  static const String askThisCodeFromCustomer = 'ask.this.code.from.customer';
+  static const String availableOrders = 'available_orders';
+  static const String availableParcels = 'available_parcels';
+  static const String canceled = 'canceled';
+  static const String cashToCollect = 'cash.to.collect';
+  static const String checkRecipientId18Plus = 'check.recipient.id.18.plus';
+  static const String deliveryRoute = 'delivery.route';
+  static const String myRoute = 'my.route';
+  static const String noLocationForStop = 'no.location.for.stop';
+  static const String noRouteStops = 'no.route.stops';
+  static const String pickupRoute = 'pickup.route';
+  static const String quantity = 'quantity';
+  static const String chooseFromLibrary = 'choose.from.library';
+  static const String codConfirmed = 'cod.confirmed';
+  static const String collectFromRecipient = 'collect.from.recipient';
+  static const String completeCheckout = 'complete_checkout';
+  static const String confirmPasswordDoesntMatchWithNewPassword = 'confirm_password_doesnt_matches_with_new_password';
+  static const String deliveredOrder = 'delivered_order';
+  static const String entr = 'entr';
+  static const String evaluation = 'evaluation';
+  static const String firstnameCannotBeEmpty = 'firstname_cannot_be_empty';
+  static const String howMuchCashReceived = 'how.much.cash.received';
+  static const String idRequired18Plus = 'id.required.18.plus';
+  static const String iDeliveredTheOrder = 'delivered_the_order';
+  static const String inActive = 'in_active';
+  static const String lastProfit = 'last.profit';
+  static const String lastnameCannotBeEmpty = 'lastname_cannot_be_empty';
+  static const String moreDistance = 'more.distance';
+  static const String noteAboutClient = 'note_about_the_client';
+  static const String offline = 'offline';
+  static const String online = 'online';
+  static const String onlineHelper = 'online.helper';
+  static const String orderInformation = 'order_information';
+  static const String rateTheCustomer = 'rate_the_customer';
+  static const String recordAsCredit = 'record.as.credit';
+  static const String restaurantHome = 'restauran_home';
+  static const String startShopping = 'start_shopping';
+  static const String statusNote = 'status.note';
+  static const String telAdmin = 'tel.admin';
+  static const String thatYouHaveIndeed = 'that_you_have_indeed';
+  static const String thereAreOrders = 'there_are';
+  static const String youStatus = 'your.status';
+  static const String yourFeedbackService = 'your_feedback_will_help_us_improve_our_delivery_service';
+  static const String deliverymanbottomslide1 = 'deliveryman_bottom_slide1';
+  static const String deliverymanbottomslide2 = 'deliveryman_bottom_slide2';
+  static const String deliverymanbottomslide3 = 'deliveryman_bottom_slide3';
+  static const String deliverymanTransactions = 'deliveryman_transactions';
+  static const String doneOrders = 'Done orders';
+  static const String asOf = 'as.of';
   // @sdk-tr-keys-end
 
   static const String bgPicture = 'bg_picture';
