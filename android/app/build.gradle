@@ -136,10 +136,13 @@ android {
 // `com.huawei.agconnect:agcp` buildscript classpath. Guarded so the build
 // degrades to a gms-only APK instead of hard-failing while no usable
 // AGConnect config exists: the plugin is applied only when
-// android/app/agconnect-services.json is present, parses as JSON, and its
-// client.package_name matches this app's applicationId - agcp's
-// process*AGCPlugin task verifies exactly that and hard-fails the build on
-// a placeholder or wrong-app config. This block sits below android{} so
+// android/app/agconnect-services.json is present, parses as JSON, and
+// this app's applicationId matches its client.package_name or any entry
+// of its appInfos array - a multi-app config file lists every app of the
+// AGC project under appInfos, and agcp (>= 1.5.0.300) resolves the config
+// the same way (appInfos first, client block as fallback), hard-failing
+// the build on a placeholder or wrong-app config. This block sits below
+// android{} so
 // the resolved applicationId is available to compare against. With
 // BUILD_HMS unset it is inert and the build behaves exactly as before.
 if (System.getenv("BUILD_HMS") == "true") {
@@ -147,18 +150,20 @@ if (System.getenv("BUILD_HMS") == "true") {
     if (!agcFile.exists()) {
         logger.warn("BUILD_HMS: android/app/agconnect-services.json is missing - skipping AGConnect plugin (gms-only build)")
     } else {
-        def agcPackageName = null
+        def agcJson = null
         try {
-            agcPackageName = new groovy.json.JsonSlurper().parse(agcFile)?.client?.package_name ?: ''
+            agcJson = new groovy.json.JsonSlurper().parse(agcFile)
         } catch (Exception e) {
             logger.warn("BUILD_HMS: agconnect-services.json is not parseable JSON - skipping AGConnect plugin (gms-only build)")
         }
-        if (agcPackageName != null) {
+        if (agcJson != null) {
             def appId = android.defaultConfig.applicationId
-            if (agcPackageName && agcPackageName == appId) {
+            def agcPackageName = agcJson?.client?.package_name ?: ''
+            def inAppInfos = agcJson?.appInfos?.any { it?.package_name == appId } ?: false
+            if ((agcPackageName && agcPackageName == appId) || inAppInfos) {
                 apply plugin: 'com.huawei.agconnect'
             } else {
-                logger.warn("BUILD_HMS: agconnect-services.json package_name '${agcPackageName}' does not match this app's package id '${appId}' - skipping AGConnect plugin (gms-only build)")
+                logger.warn("BUILD_HMS: agconnect-services.json matches this app's package id '${appId}' in neither its client block (package_name '${agcPackageName}') nor any appInfos entry - skipping AGConnect plugin (gms-only build)")
             }
         }
     }
