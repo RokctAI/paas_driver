@@ -285,6 +285,21 @@ abstract class AppHelpers {
     return AppConstants.appTitle;
   }
 
+  /// The trademark symbol rendered after the app name: '®' (Registered),
+  /// '™' (Trademark), or '' (None — render no symbol at all).
+  static String getTrademarkSymbol() {
+    final List<SettingsData> settings = LocalStorage.getSettingsList();
+    for (final setting in settings) {
+      if (setting.key == 'trademark_symbol') {
+        // An empty value means "None" — show nothing, do NOT fall back.
+        return setting.value ?? '';
+      }
+    }
+    // No server 'trademark_symbol' setting (older backend): keep the
+    // historical hardcoded ® so existing apps look unchanged.
+    return '®';
+  }
+
   static String? getAppLogo() {
     final List<SettingsData> settings = LocalStorage.getSettingsList();
     for (final setting in settings) {

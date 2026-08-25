@@ -240,22 +240,30 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                                 size: 35.sp,
                                               ),
                                             ),
-                                            WidgetSpan(
-                                              child: Transform.translate(
-                                                offset: Offset(
-                                                  0,
-                                                  -15,
-                                                ), // Move up by 15 pixels, adjust as needed
-                                                child: Text(
-                                                  "®",
-                                                  style: AppStyle
-                                                      .logoFontBoldItalic(
-                                                    color: AppStyle.white,
-                                                    size: 12.sp,
+                                            // Backend-controlled trademark
+                                            // symbol (® / ™ / none). Empty
+                                            // means "None": skip the span so
+                                            // no superscript spacing is left.
+                                            if (AppHelpers
+                                                .getTrademarkSymbol()
+                                                .isNotEmpty)
+                                              WidgetSpan(
+                                                child: Transform.translate(
+                                                  offset: Offset(
+                                                    0,
+                                                    -15,
+                                                  ), // Move up by 15 pixels, adjust as needed
+                                                  child: Text(
+                                                    AppHelpers
+                                                        .getTrademarkSymbol(),
+                                                    style: AppStyle
+                                                        .logoFontBoldItalic(
+                                                      color: AppStyle.white,
+                                                      size: 12.sp,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
                                           ],
                                         ),
                                       ),

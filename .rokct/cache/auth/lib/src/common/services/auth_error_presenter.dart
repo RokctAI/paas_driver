@@ -18,12 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import 'dart:async';
-
 import 'package:flutter/widgets.dart';
-import 'package:base_sdk/src/services/app_helpers.dart';
-import 'package:base_sdk/src/services/telemetry.dart';
-import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:base_sdk/src/services/error_presenter.dart';
 
 /// TrKeys-style key (same convention as [trOfflineSignUpDeferred] in
 /// register_notifier.dart): backend translations can override it;
@@ -34,50 +30,24 @@ const String trCouldNotVerifyCode =
 
 /// Standing rule (Ray): a student sees only a friendly line; the real
 /// cause — the verbatim server/exception detail plus status code — goes
-/// to admins through the one telemetry door (base_sdk [TelemetryClient],
+/// to admins through the one telemetry door (base_sdk TelemetryClient,
 /// backend `log_frontend_error` pipeline).
 ///
-/// This is deliberately NOT an error-mapping framework. It is the two
-/// existing compliant patterns from the agent repo, shared by the auth
-/// notifiers so each snackbar site doesn't hand-roll the same lines:
-///
-///  * the assistant-chat pattern (assistant_service.dart):
-///    `TelemetryClient.I.logError(type: ..., context: {status_code,
-///    server_message, ...})`, then only a friendly line on screen;
-///  * the homework refusal split (http_homework_repository.dart):
-///    a server reply whose copy is authored for the student is shown
-///    verbatim; every other failure is technical detail for telemetry.
+/// This presenter has been promoted into base_sdk as the fleet-general
+/// [ErrorPresenter] (core repo, `lib/src/services/error_presenter.dart`),
+/// the documented partner of `NetworkHelpers.errorHandler`. This class
+/// remains as a thin delegating alias so the auth notifiers' 33 existing
+/// call sites (and any external importers) keep working unchanged; new
+/// code should call [ErrorPresenter] directly.
 abstract class AuthErrorPresenter {
   AuthErrorPresenter._();
-
-  /// Mirrors NetworkExceptions.getDioStatus semantics (see
-  /// RegisterNotifier._isDefinitiveRejection): connection failures and
-  /// timeouts surface as 500/408, so only a concrete 4xx is a definitive
-  /// backend rejection — the statuses on which this backend's `message`
-  /// field carries copy written for the person at the screen (wrong
-  /// password, email already registered, code not accepted).
-  static bool _isDefinitiveRejection(int status) =>
-      status >= 400 && status < 500 && status != 408;
-
-  /// AppHelpers.errorHandler degrades to `e.toString()` / HTML `<title>`
-  /// scraping when the reply carries no server-authored `message`; those
-  /// strings are technical detail, never student copy.
-  static bool _looksTechnical(String message) {
-    final trimmed = message.trim();
-    if (trimmed.isEmpty) return true;
-    final lower = trimmed.toLowerCase();
-    return lower == 'null' ||
-        lower.contains('exception') ||
-        lower.contains('stack trace') ||
-        lower.contains('<html') ||
-        lower.contains('<!doctype') ||
-        lower.contains('xmlhttprequest');
-  }
 
   /// Failure branch of an ApiResult: a definitive 4xx whose message reads
   /// as server-authored user copy is shown verbatim (an expected user
   /// outcome — no telemetry, same as a homework refusal); everything else
   /// shows only [friendly] while the raw detail goes to telemetry.
+  ///
+  /// Delegates to [ErrorPresenter.show].
   static void show(
     BuildContext context, {
     required String type,
@@ -85,25 +55,21 @@ abstract class AuthErrorPresenter {
     required int statusCode,
     String? friendly,
     Map<String, String> extra = const {},
-  }) {
-    if (_isDefinitiveRejection(statusCode) && !_looksTechnical(failure)) {
-      AppHelpers.showCheckTopSnackBar(context, failure);
-      return;
-    }
-    showTechnical(
-      context,
-      type: type,
-      detail: failure,
-      statusCode: statusCode,
-      friendly: friendly,
-      extra: extra,
-    );
-  }
+  }) => ErrorPresenter.show(
+    context,
+    type: type,
+    failure: failure,
+    statusCode: statusCode,
+    friendly: friendly,
+    extra: extra,
+  );
 
   /// Unconditional technical branch, for failures that are never student
   /// copy (thrown exceptions, third-party SDK error text): fire-and-forget
   /// telemetry carrying the verbatim [detail] (+ status code), then only a
   /// friendly translated line on screen.
+  ///
+  /// Delegates to [ErrorPresenter.showTechnical].
   static void showTechnical(
     BuildContext context, {
     required String type,
@@ -111,21 +77,12 @@ abstract class AuthErrorPresenter {
     int? statusCode,
     String? friendly,
     Map<String, String> extra = const {},
-  }) {
-    unawaited(
-      TelemetryClient.I.logError(
-        type: type,
-        context: {
-          'status_code': '${statusCode ?? ''}',
-          'server_message': detail,
-          ...extra,
-        },
-      ),
-    );
-    AppHelpers.showCheckTopSnackBar(
-      context,
-      friendly ??
-          AppHelpers.getTranslation(TrKeys.somethingWentWrongWithTheServer),
-    );
-  }
+  }) => ErrorPresenter.showTechnical(
+    context,
+    type: type,
+    detail: detail,
+    statusCode: statusCode,
+    friendly: friendly,
+    extra: extra,
+  );
 }
