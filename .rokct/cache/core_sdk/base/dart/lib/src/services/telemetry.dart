@@ -41,7 +41,12 @@ import '../handlers/platform_gateway.dart';
 /// SDK may import, same as [TokenInterceptor]'s post-refork home. The
 /// Frappe side (core/telemetry) already runs the generic error pipeline
 /// (api_error_log doctype + log_frontend_error/forward_error_to_control);
-/// this is the missing caller.
+/// this is the missing caller. telemetry/dart's telemetry_sdk package now
+/// composes on top: it injects delivery policy through the
+/// [TelemetryTransport] seam ([TelemetryClient.configure]) rather than
+/// shipping a second client, and every other SDK extends the lane the
+/// ADR-005 way — call [TelemetryClient.track]/[TelemetryClient.logError]
+/// with their own events through the base_sdk import they already have.
 
 /// One shared trace-id generator (ADR-006): the backend auto-populates
 /// `trace_id` on any doctype carrying the field from the
@@ -60,6 +65,21 @@ class TraceIdInterceptor extends Interceptor {
     handler.next(options);
   }
 }
+
+/// Delivery override for [TelemetryClient] — the telemetry_sdk injection
+/// seam (ADR-005/ADR-006). base_sdk owns the client because the shared
+/// kernel is the one home every SDK may import; telemetry_sdk owns the
+/// DELIVERY policy by injecting a transport through
+/// [TelemetryClient.configure], and feature SDKs extend the lane with their
+/// own events via [TelemetryClient.track] — never with a transport of their
+/// own. The transport receives the gateway cmd ([TelemetryClient.cmd] or
+/// [TelemetryClient.trackCmd]) and the exact `payload` map the default
+/// gateway POST would carry; a transport that still wants the platform
+/// gateway must POST `{cmd, payload}` to [kPlatformGatewayPath] itself.
+typedef TelemetryTransport = Future<void> Function(
+  String cmd,
+  Map<String, dynamic> payload,
+);
 
 /// Minimal structured-event client for the existing
 /// `log_frontend_error(error_message, context)` endpoint.
@@ -82,6 +102,43 @@ class TelemetryClient {
   /// tracking lane. Same delivery door as [cmd]: a `POST` to
   /// [kPlatformGatewayPath] carrying this cmd.
   static const String trackCmd = 'tenant.api.track_event';
+
+  /// Injected delivery override (null = default gateway POST). Set only via
+  /// [configure]; read only by [_deliver].
+  static TelemetryTransport? _transport;
+
+  /// telemetry_sdk's injection seam (ADR-005/ADR-006). Never calling this —
+  /// today's every composed app without telemetry_sdk — leaves behavior
+  /// identical to before the seam existed: [_deliver] falls through to the
+  /// same HttpService gateway POST [logError] and [track] always made.
+  /// telemetry_sdk's bootstrap is the formal owner of this call; passing
+  /// null (the default) restores default delivery.
+  static void configure({TelemetryTransport? transport}) {
+    _transport = transport;
+  }
+
+  /// Single delivery door for both lanes: the injected [_transport] when
+  /// configured, else the original gateway POST — a `POST` to
+  /// [kPlatformGatewayPath] carrying `{cmd, payload}` through base_sdk's
+  /// HttpService (per the platform rule, client HTTP always rides the
+  /// gateway with a cmd). Callers own their try/catch: this may throw, and
+  /// [logError]/[track] swallow per the never-break-the-app contract.
+  Future<void> _deliver(String cmd, Map<String, dynamic> payload) async {
+    final transport = _transport;
+    if (transport != null) {
+      await transport(cmd, payload);
+      return;
+    }
+    final getIt = GetIt.instance;
+    if (!getIt.isRegistered<HttpService>()) return;
+    await getIt.get<HttpService>().client(requireAuth: true).post(
+      kPlatformGatewayPath,
+      data: {
+        'cmd': cmd,
+        'payload': payload,
+      },
+    );
+  }
 
   /// Fire-and-forget structured event: {type, context, session_id,
   /// timestamp}. [type] is a stable machine-readable class (snake_case);
@@ -111,18 +168,10 @@ class TelemetryClient {
       // Local trail first — real even when the endpoint is unreachable.
       // Debug builds only: release logs must not carry full payloads.
       if (kDebugMode) debugPrint('==> telemetry $encoded');
-      final getIt = GetIt.instance;
-      if (!getIt.isRegistered<HttpService>()) return;
-      await getIt.get<HttpService>().client(requireAuth: true).post(
-        kPlatformGatewayPath,
-        data: {
-          'cmd': cmd,
-          'payload': {
-            'error_message': type,
-            'context': encoded,
-          },
-        },
-      );
+      await _deliver(cmd, {
+        'error_message': type,
+        'context': encoded,
+      });
     } catch (e) {
       debugPrint('==> telemetry delivery failed ($type): $e');
     }
@@ -162,18 +211,10 @@ class TelemetryClient {
       // Local trail first — real even when the endpoint is unreachable.
       // Debug builds only: release logs must not carry full payloads.
       if (kDebugMode) debugPrint('==> telemetry track $event $encoded');
-      final getIt = GetIt.instance;
-      if (!getIt.isRegistered<HttpService>()) return;
-      await getIt.get<HttpService>().client(requireAuth: true).post(
-        kPlatformGatewayPath,
-        data: {
-          'cmd': trackCmd,
-          'payload': {
-            'event': event,
-            'context': encoded,
-          },
-        },
-      );
+      await _deliver(trackCmd, {
+        'event': event,
+        'context': encoded,
+      });
     } catch (e) {
       debugPrint('==> telemetry track delivery failed ($event): $e');
     }

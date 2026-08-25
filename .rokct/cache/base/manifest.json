@@ -1,6 +1,6 @@
 {
   "name": "base_sdk",
-  "version": "1.21.0",
+  "version": "1.22.0",
   "home_page": "templates/routes/route_pages.dart",
   "_comment_app_assets": "app_assets registers these files in the host app's pubspec 'sdk-app-assets' block so they are bundled into the build. Only assets referenced by SDK code are kept here; legacy upstream-era driver/manager assets were removed (they live in paas_driver/paas_manager develop, and custodianship copies moved to delivery_sdk/merchants_sdk).",
   "app_assets": [
