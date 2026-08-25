@@ -1,0 +1,54 @@
+// Copyright (c) 2026 RokctAI
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+
+import 'package:flutter/widgets.dart';
+
+import 'package:base_sdk/src/models/data/product_data.dart';
+
+/// Host-supplied product-detail surface, opened as a draggable bottom sheet.
+///
+/// Feature SDKs that list products (marketplace_sdk's discounted-products
+/// row, a search result, a shop page) need to open a product's detail view
+/// on tap, but the page that renders it lives in products_sdk — and under
+/// ADR-005 a feature SDK must not import another feature SDK, only
+/// base_sdk. Depending on products_sdk directly would also force every app
+/// composing marketplace_sdk to compose products_sdk too, whether or not it
+/// sells products.
+///
+/// So the caller asks for this interface instead, and apps that do compose
+/// products_sdk register an implementation (typically via `GetIt`, at
+/// startup) that returns products_sdk's `ProductScreen`. Callers guard on
+/// `GetIt.instance.isRegistered<ProductDetailSheet>()`; where nothing is
+/// registered the tap is simply inert, exactly like launch_sdk's
+/// [LaunchGlanceSource] renders nothing when unregistered.
+///
+/// [build] returns the sheet's content rather than showing it, because the
+/// caller owns presentation — it supplies the [controller] from whichever
+/// modal host it used (`AppHelpers.showCustomModalBottomDragSheet`).
+abstract class ProductDetailSheet {
+  Widget build(
+    BuildContext context, {
+    required ScrollController controller,
+    ProductData? data,
+    String? productId,
+    String? cartId,
+  });
+}
