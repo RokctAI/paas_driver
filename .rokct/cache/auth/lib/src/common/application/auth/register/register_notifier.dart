@@ -443,6 +443,18 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
             await _completeOffline(context, local);
             return;
           }
+          if (!local.success && !_isDefinitiveRejection(status)) {
+            // Backend unreachable AND the local-first write failed (e.g. a
+            // synced offline account already exists for this identifier):
+            // the local error is authored user copy — show it instead of
+            // the misleading "something went wrong with the server" line
+            // (same surface _completeOffline uses for a local failure).
+            state = state.copyWith(isLoading: false);
+            if (context.mounted) {
+              AppHelpers.showCheckTopSnackBar(context, local.error ?? '');
+            }
+            return;
+          }
           // Definitive backend rejection: roll back the local-first row so
           // a corrected retry isn't blocked by "account already exists".
           if (local.success) {
@@ -704,6 +716,16 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
               local,
               enqueueSync: !hasBackendSession,
             );
+            return;
+          }
+          if (!local.success && !_isDefinitiveRejection(status)) {
+            // Same guard as [register]: backend unreachable AND the local
+            // write failed definitively — the local error is the user copy
+            // to show, not the generic server line.
+            state = state.copyWith(isLoading: false);
+            if (context.mounted) {
+              AppHelpers.showCheckTopSnackBar(context, local.error ?? '');
+            }
             return;
           }
           if (local.success) {
