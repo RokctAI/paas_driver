@@ -74,7 +74,7 @@ tour:
   - step:
       key: welcome
       title: "Welcome to Driver"
-      caption: "{app_name} puts *your whole delivery day* in one app - and in this demo build, any sign-in details work."
+      caption: "{app_name} puts *your whole delivery day* in one app - sign in to get started."
       action: wait
       settle: 12
   # auth_sdk captures the auth screens, then performs its generic demo
@@ -87,7 +87,7 @@ tour:
   # app's own sign-out uses).
   - step:
       key: sign_out_customer
-      title: "Sign out (demo account)"
+      title: "Sign out"
       action: dart
       screenshot: false
       settle: 4
