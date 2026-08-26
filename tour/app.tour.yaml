@@ -17,11 +17,13 @@
 #
 # Fragment order mirrors the composed SDKs that ship fragments today
 # (composer profile: The-Rokct-Protocol core/utils/flutter/composer/
-# driver.json): auth (Users/auth), delivery (zones/delivery), users
-# (Users/users - /profile resolves here via delivery_sdk's ProfileRoute).
+# driver.json): auth (Users/auth), delivery (zones/delivery), zones
+# (zones/zones - the /delivery-zone editor), users (Users/users - /profile
+# resolves here via delivery_sdk's ProfileRoute).
 # Other composed SDKs (orders, merchants, products: manager-role screens
-# only; comms, zones, weather, ...) ship no driver-role fragment yet and
-# would be skipped with a warning if listed - coverage grows with the SDKs.
+# only; comms, weather, map: headless in the driver compose, ...) ship no
+# driver-role fragment yet and would be skipped with a warning if listed -
+# coverage grows with the SDKs.
 #
 # Video colours are intentionally NOT declared here: the assembler derives
 # brand/accent colours from the composed AppStyle when the manifest carries
@@ -74,7 +76,7 @@ tour:
   - step:
       key: welcome
       title: "Welcome to Driver"
-      caption: "{app_name} puts *your whole delivery day* in one app - and in this demo build, any sign-in details work."
+      caption: "{app_name} puts *your whole delivery day* in one app - sign in to get started."
       action: wait
       settle: 12
   # auth_sdk captures the auth screens, then performs its generic demo
@@ -87,7 +89,7 @@ tour:
   # app's own sign-out uses).
   - step:
       key: sign_out_customer
-      title: "Sign out (demo account)"
+      title: "Sign out"
       action: dart
       screenshot: false
       settle: 4
@@ -129,7 +131,13 @@ tour:
   # Chapter 1 - the courier day: delivery_sdk owns the driver screens and
   # the Demo* courier repositories behind them.
   - fragment: delivery
-  # Chapter 2 - the account: users_sdk's profile surface (delivery_sdk's
+  # Chapter 2 - the territory: zones_sdk's delivery-zone editor
+  # (/delivery-zone, opened from the courier profile in normal use - the
+  # delivery chapter's last step lands on /profile right before this). In
+  # demo builds DemoDriverDeliveryZonesRepository draws the same zone
+  # square the home map shows.
+  - fragment: zones
+  # Chapter 3 - the account: users_sdk's profile surface (delivery_sdk's
   # ProfileRoute serves /profile in this compose, so the fragment's
   # tolerant navigation resolves).
   - fragment: users
