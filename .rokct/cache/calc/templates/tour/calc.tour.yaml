@@ -1,0 +1,21 @@
+# Guided-tour fragment for calc_sdk.
+#
+# Brand-neutral by rule: app names, taglines and any per-app wording live in
+# the app shell's tour/app.tour.yaml ({app_name}/{app_tagline} placeholders
+# are substituted at merge time). This fragment owns the one screen calc_sdk
+# installs: the calculator at /calc (manifest.json routes; installs and
+# routes are top-level on purpose — any composition that lists calc_sdk gets
+# the page, per Ray's manager+driver decision recorded in the manifest).
+#
+# No demo seed needed: the calculator is a fully local screen — keypad
+# glyphs and numbers, no backend reads, no translated strings.
+#
+# Format: RokctAI/shared-workflows scripts/tour/README.md
+sdk: calc
+steps:
+  - key: calc_keypad
+    title: "A calculator, right where you work"
+    caption: "Quick sums without switching apps - *a full calculator* built in."
+    action: route
+    route: /calc
+    settle: 6

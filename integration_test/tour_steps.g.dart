@@ -203,6 +203,12 @@ final List<TourStep> tourSteps = <TourStep>[
   TourStep('driver_delivery_zone', 8000, true, (WidgetTester tester, StackRouter router) async {
     router.replaceNamed('/delivery-zone');
   }),
+  TourStep('revenue_income', 8000, true, (WidgetTester tester, StackRouter router) async {
+    router.replaceNamed('/income');
+  }),
+  TourStep('calc_keypad', 6000, true, (WidgetTester tester, StackRouter router) async {
+    router.replaceNamed('/calc');
+  }),
   TourStep('users_profile', 6000, true, (WidgetTester tester, StackRouter router) async {
     // Tolerant: compositions without a /profile route (see the fragment
     // header) stay on the current screen instead of throwing a

@@ -1,0 +1,30 @@
+# Guided-tour fragment for revenue_sdk.
+#
+# Brand-neutral by rule: app names, taglines and any per-app wording live in
+# the app shell's tour/app.tour.yaml ({app_name}/{app_tagline} placeholders
+# are substituted at merge time). This fragment owns the one screen
+# revenue_sdk installs per role: the income dashboard at /income
+# (manifest.json app_type.driver -> DriverIncomeRoute, app_type.manager ->
+# ManagerIncomeRoute — the same path in both composes, so this single step
+# serves driver and manager shells alike; the caption is written to fit
+# both a courier's earnings and a store's revenue).
+#
+# Assumes a signed-in session of the matching role (the shells' manifests
+# sign in before this fragment runs); the screen is normally opened from
+# the role's profile/home surface.
+#
+# Demo grounding (--dart-define=IS_DEMO=true): the role DI hooks swap the
+# HTTP statistics facades for Demo* twins (DemoCourierStatisticsRepository /
+# DemoSellerStatisticsRepository), which serve a fictional week of per-day
+# figures offline so the tiles, chart and recent-order rows all render
+# stocked.
+#
+# Format: RokctAI/shared-workflows scripts/tour/README.md
+sdk: revenue
+steps:
+  - key: revenue_income
+    title: "Money at a glance"
+    caption: "Today, this week or this month - *every rand earned*, charted day by day."
+    action: route
+    route: /income
+    settle: 8
