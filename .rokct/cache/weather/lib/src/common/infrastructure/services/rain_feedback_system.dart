@@ -18,6 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// compliance-ignore-file: obs-flutter-trace
+// Local-only feedback store on shared_preferences: it makes no HTTP calls
+// and holds no client. Flagged solely because it lives under
+// infrastructure/services/.
+
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';

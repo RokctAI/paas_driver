@@ -805,7 +805,7 @@
       }
     },
     "weather_sdk": {
-      "version": "1.5.0",
+      "version": "1.6.0",
       "files": {
         "lib/presentation/components/weather/weather_widget.dart": "d91d1c3c8e2ef9ce77d9db6e4a1c9bf3580dc1c5bf52196d2d04b530ca7c6958"
       },
@@ -833,6 +833,16 @@
       ],
       "di_hooks": [],
       "boot_hooks": [
+        {
+          "id": "weather-af-bundled-translations",
+          "order": 64,
+          "body": "BundledTranslations.register('af', kWeatherAfTranslations);",
+          "imports": [
+            "import 'package:base_sdk/src/services/bundled_translations.dart';",
+            "import 'package:weather_sdk/src/translations/weather_af_translations.dart';"
+          ],
+          "_comment": "Registers this SDK's bundled Afrikaans map for its manifest tr_keys into base_sdk's BundledTranslations registry at boot. Top-level (not app_type-gated) because translations are role-agnostic. Backend-served translation rows still win; the map is only the offline/unseeded fallback consulted before the humanized-key fallback. Requires a base_sdk with bundled_translations.dart."
+        },
         {
           "id": "weather-driver-configure-location",
           "order": 20,
@@ -950,8 +960,8 @@
       "hash": "b532b393a5c67ed4"
     },
     "weather": {
-      "version": "1.5.0",
-      "hash": "c3cc0a6f3695311a"
+      "version": "1.6.0",
+      "hash": "46c51646b4edfb0d"
     },
     "hms": {
       "version": "1.0.0",

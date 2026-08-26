@@ -18,6 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// compliance-ignore-file: obs-flutter-trace
+// Pure mapper: it maps weather condition codes to icons/widgets; it makes
+// no HTTP calls and holds no client. Flagged solely because it lives
+// under infrastructure/services/.
+
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 
