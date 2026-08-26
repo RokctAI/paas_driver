@@ -72,6 +72,17 @@ export 'src/presentation/components/floating_nav/floating_navbar.dart';
 export 'src/presentation/components/floating_nav/floating_nav_mode.dart';
 export 'src/presentation/components/floating_nav/floating_bottom_nav.dart';
 
+// Generic profile page host: identity header from profileProvider plus an
+// open-ended list of SDK-injected sections. Feature SDKs register sections
+// and host-level actions on ProfileSectionRegistry.I at bootstrap
+// (typically from a manifest di_hooks entry — ADR-005).
+export 'src/presentation/pages/profile/generic_profile_page.dart';
+export 'src/presentation/pages/profile/profile_section.dart';
+export 'src/presentation/pages/profile/profile_section_registry.dart';
+export 'src/presentation/pages/profile/widgets/profile_nav_tile.dart';
+export 'src/presentation/pages/profile/widgets/profile_section_card.dart';
+export 'src/presentation/pages/profile/widgets/profile_switch_tile.dart';
+
 // Kernel services
 export 'src/services/app_connectivity.dart';
 export 'src/services/app_ui_keys.dart';
@@ -83,6 +94,8 @@ export 'src/services/app_helpers.dart';
 export 'src/services/local_storage.dart';
 export 'src/services/storage_keys.dart';
 export 'src/services/tr_keys.dart';
+export 'src/services/bundled_translations.dart';
+export 'src/services/bundled_af_translations.dart';
 
 // Offline database (shared Drift instance + generic JSON document store)
 export 'src/database/app_database.dart';

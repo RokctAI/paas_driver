@@ -31,6 +31,7 @@ import 'package:base_sdk/src/presentation/pages/initial/maintenance/maintenance_
 import 'package:base_sdk/src/presentation/pages/initial/no_connection/no_connection_page.dart' as pages;
 import 'package:base_sdk/src/presentation/pages/initial/splash/splash_page.dart' as pages;
 import 'package:base_sdk/src/presentation/pages/initial/ui_type/ui_type_page.dart' as pages;
+import 'package:base_sdk/src/presentation/pages/profile/generic_profile_page.dart' as pages;
 
 /// Host route shell for [pages.SplashPage] (base_sdk-resident page).
 @RoutePage(name: 'SplashRoute')
@@ -57,6 +58,16 @@ class MaintenanceRouteView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const pages.MaintenancePage();
+}
+
+/// Host route shell for [pages.GenericProfilePage] (base_sdk-resident page).
+/// Named GenericProfileRoute: marketplace_sdk already owns ProfileRoute.
+@RoutePage(name: 'GenericProfileRoute')
+class GenericProfileRouteView extends StatelessWidget {
+  const GenericProfileRouteView({super.key});
+
+  @override
+  Widget build(BuildContext context) => const pages.GenericProfilePage();
 }
 
 /// Host route shell for [pages.UiTypePage] (base_sdk-resident page).

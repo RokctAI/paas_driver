@@ -34,6 +34,7 @@ import 'package:top_snackbar_flutter/top_snack_bar.dart';
 // [refork] removed host router import
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
+import 'package:base_sdk/src/services/bundled_translations.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
@@ -415,13 +416,20 @@ abstract class AppHelpers {
 
   static String getTranslation(String trKey) {
     final Map<String, dynamic> translations = LocalStorage.getTranslations();
-    return translations[trKey] ??
-        (trKey.isNotEmpty
-            ? trKey.replaceAll(".", " ").replaceAll("_", " ").replaceFirst(
-                  trKey.substring(0, 1),
-                  trKey.substring(0, 1).toUpperCase(),
-                )
-            : '');
+    final served = translations[trKey];
+    if (served != null) return served;
+    // Backend-served rows always win; for keys the served map lacks (no row
+    // seeded for this locale, or the fetch never succeeded) consult the
+    // locally bundled per-locale maps before humanizing the key.
+    final bundled =
+        BundledTranslations.lookup(LocalStorage.getLanguage()?.locale, trKey);
+    if (bundled != null) return bundled;
+    return trKey.isNotEmpty
+        ? trKey.replaceAll(".", " ").replaceAll("_", " ").replaceFirst(
+              trKey.substring(0, 1),
+              trKey.substring(0, 1).toUpperCase(),
+            )
+        : '';
   }
 
   static String getTranslationReverse(String trKey) {

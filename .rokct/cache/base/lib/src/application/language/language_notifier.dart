@@ -27,6 +27,7 @@ import 'package:base_sdk/src/domain/interface/settings.dart';
 import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/bundled_translations.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 // [refork] removed host router import
 
@@ -90,15 +91,40 @@ class LanguageNotifier extends StateNotifier<LanguageState> {
           );
         },
         failure: (failure, status) {
-          state = state.copyWith(isLoading: false);
-          AppHelpers.showCheckTopSnackBar(context, failure);
+          // Backend language list unreachable: fall back to the locally
+          // bundled languages (English + every locale with a bundled
+          // translation map) so the picker still works offline. A
+          // successful backend response above stays authoritative.
+          if (!_applyBundledLanguageFallback()) {
+            state = state.copyWith(isLoading: false);
+            AppHelpers.showCheckTopSnackBar(context, failure);
+          }
         },
       );
     } else {
-      if (context.mounted) {
+      if (!_applyBundledLanguageFallback() && context.mounted) {
         AppHelpers.showNoConnectionSnackBar(context);
       }
     }
+  }
+
+  /// Populates the picker from [BundledTranslations.fallbackLanguages]
+  /// when the backend list could not be fetched. Keeps the currently
+  /// stored language selected when its locale is in the fallback list.
+  /// Returns false when there is nothing to fall back to.
+  bool _applyBundledLanguageFallback() {
+    final languages = BundledTranslations.fallbackLanguages();
+    if (languages.isEmpty) return false;
+    final storedLocale = LocalStorage.getLanguage()?.locale;
+    int index = 0;
+    for (int i = 0; i < languages.length; i++) {
+      if (storedLocale != null && languages[i].locale == storedLocale) {
+        index = i;
+        break;
+      }
+    }
+    state = state.copyWith(isLoading: false, list: languages, index: index);
+    return true;
   }
 
   Future<void> makeSelectedLang(BuildContext context) async {

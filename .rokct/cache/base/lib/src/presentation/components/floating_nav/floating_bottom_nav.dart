@@ -67,8 +67,9 @@ Color get _controlFill => AppStyle.bottomNavigationBarColor;
 /// [FloatingNavMode] saying what it should contain right now:
 ///
 ///  * [FloatingNavTabsMode] — the root tab bar. The original behaviour,
-///    pixel-for-pixel unchanged, right down to the filled rectangle behind
-///    the active tab.
+///    pixel-for-pixel unchanged, right down to the small dash under the
+///    active tab ([FloatingNavTabsMode.indicator] lets a host swap the
+///    dash for a filled rounded rectangle; saying nothing keeps the dash).
 ///  * [FloatingNavControlsMode] — controls. With no
 ///    [FloatingNavControlsMode.input] it stays a pill of round buttons
 ///    (the shape telephony's call controls want); with one it becomes the
@@ -182,7 +183,8 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
 
   /// Mode 1 — untouched: the same [BottomNavigatorItem] row the bar has
   /// always drawn, in the same 100-radius pill, including the
-  /// scroll-collapse signal and the filled active-tab indicator.
+  /// scroll-collapse signal and the active-tab indicator (the host's
+  /// choice of dash or rectangle; dash unless it says otherwise).
   Widget _tabsPill(FloatingNavTabsMode mode) {
     final isScrolling = ref.watch(floatingProvider).isScrolling;
     return _Housing(
@@ -206,6 +208,7 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
               selectIcon: mode.tabs[i].selectIcon,
               unSelectIcon: mode.tabs[i].unSelectIcon,
               label: mode.tabs[i].label,
+              indicator: mode.indicator,
             ),
           // Not destinations: these invoke a mode rather than moving the
           // viewer, so they never carry the active indicator.

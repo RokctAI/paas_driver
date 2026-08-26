@@ -35,6 +35,7 @@ abstract class AppRoutes {
   Future<Object?> pushChatRoute(BuildContext context, {dynamic name, dynamic roleId});
   Future<Object?> replaceMaintenanceRoute(BuildContext context);
   Future<Object?> pushCreateShopRoute(BuildContext context);
+  Future<Object?> pushGenericProfileRoute(BuildContext context);
   Future<Object?> pushHelpRoute(BuildContext context);
   Future<Object?> pushInfoRoute(BuildContext context, {dynamic index});
   Future<Object?> replaceInfoRoute(BuildContext context, {dynamic index});

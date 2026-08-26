@@ -50,6 +50,21 @@ sealed class FloatingNavMode {
   const FloatingNavMode();
 }
 
+/// How the active tab announces itself in [FloatingNavTabsMode].
+///
+/// Per-host, not per-app: each SDK that composes the pill says which mark
+/// its tab bar wears. Hosts that say nothing get [dash] — the original
+/// look, unchanged.
+enum FloatingNavIndicator {
+  /// The original mark: a small brand-coloured dash tucked under the
+  /// active tab's icon + label. The default.
+  dash,
+
+  /// A filled rounded rectangle in the host's brand primary colour behind
+  /// the active tab's icon + label (the radio tab bar's look).
+  rectangle,
+}
+
 /// One tab of the pill in [FloatingNavTabsMode].
 class FloatingNavTab {
   final IconData selectIcon;
@@ -64,12 +79,17 @@ class FloatingNavTab {
 }
 
 /// Mode 1 — the root tab bar. Unchanged behaviour: icon + label + the
-/// filled indicator on the active tab, every other tab icon-only, whole
-/// row collapsing while the page scrolls.
+/// active-tab indicator ([indicator] picks its shape, dash by default),
+/// every other tab icon-only, whole row collapsing while the page scrolls.
 class FloatingNavTabsMode extends FloatingNavMode {
   final List<FloatingNavTab> tabs;
   final int currentIndex;
   final ValueChanged<int> onSelect;
+
+  /// The mark the active tab wears. Defaults to
+  /// [FloatingNavIndicator.dash] — the original look — so every existing
+  /// host renders exactly as before without touching this.
+  final FloatingNavIndicator indicator;
 
   /// Controls pinned to the trailing edge that are NOT destinations.
   ///
@@ -88,6 +108,7 @@ class FloatingNavTabsMode extends FloatingNavMode {
     required this.tabs,
     required this.currentIndex,
     required this.onSelect,
+    this.indicator = FloatingNavIndicator.dash,
     this.trailing = const [],
   });
 }

@@ -24,13 +24,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../constants/app_constants.dart';
 import '../../theme/app_style.dart';
+import 'floating_nav_mode.dart';
 
 /// One tab of the floating pill nav. Recovered from paas_customer
 /// `lib/presentation/pages/main/widgets/bottom_navigator_item.dart` at
 /// c273ab26^ (deleted during the ADR-008 refork) — behavior preserved:
-/// icon + label shown ONLY on the active tab with a small pill indicator
-/// underneath it, all other tabs icon-only, whole item collapses while the
-/// page scrolls (unless [AppConstants.fixed] pins it).
+/// icon + label shown ONLY on the active tab with an [indicator] marking
+/// it (by default the original small dash underneath), all other tabs
+/// icon-only, whole item collapses while the page scrolls (unless
+/// [AppConstants.fixed] pins it).
 class BottomNavigatorItem extends StatelessWidget {
   final VoidCallback selectItem;
   final int index;
@@ -39,6 +41,12 @@ class BottomNavigatorItem extends StatelessWidget {
   final IconData selectIcon;
   final IconData unSelectIcon;
   final String label;
+
+  /// The mark the active tab wears. [FloatingNavIndicator.dash] is the
+  /// recovered original and the default; [FloatingNavIndicator.rectangle]
+  /// fills a rounded rectangle in [AppStyle.primary] behind the active
+  /// tab's icon + label instead.
+  final FloatingNavIndicator indicator;
 
   const BottomNavigatorItem({
     super.key,
@@ -49,6 +57,7 @@ class BottomNavigatorItem extends StatelessWidget {
     required this.currentIndex,
     required this.isScrolling,
     required this.label,
+    this.indicator = FloatingNavIndicator.dash,
   });
 
   @override
@@ -58,6 +67,10 @@ class BottomNavigatorItem extends StatelessWidget {
 
     // If fixed is true, ignore the isScrolling value
     final bool shouldHide = isFixed ? false : isScrolling;
+
+    if (indicator == FloatingNavIndicator.rectangle) {
+      return _rectangleTab(shouldHide);
+    }
 
     return GestureDetector(
       onTap: selectItem,
@@ -128,6 +141,65 @@ class BottomNavigatorItem extends StatelessWidget {
                 duration: const Duration(milliseconds: 300),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// The [FloatingNavIndicator.rectangle] look: the active tab's icon +
+  /// label sit ON a filled rounded rectangle in the host's brand primary
+  /// ([AppStyle.primary] — injected per app, never hardcoded here), and
+  /// there is no dash underneath. Inactive tabs stay icon-only on the
+  /// bare pill, so only the active mark differs from the original.
+  Widget _rectangleTab(bool shouldHide) {
+    final bool active = index == currentIndex;
+    return GestureDetector(
+      onTap: selectItem,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        color: AppStyle.transparent,
+        height: shouldHide ? 0.h : 45.h,
+        width: shouldHide ? 0.w : 60.w,
+        child: Center(
+          // Same guard as the dash layout: contents scale down on
+          // geometries the phone design never saw instead of overflowing.
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: EdgeInsets.symmetric(
+                horizontal: shouldHide ? 0.w : 10.w,
+                vertical: shouldHide ? 0.h : 4.h,
+              ),
+              decoration: BoxDecoration(
+                color: active ? AppStyle.primary : AppStyle.transparent,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    active ? selectIcon : unSelectIcon,
+                    size: shouldHide ? 0.r : 24.r,
+                    color: AppStyle.white,
+                  ),
+                  if (active)
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: AppStyle.white,
+                        fontSize: shouldHide ? 0.sp : 9.sp,
+                        // Same fallback guard as the dash layout: the pill
+                        // can float with no Material ancestor, and the
+                        // debug underline must never apply.
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
