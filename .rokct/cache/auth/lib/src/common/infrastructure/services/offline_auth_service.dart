@@ -146,8 +146,33 @@ class OfflineAuthService {
 
     final existing = await _findLocal(phone: phone, email: email);
     if (existing != null) {
-      return OfflineAuthResult.fail(
-          'An offline account already exists for this phone/email on this device.');
+      if (existing.synced) {
+        return OfflineAuthResult.fail(
+            'An offline account already exists for this phone/email on this device.');
+      }
+      // Unsynced row: a pending local-first registration for this
+      // identifier (a previous Register press while the backend was
+      // unreachable). Failing here dead-ends every retry — the caller's
+      // offline fallback is skipped and the user loops on an error toast
+      // (driver Windows, backend down). Resume the row instead: refresh
+      // its details with the freshly submitted form values and hand back
+      // the SAME row id, so the sync push keeps its idempotency key and a
+      // later online retry still dedupes.
+      await (_db.update(_db.offlineUsersTable)
+            ..where((t) => t.id.equals(existing.id)))
+          .write(OfflineUsersTableCompanion(
+        phone: Value(phone),
+        email: Value(email),
+        firstName: Value(firstName),
+        lastName: Value(lastName),
+        passwordHash: Value(_hash(password)),
+        referral: Value(referral),
+      ));
+      final current = LocalStorage.getToken();
+      if (current.isEmpty || isOfflineToken(current)) {
+        await LocalStorage.setToken(_offlineToken(existing.id));
+      }
+      return OfflineAuthResult.ok(existing.id);
     }
 
     // Local-only row identifier. Predictable (epoch-derived) and therefore

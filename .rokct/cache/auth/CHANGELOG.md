@@ -1,3 +1,22 @@
+## 1.8.8
+
+* `OfflineAuthService.registerOffline` resumes a pending (unsynced)
+  local-first registration instead of failing it: a retried Register press
+  for the same phone/email refreshes the existing row's details and
+  returns the same row id (so the sync push keeps its idempotency key).
+  Previously any existing row — including the one the previous offline
+  attempt itself wrote — failed with "already exists", which made
+  `register`/`registerWithPhone` skip their offline fallback and surface
+  the generic "something went wrong with the server" line on every retry
+  while the backend was down (driver Windows report, 2026-08-26). A row
+  that already `synced` still fails as before — that account exists on
+  the backend and the user should log in.
+* `RegisterNotifier.register`/`registerWithPhone`: when the backend is
+  unreachable (non-definitive status) AND the local-first write failed,
+  show the local error's authored user copy instead of falling through to
+  the generic server line — same surface `_completeOffline` already uses
+  for a local failure.
+
 ## 1.8.5
 
 * `MockAuthRepository._demoRolesByEmail` gains `driver@demo.rokct.ai` ->
