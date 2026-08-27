@@ -42,7 +42,10 @@ class ProfileSectionCard extends StatelessWidget {
             padding: EdgeInsets.only(left: 4.r, bottom: 8.r),
             child: Text(
               title!.toUpperCase(),
-              style: AppStyle.interSemi(size: 12.sp, color: AppStyle.textGrey),
+              style: AppStyle.interSemi(
+                size: 12.sp,
+                color: AppStyle.textDarkSecondary,
+              ),
             ),
           ),
         Container(

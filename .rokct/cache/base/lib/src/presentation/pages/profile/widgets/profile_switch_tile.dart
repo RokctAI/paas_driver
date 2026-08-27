@@ -91,7 +91,7 @@ class _ProfileSwitchTileState extends State<ProfileSwitchTile> {
                     widget.subtitle!,
                     style: AppStyle.interNormal(
                       size: 13.sp,
-                      color: AppStyle.textGrey,
+                      color: AppStyle.textDarkSecondary,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

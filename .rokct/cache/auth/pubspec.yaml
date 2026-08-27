@@ -41,7 +41,7 @@ dev_dependencies:
 # codegen/analysis. Ignored when a host app is the resolution root.
 dependency_overrides:
   base_sdk:
-    path: ../../../core/base/dart
+    path: ../base
   # base_sdk pins google_fonts 6.3.0, which fails const evaluation of its
   # FontWeight map on current Flutter (core PR #45 relaxes the pin for
   # hosts). Standalone-only: lets this package's tests compile; composed

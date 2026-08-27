@@ -21,6 +21,7 @@
 import 'package:base_sdk/base_sdk.dart';
 import 'package:zones_sdk/zones_sdk.dart';
 import 'package:zones_sdk/src/driver/infrastructure/repositories/delivery_zones_repository.dart';
+import 'package:zones_sdk/src/driver/infrastructure/repositories/demo_delivery_zones_repository.dart';
 
 /// Host-side wiring for zones_sdk in the driver flavour (ADR-005).
 ///
@@ -44,7 +45,30 @@ import 'package:zones_sdk/src/driver/infrastructure/repositories/delivery_zones_
 ///
 /// Without them deliveryZoneProvider falls back to a 501 "not wired" stand-in
 /// and the zone screen never reaches real profile data.
-class DriverDeliveryZonesAdapter extends DriverDeliveryZonesRepository {}
+class DriverDeliveryZonesAdapter extends DriverDeliveryZonesRepository {
+  /// Demo builds (`--dart-define=IS_DEMO=true`) serve the fictional offline
+  /// zone instead of hitting the profile endpoint — the same
+  /// `AppConstants.isDemo` split delivery_sdk's `DriverDeliveryDependencies`
+  /// applies to every courier facade. The gate lives here (not in the
+  /// repository) so the SDK's HTTP class stays a pure production path and
+  /// the swap sits exactly where the flavour is composed, next to the
+  /// registration that injects it. Zero behavior change when IS_DEMO is off.
+  static final DeliveryZonesFacade _demo = DemoDriverDeliveryZonesRepository();
+
+  @override
+  Future<ApiResult<List<List<double>>>> fetchDeliveryZones() =>
+      AppConstants.isDemo
+          ? _demo.fetchDeliveryZones()
+          : super.fetchDeliveryZones();
+
+  @override
+  Future<ApiResult<void>> updateDeliveryZones({
+    required List<List<double>> points,
+  }) =>
+      AppConstants.isDemo
+          ? _demo.updateDeliveryZones(points: points)
+          : super.updateDeliveryZones(points: points);
+}
 
 /// The driver flavour's rule for who may redraw a zone.
 ///

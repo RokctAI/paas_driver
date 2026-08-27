@@ -74,7 +74,7 @@ class ProfileNavTile extends StatelessWidget {
                       subtitle!,
                       style: AppStyle.interNormal(
                         size: 13.sp,
-                        color: AppStyle.textGrey,
+                        color: AppStyle.textDarkSecondary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -88,7 +88,7 @@ class ProfileNavTile extends StatelessWidget {
                 Icon(
                   Remix.arrow_right_s_line,
                   size: 20.sp,
-                  color: AppStyle.textGrey,
+                  color: AppStyle.textDarkSecondary,
                 ),
           ],
         ),

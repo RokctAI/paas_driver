@@ -79,9 +79,12 @@ export 'src/presentation/components/floating_nav/floating_bottom_nav.dart';
 export 'src/presentation/pages/profile/generic_profile_page.dart';
 export 'src/presentation/pages/profile/profile_section.dart';
 export 'src/presentation/pages/profile/profile_section_registry.dart';
+export 'src/presentation/pages/profile/widgets/app_usage_badge.dart';
+export 'src/presentation/pages/profile/widgets/base_profile_footer.dart';
 export 'src/presentation/pages/profile/widgets/profile_nav_tile.dart';
 export 'src/presentation/pages/profile/widgets/profile_section_card.dart';
 export 'src/presentation/pages/profile/widgets/profile_switch_tile.dart';
+export 'src/presentation/pages/profile/widgets/profile_theme_toggle.dart';
 
 // Kernel services
 export 'src/services/app_connectivity.dart';
