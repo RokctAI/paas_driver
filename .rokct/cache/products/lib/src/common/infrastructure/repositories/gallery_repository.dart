@@ -1,4 +1,4 @@
-// Copyright (c) 2026 RokctAI
+// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Copyright (c) 2024 RokctAI
+// Copyright (c) 2024 ROKCT INTELLIGENCE (PTY) LTD
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
