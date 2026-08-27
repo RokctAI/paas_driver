@@ -1,6 +1,6 @@
 // Copied at compose time from package:auth_sdk/src/common/infrastructure/database/offline_user_table.dart by sdk_installer_base.py's update_database_registration() -
 // drift only understands table classes inside its own package.
-// Copyright (c) 2026 RokctAI
+// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
