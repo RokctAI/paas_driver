@@ -1,4 +1,4 @@
-// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+// Copyright (c) 2026 RokctAI
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -202,10 +202,16 @@ class _RegisterConfirmationPageState
                           bottom: MediaQuery.paddingOf(context).bottom,
                           top: 120.h,
                         ),
+                        // Same clamped-sheet fix as the register form's
+                        // name row: flex the resend/confirm pair (1:2, 8px
+                        // gap) against the SHEET's width — the old
+                        // window-width thirds overflowed the width-clamped
+                        // bottom sheet on wide windows. Pixel-identical on
+                        // phones, where the sheet spans the window.
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            CustomButton(
+                            Expanded(
+                              child: CustomButton(
                               isLoading: state.isResending,
                               title: state.isTimeExpired
                                   ? AppHelpers.getTranslation(TrKeys.resendOtp)
@@ -245,12 +251,14 @@ class _RegisterConfirmationPageState
                                   notifier.startTimer();
                                 }
                               },
-                              weight:
-                                  (MediaQuery.sizeOf(context).width - 40) / 3,
                               background: AppStyle.primary,
                               textColor: AppStyle.white,
+                              ),
                             ),
-                            CustomButton(
+                            const SizedBox(width: 8),
+                            Expanded(
+                              flex: 2,
+                              child: CustomButton(
                               isLoading: state.isLoading,
                               title: AppHelpers.getTranslation(
                                 TrKeys.confirmation,
@@ -317,15 +325,13 @@ class _RegisterConfirmationPageState
                                   }
                                 }
                               },
-                              weight: 2 *
-                                  (MediaQuery.sizeOf(context).width - 40) /
-                                  3,
                               background: state.isConfirm
                                   ? AppStyle.primary
                                   : AppStyle.cardDark,
                               textColor: state.isConfirm
                                   ? AppStyle.black
                                   : AppStyle.textGrey,
+                              ),
                             ),
                           ],
                         ),

@@ -1,4 +1,4 @@
-// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+// Copyright (c) 2026 RokctAI
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -493,6 +493,42 @@ abstract class AppHelpers {
     return null;
   }
 
+  /// Pins wide-window sheet content to the END edge (right in LTR, left in
+  /// RTL) at [maxWidth].
+  ///
+  /// On non-compact windows the framework would center a width-capped sheet
+  /// ([BottomSheet] wraps its constrained child in an `Align(bottomCenter)`),
+  /// so instead the route is given unconstrained width and the cap + END
+  /// alignment are applied here, inside the sheet.
+  ///
+  /// The sheet's transparent [Material] absorbs hit tests over its whole box,
+  /// so the empty area beside the anchored content would otherwise swallow
+  /// taps without dismissing; the outer detector mirrors the modal barrier
+  /// there (when [isDismissible]) and the inner one keeps taps on the sheet
+  /// body from bubbling up to it.
+  static Widget _anchorSheetToEnd({
+    required BuildContext context,
+    required Widget sheet,
+    required double maxWidth,
+    required bool isDismissible,
+  }) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: isDismissible ? () => Navigator.of(context).maybePop() : null,
+      child: Align(
+        alignment: AlignmentDirectional.bottomEnd,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {},
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            child: sheet,
+          ),
+        ),
+      ),
+    );
+  }
+
   static void showCustomModalBottomSheet({
     required BuildContext context,
     required Widget modal,
@@ -503,6 +539,9 @@ abstract class AppHelpers {
     double paddingTop = 200,
     double maxWidth = AppBreakpoints.sheetMaxWidth,
   }) {
+    // Compact windows keep the classic full-width sheet; anything wider
+    // anchors the sheet to the END side instead of centering it.
+    final bool anchorEnd = windowSizeOf(context).isAtLeastMedium;
     showModalBottomSheet(
       isDismissible: isDismissible,
       enableDrag: isDrag,
@@ -515,11 +554,18 @@ abstract class AppHelpers {
       isScrollControlled: true,
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height - paddingTop.r,
-        maxWidth: maxWidth,
+        maxWidth: anchorEnd ? double.infinity : maxWidth,
       ),
       backgroundColor: AppStyle.transparent,
       context: context,
-      builder: (context) => modal,
+      builder: (context) => anchorEnd
+          ? _anchorSheetToEnd(
+              context: context,
+              sheet: modal,
+              maxWidth: maxWidth,
+              isDismissible: isDismissible,
+            )
+          : modal,
     );
   }
 
@@ -534,6 +580,9 @@ abstract class AppHelpers {
     double maxChildSize = 0.9,
     double maxWidth = AppBreakpoints.sheetMaxWidth,
   }) {
+    // Compact windows keep the classic full-width sheet; anything wider
+    // anchors the sheet to the END side instead of centering it.
+    final bool anchorEnd = windowSizeOf(context).isAtLeastMedium;
     showModalBottomSheet(
       isDismissible: isDismissible,
       enableDrag: isDrag,
@@ -546,18 +595,28 @@ abstract class AppHelpers {
       isScrollControlled: true,
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height - paddingTop.r,
-        maxWidth: maxWidth,
+        maxWidth: anchorEnd ? double.infinity : maxWidth,
       ),
       backgroundColor: AppStyle.transparent,
       context: context,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: maxChildSize,
-        maxChildSize: maxChildSize,
-        expand: false,
-        builder: (BuildContext context, ScrollController scrollController) {
-          return modal(scrollController);
-        },
-      ),
+      builder: (context) {
+        final Widget sheet = DraggableScrollableSheet(
+          initialChildSize: maxChildSize,
+          maxChildSize: maxChildSize,
+          expand: false,
+          builder: (BuildContext context, ScrollController scrollController) {
+            return modal(scrollController);
+          },
+        );
+        return anchorEnd
+            ? _anchorSheetToEnd(
+                context: context,
+                sheet: sheet,
+                maxWidth: maxWidth,
+                isDismissible: isDismissible,
+              )
+            : sheet;
+      },
     );
   }
 

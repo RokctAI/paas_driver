@@ -1,4 +1,4 @@
-// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+// Copyright (c) 2026 RokctAI
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,5 @@ class AppAssets {
   static const String svgMenu = '$_svgPath/menu.svg';
 
   // @sdk-asset-keys-start
-  static const String pngMyLocation = 'assets/image/my_location.png';
-  static const String svgBalance = 'assets/svg/balance.svg';
   // @sdk-asset-keys-end
 }

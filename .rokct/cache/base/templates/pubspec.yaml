@@ -157,6 +157,14 @@ dependency_overrides:
   share_plus: ^12.0.1
   google_fonts: ^6.3.0
   http: ^1.2.0
+  # drift must stay on a release whose sqlite3 constraint admits the pinned
+  # sqlite3 2.9.4 below: drift 2.32.0+ moved to sqlite3 ^3.x (build-hook
+  # loading, sqlite3_flutter_libs retired) and calls
+  # CommonPreparedStatement.close(), added in sqlite3 3.0.0. The override on
+  # sqlite3 silences drift's own sqlite3 constraint, so without this
+  # companion pin the solver floats drift (^2.19.0 in the SDKs) to 2.34.x
+  # and kernel_snapshot fails at compile (seen in radio's release CI).
+  drift: 2.31.0
   sqlite3: 2.9.4
   # auto_route_generator 10.3.x needs auto_route 10.x, but the cached SDKs
   # pin auto_route ^9.2.0. 10.1+ keeps the 9.x APIs as @Deprecated aliases,

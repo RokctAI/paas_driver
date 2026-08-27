@@ -1,4 +1,4 @@
-// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+// Copyright (c) 2026 RokctAI
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../application/floating/floating_provider.dart';
+import '../../../constants/app_constants.dart';
+import '../../adaptive/breakpoints.dart';
 import '../../theme/app_style.dart';
 import '../blur_wrap.dart';
 import 'bottom_navigator_item.dart';
@@ -119,6 +121,32 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
   @override
   Widget build(BuildContext context) {
     final mode = widget.mode;
+    // TABLET-MODE PLACEMENT — tabs mode only. In a tablet-mode window
+    // (>= 600 logical px) the tab bar sits where the page, else the app,
+    // says: the page's tabletPlacement wins, the composed
+    // AppConstants.tabletNavPlacement is the app-wide answer, and the
+    // kernel default is bottomCenter — which falls through to the
+    // untouched layout below, so a fleet that opts into nothing renders
+    // exactly as before. Compact windows never reach this branch, and a
+    // controls bar (session/call) never consults placement: controls
+    // stay where the thumbs are regardless of window size.
+    if (mode is FloatingNavTabsMode &&
+        windowSizeOf(context).isAtLeastMedium) {
+      final placement =
+          mode.tabletPlacement ?? AppConstants.tabletNavPlacement;
+      switch (placement) {
+        case FloatingNavPlacement.bottomCenter:
+          // Today's layout, below, unchanged.
+          break;
+        case FloatingNavPlacement.hidden:
+          // Renders nothing and intercepts nothing — a shrunk box has no
+          // hit area, so taps land on whatever the page put there.
+          return const SizedBox.shrink();
+        case FloatingNavPlacement.railStart:
+        case FloatingNavPlacement.railEnd:
+          return _tabsRail(mode, placement);
+      }
+    }
     // The composer must ride above the keyboard rather than under it.
     final keyboard = MediaQuery.of(context).viewInsets.bottom;
     // The tab pill is a small centered island; the composer is a full-width
@@ -219,6 +247,86 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
     );
   }
 
+  /// Mode 1 in a tablet-mode window that opted into a side rail: the SAME
+  /// [BottomNavigatorItem]s (same taps, same scroll-collapse signal, same
+  /// indicator choice) in a Column instead of a Row, inside the same
+  /// frosted [_Housing] pill turned on its side — so the rail reads as
+  /// the bottom bar having moved, not as a different component.
+  ///
+  /// SELF-ALIGNING BY DESIGN. Existing host sites wrap this widget in
+  /// `Align(alignment: Alignment.bottomCenter)` inside a full-size Stack.
+  /// That outer Align hands its child LOOSE constraints at the full
+  /// available size, so the [Align] returned here — with null width/height
+  /// factors — expands to fill them and then places the rail on its own
+  /// start/end edge, vertically centered. The outer bottomCenter has
+  /// nothing left to position (the child fills the area), so a host does
+  /// not need rewriting to opt in — it only needs to give the widget
+  /// room (a full-size Stack slot such as `Positioned.fill`, or the
+  /// existing full-size Align). [AlignmentDirectional] keeps the rail
+  /// RTL-aware: railStart hugs the right edge in a right-to-left app.
+  ///
+  /// SafeArea keeps the rail off notches and system edges. The keyboard
+  /// is deliberately ignored: a vertically-centered rail does not sit in
+  /// the keyboard's way, and viewInsets would only make it jump.
+  /// The vertical Flexible+FittedBox mirrors [_Housing.fitted]'s
+  /// horizontal guard: on a window that is tablet-mode wide but short
+  /// (a landscape phone), the rail scales down instead of overflowing.
+  Widget _tabsRail(FloatingNavTabsMode mode, FloatingNavPlacement placement) {
+    final isScrolling = ref.watch(floatingProvider).isScrolling;
+    final rail = _Housing(
+      radius: 100.r,
+      fitted: false,
+      width: 60.r,
+      padding: EdgeInsets.symmetric(vertical: 10.r),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          for (var i = 0; i < mode.tabs.length; i++)
+            BottomNavigatorItem(
+              selectItem: () {
+                ref.read(floatingProvider.notifier).changeScrolling(false);
+                mode.onSelect(i);
+              },
+              index: i,
+              currentIndex: mode.currentIndex,
+              isScrolling: isScrolling,
+              selectIcon: mode.tabs[i].selectIcon,
+              unSelectIcon: mode.tabs[i].unSelectIcon,
+              label: mode.tabs[i].label,
+              indicator: mode.indicator,
+            ),
+          // Same rule as the bottom pill: these invoke a mode rather than
+          // moving the viewer, so they never carry the active indicator.
+          for (final action in mode.trailing)
+            _NavActionButton(
+              action: action,
+              compact: true,
+              margin: EdgeInsets.only(top: 8.r),
+            ),
+        ],
+      ),
+    );
+    return Align(
+      alignment: placement == FloatingNavPlacement.railStart
+          ? AlignmentDirectional.centerStart
+          : AlignmentDirectional.centerEnd,
+      child: SafeArea(
+        child: Padding(
+          padding: EdgeInsetsDirectional.only(start: 18.w, end: 18.w),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: FittedBox(fit: BoxFit.scaleDown, child: rail),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   /// Modes 2 and 3. Controls never collapse on scroll: unlike tabs they are
   /// the only way to act on what is on screen, and a session bar that hides
   /// itself mid-lesson strands the student.
@@ -297,6 +405,11 @@ class _Housing extends StatelessWidget {
   final EdgeInsets padding;
   final double? height;
 
+  /// Set by the tablet-mode side rail — the pill turned on its side keeps
+  /// a fixed cross-axis width the way the bottom pill keeps a fixed
+  /// [height]. Null everywhere else, exactly as before.
+  final double? width;
+
   /// These modes scale down on desktop-wide windows instead of
   /// overflowing. The composer is not fitted: it stretches to the
   /// available width, which a [FittedBox] cannot give it.
@@ -308,6 +421,7 @@ class _Housing extends StatelessWidget {
     required this.padding,
     required this.fitted,
     this.height,
+    this.width,
   });
 
   @override
@@ -321,6 +435,7 @@ class _Housing extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(radius)),
         ),
         height: height,
+        width: width,
         child: Padding(padding: padding, child: child),
       ),
     );
@@ -603,11 +718,17 @@ class _NavActionButton extends StatelessWidget {
 
   final VoidCallback? onLongPress;
 
+  /// Overrides [compact]'s default leading-edge gap. The tablet-mode
+  /// side rail stacks its controls vertically, so its gap is above the
+  /// button, not beside it. Null keeps the row spacing exactly as it was.
+  final EdgeInsetsGeometry? margin;
+
   const _NavActionButton({
     required this.action,
     this.compact = false,
     this.emoji,
     this.onLongPress,
+    this.margin,
   });
 
   @override
@@ -711,7 +832,7 @@ class _NavActionButton extends StatelessWidget {
         message: action.label,
         child: compact
             ? Padding(
-                padding: EdgeInsets.only(left: 8.r),
+                padding: margin ?? EdgeInsets.only(left: 8.r),
                 child: button,
               )
             : SizedBox(width: 60.w, child: Center(child: button)),

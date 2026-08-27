@@ -1,4 +1,4 @@
-// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+// Copyright (c) 2026 RokctAI
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -46,6 +46,8 @@ import 'package:${package}/presentation/pages/main/widgets/buttons_bouncing_effe
 import 'package:merchants_sdk/src/manager/application/main/main_provider.dart';
 import 'package:products_sdk/src/manager/application/foods/food_tabs_provider.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
+import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_nav_mode.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
@@ -108,21 +110,74 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     final bool isLtr = LocalStorage.getLangLtr();
+    // TABLET-MODE NAV PLACEMENT. In a tablet-mode window (>= 600 logical
+    // px) the composed AppConstants.tabletNavPlacement says where this
+    // shell's nav sits — the manager app's manifest opts into railStart,
+    // so the floating menu moves to a start-edge vertical rail there.
+    // Compact (phone-shaped) windows never consult the constant: the
+    // floating bottom pill renders exactly as it always has.
+    final FloatingNavPlacement placement =
+        windowSizeOf(context).isAtLeastMedium
+            ? AppConstants.tabletNavPlacement
+            : FloatingNavPlacement.bottomCenter;
+    final bool isRail = placement == FloatingNavPlacement.railStart ||
+        placement == FloatingNavPlacement.railEnd;
     return Directionality(
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
       child: KeyboardDismisser(
         child: Scaffold(
           resizeToAvoidBottomInset: false,
           body: Consumer(
-            builder: (BuildContext context, WidgetRef ref, Widget? child) =>
-                ProsteIndexedStack(
-                  index: ref.watch(mainProvider).selectedIndex,
-                  children: list,
-                ),
+            builder: (BuildContext context, WidgetRef ref, Widget? child) {
+              final pages = ProsteIndexedStack(
+                index: ref.watch(mainProvider).selectedIndex,
+                children: list,
+              );
+              if (!isRail) return pages;
+              // The rail overlays the pages instead of living in the
+              // Scaffold's floatingActionButton slot: that slot is
+              // anchored to the bottom edge by design, and a side rail
+              // needs the full body to align itself against.
+              return Stack(
+                children: [
+                  Positioned.fill(child: pages),
+                  Align(
+                    // AlignmentDirectional keeps the rail RTL-aware:
+                    // railStart hugs the right edge in a right-to-left
+                    // layout, exactly like the pill's own items flip.
+                    alignment: placement == FloatingNavPlacement.railStart
+                        ? AlignmentDirectional.centerStart
+                        : AlignmentDirectional.centerEnd,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: EdgeInsetsDirectional.only(
+                          start: 16.w,
+                          end: 16.w,
+                        ),
+                        // Same guard as the pill's items: on a window
+                        // that is tablet-mode wide but short (landscape
+                        // phone) the rail scales down instead of
+                        // overflowing.
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: _railNav(context, ref),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
-          floatingActionButton: Consumer(
+          // In tablet mode with a rail (or hidden) placement the bottom
+          // pill is not rendered; on phones — and in tablet mode for
+          // apps that keep the default bottomCenter — this Consumer is
+          // exactly the pre-existing bottom bar, untouched.
+          floatingActionButton: placement != FloatingNavPlacement.bottomCenter
+              ? null
+              : Consumer(
             builder: (context, ref, child) {
               final state = ref.watch(mainProvider);
               final event = ref.read(mainProvider.notifier);
@@ -218,6 +273,107 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  /// The tablet-mode side rail: the SAME three destinations as the
+  /// floating bottom pill — orders, foods, the shop profile — in a
+  /// Column inside the same BlurWrap pill vocabulary (same blur, fill,
+  /// radius, collapse-on-scroll), with the same "+" create button riding
+  /// beneath it. Taps go through the same mainProvider calls, so the
+  /// rail is the bottom menu having moved, not a second nav.
+  Widget _railNav(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(mainProvider);
+    final event = ref.read(mainProvider.notifier);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        BlurWrap(
+          radius: BorderRadius.circular(100.r),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            decoration: BoxDecoration(
+              color: AppStyle.bottomNavigationBarColor.withOpacity(0.6),
+              borderRadius: BorderRadius.circular(100.r),
+            ),
+            width: 60.r,
+            child: Padding(
+              padding: REdgeInsets.only(
+                bottom: 10,
+                top: !state.isScrolling ? 10 : 0,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  BottomNavigatorItem(
+                    isScrolling: state.isScrolling,
+                    selectItem: () => event.selectIndex(0),
+                    currentIndex: state.selectedIndex,
+                    index: 0,
+                    selectIcon: Remix.file_list_2_fill,
+                    unSelectIcon: Remix.file_list_2_line,
+                  ),
+                  BottomNavigatorItem(
+                    isScrolling: state.isScrolling,
+                    selectItem: () => event.selectIndex(1),
+                    index: 1,
+                    currentIndex: state.selectedIndex,
+                    selectIcon: Remix.restaurant_fill,
+                    unSelectIcon: Remix.restaurant_line,
+                  ),
+                  _profileItem(
+                    () {
+                      event.selectIndex(2);
+                      event.changeScrolling(false);
+                    },
+                    state.selectedIndex,
+                    // The pill spaces this item sideways; the rail
+                    // stacks, so the gap moves above it.
+                    margin: EdgeInsets.only(top: 12.r),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        state.selectedIndex != 2
+            ? ButtonsBouncingEffect(
+                child: Hero(
+                  // Only ever mounted INSTEAD of the bottom pill's
+                  // button, never alongside it, so the shared tag stays
+                  // unique per screen.
+                  tag: AppConstants.heroTagAddOrderButton,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (state.selectedIndex == 0) {
+                        context.pushRoute(const ManagerCreateOrderRoute());
+                      } else {
+                        _showModalBasedOnFoodTab(context, ref);
+                      }
+                    },
+                    child: Container(
+                      margin: EdgeInsetsDirectional.only(top: 8.r),
+                      width: 56.r,
+                      height: 56.r,
+                      // Not const: AppStyle.primary is a getter
+                      // (brand-injectable), unlike the legacy
+                      // Style.primary constant.
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppStyle.primary,
+                      ),
+                      child: Icon(
+                        Remix.add_line,
+                        size: 26.r,
+                        color: AppStyle.blackColor,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            : const SizedBox.shrink(),
+      ],
+    );
+  }
+
   void _showModalBasedOnFoodTab(BuildContext context, WidgetRef ref) {
     final foodTabIndex = ref.read(foodTabsProvider).selectedIndex;
     Widget modal;
@@ -237,13 +393,19 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  GestureDetector _profileItem(Function() onTap, int index) {
+  GestureDetector _profileItem(
+    Function() onTap,
+    int index, {
+    // Null keeps the bottom pill's original sideways gap; the tablet-mode
+    // rail passes a vertical one instead.
+    EdgeInsetsGeometry? margin,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 40.r,
         height: 40.r,
-        margin: EdgeInsets.only(left: 12.r),
+        margin: margin ?? EdgeInsets.only(left: 12.r),
         decoration: BoxDecoration(
           border: Border.all(
             color: index == 2 ? AppStyle.primary : AppStyle.transparent,

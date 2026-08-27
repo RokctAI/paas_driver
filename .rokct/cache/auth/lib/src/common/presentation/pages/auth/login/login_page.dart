@@ -1,4 +1,4 @@
-// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+// Copyright (c) 2026 RokctAI
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,8 @@ import 'package:auth_sdk/src/common/presentation/pages/auth/register/register_pa
 import 'package:auth_sdk/src/common/application/auth/login/login_provider.dart';
 // [refork] embed via EmbeddedWidgets
 import 'package:auth_sdk/src/common/presentation/pages/auth/login/login_screen.dart';
+import 'package:auth_sdk/src/common/presentation/pages/auth/registration/registration_steps_page.dart';
+import 'package:auth_sdk/src/common/services/entry_config.dart';
 
 import 'package:base_sdk/src/presentation/theme/theme.dart';
 import 'package:base_sdk/src/presentation/components/buttons/second_button.dart';
@@ -158,6 +160,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
   }
 
+  /// Skip = guest entry. With a composed onboarding intro (supacharge) it
+  /// opens that intro, exactly as before; with none (e.g. the marketplace
+  /// customer app, which composes no onboarding SDK) it lands the guest on
+  /// the app's normal post-auth destination — the same default landing the
+  /// registration pipeline uses — instead of the affordance being hidden.
+  void _skip() {
+    if (_introPage != null) {
+      _showIntroPage();
+      return;
+    }
+    RegistrationFlow.defaultLanding(context);
+  }
+
   // ignore: unused_element
   void _closeIntroPage() {
     setState(() {
@@ -189,21 +204,38 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor:
-            isDarkMode ? AppStyle.dontHaveAnAccBackDark : AppStyle.white,
+        // Wide windows are imageless (see the Container below), and the
+        // entry surface stays DARK there regardless of theme mode — the
+        // same dark this page's own dark-mode background uses — because it
+        // stands in for the dark splash artwork the compact login shows
+        // (which never changed with the theme either). That also keeps the
+        // white-on-photo foreground (logo text, outlined Register button)
+        // readable without a per-mode contrast flip. Compact keeps the
+        // full-bleed image over the original per-mode background,
+        // unchanged.
+        backgroundColor: isDarkMode || isWideWindow
+            ? AppStyle.dontHaveAnAccBackDark
+            : AppStyle.white,
         body: _showIntro && _introPage != null
             ? _introPage! // Show preloaded IntroPage if _showIntro is true
             : Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(splashImage),
-                    // fill matches the phone look the portrait asset was
-                    // drawn for; on wider windows it stretches the art out
-                    // of shape, so cover-crop from the center instead.
-                    fit: isWideWindow ? BoxFit.cover : BoxFit.fill,
-                    alignment: Alignment.center,
-                  ),
-                ),
+                // Same treatment as the splash on large screens: the
+                // phone-shaped artwork doesn't belong on a wide
+                // (unfolded/tablet/desktop) window at all, so wide windows
+                // render no image — just the Scaffold's plain surface, the
+                // way the wide splash is imageless. Compact keeps the
+                // full-bleed image exactly as before.
+                decoration: isWideWindow
+                    ? null
+                    : BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage(splashImage),
+                          // fill matches the phone look the portrait asset
+                          // was drawn for.
+                          fit: BoxFit.fill,
+                          alignment: Alignment.center,
+                        ),
+                      ),
                 child: SafeArea(
                   child: Padding(
                     padding: REdgeInsets.symmetric(horizontal: 16.w),
@@ -273,12 +305,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             8.horizontalSpace,
                             const Spacer(),
                             const Spacer(),
-                            // No composed intro -> no Skip: tapping it could
-                            // only land on a blank page.
-                            if (_introPage != null)
+                            // Skip = use the app without an account. Shown
+                            // by default in EVERY composed app; only a home
+                            // SDK that declares it has no guest surface
+                            // (delivery/merchants) hides it, via the
+                            // @auth-entry-config integrations placeholder
+                            // (see AuthEntryConfig.showsGuestSkip) — no
+                            // longer gated on an onboarding intro being
+                            // composed, which wrongly hid it in apps whose
+                            // guests skip straight to browsing (customer).
+                            if (AuthEntryConfig.showsGuestSkip)
                               SecondButton(
-                                onTap:
-                                    _showIntroPage, // Show IntroPage when Skip is tapped
+                                onTap: _skip,
                                 title: AppHelpers.getTranslation(TrKeys.skip),
                                 bgColor: AppStyle.primary,
                                 titleColor: AppStyle.white,
@@ -294,11 +332,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           child: SingleChildScrollView(
                             // Cap the action column: on desktop windows the
                             // full-width CustomButtons and the terms card
-                            // used to span the entire window. Phones are
-                            // narrower than the cap, so compact rendering is
-                            // unchanged.
-                            child: Center(
-                              child: ConstrainedBox(
+                            // used to span the entire window. On wide
+                            // (unfolded/tablet) windows the capped column
+                            // anchors to the END side of the screen instead
+                            // of floating centered — AlignmentDirectional so
+                            // RTL locales anchor to their end — with edge
+                            // padding so it doesn't touch the screen edge.
+                            // Phones are narrower than the cap, so compact
+                            // rendering is unchanged.
+                            child: Align(
+                              alignment: isWideWindow
+                                  ? AlignmentDirectional.centerEnd
+                                  : Alignment.center,
+                              child: Padding(
+                                padding: isWideWindow
+                                    ? const EdgeInsetsDirectional.only(
+                                        end: 24)
+                                    : EdgeInsets.zero,
+                                child: ConstrainedBox(
                                 constraints:
                                     const BoxConstraints(maxWidth: 440),
                                 child: Column(
@@ -400,6 +451,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             ),
                             20.verticalSpace,
                           ],
+                                ),
                                 ),
                               ),
                             ),

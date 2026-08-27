@@ -1,4 +1,4 @@
-// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+// Copyright (c) 2026 RokctAI
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@ import 'package:remixicon/remixicon.dart';
 import 'package:base_sdk/src/presentation/app_assets.dart';
 
 import 'package:base_sdk/src/services/enums.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_nav_mode.dart';
 
 abstract class AppConstants {
   AppConstants._();
@@ -202,6 +203,20 @@ abstract class AppConstants {
   static const genderList = ["male", "female"];
 
   static const bool fixed = true;
+
+  /// Where the tab bar sits in a TABLET-MODE window (>= 600 logical px).
+  ///
+  /// The kernel default is [FloatingNavPlacement.bottomCenter] — the
+  /// floating bottom pill in every window size, exactly today's
+  /// behaviour. The side rail is OPT-IN per app: a home SDK manifest
+  /// re-points this through "constants.overrides" (the same compose-time
+  /// seam as [baseUrl] and [appTitle]) to e.g.
+  /// `FloatingNavPlacement.railStart`. A page can differ from its app via
+  /// [FloatingNavTabsMode.tabletPlacement]. Compact windows are never
+  /// affected: the bar is always the bottom pill there. Apps that
+  /// override nothing keep today's exact behaviour.
+  static const FloatingNavPlacement tabletNavPlacement =
+      FloatingNavPlacement.bottomCenter;
 
   static bool cardDirect = false;
 

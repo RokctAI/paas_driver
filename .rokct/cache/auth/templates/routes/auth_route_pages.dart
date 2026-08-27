@@ -1,4 +1,4 @@
-// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+// Copyright (c) 2026 RokctAI
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -48,6 +48,9 @@ import 'package:auth_sdk/src/common/presentation/pages/auth/reset/reset_password
 // Imported unconditionally so a manifest-contributed line in
 // applyComposedRegistrationConfig below always compiles.
 import 'package:auth_sdk/src/common/services/registration_config.dart';
+// Imported unconditionally so a manifest-contributed line in
+// applyComposedEntryConfig below always compiles.
+import 'package:auth_sdk/src/common/services/entry_config.dart';
 // The session-policy shell installed next to this file (${package} is
 // substituted with the host app's package name at install time, same as the
 // manifest "routes" imports).
@@ -66,6 +69,19 @@ void applyComposedRegistrationConfig() {
   // @auth-registration-config
 }
 
+/// Composition hook for entry-surface capabilities (the login twin of
+/// applyComposedRegistrationConfig): whether this app's login page offers
+/// the guest "Skip" affordance is composition data, declared by the app's
+/// home SDK through a manifest "integrations" entry targeting the
+/// placeholder below — e.g. delivery_sdk's driver flavor contributing
+/// `AuthEntryConfig.showsGuestSkip = false;` because the courier app has no
+/// guest surface. With no contribution the block stays empty and every
+/// AuthEntryConfig flag keeps its default (Skip SHOWN — consumer apps let
+/// people browse without an account).
+void applyComposedEntryConfig() {
+  // @auth-entry-config
+}
+
 @RoutePage(name: 'LoginRoute')
 class LoginRouteView extends StatelessWidget {
   const LoginRouteView({super.key});
@@ -81,6 +97,10 @@ class LoginRouteView extends StatelessWidget {
     // sheet opens from the login page, so the flags are in force before any
     // register form builds.
     applyComposedRegistrationConfig();
+    // Entry-surface capabilities too (guest Skip visibility): applied
+    // before the login page builds so the affordance renders correctly on
+    // the first frame.
+    applyComposedEntryConfig();
     return const LoginPage();
   }
 }

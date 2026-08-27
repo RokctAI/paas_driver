@@ -1,4 +1,4 @@
-// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+// Copyright (c) 2026 RokctAI
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,6 @@ import '../sync/id_mappings_table.dart';
 import '../sync/outbox_table.dart';
 
 // @sdk-database-imports-start
-import 'injected/auth_sdk__offline_user_table.dart';
 // @sdk-database-imports-end
 
 part 'app_database.g.dart';
@@ -50,7 +49,6 @@ part 'app_database.g.dart';
     OutboxTable,
     IdMappingsTable,
     // @sdk-database-tables-start
-    OfflineUsersTable,
     // @sdk-database-tables-end
   ],
 )
@@ -67,7 +65,7 @@ class AppDatabase extends _$AppDatabase {
   /// numbers through the composer's migration injection (auth is around 16),
   /// and the composer raises this getter in the cached copy accordingly.
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
@@ -83,7 +81,6 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(idMappingsTable);
         }
         // @sdk-database-migrations-start
-        if (from < 16) { await m.createTable(offlineUsersTable); }
         // @sdk-database-migrations-end
       },
       beforeOpen: (details) async {

@@ -1,6 +1,6 @@
 {
   "name": "merchants_sdk",
-  "version": "1.9.6",
+  "version": "1.9.8",
   "_comment_requires": "merchants_sdk >= 1.6.0 requires base_sdk >= 1.5.0 (SyncEngine/SyncHandler APIs from the offline-first Phase 0, core PR #15); merchants_sdk >= 1.7.0 requires base_sdk >= 1.7.0 (SyncEngine.parkedOps/retryOp/deleteOp backing the sync-issues screen). The composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
   "home_sdk": true,
   "home_page": "templates/pages/manager/main/main_page.dart",
@@ -45,6 +45,21 @@
       }
     },
     "manager": {
+      "integrations": [
+        {
+          "target": "lib/presentation/routes/auth_route_pages.dart",
+          "placeholder": "// @auth-entry-config",
+          "replacement": "  // Manager app (home SDK contribution): the back-office shell has no\n  // guest surface — every screen needs a signed-in account — so the\n  // login page's default-on guest Skip affordance is hidden here.\n  AuthEntryConfig.showsGuestSkip = false;",
+          "_comment": "Pairs with auth_sdk >= 1.9.0's @auth-entry-config placeholder (Users repo). Ray's rule: Skip (guest entry) lives in the shared login page and shows in ALL apps by default; a home SDK that doesn't need it opts out — 'delivery and merchants dont need it'. On older auth_sdk the marker is absent and the installer only warns (wiring NOT applied), leaving behavior unchanged."
+        }
+      ],
+      "constants": {
+        "import": "package:base_sdk/src/presentation/components/floating_nav/floating_nav_mode.dart",
+        "overrides": {
+          "tabletNavPlacement": "FloatingNavPlacement.railStart"
+        }
+      },
+      "_comment_constants_tablet_nav": "Opts the manager app into the start-side nav rail in tablet mode (windows >= 600 logical px): the composed AppConstants.tabletNavPlacement is re-pointed at FloatingNavPlacement.railStart, which the manager main shell reads. Phones keep the floating bottom pill exactly as before, and the driver flavor is untouched (this block only merges when composing app_type manager). The import is already present in base_sdk's app_constants.dart, so the installer will find it and skip re-adding; it is declared here so the override stands on its own.",
       "installs": [
         {
           "from": "templates/pages/manager/main/main_page.dart",

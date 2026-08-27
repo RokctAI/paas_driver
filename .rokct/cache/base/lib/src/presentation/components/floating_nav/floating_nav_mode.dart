@@ -1,4 +1,4 @@
-// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+// Copyright (c) 2026 RokctAI
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -48,6 +48,43 @@ import 'package:flutter/widgets.dart';
 /// on screen isn't drawing a bar.
 sealed class FloatingNavMode {
   const FloatingNavMode();
+}
+
+/// WHERE THE TAB BAR SITS IN A TABLET-MODE WINDOW (>= 600 logical px,
+/// `windowSizeOf(context).isAtLeastMedium`).
+///
+/// Compact (phone-shaped) windows are not part of this decision: the bar
+/// is ALWAYS the floating bottom pill there, and nothing here can change
+/// that. Placement only answers what happens once the window is tablet
+/// mode.
+///
+/// The fleet default is [bottomCenter] — exactly today's behaviour, the
+/// floating bottom pill in every window size. The side rail is OPT-IN:
+/// per app through the composed `AppConstants.tabletNavPlacement`
+/// (a manifest `constants.overrides` entry, the same seam that re-points
+/// `baseUrl`), or per page through
+/// [FloatingNavTabsMode.tabletPlacement]. An app that says nothing
+/// changes nothing.
+///
+/// Applies to [FloatingNavTabsMode] only. A controls bar (session or
+/// call) stays where the thumbs are regardless of window size, so
+/// [FloatingNavControlsMode] never consults placement.
+enum FloatingNavPlacement {
+  /// Today's behaviour and the fleet default: the floating bottom pill,
+  /// centered, in tablet-mode windows exactly as in compact ones.
+  bottomCenter,
+
+  /// A vertical rail hugging the START edge (left in LTR, right in RTL),
+  /// vertically centered — the same tabs in the same frosted housing,
+  /// turned on their side.
+  railStart,
+
+  /// The same rail on the END edge (right in LTR, left in RTL).
+  railEnd,
+
+  /// No tab bar at all in tablet-mode windows. The widget renders
+  /// nothing and intercepts nothing; the page owns the full canvas.
+  hidden,
 }
 
 /// How the active tab announces itself in [FloatingNavTabsMode].
@@ -104,12 +141,23 @@ class FloatingNavTabsMode extends FloatingNavMode {
   /// so leaving the page cannot strand the bar in the invoked mode.
   final List<FloatingNavAction> trailing;
 
+  /// Where this page's tab bar sits in a tablet-mode window.
+  ///
+  /// Null — the default — inherits the app-wide
+  /// `AppConstants.tabletNavPlacement`, which itself defaults to
+  /// [FloatingNavPlacement.bottomCenter] (today's behaviour). A page only
+  /// sets this to differ from its app, the same way it already passes
+  /// [currentIndex] down rather than storing it. Compact windows ignore
+  /// it entirely.
+  final FloatingNavPlacement? tabletPlacement;
+
   const FloatingNavTabsMode({
     required this.tabs,
     required this.currentIndex,
     required this.onSelect,
     this.indicator = FloatingNavIndicator.dash,
     this.trailing = const [],
+    this.tabletPlacement,
   });
 }
 

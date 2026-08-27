@@ -1,4 +1,4 @@
-// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+// Copyright (c) 2026 RokctAI
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,17 +20,49 @@
 
 
 import 'package:base_sdk/src/handlers/handlers.dart';
-import 'package:base_sdk/src/models/models.dart';
 
-import 'package:base_sdk/src/models/data/user.dart';
 import 'package:base_sdk/src/models/data/wallet_data.dart';
+import 'package:base_sdk/src/models/data/wallet_transfer_data.dart';
 
+/// Wallet operations over the platform gateway (`api.payment.*` /
+/// `api.transfer.*` cmds).
+///
+/// The CashSend-style transfer surface replaced the legacy enumerable
+/// recipient search (`searchSending`) and the old
+/// `sendWalletBalance(userUuid, amount)`: a sender either confirms a FULL
+/// phone number ([confirmRecipient] then [sendWalletToPhone]) or redeems a
+/// receiver-minted 6-digit claim code ([sendWalletByCode]). Codes are
+/// minted by the receiver via [generateReceiveClaim] and handed over
+/// out-of-band — never pushed or SMSed.
 abstract class WalletRepositoryFacade {
-  Future<ApiResult<List<UserModel>>> searchSending(Map<String, dynamic> params);
-  Future<ApiResult<WalletHistoryData>> sendWalletBalance(
-    String userUuid,
-    double amount,
-  );
+  /// Resolve a FULL registered phone number to ONLY that one user's name
+  /// fields for a pre-send confirmation. Never a list, never an email.
+  Future<ApiResult<WalletRecipientData>> confirmRecipient({
+    required String phone,
+  });
+
+  /// Receiver mints a pending claim: a 6-digit code linked to the
+  /// logged-in user and [amount], to be read to the sender out-of-band.
+  Future<ApiResult<WalletReceiveClaimData>> generateReceiveClaim({
+    required double amount,
+  });
+
+  /// Receiver cancels their own pending claim.
+  Future<ApiResult<bool>> cancelReceiveClaim({required String code});
+
+  /// Send [amount] to the user whose registered phone number is exactly
+  /// [phone] (confirm first via [confirmRecipient]).
+  Future<ApiResult<WalletTransferData>> sendWalletToPhone({
+    required String phone,
+    required double amount,
+  });
+
+  /// Redeem a receiver-minted claim code: pays the claim's exact amount to
+  /// its receiver and consumes the code (single-use).
+  Future<ApiResult<WalletTransferData>> sendWalletByCode({
+    required String code,
+  });
+
   Future<ApiResult<dynamic>> walletTopUp({
     required double amount,
     String? token,
