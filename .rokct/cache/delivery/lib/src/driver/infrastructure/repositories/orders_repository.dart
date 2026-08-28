@@ -29,22 +29,23 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:delivery_sdk/src/driver/di/driver_delivery_di.dart';
 import 'package:delivery_sdk/src/driver/domain/interface/orders.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.dart';
 
 import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_paginate_response.dart';
-import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
-import 'package:base_sdk/src/services/local_storage.dart';
 
 class CourierOrdersRepository implements CourierOrdersRepositoryFacade {
   /// Prefix-free cmd base for the universal platform gateway: map's
   /// `manifest.json` whitelisted-method keys
   /// (`{app_name}.api.driver_order.*`) with the app segment dropped.
   static const _cmd = 'api.driver_order';
+
+  /// Same convention for delivery's `manifest.json` whitelisted-method
+  /// keys (`{app_name}.api.delivery_man.*`).
+  static const _deliveryCmd = 'api.delivery_man';
 
   static const _gateway = PlatformGateway();
 
@@ -79,32 +80,27 @@ class CourierOrdersRepository implements CourierOrdersRepositoryFacade {
 
   @override
   Future<ApiResult<List<OrderDetailData>>> getAvailableOrders(int page) async {
+    // Repointed from the dead legacy `/api/v1/dashboard/deliveryman/
+    // orders/paginate?empty-deliveryman=1` path to the whitelisted
+    // Frappe def (delivery manifest key
+    // `api.delivery_man.get_available_orders`) through the universal
+    // platform gateway. The server owns the "no deliveryman yet +
+    // ready-for-pickup" filter, so the legacy currency/lang/address
+    // query knobs are dropped; the envelope mirrors the paginate
+    // contract ({"data": [...], "meta": {"total": n}}).
+    const perPage = 10;
     final data = {
-      'currency_id': LocalStorage.getSelectedCurrency()!.id,
-      'lang': LocalStorage.getLanguage()?.locale ?? 'en',
-      'page': page,
-      "status": "ready",
-      "empty-deliveryman": 1,
-      "perPage": 10,
-      "delivery_type": "delivery",
-      "address": {
-        "latitude": LocalStorage.getAddressSelected()?.latitude ??
-            AppConstants.demoLatitude,
-        "longitude": LocalStorage.getAddressSelected()?.longitude ??
-            AppConstants.demoLongitude
-      }
+      'limit_start': (page - 1) * perPage,
+      'limit_page_length': perPage,
     };
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '/api/v1/dashboard/deliveryman/orders/paginate',
-        queryParameters: data,
-      );
+      final response =
+          await _gateway.tenant('$_deliveryCmd.get_available_orders', data);
       return ApiResult.success(
-        data: OrderPaginateResponse.fromJson(response.data).data ?? [],
+        data: OrderPaginateResponse.fromJson(response).data ?? [],
       );
     } catch (e) {
-      debugPrint('==> get canceled orders failure: $e');
+      debugPrint('==> get available orders failure: $e');
       return ApiResult.failure(
           error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));
@@ -113,18 +109,22 @@ class CourierOrdersRepository implements CourierOrdersRepositoryFacade {
 
   @override
   Future<ApiResult<OrderDetailModel>> showOrders(String id) async {
-    final data = {
-      'currency_id': LocalStorage.getSelectedCurrency()?.id,
-      'lang': LocalStorage.getLanguage()?.locale ?? 'en',
-    };
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '/api/v1/dashboard/deliveryman/orders/$id',
-        queryParameters: data,
+      // Repointed from the dead legacy
+      // `/api/v1/dashboard/deliveryman/orders/{id}` path to the
+      // whitelisted deliveryman-scoped detail def (delivery manifest key
+      // `api.delivery_man.get_deliveryman_order_details`; the generic
+      // order-detail endpoint rejects non-owners) through the universal
+      // platform gateway. The def answers {"data": <serializer row>} —
+      // exactly the envelope OrderDetailModel.fromJson reads.
+      final response = await _gateway.tenant(
+        '$_deliveryCmd.get_deliveryman_order_details',
+        {'order_id': id},
       );
       return ApiResult.success(
-        data: OrderDetailModel.fromJson(response.data),
+        data: OrderDetailModel.fromJson(
+          response is Map ? Map<String, dynamic>.from(response) : {},
+        ),
       );
     } catch (e) {
       debugPrint('==> get single order failure: $e');
@@ -137,24 +137,25 @@ class CourierOrdersRepository implements CourierOrdersRepositoryFacade {
   @override
   Future<ApiResult<List<OrderDetailData>>> getHistoryOrders(int page,
       {DateTime? start, DateTime? end}) async {
+    // Repointed from the dead legacy `/api/v1/dashboard/deliveryman/
+    // orders/paginate?status=delivered` path to the same working Frappe
+    // paginate def getActiveOrders already uses, through the universal
+    // platform gateway. The backend normalizes the legacy lowercase
+    // "delivered" and bounds the creation date with the optional
+    // date_from/date_to kwargs (either bound alone works).
+    const perPage = 10;
     final data = {
-      'currency_id': LocalStorage.getSelectedCurrency()!.id,
-      'lang': LocalStorage.getLanguage()?.locale ?? 'en',
-      'page': page,
-      "status": "delivered",
-      "perPage": 10,
-      if (start != null)
-        "delivery_date_from": DateFormat("yyyy-MM-dd").format(start),
-      if (end != null) "delivery_date_to": DateFormat("yyyy-MM-dd").format(end),
+      'limit_start': (page - 1) * perPage,
+      'limit_page_length': perPage,
+      'statuses': jsonEncode(["delivered"]),
+      if (start != null) 'date_from': DateFormat("yyyy-MM-dd").format(start),
+      if (end != null) 'date_to': DateFormat("yyyy-MM-dd").format(end),
     };
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '/api/v1/dashboard/deliveryman/orders/paginate',
-        queryParameters: data,
-      );
+      final response =
+          await _gateway.tenant('$_cmd.get_driver_orders_paginate', data);
       return ApiResult.success(
-        data: OrderPaginateResponse.fromJson(response.data).data ?? [],
+        data: OrderPaginateResponse.fromJson(response).data ?? [],
       );
     } catch (e) {
       debugPrint('==> get delivered orders failure: $e');
@@ -191,12 +192,23 @@ class CourierOrdersRepository implements CourierOrdersRepositoryFacade {
   @override
   Future<ApiResult<OrderPaginateResponse>> fetchCurrentOrder() async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '/api/v1/dashboard/deliveryman/orders/paginate?perPage=1&lang=en&current=1',
+      // Repointed from the dead legacy `/api/v1/dashboard/deliveryman/
+      // orders/paginate?current=1` path to the working Frappe paginate
+      // def, through the universal platform gateway, asking for the
+      // single newest in-progress order. (map's `fetch_current_order`
+      // def exists but is not whitelisted in its manifest and answers a
+      // raw doc dict, not this OrderPaginateResponse envelope — reusing
+      // the paginate def avoids both problems.)
+      final response = await _gateway.tenant(
+        '$_cmd.get_driver_orders_paginate',
+        {
+          'limit_start': 0,
+          'limit_page_length': 1,
+          'statuses': jsonEncode(["accepted", "on_a_way"]),
+        },
       );
       return ApiResult.success(
-        data: OrderPaginateResponse.fromJson(response.data),
+        data: OrderPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('===> error current order settings $e');
@@ -332,15 +344,20 @@ class CourierOrdersRepository implements CourierOrdersRepositoryFacade {
     required double rating,
     required String comment,
   }) async {
-    final data = {
-      'rating': rating,
-      if (comment.isNotEmpty) 'comment': comment,
-    };
     try {
-      final client = dioHttp.client(requireAuth: true);
-      await client.post(
-        '/api/v1/dashboard/deliveryman/orders/$orderId/review',
-        data: data,
+      // Repointed from the dead legacy
+      // `/api/v1/dashboard/deliveryman/orders/{id}/review` path to the
+      // whitelisted deliveryman-scoped review def (delivery manifest key
+      // `api.delivery_man.add_deliveryman_order_review`; the generic
+      // review endpoint rejects non-owners) through the universal
+      // platform gateway. The caller ignores the response body.
+      await _gateway.tenant(
+        '$_deliveryCmd.add_deliveryman_order_review',
+        {
+          'order_id': orderId,
+          'rating': rating,
+          if (comment.isNotEmpty) 'comment': comment,
+        },
       );
       return const ApiResult.success(data: null);
     } catch (e) {

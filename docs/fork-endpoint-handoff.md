@@ -15,6 +15,48 @@ Source of truth: `paas_driver/lib/infrastructure/repositories/` as of the fork.
 `{...}` marks a path parameter. All calls go through the shared dio client;
 `requireAuth: true` unless noted.
 
+## Status update — 2026-08-28 driver repoint wave
+
+The driver-facing entries below are no longer live calls. zones#68/#69 and
+corporate#70 repointed them onto whitelisted Frappe defs through base_sdk's
+universal platform gateway, and this app now vendors those SDK versions
+(delivery_sdk 1.11.0, zones_sdk 1.4.0, revenue_sdk 1.4.0):
+
+- **delivery_sdk `orders_repository.dart`** — available/history/current
+  order paginates, order detail, and driver review now hit
+  `api.delivery_man.get_available_orders`,
+  `api.driver_order.get_driver_orders_paginate`,
+  `api.delivery_man.get_deliveryman_order_details`, and
+  `api.delivery_man.add_deliveryman_order_review`.
+- **delivery_sdk `courier_repository.dart`** — driver settings read/write
+  (shift toggle included), general info + password, vehicle create/read,
+  foreground location reporting, and zone read now hit
+  `api.delivery_man.get_deliveryman_settings` /
+  `update_deliveryman_settings`, `api.user.update_profile` /
+  `update_password`, `api.user.create_request_model` /
+  `get_user_request_models`, `api.driver.update_location`, and
+  `api.delivery_man.get_deliveryman_zone_polygon`.
+- **zones_sdk `delivery_zones_repository.dart`** — zone polygon read/write
+  now hit `api.delivery_man.get_deliveryman_zone_polygon` /
+  `set_deliveryman_zone_polygon` (plain `[[lat,lng],...]` points; the
+  legacy `{"0":lat,"1":lng}` payload shape documented below is retired).
+- **revenue_sdk `courier_statistics_repository.dart`** — all three earnings
+  reads (including the flagged `seller/` path, confirmed monolith residue)
+  now hit `api.delivery_man.get_deliveryman_statistics`,
+  `api.delivery_man.get_deliveryman_order_report`, and
+  `api.driver_order.get_driver_orders_paginate`.
+
+Both location-reporting callers are covered: the repository's foreground
+path and the background-isolate path (now delivery_sdk's
+`courier_location_service.dart`, which builds the same gateway request by
+hand) both hit `api.driver.update_location`.
+
+Still on the legacy surface after this wave: delivery_sdk's parcel
+repository calls, `/api/v1/rest/delivery-vehicle-types`, the
+auth/users/comms/settings tables (owned by other SDKs, unchanged here),
+and the "pre-existing leftovers" list at the bottom. The tables below are
+kept as-recorded for that remaining work.
+
 ---
 
 ## Note: one caller runs outside the DI graph
