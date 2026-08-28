@@ -22,6 +22,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:base_sdk/src/presentation/pages/profile/profile_action_item.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section_registry.dart';
 
@@ -36,10 +37,20 @@ import 'package:base_sdk/src/presentation/pages/profile/profile_section_registry
 ///     section-gate contract;
 ///   * top-row actions: order-sorted with id tie-break, duplicate id
 ///     first-wins;
+///   * grouped layout-agnostic actions: per-group first-wins on id,
+///     order-sorted with id tie-break, groups isolated from each other;
 ///   * the top-row page title: host default until an SDK overrides it.
 void main() {
   ProfileSection section(String id, int order) =>
       ProfileSection(id: id, order: order, builder: (_) => const SizedBox());
+
+  ProfileActionItem action(String id, int order) => ProfileActionItem(
+        id: id,
+        order: order,
+        icon: const IconData(0xe000),
+        label: () => id,
+        onTap: (_) {},
+      );
 
   setUp(() => ProfileSectionRegistry.I.reset());
 
@@ -153,6 +164,125 @@ void main() {
       expect(ProfileSectionRegistry.I.topRowActions, isEmpty);
       expect(
         ProfileSectionRegistry.I.containsTopRowAction('marketplace.likes'),
+        isFalse,
+      );
+    });
+  });
+
+  group('grouped actions', () {
+    test('a group starts empty', () {
+      expect(ProfileSectionRegistry.I.actions('marketplace.customer'),
+          isEmpty);
+      expect(
+        ProfileSectionRegistry.I
+            .containsAction('marketplace.customer', 'orders'),
+        isFalse,
+      );
+    });
+
+    test('a registered action is retrievable with its id and order', () {
+      ProfileSectionRegistry.I.registerAction(
+        group: 'marketplace.customer',
+        item: action('marketplace.orders', 10),
+      );
+
+      expect(
+        ProfileSectionRegistry.I
+            .containsAction('marketplace.customer', 'marketplace.orders'),
+        isTrue,
+      );
+      final item =
+          ProfileSectionRegistry.I.actions('marketplace.customer').single;
+      expect(item.id, 'marketplace.orders');
+      expect(item.order, 10);
+    });
+
+    test('actions sort by order with id tie-break', () {
+      ProfileSectionRegistry.I.registerAction(
+        group: 'lms.student',
+        item: action('zeta', 10),
+      );
+      ProfileSectionRegistry.I.registerAction(
+        group: 'lms.student',
+        item: action('alpha', 10),
+      );
+      ProfileSectionRegistry.I.registerAction(
+        group: 'lms.student',
+        item: action('omega', 5),
+      );
+
+      expect(
+        ProfileSectionRegistry.I
+            .actions('lms.student')
+            .map((a) => a.id)
+            .toList(),
+        ['omega', 'alpha', 'zeta'],
+      );
+    });
+
+    test('duplicate id within a group keeps the first registration', () {
+      final first = action('marketplace.orders', 10);
+      ProfileSectionRegistry.I.registerAction(
+        group: 'marketplace.customer',
+        item: first,
+      );
+      ProfileSectionRegistry.I.registerAction(
+        group: 'marketplace.customer',
+        item: action('marketplace.orders', 99),
+      );
+
+      expect(ProfileSectionRegistry.I.actions('marketplace.customer'),
+          hasLength(1));
+      expect(
+        ProfileSectionRegistry.I.actions('marketplace.customer').single,
+        same(first),
+      );
+    });
+
+    test('groups are isolated — the same id may live in different groups',
+        () {
+      ProfileSectionRegistry.I.registerAction(
+        group: 'marketplace.customer',
+        item: action('help', 10),
+      );
+      ProfileSectionRegistry.I.registerAction(
+        group: 'lms.student',
+        item: action('help', 99),
+      );
+
+      expect(ProfileSectionRegistry.I.actions('marketplace.customer'),
+          hasLength(1));
+      expect(ProfileSectionRegistry.I.actions('lms.student'), hasLength(1));
+      expect(
+        ProfileSectionRegistry.I.actions('marketplace.customer').single.order,
+        10,
+      );
+      expect(ProfileSectionRegistry.I.actions('lms.student').single.order,
+          99);
+      // A registration never leaks into a group it was not declared for.
+      expect(
+        ProfileSectionRegistry.I.containsAction('marketplace.customer', 'help'),
+        isTrue,
+      );
+      expect(
+        ProfileSectionRegistry.I.actions('marketplace.seller'),
+        isEmpty,
+      );
+    });
+
+    test('reset clears registered actions', () {
+      ProfileSectionRegistry.I.registerAction(
+        group: 'marketplace.customer',
+        item: action('marketplace.orders', 10),
+      );
+
+      ProfileSectionRegistry.I.reset();
+
+      expect(ProfileSectionRegistry.I.actions('marketplace.customer'),
+          isEmpty);
+      expect(
+        ProfileSectionRegistry.I
+            .containsAction('marketplace.customer', 'marketplace.orders'),
         isFalse,
       );
     });

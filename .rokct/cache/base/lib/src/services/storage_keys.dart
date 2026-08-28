@@ -53,6 +53,9 @@ abstract class StorageKeys {
   static const String keyGlobalSettings = 'keyGlobalSettings';
   static const String keySettingsFetched = 'keySettingsFetched';
   static const String keyTranslations = 'keyTranslations';
+  // Fingerprint of the last candidate set TranslationSeeder successfully
+  // pushed to the backend, so each candidate set is only pushed once.
+  static const String keySeededTranslationsHash = 'keySeededTranslationsHash';
   static const String keyLanguageData = 'keyLanguageData';
   static const String keyAuthenticatedWithSocial = 'keyAuthenticatedWithSocial';
   static const String keyLangLtr = 'keyLangLtr';

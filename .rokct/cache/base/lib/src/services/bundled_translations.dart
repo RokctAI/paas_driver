@@ -64,6 +64,16 @@ class BundledTranslations {
     return _byLocale[locale]?[key];
   }
 
+  /// An immutable snapshot of the bundled map for [locale], or null when
+  /// the locale has no (non-empty) bundled map. Consumed by
+  /// TranslationSeeder to compute the candidate rows it offers the
+  /// backend.
+  static Map<String, String>? entriesFor(String locale) {
+    final map = _byLocale[locale];
+    if (map == null || map.isEmpty) return null;
+    return Map<String, String>.unmodifiable(map);
+  }
+
   /// Locales that ship a non-empty bundled map ('en' is implicit — English
   /// survives through the humanized-key fallback and the served map).
   static List<String> get bundledLocales =>

@@ -29,6 +29,7 @@ import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/bundled_translations.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/common/translation_seeder.dart';
 // [refork] removed host router import
 
 import 'package:base_sdk/src/application/language/language_state.dart';
@@ -142,6 +143,9 @@ class LanguageNotifier extends StateNotifier<LanguageState> {
       response.when(
         success: (data) {
           LocalStorage.setTranslations(data.data);
+          // Fire-and-forget: offer the app's bundled translation keys to
+          // the backend (insert-only server-side); silent on failure.
+          TranslationSeeder.pushMissingKeys();
           state = state.copyWith(isLoading: false, isSuccess: true);
         },
         failure: (failure, status) {

@@ -25,6 +25,7 @@ import 'package:base_sdk/src/models/data/address_old_data.dart';
 import 'package:base_sdk/src/models/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:base_sdk/src/models/response/driver_show_response.dart';
+import 'package:base_sdk/src/presentation/theme/app_theme.dart';
 import 'package:base_sdk/src/services/secure_storage.dart';
 import 'package:base_sdk/src/services/storage_keys.dart';
 
@@ -334,12 +335,29 @@ abstract class LocalStorage {
   static void deleteTranslations() =>
       _preferences?.remove(StorageKeys.keyTranslations);
 
+  static Future<void> setSeededTranslationsHash(String hash) async {
+    await _preferences?.setString(
+      StorageKeys.keySeededTranslationsHash,
+      hash,
+    );
+  }
+
+  static String getSeededTranslationsHash() =>
+      _preferences?.getString(StorageKeys.keySeededTranslationsHash) ?? '';
+
+  static void deleteSeededTranslationsHash() =>
+      _preferences?.remove(StorageKeys.keySeededTranslationsHash);
+
   static Future<void> setAppThemeMode(bool isDarkMode) async {
     await _preferences?.setBool(StorageKeys.keyAppThemeMode, isDarkMode);
   }
 
+  /// The persisted dark-mode preference; when the user has never chosen a
+  /// theme, falls back to the app's [AppTheme.defaultDarkMode] polarity
+  /// (set by app glue before runApp — kernel default: light).
   static bool getAppThemeMode() =>
-      _preferences?.getBool(StorageKeys.keyAppThemeMode) ?? false;
+      _preferences?.getBool(StorageKeys.keyAppThemeMode) ??
+      AppTheme.defaultDarkMode;
 
   static void deleteAppThemeMode() =>
       _preferences?.remove(StorageKeys.keyAppThemeMode);

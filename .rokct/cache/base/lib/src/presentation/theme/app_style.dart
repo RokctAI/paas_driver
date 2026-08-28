@@ -103,6 +103,14 @@ abstract class AppStyle {
   static Color get textDarkFaint => isDark ? _textDarkFaint : _textLightFaint;
   static Color get textPrimary => isDark ? _inkDark : _inkLight;
 
+  // Polarity-PINNED page backgrounds (never mode-resolving): for building
+  // the host MaterialApp's paired ThemeData — `theme:` must stay light and
+  // `darkTheme:` dark regardless of the current [isDark] flag. They track
+  // the injected brand palette. Page code should keep using the
+  // mode-resolving getters above.
+  static Color get surfaceLightRaw => _surfaceLight;
+  static Color get surfaceDarkRaw => _surfaceDark;
+
   /// Brand-palette injection seam: a composed app overrides the DARK backing
   /// values at boot (before the first frame). Only the parameters an app
   /// passes change; the light counterparts keep the kernel's neutral defaults.
@@ -242,72 +250,78 @@ abstract class AppStyle {
   static const Color yourChatBack = Color(0xFF25303F);
 
   /// font style
+  ///
+  /// Every helper's `color` defaults to the mode-resolving [textPrimary]
+  /// (white on dark, near-black ink on light) so the fleet's color-omitting
+  /// call sites read correctly in BOTH modes. A nullable parameter rather
+  /// than a const default because [textPrimary] resolves against [isDark]
+  /// at call time; call sites that pass a color are untouched.
 
   static interBold({
     double size = 18,
-    Color color = AppStyle.black,
+    Color? color,
     double letterSpacing = 0,
   }) =>
       GoogleFonts.inter(
         fontSize: size.sp,
         fontWeight: FontWeight.bold,
-        color: color,
+        color: color ?? textPrimary,
         letterSpacing: letterSpacing.sp,
         decoration: TextDecoration.none,
       );
 
   static interSemi({
     double size = 18,
-    Color color = AppStyle.black,
+    Color? color,
     TextDecoration decoration = TextDecoration.none,
     double letterSpacing = 0,
   }) =>
       GoogleFonts.inter(
         fontSize: size.sp,
         fontWeight: FontWeight.w700,
-        color: color,
+        color: color ?? textPrimary,
         letterSpacing: letterSpacing.sp,
         decoration: decoration,
       );
 
   static interNoSemi({
     double size = 18,
-    Color color = AppStyle.black,
+    Color? color,
     TextDecoration decoration = TextDecoration.none,
     double letterSpacing = 0,
   }) =>
       GoogleFonts.inter(
         fontSize: size.sp,
         fontWeight: FontWeight.w600,
-        color: color,
+        color: color ?? textPrimary,
         letterSpacing: letterSpacing.sp,
         decoration: decoration,
       );
 
   static interNormal({
     double size = 16,
-    Color color = AppStyle.black,
+    Color? color,
     TextDecoration textDecoration = TextDecoration.none,
     double letterSpacing = 0,
   }) =>
       GoogleFonts.inter(
         fontSize: size.sp,
         fontWeight: FontWeight.w500,
-        color: color,
+        color: color ?? textPrimary,
         letterSpacing: letterSpacing.sp,
         decoration: textDecoration,
       );
 
   static interRegular({
     double size = 16,
-    Color color = AppStyle.black,
+    Color? color,
     TextDecoration textDecoration = TextDecoration.none,
     double letterSpacing = 0,
   }) =>
       GoogleFonts.inter(
         fontSize: size,
         fontWeight: FontWeight.w400,
-        color: color,
+        color: color ?? textPrimary,
         letterSpacing: letterSpacing.sp,
         decoration: textDecoration,
       );
@@ -315,41 +329,41 @@ abstract class AppStyle {
   ///Juvo Font Styles - Using Montserrat
   static logoFontBold({
     double size = 18,
-    Color color = AppStyle.black,
+    Color? color,
     double letterSpacing = 0,
   }) =>
       GoogleFonts.montserrat(
         fontSize: size.sp,
         fontWeight: FontWeight.w700, // Bold 700
-        color: color,
+        color: color ?? textPrimary,
         letterSpacing: letterSpacing.sp,
         decoration: TextDecoration.none,
       );
 
   static logoFontBoldItalic({
     double size = 18,
-    Color color = AppStyle.black,
+    Color? color,
     double letterSpacing = 0,
   }) =>
       GoogleFonts.montserrat(
         fontSize: size.sp,
         fontWeight: FontWeight.w700, // Bold 700
         fontStyle: FontStyle.italic,
-        color: color,
+        color: color ?? textPrimary,
         letterSpacing: letterSpacing.sp,
         decoration: TextDecoration.none,
       );
 
   static logoFontBlackItalic({
     double size = 18,
-    Color color = AppStyle.black,
+    Color? color,
     double letterSpacing = 0,
   }) =>
       GoogleFonts.montserrat(
         fontSize: size.sp,
         fontWeight: FontWeight.w900, // Black 900
         fontStyle: FontStyle.italic,
-        color: color,
+        color: color ?? textPrimary,
         letterSpacing: letterSpacing.sp,
         decoration: TextDecoration.none,
       );
@@ -357,21 +371,21 @@ abstract class AppStyle {
   // Logo Motto styles - Using Montserrat
   static logoMottoRegular({
     double size = 16,
-    Color color = AppStyle.black,
+    Color? color,
     TextDecoration textDecoration = TextDecoration.none,
     double letterSpacing = 0,
   }) =>
       GoogleFonts.montserrat(
         fontSize: size.sp,
         fontWeight: FontWeight.w400, // Regular 400
-        color: color,
+        color: color ?? textPrimary,
         letterSpacing: letterSpacing.sp,
         decoration: textDecoration,
       );
 
   static logoMottoRegularItalic({
     double size = 16,
-    Color color = AppStyle.black,
+    Color? color,
     TextDecoration textDecoration = TextDecoration.none,
     double letterSpacing = 0,
   }) =>
@@ -379,7 +393,7 @@ abstract class AppStyle {
         fontSize: size.sp,
         fontWeight: FontWeight.w400, // Regular 400
         fontStyle: FontStyle.italic,
-        color: color,
+        color: color ?? textPrimary,
         letterSpacing: letterSpacing.sp,
         decoration: textDecoration,
       );

@@ -56,11 +56,28 @@ class SettingsRepository implements SettingsRepositoryFacade {
   Future<ApiResult<MobileTranslationsResponse>> getMobileTranslations() async {
     final data = {'lang': LocalStorage.getLanguage()?.locale ?? 'en'};
     try {
-      final response = await _gateway.call(
-        'api.translation.get_mobile_translations',
-        payload: data,
-        requireAuth: false,
-      );
+      dynamic response;
+      try {
+        response = await _gateway.call(
+          'api.translation.get_mobile_translations',
+          payload: data,
+          requireAuth: false,
+        );
+      } catch (_) {
+        // The unprefixed cmd resolves only on tenant-role sites; a
+        // control-role gateway rejects any cmd without the `control:`
+        // prefix, and rejection shapes differ per role gateway — so
+        // rather than pattern-matching the error, retry the fetch once
+        // under the control-role key (the same deterministic fallback
+        // TranslationSeeder uses for its seed push). The read is
+        // side-effect free, so the extra attempt is harmless; if this
+        // one fails too, the outer catch reports the failure as before.
+        response = await _gateway.call(
+          'control:get_mobile_translations',
+          payload: data,
+          requireAuth: false,
+        );
+      }
       return ApiResult.success(
         data: MobileTranslationsResponse.fromJson(response),
       );

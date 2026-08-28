@@ -1,7 +1,7 @@
 {
   "name": "merchants_sdk",
-  "version": "1.9.8",
-  "_comment_requires": "merchants_sdk >= 1.6.0 requires base_sdk >= 1.5.0 (SyncEngine/SyncHandler APIs from the offline-first Phase 0, core PR #15); merchants_sdk >= 1.7.0 requires base_sdk >= 1.7.0 (SyncEngine.parkedOps/retryOp/deleteOp backing the sync-issues screen). The composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
+  "version": "1.11.0",
+  "_comment_requires": "merchants_sdk >= 1.6.0 requires base_sdk >= 1.5.0 (SyncEngine/SyncHandler APIs from the offline-first Phase 0, core PR #15); merchants_sdk >= 1.7.0 requires base_sdk >= 1.7.0 (SyncEngine.parkedOps/retryOp/deleteOp backing the sync-issues screen); merchants_sdk >= 1.10.0 requires base_sdk >= 1.32.0 (the restaurant tab is a GenericProfilePage host now: ProfileSectionRegistry.registerTopRowAction and BaseWalletCard, both used by the installed restaurant_page.dart template). The composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
   "home_sdk": true,
   "home_page": "templates/pages/manager/main/main_page.dart",
   "installs": [

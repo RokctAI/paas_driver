@@ -88,6 +88,23 @@ class AppWidget extends ConsumerWidget {
                 // transparent with white icons everywhere.
                 theme: ThemeData(
                   useMaterial3: false,
+                  brightness: Brightness.light,
+                  scaffoldBackgroundColor: AppStyle.surfaceLightRaw,
+                  appBarTheme: const AppBarTheme(
+                    systemOverlayStyle: AppStyle.systemUiOverlay,
+                  ),
+                ),
+                // Real dark counterpart built from the AppStyle dark palette
+                // (polarity-pinned raw tokens — they track the brand palette
+                // injected via injectBrandColors but never flip with the
+                // current mode). With darkTheme: wired, the themeMode line
+                // below actually switches the Material tree; AppStyle's
+                // mode-resolving tokens follow the same isDarkMode state via
+                // AppNotifier's AppStyle.setBrightness sync.
+                darkTheme: ThemeData(
+                  useMaterial3: false,
+                  brightness: Brightness.dark,
+                  scaffoldBackgroundColor: AppStyle.surfaceDarkRaw,
                   appBarTheme: const AppBarTheme(
                     systemOverlayStyle: AppStyle.systemUiOverlay,
                   ),

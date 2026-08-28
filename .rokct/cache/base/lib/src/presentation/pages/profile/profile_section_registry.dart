@@ -22,6 +22,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:base_sdk/src/presentation/pages/profile/profile_action_item.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section.dart';
 import 'package:base_sdk/src/presentation/pages/profile/widgets/base_profile_footer.dart';
 
@@ -43,6 +44,10 @@ class ProfileSectionRegistry {
   final Map<ProfileHeaderSlot, ProfileHeaderSlotContent> _headerSlots = {};
 
   final Map<String, ProfileTopRowAction> _topRowActions = {};
+
+  /// Layout-agnostic action buttons, grouped by page key — see
+  /// [registerAction].
+  final Map<String, Map<String, ProfileActionItem>> _actions = {};
 
   /// Header edit affordance; hidden while unset. Registered by the shell
   /// or an SDK that owns the edit-profile flow.
@@ -144,6 +149,51 @@ class ProfileSectionRegistry {
   /// Whether a top-row action with [id] is already registered.
   bool containsTopRowAction(String id) => _topRowActions.containsKey(id);
 
+  /// Registers [item] into the action [group] of one profile page.
+  ///
+  /// [group] is a page key (e.g. `'marketplace.customer'`,
+  /// `'lms.student'`) — the page-owning SDK renders the group through a
+  /// `ProfileActionsSection` and picks the layout there; contributors
+  /// declare only the button. Like [register], registration happens at
+  /// bootstrap (`di_hooks`), and a duplicate [ProfileActionItem.id]
+  /// within the group keeps its first registration — the duplicate is
+  /// dropped loudly. Items render in [ProfileActionItem.order] (lower
+  /// first, ties broken by id).
+  void registerAction({
+    required String group,
+    required ProfileActionItem item,
+  }) {
+    final groupItems = _actions.putIfAbsent(group, () => {});
+    if (groupItems.containsKey(item.id)) {
+      assert(() {
+        debugPrint(
+            "ProfileSectionRegistry: duplicate action id '${item.id}' in "
+            "group '$group' ignored - the first registration wins.");
+        return true;
+      }());
+      return;
+    }
+    groupItems[item.id] = item;
+  }
+
+  /// Whether [group] already holds an action with [id].
+  bool containsAction(String group, String id) =>
+      _actions[group]?.containsKey(id) ?? false;
+
+  /// The actions registered into [group], sorted by
+  /// [ProfileActionItem.order] with ties broken by id — the same
+  /// deterministic ordering as [sections]. Empty for a group nothing
+  /// registered into.
+  List<ProfileActionItem> actions(String group) {
+    final list = (_actions[group]?.values ?? const <ProfileActionItem>[])
+        .toList()
+      ..sort((a, b) {
+        final byOrder = a.order.compareTo(b.order);
+        return byOrder != 0 ? byOrder : a.id.compareTo(b.id);
+      });
+    return list;
+  }
+
   /// Registered top-row actions sorted by [ProfileTopRowAction.order],
   /// ties broken by id — the same deterministic ordering as [sections].
   List<ProfileTopRowAction> get topRowActions {
@@ -206,6 +256,7 @@ class ProfileSectionRegistry {
     _sections.clear();
     _headerSlots.clear();
     _topRowActions.clear();
+    _actions.clear();
     onEditProfile = null;
     onLogout = null;
     pageTitle = null;

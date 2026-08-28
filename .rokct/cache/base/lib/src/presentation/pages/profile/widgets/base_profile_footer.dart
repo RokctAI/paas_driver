@@ -45,9 +45,9 @@ class ProfileMetaRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Wrap, not Row: with both week and year usage figures the line can
-    // exceed narrow screens; extra items flow to a second centred line
-    // instead of overflowing.
+    // Wrap, not Row: on narrow screens (or a caller overriding the badge
+    // back to both figures) the line can exceed the width; extra items
+    // flow to a second centred line instead of overflowing.
     return Wrap(
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
@@ -68,13 +68,17 @@ class ProfileMetaRow extends StatelessWidget {
           future: PackageInfo.fromPlatform(),
           builder: (context, packageSnapshot) {
             if (packageSnapshot.hasData) {
+              // Just a lowercase "v" prefix — the spelled-out "App
+              // Version" label was too long for the row (product ask
+              // 2026-08-28). No translation key ever backed this label
+              // (the old words were hardcoded English), and "v" is a
+              // locale-neutral version marker, so none is added.
               String versionDisplay;
               if (kDebugMode) {
                 versionDisplay =
-                    " App Version ${packageSnapshot.data!.version}+${packageSnapshot.data!.buildNumber}";
+                    " v${packageSnapshot.data!.version}+${packageSnapshot.data!.buildNumber}";
               } else {
-                versionDisplay =
-                    " App Version ${packageSnapshot.data!.version}";
+                versionDisplay = " v${packageSnapshot.data!.version}";
               }
 
               return Text(

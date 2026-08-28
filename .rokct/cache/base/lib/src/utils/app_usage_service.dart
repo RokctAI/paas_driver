@@ -21,22 +21,54 @@
 
 // lib/infrastructure/services/app_usage_service.dart
 
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:base_sdk/src/services/local_storage.dart';
-import 'package:base_sdk/src/constants/app_constants.dart';
 
+import 'package:flutter/foundation.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
+import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/services/telemetry.dart';
+
+/// Days-in-app tracking over the platform telemetry lane.
+///
+/// The write side is a once-per-day `app_open` usage event through
+/// [TelemetryClient.track] (gateway cmd `tenant.api.track_event`), guarded
+/// by the `last_usage_recorded` SharedPreferences day-marker; the read side
+/// is the telemetry package's `tenant.api.get_app_usage_stats` gateway
+/// method, which counts the session user's distinct `app_open` days. Both
+/// replace the retired legacy `/api/v1/rest/app-usage/record|stats` REST
+/// endpoints (raw `package:http` + Bearer, bypassing the gateway; dead on
+/// the platform backend and with zero record call sites).
 class AppUsageService {
   /// Stats-map key for the current ISO week's usage figure, mirroring the
   /// backend's `days_in_app_this_year`. A backend-served value wins; when
   /// the stats payload lacks it, the value is filled from the local
-  /// once-per-day counter kept by [recordAppUsage].
+  /// once-per-day counter kept by [recordAppOpenIfNeeded].
   static const String weekStatKey = 'days_in_app_this_week';
 
+  /// Usage event sent at most once per day from the app-bootstrap path
+  /// ([recordAppOpenIfNeeded]); the backend's stats method counts its
+  /// distinct days.
+  static const String appOpenEvent = 'app_open';
+
+  /// Gateway cmd (prefix-free) for the telemetry manifest's
+  /// `tenant.api.get_app_usage_stats` whitelisted_methods mapping — the
+  /// stats read side of the `app_open` lane.
+  static const String statsCmd = 'tenant.api.get_app_usage_stats';
+
+  /// The same stats endpoint's key on a control-role site. The
+  /// control-role gateway only resolves cmds carrying the verbatim
+  /// `control:` prefix, and apps can be pointed at any site role (an app
+  /// connecting directly to control is planned), so [getAppUsageStats]
+  /// falls back to this cmd when the unprefixed one fails —
+  /// TranslationSeeder's exact fallback shape. The control twin serves
+  /// zeros when its usage table is absent, so the badge degrades
+  /// gracefully instead of erroring.
+  static const String controlStatsCmd = 'control:get_app_usage_stats';
+
+  static const String _lastRecordedPref = 'last_usage_recorded';
   static const String _weekKeyPref = 'app_usage_week_key';
   static const String _weekCountPref = 'app_usage_days_this_week';
 
@@ -88,105 +120,114 @@ class AppUsageService {
       ..[weekStatKey] = _localWeeklyCount(prefs);
   }
 
-  static Future<Map<String, dynamic>> recordAppUsage() async {
-    try {
-      // Check if user is logged in
-      final token = LocalStorage.getToken();
-      if (token.isEmpty) {
-        debugPrint('AppUsageService: Not recording - user is not logged in');
-        return {'days_in_app_this_year': 0, weekStatKey: 0};
-      }
-
-      // Check if we already recorded today
-      final prefs = await SharedPreferences.getInstance();
-      final String? lastRecorded = prefs.getString('last_usage_recorded');
-      final today = DateTime.now().toIso8601String().split('T')[0];
-
-      // Only record once per day
-      if (lastRecorded != today) {
-        // Get app version info
-        final packageInfo = await PackageInfo.fromPlatform();
-        final appVersion = packageInfo.version;
-        final buildNumber = packageInfo.buildNumber;
-
-        debugPrint('AppUsageService: Recording app usage for today: $today');
-        final response = await http.post(
-          Uri.parse('${AppConstants.baseUrl}/api/v1/rest/app-usage/record'),
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode({
-            'platform': Platform.isAndroid ? 'Android' : 'iOS',
-            'app_version': appVersion,
-            'build_number': buildNumber,
-          }),
-        ).timeout(const Duration(seconds: 30));
-
-        if (response.statusCode == 200) {
-          // Save that we've recorded today, and count today into the
-          // local weekly counter (same once-per-day cadence).
-          await prefs.setString('last_usage_recorded', today);
-          await _markTodayInWeeklyCounter(prefs);
-          final responseData = jsonDecode(response.body);
-
-          // Cache the stats
-          await _cacheStats(
-            responseData['data'] ?? {'days_in_app_this_year': 0},
-          );
-
-          debugPrint(
-            'AppUsageService: Successfully recorded - days in app: ${responseData['data']?['days_in_app_this_year']}',
-          );
-          return await _withWeeklyStat(
-            responseData['data'] ?? {'days_in_app_this_year': 0},
-          );
-        } else {
-          debugPrint(
-            'AppUsageService: Failed to record - status code: ${response.statusCode}',
-          );
-          // Try to get cached stats if the request fails
-          return await _getCachedStats();
-        }
-      } else {
-        debugPrint('AppUsageService: Already recorded today, fetching stats');
-        // If already recorded today, just get stats
-        return await getAppUsageStats();
-      }
-    } catch (e) {
-      debugPrint('AppUsageService: Error recording app usage: $e');
-      return await _getCachedStats();
+  /// Platform label for the `app_open` properties. Deliberately not
+  /// `dart:io` `Platform` (which throws on web): this runs on every
+  /// composed app's bootstrap, desktop and web builds included.
+  static String _platformLabel() {
+    if (kIsWeb) return 'Web';
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return 'Android';
+      case TargetPlatform.iOS:
+        return 'iOS';
+      case TargetPlatform.macOS:
+        return 'macOS';
+      case TargetPlatform.windows:
+        return 'Windows';
+      case TargetPlatform.linux:
+        return 'Linux';
+      case TargetPlatform.fuchsia:
+        return 'Fuchsia';
     }
   }
 
-  // Get app usage statistics from API
+  /// Sends the once-daily `app_open` usage event when today's slot is
+  /// still open — the bootstrap trigger `BaseSdkDependencies.register`
+  /// fires (fire-and-forget) on every cold start.
+  ///
+  /// At-most-once per day via the `last_usage_recorded` day-marker; the
+  /// marker (and the local weekly counter) advance only when
+  /// [TelemetryClient.track] reports delivery, so an offline launch does
+  /// not burn the day's slot — the next launch retries. Never throws:
+  /// usage tracking must never break bootstrap.
+  static Future<void> recordAppOpenIfNeeded() async {
+    try {
+      // Auth-required, like the track lane itself: an anonymous launch
+      // records nothing.
+      if (LocalStorage.getToken().isEmpty) {
+        debugPrint('AppUsageService: Not recording - user is not logged in');
+        return;
+      }
+
+      final prefs = await SharedPreferences.getInstance();
+      final today = DateTime.now().toIso8601String().split('T')[0];
+      if (prefs.getString(_lastRecordedPref) == today) return;
+
+      final packageInfo = await PackageInfo.fromPlatform();
+      debugPrint('AppUsageService: Recording app open for today: $today');
+      final delivered = await TelemetryClient.I.track(
+        appOpenEvent,
+        properties: {
+          'platform': _platformLabel(),
+          'app_version': packageInfo.version,
+          'build_number': packageInfo.buildNumber,
+        },
+      );
+      if (!delivered) return;
+
+      await prefs.setString(_lastRecordedPref, today);
+      await _markTodayInWeeklyCounter(prefs);
+    } catch (e) {
+      debugPrint('AppUsageService: Error recording app open: $e');
+    }
+  }
+
+  /// Records today's `app_open` if still unsent, then returns the current
+  /// stats — the pre-telemetry `record` semantics, kept for SDK backward
+  /// compat. New callers on the bootstrap path use [recordAppOpenIfNeeded]
+  /// (no stats round-trip).
+  static Future<Map<String, dynamic>> recordAppUsage() async {
+    if (LocalStorage.getToken().isEmpty) {
+      debugPrint('AppUsageService: Not recording - user is not logged in');
+      return {'days_in_app_this_year': 0, weekStatKey: 0};
+    }
+    await recordAppOpenIfNeeded();
+    return await getAppUsageStats();
+  }
+
+  /// App usage statistics from the telemetry package's
+  /// `tenant.api.get_app_usage_stats` gateway method, with the cached copy
+  /// as the offline fallback. Response contract:
+  /// `{"status": ..., "data": {"days_in_app_this_week": n,
+  /// "days_in_app_this_year": n}}`.
   static Future<Map<String, dynamic>> getAppUsageStats() async {
     try {
-      final token = LocalStorage.getToken();
-
-      if (token.isEmpty) {
+      if (LocalStorage.getToken().isEmpty) {
         return {'days_in_app_this_year': 0, weekStatKey: 0}; // Not logged in
       }
 
-      final response = await http.get(
-        Uri.parse('${AppConstants.baseUrl}/api/v1/rest/app-usage/stats'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      ).timeout(const Duration(seconds: 30));
-
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        final stats = responseData['data'] ?? {'days_in_app_this_year': 0};
-
-        // Cache the stats
-        await _cacheStats(stats);
-
-        return await _withWeeklyStat(stats);
-      } else {
-        return await _getCachedStats();
+      dynamic response;
+      try {
+        response = await const PlatformGateway().call(statsCmd);
+      } catch (_) {
+        // The unprefixed cmd resolves only on tenant-role sites; a
+        // control-role gateway rejects any cmd without the `control:`
+        // prefix, and rejection shapes differ per role gateway — so
+        // rather than pattern-matching the error, retry once under the
+        // control-role key (TranslationSeeder's exact fallback). A
+        // failure of this retry too still lands in the outer catch and
+        // answers from the cache.
+        response = await const PlatformGateway().call(controlStatsCmd);
       }
+      final data = response is Map ? response['data'] : null;
+      final stats = data is Map
+          ? Map<String, dynamic>.from(data)
+          : {'days_in_app_this_year': 0};
+
+      // Cache the stats
+      await _cacheStats(stats);
+
+      return await _withWeeklyStat(stats);
     } catch (e) {
       debugPrint('AppUsageService: Error getting app usage stats: $e');
       return await _getCachedStats();

@@ -97,11 +97,30 @@ class TelemetryClient {
   /// is a `POST` to [kPlatformGatewayPath] carrying this cmd.
   static const String cmd = 'tenant.api.log_frontend_error';
 
+  /// The same error endpoint's key on a control-role site. The control-role
+  /// gateway only resolves cmds carrying the verbatim `control:` prefix
+  /// (see control hooks' whitelisted_methods), and an app connecting
+  /// directly to control is planned — its errors must land locally at the
+  /// site it points to (the control log_frontend_error twin), never in the
+  /// tenant->control backend-error lane. [logError] falls back to this cmd
+  /// when the unprefixed one fails, exactly like [track]'s
+  /// [controlTrackCmd] fallback.
+  static const String controlCmd = 'control:log_frontend_error';
+
   /// Gateway cmd (prefix-free) for the telemetry manifest's
   /// `tenant.api.track_event` whitelisted_methods mapping — the usage
   /// tracking lane. Same delivery door as [cmd]: a `POST` to
   /// [kPlatformGatewayPath] carrying this cmd.
   static const String trackCmd = 'tenant.api.track_event';
+
+  /// The same tracking endpoint's key on a control-role site. The
+  /// control-role gateway only resolves cmds carrying the verbatim
+  /// `control:` prefix (see control hooks' whitelisted_methods), and apps
+  /// can be pointed at any site role — an app connecting directly to
+  /// control is planned — so [track] falls back to this cmd when the
+  /// unprefixed one fails, exactly like TranslationSeeder's
+  /// [TranslationSeeder.controlCmd] fallback.
+  static const String controlTrackCmd = 'control:track_event';
 
   /// Injected delivery override (null = default gateway POST). Set only via
   /// [configure]; read only by [_deliver].
@@ -123,14 +142,18 @@ class TelemetryClient {
   /// HttpService (per the platform rule, client HTTP always rides the
   /// gateway with a cmd). Callers own their try/catch: this may throw, and
   /// [logError]/[track] swallow per the never-break-the-app contract.
-  Future<void> _deliver(String cmd, Map<String, dynamic> payload) async {
+  ///
+  /// Returns whether the event was handed to a transport at all: false
+  /// only for the silent no-HttpService drop (uncomposed host, test
+  /// harness), so [track] can report an honest delivery flag.
+  Future<bool> _deliver(String cmd, Map<String, dynamic> payload) async {
     final transport = _transport;
     if (transport != null) {
       await transport(cmd, payload);
-      return;
+      return true;
     }
     final getIt = GetIt.instance;
-    if (!getIt.isRegistered<HttpService>()) return;
+    if (!getIt.isRegistered<HttpService>()) return false;
     await getIt.get<HttpService>().client(requireAuth: true).post(
       kPlatformGatewayPath,
       data: {
@@ -138,6 +161,7 @@ class TelemetryClient {
         'payload': payload,
       },
     );
+    return true;
   }
 
   /// Fire-and-forget structured event: {type, context, session_id,
@@ -168,10 +192,22 @@ class TelemetryClient {
       // Local trail first — real even when the endpoint is unreachable.
       // Debug builds only: release logs must not carry full payloads.
       if (kDebugMode) debugPrint('==> telemetry $encoded');
-      await _deliver(cmd, {
+      final body = {
         'error_message': type,
         'context': encoded,
-      });
+      };
+      try {
+        await _deliver(cmd, body);
+      } catch (_) {
+        // The unprefixed cmd resolves only on tenant-role sites; a
+        // control-role gateway rejects any cmd without the `control:`
+        // prefix, and rejection shapes differ per role gateway — so
+        // rather than pattern-matching the error, retry the send once
+        // under the control-role key ([track]'s exact fallback). On a
+        // tenant site a genuinely transient failure just costs one extra
+        // attempt before the outer catch swallows it.
+        await _deliver(controlCmd, body);
+      }
     } catch (e) {
       debugPrint('==> telemetry delivery failed ($type): $e');
     }
@@ -187,7 +223,13 @@ class TelemetryClient {
   /// Same contract as [logError]: telemetry must never break the app —
   /// failures are swallowed (logged locally), and every event debugPrints
   /// its full payload so debug builds leave a usable trail even offline.
-  Future<void> track(
+  ///
+  /// Returns whether delivery completed without throwing (true) or was
+  /// swallowed (false) — for callers with at-most-once bookkeeping such as
+  /// AppUsageService's once-per-day `app_open` marker, which must not burn
+  /// its daily slot on a failed send. Fire-and-forget callers keep
+  /// ignoring the result (`unawaited(track(...))` stays valid).
+  Future<bool> track(
     String event, {
     Map<String, dynamic>? properties,
     String? sessionId,
@@ -211,12 +253,25 @@ class TelemetryClient {
       // Local trail first — real even when the endpoint is unreachable.
       // Debug builds only: release logs must not carry full payloads.
       if (kDebugMode) debugPrint('==> telemetry track $event $encoded');
-      await _deliver(trackCmd, {
+      final body = {
         'event': event,
         'context': encoded,
-      });
+      };
+      try {
+        return await _deliver(trackCmd, body);
+      } catch (_) {
+        // The unprefixed cmd resolves only on tenant-role sites; a
+        // control-role gateway rejects any cmd without the `control:`
+        // prefix, and rejection shapes differ per role gateway — so
+        // rather than pattern-matching the error, retry the send once
+        // under the control-role key (TranslationSeeder's exact
+        // fallback). On a tenant site a genuinely transient failure just
+        // costs one extra attempt before [track] reports undelivered.
+        return await _deliver(controlTrackCmd, body);
+      }
     } catch (e) {
       debugPrint('==> telemetry track delivery failed ($event): $e');
+      return false;
     }
   }
 }

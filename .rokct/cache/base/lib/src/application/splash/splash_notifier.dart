@@ -24,6 +24,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:base_sdk/src/domain/interface/settings.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/common/translation_seeder.dart';
 
 import 'package:base_sdk/src/application/splash/splash_state.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
@@ -89,6 +90,10 @@ class SplashNotifier extends StateNotifier<SplashState> {
       response.when(
         success: (data) {
           LocalStorage.setTranslations(data.data);
+          // Fire-and-forget: offer the app's bundled translation keys to
+          // the backend (insert-only server-side). Never blocks splash,
+          // never surfaces errors.
+          TranslationSeeder.pushMissingKeys();
         },
         failure: (failure, status) {
           debugPrint('==> error with fetching translations $failure');

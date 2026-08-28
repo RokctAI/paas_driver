@@ -139,6 +139,8 @@ const Map<String, String> kBaseAfTranslations = {
   'customer_order': 'Klantbestelling',
   'dark': 'Donker',
   'date_of_birth': 'Geboortedatum',
+  'day.in.app.this.week': 'Dag in die app hierdie week',
+  'day.in.app.this.year': 'Dag in die app vanjaar',
   'days.in.app.this.week': 'Dae in die app hierdie week',
   'daysInAppThisYear': 'Dae in die app vanjaar',
   'deals': 'Winskope',
@@ -285,6 +287,9 @@ const Map<String, String> kBaseAfTranslations = {
   'least_expensive': 'Goedkoopste',
   'leave_group': 'Verlaat groep',
   'length': 'Lengte',
+  'less.than.a.day.in.app.this.week':
+      'Minder as \'n dag in die app hierdie week',
+  'less.than.a.day.in.app.this.year': 'Minder as \'n dag in die app vanjaar',
   'light': 'Lig',
   'liked': 'Gehou van',
   'liked_products': 'Produkte waarvan jy hou',

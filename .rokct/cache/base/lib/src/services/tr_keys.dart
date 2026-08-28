@@ -697,6 +697,15 @@ class TrKeys {
   // Dotted key so the humanized fallback reads "Days in app this week"
   // when neither the served map nor a bundled map carries a row.
   static const String daysInAppThisWeek = 'days.in.app.this.week';
+  // Small-count variants for the AppUsageBadge: the singular row for
+  // exactly one recorded day, and the sub-day copy shown instead of
+  // "0 days in app ..." while no day has been recorded yet.
+  static const String dayInAppThisYear = 'day.in.app.this.year';
+  static const String dayInAppThisWeek = 'day.in.app.this.week';
+  static const String lessThanADayInAppThisYear =
+      'less.than.a.day.in.app.this.year';
+  static const String lessThanADayInAppThisWeek =
+      'less.than.a.day.in.app.this.week';
   static const String goodMorning = 'good.Morning';
   static const String goodAfternoon = 'goodAfternoon';
   static const String goodEvening = 'good.Evening';

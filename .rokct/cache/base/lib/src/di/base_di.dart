@@ -19,12 +19,15 @@
 // SOFTWARE.
 
 
+import 'dart:async';
+
 import 'package:get_it/get_it.dart';
 
 import 'package:base_sdk/src/handlers/http_service.dart';
 import 'package:base_sdk/src/services/connectivity_service.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
+import 'package:base_sdk/src/utils/app_usage_service.dart';
 
 /// Kernel registrations every composed app needs.
 ///
@@ -47,5 +50,15 @@ class BaseSdkDependencies {
     }
     // App-lifetime listener that drains the outbox on connectivity regain.
     ConnectivityService.I.start();
+
+    // Once-daily `app_open` usage event (Ray-approved telemetry cadence:
+    // one direct event per day, not per foreground). This is the one
+    // bootstrap path every composed app hits (generated main.dart's
+    // @generated-sdk-di block, ordered first), after LocalStorage.init and
+    // with HttpService registered just above — so the track lane can
+    // deliver. Fire-and-forget and internally exception-guarded: usage
+    // telemetry must never break or delay bootstrap. Anonymous launches
+    // no-op inside (the lane is auth-required).
+    unawaited(AppUsageService.recordAppOpenIfNeeded());
   }
 }

@@ -1,3 +1,33 @@
+## 1.11.0
+
+* Added an edit pencil to the wallet card on the manager restaurant tab
+  (`templates/pages/manager/restaurant/restaurant_page.dart`, approved
+  render 2026-08-28): a top-right `Remix.pencil_line` IconButton stacked
+  over `BaseWalletCard` in `MerchantWalletSection`, opening the shop-edit
+  flow via the exact same `EditRestaurantModal` bottom-sheet invocation as
+  the "Restaurant settings" sections row. Overlaid rather than passed
+  through the card's `actions` parameter because base_sdk renders
+  `actions` as a bottom strip, not top-right.
+
+## 1.10.0
+
+* Rebuilt the manager restaurant tab (`templates/pages/manager/restaurant/
+  restaurant_page.dart`) as a host of base_sdk's generic profile page
+  (approved profile-host design, section 7, 2026-08-28): standard host
+  header, no cover art (the `ShopBanner` sliver is retired from the page;
+  the widget file stays installed but unreferenced), and every old content
+  block re-registered as a profile section in the old order —
+  `merchants.shop_info`, `merchants.working_hours`, `merchants.wallet`,
+  `merchants.sections`, plus the `merchants.open_toggle` top-row action
+  (the old floating Open/Closed toggle) and a `base.footer` override adding
+  the old bottom-nav clearance. The hand-built balance box is replaced by
+  base_sdk's `BaseWalletCard` in display-only form (`actions: const []`,
+  no history arrow) over the same cached shop-JSON seller wallet source.
+  The old floating logout button maps to the host's sign-out affordance
+  (registry `onLogout`, the LogoutModal's confirmed branch). Tab wiring is
+  untouched: `main_page.dart` still imports the page directly and it
+  declares no route. Requires base_sdk >= 1.32.0.
+
 ## 1.9.4
 
 * Routed the broken direct `/api/method/paas.api.*` call sites through

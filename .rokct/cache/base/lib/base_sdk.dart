@@ -36,6 +36,11 @@ export 'src/handlers/token_interceptor.dart';
 export 'src/constants/app_constants.dart';
 export 'src/presentation/app_assets.dart';
 
+// Per-app theme seam (default polarity for first launch — app glue sets
+// AppTheme.defaultDarkMode before runApp; AppStyle itself stays a deep
+// import via each app's installed theme shim).
+export 'src/presentation/theme/app_theme.dart';
+
 // Shared presentation components (generic, no feature-SDK logic — ADR-005)
 export 'src/presentation/components/glance_card.dart';
 export 'src/presentation/components/blur_wrap.dart';
@@ -77,10 +82,13 @@ export 'src/presentation/components/floating_nav/floating_bottom_nav.dart';
 // and host-level actions on ProfileSectionRegistry.I at bootstrap
 // (typically from a manifest di_hooks entry — ADR-005).
 export 'src/presentation/pages/profile/generic_profile_page.dart';
+export 'src/presentation/pages/profile/profile_action_item.dart';
 export 'src/presentation/pages/profile/profile_section.dart';
 export 'src/presentation/pages/profile/profile_section_registry.dart';
 export 'src/presentation/pages/profile/widgets/app_usage_badge.dart';
 export 'src/presentation/pages/profile/widgets/base_profile_footer.dart';
+export 'src/presentation/pages/profile/widgets/base_wallet_card.dart';
+export 'src/presentation/pages/profile/widgets/profile_actions_section.dart';
 export 'src/presentation/pages/profile/widgets/profile_nav_tile.dart';
 export 'src/presentation/pages/profile/widgets/profile_section_card.dart';
 export 'src/presentation/pages/profile/widgets/profile_switch_tile.dart';
@@ -99,6 +107,7 @@ export 'src/services/storage_keys.dart';
 export 'src/services/tr_keys.dart';
 export 'src/services/bundled_translations.dart';
 export 'src/services/bundled_af_translations.dart';
+export 'src/common/translation_seeder.dart';
 
 // Offline database (shared Drift instance + generic JSON document store)
 export 'src/database/app_database.dart';

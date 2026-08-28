@@ -424,12 +424,34 @@ abstract class AppHelpers {
     final bundled =
         BundledTranslations.lookup(LocalStorage.getLanguage()?.locale, trKey);
     if (bundled != null) return bundled;
-    return trKey.isNotEmpty
-        ? trKey.replaceAll(".", " ").replaceAll("_", " ").replaceFirst(
-              trKey.substring(0, 1),
-              trKey.substring(0, 1).toUpperCase(),
-            )
-        : '';
+    return humanizeTrKey(trKey);
+  }
+
+  /// The last-resort English rendering of a translation key: dots,
+  /// underscores and camelCase boundaries become spaces and the first
+  /// character is upper-cased — `daysInAppThisYear` reads
+  /// "Days in app this year", not "DaysInAppThisYear". Shared by
+  /// [getTranslation]'s fallback and TranslationSeeder's `en` candidate
+  /// rows, so what the app shows for a missing key is exactly what it
+  /// offers the backend as that key's English value.
+  static String humanizeTrKey(String trKey) {
+    if (trKey.isEmpty) return '';
+    final spaced = trKey
+        .replaceAll(".", " ")
+        .replaceAll("_", " ")
+        // A camelCase boundary (lowercase/digit, then uppercase) becomes a
+        // word break, lower-cased: mid-sentence words of the humanized
+        // fallback are plain English words, not Capitalized fragments.
+        .replaceAllMapped(
+          RegExp('(?<=[a-z0-9])[A-Z]'),
+          (m) => ' ${m[0]!.toLowerCase()}',
+        )
+        .trim();
+    if (spaced.isEmpty) return trKey;
+    return spaced.replaceFirst(
+      spaced.substring(0, 1),
+      spaced.substring(0, 1).toUpperCase(),
+    );
   }
 
   static String getTranslationReverse(String trKey) {
