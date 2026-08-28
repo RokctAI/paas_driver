@@ -1,3 +1,29 @@
+## 1.11.0
+
+* Driver repoint wave (client side of zones#68 / Users#64): the last dead
+  Laravel `/api/v1/dashboard/*` calls in the driver repositories now go
+  through the universal platform gateway to whitelisted Frappe defs.
+  * `orders_repository`: getAvailableOrders ->
+    `api.delivery_man.get_available_orders`; showOrders ->
+    `api.delivery_man.get_deliveryman_order_details`; addReview ->
+    `api.delivery_man.add_deliveryman_order_review`; getHistoryOrders /
+    fetchCurrentOrder -> `api.driver_order.get_driver_orders_paginate`
+    (statuses + the new date_from/date_to bounds).
+  * `courier_repository`: getDriverDetails ->
+    `api.delivery_man.get_deliveryman_settings` with a client-side fold
+    of the Deliveryman Profile map into the legacy `DeliveryResponse`
+    (car_model/car_number/vehicle_image -> model/number/galleries[0]);
+    editCarInfo -> `api.delivery_man.update_deliveryman_settings`;
+    getDeliveryZone -> `api.delivery_man.get_deliveryman_zone_polygon`;
+    updateGeneralInfo -> Users' `api.user.update_profile` (+ a separate
+    `api.user.update_password` call when a password change rides along);
+    createCarInfo -> `api.user.create_request_model`; getRequestModel ->
+    `api.user.get_user_request_models` with never-throw row
+    normalization (JSON-string `data` decoded, hash-string ids dropped
+    from the legacy int fields).
+  * getDeliveryVehicleTypes still speaks its legacy path (server-side
+    whitelist pending; tracked as a follow-up).
+
 ## 1.10.1
 
 * FIXED Windows driver build dying before its first frame: the
