@@ -2,6 +2,12 @@
 
 A new Flutter project.
 
+<!-- @generated-store-description-start -->
+<!-- @generated-store-description-end -->
+
+<!-- @generated-tour-gallery-start -->
+<!-- @generated-tour-gallery-end -->
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

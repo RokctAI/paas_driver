@@ -1,0 +1,17 @@
+# Curation manifest for the README's generated tour gallery
+# (scripts/tour/readme_sections.py in RokctAI/shared-workflows, run by the
+# guided-tour workflow's output commit). Everything in marketing/tour/store/
+# that is NOT excluded here is shown, so new tour steps appear in the README
+# automatically. Full-line comments only; keys may omit the .png suffix.
+exclude:
+  # The committed welcome still was captured before the tour manifest's
+  # caption reword landed on main (PR #87), so its baked-in caption still
+  # references the demo build; excluded until a green guided-tour run
+  # refreshes the still, then this entry can be dropped.
+  - 01-welcome
+  # Auth screens are excluded from the README gallery fleet-wide (Ray,
+  # 2026-08-29): sign-in and registration forms are not showcase material.
+  - 02-auth_login
+  - 03-auth_register
+  # Carries the untranslated "Reset password text" placeholder subtitle.
+  - 04-auth_reset_password
