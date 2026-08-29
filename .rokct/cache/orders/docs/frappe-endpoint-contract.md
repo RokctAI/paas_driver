@@ -39,7 +39,7 @@ only Laravel-specific part was the URL.
 |---|---|---|---|
 | `PosSectionsTablesFacade.getSections` | merchants_sdk (S-11) | `seller_operations.get_seller_sections` | **No — gap** (seller_operations has menus/kitchens/receipts only). |
 | `PosSectionsTablesFacade.getTables` | merchants_sdk (S-11) | `seller_operations.get_seller_tables` | **No — gap.** |
-| `PosCustomersFacade.searchUsers` | users_sdk (S-2) | `paas.api.user.user.search_users` | users_sdk's `searchUser` exists — adapter swaps to the users_sdk Dart facade once S-2 merges. |
+| `PosCustomersFacade.searchUsers` | merchants_sdk | `api.seller_shop_settings.get_shop_users` (platform gateway cmd) | **Yes** — shop-scoped to the calling seller (pre-fork behavior); merchants/frappe registers the cmd and the endpoint takes `search`/`role`/`limit_start`/`limit_page_length`. |
 | `PosCustomersFacade.createUser` | users_sdk | `paas.api.user.user.create_walk_in_customer` | **No — the fork's recorded gap**: `register_user` is self-signup; no seller-creates-walk-in-customer endpoint. |
 
 ## Legacy `TableInterface` calls NOT carried over

@@ -1,3 +1,24 @@
+## 1.10.0
+
+* POS till sales feed the EXISTING seller create-order pipeline,
+  offline-first (Ray's rulings 2026-08-28, approved strip 11g–11i). New
+  `PosSaleQueue` (`infrastructure/services/pos_sale_queue.dart`): the
+  finished sale is written to the local drift store FIRST
+  (`ManagerOrdersLocalStore.putPending`) and enqueued as the same
+  `order.create` outbox op `OrderCreateSyncHandler` already drains —
+  checkout never blocks on the network; the backend's `@idempotent` +
+  `offline_uuid` dedupe (the till's stable POS order id) makes retries
+  safe. The body is the canonical backend `create_order(order_data)`
+  contract (`shop`/`user`/`order_items[].product`) carrying the POS
+  additions: the sale's REAL `status` (an in-store sale is 'delivered';
+  a packed send-for-delivery sale is 'ready' and an offline one HOLDS
+  there until the sync drains it) and the credit / partly-paid pair
+  (`payment_status: 'Credit'` + `paid_now`). `PosSaleQueue.pendingCount`
+  backs the billing page's pending-sync indicator.
+* `ManagerOrdersLocalStore.toOrderData` no longer hardcodes queue rows to
+  'new': the row carries the ACTUAL status the stored create body holds
+  (legacy bodies without one keep 'new').
+
 ## 1.8.0
 
 * 18+ (adults only) checkout support. `get_calculate` now answers the

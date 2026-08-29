@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.12.0
+
+* Floating-nav back conversion (approved design strip section 12, "no
+  double back buttons" — base_sdk 1.39.0 / core#125): `SettingPage` and
+  the driver/manager `notification_list_page` templates replace their
+  standalone `PopButton` with the shared `FloatingBottomNav` carrying
+  only the leading back segment — one back per screen. The notification
+  pages' read-all button rides in the same bottom overlay, above the
+  pill. Back-only (empty tab list) because these pushed routes cannot
+  reach their host app's root tab set from this SDK.
+
 ## 1.9.0
 
 * Broken-endpoint fix sweep: the notification, settings, and currencies

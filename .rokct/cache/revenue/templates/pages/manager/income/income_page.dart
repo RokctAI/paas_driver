@@ -34,7 +34,8 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/presentation/components/custom_tab_bar.dart';
-import 'package:base_sdk/src/presentation/components/buttons/pop_button.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:base_sdk/src/presentation/components/title_icon.dart';
 
 @RoutePage(name: 'ManagerIncomeRoute')
@@ -100,61 +101,74 @@ class _IncomePageState extends ConsumerState<ManagerIncomePage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppStyle.textGrey,
-      body: Column(
+      body: Stack(
         children: [
-          AppbarScreen(event: ref.read(statisticsProvider.notifier)),
-          16.verticalSpace,
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.only(
-                right: 16.w,
-                left: 16.w,
-                bottom: MediaQuery.of(context).padding.bottom + 56.h,
-              ),
-              child: Column(
-                children: [
-                  CustomTabBar(tabController: _tabController, tabs: _tabs),
-                  24.verticalSpace,
-                  OrderPricesSection(
-                    startTime: DateTime.now(),
-                    endTime: DateTime.now().subtract(
-                      Duration(
-                        days: _tabController.index == 0
-                            ? 0
-                            : _tabController.index == 1
-                            ? 7
-                            : 30,
-                      ),
-                    ),
+          Column(
+            children: [
+              AppbarScreen(event: ref.read(statisticsProvider.notifier)),
+              16.verticalSpace,
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.only(
+                    right: 16.w,
+                    left: 16.w,
+                    bottom: MediaQuery.of(context).padding.bottom + 56.h,
                   ),
-                  if (ref
-                          .watch(statisticsProvider)
-                          .countData
-                          ?.chart
-                          ?.isNotEmpty ??
-                      false)
-                    _chart(),
-                  const StatisticsSection(),
-                  20.verticalSpace,
-                ],
+                  child: Column(
+                    children: [
+                      CustomTabBar(tabController: _tabController, tabs: _tabs),
+                      24.verticalSpace,
+                      OrderPricesSection(
+                        startTime: DateTime.now(),
+                        endTime: DateTime.now().subtract(
+                          Duration(
+                            days: _tabController.index == 0
+                                ? 0
+                                : _tabController.index == 1
+                                ? 7
+                                : 30,
+                          ),
+                        ),
+                      ),
+                      if (ref
+                              .watch(statisticsProvider)
+                              .countData
+                              ?.chart
+                              ?.isNotEmpty ??
+                          false)
+                        _chart(),
+                      const StatisticsSection(),
+                      20.verticalSpace,
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // The floating nav's back-only pill (FloatingNavBack, core#125 — design
+          // strip section 12's one-back rule): the shared pill housing carrying
+          // only the leading back segment, this screen's ONE back affordance,
+          // replacing the standalone PopButton. Back-only (empty tab list)
+          // because the host app's root tabs are not reachable from this SDK
+          // package's pushed route.
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: FloatingBottomNav(
+                mode: FloatingNavTabsMode(
+                  tabs: const [],
+                  currentIndex: 0,
+                  onSelect: (_) {},
+                  back: FloatingNavBack(
+                    icon: Remix.arrow_left_wide_fill,
+                    label: AppHelpers.getTranslation(TrKeys.back),
+                  ),
+                ),
               ),
             ),
           ),
         ],
-      ),
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.miniCenterDocked,
-      floatingActionButton: Padding(
-        padding: REdgeInsets.all(16),
-        child: const Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          // base_sdk's PopButton dropped its Hero wrapper (and with it the
-          // heroTag parameter, whose AppConstants.heroTagIncomePage tag is
-          // also gone); the plain back button is the whole behavior now.
-          children: [PopButton()],
-        ),
       ),
     );
   }

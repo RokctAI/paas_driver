@@ -49,8 +49,8 @@ import 'package:merchants_sdk/src/manager/utils/restaurant_helpers.dart';
 // profile page (GenericProfilePage + ProfileSectionRegistry) — approved
 // design 2026-08-28 (profile-host page, section 7): standard host header
 // (identity card, theme toggle, sign-out), NO cover art (the old
-// ShopBanner sliver is retired), and a wallet card whose only action is
-// a top-right edit pencil (shop-edit flow).
+// ShopBanner sliver is retired), and an edit pencil (shop-edit flow)
+// trailing the shop title row — on the SHOP element, not the wallet card.
 //
 // Every content block of the old hand-built page returns as a registered
 // section, top to bottom in the old order:
@@ -59,13 +59,11 @@ import 'package:merchants_sdk/src/manager/utils/restaurant_helpers.dart';
 //     the old floating logout button maps to the host's sign-out
 //     affordance (registry.onLogout, LogoutModal's confirmed branch).
 //   * 'merchants.shop_info' — shop title + rating + promo/flash glyphs +
-//     description.
+//     edit pencil (shop-edit flow) + description.
 //   * 'merchants.working_hours' — today's working-hours pill.
 //   * 'merchants.wallet' — base_sdk's BaseWalletCard (no action strip, no
 //     history arrow), replacing the hand-built balance box; same data
-//     source (the cached shop JSON's seller wallet). A top-right edit
-//     pencil overlays the card and opens the shop-edit flow
-//     (EditRestaurantModal — approved render 2026-08-28).
+//     source (the cached shop JSON's seller wallet).
 //   * 'merchants.sections' — the Sections list (restaurant settings /
 //     income / order history / notifications / sync issues / delete
 //     account), links unchanged.
@@ -215,6 +213,10 @@ class MerchantOpenToggle extends ConsumerWidget {
 
 /// The shop info block, carried over from the old page's list head: shop
 /// title + rating row (promo / flash glyphs kept) and the description.
+/// The title row now trails an edit pencil opening the shop-edit flow
+/// ([EditRestaurantModal] — the same invocation as [MerchantSectionsList]'s
+/// "Restaurant settings" row): the pencil belongs on the SHOP element it
+/// edits, not on the wallet card.
 /// Colors ride the host's mode-resolving text tokens instead of the old
 /// white-scaffold blackColor so the block stays legible in dark mode.
 class MerchantShopInfoSection extends ConsumerWidget {
@@ -288,6 +290,25 @@ class MerchantShopInfoSection extends ConsumerWidget {
                 color: AppStyle.primary,
               ),
               child: Icon(Remix.flashlight_fill, size: 16.r),
+            ),
+            14.horizontalSpace,
+            // The shop-edit pencil (approved fix 2026-08-28): it edits the
+            // SHOP, so it rides the shop title row — moved here from its
+            // earlier wallet-card overlay.
+            IconButton(
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: Icon(
+                Remix.pencil_line,
+                size: 20.r,
+                color: AppStyle.textPrimary,
+              ),
+              onPressed: () => AppHelpers.showCustomModalBottomSheet(
+                paddingTop: MediaQuery.paddingOf(context).top + 60,
+                context: context,
+                modal: const EditRestaurantModal(),
+                isDarkMode: false,
+              ),
             ),
           ],
         ),
@@ -366,10 +387,9 @@ class MerchantWorkingHoursSection extends ConsumerWidget {
 
 /// The shop balance as base_sdk's [BaseWalletCard] (approved parameter:
 /// no actions strip, no history arrow — the old hand-built box had no
-/// history navigation either, its bar-chart glyph was inert), with a
-/// top-right edit pencil overlay opening the shop-edit flow
-/// ([EditRestaurantModal], approved render 2026-08-28) — the same
-/// invocation as [MerchantSectionsList]'s "Restaurant settings" row.
+/// history navigation either, its bar-chart glyph was inert). The card
+/// carries no edit pencil: the shop-edit pencil lives on the shop title
+/// row ([MerchantShopInfoSection]), the element it actually edits.
 /// No explicit snapshot is passed: with `wallet:` null the card
 /// self-sources from the profile fetch (profileProvider, falling back
 /// to LocalStorage.getWalletData()), which GenericProfilePage's
@@ -383,39 +403,9 @@ class MerchantWalletSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Stack(
-          children: [
-            const BaseWalletCard(
-              actions: [],
-              onHistory: null,
-            ),
-            // Approved render: an edit pencil in the card's top-right
-            // corner opening the shop-edit flow — the same
-            // EditRestaurantModal invocation as the "Restaurant settings"
-            // row below. Stacked on top of the card (mirroring the card's
-            // own top-right history-arrow slot, Positioned top/right 5)
-            // because BaseWalletCard's `actions` strip renders along the
-            // card's BOTTOM edge, which doesn't match the render.
-            Positioned(
-              top: 5,
-              right: 5,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: Icon(
-                  Remix.pencil_line,
-                  size: 20.r,
-                  color: AppStyle.textPrimary,
-                ),
-                onPressed: () => AppHelpers.showCustomModalBottomSheet(
-                  paddingTop: MediaQuery.paddingOf(context).top + 60,
-                  context: context,
-                  modal: const EditRestaurantModal(),
-                  isDarkMode: false,
-                ),
-              ),
-            ),
-          ],
+        const BaseWalletCard(
+          actions: [],
+          onHistory: null,
         ),
         16.verticalSpace,
       ],

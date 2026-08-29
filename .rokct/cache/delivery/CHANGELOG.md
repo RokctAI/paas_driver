@@ -1,3 +1,18 @@
+## 1.12.0
+
+* Floating-nav back conversion (approved design strip section 12, "no
+  double back buttons" — base_sdk 1.39.0 / core#125): the six driver
+  template pages (orders, parcels, order_history, parcel_history, route,
+  profile) plus the common DeliveryPage and BecomeDriverPage replace
+  their standalone `PopButton` with the shared `FloatingBottomNav`
+  carrying only the leading back segment — one back per screen.
+  Back-only (empty tab list): the driver app composes no root tab set,
+  and the customer-app pushed routes cannot reach the host's root tabs
+  from this SDK. Surviving bottom actions (the history pages' filter
+  button, the driver profile's online-helper button) keep their spot —
+  the filter stays right-edge, the helper rides in the same bottom
+  overlay above the pill.
+
 ## 1.11.0
 
 * Driver repoint wave (client side of zones#68 / Users#64): the last dead

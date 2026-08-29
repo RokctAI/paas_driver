@@ -115,9 +115,56 @@ class FloatingNavTab {
   });
 }
 
+/// The pill's back affordance — an optional LEADING segment on
+/// [FloatingNavTabsMode].
+///
+/// When a page passes one, the pill grows a leading back segment —
+/// chevron + label + the brand dash, `PopButton`'s exact visual DNA moved
+/// inside the pill housing — separated from the tabs by a hairline, on
+/// the tabs' own row rhythm. In a tablet-mode side rail the same segment
+/// leads the rail, stacked the way the rail's tabs are.
+///
+/// THE ONE NAVIGATION EXCEPTION on the bar. [FloatingNavTabsMode.trailing]
+/// stays "never navigation" — its actions invoke modes and must not move
+/// the viewer. Back is different by nature: it is not a destination and
+/// never takes the active indicator (the indicator answers "where am I",
+/// and back is where you came from), but tapping it DOES move the viewer.
+/// That exception lives in this one named slot so it cannot leak into the
+/// action lists.
+///
+/// A page that provides [back] must render NO other back affordance — no
+/// floating `PopButton`, no AppBar leading arrow — so exactly one back
+/// exists per screen. Pass it only when the page can actually pop
+/// (`Navigator.canPop(context)`). Nothing is stored here: like the rest of
+/// the mode it is passed down by the page on screen, so a page that isn't
+/// on screen can't strand the bar showing a dead back segment.
+class FloatingNavBack {
+  /// Caller-supplied so base_sdk stays icon-set-agnostic, mirroring how
+  /// tabs already carry their own icons. `Remix.arrow_left_wide_fill` —
+  /// `PopButton`'s chevron — is the fleet look.
+  final IconData icon;
+
+  /// Already translated by the caller — base_sdk owns no copy
+  /// (`TrKeys.back` through the caller's translation helper is the fleet
+  /// copy, the same string `PopButton` prints).
+  final String label;
+
+  /// What tapping the segment does. Null — the default — falls back to
+  /// `Navigator.maybePop(context)`.
+  final VoidCallback? onTap;
+
+  const FloatingNavBack({
+    required this.icon,
+    required this.label,
+    this.onTap,
+  });
+}
+
 /// Mode 1 — the root tab bar. Unchanged behaviour: icon + label + the
 /// active-tab indicator ([indicator] picks its shape, dash by default),
 /// every other tab icon-only, whole row collapsing while the page scrolls.
+/// Plus, when the page passes [back], a leading labelled back segment —
+/// the bar's one navigation exception (see [FloatingNavBack]).
 class FloatingNavTabsMode extends FloatingNavMode {
   final List<FloatingNavTab> tabs;
   final int currentIndex;
@@ -139,7 +186,19 @@ class FloatingNavTabsMode extends FloatingNavMode {
   ///
   /// The page swaps the mode it passes in response. Nothing is stored here,
   /// so leaving the page cannot strand the bar in the invoked mode.
+  ///
+  /// The bar's one deliberate navigation exception is NOT here: it is the
+  /// named [back] slot at the leading edge (see [FloatingNavBack]).
+  /// Trailing actions stay non-navigating.
   final List<FloatingNavAction> trailing;
+
+  /// The pill's leading back segment. Null — the default — renders the
+  /// pill exactly as before, so every existing host is untouched.
+  ///
+  /// The one navigation exception on the bar (see [FloatingNavBack] and
+  /// [trailing]). A page that passes this draws no back button of its
+  /// own — no floating `PopButton`, no AppBar leading arrow.
+  final FloatingNavBack? back;
 
   /// Where this page's tab bar sits in a tablet-mode window.
   ///
@@ -157,6 +216,7 @@ class FloatingNavTabsMode extends FloatingNavMode {
     required this.onSelect,
     this.indicator = FloatingNavIndicator.dash,
     this.trailing = const [],
+    this.back,
     this.tabletPlacement,
   });
 }

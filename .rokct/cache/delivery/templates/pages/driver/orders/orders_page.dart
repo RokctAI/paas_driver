@@ -22,6 +22,7 @@ import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:delivery_sdk/src/driver/application/order/order_notifier.dart';
@@ -32,7 +33,7 @@ import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:${package}/presentation/component/orders_item.dart';
 import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
-import 'package:base_sdk/src/presentation/components/buttons/pop_button.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/components/custom_tab_bar.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
@@ -97,134 +98,157 @@ class _OrdersPageState extends ConsumerState<OrdersPage>
     final state = ref.watch(orderProvider);
     return Scaffold(
       backgroundColor: AppStyle.bgGrey,
-      body: Column(
+      body: Stack(
         children: [
-          CustomAppBar(
-            bottomPadding: 16.h,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  AppHelpers.getTranslation(TrKeys.orders),
-                  style: AppStyle.interSemi(size: 18.sp),
-                ),
-                Row(
+          Column(
+            children: [
+              CustomAppBar(
+                bottomPadding: 16.h,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      AppHelpers.getTranslation(TrKeys.thereAreOrders),
-                      style:
-                          AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
+                      AppHelpers.getTranslation(TrKeys.orders),
+                      style: AppStyle.interSemi(size: 18.sp),
                     ),
-                    Text(
-                      " ${state.totalActiveOrder} ",
-                      style:
-                          AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
-                    ),
-                    Text(
-                      AppHelpers.getTranslation(TrKeys.orders).toLowerCase(),
-                      style:
-                          AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
+                    Row(
+                      children: [
+                        Text(
+                          AppHelpers.getTranslation(TrKeys.thereAreOrders),
+                          style:
+                              AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
+                        ),
+                        Text(
+                          " ${state.totalActiveOrder} ",
+                          style:
+                              AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
+                        ),
+                        Text(
+                          AppHelpers.getTranslation(TrKeys.orders).toLowerCase(),
+                          style:
+                              AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          16.verticalSpace,
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Column(
-                children: [
-                  CustomTabBar(
-                    tabController: _tabController,
-                    tabs: _tabs,
+              ),
+              16.verticalSpace,
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Column(
+                    children: [
+                      CustomTabBar(
+                        tabController: _tabController,
+                        tabs: _tabs,
+                      ),
+                      Expanded(
+                        child: TabBarView(controller: _tabController, children: [
+                          state.isActiveLoading
+                              ? const Loading()
+                              : SmartRefresher(
+                                  enablePullDown: true,
+                                  enablePullUp: true,
+                                  onRefresh: () {
+                                    event.fetchActiveOrdersPage(
+                                        context, activeController,
+                                        isRefresh: true);
+                                  },
+                                  onLoading: () {
+                                    event.fetchActiveOrdersPage(
+                                      context,
+                                      activeController,
+                                    );
+                                  },
+                                  controller: activeController,
+                                  child: state.activeOrders.isNotEmpty
+                                      ? ListView.builder(
+                                          padding: EdgeInsets.only(
+                                              top: 30.h,
+                                              bottom: MediaQuery.of(context)
+                                                      .padding
+                                                      .bottom +
+                                                  42.h),
+                                          shrinkWrap: true,
+                                          itemCount: state.activeOrders.length,
+                                          physics: const BouncingScrollPhysics(),
+                                          itemBuilder: (context, index) {
+                                            return OrdersItem(
+                                              isActiveButton: true,
+                                              isOrder: true,
+                                              order: state.activeOrders[index],
+                                            );
+                                          })
+                                      : _resultEmpty(),
+                                ),
+                          state.isAvailableLoading
+                              ? const Loading()
+                              : SmartRefresher(
+                                  enablePullDown: true,
+                                  enablePullUp: true,
+                                  onRefresh: () {
+                                    event.fetchAvailableOrdersPage(
+                                        context, availableController,
+                                        isRefresh: true);
+                                  },
+                                  onLoading: () {
+                                    event.fetchAvailableOrdersPage(
+                                      context,
+                                      availableController,
+                                    );
+                                  },
+                                  controller: availableController,
+                                  child: state.availableOrders.isNotEmpty
+                                      ? ListView.builder(
+                                          padding: EdgeInsets.only(
+                                              top: 30.h,
+                                              bottom: MediaQuery.paddingOf(context)
+                                                      .bottom +
+                                                  42.h),
+                                          shrinkWrap: true,
+                                          itemCount: state.availableOrders.length,
+                                          physics: const BouncingScrollPhysics(),
+                                          itemBuilder: (context, index) {
+                                            return OrdersItem(
+                                              isOrder: true,
+                                              order: state.availableOrders[index],
+                                            );
+                                          })
+                                      : _resultEmpty(),
+                                ),
+                        ]),
+                      )
+                    ],
                   ),
-                  Expanded(
-                    child: TabBarView(controller: _tabController, children: [
-                      state.isActiveLoading
-                          ? const Loading()
-                          : SmartRefresher(
-                              enablePullDown: true,
-                              enablePullUp: true,
-                              onRefresh: () {
-                                event.fetchActiveOrdersPage(
-                                    context, activeController,
-                                    isRefresh: true);
-                              },
-                              onLoading: () {
-                                event.fetchActiveOrdersPage(
-                                  context,
-                                  activeController,
-                                );
-                              },
-                              controller: activeController,
-                              child: state.activeOrders.isNotEmpty
-                                  ? ListView.builder(
-                                      padding: EdgeInsets.only(
-                                          top: 30.h,
-                                          bottom: MediaQuery.of(context)
-                                                  .padding
-                                                  .bottom +
-                                              42.h),
-                                      shrinkWrap: true,
-                                      itemCount: state.activeOrders.length,
-                                      physics: const BouncingScrollPhysics(),
-                                      itemBuilder: (context, index) {
-                                        return OrdersItem(
-                                          isActiveButton: true,
-                                          isOrder: true,
-                                          order: state.activeOrders[index],
-                                        );
-                                      })
-                                  : _resultEmpty(),
-                            ),
-                      state.isAvailableLoading
-                          ? const Loading()
-                          : SmartRefresher(
-                              enablePullDown: true,
-                              enablePullUp: true,
-                              onRefresh: () {
-                                event.fetchAvailableOrdersPage(
-                                    context, availableController,
-                                    isRefresh: true);
-                              },
-                              onLoading: () {
-                                event.fetchAvailableOrdersPage(
-                                  context,
-                                  availableController,
-                                );
-                              },
-                              controller: availableController,
-                              child: state.availableOrders.isNotEmpty
-                                  ? ListView.builder(
-                                      padding: EdgeInsets.only(
-                                          top: 30.h,
-                                          bottom: MediaQuery.paddingOf(context)
-                                                  .bottom +
-                                              42.h),
-                                      shrinkWrap: true,
-                                      itemCount: state.availableOrders.length,
-                                      physics: const BouncingScrollPhysics(),
-                                      itemBuilder: (context, index) {
-                                        return OrdersItem(
-                                          isOrder: true,
-                                          order: state.availableOrders[index],
-                                        );
-                                      })
-                                  : _resultEmpty(),
-                            ),
-                    ]),
-                  )
-                ],
+                ),
+              ),
+            ],
+          ),
+          // The floating nav's back-only pill (FloatingNavBack, core#125 — design
+          // strip section 12's one-back rule): the shared pill housing carrying
+          // only the leading back segment, this screen's ONE back affordance,
+          // replacing the standalone PopButton. Back-only (empty tab list): the
+          // driver app composes no root tab set.
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: FloatingBottomNav(
+                mode: FloatingNavTabsMode(
+                  tabs: const [],
+                  currentIndex: 0,
+                  onSelect: (_) {},
+                  back: FloatingNavBack(
+                    icon: Remix.arrow_left_wide_fill,
+                    label: AppHelpers.getTranslation(TrKeys.back),
+                  ),
+                ),
               ),
             ),
           ),
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-      floatingActionButton: const PopButton(),
     );
   }
 }

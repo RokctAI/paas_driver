@@ -32,7 +32,8 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/presentation/components/custom_tab_bar.dart';
 import 'package:base_sdk/src/presentation/components/title_icon.dart';
-import 'package:base_sdk/src/presentation/components/buttons/pop_button.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
 import 'package:${package}/presentation/pages/income/app_bar_screen.dart';
 import 'package:${package}/presentation/pages/income/statistics_screen.dart';
@@ -105,99 +106,123 @@ class _IncomePageState extends ConsumerState<IncomePage>
     final state = ref.watch(statisticsProvider);
     return Scaffold(
       backgroundColor: AppStyle.bgGrey,
-      body: Column(
+      body: Stack(
         children: [
-          AbbBarScreen(event: ref.read(statisticsProvider.notifier)),
-          16.verticalSpace,
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(
-                  right: 16.w,
-                  left: 16.w,
-                  bottom: MediaQuery.paddingOf(context).bottom + 56.h),
-              child: Column(
-                children: [
-                  CustomTabBar(
-                    tabController: _tabController,
-                    tabs: _tabs,
-                  ),
-                  24.verticalSpace,
-                  _orderPrices(context, state),
-                  TitleAndIcon(
-                    title: AppHelpers.getTranslation(
-                        TrKeys.deliverymanTransactions),
-                  ),
-                  12.verticalSpace,
-                  IncomeItem(
-                    title: AppHelpers.getTranslation(TrKeys.wallet),
-                    price: AppHelpers.numberFormat(
-                        number: LocalStorage.getUser()?.wallet?.price ?? 0),
-                  ),
-                  // The legacy host row showed the courier's rating from
-                  // LocalStorage.getUser()?.rate (UserData parsed
-                  // assign_reviews_avg_rating). base_sdk's ProfileData carries
-                  // no rating field, so the row is parked until the courier
-                  // profile slice (delivery_sdk, S-D3) owns that surface.
-                  // IncomeItem(
-                  //   title: AppHelpers.getTranslation(TrKeys.rating),
-                  //   price: "-",
-                  // ),
-                  24.verticalSpace,
-                  StatisticsScreen(
-                      totalOrders: (state.countData?.data?.totalCount ?? 0)
-                          .toString(),
-                      todayOrders: (state.countData?.data?.totalTodayCount ?? 0)
-                          .toString(),
-                      acceptedOrders: (state
-                                  .countData?.data?.totalAcceptedCount ??
-                              0)
-                          .toString(),
-                      rejectedOrders: (state
-                                  .countData?.data?.totalCanceledCount ??
-                              0)
-                          .toString(),
-                      doneOrders: (state.countData?.data?.totalDeliveredCount ??
-                              0)
-                          .toString(),
-                      canceledOrders:
-                          (state
-                                      .countData?.data?.totalNewCount ??
+          Column(
+            children: [
+              AbbBarScreen(event: ref.read(statisticsProvider.notifier)),
+              16.verticalSpace,
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                      right: 16.w,
+                      left: 16.w,
+                      bottom: MediaQuery.paddingOf(context).bottom + 56.h),
+                  child: Column(
+                    children: [
+                      CustomTabBar(
+                        tabController: _tabController,
+                        tabs: _tabs,
+                      ),
+                      24.verticalSpace,
+                      _orderPrices(context, state),
+                      TitleAndIcon(
+                        title: AppHelpers.getTranslation(
+                            TrKeys.deliverymanTransactions),
+                      ),
+                      12.verticalSpace,
+                      IncomeItem(
+                        title: AppHelpers.getTranslation(TrKeys.wallet),
+                        price: AppHelpers.numberFormat(
+                            number: LocalStorage.getUser()?.wallet?.price ?? 0),
+                      ),
+                      // The legacy host row showed the courier's rating from
+                      // LocalStorage.getUser()?.rate (UserData parsed
+                      // assign_reviews_avg_rating). base_sdk's ProfileData carries
+                      // no rating field, so the row is parked until the courier
+                      // profile slice (delivery_sdk, S-D3) owns that surface.
+                      // IncomeItem(
+                      //   title: AppHelpers.getTranslation(TrKeys.rating),
+                      //   price: "-",
+                      // ),
+                      24.verticalSpace,
+                      StatisticsScreen(
+                          totalOrders: (state.countData?.data?.totalCount ?? 0)
+                              .toString(),
+                          todayOrders: (state.countData?.data?.totalTodayCount ?? 0)
+                              .toString(),
+                          acceptedOrders: (state
+                                      .countData?.data?.totalAcceptedCount ??
                                   0)
                               .toString(),
-                      acceptedPer:
-                          "${((state.countData?.data?.totalAcceptedCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
-                      rejectedPer:
-                          "${((state.countData?.data?.totalCanceledCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
-                      donePer:
-                          "${((state.countData?.data?.totalDeliveredCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
-                      canceledPer:
-                          "${((state.countData?.data?.totalNewCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%"),
-                  32.verticalSpace,
-                  _chart(state),
+                          rejectedOrders: (state
+                                      .countData?.data?.totalCanceledCount ??
+                                  0)
+                              .toString(),
+                          doneOrders: (state.countData?.data?.totalDeliveredCount ??
+                                  0)
+                              .toString(),
+                          canceledOrders:
+                              (state
+                                          .countData?.data?.totalNewCount ??
+                                      0)
+                                  .toString(),
+                          acceptedPer:
+                              "${((state.countData?.data?.totalAcceptedCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
+                          rejectedPer:
+                              "${((state.countData?.data?.totalCanceledCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
+                          donePer:
+                              "${((state.countData?.data?.totalDeliveredCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
+                          canceledPer:
+                              "${((state.countData?.data?.totalNewCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%"),
+                      32.verticalSpace,
+                      _chart(state),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // One bottom overlay (design strip section 12, core#125): the page's
+          // withdraw action riding above the floating nav's back-only pill,
+          // whose back segment replaces the standalone PopButton as this
+          // screen's ONE back affordance. Back-only (empty tab list): the
+          // driver app composes no root tab set.
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: REdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: CustomButton(
+                            title: AppHelpers.getTranslation(TrKeys.withdrawMoney),
+                            onPressed: () {},
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  FloatingBottomNav(
+                    mode: FloatingNavTabsMode(
+                      tabs: const [],
+                      currentIndex: 0,
+                      onSelect: (_) {},
+                      back: FloatingNavBack(
+                        icon: Remix.arrow_left_wide_fill,
+                        label: AppHelpers.getTranslation(TrKeys.back),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         ],
-      ),
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.miniCenterDocked,
-      floatingActionButton: Padding(
-        padding: REdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            PopButton(),
-            8.horizontalSpace,
-            Expanded(
-              child: CustomButton(
-                title: AppHelpers.getTranslation(TrKeys.withdrawMoney),
-                onPressed: () {},
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

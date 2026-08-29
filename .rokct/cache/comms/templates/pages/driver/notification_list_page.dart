@@ -52,8 +52,9 @@ import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/models/response/notification_response.dart';
 import 'package:base_sdk/src/presentation/components/app_bars/common_app_bar.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
-import 'package:base_sdk/src/presentation/components/buttons/pop_button.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/components/helper/common_image.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -97,7 +98,8 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
       child: Scaffold(
         backgroundColor: AppStyle.bgGrey,
-        body: state.isAllNotificationsLoading
+        body: Stack(children: [
+          state.isAllNotificationsLoading
             ? const Loading()
             : Column(
                 children: [
@@ -187,25 +189,49 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
                   ),
                 ],
               ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Row(
-            children: [
-              const PopButton(),
-              10.horizontalSpace,
-              Expanded(
-                  child: CustomButton(
-                background: AppStyle.black,
-                textColor: AppStyle.white,
-                title: AppHelpers.getTranslation(TrKeys.readAll),
-                onPressed: () async {
-                  event.readAll(context);
-                },
-              ))
-            ],
+          // One bottom overlay (design strip section 12, core#125): the
+          // page's read-all action riding above the floating nav's
+          // back-only pill, whose back segment replaces the standalone
+          // PopButton as this screen's ONE back affordance. Back-only
+          // (empty tab list): the driver app composes no root tab set.
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Row(
+                      children: [
+                        Expanded(
+                            child: CustomButton(
+                          background: AppStyle.black,
+                          textColor: AppStyle.white,
+                          title: AppHelpers.getTranslation(TrKeys.readAll),
+                          onPressed: () async {
+                            event.readAll(context);
+                          },
+                        ))
+                      ],
+                    ),
+                  ),
+                  FloatingBottomNav(
+                    mode: FloatingNavTabsMode(
+                      tabs: const [],
+                      currentIndex: 0,
+                      onSelect: (_) {},
+                      back: FloatingNavBack(
+                        icon: Remix.arrow_left_wide_fill,
+                        label: AppHelpers.getTranslation(TrKeys.back),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
+        ]),
       ),
     );
   }

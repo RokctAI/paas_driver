@@ -27,7 +27,7 @@ import 'package:map_launcher/map_launcher.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
-import 'package:base_sdk/src/presentation/components/buttons/pop_button.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -65,79 +65,102 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
     final state = ref.watch(routeProvider);
     return Scaffold(
       backgroundColor: AppStyle.bgGrey,
-      body: Column(
+      body: Stack(
         children: [
-          CustomAppBar(
-            bottomPadding: 16.h,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  AppHelpers.getTranslation(TrKeys.myRoute),
-                  style: AppStyle.interSemi(size: 18.sp),
+          Column(
+            children: [
+              CustomAppBar(
+                bottomPadding: 16.h,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      AppHelpers.getTranslation(TrKeys.myRoute),
+                      style: AppStyle.interSemi(size: 18.sp),
+                    ),
+                    if (state.dispatchRoute != null)
+                      Text(
+                        "${AppHelpers.getTranslation(state.dispatchRoute?.mode == 'Pickup' ? TrKeys.pickupRoute : TrKeys.deliveryRoute)}"
+                        " · ${state.dispatchRoute?.pendingStops ?? 0}/${state.dispatchRoute?.totalStops ?? 0}",
+                        style: AppStyle.interRegular(
+                          size: 12.sp,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                  ],
                 ),
-                if (state.dispatchRoute != null)
-                  Text(
-                    "${AppHelpers.getTranslation(state.dispatchRoute?.mode == 'Pickup' ? TrKeys.pickupRoute : TrKeys.deliveryRoute)}"
-                    " · ${state.dispatchRoute?.pendingStops ?? 0}/${state.dispatchRoute?.totalStops ?? 0}",
-                    style: AppStyle.interRegular(
-                      size: 12.sp,
-                      letterSpacing: -0.3,
+              ),
+              if ((state.dispatchRoute?.notes ?? '').isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 12.h),
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: AppStyle.white,
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    padding: EdgeInsets.all(12.r),
+                    child: Text(
+                      state.dispatchRoute?.notes ?? '',
+                      style: AppStyle.interRegular(size: 13.sp),
                     ),
                   ),
-              ],
-            ),
-          ),
-          if ((state.dispatchRoute?.notes ?? '').isNotEmpty)
-            Padding(
-              padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 12.h),
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: AppStyle.white,
-                  borderRadius: BorderRadius.circular(10.r),
                 ),
-                padding: EdgeInsets.all(12.r),
-                child: Text(
-                  state.dispatchRoute?.notes ?? '',
-                  style: AppStyle.interRegular(size: 13.sp),
+              Expanded(
+                child: state.isLoading
+                    ? const Loading()
+                    : RefreshIndicator(
+                        onRefresh: () =>
+                            ref.read(routeProvider.notifier).fetchRoute(context),
+                        child: state.stops.isEmpty
+                            ? _emptyRoute()
+                            : ListView.builder(
+                                padding: EdgeInsets.only(
+                                  left: 16.w,
+                                  right: 16.w,
+                                  top: 16.h,
+                                  bottom:
+                                      MediaQuery.paddingOf(context).bottom + 72.h,
+                                ),
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                itemCount: state.stops.length,
+                                itemBuilder: (context, index) {
+                                  return _stopCard(
+                                    context,
+                                    state.stops[index],
+                                    isNext: index == state.nextStopIndex,
+                                    isCompleting: state.isCompleting,
+                                  );
+                                },
+                              ),
+                      ),
+              ),
+            ],
+          ),
+          // The floating nav's back-only pill (FloatingNavBack, core#125 — design
+          // strip section 12's one-back rule): the shared pill housing carrying
+          // only the leading back segment, this screen's ONE back affordance,
+          // replacing the standalone PopButton. Back-only (empty tab list): the
+          // driver app composes no root tab set.
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: FloatingBottomNav(
+                mode: FloatingNavTabsMode(
+                  tabs: const [],
+                  currentIndex: 0,
+                  onSelect: (_) {},
+                  back: FloatingNavBack(
+                    icon: Remix.arrow_left_wide_fill,
+                    label: AppHelpers.getTranslation(TrKeys.back),
+                  ),
                 ),
               ),
             ),
-          Expanded(
-            child: state.isLoading
-                ? const Loading()
-                : RefreshIndicator(
-                    onRefresh: () =>
-                        ref.read(routeProvider.notifier).fetchRoute(context),
-                    child: state.stops.isEmpty
-                        ? _emptyRoute()
-                        : ListView.builder(
-                            padding: EdgeInsets.only(
-                              left: 16.w,
-                              right: 16.w,
-                              top: 16.h,
-                              bottom:
-                                  MediaQuery.paddingOf(context).bottom + 72.h,
-                            ),
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            itemCount: state.stops.length,
-                            itemBuilder: (context, index) {
-                              return _stopCard(
-                                context,
-                                state.stops[index],
-                                isNext: index == state.nextStopIndex,
-                                isCompleting: state.isCompleting,
-                              );
-                            },
-                          ),
-                  ),
           ),
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-      floatingActionButton: const PopButton(),
     );
   }
 

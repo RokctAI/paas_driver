@@ -72,6 +72,11 @@ Color get _controlFill => AppStyle.bottomNavigationBarColor;
 ///    pixel-for-pixel unchanged, right down to the small dash under the
 ///    active tab ([FloatingNavTabsMode.indicator] lets a host swap the
 ///    dash for a filled rounded rectangle; saying nothing keeps the dash).
+///    When the page passes [FloatingNavTabsMode.back], the pill grows a
+///    leading back segment — PopButton's chevron + label + brand dash
+///    inside the pill housing, hairline-split from the tabs — which
+///    becomes the screen's ONE back affordance (see [FloatingNavBack]:
+///    such a page renders no PopButton or AppBar back of its own).
 ///  * [FloatingNavControlsMode] — controls. With no
 ///    [FloatingNavControlsMode.input] it stays a pill of round buttons
 ///    (the shape telephony's call controls want); with one it becomes the
@@ -224,6 +229,25 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
+          // The leading back segment — PopButton's chevron + label + brand
+          // dash moved inside the pill, split from the tabs by a hairline.
+          // Rendered only when the page passes [FloatingNavTabsMode.back]
+          // (i.e. when it can pop); the page then draws no back button of
+          // its own. The bar's one navigation exception — it never carries
+          // the active indicator (see FloatingNavBack).
+          if (mode.back != null) ...[
+            _BackSegment(back: mode.back!),
+            // The hairline splits back from the tabs. A back-only pill —
+            // empty tabs, no trailing actions: the no-tab-set apps'
+            // pushed routes — has nothing to split from, so it draws none.
+            if (mode.tabs.isNotEmpty || mode.trailing.isNotEmpty)
+              Container(
+                width: 1,
+                height: 26.r,
+                margin: EdgeInsets.symmetric(horizontal: 4.r),
+                color: AppStyle.white.withValues(alpha: 0.16),
+              ),
+          ],
           for (var i = 0; i < mode.tabs.length; i++)
             BottomNavigatorItem(
               selectItem: () {
@@ -282,6 +306,21 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
+          // The same back segment leading the rail, stacked the way the
+          // rail's tabs are — chevron over label over the brand dash —
+          // with the hairline turned horizontal beneath it.
+          if (mode.back != null) ...[
+            _BackSegment(back: mode.back!, vertical: true),
+            // Same rule as the bottom pill: a back-only rail draws no
+            // hairline — there are no tabs to split from.
+            if (mode.tabs.isNotEmpty || mode.trailing.isNotEmpty)
+              Container(
+                height: 1,
+                width: 26.r,
+                margin: EdgeInsets.symmetric(vertical: 4.r),
+                color: AppStyle.white.withValues(alpha: 0.16),
+              ),
+          ],
           for (var i = 0; i < mode.tabs.length; i++)
             BottomNavigatorItem(
               selectItem: () {
@@ -391,6 +430,134 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
       leadingActions: mode.leadingActions,
       target: mode.target,
       actions: mode.actions,
+    );
+  }
+}
+
+/// The pill's leading back segment ([FloatingNavTabsMode.back]).
+///
+/// `PopButton`'s exact visual DNA — the chevron, the 12sp white label,
+/// the 4x24 brand-primary dash rounded on top — relocated INTO the pill
+/// housing, on the same 45.h row rhythm as [BottomNavigatorItem] so the
+/// pill keeps one height. [vertical] is the tablet-mode side rail's
+/// stacking: the same three elements in a column on the rail's own
+/// 45.h x 60.w item footprint, chevron over label over dash, matching how
+/// the rail's active tab already stacks.
+///
+/// Tapping runs [FloatingNavBack.onTap], else `Navigator.maybePop`. A
+/// page that passes back draws no other back affordance (no floating
+/// `PopButton`, no AppBar leading), so one back exists per screen.
+class _BackSegment extends StatelessWidget {
+  final FloatingNavBack back;
+
+  /// The tablet-mode side rail's stacking. False — the bottom pill — is
+  /// the row layout the design frames show.
+  final bool vertical;
+
+  const _BackSegment({required this.back, this.vertical = false});
+
+  @override
+  Widget build(BuildContext context) {
+    // The dash is PopButton's: always brand-primary — this segment is not
+    // a tab, never carries the active indicator, and the dash here is
+    // identity, not selection.
+    final dash = Container(
+      height: 4.h,
+      width: 24.w,
+      decoration: BoxDecoration(
+        color: AppStyle.primary,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(100.r),
+          topRight: Radius.circular(100.r),
+        ),
+      ),
+    );
+
+    final Widget body;
+    if (vertical) {
+      // The rail: chevron over label over dash, mirroring the rail's
+      // active-tab stack (same FittedBox guard against short windows).
+      body = SizedBox(
+        height: 45.h,
+        width: 60.w,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(back.icon, size: 24.r, color: AppStyle.white),
+                    Text(
+                      back.label,
+                      style: TextStyle(
+                        color: AppStyle.white,
+                        fontSize: 9.sp,
+                        // Same fallback guard as BottomNavigatorItem: the
+                        // pill can float with no Material ancestor, and
+                        // the debug underline must never apply.
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            dash,
+          ],
+        ),
+      );
+    } else {
+      // The bottom pill: PopButton's own row — chevron beside the
+      // label-over-dash stack.
+      body = SizedBox(
+        height: 45.h,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(back.icon, size: 20.r, color: AppStyle.white),
+            SizedBox(width: 4.w),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  back.label,
+                  style: TextStyle(
+                    color: AppStyle.white,
+                    fontSize: 12.sp,
+                    // Same fallback guard as BottomNavigatorItem (the pill
+                    // can float with no Material ancestor).
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+                SizedBox(height: 3.h),
+                dash,
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Semantics(
+      button: true,
+      label: back.label,
+      child: GestureDetector(
+        onTap: back.onTap ?? () => Navigator.maybePop(context),
+        child: Container(
+          // Transparent but painted, so the whole segment is tappable.
+          // The vertical rail adds no side padding: its 60.w footprint
+          // already fills the rail housing, exactly like the tabs.
+          color: AppStyle.transparent,
+          padding: vertical
+              ? EdgeInsets.zero
+              : EdgeInsets.symmetric(horizontal: 10.w),
+          child: body,
+        ),
+      ),
     );
   }
 }

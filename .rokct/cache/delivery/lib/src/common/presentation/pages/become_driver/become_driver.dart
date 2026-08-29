@@ -499,10 +499,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
-import 'package:base_sdk/src/presentation/components/buttons/pop_button.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 //import '../../../../infrastructure/services/app_helpers.dart';
 //import '../../../../infrastructure/services/tr_keys.dart';
 import 'package:base_sdk/src/services/app_assets.dart';
+import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:base_sdk/src/presentation/components/app_bars/common_app_bar.dart';
 import 'package:delivery_sdk/src/common/application/delivery/delivery_provider.dart';
 
@@ -520,7 +523,8 @@ class _BecomeDriverPageState extends ConsumerState<BecomeDriverPage> {
 
     return Scaffold(
       backgroundColor: AppStyle.bgGrey,
-      body: deliveryState.isLoading
+      body: Stack(children: [
+        deliveryState.isLoading
           ? const Loading()
           : deliveryState.value == null
               ? Column(
@@ -601,14 +605,29 @@ class _BecomeDriverPageState extends ConsumerState<BecomeDriverPage> {
                     ],
                   ),
                 ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-      floatingActionButton: Visibility(
-        visible: MediaQuery.of(context).viewInsets.bottom == 0.0,
-        child: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: PopButton(),
+        // The floating nav's back-only pill (FloatingNavBack, core#125 —
+        // design strip section 12's one-back rule): the shared pill
+        // housing carrying only the leading back segment, this screen's
+        // ONE back affordance, replacing the standalone PopButton.
+        // Back-only (empty tab list) because the host app's root tabs
+        // are not reachable from this SDK package's pushed route.
+        Positioned.fill(
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: FloatingBottomNav(
+              mode: FloatingNavTabsMode(
+                tabs: const [],
+                currentIndex: 0,
+                onSelect: (_) {},
+                back: FloatingNavBack(
+                  icon: Remix.arrow_left_wide_fill,
+                  label: AppHelpers.getTranslation(TrKeys.back),
+                ),
+              ),
+            ),
+          ),
         ),
-      ),
+      ]),
     );
   }
 }

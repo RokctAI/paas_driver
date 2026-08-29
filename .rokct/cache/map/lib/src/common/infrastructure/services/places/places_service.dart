@@ -1,15 +1,55 @@
+// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+// compliance-ignore-file: flutter-http-timeout
+// The package:dio import below is only for its request/response types.
+// The actual client comes from base_sdk's dioHttp (HttpService), which sets
+// connectTimeout and receiveTimeout (30s) centrally on its BaseOptions; the
+// injectable _client seam is test-only.
+
+import 'dart:convert';
+
+import 'package:base_sdk/src/di/injection.dart';
 import 'package:dio/dio.dart';
 
 /// Calls Google's official Places API v1 directly — no third-party wrapper
 /// package. Replaces a git-forked `google_place` dependency that this
 /// workspace decided not to depend on.
+///
+/// Requests go through base_sdk's [HttpService] client so they ride the
+/// standard interceptor chain — TimingInterceptor (timing telemetry) and the
+/// ADR-006 trace-id stamping — instead of a bare [Dio] instance that the
+/// telemetry pipeline never sees. `requireAuth: false` keeps the tenant
+/// bearer token off this third-party host.
 class GooglePlacesService {
-  final Dio _dio;
+  /// Test seam only. Production resolves the shared [HttpService] client
+  /// lazily so registration order at bootstrap does not matter.
+  final Dio? _client;
+
   final String _apiKey;
 
-  GooglePlacesService({required Dio dio, required String apiKey})
-      : _dio = dio,
+  GooglePlacesService({Dio? client, required String apiKey})
+      : _client = client,
         _apiKey = apiKey;
+
+  Dio get _dio => _client ?? dioHttp.client(requireAuth: false);
 
   /// Fetch autocomplete suggestions from Google Places API (v1)
   /// https://places.googleapis.com/v1/places:autocomplete
@@ -32,7 +72,7 @@ class GooglePlacesService {
         data['languageCode'] = languageCode;
       }
 
-      final response = await _dio.post(
+      final response = await _dio.post<dynamic>(
         'https://places.googleapis.com/v1/places:autocomplete',
         data: data,
         options: Options(
@@ -43,10 +83,14 @@ class GooglePlacesService {
         ),
       );
 
-      if (response.statusCode == 200 && response.data != null) {
-        final List predictions = response.data['suggestions'] ?? [];
+      final body = response.data;
+      // Dio only auto-decodes application/json; fall back for providers that
+      // serve JSON under another content type.
+      final dynamic decoded = body is String ? json.decode(body) : body;
+      if (response.statusCode == 200 && decoded is Map<String, dynamic>) {
+        final List predictions = decoded['suggestions'] ?? [];
         return predictions
-            .map((json) => AutocompletePrediction.fromJson(json))
+            .map((prediction) => AutocompletePrediction.fromJson(prediction))
             .toList();
       }
     } catch (e) {
@@ -68,13 +112,17 @@ class GooglePlacesService {
         queryParameters['sessionToken'] = sessionToken;
       }
 
-      final response = await _dio.get(
+      final response = await _dio.get<dynamic>(
         'https://places.googleapis.com/v1/places/$placeId',
         queryParameters: queryParameters,
       );
 
-      if (response.statusCode == 200 && response.data != null) {
-        return PlaceDetails.fromJson(response.data);
+      final body = response.data;
+      // Dio only auto-decodes application/json; fall back for providers that
+      // serve JSON under another content type.
+      final dynamic decoded = body is String ? json.decode(body) : body;
+      if (response.statusCode == 200 && decoded is Map<String, dynamic>) {
+        return PlaceDetails.fromJson(decoded);
       }
     } catch (e) {
       // Fallback gracefully on API errors

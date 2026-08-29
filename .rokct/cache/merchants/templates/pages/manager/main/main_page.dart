@@ -30,10 +30,12 @@ import 'package:proste_indexed_stack/proste_indexed_stack.dart';
 
 import 'package:${package}/presentation/theme/theme.dart';
 // Tab pages and create-modals install from their owning SDKs into these host
-// paths: orders_sdk -> pages/orders + the ManagerCreateOrderRoute POS flow,
-// products_sdk -> pages/foods (+ create modals), merchants_sdk -> the
-// restaurant tab. This shell compiles once those app_type.manager installs
-// have landed alongside it in the composed app.
+// paths: merchants_sdk -> the POS billing tab (pages/billing) and the
+// restaurant tab, orders_sdk -> pages/orders + the ManagerCreateOrderRoute
+// create-order flow, products_sdk -> pages/foods (+ create modals). This
+// shell compiles once those app_type.manager installs have landed alongside
+// it in the composed app.
+import 'package:${package}/presentation/pages/billing/billing_page.dart';
 import 'package:${package}/presentation/pages/orders/orders_home_page.dart';
 import 'package:${package}/presentation/pages/foods/foods_page.dart';
 import 'package:${package}/presentation/pages/foods/create/create_product_modal.dart';
@@ -65,7 +67,11 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  // POS first (approved strip section 11): a store owner/manager lands on
+  // the till scanner when they open the app. The order queue moved to
+  // index 1 — orders_sdk's tour fragment tracks the shift.
   List<IndexedStackChild> list = [
+    IndexedStackChild(child: const BillingPage(), preload: true),
     IndexedStackChild(child: const OrdersHomePage(), preload: true),
     IndexedStackChild(child: const FoodsPage(), preload: false),
     IndexedStackChild(child: const RestaurantPage(), preload: false),
@@ -204,24 +210,34 @@ class _MainPageState extends State<MainPage> {
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            // POS till first (scan icon) — the queue and
+                            // foods tabs shifted one right.
                             BottomNavigatorItem(
                               isScrolling: state.isScrolling,
                               selectItem: () => event.selectIndex(0),
                               currentIndex: state.selectedIndex,
                               index: 0,
-                              selectIcon: Remix.file_list_2_fill,
-                              unSelectIcon: Remix.file_list_2_line,
+                              selectIcon: Remix.scan_2_fill,
+                              unSelectIcon: Remix.scan_2_line,
                             ),
                             BottomNavigatorItem(
                               isScrolling: state.isScrolling,
                               selectItem: () => event.selectIndex(1),
                               index: 1,
                               currentIndex: state.selectedIndex,
+                              selectIcon: Remix.file_list_2_fill,
+                              unSelectIcon: Remix.file_list_2_line,
+                            ),
+                            BottomNavigatorItem(
+                              isScrolling: state.isScrolling,
+                              selectItem: () => event.selectIndex(2),
+                              index: 2,
+                              currentIndex: state.selectedIndex,
                               selectIcon: Remix.restaurant_fill,
                               unSelectIcon: Remix.restaurant_line,
                             ),
                             _profileItem(() {
-                              event.selectIndex(2);
+                              event.selectIndex(3);
                               event.changeScrolling(false);
                             }, state.selectedIndex),
                           ],
@@ -229,13 +245,17 @@ class _MainPageState extends State<MainPage> {
                       ),
                     ),
                   ),
-                  state.selectedIndex != 2
+                  // Create FAB only on the tabs with something to create:
+                  // 1 orders (create order), 2 foods (create modals). The
+                  // POS till (0) creates through the scanner and the
+                  // restaurant tab (3) creates nothing.
+                  state.selectedIndex == 1 || state.selectedIndex == 2
                       ? ButtonsBouncingEffect(
                           child: Hero(
                             tag: AppConstants.heroTagAddOrderButton,
                             child: GestureDetector(
                               onTap: () {
-                                if (state.selectedIndex == 0) {
+                                if (state.selectedIndex == 1) {
                                   context.pushRoute(
                                     const ManagerCreateOrderRoute(),
                                   );
@@ -303,25 +323,35 @@ class _MainPageState extends State<MainPage> {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Same destinations as the bottom pill: POS till first,
+                  // then the queue, foods, and the shop profile.
                   BottomNavigatorItem(
                     isScrolling: state.isScrolling,
                     selectItem: () => event.selectIndex(0),
                     currentIndex: state.selectedIndex,
                     index: 0,
-                    selectIcon: Remix.file_list_2_fill,
-                    unSelectIcon: Remix.file_list_2_line,
+                    selectIcon: Remix.scan_2_fill,
+                    unSelectIcon: Remix.scan_2_line,
                   ),
                   BottomNavigatorItem(
                     isScrolling: state.isScrolling,
                     selectItem: () => event.selectIndex(1),
                     index: 1,
                     currentIndex: state.selectedIndex,
+                    selectIcon: Remix.file_list_2_fill,
+                    unSelectIcon: Remix.file_list_2_line,
+                  ),
+                  BottomNavigatorItem(
+                    isScrolling: state.isScrolling,
+                    selectItem: () => event.selectIndex(2),
+                    index: 2,
+                    currentIndex: state.selectedIndex,
                     selectIcon: Remix.restaurant_fill,
                     unSelectIcon: Remix.restaurant_line,
                   ),
                   _profileItem(
                     () {
-                      event.selectIndex(2);
+                      event.selectIndex(3);
                       event.changeScrolling(false);
                     },
                     state.selectedIndex,
@@ -334,7 +364,9 @@ class _MainPageState extends State<MainPage> {
             ),
           ),
         ),
-        state.selectedIndex != 2
+        // Create FAB only on tabs 1 (orders) and 2 (foods) — same rule as
+        // the bottom pill's button.
+        state.selectedIndex == 1 || state.selectedIndex == 2
             ? ButtonsBouncingEffect(
                 child: Hero(
                   // Only ever mounted INSTEAD of the bottom pill's
@@ -343,7 +375,7 @@ class _MainPageState extends State<MainPage> {
                   tag: AppConstants.heroTagAddOrderButton,
                   child: GestureDetector(
                     onTap: () {
-                      if (state.selectedIndex == 0) {
+                      if (state.selectedIndex == 1) {
                         context.pushRoute(const ManagerCreateOrderRoute());
                       } else {
                         _showModalBasedOnFoodTab(context, ref);
@@ -408,7 +440,7 @@ class _MainPageState extends State<MainPage> {
         margin: margin ?? EdgeInsets.only(left: 12.r),
         decoration: BoxDecoration(
           border: Border.all(
-            color: index == 2 ? AppStyle.primary : AppStyle.transparent,
+            color: index == 3 ? AppStyle.primary : AppStyle.transparent,
             width: 2.w,
           ),
           shape: BoxShape.circle,

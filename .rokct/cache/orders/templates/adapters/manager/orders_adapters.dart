@@ -121,24 +121,33 @@ class ManagerPosSectionsTablesAdapter implements PosSectionsTablesFacade {
 }
 
 class ManagerPosCustomersAdapter implements PosCustomersFacade {
+  /// Mirrors the backend's `limit_page_length` default.
+  static const int _pageSize = 20;
+
   @override
   Future<ApiResult<UsersPaginateResponse>> searchUsers({
     String? query,
     int? page,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        // users_sdk's search endpoint (its Dart facade is S-2; swap to it
-        // once merged).
-        '/api/method/paas.api.user.user.search_users',
-        queryParameters: {
+      // merchants' shop-scoped seller_shop_settings.get_shop_users via the
+      // universal platform gateway (whitelisted-method key already
+      // registered in merchants/frappe/manifest.json). Shop-scoped is the
+      // pre-fork behavior: a manager only ever sees their own shop's users.
+      final response = await const PlatformGateway().tenant(
+        'api.seller_shop_settings.get_shop_users',
+        {
           if (query != null && query.isNotEmpty) 'search': query,
-          if (page != null) 'page': page,
+          if (page != null) 'limit_start': (page - 1) * _pageSize,
+          'limit_page_length': _pageSize,
         },
       );
+      // The endpoint keeps the legacy bare-list shape; wrap it into the
+      // paginate envelope the POS model expects.
       return ApiResult.success(
-        data: UsersPaginateResponse.fromJson(response.data),
+        data: UsersPaginateResponse.fromJson(
+          response is List ? {'data': response} : response,
+        ),
       );
     } catch (e) {
       return ApiResult.failure(

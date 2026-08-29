@@ -115,13 +115,19 @@ class ManagerOrdersLocalStore {
   /// Builds a queue row from a stored record. The record holds the
   /// `create_order` request map (write shape), so only the fields that shape
   /// carries are populated — enough for the list tile and its badge.
+  ///
+  /// The status is the ACTUAL status the record carries (a POS sale is
+  /// created at its real state — an offline send-for-delivery sale HOLDS
+  /// at 'ready' until the sync drains it; an in-store sale is already
+  /// 'delivered'), falling back to 'new' for legacy records whose body
+  /// never carried one.
   static OrderData toOrderData(Map<String, dynamic> record) {
     final order =
         (record['order'] as Map?)?.cast<String, dynamic>() ?? const {};
     final localId = (record['local_id'] ?? record['id'] ?? '').toString();
     final phone = order['phone']?.toString();
     return OrderData(
-      status: 'new',
+      status: _wireStatus(order['status']),
       deliveryType: order['delivery_type']?.toString(),
       deliveryDate: order['delivery_date']?.toString(),
       createdAt: record['created_at']?.toString(),
@@ -131,5 +137,14 @@ class ManagerOrdersLocalStore {
       ..pendingSync = record['synced'] != true
       ..needsAttention = record['needs_attention'] == true
       ..syncError = record['sync_error']?.toString();
+  }
+
+  /// The queue-row wire status for a stored create body's status value:
+  /// bodies carry the legacy lowercase wire strings the queues key on
+  /// ('new' / 'accepted' / 'ready' / 'on_a_way' / 'delivered'); absent or
+  /// blank means the legacy pre-status body — 'new'.
+  static String _wireStatus(Object? value) {
+    final status = value?.toString().trim().toLowerCase() ?? '';
+    return status.isEmpty ? 'new' : status;
   }
 }
