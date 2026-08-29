@@ -4,8 +4,10 @@
 # that is NOT excluded here is shown, so new tour steps appear in the README
 # automatically. Full-line comments only; keys may omit the .png suffix.
 exclude:
-  # The welcome still's caption references the demo build; excluded until
-  # the tour manifest's wording is production copy.
+  # The committed welcome still was captured before the tour manifest's
+  # caption reword landed on main (PR #87), so its baked-in caption still
+  # references the demo build; excluded until a green guided-tour run
+  # refreshes the still, then this entry can be dropped.
   - 01-welcome
   # Carries the untranslated "Reset password text" placeholder subtitle.
   - 04-auth_reset_password
