@@ -242,69 +242,84 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
+                        // Stack, not a Row of Spacers: the logo's loose
+                        // Flexible below never claims its full flex
+                        // allocation (FittedBox shrinks it), and a Row
+                        // leaves that unclaimed allocation as trailing
+                        // free space — which floated Skip ~170 logical px
+                        // inboard of the corner it's meant to sit in
+                        // (design 25b: "skip is always at a corner").
+                        // AlignmentDirectional pins it to the top-END
+                        // corner so RTL locales pin to their end; the
+                        // surrounding 16.w page padding is the corner gap.
+                        // A non-positioned Align (not Positioned) so the
+                        // button still gives the Stack its height when the
+                        // app-name row is empty.
+                        Stack(
                           children: [
-                            /* Image.asset(
-                        AppAssets.pngLogo,
-                        width: 50.r,
-                        height: 50.r,
-                      ),*/
-                            // Flexible + scale-down: .sp sizes are scaled
-                            // against a portrait design size, so on a wide
-                            // desktop window the logo text renders huge and
-                            // used to overflow this Row by hundreds of px.
-                            // Shrinking to the available width is a no-op on
-                            // phones, where it already fit.
-                            AppHelpers.getAppName() != null
-                                ? Flexible(
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      alignment: AlignmentDirectional
-                                          .centerStart,
-                                      child: RichText(
-                                        text: TextSpan(
-                                          children: [
-                                            TextSpan(
-                                              text: AppHelpers.getAppName(),
-                                              style:
-                                                  AppStyle.logoFontBoldItalic(
-                                                color: AppStyle.white,
-                                                size: 35.sp,
-                                              ),
-                                            ),
-                                            // Backend-controlled trademark
-                                            // symbol (® / ™ / none). Empty
-                                            // means "None": skip the span so
-                                            // no superscript spacing is left.
-                                            if (AppHelpers
-                                                .getTrademarkSymbol()
-                                                .isNotEmpty)
-                                              WidgetSpan(
-                                                child: Transform.translate(
-                                                  offset: Offset(
-                                                    0,
-                                                    -15,
-                                                  ), // Move up by 15 pixels, adjust as needed
-                                                  child: Text(
-                                                    AppHelpers
-                                                        .getTrademarkSymbol(),
-                                                    style: AppStyle
-                                                        .logoFontBoldItalic(
-                                                      color: AppStyle.white,
-                                                      size: 12.sp,
-                                                    ),
+                            Row(
+                              children: [
+                                /* Image.asset(
+                            AppAssets.pngLogo,
+                            width: 50.r,
+                            height: 50.r,
+                          ),*/
+                                // Flexible + scale-down: .sp sizes are scaled
+                                // against a portrait design size, so on a wide
+                                // desktop window the logo text renders huge and
+                                // used to overflow this Row by hundreds of px.
+                                // Shrinking to the available width is a no-op on
+                                // phones, where it already fit.
+                                AppHelpers.getAppName() != null
+                                    ? Flexible(
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: AlignmentDirectional
+                                              .centerStart,
+                                          child: RichText(
+                                            text: TextSpan(
+                                              children: [
+                                                TextSpan(
+                                                  text: AppHelpers.getAppName(),
+                                                  style:
+                                                      AppStyle.logoFontBoldItalic(
+                                                    color: AppStyle.white,
+                                                    size: 35.sp,
                                                   ),
                                                 ),
-                                              ),
-                                          ],
+                                                // Backend-controlled trademark
+                                                // symbol (® / ™ / none). Empty
+                                                // means "None": skip the span so
+                                                // no superscript spacing is left.
+                                                if (AppHelpers
+                                                    .getTrademarkSymbol()
+                                                    .isNotEmpty)
+                                                  WidgetSpan(
+                                                    child: Transform.translate(
+                                                      offset: Offset(
+                                                        0,
+                                                        -15,
+                                                      ), // Move up by 15 pixels, adjust as needed
+                                                      child: Text(
+                                                        AppHelpers
+                                                            .getTrademarkSymbol(),
+                                                        style: AppStyle
+                                                            .logoFontBoldItalic(
+                                                          color: AppStyle.white,
+                                                          size: 12.sp,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  )
-                                : SizedBox.shrink(),
-                            8.horizontalSpace,
-                            const Spacer(),
-                            const Spacer(),
+                                      )
+                                    : SizedBox.shrink(),
+                                8.horizontalSpace,
+                              ],
+                            ),
                             // Skip = use the app without an account. Shown
                             // by default in EVERY composed app; only a home
                             // SDK that declares it has no guest surface
@@ -315,11 +330,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             // composed, which wrongly hid it in apps whose
                             // guests skip straight to browsing (customer).
                             if (AuthEntryConfig.showsGuestSkip)
-                              SecondButton(
-                                onTap: _skip,
-                                title: AppHelpers.getTranslation(TrKeys.skip),
-                                bgColor: AppStyle.primary,
-                                titleColor: AppStyle.white,
+                              Align(
+                                alignment: AlignmentDirectional.topEnd,
+                                child: SecondButton(
+                                  onTap: _skip,
+                                  title:
+                                      AppHelpers.getTranslation(TrKeys.skip),
+                                  bgColor: AppStyle.primary,
+                                  titleColor: AppStyle.white,
+                                ),
                               ),
                           ],
                         ),

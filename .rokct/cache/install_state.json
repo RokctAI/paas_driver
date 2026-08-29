@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.40.0",
+      "version": "1.42.0",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -734,7 +734,7 @@
       "boot_hooks": []
     },
     "auth_sdk": {
-      "version": "1.9.0",
+      "version": "1.9.1",
       "files": {
         "lib/presentation/routes/auth_route_pages.dart": "434c57179cc107e87e8227b562a64cce223b9e2e12c0f90e898fc7a34e847084",
         "lib/presentation/routes/registration_step_pages.dart": "0688256171defa4e5aadaa38b010cb754d0a4ca19bc517b9a6f192d4afdd4e6f",
@@ -912,16 +912,16 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.40.0",
-      "hash": "d1dc7f19514447b2"
+      "version": "1.42.0",
+      "hash": "07a742e1465d131c"
     },
     "comms": {
       "version": "1.12.0",
       "hash": "0608f1252da820d4"
     },
     "auth": {
-      "version": "1.9.0",
-      "hash": "a530daee289354c0"
+      "version": "1.9.1",
+      "hash": "f537756d8e1fceea"
     },
     "users": {
       "version": "1.3.1",

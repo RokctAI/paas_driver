@@ -33,6 +33,7 @@ import 'package:base_sdk/src/models/data/profile_data.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
 import 'package:base_sdk/src/presentation/components/custom_network_image.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
+import 'package:base_sdk/src/presentation/adaptive/planes.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section_registry.dart';
 import 'package:base_sdk/src/presentation/pages/profile/widgets/profile_theme_toggle.dart';
@@ -160,6 +161,36 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
           : () => setState(() => _showPlanBack = true),
     );
 
+    final header = planBack == null
+        ? front
+        : _FlipCard(
+            showBack: _showPlanBack,
+            front: front,
+            back: _PlanBackCard(
+              onFlipBack: () => setState(() => _showPlanBack = false),
+              child: planBack,
+            ),
+          );
+
+    final topRow = _TopRow(
+      title:
+          registry.pageTitle ?? AppHelpers.getTranslation(TrKeys.profile),
+      actions: registry.topRowActions,
+      onLogout: registry.onLogout == null
+          ? null
+          : () => _confirmLogout(registry.onLogout!),
+    );
+
+    // Self-spread (the approved plane proposal, frame 1c): granted two or
+    // three planes by a PlaneHost above, the page spreads its own content
+    // across them — balanced columns of the registry's ordered sections,
+    // the identity header leading the first. Without a PlaneHost (or on a
+    // one-plane screen, where a page's grant is always one) the phone
+    // layout renders untouched. Subscribing via Planes.of means the page
+    // re-flows on any allocation change — no polling.
+    final planes = Planes.maybeOf(context);
+    final grantedPlanes = planes?.span ?? 1;
+
     return Scaffold(
       // Mode-resolving page surface: dark surface in dark mode, the soft
       // light-grey page in light mode — same token every themed page uses.
@@ -167,37 +198,30 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
       body: hydrating
           ? const Loading()
           : SafeArea(
-              child: ListView(
-                padding: EdgeInsets.all(16.r),
-                children: [
-                  _TopRow(
-                    title: registry.pageTitle ??
-                        AppHelpers.getTranslation(TrKeys.profile),
-                    actions: registry.topRowActions,
-                    onLogout: registry.onLogout == null
-                        ? null
-                        : () => _confirmLogout(registry.onLogout!),
-                  ),
-                  12.verticalSpace,
-                  if (planBack == null)
-                    front
-                  else
-                    _FlipCard(
-                      showBack: _showPlanBack,
-                      front: front,
-                      back: _PlanBackCard(
-                        onFlipBack: () =>
-                            setState(() => _showPlanBack = false),
-                        child: planBack,
-                      ),
+              child: grantedPlanes >= 2
+                  ? _SpreadBody(
+                      columns: grantedPlanes,
+                      // Column gutters on the host's seam width, so the
+                      // page's columns sit exactly on the plane grid.
+                      columnGap: planes!.gap,
+                      topRow: topRow,
+                      header: header,
+                      sections: sections,
+                    )
+                  : ListView(
+                      padding: EdgeInsets.all(16.r),
+                      children: [
+                        topRow,
+                        12.verticalSpace,
+                        header,
+                        16.verticalSpace,
+                        if (sections.isEmpty)
+                          const _EmptySections()
+                        else
+                          ...sections
+                              .map((section) => section.builder(context)),
+                      ],
                     ),
-                  16.verticalSpace,
-                  if (sections.isEmpty)
-                    const _EmptySections()
-                  else
-                    ...sections.map((section) => section.builder(context)),
-                ],
-              ),
             ),
     );
   }
@@ -232,6 +256,79 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
             borderColor: AppStyle.black,
             textColor: AppStyle.black,
             onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The page's plane-spread layout (frame 1c): the top controls row spans
+/// the full grant, then the page's items — the identity header first,
+/// then the registry's ordered sections — flow into [columns] balanced
+/// columns in reading order. Balance is by item count, contiguous, so the
+/// registry order is preserved down each column and across columns; the
+/// header always leads the first. One scroll position for the whole page,
+/// exactly like the phone list.
+class _SpreadBody extends StatelessWidget {
+  final int columns;
+  final double columnGap;
+  final Widget topRow;
+  final Widget header;
+  final List<ProfileSection> sections;
+
+  const _SpreadBody({
+    required this.columns,
+    required this.columnGap,
+    required this.topRow,
+    required this.header,
+    required this.sections,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Sections space themselves (ProfileSectionCard carries its own
+    // bottom margin); only the header needs the phone layout's 16 under
+    // it, so it travels with the header as one item.
+    final items = <Widget>[
+      Column(children: [header, 16.verticalSpace]),
+      if (sections.isEmpty)
+        const _EmptySections()
+      else
+        ...sections.map((section) => section.builder(context)),
+    ];
+
+    // Contiguous balanced split: every column gets items.length/columns
+    // items, the leftmost columns absorbing the remainder.
+    final perColumn = <List<Widget>>[];
+    final base = items.length ~/ columns;
+    final extra = items.length % columns;
+    var next = 0;
+    for (var c = 0; c < columns; c++) {
+      final take = base + (c < extra ? 1 : 0);
+      perColumn.add(items.sublist(next, next + take));
+      next += take;
+    }
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16.r),
+      child: Column(
+        children: [
+          topRow,
+          12.verticalSpace,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var c = 0; c < columns; c++) ...[
+                if (c > 0) SizedBox(width: columnGap),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: perColumn[c],
+                  ),
+                ),
+              ],
+            ],
           ),
         ],
       ),

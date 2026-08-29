@@ -22,7 +22,9 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 
+import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
 
 /// App-lifetime connectivity listener.
@@ -32,13 +34,27 @@ import 'package:base_sdk/src/sync/sync_engine.dart';
 /// trusted to observe an offline -> online transition. This singleton
 /// subscribes exactly once for the whole process and kicks the [SyncEngine]
 /// on each regain so queued offline work drains as soon as a connection is
-/// back. Started from `BaseSdkDependencies.register`.
+/// back. A regain only counts once the backend actually answers
+/// ([AppConnectivity.backendAvailability]) — a radio-only regain (Wi-Fi
+/// without internet, backend down) must not burn the outbox's retry
+/// attempts. Started from `BaseSdkDependencies.register`.
 class ConnectivityService {
   ConnectivityService._();
 
   static final ConnectivityService I = ConnectivityService._();
 
   StreamSubscription<List<ConnectivityResult>>? _subscription;
+
+  /// Backend reachability probe consulted on each regain before the drain
+  /// kick. Production default is [AppConnectivity.backendAvailability]
+  /// (on-demand only — never polled); tests substitute a stub.
+  @visibleForTesting
+  Future<bool> Function() backendProbe = AppConnectivity.backendAvailability;
+
+  /// What a backend-confirmed regain triggers. Production default drains
+  /// the outbox; tests substitute a recorder.
+  @visibleForTesting
+  Future<void> Function() onBackendRegained = () => SyncEngine().kick();
 
   // Start pessimistic: the first online event then triggers a kick, which
   // is a cheap no-op when the outbox is already drained.
@@ -47,14 +63,23 @@ class ConnectivityService {
   /// Idempotent; subsequent calls are no-ops.
   void start() {
     if (_subscription != null) return;
-    _subscription = Connectivity().onConnectivityChanged.listen((results) {
-      final online = _isOnline(results);
-      final regained = online && !_wasOnline;
-      _wasOnline = online;
-      if (regained) {
-        SyncEngine().kick();
-      }
-    });
+    _subscription =
+        Connectivity().onConnectivityChanged.listen(handleConnectivityChange);
+  }
+
+  /// The subscription body, callable directly from tests (the plugin's
+  /// event stream is not mockable the way its method channel is).
+  @visibleForTesting
+  Future<void> handleConnectivityChange(List<ConnectivityResult> results) async {
+    final online = _isOnline(results);
+    final regained = online && !_wasOnline;
+    _wasOnline = online;
+    // Device connectivity back is necessary but not sufficient: only kick
+    // the drain once the backend answers, so queued ops don't fail against
+    // a dead backend and march toward OutboxStatus.dead.
+    if (regained && await backendProbe()) {
+      await onBackendRegained();
+    }
   }
 
   /// For tests and teardown only — the service normally lives as long as

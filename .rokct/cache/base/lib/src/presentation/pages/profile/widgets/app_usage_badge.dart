@@ -198,11 +198,18 @@ class _AppUsageBadgeState extends State<AppUsageBadge> {
                   size: 16.r,
                 ),
                 SizedBox(width: 4.w),
-                Text(
-                  _label,
-                  style: AppStyle.interNormal(
-                    size: 12.sp,
-                    color: AppStyle.primary,
+                // Flexible + ellipsis: in a narrow surface (a plane-spread
+                // profile column) the long usage label truncates instead
+                // of overflowing; where it fits, min-sized as before.
+                Flexible(
+                  child: Text(
+                    _label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppStyle.interNormal(
+                      size: 12.sp,
+                      color: AppStyle.primary,
+                    ),
                   ),
                 ),
               ],

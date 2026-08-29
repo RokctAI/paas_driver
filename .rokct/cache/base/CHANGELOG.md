@@ -1,5 +1,66 @@
 # Changelog
 
+## 1.42.0
+
+* The plane mechanism (the approved plane proposal, frame 1c, plus the
+  approved yield/back interaction ruling). New
+  `presentation/adaptive/planes.dart`:
+  * `PlaneHost` divides a wide window into 1 / 2 / 3 EQUAL-WIDTH planes
+    by real logical width on the shared `AppBreakpoints` thresholds
+    (< 600 one, 600..839 two, >= 840 three) and windows the user flow
+    (`stack`, root first, last entry active) onto them — the deepest
+    step always in the LAST plane.
+  * `PlanePage` declares its claim in planes (`PlaneSpan.one` — the
+    default — `two`, or `all`) and whether earlier pages may sit beside
+    it (`allowNeighbors`; false presents the claim alone). Claims are
+    never demoted while planes exist; a claim >= the screen's count is
+    the full screen; a one-plane screen is the phone layout by
+    construction.
+  * Importance is dynamic: the ACTIVE page's claim wins, and earlier
+    pages YIELD BY COMPRESSING — the page under the active step keeps
+    the remaining planes up to its own claim and re-spreads onto them,
+    the next outward after that, the rest slide off. BACK pops the
+    newest step and the planes return (back restores).
+  * `Planes.of(context)` — inherited `.count`/`.index`/`.span` (plus
+    `planeWidth`/`gap`/`isLast`) so any page can subscribe and re-flow
+    on allocation changes, no polling.
+  * The plane layout's back control: `PlaneHost.back` parks the new
+    `FloatingBackPill` (the approved `FloatingNavBack` segment in the
+    pill's own housing, placement-free) at the BOTTOM-START CORNER —
+    directional, so it trails right in RTL; 16 logical in from both
+    edges — whenever the flow is deeper than its root (the approved
+    ruling: "back button should always be at a corner"). Tapping it
+    pops the NEWEST step of the flow — the last plane's content —
+    never a spread earlier page. One back per screen: apps whose
+    floating nav bar already carries the back segment pass null.
+* `GenericProfilePage` self-spread (approved frames 1c and 1f): granted
+  planes by a `PlaneHost` above, the page spreads its content across
+  them — the registry's ordered sections in balanced contiguous columns
+  (three at three planes, two at two), the identity header leading the
+  first, the top controls row spanning the full grant, one scroll
+  position. Without a `PlaneHost` (or on one plane) the phone list
+  renders untouched. Sheets and dialogs never take planes — they
+  overlay, exactly as on the phone.
+* `AppUsageBadge`'s label now ellipsizes instead of overflowing when
+  its surface is narrow (a plane-spread profile column).
+
+## 1.41.0
+
+* Sync drain is now gated on BACKEND availability, not just device
+  connectivity. Both automatic `SyncEngine.kick()` triggers — the splash
+  boot path and the `ConnectivityService` regain listener — previously
+  fired on radio state alone, so a Wi-Fi network without internet (or a
+  reachable internet with the tenant backend down) drained the outbox
+  into guaranteed failures, burning retry attempts toward the dead cap.
+  The splash path reuses the `api_status` probe it already runs
+  (`AppConnectivity.backendStatus`) and only kicks when the backend
+  answered `up`; the regain listener now confirms
+  `AppConnectivity.backendAvailability()` (on-demand check, never
+  polled) before kicking. Manual/enqueue-path kicks are unchanged.
+  `ConnectivityService` gains test seams (`backendProbe`,
+  `onBackendRegained`, `handleConnectivityChange`) and unit coverage
+  for the gate.
+
 ## 1.40.0
 
 * First application of the approved floating-nav back pattern (design

@@ -1,3 +1,15 @@
+## 1.9.1
+
+* `LoginPage`: the guest Skip button now sits pinned in the top-end
+  corner of the entry screen (design 25b — "skip is always at a
+  corner"), a 16px logical inset from the edge. The header was a Row
+  whose loose `Flexible` logo never claims its full flex allocation
+  (the `FittedBox` shrinks it), so the Row's `Spacer`s left the
+  unclaimed allocation as trailing free space and Skip floated ~170
+  logical px inboard of the corner. Now a `Stack` with an
+  `AlignmentDirectional.topEnd` child — directional, so RTL locales
+  pin Skip to their end corner.
+
 ## 1.8.8
 
 * `OfflineAuthService.registerOffline` resumes a pending (unsynced)

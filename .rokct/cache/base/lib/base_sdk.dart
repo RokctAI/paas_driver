@@ -49,6 +49,7 @@ export 'src/presentation/components/blur_wrap.dart';
 // shells every composed app builds its phone/wide split from.
 export 'src/presentation/adaptive/breakpoints.dart';
 export 'src/presentation/adaptive/adaptive_shell.dart';
+export 'src/presentation/adaptive/planes.dart';
 export 'src/presentation/adaptive/split_pane.dart';
 
 // Shared widgets promoted from paas_manager's host lib/ (manager

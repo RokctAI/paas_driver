@@ -562,6 +562,35 @@ class _BackSegment extends StatelessWidget {
   }
 }
 
+/// The back segment alone, in the pill's own housing — for hosts that
+/// place the screen's ONE back affordance themselves instead of showing
+/// the full floating nav (a `PlaneHost` plane layout parks it at the
+/// bottom-START corner per the approved ruling: "back button should
+/// always be at a corner"). Deliberately carries NO SafeArea, margin, or
+/// alignment — placement belongs to the caller; the pill is only the
+/// approved look: the same blurred housing, the same back segment, the
+/// same 60-radius row rhythm as the tab pill's back. The
+/// one-back-per-screen rule from [FloatingNavBack] applies unchanged.
+class FloatingBackPill extends StatelessWidget {
+  final FloatingNavBack back;
+
+  const FloatingBackPill({super.key, required this.back});
+
+  @override
+  Widget build(BuildContext context) {
+    return _Housing(
+      radius: 100.r,
+      fitted: false,
+      height: 60.r,
+      padding: EdgeInsets.symmetric(horizontal: 10.r),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [_BackSegment(back: back)],
+      ),
+    );
+  }
+}
+
 /// The shared blurred housing the tab pill and the button-only control
 /// pill sit in — same blur, same translucent fill, same float above the
 /// bottom edge, so a mode change reads as the SAME bar changing what it

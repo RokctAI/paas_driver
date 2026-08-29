@@ -115,8 +115,11 @@ class _SplashPageState extends ConsumerState<SplashPage> {
           return;
         }
       } else {
-        // Has internet - proceed with normal flow
-        await _proceedOnline();
+        // Has internet - proceed with normal flow. The backend probe above
+        // already answered, so the online path knows whether the backend is
+        // actually reachable (radio alone false-passes on networks without
+        // internet, or when only the tenant backend is down).
+        await _proceedOnline(backendUp: backendStatus == BackendStatus.up);
       }
     } catch (e) {
       // Error occurred - check if we can proceed offline
@@ -151,10 +154,13 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     return translations.isNotEmpty || settings.isNotEmpty;
   }
 
-  Future<void> _proceedOnline() async {
+  Future<void> _proceedOnline({required bool backendUp}) async {
     // Boot trigger for the offline outbox: fire-and-forget so queued work
     // from a previous offline session drains without delaying startup.
-    SyncEngine().kick();
+    // Gated on the backend actually answering (the api_status probe in
+    // _initializeApp), not just device connectivity — draining against an
+    // unreachable backend only burns retry attempts toward the dead cap.
+    if (backendUp) SyncEngine().kick();
     try {
       // Load translations first
       await ref.read(splashProvider.notifier).getTranslations(context);
