@@ -6,20 +6,6 @@ A new Flutter project.
 <!-- @generated-store-description-end -->
 
 <!-- @generated-tour-gallery-start -->
-## App tour
-
-Styled stills from the committed guided tour - regenerated on every
-tour run, so new screens appear here automatically.
-
-| Auth Login | Auth Register | |
-| :---: | :---: | :---: |
-| ![Auth Login][s02] | ![Auth Register][s03] | |
-
-The full tour lives in the [feature guide](marketing/tour/feature-guide.md),
-with walkthrough videos alongside it in [`marketing/tour/`](marketing/tour).
-
-[s02]: marketing/tour/store/02-auth_login.png
-[s03]: marketing/tour/store/03-auth_register.png
 <!-- @generated-tour-gallery-end -->
 
 ## Getting Started
