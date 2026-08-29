@@ -2,6 +2,18 @@
 
 A new Flutter project.
 
+## App tour
+
+<table>
+  <tr>
+    <td align="center"><img src="marketing/tour/screenshots/01-welcome.png" width="230" alt="Welcome screen"><br><sub>Welcome</sub></td>
+    <td align="center"><img src="marketing/tour/screenshots/02-auth_login.png" width="230" alt="Login screen"><br><sub>Sign in</sub></td>
+    <td align="center"><img src="marketing/tour/screenshots/03-auth_register.png" width="230" alt="Register screen"><br><sub>Create an account</sub></td>
+  </tr>
+</table>
+
+The full tour lives in the [feature guide](marketing/tour/feature-guide.md), with walkthrough videos alongside it in [`marketing/tour/`](marketing/tour).
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
