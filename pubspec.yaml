@@ -311,3 +311,6 @@ dependency_overrides:
   firebase_remote_config: 5.1.3
   firebase_dynamic_links: 6.0.5
   cloud_firestore: 5.4.0
+  # html 0.15.7 (published 2026-08-28) removed the private query_selector matches()
+  # that flutter_html 3.0.0 imports; pin until flutter_html ships a compatible release.
+  html: 0.15.6
