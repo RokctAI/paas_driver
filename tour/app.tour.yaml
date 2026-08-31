@@ -18,12 +18,14 @@
 # Fragment order mirrors the composed SDKs that ship fragments today
 # (composer profile: The-Rokct-Protocol core/utils/flutter/composer/
 # driver.json): auth (Users/auth), delivery (zones/delivery), zones
-# (zones/zones - the /delivery-zone editor), users (Users/users - /profile
-# resolves here via delivery_sdk's ProfileRoute).
+# (zones/zones - the /delivery-zone editor), revenue (corporate/revenue -
+# the /income earnings dashboard), calc (productivity/calc - the /calc
+# calculator), users (Users/users - /profile resolves here via
+# delivery_sdk's ProfileRoute).
 # Other composed SDKs (orders, merchants, products: manager-role screens
-# only; comms, weather, map: headless in the driver compose, ...) ship no
-# driver-role fragment yet and would be skipped with a warning if listed -
-# coverage grows with the SDKs.
+# only; comms, weather, map: headless in the driver compose; base: its
+# status screens are toured by the minilauncher shell) ship no driver-role
+# fragment chained here - coverage grows with the SDKs.
 #
 # Video colours are intentionally NOT declared here: the assembler derives
 # brand/accent colours from the composed AppStyle when the manifest carries
@@ -137,7 +139,15 @@ tour:
   # demo builds DemoDriverDeliveryZonesRepository draws the same zone
   # square the home map shows.
   - fragment: zones
-  # Chapter 3 - the account: users_sdk's profile surface (delivery_sdk's
+  # Chapter 3 - the money: revenue_sdk's /income dashboard (app_type.driver
+  # DriverIncomeRoute - opened from the courier profile in normal use). In
+  # demo builds DemoCourierStatisticsRepository serves a fictional week of
+  # earnings so the tiles, chart and order rows render stocked.
+  - fragment: revenue
+  # Chapter 4 - the pocket calculator: calc_sdk's /calc (composed on driver
+  # and manager alike per Ray's decision recorded in its manifest).
+  - fragment: calc
+  # Chapter 5 - the account: users_sdk's profile surface (delivery_sdk's
   # ProfileRoute serves /profile in this compose, so the fragment's
   # tolerant navigation resolves).
   - fragment: users
