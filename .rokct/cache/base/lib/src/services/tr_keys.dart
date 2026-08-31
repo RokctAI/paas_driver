@@ -23,6 +23,12 @@ class TrKeys {
   TrKeys._();
 
   // @sdk-tr-keys-start
+  static const String calculator = 'calculator';
+  static const String tape = 'tape';
+  static const String clearTheTape = 'clear_the_tape';
+  static const String tapeKeepsLast10 = 'the_tape_keeps_the_last_10_calculations';
+  static const String useAsTheAmount = 'use_{amount}_as_the_amount';
+  static const String fillsTheAmountNeverTheCart = 'fills_the_amount_display_it_never_touches_the_cart';
   static const String activeParcels = 'active_parcels';
   static const String apart = 'apart';
   static const String askThisCodeFromCustomer = 'ask.this.code.from.customer';
@@ -41,7 +47,9 @@ class TrKeys {
   static const String codConfirmed = 'cod.confirmed';
   static const String collectFromRecipient = 'collect.from.recipient';
   static const String completeCheckout = 'complete_checkout';
+  static const String amountMatchesExpected = 'amount.matches.the.expected.total';
   static const String confirmPasswordDoesntMatchWithNewPassword = 'confirm_password_doesnt_matches_with_new_password';
+  static const String countIt = 'count.it';
   static const String deliveredOrder = 'delivered_order';
   static const String entr = 'entr';
   static const String evaluation = 'evaluation';
@@ -60,7 +68,9 @@ class TrKeys {
   static const String orderInformation = 'order_information';
   static const String rateTheCustomer = 'rate_the_customer';
   static const String recordAsCredit = 'record.as.credit';
+  static const String overExpected = 'over.the.expected';
   static const String restaurantHome = 'restauran_home';
+  static const String shortOf = 'short.of.the.expected';
   static const String startShopping = 'start_shopping';
   static const String statusNote = 'status.note';
   static const String telAdmin = 'tel.admin';
@@ -74,6 +84,20 @@ class TrKeys {
   static const String deliverymanTransactions = 'deliveryman_transactions';
   static const String doneOrders = 'Done orders';
   static const String asOf = 'as.of';
+  static const String drawing = 'drawing';
+  static const String points = 'points';
+  static const String pointsPlaced = 'points.placed';
+  static const String shapeNotClosedYet = 'shape.not.closed.yet';
+  static const String km2 = 'km2';
+  static const String covered = 'covered';
+  static const String whereThisShopDelivers = 'where.this.shop.delivers';
+  static const String tapMapNewPointsExtendShape = 'tap.the.map.to.add.a.point.new.points.extend.the.shape';
+  static const String tapMapSaveUnlocksAt4 = 'tap.the.map.to.add.a.point.save.unlocks.at.4';
+  static const String undoLastPoint = 'undo.last.point';
+  static const String saveDeliveryZone = 'save.delivery.zone';
+  static const String oneMorePointToCloseTheShape = '1.more.point.to.close.the.shape';
+  static const String twoMorePointsToCloseTheShape = '2.more.points.to.close.the.shape';
+  static const String threeMorePointsToCloseTheShape = '3.more.points.to.close.the.shape';
   // @sdk-tr-keys-end
 
   static const String bgPicture = 'bg_picture';

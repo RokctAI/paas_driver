@@ -31,6 +31,7 @@
 library;
 
 import 'package:base_sdk/src/handlers/handlers.dart';
+import 'package:revenue_sdk/src/common/infrastructure/models/response/profit_report_response.dart';
 import 'package:revenue_sdk/src/common/infrastructure/models/response/statistics_order_response.dart';
 import 'package:revenue_sdk/src/common/infrastructure/models/response/statistics_response.dart';
 
@@ -48,5 +49,14 @@ abstract class SellerStatisticsRepositoryFacade {
     DateTime? endTime,
     int? page,
     int? perPage,
+  });
+
+  /// Profitability aggregates for an inclusive [from]..[to] date window —
+  /// `api.seller_report.get_seller_profit_report` (the section-36 dashboard's
+  /// one new endpoint). Deltas against a previous period come from calling
+  /// this again with the shifted window.
+  Future<ApiResult<ProfitReportResponse>> getProfitReport({
+    required DateTime from,
+    required DateTime to,
   });
 }

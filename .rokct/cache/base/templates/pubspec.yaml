@@ -129,6 +129,7 @@ flutter:
     - assets/images/
     - assets/svgs/
     - assets/lottie/
+    - assets/audio/
     - assets/
     - assets/images/ui3.png
     - assets/images/splash.png  # Add this line to explicitly include splash.png

@@ -45,3 +45,4 @@ library zones_sdk;
 export 'src/common/di/zones_di.dart';
 export 'src/common/domain/interface/delivery_zones.dart';
 export 'src/common/domain/interface/zone_edit_policy_contract.dart';
+export 'src/common/services/zone_geometry.dart';

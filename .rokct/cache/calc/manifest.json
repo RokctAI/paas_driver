@@ -1,6 +1,6 @@
 {
   "name": "calc_sdk",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "installs": [
     {
       "from": "templates/pages/calc",
@@ -15,5 +15,15 @@
       "import": "package:${package}/presentation/pages/calc/calculator_page.dart"
     }
   ],
-  "_comment_routes": "installs and routes are top-level (no app_type block) on purpose: any composition that lists calc_sdk gets the page and the /calc route - Ray's decision is to use it on both manager and driver. No tr_keys: the calculator renders keypad glyphs and numbers only, no translated strings."
+  "tr_keys": {
+    "calculator": "calculator",
+    "tape": "tape",
+    "clearTheTape": "clear_the_tape",
+    "tapeKeepsLast10": "the_tape_keeps_the_last_10_calculations",
+    "useAsTheAmount": "use_{amount}_as_the_amount",
+    "fillsTheAmountNeverTheCart": "fills_the_amount_display_it_never_touches_the_cart"
+  },
+  "_comment_tr_keys": "Section 45's six strings. Until 1.1.0 this SDK declared none - the shipped screen rendered keypad glyphs and numbers only - but the redrawn screen has a tape header, a stated cap, a Clear-the-tape button and (in pick mode) the use-this-amount pill, and every one of those is prose. Checked against base_sdk's hand-written keys and every other SDK manifest in the fleet: no collision. 'use_{amount}_as_the_amount' carries a {amount} placeholder that the pill substitutes; a seeded translation without the placeholder degrades to label-then-amount rather than losing the number.",
+  "_comment_routes": "installs and routes are top-level (no app_type block) on purpose: any composition that lists calc_sdk gets the page and the /calc route - Ray's decision is to use it on both manager and driver.",
+  "_comment_pick_mode": "The /calc route accepts an optional ?pick=true query param (design strip section 45, flag (a)). Without it the page behaves exactly as it always has and pops nothing. With it the screen grows the chip-840 pill and pops the display STRING back to the caller, so a caller that wants a number - the till's quick-amount chip (843), the deliveryman's Count-it step (845) - gets one. Callers navigate BY ROUTE PATH and never import calc_sdk (ADR-005); a caller running against an older calc_sdk simply gets null and falls through to its own entry, so the gates can ship in either order."
 }

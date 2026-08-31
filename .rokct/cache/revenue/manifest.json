@@ -1,6 +1,6 @@
 {
   "name": "revenue_sdk",
-  "version": "1.5.0",
+  "version": "1.9.0",
   "installs": [],
   "routes": [],
   "integrations": [],
@@ -44,12 +44,45 @@
         }
       ],
       "tr_keys": {
-        "needOrder": "need.order",
-        "cancelOrders": "cancel_orders",
-        "deliveredOrdersCount": "delivered.orders.count",
-        "restaurantRevenue": "restaurant_revenue",
-        "fMRevenue": "fm_revenue",
-        "moreAboutOrders": "more_about_orders"
+        "moreAboutOrders": "more_about_orders",
+        "revenue": "revenue",
+        "profit": "profit",
+        "margin": "margin",
+        "orders": "orders",
+        "avgOrder": "avg_order",
+        "asSold": "as_sold",
+        "ofWord": "of",
+        "ordersCosted": "orders_costed",
+        "ofCostedRevenue": "of_costed_revenue",
+        "vsPreviousPeriod": "vs_previous_period",
+        "payout": "payout",
+        "grossRevenue": "gross_revenue",
+        "platformFee": "platform_fee",
+        "yourPayout": "your_payout",
+        "revenueVsProfit": "revenue_vs_profit",
+        "ordersByStatus": "orders_by_status",
+        "totalWord": "total",
+        "moreWord": "more",
+        "profitByProduct": "profit_by_product",
+        "thisPeriod": "this_period",
+        "thisWeek": "this_week",
+        "thisMonth": "this_month",
+        "customRange": "custom_range",
+        "week": "week",
+        "month": "month",
+        "soldWord": "sold",
+        "byVariant": "by_variant",
+        "standardWord": "standard",
+        "editCostPrice": "edit_cost_price",
+        "orderHistory": "order_history",
+        "setCosts": "set_costs",
+        "ordersExcludedFromProfit": "orders_excluded_from_profit",
+        "noCostRecordedAtSale": "no_cost_recorded_at_sale",
+        "unknownCostRevenueExplainer": "of_revenue_sold_without_a_cost_price_it_is_left_out_of_profit_and_margin_never_counted_as_pure_profit",
+        "costFrozenAtSaleNote": "as_sold_profit_uses_the_cost_frozen_on_each_order_line_at_sale_changing_cost_later_never_rewrites_old_orders",
+        "profitabilityCouldNotBeLoaded": "profitability_could_not_be_loaded",
+        "retry": "retry",
+        "noData": "no_data"
       },
       "routes": [
         {
@@ -58,7 +91,8 @@
           "type": "CupertinoRoute",
           "import": "package:${package}/presentation/pages/income/income_page.dart"
         }
-      ]
+      ],
+      "_comment": "Manager income rewrite (approved design section 36, chips 654-674): the old non-compiling income templates (app_bar_screen + widgets/) are replaced by one template shell; all machinery lives in lib/src/manager (profit application slice + presentation/revenue). Keys the sibling SDKs already declare (today, delivered, cancelled, cooking, accepted, new, on_a_way, price, cost, cost_not_set, back) are intentionally NOT redeclared - the installer keeps the first declaring SDK (products_sdk/orders_sdk/base). The route stays /income ManagerIncomeRoute (CupertinoRoute) - the profile hub's entry is unchanged."
     }
   },
   "_comment_tr_keys": "app_type.<role>.tr_keys: translation keys that role's income templates use that base_sdk's TrKeys does not declare. driver adds deliverymanTransactions and doneOrders, with the exact key strings from paas_driver's legacy lib/infrastructure/services/tr_keys.dart (doneOrders' value really is the display string 'Done orders' upstream - kept verbatim so existing backend translation data keeps matching). Manager block: sdk_installer_base stores them per-package and update_tr_keys_registration() injects them into the composed tr_keys.dart between the @sdk-tr-keys-start/end markers, so TrKeys.needOrder etc. resolve at build time. Values are the exact key strings from paas_manager's legacy lib/infrastructure/services/tr_keys.dart, so existing backend translation data keeps matching. None of these names exist in base_sdk's tr_keys.dart (checked against core@main) - adding one that does would recreate the duplicate-'payment' collision the composed build already flags.",

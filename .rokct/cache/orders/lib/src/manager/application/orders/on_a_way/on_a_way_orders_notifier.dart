@@ -39,6 +39,8 @@ class OnAWayOrdersNotifier extends StateNotifier<OnAWayOrdersState> {
     RefreshController? refreshController,
     bool isRefresh = false,
     Function(int)? updateTotal,
+    String? from,
+    String? to,
   }) async {
     if (isRefresh) {
       _page = 0;
@@ -55,6 +57,8 @@ class OnAWayOrdersNotifier extends StateNotifier<OnAWayOrdersState> {
     final response = await _ordersRepository.getOrders(
       status: OrderStatus.onWay,
       page: ++_page,
+      from: from,
+      to: to,
     );
     response.when(
       success: (data) {

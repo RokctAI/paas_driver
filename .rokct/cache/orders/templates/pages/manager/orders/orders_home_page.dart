@@ -19,30 +19,44 @@
 // SOFTWARE.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:${package}/presentation/pages/orders/details/order_details_modal.dart';
 import 'package:base_sdk/src/presentation/adaptive/adaptive_shell.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
-import 'widgets/new_orders_body.dart';
-import 'widgets/ready_orders_body.dart';
-import 'widgets/accepted_orders_body.dart';
-import 'widgets/on_a_way_orders_body.dart';
-import 'widgets/board/orders_board_view.dart';
-import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
-import 'package:base_sdk/src/presentation/components/custom_tab_bar.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
-import 'package:base_sdk/src/services/tr_keys.dart';
-import 'package:merchants_sdk/src/manager/application/main/main_provider.dart';
+import 'widgets/board/orders_board_view.dart';
 import 'package:orders_sdk/src/manager/application/orders/accepted/accepted_orders_provider.dart';
-import 'package:orders_sdk/src/manager/application/orders/appbar/home_appbar_provider.dart';
 import 'package:orders_sdk/src/manager/application/orders/new/new_orders_provider.dart';
 import 'package:orders_sdk/src/manager/application/orders/on_a_way/on_a_way_orders_provider.dart';
 import 'package:orders_sdk/src/manager/application/orders/ready/ready_orders_provider.dart';
+import 'package:orders_sdk/src/manager/infrastructure/models/models.dart';
+import 'package:orders_sdk/src/manager/presentation/board/board_header.dart';
+import 'package:orders_sdk/src/manager/presentation/board/board_map_dialog.dart';
+import 'package:orders_sdk/src/manager/presentation/board/board_plane_flow.dart';
+import 'package:orders_sdk/src/manager/presentation/board/board_prefs.dart';
+import 'package:orders_sdk/src/manager/presentation/board/board_status.dart';
+import 'package:orders_sdk/src/manager/presentation/board/orders_list_mode.dart';
 
+/// The manager orders workspace, upgraded to the approved design
+/// ("31b adopt 31a but uses our base theme" — Ray 2026-08-29 12:10Z;
+/// renders approved 13:06Z "33a is approved" and 13:53Z
+/// "approved: 34a , 33d,33b"):
+///
+/// * WIDE windows — the seven-column colour-coded kanban board (33a) with
+///   the workspace header (board/list toggle, date-range filter, sound
+///   bell). Per 33d, the page is hosted in base_sdk's plane model: the
+///   board declares ALL planes; tapping a card pushes the order detail
+///   with the DEFAULT one-plane claim into the LAST plane, the board
+///   yields/compresses, and the nav folds to the corner back pill.
+/// * PHONES — the POS's list mode (33b): one scrollable row of status
+///   tabs with counts over a single list; details open as the modal
+///   bottom sheet, exactly the degradation the plane model prescribes for
+///   one-plane screens.
+///
+/// Both layouts share the queue providers, so resizing the window never
+/// refetches or loses queue state.
 class OrdersHomePage extends ConsumerStatefulWidget {
   const OrdersHomePage({super.key});
 
@@ -50,105 +64,44 @@ class OrdersHomePage extends ConsumerStatefulWidget {
   ConsumerState<OrdersHomePage> createState() => _OrdersHomePageState();
 }
 
-class _OrdersHomePageState extends ConsumerState<OrdersHomePage>
-    with SingleTickerProviderStateMixin {
-  TabController? _tabController;
-  ScrollController? _newController;
-  ScrollController? _acceptedController;
-  ScrollController? _readyController;
-  ScrollController? _onAWayController;
-
-  final _tabs = [
-    Tab(child: Icon(Remix.fire_fill, size: 22.r)),
-    Tab(child: Icon(Remix.check_double_fill, size: 22.r)),
-    Tab(child: Icon(Remix.time_fill, size: 22.r)),
-    Tab(child: Icon(Remix.takeaway_fill, size: 22.r)),
-  ];
-
+class _OrdersHomePageState extends ConsumerState<OrdersHomePage> {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
-    _tabController?.addListener(() {
-      if (!(_tabController?.indexIsChanging ?? false)) {
-        String title = AppHelpers.getTranslation(TrKeys.newOrders);
-        int count = ref.watch(newOrdersProvider).totalCount;
-        switch (_tabController?.index) {
-          case 0:
-            title = AppHelpers.getTranslation(TrKeys.newOrders);
-            count = ref.watch(newOrdersProvider).totalCount;
-            break;
-          case 1:
-            title = AppHelpers.getTranslation(TrKeys.acceptedOrders);
-            count = ref.watch(acceptedOrdersProvider).totalCount;
-            break;
-          case 2:
-            title = AppHelpers.getTranslation(TrKeys.readyOrders);
-            count = ref.watch(readyOrdersProvider).totalCount;
-            break;
-          case 3:
-            title = AppHelpers.getTranslation(TrKeys.onAWayOrders);
-            count = ref.watch(onAWayOrdersProvider).totalCount;
-            break;
-          default:
-            title = AppHelpers.getTranslation(TrKeys.newOrders);
-            count = ref.watch(newOrdersProvider).totalCount;
-            break;
-        }
-        ref
-            .read(homeAppbarProvider.notifier)
-            .setAppbarDetails(title, count, index: _tabController?.index);
-      }
-    });
-    _newController = ScrollController();
-    _acceptedController = ScrollController();
-    _readyController = ScrollController();
-    _onAWayController = ScrollController();
-    _newController?.addListener(() => listen(_newController));
-    _acceptedController?.addListener(() => listen(_acceptedController));
-    _readyController?.addListener(() => listen(_readyController));
-    _onAWayController?.addListener(() => listen(_onAWayController));
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // The four legacy queues; the board/list widgets fetch their own
+      // cooking + history columns. activeTabIndex -1: neither mode builds
+      // the retired tab layout's pull-to-refresh controller.
       ref
           .read(newOrdersProvider.notifier)
           .fetchNewOrders(
             context: context,
-            activeTabIndex: ref.watch(homeAppbarProvider).index,
-            updateTotal: (count) => ref
-                .read(homeAppbarProvider.notifier)
-                .setAppbarDetails(
-                  AppHelpers.getTranslation(TrKeys.newOrders),
-                  count,
-                  index: 0,
-                ),
+            isRefresh: true,
+            activeTabIndex: -1,
           );
-      ref.read(acceptedOrdersProvider.notifier).fetchAcceptedOrders();
-      ref.read(readyOrdersProvider.notifier).fetchReadyOrders();
-      ref.read(onAWayOrdersProvider.notifier).fetchOnAWayOrders();
+      ref
+          .read(acceptedOrdersProvider.notifier)
+          .fetchAcceptedOrders(isRefresh: true);
+      ref.read(readyOrdersProvider.notifier).fetchReadyOrders(isRefresh: true);
+      if (LocalStorage.getUser()?.role != BoardRules.waiterRole) {
+        ref
+            .read(onAWayOrdersProvider.notifier)
+            .fetchOnAWayOrders(isRefresh: true);
+      }
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _tabController?.dispose();
-    _newController?.removeListener(() => listen(_newController));
-    _acceptedController?.removeListener(() => listen(_acceptedController));
-    _readyController?.removeListener(() => listen(_readyController));
-    _onAWayController?.removeListener(() => listen(_onAWayController));
-    _newController?.dispose();
-    _acceptedController?.dispose();
-    _readyController?.dispose();
-    _onAWayController?.dispose();
-  }
-
-  void listen(ScrollController? controller) {
-    final direction = controller?.position.userScrollDirection;
-    if (direction == ScrollDirection.reverse) {
-      ref.read(mainProvider.notifier).changeScrolling(true);
-    } else if (direction == ScrollDirection.forward) {
-      ref.read(mainProvider.notifier).changeScrolling(false);
-    }
+  void _openDetailModal(OrderData order, BoardStatus status) {
+    AppHelpers.showCustomModalBottomSheet(
+      paddingTop: MediaQuery.paddingOf(context).top + 60,
+      context: context,
+      radius: 12,
+      modal: OrderDetailsModal(
+        order: order,
+        isHistoryOrder: status.isHistory ? true : null,
+      ),
+      isDarkMode: true,
+    );
   }
 
   @override
@@ -156,112 +109,145 @@ class _OrdersHomePageState extends ConsumerState<OrdersHomePage>
     final bool isLtr = LocalStorage.getLangLtr();
     return Directionality(
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
-      // Phone/medium windows keep the four-tab queue untouched; expanded
-      // (desktop/tablet-landscape) windows swap the tabs for the POS-style
-      // six-column kanban board. Both layouts share the queue providers, so
-      // resizing the window never refetches or loses queue state.
-      child: AdaptiveShell(compact: _buildTabs, expanded: _buildBoard),
+      child: AdaptiveShell(compact: _buildCompact, expanded: _buildExpanded),
     );
   }
 
-  Widget _buildBoard(BuildContext context) {
+  /// Phones: header + the POS list mode (33b); board still reachable via
+  /// the toggle (it scrolls sideways).
+  Widget _buildCompact(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.bgGrey,
-      body: Column(
-        children: [
-          _appBar(),
-          const Expanded(child: OrdersBoardView()),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTabs(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppStyle.bgGrey,
-      body: Column(
-        children: [
-          _appBar(),
-          16.verticalSpace,
-          Padding(
-            padding: REdgeInsets.symmetric(horizontal: 16),
-            child: CustomTabBar(tabController: _tabController!, tabs: _tabs),
-          ),
-          Expanded(
-            child: TabBarView(
-              physics: const BouncingScrollPhysics(),
-              controller: _tabController,
-              children: [
-                NewOrdersBody(scrollController: _newController),
-                AcceptedOrdersBody(scrollController: _acceptedController),
-                ReadyOrdersBody(scrollController: _readyController),
-                OnAWayOrdersBody(scrollController: _onAWayController),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _appBar() {
-    return CustomAppBar(
-      bottomPadding: 16.r,
-      child: GestureDetector(
-        onTap: () {},
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisAlignment: MainAxisAlignment.start,
+      backgroundColor: AppStyle.surfaceDark,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppStyle.bgGrey,
+            const OrdersBoardHeader(compact: true),
+            Expanded(
+              child: Consumer(
+                builder: (context, ref, _) {
+                  final prefs = ref.watch(boardPrefsProvider);
+                  return prefs.listView(compact: true)
+                      ? OrdersListMode(
+                          onOpenDetail: _openDetailModal,
+                          onOpenMap: (order) =>
+                              BoardMapDialog.show(context, order),
+                        )
+                      : const OrdersBoardView();
+                },
               ),
-              padding: REdgeInsets.all(12),
-              child: Icon(
-                Remix.dashboard_3_line,
-                size: 20.r,
-                color: AppStyle.blackColor,
-              ),
-            ),
-            10.horizontalSpace,
-            Consumer(
-              builder: (context, ref, child) {
-                final state = ref.watch(homeAppbarProvider);
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      state.title.isEmpty
-                          ? AppHelpers.getTranslation(TrKeys.newOrders)
-                          : state.title,
-                      style: AppStyle.interNormal(size: 12.sp),
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          '${state.totalCount} ${AppHelpers.getTranslation(TrKeys.orders).toLowerCase()}',
-                          style: AppStyle.interSemi(
-                            size: 14.sp,
-                            color: AppStyle.blackColor,
-                          ),
-                        ),
-                        Icon(
-                          Icons.keyboard_arrow_down,
-                          color: AppStyle.blackColor,
-                          size: 20.r,
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              },
             ),
           ],
         ),
       ),
     );
+  }
+
+  /// Wide windows: the plane-hosted workspace (33a + 33d).
+  Widget _buildExpanded(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppStyle.surfaceDark,
+      body: SafeArea(
+        child: OrdersBoardPlaneFlow(
+          boardBuilder: (context, flow) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const OrdersBoardHeader(),
+              Expanded(
+                child: Consumer(
+                  builder: (context, ref, _) {
+                    final prefs = ref.watch(boardPrefsProvider);
+                    return prefs.listView(compact: false)
+                        ? OrdersListMode(
+                            onOpenDetail: flow.openDetail,
+                            onOpenMap: (order) =>
+                                BoardMapDialog.show(context, order),
+                          )
+                        : OrdersBoardView(
+                            onOpenDetail: flow.openDetail,
+                            selectedOrderId: flow.openOrderId,
+                          );
+                  },
+                ),
+              ),
+            ],
+          ),
+          detailBuilder: (context, order, status, flow) => KeyedSubtree(
+            key: ValueKey('order-detail-${order.id}'),
+            child: _OrderDetailPane(
+              order: order,
+              status: status,
+              onClosed: flow.closeDetail,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The pushed order detail holding the LAST plane (33d): the same
+/// [OrderDetailsModal] the phone sheet shows, hosted in a pane-local
+/// navigator so the modal's own `Navigator.pop` (fired after a status
+/// advance) closes the PLANE — never the workspace route beneath it.
+class _OrderDetailPane extends StatelessWidget {
+  final OrderData order;
+  final BoardStatus status;
+  final VoidCallback onClosed;
+
+  const _OrderDetailPane({
+    required this.order,
+    required this.status,
+    required this.onClosed,
+  });
+
+  static const String _sentinelName = '_order-detail-sentinel';
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: AppStyle.surfaceDark,
+      child: ClipRect(
+        child: Navigator(
+          observers: [_PopToSentinelObserver(onClosed)],
+          onGenerateInitialRoutes: (navigator, initialRoute) => [
+            MaterialPageRoute(
+              settings: const RouteSettings(name: _sentinelName),
+              builder: (_) => ColoredBox(color: AppStyle.surfaceDark),
+            ),
+            MaterialPageRoute(
+              builder: (_) => Scaffold(
+                backgroundColor: AppStyle.surfaceDark,
+                body: SafeArea(
+                  child: OrderDetailsModal(
+                    order: order,
+                    isHistoryOrder: status.isHistory ? true : null,
+                  ),
+                ),
+              ),
+            ),
+          ],
+          onGenerateRoute: (settings) => MaterialPageRoute(
+            settings: settings,
+            builder: (_) => ColoredBox(color: AppStyle.surfaceDark),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Watches the pane-local navigator: when the detail pops back onto the
+/// sentinel root, the plane has nothing left to show — fold it.
+class _PopToSentinelObserver extends NavigatorObserver {
+  final VoidCallback onPoppedToSentinel;
+
+  _PopToSentinelObserver(this.onPoppedToSentinel);
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    if (previousRoute?.settings.name == _OrderDetailPane._sentinelName) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => onPoppedToSentinel());
+    }
   }
 }

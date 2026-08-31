@@ -50,6 +50,9 @@ abstract class StorageKeys {
   // and thereafter respect the user's explicit choice.
   static const String keyThemeSeeded = 'keyThemeSeeded';
   static const String keyWalletData = 'keyWalletData';
+  // The key-feedback on/off gate (KeySound): tap.wav + haptic on every
+  // keypad press. Default ON (paas_pos AppConstants.sound parity).
+  static const String keyKeypadSound = 'keyKeypadSound';
   static const String keyGlobalSettings = 'keyGlobalSettings';
   static const String keySettingsFetched = 'keySettingsFetched';
   static const String keyTranslations = 'keyTranslations';

@@ -181,15 +181,23 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
           : () => _confirmLogout(registry.onLogout!),
     );
 
-    // Self-spread (the approved plane proposal, frame 1c): granted two or
-    // three planes by a PlaneHost above, the page spreads its own content
-    // across them — balanced columns of the registry's ordered sections,
-    // the identity header leading the first. Without a PlaneHost (or on a
-    // one-plane screen, where a page's grant is always one) the phone
-    // layout renders untouched. Subscribing via Planes.of means the page
+    // Self-spread (the approved plane proposal, frame 1c, capped by the
+    // approved 4c ruling: "will just let profile take two plane max ...
+    // let all profiles take only 2 planes even if there is 3"): granted
+    // planes by a PlaneHost above, the page spreads its own content
+    // across AT MOST TWO of them — balanced columns of the registry's
+    // ordered sections, the identity header leading the first. The cap
+    // is UNIVERSAL and lives here, in the page itself, so EVERY host of
+    // GenericProfilePage (customer, merchant, lms, ...) is bound by it —
+    // no PlanePage declaration can spread the profile to three. Declare
+    // the profile's PlanePage as PlaneSpan.two (never all) so at a
+    // three-plane width the third plane follows normal rules — a bare
+    // stage or a flow neighbor. Without a PlaneHost (or on a one-plane
+    // screen, where a page's grant is always one) the phone layout
+    // renders untouched. Subscribing via Planes.of means the page
     // re-flows on any allocation change — no polling.
     final planes = Planes.maybeOf(context);
-    final grantedPlanes = planes?.span ?? 1;
+    final grantedPlanes = math.min(planes?.span ?? 1, 2);
 
     return Scaffold(
       // Mode-resolving page surface: dark surface in dark mode, the soft
@@ -253,8 +261,13 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
           CustomButton(
             title: AppHelpers.getTranslation(TrKeys.cancel),
             background: AppStyle.transparent,
-            borderColor: AppStyle.black,
-            textColor: AppStyle.black,
+            // Mode-resolving ink, NOT the pinned AppStyle.black: this dialog
+            // is a plain Material AlertDialog, so in dark mode it sits on the
+            // theme's dark dialog surface (#2B2930) — against which #232B2F
+            // is 1.00:1. The outlined Cancel button was invisible: no label,
+            // no border, on the sign-out confirmation of every dark host.
+            borderColor: AppStyle.textPrimary,
+            textColor: AppStyle.textPrimary,
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
@@ -263,13 +276,14 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
   }
 }
 
-/// The page's plane-spread layout (frame 1c): the top controls row spans
-/// the full grant, then the page's items — the identity header first,
-/// then the registry's ordered sections — flow into [columns] balanced
-/// columns in reading order. Balance is by item count, contiguous, so the
-/// registry order is preserved down each column and across columns; the
-/// header always leads the first. One scroll position for the whole page,
-/// exactly like the phone list.
+/// The page's plane-spread layout (frame 1c, capped at TWO columns by
+/// the approved 4c ruling): the top controls row spans the full grant,
+/// then the page's items — the identity header first, then the
+/// registry's ordered sections — flow into [columns] (at most 2)
+/// balanced columns in reading order. Balance is by item count,
+/// contiguous, so the registry order is preserved down each column and
+/// across columns; the header always leads the first. One scroll
+/// position for the whole page, exactly like the phone list.
 class _SpreadBody extends StatelessWidget {
   final int columns;
   final double columnGap;

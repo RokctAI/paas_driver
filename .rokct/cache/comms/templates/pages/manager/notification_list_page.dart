@@ -1,24 +1,3 @@
-// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
-
 // Ported from paas_manager lib/presentation/pages/restaurant/
 // notification_list_page.dart (comms_sdk manager consume, fork plan S-3 /
 // migration bucket b, D4 minimal parameterization: same page, imports and
@@ -29,29 +8,45 @@
 // The order-details modal is orders_sdk's installed host-composition file
 // (${package} path), typed on orders_sdk's manager OrderData — only the id
 // crosses the model seam (cross-SDK composition in host lib/ per ADR-005).
-
-// ignore_for_file: deprecated_member_use
+//
+// NOTIFICATIONS IN THE STANDARD LIST LANGUAGE — approved design strip
+// frame 38b, Ray 2026-08-30 12:23Z ("33 list language = STANDARD for all
+// lists ... the All/Unread tabs are IN"):
+//
+//   700  header COUNT PILL — "N unread"
+//   706  READ ALL, re-homed from its bottom overlay (it used to ride
+//        ABOVE the floating nav, colliding with the two-state nav's
+//        corner pill) to a header action
+//   707  the All / Unread read-state tabs in the canonical 362/363
+//        treatment
+//   704/705  the shipped row and its unread dot, verbatim
+//   347  the corner back pill at the bottom-END (the shipped pill sat
+//        bottom-CENTER; the corner is the 12:36Z rule)
+//
+// The list DECLARES 2 planes; alone at a three-plane width the leftover
+// plane TRAILS BARE at the end (Ray 10:47Z) — which is exactly where a
+// tapped notification's order pane lands (the same 12:02Z sheet fork as
+// frame 38a). The row + read-state halves live in the SDK
+// (comms_sdk/src/common/presentation/notifications/) so they are testable.
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:jiffy/jiffy.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/models/response/notification_response.dart';
-import 'package:base_sdk/src/presentation/components/app_bars/common_app_bar.dart';
-import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
+import 'package:base_sdk/src/presentation/adaptive/adaptive_shell.dart';
 import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
-import 'package:base_sdk/src/presentation/components/helper/common_image.dart';
-import 'package:remixicon/remixicon.dart';
+import 'package:base_sdk/src/presentation/components/lists/list_language.dart';
+import 'package:base_sdk/src/presentation/components/lists/list_plane_flow.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:comms_sdk/src/common/presentation/notifications/notification_list_language.dart';
 import 'package:${package}/application/notification/notification_provider.dart';
 import 'package:${package}/presentation/pages/orders/details/order_details_modal.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/data/order_data.dart'
@@ -68,253 +63,285 @@ class NotificationListPage extends ConsumerStatefulWidget {
 
 class _NotificationListPageState extends ConsumerState<NotificationListPage> {
   final bool isLtr = LocalStorage.getLangLtr();
-  late RefreshController refreshController;
+  NotificationReadFilter _filter = NotificationReadFilter.all;
 
   @override
   void initState() {
-    refreshController = RefreshController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(notificationProvider.notifier).fetchAllNotifications(context);
     });
     super.initState();
   }
 
-  @override
-  void dispose() {
-    refreshController.dispose();
-    super.dispose();
+  /// The shipped tap, unchanged for everything that is NOT an order: read
+  /// the row, then launch the blog / reservation web view or raise the
+  /// body dialog. Orders return true so the caller opens the pane (planes)
+  /// or the shipped sheet (phone).
+  Future<bool> _handleTap(NotificationModel notification) async {
+    final event = ref.read(notificationProvider.notifier);
+    if (notification.readAt == null) {
+      // readOne indexes into the notifier's own list, so resolve the row's
+      // position there rather than in the filtered view.
+      final index = ref
+          .read(notificationProvider)
+          .notifications
+          .indexWhere((n) => identical(n, notification));
+      if (index >= 0) {
+        event.readOne(context, id: notification.id, index: index);
+      }
+    }
+    if (notification.orderData != null) return true;
+    if (notification.blogData != null) {
+      await launchUrl(
+        Uri.parse(
+          '${AppConstants.webUrl}/blog/${notification.blogData?.uuid}',
+        ),
+        mode: LaunchMode.inAppWebView,
+      );
+      return false;
+    }
+    if (notification.type == 'reservation') {
+      await launchUrl(
+        Uri.parse('${AppConstants.webUrl}/reservations'),
+        mode: LaunchMode.inAppWebView,
+      );
+      return false;
+    }
+    if (!mounted) return false;
+    AppHelpers.showAlertDialog(
+      context: context,
+      child: Text('${notification.body ?? notification.title}'),
+    );
+    return false;
+  }
+
+  /// The shipped sheet — phone behaviour.
+  void _openOrderSheet(NotificationModel notification) {
+    AppHelpers.showCustomModalBottomSheet(
+      context: context,
+      modal: OrderDetailsModal(
+        // The installed modal is typed on orders_sdk's manager OrderData
+        // and refetches details by id; both models carry the Order docname
+        // as String, so the id passes straight through.
+        order: sdk.OrderData(id: notification.orderData?.id),
+      ),
+      isDarkMode: true,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(notificationProvider);
-    final event = ref.read(notificationProvider.notifier);
     return Directionality(
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: AppStyle.bgGrey,
-        body: Stack(children: [
-          state.isAllNotificationsLoading
-            ? const Loading()
-            : Column(
-                children: [
-                  CommonAppBar(
-                    child: Text(
-                      AppHelpers.getTranslation(TrKeys.notifications),
-                      style: AppStyle.interSemi(
-                        size: 18,
-                        color: AppStyle.black,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: SmartRefresher(
-                      controller: refreshController,
-                      enablePullDown: true,
-                      enablePullUp: true,
-                      onRefresh: () {
-                        event.fetchNotificationsPaginate(
-                            refreshController: refreshController,
-                            isRefresh: true);
-                      },
-                      onLoading: () {
-                        event.fetchNotificationsPaginate(
-                          refreshController: refreshController,
-                        );
-                      },
-                      child: ListView.builder(
-                          shrinkWrap: true,
-                          padding: EdgeInsets.only(
-                              top: 24.h,
-                              right: 16.w,
-                              left: 16.w,
-                              bottom:
-                                  MediaQuery.paddingOf(context).bottom + 72.h),
-                          itemCount: state.notifications.length,
-                          itemBuilder: (context, index) {
-                            return InkWell(
-                              onTap: () async {
-                                if (state.notifications[index].readAt == null) {
-                                  event.readOne(
-                                      index: index,
-                                      context,
-                                      id: state.notifications[index].id);
-                                }
-                                if (state.notifications[index].orderData !=
-                                    null) {
-                                  if (state.notifications[index].orderData !=
-                                      null) {
-                                    // The installed modal is typed on
-                                    // orders_sdk's manager OrderData and
-                                    // refetches details by id; both models
-                                    // now carry the Order docname as String,
-                                    // so the id passes straight through.
-                                    AppHelpers.showCustomModalBottomSheet(
-                                        context: context,
-                                        modal: OrderDetailsModal(
-                                            order: sdk.OrderData(
-                                                id: state.notifications[index]
-                                                    .orderData?.id)),
-                                        isDarkMode: false);
-                                  }
-                                } else if (state
-                                        .notifications[index].blogData !=
-                                    null) {
-                                  await launch(
-                                    "${AppConstants.webUrl}/blog/${state.notifications[index].blogData?.uuid}",
-                                    forceSafariVC: true,
-                                    forceWebView: true,
-                                    enableJavaScript: true,
-                                  );
-                                } else if (state.notifications[index].type ==
-                                    "reservation") {
-                                  await launch(
-                                    "${AppConstants.webUrl}/reservations",
-                                    forceSafariVC: true,
-                                    forceWebView: true,
-                                    enableJavaScript: true,
-                                  );
-                                } else {
-                                  AppHelpers.showAlertDialog(
-                                      context: context,
-                                      child: Text(
-                                          '${state.notifications[index].body ?? state.notifications[index].title}'));
-                                }
-                              },
-                              child: Column(
-                                children: [
-                                  notificationItem(state.notifications[index]),
-                                  const Divider()
-                                ],
-                              ),
-                            );
-                          }),
-                    ),
-                  ),
-                ],
-              ),
-          // One bottom overlay (design strip section 12, core#125): the
-          // page's read-all action riding above the floating nav's
-          // back-only pill, whose back segment replaces the standalone
-          // PopButton as this screen's ONE back affordance. Back-only
-          // (empty tab list): the host app's root tabs are not reachable
-          // from this SDK template's pushed route.
-          Positioned.fill(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: Row(
-                      children: [
-                        Expanded(
-                            child: CustomButton(
-                          background: AppStyle.black,
-                          textColor: AppStyle.white,
-                          title: AppHelpers.getTranslation(TrKeys.readAll),
-                          onPressed: () async {
-                            event.readAll(context);
-                          },
-                        ))
-                      ],
-                    ),
-                  ),
-                  FloatingBottomNav(
-                    mode: FloatingNavTabsMode(
-                      tabs: const [],
-                      currentIndex: 0,
-                      onSelect: (_) {},
-                      back: FloatingNavBack(
-                        icon: Remix.arrow_left_wide_fill,
-                        label: AppHelpers.getTranslation(TrKeys.back),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ]),
+      child: AdaptiveShell(
+        compact: _buildCompact,
+        // The fold is already a two-plane screen, so it takes the plane
+        // layout too; only a one-plane window falls back to the sheet.
+        medium: _buildPlanes,
+        expanded: _buildPlanes,
       ),
     );
   }
 
-  Widget notificationItem(NotificationModel notification) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 6.r),
-      child: Row(
-        children: [
-          CommonImage(
-            radius: 22,
-            url: notification.client?.img ?? notification.blogData?.img,
-            height: 44,
-            width: 44,
-          ),
-          12.horizontalSpace,
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (notification.client != null)
-                Row(
-                  children: [
-                    Text(
-                      '${notification.client?.firstname ?? ''} ${notification.client?.lastname?.substring(0, 1) ?? ''}.',
-                      style: AppStyle.interSemi(size: 16, color: AppStyle.black),
-                    ),
-                    15.horizontalSpace,
-                    Container(
-                      height: 8.r,
-                      width: 8.r,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: notification.readAt == null
-                              ? AppStyle.primary
-                              : AppStyle.transparent),
-                    )
-                  ],
+  Widget _buildCompact(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppStyle.surfaceDark,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            _list(
+              compact: true,
+              onTap: (notification) async {
+                if (await _handleTap(notification)) {
+                  _openOrderSheet(notification);
+                }
+              },
+            ),
+            PositionedDirectional(
+              end: 16,
+              bottom: 16,
+              child: FloatingBackPill(
+                back: FloatingNavBack(
+                  icon: Remix.arrow_left_wide_fill,
+                  label: AppHelpers.getTranslation(TrKeys.back),
                 ),
-              2.verticalSpace,
-              Row(
-                children: [
-                  SizedBox(
-                    width: notification.client != null
-                        ? MediaQuery.sizeOf(context).width / 2
-                        : null,
-                    child: Text(
-                      '${notification.body ?? notification.title}',
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 3,
-                      style: AppStyle.interRegular(
-                          size: 14, color: AppStyle.black),
-                    ),
-                  ),
-                  if (notification.client == null)
-                    Container(
-                      margin: EdgeInsets.only(left: 8.r),
-                      height: 8.r,
-                      width: 8.r,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: notification.readAt == null
-                              ? AppStyle.primary
-                              : AppStyle.transparent),
-                    )
-                ],
               ),
-              4.verticalSpace,
-              Text(
-                Jiffy.parseFromDateTime(
-                        notification.createdAt ?? DateTime.now())
-                    .fromNow(),
-                style: AppStyle.interRegular(
-                    size: 12, color: AppStyle.textGrey),
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _buildPlanes(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppStyle.surfaceDark,
+      body: SafeArea(
+        child: ListDetailFlow<NotificationModel>(
+          backIcon: Remix.arrow_left_wide_fill,
+          detailNameOf: (open) => open.id ?? '',
+          listBuilder: (context, flow) => _list(
+            selected: flow.open,
+            onTap: (notification) async {
+              if (await _handleTap(notification)) {
+                flow.openDetail(notification);
+              }
+            },
+          ),
+          detailBuilder: (context, open, flow) => _OrderPane(
+            orderId: open.orderData?.id,
+            onClosed: flow.closeDetail,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _list({
+    bool compact = false,
+    NotificationModel? selected,
+    required Future<void> Function(NotificationModel) onTap,
+  }) {
+    final state = ref.watch(notificationProvider);
+    final event = ref.read(notificationProvider.notifier);
+    final List<NotificationModel> all = state.notifications;
+    final List<NotificationModel> rows = _filter.apply(all);
+    final int unread = NotificationReadFilter.unread.countIn(all);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ListScreenHeader(
+          compact: compact,
+          title: AppHelpers.getTranslation(TrKeys.notifications),
+          // 700: the standard slot.
+          countPill: ListCountPill(
+            label:
+                '$unread ${AppHelpers.getTranslation(TrKeys.unread).toLowerCase()}',
+            color: unread > 0 ? AppStyle.primary : null,
+          ),
+          actions: [
+            // 706: re-homed here so the bottom belongs to the nav alone.
+            NotificationReadAllAction(
+              enabled: unread > 0,
+              onTap: () => event.readAll(context),
+            ),
+          ],
+        ),
+        // 707: the read-state filter tabs (PROPOSAL on the frame, ruled IN).
+        ListFilterTabBar(
+          activeIndex: _filter.index,
+          onSelect: (index) => setState(
+            () => _filter = NotificationReadFilter.values[index],
+          ),
+          tabs: [
+            for (final filter in NotificationReadFilter.values)
+              ListFilterTab(
+                label: AppHelpers.getTranslation(filter.wire),
+                color: filter.color,
+                count: filter.countIn(all),
+              ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Expanded(
+          child: state.isAllNotificationsLoading
+              ? const Loading()
+              : rows.isEmpty
+              ? Center(
+                  child: Text(
+                    AppHelpers.getTranslation(TrKeys.noData),
+                    style: AppStyle.interNormal(
+                      size: 12,
+                      color: AppStyle.textDarkSecondary,
+                    ),
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: () async =>
+                      event.fetchAllNotifications(context),
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    children: [
+                      ListPlaneColumns(
+                        children: [
+                          for (final notification in rows)
+                            NotificationRow(
+                              notification: notification,
+                              selected:
+                                  selected != null &&
+                                  identical(selected, notification),
+                              onTap: () => onTap(notification),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The tapped notification's ORDER PANE, landing in the LAST plane (the
+/// 12:02Z sheet fork, same as frame 38a): the installed
+/// [OrderDetailsModal] hosted in a pane-local navigator so any
+/// `Navigator.pop` inside it closes the PLANE, never the notification
+/// route beneath it.
+class _OrderPane extends StatelessWidget {
+  final String? orderId;
+  final VoidCallback onClosed;
+
+  const _OrderPane({required this.orderId, required this.onClosed});
+
+  static const String _sentinelName = '_notification-order-pane-sentinel';
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: AppStyle.surfaceDark,
+      child: ClipRect(
+        child: Navigator(
+          observers: [_PopToSentinelObserver(onClosed)],
+          onGenerateInitialRoutes: (navigator, initialRoute) => [
+            MaterialPageRoute(
+              settings: const RouteSettings(name: _sentinelName),
+              builder: (_) => ColoredBox(color: AppStyle.surfaceDark),
+            ),
+            MaterialPageRoute(
+              builder: (_) => Scaffold(
+                backgroundColor: AppStyle.surfaceDark,
+                body: SafeArea(
+                  child: OrderDetailsModal(order: sdk.OrderData(id: orderId)),
+                ),
+              ),
+            ),
+          ],
+          onGenerateRoute: (settings) => MaterialPageRoute(
+            settings: settings,
+            builder: (_) => ColoredBox(color: AppStyle.surfaceDark),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Watches the pane-local navigator: when the pane pops back onto the
+/// sentinel root, the plane has nothing left to show — fold it.
+class _PopToSentinelObserver extends NavigatorObserver {
+  final VoidCallback onPoppedToSentinel;
+
+  _PopToSentinelObserver(this.onPoppedToSentinel);
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    if (previousRoute?.settings.name == _OrderPane._sentinelName) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => onPoppedToSentinel());
+    }
   }
 }

@@ -19,10 +19,11 @@
 // SOFTWARE.
 
 
-// GenericProfilePage self-spread (the approved plane proposal, frame 1c):
-// granted planes by a PlaneHost above, the page spreads its registered
-// sections across them — three balanced columns at three planes, two at
-// two, the untouched phone list at one.
+// GenericProfilePage self-spread (the approved plane proposal, frame 1c,
+// capped by the approved 4c ruling "will just let profile take two plane
+// max"): granted planes by a PlaneHost above, the page spreads its
+// registered sections across AT MOST TWO of them — two balanced columns
+// at two or more planes, the untouched phone list at one.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -76,7 +77,15 @@ void main() {
     }
   });
 
-  Future<void> pumpProfile(WidgetTester tester, double width) async {
+  // The profile's declaration per the approved 4c ruling ("will just let
+  // profile take two plane max"): the page claims PlaneSpan.two, never
+  // all — at a three-plane width the third plane follows normal rules
+  // (bare stage or flow neighbor).
+  Future<void> pumpProfile(
+    WidgetTester tester,
+    double width, {
+    PlaneSpan span = PlaneSpan.two,
+  }) async {
     tester.view.physicalSize = Size(width, 1400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -90,7 +99,7 @@ void main() {
               stack: [
                 PlanePage(
                   name: 'profile',
-                  span: PlaneSpan.all,
+                  span: span,
                   builder: (_) => const GenericProfilePage(),
                 ),
               ],
@@ -117,13 +126,32 @@ void main() {
     return edges;
   }
 
-  testWidgets('three planes: sections spread across three balanced columns',
+  testWidgets(
+      'three-plane width: the profile takes two planes max — two columns',
       (tester) async {
     await pumpProfile(tester, 900);
     for (var i = 0; i < 5; i++) {
       expect(find.byKey(ValueKey('section$i')), findsOneWidget);
     }
-    expect(columnEdges(tester), hasLength(3));
+    // The 4c cap: two balanced columns, and the page's surface stops at
+    // its two granted planes — the third plane is not the profile's.
+    expect(columnEdges(tester), hasLength(2));
+    final pageRight = tester
+        .getRect(find.byKey(const ValueKey('plane-page-profile')))
+        .right;
+    final twoPlanes = 2 * (900 - 2 * 14) / 3 + 14;
+    expect(pageRight, moreOrLessEquals(twoPlanes, epsilon: 0.5));
+  });
+
+  testWidgets(
+      'the cap is universal: even a host granting ALL planes gets two columns',
+      (tester) async {
+    // The ruling is for EVERY GenericProfilePage host: the cap lives in
+    // the page itself, so a host that declares the profile PlaneSpan.all
+    // at a three-plane width still gets a two-column spread — no
+    // composition can produce a third.
+    await pumpProfile(tester, 900, span: PlaneSpan.all);
+    expect(columnEdges(tester), hasLength(2));
   });
 
   testWidgets('two planes: sections spread across two columns',

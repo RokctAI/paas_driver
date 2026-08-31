@@ -24,8 +24,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'orders_board_state.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
-import 'package:base_sdk/src/services/enums.dart';
 import 'package:orders_sdk/src/manager/domain/interface/seller_orders.dart';
+import 'package:orders_sdk/src/manager/presentation/board/board_status.dart';
 
 /// Status transitions triggered from the wide-screen order board.
 ///
@@ -40,10 +40,12 @@ class OrdersBoardNotifier extends StateNotifier<OrdersBoardState> {
 
   OrdersBoardNotifier(this._ordersRepository) : super(const OrdersBoardState());
 
+  /// [status] is the board's own seven-status axis; statuses base_sdk's
+  /// `OrderStatus` models go through it, `cooking` goes by wire string.
   Future<void> updateOrderStatus(
     BuildContext context, {
     required String orderId,
-    required OrderStatus status,
+    required BoardStatus status,
     VoidCallback? success,
   }) async {
     if (state.updatingIds.contains(orderId)) {
@@ -51,7 +53,8 @@ class OrdersBoardNotifier extends StateNotifier<OrdersBoardState> {
     }
     state = state.copyWith(updatingIds: {...state.updatingIds, orderId});
     final response = await _ordersRepository.updateOrderStatus(
-      status: status,
+      status: status.orderStatus,
+      rawStatus: status.orderStatus == null ? status.wire : null,
       orderId: orderId,
     );
     response.when(

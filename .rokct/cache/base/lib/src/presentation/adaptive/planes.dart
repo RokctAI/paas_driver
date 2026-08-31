@@ -180,14 +180,15 @@ class PlaneHost extends StatelessWidget {
   final double gap;
 
   /// The plane layout's back control — the approved [FloatingBackPill],
-  /// parked at the BOTTOM-START CORNER (the approved ruling: "back
-  /// button should always be at a corner" — directional, so it follows
-  /// RTL) whenever the flow is deeper than its root ("back was
-  /// missing"). The caller supplies icon, label, and an onTap that pops
-  /// its stack — the pill pops the NEWEST step (the last plane's
-  /// content), never a spread earlier page. Null when the composed app
-  /// already shows the back inside its own floating nav bar
-  /// ([FloatingNavTabsMode.back]) — one back per screen, never two.
+  /// parked at the BOTTOM-END CORNER (the approved corner ruling plus
+  /// the 4c follow-up: "back be on the right" — directional, so END is
+  /// the right corner in LTR and the left in RTL) whenever the flow is
+  /// deeper than its root ("back was missing"). The caller supplies
+  /// icon, label, and an onTap that pops its stack — the pill pops the
+  /// NEWEST step (the last plane's content), never a spread earlier
+  /// page. Null when the composed app already shows the back inside its
+  /// own floating nav bar ([FloatingNavTabsMode.back]) — one back per
+  /// screen, never two.
   final FloatingNavBack? back;
 
   const PlaneHost({
@@ -291,16 +292,17 @@ class PlaneHost extends StatelessWidget {
         );
         // The screen's one back affordance, floated over the planes only
         // while there is somewhere to go back to. AT THE CORNER, not
-        // centered: bottom-START (directional — trails to the right
-        // corner in RTL), 16 logical in from both edges, inside the
-        // SafeArea. Tapping it pops the NEWEST step of the flow — the
-        // last plane's content — never a spread earlier page.
+        // centered — bottom-END per the approved 4c ruling ("back be on
+        // the right"; directional, so it leads left in RTL), 16 logical
+        // in from both edges, inside the SafeArea. Tapping it pops the
+        // NEWEST step of the flow — the last plane's content — never a
+        // spread earlier page.
         if (back == null || stack.length < 2) return planesRow;
         return Stack(
           children: [
             planesRow,
             PositionedDirectional(
-              start: 16,
+              end: 16,
               bottom: 16,
               child: SafeArea(child: FloatingBackPill(back: back!)),
             ),

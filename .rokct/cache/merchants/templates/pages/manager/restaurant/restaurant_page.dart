@@ -32,6 +32,7 @@ import 'package:${package}/presentation/routes/app_router.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/presentation/components/custom_toggle3.dart';
 import 'package:base_sdk/src/presentation/components/title_icon.dart';
+import 'package:base_sdk/src/presentation/pages/profile/edit_profile_sheet.dart';
 import 'package:base_sdk/src/presentation/pages/profile/generic_profile_page.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section_registry.dart';
@@ -99,6 +100,26 @@ void registerMerchantProfileSections() {
     context.replaceRoute(const LoginRoute());
   };
 
+  // The user-card edit pencil (chip 109, approved frame 4d 2026-08-30):
+  // wiring onEditProfile turns on the host's own pencil in the unified
+  // identity card (generic_profile_page.dart's gated IconButton), giving
+  // the manager an edit-OWN-details path — the gap Ray reported after
+  // the chip-243 shop-pencil move (PR #80). The target is base_sdk's
+  // shared edit sheet (the shipped customer flow, promoted in base_sdk
+  // 1.45.0), presented as the same drag bottom sheet the customer app
+  // uses; its Save drives base_sdk's editProfileProvider into the
+  // self-scoped update_user_profile endpoint. Distinct from the SHOP
+  // pencil (chip 243) on the shop info row below, which stays untouched.
+  // `??=` so a host that already owns the edit affordance keeps its
+  // wiring.
+  registry.onEditProfile ??= (context) {
+    AppHelpers.showCustomModalBottomDragSheet(
+      context: context,
+      modal: (c) => EditProfileScreen(controller: c),
+      isDarkMode: LocalStorage.getAppThemeMode(),
+    );
+  };
+
   // The old floating Open/Closed toggle, re-homed to the host's top
   // controls row (between the page title and the theme toggle).
   registry.registerTopRowAction(
@@ -117,6 +138,23 @@ void registerMerchantProfileSections() {
     id: 'merchants.working_hours',
     order: 120,
     builder: (context) => const MerchantWorkingHoursSection(),
+  ));
+
+  // The PRODUCTIVITY gate (approved frame 7e, chip 391 — Ray 2026-08-29
+  // 15:06Z "we can expose it. that will be productivity gate", approved
+  // 15:41Z): the composed-but-orphaned productivity_sdk /tasks page gains
+  // its one entry point — a PRODUCTIVITY group with the Tasks row. Order
+  // 125 slots it after the restaurant content (shop info + working hours)
+  // and before the wallet: with the host's contiguous item-count balance
+  // that CLOSES PLANE 1 under the restaurant group at two-plane widths,
+  // while wallet / sections / footer keep plane 2 — exactly the approved
+  // 7d distribution, per the 7e legend. The /tasks screen behind the door
+  // is NOT designed here (coverage-map group M owns that pass); this
+  // registration is gate exposure only.
+  registry.register(ProfileSection(
+    id: 'merchants.productivity',
+    order: 125,
+    builder: (context) => const MerchantProductivitySection(),
   ));
 
   registry.register(ProfileSection(
@@ -413,6 +451,40 @@ class MerchantWalletSection extends StatelessWidget {
   }
 }
 
+/// The PRODUCTIVITY group (approved frame 7e, chip 391): a group title and
+/// the Tasks row, the sole entry point for productivity_sdk's composed
+/// /tasks page. Routes the same way the other hub rows route — the host's
+/// generated route class (TasksRoute, from productivity_sdk's manifest
+/// /tasks entry) via the already-imported app_router; manager composes
+/// carry productivity_sdk (paas_manager composer.json), so the class is
+/// always generated here.
+///
+/// The approved render's row glance ("3 open · 1 due today") is SEEDED
+/// content, disclosed as such on the frame; live open/due counts need
+/// productivity task data merchants_sdk cannot reach (ADR-005 — SDKs
+/// import only base), so the demo compose seeds the approved glance line
+/// and real composes show the plain row until the /tasks screen's own
+/// design pass (coverage-map group M) wires a counts seam.
+class MerchantProductivitySection extends StatelessWidget {
+  const MerchantProductivitySection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        TitleAndIcon(title: AppHelpers.getTranslation(TrKeys.productivity)),
+        20.verticalSpace,
+        SectionsItem(
+          title: AppHelpers.getTranslation(TrKeys.tasks),
+          subtitle: AppConstants.isDemo ? '3 open · 1 due today' : null,
+          icon: Remix.task_line,
+          onTap: () => context.pushRoute(const TasksRoute()),
+        ),
+      ],
+    );
+  }
+}
+
 /// The Sections list, link for link from the old page's `_sections`
 /// column (restaurant settings modal, income, order history,
 /// notifications, sync issues, delete account behind the demo flag).
@@ -434,6 +506,16 @@ class MerchantSectionsList extends StatelessWidget {
             modal: const EditRestaurantModal(),
             isDarkMode: false,
           ),
+        ),
+        // QUICK FLOW (approved design strip section 42, chip 795): the
+        // shop's order-automation surface — auto-accept, auto-complete at
+        // Ready, and the till keypad's digit presets. Inserted SECOND,
+        // right under Restaurant settings, because it is shop setup and
+        // not a report; the other five rows are untouched.
+        SectionsItem(
+          title: AppHelpers.getTranslation(TrKeys.quickFlow),
+          icon: Remix.flashlight_line,
+          onTap: () => context.pushRoute(const ManagerQuickFlowRoute()),
         ),
         SectionsItem(
           title: AppHelpers.getTranslation(TrKeys.income),

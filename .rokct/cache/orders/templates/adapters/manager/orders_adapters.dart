@@ -23,8 +23,11 @@ import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:get_it/get_it.dart';
+import 'package:merchants_sdk/src/manager/utils/pos_receipt_printer.dart';
+import 'package:orders_sdk/src/manager/domain/interface/order_receipt.dart';
 import 'package:orders_sdk/src/manager/domain/interface/pos_customers.dart';
 import 'package:orders_sdk/src/manager/domain/interface/pos_sections_tables.dart';
+import 'package:orders_sdk/src/manager/infrastructure/models/data/order_data.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/response/shop_section_response.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/response/single_user_response.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/response/table_response.dart';
@@ -51,6 +54,8 @@ import 'package:orders_sdk/src/manager/infrastructure/models/response/users_pagi
 ///       () => ManagerPosSectionsTablesAdapter());
 ///   GetIt.instance.registerLazySingleton<PosCustomersFacade>(
 ///       () => ManagerPosCustomersAdapter());
+///   GetIt.instance.registerLazySingleton<OrderReceiptFacade>(
+///       () => ManagerOrderReceiptAdapter());
 ///
 /// Without these registrations the section/table/customer providers fall back
 /// to a 501 "not wired" stand-in and the POS shipping flow surfaces a named
@@ -187,5 +192,46 @@ class ManagerPosCustomersAdapter implements PosCustomersFacade {
         statusCode: NetworkExceptions.getDioStatus(e),
       );
     }
+  }
+}
+
+
+/// Host wiring for the order detail's RECEIPT REPRINT (approved frame 38a
+/// amendment, Ray 2026-08-30 12:23Z: "receipt reprint action in the order
+/// detail (wired to the till receipt path)").
+///
+/// The till receipt path is merchants_sdk's [PosReceiptPrinter] — the
+/// same seam the POS checkout's "Print Receipt & Finish" prints through,
+/// so a reprint comes out of the same hardware, formatted the same way.
+/// orders_sdk must not import merchants_sdk, so it declares
+/// [OrderReceiptFacade] in its own terms and this host file binds them
+/// (ADR-005; templates/ is host-composition code, which is why it may
+/// reference both SDKs).
+///
+/// [isAvailable] follows the printer's own installation state: with no
+/// `PosReceiptPrinter.handler` installed the app has no printing
+/// hardware, and the order detail simply does not offer the action.
+class ManagerOrderReceiptAdapter implements OrderReceiptFacade {
+  @override
+  bool get isAvailable => PosReceiptPrinter.handler != null;
+
+  @override
+  Future<void> reprint(OrderData order) {
+    final lines = <PosReceiptLine>[
+      for (final detail in order.details ?? <OrderDetail>[])
+        PosReceiptLine(
+          title:
+              detail.stock?.product?.translation?.title ??
+              detail.stock?.countable?.translation?.title ??
+              '',
+          quantity: (detail.quantity ?? 0).toDouble(),
+          lineTotal: (detail.totalPrice ?? 0).toDouble(),
+        ),
+    ];
+    return PosReceiptPrinter.print(
+      order.id ?? '',
+      lines,
+      (order.totalPrice ?? 0).toDouble(),
+    );
   }
 }

@@ -34,6 +34,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -49,6 +51,8 @@ import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/telemetry.dart';
+import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
 
 @RoutePage()
@@ -60,6 +64,15 @@ class SplashPage extends ConsumerStatefulWidget {
 }
 
 class _SplashPageState extends ConsumerState<SplashPage> {
+  /// Non-null once the boot path has failed to put any real screen on top
+  /// of this one, so [build] renders the stand-in below instead of leaving
+  /// the splash artwork up forever. Carries only the friendly line — the
+  /// reason it is set is diagnostic detail and rides telemetry.
+  String? _fallbackLine;
+
+  /// Guards the retry button against a second concurrent boot.
+  bool _booting = false;
+
   /// Removes the native splash AND re-asserts the app's full-frame chrome.
   ///
   /// The splash theme runs with `windowFullscreen` (flutter_native_splash's
@@ -85,6 +98,8 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   }
 
   Future<void> _initializeApp() async {
+    if (_booting) return;
+    _booting = true;
     try {
       // Backend-triggered maintenance gate: the tenant's api_status
       // endpoint reports "maintenance" while the site's maintenance_mode
@@ -92,8 +107,9 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       final backendStatus = await AppConnectivity.backendStatus();
       if (backendStatus == BackendStatus.maintenance) {
         if (!mounted) return;
-        _removeSplash();
-        AppRoutes.I.replaceMaintenanceRoute(context);
+        _leaveSplash('maintenance', () {
+          AppRoutes.I.replaceMaintenanceRoute(context);
+        });
         return;
       }
 
@@ -109,9 +125,10 @@ class _SplashPageState extends ConsumerState<SplashPage> {
           await _proceedOffline();
         } else {
           // No offline data and no internet - show no connection page
-          _removeSplash();
           if (!mounted) return;
-          AppRoutes.I.replaceNoConnectionRoute(context);
+          _leaveSplash('no_connection', () {
+            AppRoutes.I.replaceNoConnectionRoute(context);
+          });
           return;
         }
       } else {
@@ -123,15 +140,98 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       }
     } catch (e) {
       // Error occurred - check if we can proceed offline
+      _report('splash_bootstrap_failed', e);
       final hasOfflineData = _hasRequiredOfflineData();
       if (hasOfflineData) {
         await _proceedOffline();
       } else {
-        _removeSplash();
+        if (!mounted) return;
+        _leaveSplash('no_connection', () {
+          AppRoutes.I.replaceNoConnectionRoute(context);
+        });
+      }
+    } finally {
+      _booting = false;
+    }
+  }
+
+  /// The one telemetry door for boot failures (ADR-006): the verbatim
+  /// cause — not configured, provider down, timed out, no route declared —
+  /// is admin-grade detail, so it goes to the `log_frontend_error` lane and
+  /// never to the screen. Same split ErrorPresenter applies everywhere
+  /// else; this page cannot use ErrorPresenter itself because its snackbar
+  /// needs a Scaffold that is about to be replaced.
+  void _report(String type, Object detail, {Map<String, dynamic> extra = const {}}) {
+    unawaited(
+      TelemetryClient.I.logError(
+        type: type,
+        context: <String, dynamic>{
+          'stage': 'splash',
+          'detail': detail.toString(),
+          // Whether a BASE_URL was compiled in at all separates "not
+          // configured" from "configured but unreachable" without putting
+          // the URL itself in the event.
+          'base_url_configured': AppConstants.baseUrl.isNotEmpty,
+          ...extra,
+        },
+      ),
+    );
+  }
+
+  /// Hands the screen over to [navigate], and guarantees SOMETHING replaces
+  /// this page if that fails.
+  ///
+  /// A composition that declares no route for the destination throws a
+  /// StateError out of `_HostAppRoutes.noSuchMethod`. That used to happen
+  /// inside an un-awaited future where nothing could catch it, so the app
+  /// sat on the splash artwork indefinitely with no error anywhere. Now the
+  /// cause goes to telemetry and the app falls back to the no-connection
+  /// page, then to an in-place stand-in — a real screen either way.
+  void _leaveSplash(String destination, VoidCallback navigate) {
+    if (!mounted) return;
+    _removeSplash();
+    try {
+      navigate();
+      return;
+    } catch (e) {
+      _report('splash_navigation_failed', e, extra: {'destination': destination});
+    }
+
+    if (destination != 'no_connection') {
+      try {
         if (!mounted) return;
         AppRoutes.I.replaceNoConnectionRoute(context);
+        return;
+      } catch (e) {
+        _report('splash_fallback_route_failed', e,
+            extra: {'destination': destination});
       }
     }
+
+    _showFallback();
+  }
+
+  /// Last resort: render in place. Reached only when the host declares no
+  /// usable route at all, which is a composition bug — but the person
+  /// holding the phone still gets a screen that says the app is running
+  /// without its backend, and a way to try again.
+  void _showFallback() {
+    if (!mounted) return;
+    setState(() => _fallbackLine = _friendlyOfflineLine());
+  }
+
+  /// Friendly, named, and nothing else. The hard-coded fallback matches
+  /// ErrorPresenter's: this can run before any translation has been
+  /// fetched or bundled.
+  static String _friendlyOfflineLine() {
+    try {
+      final line =
+          AppHelpers.getTranslation(TrKeys.checkYourNetworkConnection).trim();
+      if (line.isNotEmpty && line != 'null') return line;
+    } catch (_) {
+      // Fall through to the literal below.
+    }
+    return 'Check your network connection.';
   }
 
   Future<bool> _checkConnectivity() async {
@@ -162,31 +262,45 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     // unreachable backend only burns retry attempts toward the dead cap.
     if (backendUp) SyncEngine().kick();
     try {
-      // Load translations first
-      await ref.read(splashProvider.notifier).getTranslations(context);
+      if (backendUp) {
+        // Load translations first
+        await ref.read(splashProvider.notifier).getTranslations(context);
+      } else {
+        // The api_status probe above already answered: the tenant backend
+        // is not reachable. Asking it for translations anyway bought
+        // nothing and cost the dio timeout twice over (the repository
+        // retries the fetch under the control-role cmd), so the app sat on
+        // the splash for up to a minute before falling back to exactly the
+        // translations it already had. Skip straight to the token check and
+        // let the app start from local data; WHY it is starting without a
+        // backend is diagnostic detail, so it rides telemetry.
+        _report(
+          'splash_backend_unreachable',
+          'api_status did not answer; starting from local data',
+        );
+      }
 
       if (!mounted) return;
-      // Then check authentication
-      ref.read(splashProvider.notifier).getToken(
+      // Then check authentication. AWAITED: the callbacks below navigate,
+      // and a composition that declares no route for the destination throws
+      // out of AppRoutes. Un-awaited, that throw escaped into an orphan
+      // future — no catch, no telemetry, no navigation, and the app simply
+      // stayed on this page.
+      await ref.read(splashProvider.notifier).getToken(
         context,
-        goMain: () {
-          _removeSplash();
-          if (!mounted) return;
+        goMain: () => _leaveSplash('main', () {
           AppHelpers.goHome(context);
-        },
-        goLogin: () {
-          _removeSplash();
-          if (!mounted) return;
+        }),
+        goLogin: () => _leaveSplash('login', () {
           AppRoutes.I.replaceLoginRoute(context);
-        },
-        goNoInternet: () {
-          _removeSplash();
-          if (!mounted) return;
+        }),
+        goNoInternet: () => _leaveSplash('no_connection', () {
           AppRoutes.I.replaceNoConnectionRoute(context);
-        },
+        }),
       );
     } catch (e) {
       // If online flow fails, try offline
+      _report('splash_online_boot_failed', e);
       await _proceedOffline();
     }
   }
@@ -198,21 +312,74 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     // Check if user was previously logged in
     final token = LocalStorage.getToken();
 
-    _removeSplash();
+    if (!mounted) return;
 
     if (token.isNotEmpty) {
       // User was logged in, go to main page
-      if (!mounted) return;
-      AppHelpers.goHome(context);
+      _leaveSplash('main', () {
+        AppHelpers.goHome(context);
+      });
     } else {
       // User not logged in, go to login
-      if (!mounted) return;
-      AppRoutes.I.replaceLoginRoute(context);
+      _leaveSplash('login', () {
+        AppRoutes.I.replaceLoginRoute(context);
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Boot could not hand the screen to any route (see [_leaveSplash]).
+    // Anything is better than the splash artwork forever: the app's name,
+    // one friendly line, and a way to try again.
+    final fallbackLine = _fallbackLine;
+    if (fallbackLine != null) {
+      return Scaffold(
+        backgroundColor: AppStyle.white,
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    AppHelpers.getAppName() ?? AppConstants.appTitle,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: AppStyle.black,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    fallbackLine,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      color: AppStyle.black,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextButton(
+                    onPressed: () {
+                      setState(() => _fallbackLine = null);
+                      unawaited(_initializeApp());
+                    },
+                    child: Text(
+                      AppHelpers.getTranslation(TrKeys.tryAgain),
+                      style: GoogleFonts.inter(fontSize: 15),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     // Adaptive splash: the phone-shaped splash image stretched edge-to-edge
     // across a wide (tablet/desktop) window looks bad (and per core#35 no
     // image belongs there at all), so only compact windows fill the screen

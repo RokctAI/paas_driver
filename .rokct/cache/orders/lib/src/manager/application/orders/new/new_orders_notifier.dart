@@ -44,6 +44,8 @@ class NewOrdersNotifier extends StateNotifier<NewOrdersState> {
     bool isRefresh = false,
     Function(int)? updateTotal,
     required int activeTabIndex,
+    String? from,
+    String? to,
   }) async {
     if (isRefresh) {
       _page = 0;
@@ -66,6 +68,8 @@ class NewOrdersNotifier extends StateNotifier<NewOrdersState> {
     final response = await _ordersRepository.getOrders(
       status: OrderStatus.open,
       page: ++_page,
+      from: from,
+      to: to,
     );
     await response.when(
       success: (data) async {

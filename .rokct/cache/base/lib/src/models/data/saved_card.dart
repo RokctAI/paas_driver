@@ -21,10 +21,18 @@
 
 import 'package:flutter/foundation.dart';
 
-/// Model class representing a saved payment card
+/// Model class representing a saved payment card.
+///
+/// Deliberately carries no gateway reuse credential. That credential is
+/// what a saved card *is* -- presenting it to the gateway charges the card
+/// again -- so it is a Password field server-side and is never listed,
+/// exported or returned over the wire. [id] is the Saved Card docname, and
+/// the docname is the handle every charge takes: it is what
+/// `process_token_payment` and `process_wallet_top_up` are given, and what
+/// `deleteCard` has always used.
 class SavedCardModel {
+  /// The Saved Card docname. The handle a charge is keyed on.
   final String id;
-  final String token;
   final String lastFour;
   final String cardType;
   final String expiryDate;
@@ -33,7 +41,6 @@ class SavedCardModel {
 
   SavedCardModel({
     required this.id,
-    required this.token,
     required this.lastFour,
     required this.cardType,
     required this.expiryDate,
@@ -47,8 +54,11 @@ class SavedCardModel {
     debugPrint('Parsing card JSON: $json');
 
     return SavedCardModel(
-      id: json['id']?.toString() ?? '',
-      token: json['token']?.toString() ?? '',
+      // `get_saved_cards` and `tokenize_card` name the docname `name`;
+      // `id` is accepted first so callers that already normalise it keep
+      // working. Any `token` in the payload is ignored -- the credential
+      // does not travel any more.
+      id: (json['id'] ?? json['name'])?.toString() ?? '',
       lastFour: json['last_four']?.toString() ?? '',
       cardType: json['card_type']?.toString() ?? 'Card',
       expiryDate: json['expiry_date']?.toString() ?? '',
@@ -61,7 +71,6 @@ class SavedCardModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'token': token,
       'last_four': lastFour,
       'card_type': cardType,
       'expiry_date': expiryDate,
@@ -73,7 +82,6 @@ class SavedCardModel {
   /// Create a copy of this SavedCardModel with some fields replaced
   SavedCardModel copyWith({
     String? id,
-    String? token,
     String? lastFour,
     String? cardType,
     String? expiryDate,
@@ -82,7 +90,6 @@ class SavedCardModel {
   }) {
     return SavedCardModel(
       id: id ?? this.id,
-      token: token ?? this.token,
       lastFour: lastFour ?? this.lastFour,
       cardType: cardType ?? this.cardType,
       expiryDate: expiryDate ?? this.expiryDate,
@@ -93,7 +100,7 @@ class SavedCardModel {
 
   @override
   String toString() {
-    return 'SavedCardModel(id: $id, token: $token, lastFour: $lastFour, '
+    return 'SavedCardModel(id: $id, lastFour: $lastFour, '
         'cardType: $cardType, expiryDate: $expiryDate, isDefault: $isDefault)';
   }
 }

@@ -26,6 +26,7 @@ import 'package:get_it/get_it.dart';
 import 'package:base_sdk/src/handlers/http_service.dart';
 import 'package:base_sdk/src/services/connectivity_service.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/services/memory_pressure_service.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:base_sdk/src/utils/app_usage_service.dart';
 
@@ -50,6 +51,15 @@ class BaseSdkDependencies {
     }
     // App-lifetime listener that drains the outbox on connectivity regain.
     ConnectivityService.I.start();
+
+    // Size the image cache from the device's actual RAM instead of Flutter's
+    // fixed 1000 images / 100MB, and start listening for memory pressure and
+    // backgrounding. Registered here rather than in the generated main.dart
+    // so every composed app picks it up from a base_sdk bump alone.
+    // Fire-and-forget and internally exception-guarded, exactly like the
+    // usage event below: it can only ever lower a cache ceiling, so failing
+    // to attach leaves the app where it is today rather than breaking it.
+    unawaited(MemoryPressureService().start());
 
     // Once-daily `app_open` usage event (Ray-approved telemetry cadence:
     // one direct event per day, not per foreground). This is the one

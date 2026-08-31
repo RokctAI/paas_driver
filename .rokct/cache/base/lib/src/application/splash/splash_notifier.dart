@@ -77,8 +77,15 @@ class SplashNotifier extends StateNotifier<SplashState> {
           },
         );
       }
+    } else {
+      // connectivityWithDialog has put its dialog up, but a dialog is not a
+      // destination: without this branch the caller's goMain/goLogin/
+      // goNoInternet callbacks were never invoked at all, so a device that
+      // lost the network between the splash's own connectivity check and
+      // this one was left on the splash screen with no way forward. Hand
+      // control back so the boot path can route to the no-connection page.
+      goNoInternet?.call();
     }
-    // No else block needed - dialog is automatically shown by connectivityWithDialog
   }
 
   Future<void> getTranslations(BuildContext context) async {

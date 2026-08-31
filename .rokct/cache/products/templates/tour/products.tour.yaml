@@ -4,11 +4,13 @@
 # the app shell's tour/app.tour.yaml ({app_name}/{app_tagline} placeholders
 # are substituted at merge time). This fragment owns only the screens
 # products_sdk itself installs for app_type=manager composes: the foods tab
-# hosted at index 1 of merchants_sdk's home shell (FoodsPage installs to the
+# hosted at index 3 of merchants_sdk's home shell (FoodsPage installs to the
 # shell's import contract path, so it is tab-hosted and declares no route)
-# and the create-product modal the shell's FAB opens on that tab. Include it
-# only in manager-family app manifests, after `fragment: merchants` has
-# landed the shell on /main.
+# and the create-product modal the page's own "+ New product" header button
+# opens (since products_sdk 1.6.0 / merchants_sdk 1.14.1 the shell FAB no
+# longer covers the foods tab - the create dispatch moved into FoodsPage's
+# header, approved frames 35a/35c). Include it only in manager-family app
+# manifests, after `fragment: merchants` has landed the shell on /main.
 #
 # Demo grounding (--dart-define=IS_DEMO=true): products_di.dart swaps in
 # MockProducts/MockCategories/MockBrands for the customer-facing facades.
@@ -22,8 +24,8 @@
 #
 # Cross-SDK imports below are the established shell contract: FoodsPage
 # itself imports merchants_sdk's mainProvider to drive shell scrolling, and
-# the shell's FAB (Remix.add_line, remixicon package) is the real widget a
-# manager taps to add a product.
+# its "+ New product" header button (Remix.add_line, remixicon package) is
+# the real widget a manager taps to add a product.
 #
 # Format: RokctAI/shared-workflows scripts/tour/README.md
 sdk: products
@@ -38,25 +40,30 @@ steps:
     action: dart
     settle: 8
     dart: |
-      // Land the manager home shell, then select the foods tab (index 1)
-      // through the shell's own mainProvider - the same state the bottom
-      // navigation buttons drive. Route first: an earlier fragment may have
-      // left the app elsewhere.
+      // Land the manager home shell, then select the foods tab (index 3
+      // since merchants_sdk 1.14.0 - POS till 0, order queue 1, kitchen 2;
+      // this fragment had gone stale at 1 when the POS-first shift moved
+      // foods to 2) through the shell's own mainProvider - the same state
+      // the bottom navigation buttons drive. Route first: an earlier
+      // fragment may have left the app elsewhere.
       router.replaceNamed('/main');
       await Future<void>.delayed(const Duration(seconds: 3));
       final Element element = tester.element(find.byType(Navigator).first);
       final ProviderContainer container =
           ProviderScope.containerOf(element, listen: false);
-      container.read(mainProvider.notifier).selectIndex(1);
+      container.read(mainProvider.notifier).selectIndex(3);
   - key: add_product
     title: "List a product in minutes"
     caption: "Name it, price it, stock it - a *new product* is ready to sell in minutes."
     action: dart
     settle: 6
     dart: |
-      // On the foods tab the home shell's FAB opens the create-product
-      // modal (main_page.dart's _showModalBasedOnFoodTab, foods sub-tab 0).
-      // The FAB is the only Remix.add_line on screen; tolerant tap anyway.
+      // FoodsPage's own "+ New product" header button opens the
+      // create-product modal (foods_page.dart's _newButton dispatches by
+      // inner tab, foods sub-tab 0 - the shell FAB's old rule, moved
+      // in-page in products_sdk 1.6.0). Both its wide (labelled) and
+      // phone (icon ring) dresses carry Remix.add_line, the only
+      // Remix.add_line on this screen; tolerant tap anyway.
       await tester.tap(
         find.byIcon(Remix.add_line).first,
         warnIfMissed: false,

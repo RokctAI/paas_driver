@@ -1,9 +1,38 @@
 {
   "name": "zones_sdk",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "installs": [],
   "routes": [],
   "integrations": [],
+  "boot_hooks": [
+    {
+      "id": "zones-en-bundled-translations",
+      "order": 64,
+      "body": "BundledTranslations.register('en', kZonesEnTranslations);",
+      "imports": [
+        "import 'package:base_sdk/src/services/bundled_translations.dart';",
+        "import 'package:zones_sdk/src/translations/zones_en_translations.dart';"
+      ],
+      "_comment": "Registers this SDK's bundled English map for its manifest tr_keys into base_sdk's BundledTranslations registry at boot (weather_sdk's af pattern, applied to en). Needed because the approved section-39 zone-editor copy carries punctuation and casing the humanized-key fallback cannot reproduce. Backend-served translation rows still win; the map is only the offline/unseeded fallback consulted before the humanized-key fallback. Top-level (not app_type-gated) because translations are role-agnostic."
+    }
+  ],
+  "tr_keys": {
+    "drawing": "drawing",
+    "points": "points",
+    "pointsPlaced": "points.placed",
+    "shapeNotClosedYet": "shape.not.closed.yet",
+    "km2": "km2",
+    "covered": "covered",
+    "whereThisShopDelivers": "where.this.shop.delivers",
+    "tapMapNewPointsExtendShape": "tap.the.map.to.add.a.point.new.points.extend.the.shape",
+    "tapMapSaveUnlocksAt4": "tap.the.map.to.add.a.point.save.unlocks.at.4",
+    "undoLastPoint": "undo.last.point",
+    "saveDeliveryZone": "save.delivery.zone",
+    "oneMorePointToCloseTheShape": "1.more.point.to.close.the.shape",
+    "twoMorePointsToCloseTheShape": "2.more.points.to.close.the.shape",
+    "threeMorePointsToCloseTheShape": "3.more.points.to.close.the.shape"
+  },
+  "_comment_tr_keys": "Section-39 zone-editor copy keys absent from base_sdk's hand-written TrKeys (checked against core main). The SDK's installed manager page looks them up via raw keys (weather_sdk's 'as.of' precedent - the injected TrKeys constants only exist in composed hosts' cached base copy); the bundled en map above carries the approved copy verbatim, and the humanized-key fallback stays the last resort. Afrikaans values are a recorded follow-up, not smuggled in here.",
   "app_type": {
     "driver": {
       "installs": [

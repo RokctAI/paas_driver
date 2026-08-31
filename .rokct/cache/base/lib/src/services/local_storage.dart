@@ -348,6 +348,15 @@ abstract class LocalStorage {
   static void deleteSeededTranslationsHash() =>
       _preferences?.remove(StorageKeys.keySeededTranslationsHash);
 
+  /// The KeySound gate: keypad tap/error feedback on or off. Default ON
+  /// (the paas_pos `AppConstants.sound` default carried forward).
+  static Future<void> setKeypadSound(bool enabled) async {
+    await _preferences?.setBool(StorageKeys.keyKeypadSound, enabled);
+  }
+
+  static bool getKeypadSound() =>
+      _preferences?.getBool(StorageKeys.keyKeypadSound) ?? true;
+
   static Future<void> setAppThemeMode(bool isDarkMode) async {
     await _preferences?.setBool(StorageKeys.keyAppThemeMode, isDarkMode);
   }

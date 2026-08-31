@@ -46,6 +46,13 @@ class SyncEngine {
   factory SyncEngine() => _instance ??= SyncEngine._internal();
   static SyncEngine? _instance;
 
+  /// Test-only: drop the singleton so the next [SyncEngine] call builds a
+  /// fresh engine with no handlers and the default page size.
+  @visibleForTesting
+  static void debugReset() {
+    _instance = null;
+  }
+
   /// Retry delays indexed by (attempts - 1); the last entry repeats until
   /// [maxAttempts] is reached.
   static const List<Duration> backoff = [
@@ -57,6 +64,17 @@ class SyncEngine {
 
   /// Retryable failures beyond this mark the op [OutboxStatus.dead].
   static const int maxAttempts = 10;
+
+  /// Rows read per query by the drain and the temp-id rewrite pass.
+  ///
+  /// Both used to materialise their whole result set, which on a large
+  /// outbox is a spike in exactly the anonymous RSS the Feb 2027 Play
+  /// memory thresholds measure. Settable so tests can force multi-page
+  /// paths on tiny fixtures; leave it alone in app code.
+  static const int defaultPageSize = 100;
+
+  @visibleForTesting
+  int pageSize = defaultPageSize;
 
   final Map<String, SyncHandler> _handlers = {};
 
@@ -247,48 +265,133 @@ class SyncEngine {
 
   Future<void> _drainOnce() async {
     final now = DateTime.now();
-    final pending =
-        await (_db.select(_db.outboxTable)
-              ..where((t) => t.status.equals(OutboxStatus.pending.name))
-              ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
-            .get();
-    if (pending.isEmpty) return;
+    // Ops synced (and therefore deleted) during this pass. Kept so a
+    // dependent later in the same pass sees its parent as satisfied
+    // immediately, exactly as the whole-table snapshot used to.
+    final syncedThisPass = <String>{};
 
-    // A dependency is satisfied once its row is gone from the outbox
-    // (synced ops are deleted); any id still present — whatever its
-    // status — blocks the dependent op.
-    final unsynced = (await _db.select(_db.outboxTable).get())
-        .map((op) => op.id)
-        .toSet();
+    DateTime? cursorCreatedAt;
+    String? cursorId;
 
-    for (final op in pending) {
-      if (op.nextAttemptAt != null && op.nextAttemptAt!.isAfter(now)) {
-        continue; // Still backing off.
+    while (true) {
+      // Oldest-first, one bounded page at a time. Keyset paging on the
+      // immutable (createdAt, id) key rather than OFFSET: rows change status
+      // and get deleted mid-pass, and an offset would skip or repeat them.
+      // `createdAt <= now` reproduces the old single-SELECT snapshot
+      // boundary, so ops enqueued while this pass runs wait for the next one
+      // — kick()'s _kickRequested loop already guarantees there is one.
+      final page = await _pendingPage(now, cursorCreatedAt, cursorId);
+      if (page.isEmpty) return;
+
+      // A dependency is satisfied once its row is gone from the outbox
+      // (synced ops are deleted); any id still present — whatever its
+      // status — blocks the dependent op. Only this page's declared
+      // dependencies are looked up, instead of every id in the table.
+      final declaredDeps = <String>{};
+      for (final op in page) {
+        declaredDeps.addAll(_decodeStringList(op.dependsOn));
       }
-      final blocked = _decodeStringList(
-        op.dependsOn,
-      ).any((depId) => depId != op.id && unsynced.contains(depId));
-      if (blocked) continue; // Parents before children.
-      final handler = _handlers[op.opType];
-      if (handler == null) continue; // Owning SDK not composed/registered.
+      final unsynced = await _stillQueued(declaredDeps);
 
-      await _setStatus(op.id, OutboxStatus.inFlight);
-      SyncResult result;
-      try {
-        result = await handler.push(op);
-      } catch (e) {
-        result = SyncResult.retryable(e.toString());
+      for (final op in page) {
+        if (op.nextAttemptAt != null && op.nextAttemptAt!.isAfter(now)) {
+          continue; // Still backing off.
+        }
+        final blocked = _decodeStringList(op.dependsOn).any(
+          (depId) =>
+              depId != op.id &&
+              unsynced.contains(depId) &&
+              !syncedThisPass.contains(depId),
+        );
+        if (blocked) continue; // Parents before children.
+        final handler = _handlers[op.opType];
+        if (handler == null) continue; // Owning SDK not composed/registered.
+
+        await _setStatus(op.id, OutboxStatus.inFlight);
+        SyncResult result;
+        try {
+          result = await handler.push(op);
+        } catch (e) {
+          result = SyncResult.retryable(e.toString());
+        }
+        switch (result) {
+          case SyncSynced(:final idMappings, :final entityType):
+            final removed = await _applySynced(
+              op,
+              handler,
+              idMappings,
+              entityType,
+            );
+            if (removed) syncedThisPass.add(op.id);
+          case SyncRetryable(:final error):
+            await _applyRetryable(op, error);
+          case SyncRejected(:final error):
+            await _applyRejected(op, error);
+        }
       }
-      switch (result) {
-        case SyncSynced(:final idMappings, :final entityType):
-          final removed = await _applySynced(op, handler, idMappings, entityType);
-          if (removed) unsynced.remove(op.id);
-        case SyncRetryable(:final error):
-          await _applyRetryable(op, error);
-        case SyncRejected(:final error):
-          await _applyRejected(op, error);
+
+      if (page.length < pageSize) return;
+      cursorCreatedAt = page.last.createdAt;
+      cursorId = page.last.id;
+    }
+  }
+
+  /// One page of pending ops created at or before [passStart], oldest
+  /// first, strictly after the (createdAt, id) cursor when one is given.
+  Future<List<OutboxEntry>> _pendingPage(
+    DateTime passStart,
+    DateTime? afterCreatedAt,
+    String? afterId,
+  ) {
+    final query = _db.select(_db.outboxTable)
+      ..where((t) {
+        var predicate =
+            t.status.equals(OutboxStatus.pending.name) &
+            t.createdAt.isSmallerOrEqualValue(passStart);
+        if (afterCreatedAt != null && afterId != null) {
+          predicate = predicate &
+              (t.createdAt.isBiggerThanValue(afterCreatedAt) |
+                  (t.createdAt.equals(afterCreatedAt) &
+                      t.id.isBiggerThanValue(afterId)));
+        }
+        return predicate;
+      })
+      // id breaks createdAt ties so the keyset cursor is total; the unpaged
+      // version ordered by createdAt alone and left ties unspecified.
+      ..orderBy([
+        (t) => OrderingTerm.asc(t.createdAt),
+        (t) => OrderingTerm.asc(t.id),
+      ])
+      ..limit(pageSize);
+    return query.get();
+  }
+
+  /// Which of [ids] still have a row in the outbox, whatever its status.
+  /// Chunked so the generated `IN (...)` never approaches SQLite's bound
+  /// parameter limit.
+  Future<Set<String>> _stillQueued(Set<String> ids) async {
+    if (ids.isEmpty) return const <String>{};
+    const chunkSize = 200;
+    final all = ids.toList();
+    final found = <String>{};
+    for (var start = 0; start < all.length; start += chunkSize) {
+      final chunk = all.sublist(
+        start,
+        math.min(start + chunkSize, all.length),
+      );
+      // Only the id column: the point of this query is to avoid pulling
+      // payload strings into memory.
+      final idColumn = _db.outboxTable.id;
+      final rows = await (_db.selectOnly(_db.outboxTable)
+            ..addColumns([idColumn])
+            ..where(idColumn.isIn(chunk)))
+          .get();
+      for (final row in rows) {
+        final id = row.read(idColumn);
+        if (id != null) found.add(id);
       }
     }
+    return found;
   }
 
   /// Returns whether the op's row was actually removed from the outbox.
@@ -337,23 +440,42 @@ class SyncEngine {
   /// payloads. Sound because temp ids are globally unique prefixed strings
   /// that cannot occur naturally in payload JSON.
   Future<void> _rewritePendingPayloads(Map<String, String> idMappings) async {
-    final rows = await (_db.select(
-      _db.outboxTable,
-    )..where((t) => t.status.equals(OutboxStatus.pending.name))).get();
-    for (final row in rows) {
-      var payload = row.payload;
-      idMappings.forEach((tempId, backendId) {
-        payload = payload.replaceAll(tempId, backendId);
-      });
-      if (payload == row.payload) continue;
-      await (_db.update(
-        _db.outboxTable,
-      )..where((t) => t.id.equals(row.id))).write(
-        OutboxTableCompanion(
-          payload: Value(payload),
-          updatedAt: Value(DateTime.now()),
-        ),
-      );
+    // Paged over the immutable id key: the pass only rewrites `payload` and
+    // `updatedAt`, so the cursor column never moves under it and every
+    // pending row is visited exactly once.
+    String? cursorId;
+    while (true) {
+      // A final copy: a mutable local captured by the predicate closure
+      // would not promote to non-nullable after the null check.
+      final String? after = cursorId;
+      final rows = await (_db.select(_db.outboxTable)
+            ..where((t) {
+              final pending = t.status.equals(OutboxStatus.pending.name);
+              return after == null
+                  ? pending
+                  : pending & t.id.isBiggerThanValue(after);
+            })
+            ..orderBy([(t) => OrderingTerm.asc(t.id)])
+            ..limit(pageSize))
+          .get();
+      if (rows.isEmpty) return;
+      for (final row in rows) {
+        var payload = row.payload;
+        idMappings.forEach((tempId, backendId) {
+          payload = payload.replaceAll(tempId, backendId);
+        });
+        if (payload == row.payload) continue;
+        await (_db.update(
+          _db.outboxTable,
+        )..where((t) => t.id.equals(row.id))).write(
+          OutboxTableCompanion(
+            payload: Value(payload),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+      }
+      if (rows.length < pageSize) return;
+      cursorId = rows.last.id;
     }
   }
 

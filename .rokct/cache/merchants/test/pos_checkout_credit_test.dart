@@ -56,10 +56,10 @@ Widget _host(Widget child) => ProviderScope(
     );
 
 Future<ProviderContainer> _pumpWithCart(WidgetTester tester) async {
-  // Tall canvas (the 11g/11i frames are 390x3420+ logical) so the whole
-  // flow — toggles, cards, banner, summary, buttons — lays out without
-  // scrolling.
-  tester.view.physicalSize = const Size(1170, 9600);
+  // Tall canvas (the 11g/11i frames are 390x3420+ logical, plus the
+  // keypad card's five key rows) so the whole flow — toggles, cards,
+  // keypad, banner, summary, buttons — lays out without scrolling.
+  tester.view.physicalSize = const Size(1170, 12600);
   tester.view.devicePixelRatio = 3.0;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
@@ -126,11 +126,15 @@ void main() {
     expect(find.textContaining('R89.50'), findsOneWidget);
 
     // The amount card unlocked, prefilled with the total (150.00). Edit
-    // to 100 — the split appears: remainder banner (309) + summary rows.
+    // to 100 ON THE KEY PAD (390 — the fresh prefill is replaced by the
+    // first digit, calculator-entry style) — the split appears:
+    // remainder banner (309) + summary rows.
     final amountField = find.byKey(const Key('posPaidNowField'));
     expect(amountField, findsOneWidget);
-    await tester.enterText(amountField, '100');
-    await tester.pump();
+    for (final digit in ['1', '0', '0']) {
+      await tester.tap(find.byKey(Key('moneyKey$digit')));
+      await tester.pump();
+    }
     expect(find.textContaining('remains'), findsOneWidget);
     expect(find.text('Paying now · Cash'), findsNothing); // QR selected
     expect(find.textContaining('Paying now'), findsOneWidget);

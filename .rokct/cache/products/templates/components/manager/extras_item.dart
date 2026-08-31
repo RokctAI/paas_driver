@@ -26,6 +26,10 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_extras_group.dart';
 import 'package:${package}/presentation/pages/main/widgets/buttons_bouncing_effect.dart';
 
+/// An extras-group chip of the approved stocks pane (frame 35b: Size /
+/// Sauce / Cheese, checked = in use): each checked group's value
+/// combinations make one stock row. Same tap behaviour as shipped — toggle
+/// plus the group-extras sheet — in the approved chip dress.
 class ExtrasItem extends StatelessWidget {
   final SellerExtrasGroup extras;
   final Function()? onTap;
@@ -40,28 +44,38 @@ class ExtrasItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool checked = extras.isChecked ?? false;
     return ButtonsBouncingEffect(
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          color: AppStyle.transparent,
-          padding: REdgeInsets.symmetric(vertical: 16),
-          margin: REdgeInsets.only(right: 14),
+          margin: REdgeInsets.only(right: 8, top: 8, bottom: 8),
+          padding: REdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(100.r),
+            color: AppStyle.transparent,
+            border: Border.all(
+              color: checked ? AppStyle.primary : AppStyle.strokeDark,
+            ),
+          ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                (extras.isChecked ?? false)
+                checked
                     ? Remix.checkbox_circle_fill
                     : Remix.checkbox_blank_circle_line,
-                color: (extras.isChecked ?? false)
-                    ? AppStyle.primary
-                    : AppStyle.blackColor,
-                size: 24.r,
+                color: checked ? AppStyle.primary : AppStyle.textDarkFaint,
+                size: 18.r,
               ),
-              4.horizontalSpace,
+              6.horizontalSpace,
               Text(
                 '${extras.translation?.title}',
-                style: AppStyle.interSemi(size: 14.sp, letterSpacing: -0.3),
+                style: AppStyle.interSemi(
+                  size: 13.sp,
+                  letterSpacing: -0.3,
+                  color: checked ? AppStyle.primary : AppStyle.textDarkSecondary,
+                ),
               ),
             ],
           ),

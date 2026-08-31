@@ -37,6 +37,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:get_it/get_it.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_state.dart';
+import 'package:merchants_sdk/src/manager/application/quick_flow/quick_flow_provider.dart';
 import 'package:merchants_sdk/src/manager/domain/interface/pos_orders.dart';
 
 // The manager POS tab (BillingPage) — the old Spazafy ManagerBillingPage
@@ -124,6 +125,14 @@ class _BillingPageState extends ConsumerState<BillingPage>
       _armIdleTimer();
     }
     unawaited(_refreshPendingSync());
+    // Autodial's arming condition is shop state; read it once here so the
+    // till knows whether an empty ticket has anywhere to go before the
+    // attendant taps.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!ref.read(quickFlowProvider).loaded) {
+        unawaited(ref.read(quickFlowProvider.notifier).load());
+      }
+    });
   }
 
   Future<void> _refreshPendingSync() async {
@@ -176,6 +185,13 @@ class _BillingPageState extends ConsumerState<BillingPage>
       _armIdleTimer();
     }
   }
+
+  /// The shop mapped at least one digit and turned autodial on. Read
+  /// here only to keep Continue reachable on an empty ticket — the till's
+  /// actual interpretation of a key press lives on the checkout surface,
+  /// where the keypad is.
+  bool get _autodialArmed =>
+      ref.watch(quickFlowProvider).settings.autodialArmed;
 
   @override
   Widget build(BuildContext context) {
@@ -631,8 +647,15 @@ class _BillingPageState extends ConsumerState<BillingPage>
               ),
             ),
             16.verticalSpace,
+            // KEYPAD AUTODIAL (approved design strip section 42): an
+            // empty ticket normally has nowhere to go — but with autodial
+            // armed the pad IS how the ticket gets built, and the pad
+            // lives on the payment surface, so Continue stays live to
+            // carry the attendant there. Money in first, item on the
+            // ticket with one key, no menu hunting. Unarmed shops see
+            // exactly the gate they always saw.
             GestureDetector(
-              onTap: state.lines.isEmpty
+              onTap: state.lines.isEmpty && !_autodialArmed
                   ? null
                   : () => unawaited(
                         context.router
@@ -643,7 +666,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
                 width: double.infinity,
                 height: 56.r,
                 decoration: BoxDecoration(
-                  color: state.lines.isEmpty
+                  color: state.lines.isEmpty && !_autodialArmed
                       ? AppStyle.primary.withOpacity(0.4)
                       : AppStyle.primary,
                   borderRadius: BorderRadius.circular(16.r),

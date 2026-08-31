@@ -41,13 +41,25 @@ library revenue_sdk;
 //   (src/manager/di/manager_revenue_di.dart).
 // - driver/: CourierStatisticsRepository, the income screen's statistics
 //   notifier/provider/state plus its OrdinalSales chart row (used by the
-//   driver income page template installed into driver hosts), and
-//   DriverRevenueDependencies (src/driver/di/driver_revenue_di.dart).
+//   driver income page template installed into driver hosts), the withdraw
+//   slice (WithdrawSheet + its notifier/provider/state) behind the income
+//   page's Withdraw Money button, the wallet plane and the payout trail
+//   (design strip frames 49f/49k: their pages, widgets, grammar and
+//   application slices), and DriverRevenueDependencies
+//   (src/driver/di/driver_revenue_di.dart).
 export 'src/common/di/revenue_di.dart';
 export 'src/common/domain/interface/courier_statistics.dart';
+export 'src/common/domain/interface/driver_payout.dart';
+export 'src/common/domain/interface/driver_wallet.dart';
 export 'src/common/domain/interface/seller_statistics.dart';
+export 'src/common/infrastructure/models/response/bank_account_record.dart';
 export 'src/common/infrastructure/models/response/courier_statistics_income_response.dart';
 export 'src/common/infrastructure/models/response/courier_statistics_order_response.dart';
 export 'src/common/infrastructure/models/response/courier_statistics_response.dart';
+export 'src/common/infrastructure/models/response/payout_request_record.dart';
+export 'src/common/infrastructure/models/response/payout_request_response.dart';
+export 'src/common/infrastructure/models/response/profit_report_response.dart';
 export 'src/common/infrastructure/models/response/statistics_order_response.dart';
 export 'src/common/infrastructure/models/response/statistics_response.dart';
+export 'src/common/infrastructure/models/response/wallet_movement.dart';
+export 'src/common/infrastructure/wallet_balance_cache.dart';

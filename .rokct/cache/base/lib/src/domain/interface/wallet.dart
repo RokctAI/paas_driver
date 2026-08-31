@@ -63,6 +63,13 @@ abstract class WalletRepositoryFacade {
     required String code,
   });
 
+  /// Top the wallet up by charging a saved card.
+  ///
+  /// [token] keeps its name for source compatibility with the shipped
+  /// implementations, but what it carries is the Saved Card docname --
+  /// `SavedCardModel.id`, the `name` returned by `getSavedCards` /
+  /// `tokenizeCard`. The gateway reuse credential is server-side only;
+  /// a caller that sends one is refused without charging.
   Future<ApiResult<dynamic>> walletTopUp({
     required double amount,
     String? token,

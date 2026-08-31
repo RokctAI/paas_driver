@@ -1,3 +1,146 @@
+## 1.13.0
+
+* DELIVERY COLLECTED IN PERSON (approved design strip section 43, frames
+  43a tablet / 43b the confirm guard / 43c phone / 43d the card states /
+  43e offline). The customer turns up at the counter for an order she
+  placed for delivery. Ray's policy, unbent: the goods are NEVER
+  withheld and never forfeited — what changes is only where the delivery
+  fee ends up.
+  * A new **collected-in-person** block the manager order detail mounts
+    directly under its price block, and which renders NOTHING unless the
+    order is a delivery order still waiting to be handed over: the
+    deliveryman row (**811** dashed and faint when nobody has been
+    dispatched, **812** solid and cyan with an `ON A CALLOUT` tag when
+    somebody has — this row is what decides the branch), the single
+    primary action lane **813** ("Customer is here — convert to pickup",
+    one verb, a bag glyph and never a truck), the outcome named BEFORE
+    the tap (**814** green "the fee goes back to the customer's wallet" /
+    **815** amber "the fee is kept — it covers his callout"; ONE
+    component with two tints, never both on screen), and Ray's till line
+    **816** verbatim.
+  * The confirm guard **817**/**818**/**819** (the chip-768 pattern —
+    the consequence before the tap, never a snackbar after it): four
+    ledger rows, one per thing that actually moves — Goods, Delivery
+    type, Delivery fee, Driver task — so the two branches can never be
+    confused. The affirmative button is deliberately the WIDER one:
+    handing the goods over is never the risky choice.
+  * The delivery-type chip **810** lifted out of the board card into the
+    detail, and the two converted board-card states **820**/**821**: the
+    struck fee and the dropped total are the visible proof of the
+    conversion's money write, so fee-returned versus fee-kept is legible
+    from the card alone without opening the order. `get_seller_orders`
+    now serves `delivery_type` and `delivery_fee` (it did not, so the
+    board card's type chip had nothing to render) plus the two new
+    conversion fields.
+  * OFFLINE (43e) the lane stays **enabled** and is relabelled in place —
+    "Hand over now — convert when back online" — because refusing to give
+    the customer her goods is the one thing that must never happen. The
+    branch is undecidable offline (driver assignment and wallet balance
+    are both server state), so 814/815 are replaced by a neutral note and
+    the conversion is queued through a new `order.collect_in_person` sync
+    handler. The endpoint is idempotent, so the replay converts nothing
+    twice; a backend refusal parks in Sync issues rather than silently
+    reverting a hand-over that already happened.
+  * ONE call, never a client-orchestrated sequence:
+    `SellerOrdersRepositoryFacade.convertDeliveryToCollected` hits the one
+    new atomic seller endpoint (merchants `convert_delivery_to_collected`,
+    merchants_sdk 1.20.0). The settlement ordering that keeps the driver
+    from being paid the delivery fee twice lives inside that one
+    transaction, where a dropped connection cannot get between the two
+    writes.
+  * Pickup now reads as a BAG on the board card's type chip (it read as a
+    walker), so a converted card and the action that made it are
+    recognisably the same thing.
+
+## 1.12.0
+
+* ORDER HISTORY adopts the standard list language (approved design strip
+  frames 38a + 38d, Ray 2026-08-30 12:23Z: "33 list language = STANDARD
+  for all lists"). The shipped page was an undesigned white `ListView`
+  with two floating buttons (a `PopButton` bottom-start and an equalizer
+  filter FAB bottom-centre).
+  * New `src/manager/presentation/history/order_history_list.dart`: the
+    list body in the 33 dress — the header count pill carrying the
+    shipped "There are N orders" line (chip 700), the shipped
+    `FilterScreen` date range re-homed from the FAB to a header utility
+    (chip 358), history's real statuses as the 362/363 tab bar, the
+    board's own order card carried to a FINISHED order (chips 352/353/354
+    — progress chip full at 100%, clock FROZEN at `updatedAt` so the card
+    reads how long the order took), and "View more · +N" (chip 356).
+  * THE STATUSES, disclosed: the shipped `fetchHistoryOrders` call asks
+    `get_seller_orders` for `delivered` only — the `statuses[]` filter is
+    a recorded endpoint gap, so one call cannot fill both tabs. The
+    Delivered / Cancelled tabs are therefore fed by the board's own
+    per-status queues (`deliveredOrdersProvider` /
+    `canceledOrdersProvider`), which already page and count each status
+    against the same endpoint. Real counts, real paging, no new endpoint.
+  * The installed `order_history.dart` is now the host shell only: at
+    plane widths the list declares TWO planes and a tapped order's
+    details push into the LAST plane as a PANE (the 12:02Z sheet fork),
+    with the corner back pill at the bottom-END (chip 347); on one plane
+    it is the same shape with the shipped `OrderDetailsModal` bottom
+    sheet, unchanged (frame 38d).
+  * RECEIPT REPRINT in the order detail — Ray's amendment on approving
+    38a ("wired to the till receipt path"). New narrow seam
+    `src/manager/domain/interface/order_receipt.dart`
+    (`OrderReceiptFacade` + `resolveOrderReceiptFacade()`), because
+    orders_sdk must not import the SDK that owns the printer (ADR-005);
+    the manager host binds it to merchants_sdk's `PosReceiptPrinter` via
+    the new `ManagerOrderReceiptAdapter` in the installed
+    `orders_adapters.dart`. No printer wired means no button — the detail
+    never offers an action that cannot work.
+  * Requires base_sdk >= 1.46.0 (the list language).
+  * Test: `order_history_list_test.dart` — the two independently counted
+    and independently paged status tabs, the 700 pill as their sum, the
+    finished card at 100% with its frozen clock, and View-more paging the
+    ACTIVE tab only.
+## 1.11.0
+
+* Manager orders board upgraded to the APPROVED design (Ray 2026-08-29:
+  12:10Z "31b adopt 31a but uses our base theme"; 13:06Z "33a is
+  approved"; 13:53Z "approved: 34a , 33d,33b"). The board machinery moved
+  from the excluded templates/ into analyzable, tested package code at
+  `lib/src/manager/presentation/board/`:
+  * SEVEN colour-coded columns — New / Accepted / **Cooking** / Ready /
+    On the way / Delivered / Cancelled — with coloured count pills,
+    per-column refresh and "View more · +N" paging; far columns scroll
+    sideways (POS 235-wide columns kept). New `BoardStatus` axis maps to
+    base_sdk's `OrderStatus` where one exists; `cooking` (absent from the
+    shared enum) rides the new `rawStatus` seam on
+    `SellerOrdersRepositoryFacade.getOrders`/`updateOrderStatus`, with a
+    new cooking queue provider and `cooking_orders_count` statistic
+    parsing (falls back to the loaded length until the backend sends it).
+  * Cards carry the full POS feature set in the dark base theme: 1s-ticking
+    elapsed clock + time range **frozen once the order reaches Ready**
+    (`OrderClock`), order-type chip with per-status progress fill
+    (0/20/40/60/80/100%) and type glyph, map-pin affordance on delivery
+    cards (`BoardMapDialog`), POS drag treatment (tilt/shadow/brand
+    border on lift).
+  * SMART SKIP (POS board_view.dart:266-273): a pickup dragged onto
+    On the way lands in Delivered — with the approved airborne treatment
+    (On the way dims, Delivered lights a "drop here" slot, hint banner).
+  * Header: board/list toggle, date-range filter (threads from/to through
+    every queue notifier into `get_seller_orders`), and the new-order
+    sound bell with activity dot. The POS played a bundled wav via
+    audioplayers; the fleet carries no audio dependency, so the chime uses
+    the engine's `SystemSound` (no package, no asset).
+  * Waiter rule carried over: a waiter login hides the On-the-way column
+    (and tab).
+  * Phones get the POS's LIST MODE per approved 33b: colour-coded status
+    tab row with counts over a single card list.
+  * 33d click behaviour: on wide windows the workspace is hosted in
+    base_sdk 1.43.0's plane model (`OrdersBoardPlaneFlow`): the board
+    declares `PlaneSpan.all`; tapping a card pushes the order detail with
+    the DEFAULT one-plane claim into the LAST plane, the board yields and
+    compresses, and the nav folds to the corner `FloatingBackPill`. On
+    phones the detail stays the modal bottom sheet — the plane model's
+    own one-plane degradation. The detail plane hosts the existing
+    `OrderDetailsModal` in a pane-local navigator so its post-action
+    `Navigator.pop` folds the plane, never the workspace.
+  * The legacy four-icon-tab phone layout is retired from
+    OrdersHomePage; the old per-status body widgets remain installed but
+    unused (removal deferred).
+
 ## 1.10.0
 
 * POS till sales feed the EXISTING seller create-order pipeline,

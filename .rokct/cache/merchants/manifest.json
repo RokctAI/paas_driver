@@ -1,7 +1,7 @@
 {
   "name": "merchants_sdk",
-  "version": "1.13.1",
-  "_comment_requires": "merchants_sdk >= 1.6.0 requires base_sdk >= 1.5.0 (SyncEngine/SyncHandler APIs from the offline-first Phase 0, core PR #15); merchants_sdk >= 1.7.0 requires base_sdk >= 1.7.0 (SyncEngine.parkedOps/retryOp/deleteOp backing the sync-issues screen); merchants_sdk >= 1.10.0 requires base_sdk >= 1.32.0 (the restaurant tab is a GenericProfilePage host now: ProfileSectionRegistry.registerTopRowAction and BaseWalletCard, both used by the installed restaurant_page.dart template); merchants_sdk >= 1.13.0 requires base_sdk >= 1.39.0 (FloatingNavBack - the POS checkout's one-back pill, core PR #125) and, in manager composes that register the installed ManagerPosOrdersAdapter, orders_sdk >= 1.10.0 (PosSaleQueue). The composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
+  "version": "1.20.0",
+  "_comment_requires": "merchants_sdk >= 1.18.0 requires base_sdk >= 1.46.0 (the STANDARD LIST LANGUAGE of approved design strip section 38, which the sync-issues screen is drawn in). merchants_sdk >= 1.6.0 requires base_sdk >= 1.5.0 (SyncEngine/SyncHandler APIs from the offline-first Phase 0, core PR #15); merchants_sdk >= 1.7.0 requires base_sdk >= 1.7.0 (SyncEngine.parkedOps/retryOp/deleteOp backing the sync-issues screen); merchants_sdk >= 1.10.0 requires base_sdk >= 1.32.0 (the restaurant tab is a GenericProfilePage host now: ProfileSectionRegistry.registerTopRowAction and BaseWalletCard, both used by the installed restaurant_page.dart template); merchants_sdk >= 1.13.0 requires base_sdk >= 1.39.0 (FloatingNavBack - the POS checkout's one-back pill, core PR #125) and, in manager composes that register the installed ManagerPosOrdersAdapter, orders_sdk >= 1.10.0 (PosSaleQueue). merchants_sdk >= 1.16.0 requires base_sdk >= 1.44.0 (MoneyKeypad + KeySound + the tap.wav/wrong.wav app assets - the checkout's approved 11u/11y key pad, core base_sdk 1.44.0). merchants_sdk >= 1.20.0 carries the ONE atomic collected-in-person seller endpoint (convert_delivery_to_collected, approved strip section 43); a manager compose that shows the convert lane needs orders_sdk >= 1.13.0, which owns the client side of it. The composer manifest schema has no machine-readable minimum-version field, so this is the declaration. merchants_sdk >= 1.14.2 additionally expects manager composes to include productivity_sdk (the restaurant tab's PRODUCTIVITY group routes to its generated TasksRoute /tasks page - the manager composer list already carries productivity_sdk).",
   "home_sdk": true,
   "home_page": "templates/pages/manager/main/main_page.dart",
   "installs": [
@@ -105,6 +105,10 @@
         {
           "from": "templates/pages/manager/sync_issues/sync_issues_page.dart",
           "to": "lib/presentation/pages/sync_issues/sync_issues_page.dart"
+        },
+        {
+          "from": "templates/pages/manager/quick_flow/quick_flow_page.dart",
+          "to": "lib/presentation/pages/quick_flow/quick_flow_page.dart"
         }
       ],
       "_comment_pos_tr_keys": "POS till keys (BillingPage/CheckoutPage). Values are the literal English display strings, not snake_case keys: AppHelpers.getTranslation falls back to the key text itself when no backend row is cached, so demo builds and headless tours render exactly these strings (a snake_case value would humanize away the design's punctuation - \"Print Receipt & Finish\", \"QR / Pay link\"). Backend translation rows keyed on these strings still win when served, so localisation stays possible.",
@@ -165,7 +169,37 @@
         "shopName": "shop_name",
         "accessDenied": "access.denied",
         "syncIssues": "sync_issues",
-        "discard": "discard"
+        "discard": "discard",
+        "parked": "parked",
+        "needsAttention": "needs_attention",
+        "productivity": "Productivity",
+        "tasks": "Tasks",
+        "quickFlow": "Quick flow",
+        "quickFlowExplainer": "Let the till run itself between customers \u2014 every switch here is per-shop",
+        "autoAcceptOrders": "Auto-accept incoming orders",
+        "autoAcceptOrdersExplainer": "New orders land as Accepted instead of waiting for a tap on the board",
+        "liveServer": "LIVE \u00b7 SERVER",
+        "autoAcceptPlatformGate": "Also needs the platform switch Auto Approve All Orders \u2014 with both on, checkout writes the order straight to Accepted",
+        "autoCompleteAtReady": "Auto-complete at Ready",
+        "autoCompleteAtReadyExplainer": "The moment an order is marked Ready it completes itself",
+        "autoCompleteAtReadyWarning": "Orders complete without anyone handing them over \u2014 nobody taps to confirm the customer took it, so only turn this on where the customer is already standing at the counter, and only pickup orders are completed",
+        "newFlag": "NEW",
+        "keypadAutodial": "Keypad autodial",
+        "keypadAutodialExplainer": "With nothing on the ticket, a digit key adds its preset item \u2014 cash-register style",
+        "digitPresets": "Digit presets",
+        "ofNineSet": "of 9 set",
+        "addItem": "Add item",
+        "chooseItemForKey": "Choose an item for key",
+        "quickFlowAllThreeOn": "A shop with all three on",
+        "whatTheAttendantDoes": "what the attendant actually does",
+        "quickFlowStep1Title": "Money in",
+        "quickFlowStep1Body": "The customer pays, and a digit key puts the item on the ticket \u2014 no menu hunting",
+        "quickFlowStep2Title": "Order auto-flows",
+        "quickFlowStep2Body": "It is born Accepted \u2014 never sits in the New column waiting for a tap",
+        "quickFlowStep3Title": "No per-order taps",
+        "quickFlowStep3Body": "Ready completes itself \u2014 staff serve the customer while the board clears behind them",
+        "autodialArmedHint": "Autodial is on \u2014 tap a digit to drop its preset straight on the ticket, and once an item is on the keys are money again",
+        "keysAreMoneyAgain": "Ticket has an item \u2014 the keys are money again"
       },
       "session_policy": {
         "allowed_roles": [
@@ -202,6 +236,13 @@
           "type": "CupertinoRoute",
           "import": "package:${package}/presentation/pages/sync_issues/sync_issues_page.dart",
           "_comment": "Sync-issues screen (park-and-surface): parked needs_attention records across the three manager boxes with per-record Retry/Discard. New path, no legacy paas_manager counterpart; route name follows the Manager prefix convention. Reached from the restaurant tab's sections list."
+        },
+        {
+          "path": "/quick-flow",
+          "page": "ManagerQuickFlowRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/quick_flow/quick_flow_page.dart",
+          "_comment": "Quick flow \u2014 the shop's order-automation surface (approved design strip section 42, frames 42a/42b): auto-accept incoming orders (the LIVE Shop.auto_approve_orders field, surfaced and nothing more), auto-complete at Ready (new Shop field + new Order-controller rule), and keypad autodial with its digit->product presets (new per-shop map, read by the till). New path, no legacy paas_manager counterpart; route name follows the Manager prefix convention. Reached from the restaurant tab's sections list (chip 795, inserted second). The installed page carries @RoutePage(name: 'ManagerQuickFlowRoute')."
         },
         {
           "path": "/pos-checkout",

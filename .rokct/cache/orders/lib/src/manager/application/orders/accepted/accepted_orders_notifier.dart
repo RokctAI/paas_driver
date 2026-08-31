@@ -39,6 +39,8 @@ class AcceptedOrdersNotifier extends StateNotifier<AcceptedOrdersState> {
     RefreshController? refreshController,
     bool isRefresh = false,
     Function(int)? updateTotal,
+    String? from,
+    String? to,
   }) async {
     if (isRefresh) {
       _page = 0;
@@ -55,6 +57,8 @@ class AcceptedOrdersNotifier extends StateNotifier<AcceptedOrdersState> {
     final response = await _ordersRepository.getOrders(
       status: OrderStatus.accepted,
       page: ++_page,
+      from: from,
+      to: to,
     );
     response.when(
       success: (data) {

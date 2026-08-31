@@ -894,7 +894,7 @@ class _PayFastPaymentScreenState extends ConsumerState<PayFastPaymentScreen> {
     }
   }
 
-  // Process payment with saved card token
+  // Process payment with the selected saved card, named by its docname.
   Future<void> _processTokenPayment() async {
     if (_selectedCard == null) {
       AppHelpers.showCheckTopSnackBarInfo(
@@ -909,9 +909,11 @@ class _PayFastPaymentScreenState extends ConsumerState<PayFastPaymentScreen> {
     });
 
     try {
+      // The Saved Card docname is the charge handle. The gateway reuse
+      // credential is server-side only and never reaches this device.
       final result = await _paymentsRepository.processTokenPayment(
         widget.orderData,
-        _selectedCard!.token,
+        _selectedCard!.id,
       );
 
       result.when(

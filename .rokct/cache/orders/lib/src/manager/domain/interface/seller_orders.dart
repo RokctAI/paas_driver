@@ -22,6 +22,7 @@ import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/models/data/location.dart';
 import 'package:base_sdk/src/models/response/transactions_response.dart';
 import 'package:base_sdk/src/services/enums.dart';
+import 'package:orders_sdk/src/manager/infrastructure/models/data/collect_conversion.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/data/order_calculate_data.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/data/stock.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/data/user_data.dart';
@@ -44,8 +45,12 @@ import 'package:orders_sdk/src/manager/infrastructure/models/response/single_ord
 /// they are order-scoped in every call site (POS checkout). If payments_sdk
 /// grows a seller-side facade, these two are the seam to move.
 abstract class SellerOrdersRepositoryFacade {
+  /// [rawStatus] carries a wire status base_sdk's [OrderStatus] cannot
+  /// express (the board's `cooking` column); when both are passed,
+  /// [rawStatus] wins.
   Future<ApiResult<OrdersPaginateResponse>> getOrders({
     OrderStatus? status,
+    String? rawStatus,
     int? page,
     String? from,
     String? to,
@@ -64,8 +69,28 @@ abstract class SellerOrdersRepositoryFacade {
     required String orderId,
   });
 
+  /// Pass exactly one of [status] / [rawStatus] ([rawStatus] exists for
+  /// the board's `cooking` transition, which [OrderStatus] cannot express;
+  /// it wins when both are passed).
   Future<ApiResult<OrderStatusResponse>> updateOrderStatus({
-    required OrderStatus status,
+    OrderStatus? status,
+    String? rawStatus,
+    required String orderId,
+  });
+
+  /// The customer turned up and collected an order she had placed for
+  /// DELIVERY (design strip section 43). ONE atomic seller call, never a
+  /// client-orchestrated sequence: the whole conversion — delivery type,
+  /// driver assignment, the fee's fate and the hand-over — lands or none
+  /// of it does.
+  ///
+  /// Offline the branch is undecidable (driver assignment and wallet
+  /// balance are both server state), so the goods still go over the
+  /// counter and the conversion is QUEUED: the returned
+  /// [CollectConversion] carries `deferred` and promises nothing about
+  /// the money. A conversion the backend later refuses parks in Sync
+  /// issues rather than silently reverting.
+  Future<ApiResult<CollectConversion>> convertDeliveryToCollected({
     required String orderId,
   });
 

@@ -36,6 +36,7 @@ export 'package:base_sdk/src/models/response/transactions_response.dart';
 // Manager order models owned by this SDK.
 export 'data/address_data.dart';
 export 'data/category_data.dart';
+export 'data/collect_conversion.dart';
 export 'data/extras.dart';
 export 'data/galleries.dart';
 export 'data/group.dart';

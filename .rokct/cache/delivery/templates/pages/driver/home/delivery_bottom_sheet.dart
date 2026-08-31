@@ -36,6 +36,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:delivery_sdk/src/driver/application/home/home_provider.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/services/courier_helpers.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/cash_collection_sheet.dart';
 
 class DeliverBottomSheetScreen extends StatefulWidget {
   final OrderDetailData order;
@@ -49,10 +50,8 @@ class DeliverBottomSheetScreen extends StatefulWidget {
 
 class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
   TextEditingController noteCon = TextEditingController();
-  TextEditingController amountCon = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
-  final cashFormKey = GlobalKey<FormState>();
 
   bool get _isCashOrder =>
       (widget.order.transaction?.paymentSystem?.tag ?? '').toLowerCase() ==
@@ -65,7 +64,6 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
   @override
   void dispose() {
     noteCon.dispose();
-    amountCon.dispose();
     super.dispose();
   }
 
@@ -164,89 +162,47 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
   /// amount) before the order is finished. When the driver's
   /// can_convert_cod_to_credit capability is enabled, a secondary action
   /// records the order as Credit (goods left, customer owes the shop)
-  /// instead. A failed backend call keeps the dialog open and does NOT
+  /// instead. A failed backend call keeps the sheet open and does NOT
   /// advance the status, so the order is never delivered-but-unrecorded.
+  ///
+  /// GATE 3 of design strip section 45 (frame 45d): this used to be a
+  /// WHITE alert dialog with the OS keyboard - the last money-entry
+  /// surface in the fleet not on chip 390, on the one screen where a
+  /// driver is one-handed in the sun. It is now [CashCollectionSheet]:
+  /// a dark bottom sheet on the shared [MoneyKeypad], with the "Count
+  /// it" calc step (chip 845) and the derived delta line (chip 846).
+  /// Both backend calls, both success paths and the epilogue are the
+  /// shipped ones, untouched.
   void _showCashCollectionDialog(
       BuildContext context, WidgetRef ref, bool canConvertToCredit) {
-    amountCon.text = (widget.order.totalPrice ?? 0).toString();
-    AppHelpers.showAlertDialog(
+    AppHelpers.showCustomModalBottomSheet(
       context: context,
-      child: StatefulBuilder(
-        builder: (dialogContext, setState) {
-          return Container(
-            decoration: BoxDecoration(
-              color: AppStyle.white,
-              borderRadius: BorderRadius.circular(10.r),
-            ),
-            padding: EdgeInsets.symmetric(vertical: 30.h, horizontal: 24.w),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  AppHelpers.getTranslation(TrKeys.howMuchCashReceived),
-                  textAlign: TextAlign.center,
-                  style: AppStyle.interSemi(size: 16.sp),
-                ),
-                Form(
-                  key: cashFormKey,
-                  child: UnderlinedBorderTextField(
-                    textController: amountCon,
-                    label: AppHelpers.getTranslation(TrKeys.cashToCollect),
-                    inputType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    validator: (value) {
-                      final parsed = double.tryParse(value?.trim() ?? '');
-                      if (parsed == null || parsed < 0) {
-                        return AppHelpers.getTranslation(TrKeys.cannotBeEmpty);
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {
-                      setState(() {});
-                    },
-                  ),
-                ),
-                32.verticalSpace,
-                CustomButton(
-                  title: AppHelpers.getTranslation(TrKeys.confirmation),
-                  background: AppStyle.black,
-                  textColor: AppStyle.white,
-                  onPressed: () {
-                    if (cashFormKey.currentState?.validate() ?? false) {
-                      ref.read(homeProvider.notifier).confirmCodCollection(
-                            context: context,
-                            orderId: widget.order.id,
-                            amountReceived:
-                                double.parse(amountCon.text.trim()),
-                            onSuccess: () {
-                              Navigator.pop(dialogContext);
-                              _finishDelivery(context, ref);
-                            },
-                          );
-                    }
-                  },
-                ),
-                if (canConvertToCredit) ...[
-                  10.verticalSpace,
-                  CustomButton(
-                    title: AppHelpers.getTranslation(TrKeys.recordAsCredit),
-                    background: AppStyle.transparent,
-                    borderColor: AppStyle.black,
-                    onPressed: () {
-                      ref.read(homeProvider.notifier).convertCodToCredit(
-                            context: context,
-                            orderId: widget.order.id,
-                            onSuccess: () {
-                              Navigator.pop(dialogContext);
-                              _finishDelivery(context, ref);
-                            },
-                          );
-                    },
-                  ),
-                ],
-              ],
-            ),
-          );
+      isDarkMode: true,
+      modal: CashCollectionSheet(
+        orderId: widget.order.id,
+        expected: widget.order.totalPrice ?? 0,
+        customerName: widget.order.user?.firstname,
+        canConvertToCredit: canConvertToCredit,
+        onConfirm: (amountReceived) {
+          ref.read(homeProvider.notifier).confirmCodCollection(
+                context: context,
+                orderId: widget.order.id,
+                amountReceived: amountReceived,
+                onSuccess: () {
+                  Navigator.pop(context);
+                  _finishDelivery(context, ref);
+                },
+              );
+        },
+        onRecordAsCredit: () {
+          ref.read(homeProvider.notifier).convertCodToCredit(
+                context: context,
+                orderId: widget.order.id,
+                onSuccess: () {
+                  Navigator.pop(context);
+                  _finishDelivery(context, ref);
+                },
+              );
         },
       ),
     );

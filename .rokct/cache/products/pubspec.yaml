@@ -27,6 +27,9 @@ dev_dependencies:
   build_runner: ^2.10.4
   freezed: ^3.2.3
   json_serializable: ^6.8.0
+  # Widget tests host AppStyle text and LocalStorage (shared_preferences
+  # mock), the same harness orders_sdk's and kitchen_sdk's tests use.
+  shared_preferences: ^2.2.0
 
 # Workspace-relative override so this package resolves standalone for
 # codegen/analysis. Ignored when a host app is the resolution root.

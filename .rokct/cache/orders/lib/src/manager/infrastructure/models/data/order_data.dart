@@ -28,6 +28,15 @@ import 'user_data.dart';
 import 'package:base_sdk/src/models/data/currency_data.dart';
 import 'package:base_sdk/src/models/data/location.dart';
 
+/// Frappe Check fields arrive as 1/0 (and, through some serializers, as
+/// "1"/"0" or true/false). Read all three the same way.
+bool? _flag(dynamic value) {
+  if (value == null) return null;
+  if (value is bool) return value;
+  if (value is num) return value != 0;
+  return value.toString() == '1' || value.toString() == 'true';
+}
+
 class OrderData {
   OrderData({
     String? id,
@@ -47,6 +56,9 @@ class OrderData {
     num? deliveryFee,
     num? otp,
     dynamic deliveryman,
+    String? deliverymanName,
+    bool? collectedInPerson,
+    num? collectFeeRefunded,
     String? deliveryDate,
     String? deliveryTime,
     String? createdAt,
@@ -78,6 +90,9 @@ class OrderData {
     _deliveryFee = deliveryFee;
     _otp = otp;
     _deliveryman = deliveryman;
+    _deliverymanName = deliverymanName;
+    _collectedInPerson = collectedInPerson;
+    _collectFeeRefunded = collectFeeRefunded;
     _deliveryDate = deliveryDate;
     _deliveryTime = deliveryTime;
     _createdAt = createdAt;
@@ -113,6 +128,12 @@ class OrderData {
     _deliveryFee = json['delivery_fee'];
     _otp = json['otp'];
     _deliveryman = json['deliveryman'];
+    // Section 43. `deliveryman` is a Link to User (an id); the seller
+    // detail has to be able to SAY who is on the order, so
+    // get_seller_order_details serves the readable name alongside it.
+    _deliverymanName = json['deliveryman_name'];
+    _collectedInPerson = _flag(json['collected_in_person']);
+    _collectFeeRefunded = json['collect_fee_refunded'] as num?;
     _deliveryDate = json['delivery_date'];
     _deliveryTime = json['delivery_time'];
     _createdAt = json['created_at'];
@@ -157,6 +178,9 @@ class OrderData {
   num? _deliveryFee;
   num? _otp;
   dynamic _deliveryman;
+  String? _deliverymanName;
+  bool? _collectedInPerson;
+  num? _collectFeeRefunded;
   String? _deliveryDate;
   String? _deliveryTime;
   String? _createdAt;
@@ -196,6 +220,9 @@ class OrderData {
     num? deliveryFee,
     num? otp,
     dynamic deliveryman,
+    String? deliverymanName,
+    bool? collectedInPerson,
+    num? collectFeeRefunded,
     String? deliveryDate,
     String? deliveryTime,
     String? createdAt,
@@ -224,6 +251,9 @@ class OrderData {
         deliveryFee: deliveryFee ?? _deliveryFee,
         otp: otp ?? _otp,
         deliveryman: deliveryman ?? _deliveryman,
+        deliverymanName: deliverymanName ?? _deliverymanName,
+        collectedInPerson: collectedInPerson ?? _collectedInPerson,
+        collectFeeRefunded: collectFeeRefunded ?? _collectFeeRefunded,
         deliveryDate: deliveryDate ?? _deliveryDate,
         deliveryTime: deliveryTime ?? _deliveryTime,
         createdAt: createdAt ?? _createdAt,
@@ -274,6 +304,20 @@ class OrderData {
 
   dynamic get deliveryman => _deliveryman;
 
+  /// The assigned driver's readable name, when the backend served one
+  /// (`get_seller_order_details`); null on list rows and on orders with
+  /// nobody assigned.
+  String? get deliverymanName => _deliverymanName;
+
+  /// This order was placed for DELIVERY and handed to the customer over
+  /// the counter instead (section 43).
+  bool get collectedInPerson => _collectedInPerson ?? false;
+
+  /// How much delivery fee went back to the customer's wallet on that
+  /// conversion. Zero when a driver had already been dispatched — then
+  /// the fee is kept and pays his callout.
+  num get collectFeeRefunded => _collectFeeRefunded ?? 0;
+
   String? get deliveryDate => _deliveryDate;
 
   String? get deliveryTime => _deliveryTime;
@@ -320,6 +364,9 @@ class OrderData {
     map['delivery_fee'] = _deliveryFee;
     map['otp'] = _otp;
     map['deliveryman'] = _deliveryman;
+    map['deliveryman_name'] = _deliverymanName;
+    map['collected_in_person'] = _collectedInPerson;
+    map['collect_fee_refunded'] = _collectFeeRefunded;
     map['delivery_date'] = _deliveryDate;
     map['delivery_time'] = _deliveryTime;
     map['created_at'] = _createdAt;

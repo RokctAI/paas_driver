@@ -37,7 +37,11 @@ class CanceledOrdersNotifier extends StateNotifier<CanceledOrdersState> {
   CanceledOrdersNotifier(this._ordersRepository)
       : super(const CanceledOrdersState());
 
-  Future<void> fetchCanceledOrders({bool isRefresh = false}) async {
+  Future<void> fetchCanceledOrders({
+    bool isRefresh = false,
+    String? from,
+    String? to,
+  }) async {
     if (isRefresh) {
       _page = 0;
       _hasMore = true;
@@ -51,6 +55,8 @@ class CanceledOrdersNotifier extends StateNotifier<CanceledOrdersState> {
     final response = await _ordersRepository.getOrders(
       status: OrderStatus.canceled,
       page: ++_page,
+      from: from,
+      to: to,
     );
     response.when(
       success: (data) {

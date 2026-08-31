@@ -17,10 +17,16 @@ dependencies:
   get_it: ^8.0.0
   intl: ^0.19.0
   pull_to_refresh: ^2.0.0
+  # Icons of the approved dark language (same pin family as products_sdk
+  # ^1.4.1 / paas_manager ^1.2.0).
+  remixicon: ^1.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # Widget tests host LocalStorage on the shared_preferences mock, the same
+  # harness the sibling SDKs' tests use (screenutil is a main dependency).
+  shared_preferences: ^2.2.0
 
 dependency_overrides:
   http: ^1.2.0

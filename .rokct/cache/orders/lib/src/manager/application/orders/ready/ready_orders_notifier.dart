@@ -38,6 +38,8 @@ class ReadyOrdersNotifier extends StateNotifier<ReadyOrdersState> {
     RefreshController? refreshController,
     bool isRefresh = false,
     Function(int)? updateTotal,
+    String? from,
+    String? to,
   }) async {
     if (isRefresh) {
       _page = 0;
@@ -54,6 +56,8 @@ class ReadyOrdersNotifier extends StateNotifier<ReadyOrdersState> {
     final response = await _ordersRepository.getOrders(
       status: OrderStatus.ready,
       page: ++_page,
+      from: from,
+      to: to,
     );
     response.when(
       success: (data) {

@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.42.0",
+      "version": "1.51.0",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -97,7 +97,14 @@
         "lib/presentation/app_widget.dart": "62f1af87c3896e1bb9e92b8543fb2636635b2565758090d3ffacd7b47ffab217",
         "lib/presentation/routes/app_router.dart": "a3f4d5db5deab2ef09734b3d48a22957c96906a14368ea452c594ed92c6a0411",
         "lib/presentation/routes/route_pages.dart": "49d80533970d4eec6fdc9e5e938f42cb9534a34e364ab0c5f00521dbea44ba46",
-        "android/app/src/main/kotlin/com/app/demo/JuvoApplication.kt": "18870e8ca0b87482d3ad45fecc6211762fde11d19fd46791aba40a49b4d31d07"
+        "android/app/src/main/kotlin/com/app/demo/JuvoApplication.kt": "18870e8ca0b87482d3ad45fecc6211762fde11d19fd46791aba40a49b4d31d07",
+        "android/app/src/main/res/xml/backup_rules.xml": "a977a3552bb8c4facc634f4060ce11d623366bc310f5b119d390feb51b2f9409",
+        "android/app/src/main/res/xml/data_extraction_rules.xml": "ea351530e8fc2c342abc9798bca781ab3cabb9245b328b32ea113ed6bf1531ac",
+        "android/app/src/main/kotlin/com/app/demo/RestoreCredentialBridge.kt": "623f61a4aba5ec0798c632f11f0d218eed2e50dbedb63e75c3b22502203decd1",
+        "android/app/src/main/kotlin/com/app/demo/DeviceMemoryBridge.kt": "40ddee5aafb84b0933ca392055f9bf8eb94a3da9ba7badfaafc4bdba604f08bc",
+        "android/app/src/main/kotlin/com/app/demo/RokctBackupAgent.kt": "626d4f65db2c83b0153a732d222dab5376211e3c978ae7b848fc97b0eeffe1b7",
+        "assets/audio/tap.wav": "577a7e6beb2958269cc5daecb2529cad154ba9cebe5eff988530affb9aff5eb0",
+        "assets/audio/wrong.wav": "a2352725dcffd5505dec676a26db5ef2f299cb5ae4340a91ecd1cef55637223f"
       },
       "routes": [
         {
@@ -177,6 +184,8 @@
       "embedded_widgets": [],
       "registration_steps": [],
       "app_assets": [
+        "assets/audio/tap.wav",
+        "assets/audio/wrong.wav",
         "assets/images/app_logo.png",
         "assets/images/card.png",
         "assets/images/cardBg.png",
@@ -240,7 +249,7 @@
       "boot_hooks": []
     },
     "orders_sdk": {
-      "version": "1.10.0",
+      "version": "1.13.0",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -251,14 +260,14 @@
       "boot_hooks": []
     },
     "delivery_sdk": {
-      "version": "1.12.0",
+      "version": "1.13.0",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "9eb1d9ff6604172074536e70899a7f3671c0ed74c0fbe845994e5b217c7e23ad",
         "lib/presentation/routes/delivery_adapters.dart": "c5a4dd185b09f282e9d620adc46a6796cad56441e8d0def12e2745c05f38cfef",
         "lib/presentation/pages/home/parcel_bottom_sheet.dart": "84975a7bf86cf29eadecabfefc91989ad35c643ae7271b9930507f6c15446198",
         "lib/presentation/pages/home/bottom_sheet_screen.dart": "88527a53ecb6a7ca4578bf598f98d210aa787f4e1044b29209a65149d04103da",
         "lib/presentation/pages/home/home_page.dart": "922748879e7e3fa1d70ff0c138ff8299ac6b49091f9f66ba0b3d449c687c0a40",
-        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "f58035707fc561337f73e3e3b0812cfb434bd44cbb49d0b31962fab9de4b17d3",
+        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "c62a44942c4ed7b9f6045a8e6c07f3938f963d0599fd26b44cfa19d1d4dd74d1",
         "lib/presentation/pages/home/widgets/outside_painter.dart": "b4c82549574c72b17ca94870b9469f4c471958a734a96471cf0ebec1b7cda8a3",
         "lib/presentation/pages/home/widgets/rate_customer.dart": "f46cdce7f88860fd2f32f49686170a7ecfb18776feb67c51c0ed3edfbe15275a",
         "lib/presentation/pages/home/widgets/stores.dart": "93823d4f560366f6b5ca057cd6ce631334304f8ea620ac0b4378254680048170",
@@ -441,7 +450,9 @@
         "codConfirmed": "cod.confirmed",
         "collectFromRecipient": "collect.from.recipient",
         "completeCheckout": "complete_checkout",
+        "amountMatchesExpected": "amount.matches.the.expected.total",
         "confirmPasswordDoesntMatchWithNewPassword": "confirm_password_doesnt_matches_with_new_password",
+        "countIt": "count.it",
         "deliveredOrder": "delivered_order",
         "entr": "entr",
         "evaluation": "evaluation",
@@ -461,7 +472,9 @@
         "orderInformation": "order_information",
         "rateTheCustomer": "rate_the_customer",
         "recordAsCredit": "record.as.credit",
+        "overExpected": "over.the.expected",
         "restaurantHome": "restauran_home",
+        "shortOf": "short.of.the.expected",
         "startShopping": "start_shopping",
         "statusNote": "status.note",
         "telAdmin": "tel.admin",
@@ -492,7 +505,7 @@
       ]
     },
     "comms_sdk": {
-      "version": "1.12.0",
+      "version": "1.13.0",
       "files": {
         "lib/application/notification/notification_state.dart": "9c656e1bc05122717549b9f72a3d143f59eabbb817791afc87fcf2f5a9a15f15",
         "lib/application/notification/notification_notifier.dart": "58505bc713d9551826894f0fa31cd38acb02b4653c11f524c13ff23d1a11deb0",
@@ -601,7 +614,7 @@
       "boot_hooks": []
     },
     "zones_sdk": {
-      "version": "1.4.0",
+      "version": "1.5.0",
       "files": {
         "lib/presentation/pages/profile/delivery_zone/delivery_zone_page.dart": "d9425b46abe1f31742317ef7be5e99aa2504e2851c9759422bde6bb4851271c2",
         "lib/presentation/routes/zones_adapters.dart": "f995df5977e0bd87ffc7b31fe8b9d1c80e3b52660bc504be10a8f52d448df2b0"
@@ -629,13 +642,40 @@
           ]
         }
       ],
-      "boot_hooks": []
+      "boot_hooks": [
+        {
+          "id": "zones-en-bundled-translations",
+          "order": 64,
+          "body": "BundledTranslations.register('en', kZonesEnTranslations);",
+          "imports": [
+            "import 'package:base_sdk/src/services/bundled_translations.dart';",
+            "import 'package:zones_sdk/src/translations/zones_en_translations.dart';"
+          ],
+          "_comment": "Registers this SDK's bundled English map for its manifest tr_keys into base_sdk's BundledTranslations registry at boot (weather_sdk's af pattern, applied to en). Needed because the approved section-39 zone-editor copy carries punctuation and casing the humanized-key fallback cannot reproduce. Backend-served translation rows still win; the map is only the offline/unseeded fallback consulted before the humanized-key fallback. Top-level (not app_type-gated) because translations are role-agnostic."
+        }
+      ],
+      "tr_keys": {
+        "drawing": "drawing",
+        "points": "points",
+        "pointsPlaced": "points.placed",
+        "shapeNotClosedYet": "shape.not.closed.yet",
+        "km2": "km2",
+        "covered": "covered",
+        "whereThisShopDelivers": "where.this.shop.delivers",
+        "tapMapNewPointsExtendShape": "tap.the.map.to.add.a.point.new.points.extend.the.shape",
+        "tapMapSaveUnlocksAt4": "tap.the.map.to.add.a.point.save.unlocks.at.4",
+        "undoLastPoint": "undo.last.point",
+        "saveDeliveryZone": "save.delivery.zone",
+        "oneMorePointToCloseTheShape": "1.more.point.to.close.the.shape",
+        "twoMorePointsToCloseTheShape": "2.more.points.to.close.the.shape",
+        "threeMorePointsToCloseTheShape": "3.more.points.to.close.the.shape"
+      }
     },
     "revenue_sdk": {
-      "version": "1.5.0",
+      "version": "1.9.0",
       "files": {
         "lib/presentation/pages/income/statistics_screen.dart": "f41d8b0c72b30e5166165e07212fcaea025d1319f9d442084424d05c9fa084e2",
-        "lib/presentation/pages/income/income_page.dart": "198046ee51a8c945c36e9b5700ca042bfbc16bc6f93ddf45ec24619a8ee4b3ae",
+        "lib/presentation/pages/income/income_page.dart": "d9f6e16086834af68c6bf1428a0ff2f9b7efcb0004fa15b1217eae6bc9834f92",
         "lib/presentation/pages/income/app_bar_screen.dart": "e698ed9a113ab4ef0e7fbb9d2e3db1cf07e534bcc19109544edb39d7067bf91a",
         "lib/presentation/pages/income/widgets/statistics_item.dart": "4fc5d7dd6ae881973b036506a8b6922dc0a160449df6b794a7fce7f386198174",
         "lib/presentation/pages/income/widgets/income_item.dart": "3ce7ec5d2096cdd2b00957a7efc0aa85dba7593e6c4ca193277a886d435304b9"
@@ -669,7 +709,7 @@
       }
     },
     "merchants_sdk": {
-      "version": "1.13.1",
+      "version": "1.20.0",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
         "lib/presentation/pages/stores/story_page.dart": "7e22f32e7e6df8f6a4bfb697987d9b26ad58755642eab7535c321f569208abf7"
@@ -703,7 +743,7 @@
       }
     },
     "products_sdk": {
-      "version": "1.5.0",
+      "version": "1.6.0",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -714,9 +754,9 @@
       "boot_hooks": []
     },
     "calc_sdk": {
-      "version": "1.0.1",
+      "version": "1.1.0",
       "files": {
-        "lib/presentation/pages/calc/calculator_page.dart": "b112fa519e0fe405915cf8cf69ec3796c24bca885f1f0ff44606a39f0e72b1f0"
+        "lib/presentation/pages/calc/calculator_page.dart": "8d6105c1ada2c2fa43f28b650207ccdc26a6c8bd4c9f95b0c7a87571514caf7d"
       },
       "routes": [
         {
@@ -731,7 +771,15 @@
       "registration_steps": [],
       "embedded_widgets": [],
       "di_hooks": [],
-      "boot_hooks": []
+      "boot_hooks": [],
+      "tr_keys": {
+        "calculator": "calculator",
+        "tape": "tape",
+        "clearTheTape": "clear_the_tape",
+        "tapeKeepsLast10": "the_tape_keeps_the_last_10_calculations",
+        "useAsTheAmount": "use_{amount}_as_the_amount",
+        "fillsTheAmountNeverTheCart": "fills_the_amount_display_it_never_touches_the_cart"
+      }
     },
     "auth_sdk": {
       "version": "1.9.1",
@@ -888,7 +936,7 @@
       ]
     },
     "desktop_sdk": {
-      "version": "1.1.1",
+      "version": "1.2.0",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -912,12 +960,12 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.42.0",
-      "hash": "07a742e1465d131c"
+      "version": "1.51.0",
+      "hash": "fbcdcfe84954a4d6"
     },
     "comms": {
-      "version": "1.12.0",
-      "hash": "0608f1252da820d4"
+      "version": "1.13.0",
+      "hash": "d4cfe9139bb38af5"
     },
     "auth": {
       "version": "1.9.1",
@@ -928,44 +976,44 @@
       "hash": "53b6b5a46cb8187f"
     },
     "orders": {
-      "version": "1.10.0",
-      "hash": "46e2c512de62f657"
+      "version": "1.13.0",
+      "hash": "2a62494a623fc466"
     },
     "merchants": {
-      "version": "1.13.1",
-      "hash": "42100e964a353c7f"
+      "version": "1.20.0",
+      "hash": "ed5b37db2fb65cd7"
     },
     "products": {
-      "version": "1.5.0",
-      "hash": "1a664bbfa87ed834"
+      "version": "1.6.0",
+      "hash": "86dbce25d8f8062c"
     },
     "delivery": {
-      "version": "1.12.0",
-      "hash": "cb942bd8463895e5"
+      "version": "1.13.0",
+      "hash": "619d64d2ae09dd0c"
     },
     "map": {
       "version": "1.2.0",
       "hash": "2b0284e0ce799521"
     },
     "zones": {
-      "version": "1.4.0",
-      "hash": "0db5cacf84b81a59"
+      "version": "1.5.0",
+      "hash": "c4125872260ed4cf"
     },
     "processing": {
       "version": "1.0.1",
       "hash": "a547adc9e15d961c"
     },
     "calc": {
-      "version": "1.0.1",
-      "hash": "4b342062ee23dfaf"
+      "version": "1.1.0",
+      "hash": "91bde72f54c94f99"
     },
     "corporate": {
       "version": "1.1.2",
       "hash": "1a56d3b907707222"
     },
     "revenue": {
-      "version": "1.5.0",
-      "hash": "b2330f3a165247a2"
+      "version": "1.9.0",
+      "hash": "a1ec277543d9145f"
     },
     "weather": {
       "version": "1.6.0",
@@ -976,8 +1024,8 @@
       "hash": "b02abafb5e19f40d"
     },
     "desktop": {
-      "version": "1.1.1",
-      "hash": "f89d6e3d39a2d809"
+      "version": "1.2.0",
+      "hash": "d3cb813ce7daee1e"
     },
     "telemetry": {
       "version": "1.0.0",

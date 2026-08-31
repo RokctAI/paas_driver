@@ -39,7 +39,11 @@ class DeliveredOrdersNotifier extends StateNotifier<DeliveredOrdersState> {
   DeliveredOrdersNotifier(this._ordersRepository)
       : super(const DeliveredOrdersState());
 
-  Future<void> fetchDeliveredOrders({bool isRefresh = false}) async {
+  Future<void> fetchDeliveredOrders({
+    bool isRefresh = false,
+    String? from,
+    String? to,
+  }) async {
     if (isRefresh) {
       _page = 0;
       _hasMore = true;
@@ -53,6 +57,8 @@ class DeliveredOrdersNotifier extends StateNotifier<DeliveredOrdersState> {
     final response = await _ordersRepository.getOrders(
       status: OrderStatus.delivered,
       page: ++_page,
+      from: from,
+      to: to,
     );
     response.when(
       success: (data) {

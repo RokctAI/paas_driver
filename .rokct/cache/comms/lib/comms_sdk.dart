@@ -23,5 +23,10 @@ library comms_sdk;
 
 // Import concrete files via package:comms_sdk/src/common/...
 export 'src/common/di/comms_di.dart';
+
+// The standard list language on the manager notification list (approved
+// design strip frame 38b, Ray 2026-08-30 12:23Z): the All/Unread
+// read-state filter and the shipped row + unread dot, in the 33 dress.
+export 'src/common/presentation/notifications/notification_list_language.dart';
 export 'src/common/local_notifications.dart';
 export 'src/common/services/desktop_notification_poller.dart';

@@ -24,6 +24,7 @@ import 'package:orders_sdk/src/manager/domain/interface/pos_products.dart';
 import 'package:orders_sdk/src/manager/domain/interface/seller_orders.dart';
 import 'package:orders_sdk/src/manager/infrastructure/repositories/pos_products_repository.dart';
 import 'package:orders_sdk/src/manager/infrastructure/repositories/seller_orders_repository.dart';
+import 'package:orders_sdk/src/manager/infrastructure/services/collect_conversion_sync_handler.dart';
 import 'package:orders_sdk/src/manager/infrastructure/services/order_create_sync_handler.dart';
 
 /// Manager-role DI hook (revenue_sdk's `ManagerRevenueDependencies` pattern).
@@ -67,6 +68,13 @@ class ManagerOrdersDependencies {
     engine.registerHandler(
       OrderCreateSyncHandler.opType,
       OrderCreateSyncHandler(),
+    );
+    // ... and the collected-in-person conversion (section 43): the goods
+    // go over the counter offline too, so the conversion itself has to be
+    // able to run later. A backend refusal parks in Sync issues.
+    engine.registerHandler(
+      CollectConversionSyncHandler.opType,
+      CollectConversionSyncHandler(),
     );
   }
 }

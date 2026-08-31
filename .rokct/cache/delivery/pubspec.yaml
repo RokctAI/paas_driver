@@ -13,6 +13,11 @@ dependencies:
   # Driver-template deps migrated from paas_driver's host pubspec: templates/
   # is installed into the host's generated lib/ and compiles host-side, so the
   # host keeps its copies too (workmanager precedent below).
+  # The driver's cash step opens /calc BY ROUTE PATH (design strip
+  # section 45, chip 845) - route navigation only, so this SDK still
+  # never imports calc_sdk (ADR-005). Previously reached transitively
+  # through base_sdk; declared now that lib/ uses it directly.
+  auto_route: ^9.2.0
   auto_size_text: ^3.0.0
   calendar_date_picker2: ^1.1.5
   dio: ^5.7.0

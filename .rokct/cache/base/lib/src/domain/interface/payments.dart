@@ -59,6 +59,12 @@ abstract class PaymentsRepositoryFacade {
     String? cardType,
   ]);
 
+  /// Charge a saved card for [orderBody].
+  ///
+  /// The second argument is the Saved Card docname -- `SavedCardModel.id`,
+  /// the `name` returned by `getSavedCards` / `tokenizeCard` -- not a
+  /// gateway reuse credential. The credential is server-side only and is
+  /// resolved there; a caller that sends one is refused without charging.
   Future<ApiResult<String>> processTokenPayment(
     OrderBodyData orderBody,
     String token,

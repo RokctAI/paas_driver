@@ -1,14 +1,26 @@
+# Play's Feb 2027 DEX-optimization requirement needs R8 optimization on
+# (build.gradle uses proguard-android-optimize.txt, which omits the
+# -dontoptimize that proguard-android.txt sets). A bare `-keep` blocks
+# shrinking, optimization AND obfuscation for the matched classes, so the
+# broad keeps below were also silently opting their code out of
+# optimization. The `allowoptimization` modifier keeps every matched class
+# and member present under its original name -- which is the only thing
+# these rules were ever protecting (plugin registration and name-based
+# reflection) -- while letting R8 optimize the method bodies. Do not drop
+# the modifier without re-checking the r8.json optimization percentage in
+# BUNDLE-METADATA/com.android.tools/.
+
 # Keep device_info plugin classes
--keep class io.flutter.plugins.deviceinfo.** { *; }
+-keep,allowoptimization class io.flutter.plugins.deviceinfo.** { *; }
 
 # Keep plugin classes in general
--keep class io.flutter.plugins.** { *; }
--keep class io.flutter.plugin.**  { *; }
+-keep,allowoptimization class io.flutter.plugins.** { *; }
+-keep,allowoptimization class io.flutter.plugin.**  { *; }
 
 # Additional common rules for Flutter apps
--keep class androidx.lifecycle.** { *; }
--keep class androidx.core.** { *; }
--keep class androidx.fragment.** { *; }
+-keep,allowoptimization class androidx.lifecycle.** { *; }
+-keep,allowoptimization class androidx.core.** { *; }
+-keep,allowoptimization class androidx.fragment.** { *; }
 
 # Optional HMS/EMUI and BouncyCastle paths referenced by Huawei SDKs but not
 # bundled; guarded at runtime, so suppress R8's missing-class errors.

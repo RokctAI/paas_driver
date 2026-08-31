@@ -1,6 +1,6 @@
 {
   "name": "delivery_sdk",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "home_sdk": true,
   "home_page": "templates/pages/driver/home/home_page.dart",
   "installs": [
@@ -299,7 +299,9 @@
         "codConfirmed": "cod.confirmed",
         "collectFromRecipient": "collect.from.recipient",
         "completeCheckout": "complete_checkout",
+        "amountMatchesExpected": "amount.matches.the.expected.total",
         "confirmPasswordDoesntMatchWithNewPassword": "confirm_password_doesnt_matches_with_new_password",
+        "countIt": "count.it",
         "deliveredOrder": "delivered_order",
         "entr": "entr",
         "evaluation": "evaluation",
@@ -319,7 +321,9 @@
         "orderInformation": "order_information",
         "rateTheCustomer": "rate_the_customer",
         "recordAsCredit": "record.as.credit",
+        "overExpected": "over.the.expected",
         "restaurantHome": "restauran_home",
+        "shortOf": "short.of.the.expected",
         "startShopping": "start_shopping",
         "statusNote": "status.note",
         "telAdmin": "tel.admin",

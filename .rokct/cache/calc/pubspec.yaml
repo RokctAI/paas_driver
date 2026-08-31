@@ -1,6 +1,6 @@
 name: calc_sdk
 description: "Standalone calculator (keypad, chained operators, history, memory keys) shared by the manager and driver compositions."
-version: 1.0.0
+version: 1.1.0
 publish_to: 'none'
 environment:
   sdk: '>=3.10.0 <4.0.0'
@@ -10,6 +10,21 @@ dependencies:
     sdk: flutter
   flutter_riverpod: ^2.5.1
   get_it: ^8.0.0
+  # Section 45 puts the calculator on the fleet's own surface: AppStyle
+  # tokens (it was the last screen on raw hex), the plane mechanism,
+  # the corner back pill, the translation helper and - the point of
+  # frame 45f - KeySound, so the pad stops being the one silent keypad
+  # in the fleet.
+  base_sdk:
+    path: ../base
+  flutter_screenutil: ^5.9.0
+  remixicon: ^1.2.0
+
+# Workspace-relative overrides so this package resolves standalone for
+# codegen/analysis. Ignored when a host app is the resolution root.
+dependency_overrides:
+  base_sdk:
+    path: ../../../core/base/dart
 dev_dependencies:
   flutter_test:
     sdk: flutter

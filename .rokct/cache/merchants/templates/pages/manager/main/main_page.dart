@@ -32,11 +32,13 @@ import 'package:${package}/presentation/theme/theme.dart';
 // Tab pages and create-modals install from their owning SDKs into these host
 // paths: merchants_sdk -> the POS billing tab (pages/billing) and the
 // restaurant tab, orders_sdk -> pages/orders + the ManagerCreateOrderRoute
-// create-order flow, products_sdk -> pages/foods (+ create modals). This
-// shell compiles once those app_type.manager installs have landed alongside
-// it in the composed app.
+// create-order flow, kitchen_sdk -> pages/kitchen (the approved Kitchen
+// screen, kitchen_sdk >= 1.3.0), products_sdk -> pages/foods (+ create
+// modals). This shell compiles once those app_type.manager installs have
+// landed alongside it in the composed app.
 import 'package:${package}/presentation/pages/billing/billing_page.dart';
 import 'package:${package}/presentation/pages/orders/orders_home_page.dart';
+import 'package:${package}/presentation/pages/kitchen/kitchen_page.dart';
 import 'package:${package}/presentation/pages/foods/foods_page.dart';
 import 'package:${package}/presentation/pages/foods/create/create_product_modal.dart';
 import 'package:${package}/presentation/pages/foods/addons/create/create_addon_modal.dart';
@@ -69,10 +71,14 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   // POS first (approved strip section 11): a store owner/manager lands on
   // the till scanner when they open the app. The order queue moved to
-  // index 1 — orders_sdk's tour fragment tracks the shift.
+  // index 1 — orders_sdk's tour fragment tracks the shift. Kitchen sits
+  // at index 2 beside the queue (the approved manager Kitchen screen,
+  // kitchen_sdk 1.3.0 frames 34a–34d); foods and the restaurant tab
+  // shifted one right — the kitchen/products tour fragments track it.
   List<IndexedStackChild> list = [
     IndexedStackChild(child: const BillingPage(), preload: true),
     IndexedStackChild(child: const OrdersHomePage(), preload: true),
+    IndexedStackChild(child: const KitchenHomePage(), preload: false),
     IndexedStackChild(child: const FoodsPage(), preload: false),
     IndexedStackChild(child: const RestaurantPage(), preload: false),
   ];
@@ -228,16 +234,25 @@ class _MainPageState extends State<MainPage> {
                               selectIcon: Remix.file_list_2_fill,
                               unSelectIcon: Remix.file_list_2_line,
                             ),
+                            // Kitchen (kitchen_sdk 1.3.0, approved 34a-d).
                             BottomNavigatorItem(
                               isScrolling: state.isScrolling,
                               selectItem: () => event.selectIndex(2),
                               index: 2,
                               currentIndex: state.selectedIndex,
+                              selectIcon: Remix.bowl_fill,
+                              unSelectIcon: Remix.bowl_line,
+                            ),
+                            BottomNavigatorItem(
+                              isScrolling: state.isScrolling,
+                              selectItem: () => event.selectIndex(3),
+                              index: 3,
+                              currentIndex: state.selectedIndex,
                               selectIcon: Remix.restaurant_fill,
                               unSelectIcon: Remix.restaurant_line,
                             ),
                             _profileItem(() {
-                              event.selectIndex(3);
+                              event.selectIndex(4);
                               event.changeScrolling(false);
                             }, state.selectedIndex),
                           ],
@@ -246,10 +261,13 @@ class _MainPageState extends State<MainPage> {
                     ),
                   ),
                   // Create FAB only on the tabs with something to create:
-                  // 1 orders (create order), 2 foods (create modals). The
-                  // POS till (0) creates through the scanner and the
-                  // restaurant tab (3) creates nothing.
-                  state.selectedIndex == 1 || state.selectedIndex == 2
+                  // 1 orders (create order). The POS till (0) creates
+                  // through the scanner; the kitchen (2) and restaurant
+                  // (4) tabs create nothing; foods (3) carries its own
+                  // "+ New product" header action now (products_sdk 1.6.0,
+                  // approved frames 35a/35c — no FAB in the floating-nav
+                  // language).
+                  state.selectedIndex == 1
                       ? ButtonsBouncingEffect(
                           child: Hero(
                             tag: AppConstants.heroTagAddOrderButton,
@@ -324,7 +342,7 @@ class _MainPageState extends State<MainPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Same destinations as the bottom pill: POS till first,
-                  // then the queue, foods, and the shop profile.
+                  // then the queue, kitchen, foods, and the shop profile.
                   BottomNavigatorItem(
                     isScrolling: state.isScrolling,
                     selectItem: () => event.selectIndex(0),
@@ -341,17 +359,26 @@ class _MainPageState extends State<MainPage> {
                     selectIcon: Remix.file_list_2_fill,
                     unSelectIcon: Remix.file_list_2_line,
                   ),
+                  // Kitchen (kitchen_sdk 1.3.0, approved 34a-d).
                   BottomNavigatorItem(
                     isScrolling: state.isScrolling,
                     selectItem: () => event.selectIndex(2),
                     index: 2,
+                    currentIndex: state.selectedIndex,
+                    selectIcon: Remix.bowl_fill,
+                    unSelectIcon: Remix.bowl_line,
+                  ),
+                  BottomNavigatorItem(
+                    isScrolling: state.isScrolling,
+                    selectItem: () => event.selectIndex(3),
+                    index: 3,
                     currentIndex: state.selectedIndex,
                     selectIcon: Remix.restaurant_fill,
                     unSelectIcon: Remix.restaurant_line,
                   ),
                   _profileItem(
                     () {
-                      event.selectIndex(3);
+                      event.selectIndex(4);
                       event.changeScrolling(false);
                     },
                     state.selectedIndex,
@@ -364,9 +391,9 @@ class _MainPageState extends State<MainPage> {
             ),
           ),
         ),
-        // Create FAB only on tabs 1 (orders) and 2 (foods) — same rule as
-        // the bottom pill's button.
-        state.selectedIndex == 1 || state.selectedIndex == 2
+        // Create FAB only on tab 1 (orders) — same rule as the bottom
+        // pill's button (foods carries its own header action now).
+        state.selectedIndex == 1
             ? ButtonsBouncingEffect(
                 child: Hero(
                   // Only ever mounted INSTEAD of the bottom pill's
@@ -440,7 +467,8 @@ class _MainPageState extends State<MainPage> {
         margin: margin ?? EdgeInsets.only(left: 12.r),
         decoration: BoxDecoration(
           border: Border.all(
-            color: index == 3 ? AppStyle.primary : AppStyle.transparent,
+            // The shop-profile tab moved to index 4 (kitchen took 2).
+            color: index == 4 ? AppStyle.primary : AppStyle.transparent,
             width: 2.w,
           ),
           shape: BoxShape.circle,

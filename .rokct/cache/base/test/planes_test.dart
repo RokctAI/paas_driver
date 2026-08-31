@@ -283,7 +283,7 @@ void main() {
       );
     }
 
-    testWidgets('sits at the bottom-START corner and pops on tap',
+    testWidgets('sits at the bottom-END corner and pops on tap',
         (tester) async {
       var popped = 0;
       await pumpWithBack(
@@ -292,16 +292,17 @@ void main() {
         () => popped++,
       );
       expect(find.byType(FloatingBackPill), findsOneWidget);
-      // The corner, not the center: 16 logical in from the start (left
-      // in LTR) and bottom edges.
+      // The corner, not the center — END per the approved 4c ruling
+      // ("back be on the right"): 16 logical in from the end (right in
+      // LTR) and bottom edges.
       final rect = tester.getRect(find.byType(FloatingBackPill));
-      expect(rect.left, moreOrLessEquals(16, epsilon: 0.5));
+      expect(rect.right, moreOrLessEquals(900 - 16, epsilon: 0.5));
       expect(rect.bottom, moreOrLessEquals(600 - 16, epsilon: 0.5));
       await tester.tap(find.text('Back'));
       expect(popped, 1);
     });
 
-    testWidgets('the corner is directional — trailing right in RTL',
+    testWidgets('the corner is directional — leading left in RTL',
         (tester) async {
       await pumpWithBack(
         tester,
@@ -310,7 +311,7 @@ void main() {
         textDirection: TextDirection.rtl,
       );
       final rect = tester.getRect(find.byType(FloatingBackPill));
-      expect(rect.right, moreOrLessEquals(900 - 16, epsilon: 0.5));
+      expect(rect.left, moreOrLessEquals(16, epsilon: 0.5));
       expect(rect.bottom, moreOrLessEquals(600 - 16, epsilon: 0.5));
     });
 

@@ -1,3 +1,45 @@
+## 1.13.0
+
+* Gate 3 of design strip section 45 — the deliveryman's cash step
+  (frame 45d, chips 844/845/846, canonical 390). The cash-collection
+  dialog was a WHITE alert dialog driving the OS keyboard
+  (`AppStyle.white`, `AppStyle.black` buttons, an
+  `UnderlinedBorderTextField` on `numberWithOptions(decimal: true)`) —
+  the last money-entry surface in the fleet not on chip 390, on the one
+  screen where a driver is one-handed in the sun.
+  * **844** — `CashCollectionSheet` (`lib/src/driver/presentation/
+    widgets/cash_collection_sheet.dart`): a dark bottom sheet in the
+    fleet language — drag handle, order header, the shipped
+    Cash-to-collect card, the amount question (the same
+    `TrKeys.howMuchCashReceived` string), a NON-FOCUSABLE amount
+    read-out, base_sdk's `MoneyKeypad` in place of the text field, then
+    Confirm / Record as credit. Living in `lib/` rather than in the
+    installed template puts the whole surface under CI, which excludes
+    `templates/**` fleet-wide.
+  * **845** — the "Count it" step: a small primary-tinted chip beside
+    the read-out that opens `/calc?pick=true` and drops the
+    calculator's total into the entry. Navigation is BY ROUTE PATH, so
+    delivery_sdk still never imports calc_sdk (ADR-005), and a
+    composition on a calc_sdk older than 1.1.0 simply gets null back
+    and the driver keeps typing.
+  * **846** — the delta line: red-washed while the count is short,
+    green once it is exact or over. DERIVED in the widget from the
+    `order.totalPrice` already on the sheet minus what is typed — the
+    server stays the authority on the expected amount.
+  * Behaviour around it is untouched: the same
+    `confirmCodCollection` -> `confirm_cod_collection {order_id,
+    amount_received}` and, gated on `can_convert_cod_to_credit`, the
+    same `convertCodToCredit` -> `convert_cod_to_credit`, with the same
+    success paths into `_finishDelivery`.
+  * `auto_route` is now a declared dependency (route-path navigation
+    from `lib/`; it was previously reached transitively through
+    base_sdk). Four new driver `tr_keys`: countIt, shortOf,
+    overExpected, amountMatchesExpected.
+  * FOLLOW-UP, deliberately out of scope: the `RateCustomer` sheet that
+    follows this one is still `isDarkMode: false`, and the cancel
+    dialog is still a white alert — the same light-surface debt,
+    flagged on frame 45d and left alone here.
+
 ## 1.12.0
 
 * Floating-nav back conversion (approved design strip section 12, "no

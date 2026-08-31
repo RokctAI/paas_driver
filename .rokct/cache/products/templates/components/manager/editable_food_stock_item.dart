@@ -25,11 +25,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:products_sdk/src/common/infrastructure/models/data/seller_extras.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_stock.dart';
 import 'package:products_sdk/src/manager/utils/seller_form_helpers.dart';
 import 'package:base_sdk/src/presentation/components/text_fields/underlined_text_field.dart';
 import 'package:${package}/presentation/pages/main/widgets/buttons_bouncing_effect.dart';
 
+/// One STOCK VARIANT card of the approved edit form (frame 35b's variant
+/// cards): the variant label derived from the extras combination that made
+/// the row ("STANDARD · CHAKALAKA" — the shipped rows were unlabelled; the
+/// label is the approved dress, the fields are the shipped fields), then
+/// price* / quantity* / SKU and the per-variant add-ons door. Delete rides
+/// the header on every row but the first (the shipped `isDeletable` rule).
 class EditableFoodStockItem extends StatelessWidget {
   final SellerStock stock;
   final Function(String) onPriceChange;
@@ -50,17 +57,69 @@ class EditableFoodStockItem extends StatelessWidget {
     required this.onSkuChange,
   });
 
+  /// "STANDARD · CHAKALAKA" from the row's extras values; null when the
+  /// product has no variants (the row IS the product).
+  String? get _variantLabel {
+    final List<SellerExtras> extras = stock.extras ?? const [];
+    final values = [
+      for (final extra in extras)
+        if ((extra.value ?? '').isNotEmpty) extra.value!.toUpperCase(),
+    ];
+    return values.isEmpty ? null : values.join(' · ');
+  }
+
   @override
   Widget build(BuildContext context) {
+    final String? label = _variantLabel;
     return Container(
       decoration: BoxDecoration(
-        color: AppStyle.white,
+        color: AppStyle.cardDark,
         borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AppStyle.strokeDarkSubtle),
       ),
-      padding: REdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: REdgeInsets.symmetric(horizontal: 16, vertical: 12),
       margin: REdgeInsets.only(bottom: 8),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (label != null || isDeletable)
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    label ?? '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppStyle.interSemi(
+                      size: 13.sp,
+                      color: AppStyle.textPrimary,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ),
+                if (isDeletable)
+                  ButtonsBouncingEffect(
+                    child: GestureDetector(
+                      onTap: onDeleteStock,
+                      child: Container(
+                        width: 32.r,
+                        height: 32.r,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.r),
+                          color: AppStyle.cardDarkAlt,
+                          border: Border.all(color: AppStyle.strokeDark),
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(
+                          Remix.delete_bin_line,
+                          size: 16.r,
+                          color: AppStyle.textDarkSecondary,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -69,9 +128,8 @@ class EditableFoodStockItem extends StatelessWidget {
                   label: '${AppHelpers.getTranslation(TrKeys.price)}*',
                   inputType: TextInputType.number,
                   textInputAction: TextInputAction.next,
-                  initialText: stock.price == null
-                      ? ''
-                      : stock.price.toString(),
+                  initialText:
+                      stock.price == null ? '' : stock.price.toString(),
                   onChanged: onPriceChange,
                   validator: SellerFormValidators.emptyCheck,
                 ),
@@ -82,30 +140,12 @@ class EditableFoodStockItem extends StatelessWidget {
                   label: '${AppHelpers.getTranslation(TrKeys.quantity)}*',
                   inputType: TextInputType.number,
                   textInputAction: TextInputAction.next,
-                  initialText: stock.quantity == null
-                      ? ''
-                      : stock.quantity.toString(),
+                  initialText:
+                      stock.quantity == null ? '' : stock.quantity.toString(),
                   onChanged: onQuantityChange,
                   validator: SellerFormValidators.emptyCheck,
                 ),
               ),
-              if (isDeletable)
-                ButtonsBouncingEffect(
-                  child: GestureDetector(
-                    onTap: onDeleteStock,
-                    child: Container(
-                      width: 36.r,
-                      height: 36.r,
-                      margin: REdgeInsets.only(left: 10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6.r),
-                        color: AppStyle.bgGrey,
-                      ),
-                      alignment: Alignment.center,
-                      child: Icon(Remix.delete_bin_line, size: 18.r),
-                    ),
-                  ),
-                ),
             ],
           ),
           4.verticalSpace,
@@ -115,25 +155,6 @@ class EditableFoodStockItem extends StatelessWidget {
             initialText: stock.sku == null ? '' : stock.sku.toString(),
             onChanged: onSkuChange,
           ),
-          if (stock.extras != null && (stock.extras?.isNotEmpty ?? false))
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: stock.extras?.length,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.zero,
-              itemBuilder: (context, index) {
-                final extras = stock.extras?[index];
-                return Padding(
-                  padding: REdgeInsets.only(top: 16),
-                  child: UnderlinedTextField(
-                    label: '${extras?.group?.translation?.title}',
-                    initialText: extras?.value,
-                    readOnly: true,
-                    validator: SellerFormValidators.emptyCheck,
-                  ),
-                );
-              },
-            ),
           UnderlinedTextField(
             label: '',
             initialText: AppHelpers.getTranslation(TrKeys.addons),

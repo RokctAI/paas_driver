@@ -67,6 +67,14 @@ export 'src/presentation/components/helper/shop_bordered_avatar.dart';
 export 'src/presentation/components/loading/loading_list.dart';
 export 'src/presentation/components/loading/tab_bar_loading.dart';
 export 'src/presentation/components/text_fields/underlined_text_field.dart';
+export 'src/presentation/components/keypad/money_keypad.dart';
+
+// THE STANDARD LIST LANGUAGE (approved design strip section 38, Ray
+// 2026-08-30 12:23Z: "33 list language = STANDARD for all lists"). Its
+// consumers sit in three feature SDKs across two repos, and a feature SDK
+// may only import base_sdk (ADR-005) — so the language lives here.
+export 'src/presentation/components/lists/list_language.dart';
+export 'src/presentation/components/lists/list_plane_flow.dart';
 
 // Floating pill navigation (nav_floating.html recovered spec) + the generic
 // scroll-collapse state it reads (moved here from marketplace_sdk).
@@ -82,6 +90,7 @@ export 'src/presentation/components/floating_nav/floating_bottom_nav.dart';
 // open-ended list of SDK-injected sections. Feature SDKs register sections
 // and host-level actions on ProfileSectionRegistry.I at bootstrap
 // (typically from a manifest di_hooks entry — ADR-005).
+export 'src/presentation/pages/profile/edit_profile_sheet.dart';
 export 'src/presentation/pages/profile/generic_profile_page.dart';
 export 'src/presentation/pages/profile/profile_action_item.dart';
 export 'src/presentation/pages/profile/profile_section.dart';
@@ -103,7 +112,13 @@ export 'src/services/error_presenter.dart';
 export 'src/services/telemetry.dart';
 export 'src/services/timing_telemetry.dart';
 export 'src/services/app_helpers.dart';
+export 'src/services/key_sound.dart';
 export 'src/services/local_storage.dart';
+// Memory pressure + image cache sizing (Play's Feb 2027 memory thresholds)
+// and the Restore Credentials transport (Play's April 2027 Zero-Tap
+// Sign-In requirement).
+export 'src/services/memory_pressure_service.dart';
+export 'src/services/restore_credential_service.dart';
 export 'src/services/storage_keys.dart';
 export 'src/services/tr_keys.dart';
 export 'src/services/bundled_translations.dart';

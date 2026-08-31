@@ -34,13 +34,17 @@ import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/components/helper/common_image.dart';
+import 'package:base_sdk/src/presentation/components/keypad/money_keypad.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/key_sound.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_state.dart';
+import 'package:merchants_sdk/src/manager/application/quick_flow/quick_flow_provider.dart';
 import 'package:merchants_sdk/src/manager/domain/interface/pos_orders.dart';
+import 'package:merchants_sdk/src/manager/domain/interface/quick_flow.dart';
 import 'package:merchants_sdk/src/manager/utils/pos_connectivity.dart';
 import 'package:merchants_sdk/src/manager/utils/pos_pay_verification.dart';
 import 'package:merchants_sdk/src/manager/utils/pos_receipt_printer.dart';
@@ -58,6 +62,15 @@ import 'package:merchants_sdk/src/manager/utils/pos_receipt_printer.dart';
 //   * customer attach — the "Billing to" card (305) with the credit
 //     outstanding "owes" chip (306); REQUIRED before credit/partial
 //     unlocks (the debt lands on a real customer's wallet);
+//   * THE KEY PAD (chip 390, base_sdk MoneyKeypad — approved frames 11u
+//     tablet 2026-08-29 15:41Z and 11y phone 2026-08-30): the amount
+//     paying now is entered on OUR keypad (digits, the 00 money key, ⌫,
+//     the . | OK confirm row), never the OS keyboard — the amount
+//     display cannot focus. Every keypress plays the fleet key feedback
+//     (KeySound: paas_pos tap.wav + light haptic, default-ON gate);
+//     refusals play the wrong.wav error buzz. At plane widths the keys
+//     simply grow wider (11u's two-plane spread); on phone the pad is
+//     the 11y one-plane fold;
 //   * credit / partly-paid (11g/11h): "Amount paying now" (307) with the
 //     Full / R0-all-on-credit quick actions (308), the remainder-due
 //     banner (309) with the Shop.credit_allowance gate line (310), the
@@ -135,16 +148,36 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
   final TextEditingController _paidNowController = TextEditingController();
   String _prefilledForOrderId = '';
 
+  /// Calculator-entry freshness for the keypad (chip 390): while the
+  /// entry is "fresh" (just prefilled, quick-chipped or OK-confirmed)
+  /// the next digit/decimal REPLACES it instead of appending — the
+  /// paas_pos tender-pad feel; ⌫ edits in place.
+  bool _paidNowFresh = true;
+
   /// Send-for-delivery address (chip 314).
   String _address = '';
 
   /// A submit in flight — the finish buttons ignore re-taps.
   bool _finishing = false;
 
+  /// KEYPAD AUTODIAL (approved design strip section 42, frame 42c —
+  /// chips 806/807/808): the last preset a digit key dropped on the
+  /// ticket, for the result strip. Cleared when the ticket empties again.
+  QuickFlowPreset? _lastAutodial;
+
   @override
   void initState() {
     super.initState();
     unawaited(_probe());
+    // Autodial's arming condition is shop state, so the till has to know
+    // it before the first key press — a digit must never wait on the
+    // network. One read, shared with the Quick flow settings surface
+    // through the same provider.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!ref.read(quickFlowProvider).loaded) {
+        unawaited(ref.read(quickFlowProvider.notifier).load());
+      }
+    });
   }
 
   @override
@@ -231,9 +264,80 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       shopId: _shopId,
       sharedSecret: _sharedSecret,
     );
+    if (!ok) KeySound.error();
     setState(() {
       _codeVerified = ok;
       _codeRejected = !ok;
+    });
+  }
+
+  /// Keypad (chip 390) handlers — MoneyEntry carries the shared money
+  /// string rules; freshness gives the prefilled total calculator-entry
+  /// replacement semantics.
+  void _onKeypadDigit(String digit) {
+    // KEYPAD AUTODIAL (approved 42c): while there is NOTHING on the
+    // ticket, a digit key is not money — it is the item the shop mapped
+    // to that key. The moment an item is on, the keys are money again,
+    // which is why the whole rule hangs off the cart being empty and
+    // nothing else. base_sdk's MoneyKeypad is untouched by any of this:
+    // it emits the same key event it always did, and the till decides
+    // what the press MEANS. Chip 390's contract stays intact fleet-wide.
+    if (_autodial(digit)) return;
+    setState(() {
+      final current = _paidNowFresh ? '' : _paidNowController.text;
+      _paidNowFresh = false;
+      _paidNowController.text = MoneyEntry.appendDigit(current, digit);
+    });
+  }
+
+  /// The armed pad's read of one key. Returns true when the press was
+  /// consumed as an item.
+  ///
+  /// An unset digit is INERT — it consumes the press and does nothing
+  /// (chip 805: an unset digit is not an error), because falling through
+  /// to money entry on a pad the cashier is using as an item pad would
+  /// silently type into a field they cannot see.
+  bool _autodial(String digit) {
+    if (!_autodialArmed(ref.read(posCartProvider))) return false;
+    if (digit.length != 1) return true;
+    final int? key = int.tryParse(digit);
+    if (key == null || key < 1 || key > 9) return true;
+    final preset =
+        ref.read(quickFlowProvider).settings.presetFor(key);
+    if (preset == null) return true;
+    ref.read(posCartProvider.notifier).addProduct(preset.product);
+    setState(() => _lastAutodial = preset);
+    return true;
+  }
+
+  /// Armed = the shop turned autodial on AND mapped at least one digit
+  /// AND the ticket is empty. All three, every time.
+  bool _autodialArmed(PosCartState state) =>
+      state.isEmpty && ref.read(quickFlowProvider).settings.autodialArmed;
+
+  void _onKeypadDecimal() {
+    setState(() {
+      final current = _paidNowFresh ? '' : _paidNowController.text;
+      _paidNowFresh = false;
+      _paidNowController.text = MoneyEntry.decimal(current);
+    });
+  }
+
+  void _onKeypadBackspace() {
+    setState(() {
+      _paidNowFresh = false;
+      _paidNowController.text =
+          MoneyEntry.backspace(_paidNowController.text);
+    });
+  }
+
+  /// OK (the confirm row): normalizes the entry to what the sale will
+  /// actually take — parsed, clamped 0..total, two decimals — and marks
+  /// it fresh (the next digit starts a new entry).
+  void _onKeypadOk(PosCartState state) {
+    setState(() {
+      _paidNowController.text = _payingNow(state).toStringAsFixed(2);
+      _paidNowFresh = true;
     });
   }
 
@@ -253,6 +357,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
 
     if (delivery && facade != null) {
       if (_customer == null) {
+        KeySound.error();
         AppHelpers.showCheckTopSnackBar(
           context,
           AppHelpers.getTranslation(TrKeys.deliveryNeedsCustomer),
@@ -260,6 +365,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
         return;
       }
       if (_address.trim().isEmpty) {
+        KeySound.error();
         AppHelpers.showCheckTopSnackBar(
           context,
           AppHelpers.getTranslation(TrKeys.deliveryNeedsAddress),
@@ -284,6 +390,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
             state.total,
           );
         } catch (e) {
+          KeySound.error();
           if (mounted) {
             AppHelpers.showCheckTopSnackBar(
               context,
@@ -325,6 +432,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           failure: (error, statusCode) => failure = error,
         );
         if (!submitted) {
+          KeySound.error();
           if (mounted) {
             AppHelpers.showCheckTopSnackBar(
               context,
@@ -346,6 +454,9 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
         _address = '';
         _paidNowController.clear();
         _prefilledForOrderId = '';
+        _paidNowFresh = true;
+        // The ticket is empty again, so the pad re-arms from scratch.
+        _lastAutodial = null;
       });
       AppHelpers.showCheckTopSnackBarDone(
         context,
@@ -368,6 +479,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     if (_prefilledForOrderId != state.orderId && state.total > 0) {
       _prefilledForOrderId = state.orderId;
       _paidNowController.text = state.total.toStringAsFixed(2);
+      _paidNowFresh = true;
     }
     final facade = _posOrders;
     final offline = _online == false;
@@ -415,7 +527,13 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                         _deliversToCard(context),
                         14.verticalSpace,
                       ],
-                      if (_customer != null && _creditEnabled) ...[
+                      // While the pad is armed the ticket is empty, so
+                      // there is no payment to split and no second keypad
+                      // on the page: the autodial card below IS the pad
+                      // until an item lands.
+                      if (_customer != null &&
+                          _creditEnabled &&
+                          !_autodialArmed(state)) ...[
                         _amountPayingNowCard(context, state),
                         14.verticalSpace,
                       ],
@@ -426,6 +544,10 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                       6.verticalSpace,
                     ],
                     _summary(context, state),
+                    if (_autodialArmed(state) || _lastAutodial != null) ...[
+                      14.verticalSpace,
+                      _autodialCard(context, state),
+                    ],
                     20.verticalSpace,
                     _finishButtons(context, state),
                     120.verticalSpace,
@@ -983,10 +1105,15 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     );
   }
 
-  /// Chips 307/308: the "Amount paying now" card — prefilled with the
-  /// total; editing below the total splits the sale. Quick actions: Full
-  /// and "R0 — all on credit".
+  /// Chips 307/308/336/390: the "Amount paying now" card — prefilled
+  /// with the total; editing below the total splits the sale. Quick
+  /// actions: Full and "R0 — all on credit". The entry surface is THE
+  /// KEY PAD (chip 390, base_sdk MoneyKeypad — approved 11u/11y): the
+  /// amount display (336) is a plain read-out that CANNOT focus, so the
+  /// OS keyboard never appears; digits, 00, ⌫ and the . | OK confirm
+  /// row do the editing, with the fleet key feedback on every press.
   Widget _amountPayingNowCard(BuildContext context, PosCartState state) {
+    final entered = _paidNowController.text;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
@@ -1010,22 +1137,23 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
-                child: TextField(
-                  // Keyed for the standalone harness (the page can carry
-                  // several TextFields at once).
+                // The amount display (336): NOT a text field — a bare
+                // read-out of the keypad entry (hint-styled total when
+                // empty). Keyed for the standalone harness.
+                child: Container(
                   key: const Key('posPaidNowField'),
-                  controller: _paidNowController,
-                  onChanged: (_) => setState(() {}),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  style: AppStyle.interSemi(size: 28),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(vertical: 6.h),
-                    hintText: state.total.toStringAsFixed(2),
-                    hintStyle: AppStyle.interSemi(
+                  padding: EdgeInsets.symmetric(vertical: 6.h),
+                  child: Text(
+                    entered.isEmpty
+                        ? state.total.toStringAsFixed(2)
+                        : entered,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppStyle.interSemi(
                       size: 28,
-                      color: AppStyle.textDarkFaint,
+                      color: entered.isEmpty
+                          ? AppStyle.textDarkFaint
+                          : AppStyle.textPrimary,
                     ),
                   ),
                 ),
@@ -1054,6 +1182,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                 onTap: () => setState(() {
                   _paidNowController.text =
                       state.total.toStringAsFixed(2);
+                  _paidNowFresh = true;
                 }),
               ),
               _quickAmountChip(
@@ -1061,11 +1190,223 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                     '${AppHelpers.numberFormat(number: 0)} ${AppHelpers.getTranslation(TrKeys.allOnCredit)}',
                 onTap: () => setState(() {
                   _paidNowController.text = '0';
+                  _paidNowFresh = true;
                 }),
               ),
             ],
           ),
+          14.verticalSpace,
+          // THE KEY PAD (390) — at plane widths the keys grow to the
+          // card's full width (11u's two-plane spread); on phone this is
+          // the 11y one-plane fold. Same shared component either way.
+          MoneyKeypad(
+            onDigit: _onKeypadDigit,
+            onBackspace: _onKeypadBackspace,
+            onDecimal: _onKeypadDecimal,
+            onOk: () => _onKeypadOk(state),
+          ),
         ],
+      ),
+    );
+  }
+
+  /// KEYPAD AUTODIAL, on the till (approved design strip section 42,
+  /// frame 42c — an illustration of the 802 behaviour, rendered here as
+  /// the thing itself).
+  ///
+  /// While the ticket is empty and the shop has mapped at least one
+  /// digit, the pad is an ITEM pad: the hint strip (chip 807) states the
+  /// rule in one line and is present ONLY under that condition — it is
+  /// the visible form of the arming rule — and each armed key prints its
+  /// preset's name UNDER THE NUMERAL (chip 806), which is the detail the
+  /// till's width buys. The moment a key lands an item, the strip along
+  /// the bottom says what happened and that the keys are money again
+  /// (chip 808).
+  ///
+  /// The pad is base_sdk's shared [MoneyKeypad], UNMODIFIED — same
+  /// component, same public API, same key events. The captions are a
+  /// caller-side overlay laid out on the pad's own published geometry
+  /// ([MoneyKeypad.keyHeight] / [MoneyKeypad.gap], passed explicitly here
+  /// so the grid is deterministic), sitting under an [IgnorePointer] so
+  /// every tap still reaches the real key beneath it. Nothing about chip
+  /// 390's pure-input-surface contract changes for anyone else.
+  Widget _autodialCard(BuildContext context, PosCartState state) {
+    final armed = _autodialArmed(state);
+    final settings = ref.watch(quickFlowProvider).settings;
+    final double keyHeight = 68.r;
+    final double gap = 8.r;
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.r),
+      decoration: BoxDecoration(
+        color: AppStyle.cardDark,
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (armed) ...[
+            // Chip 807 — the empty-ticket hint strip.
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(12.r),
+              decoration: BoxDecoration(
+                color: AppStyle.primary.withValues(alpha: .08),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: AppStyle.primary.withValues(alpha: .35),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Remix.flashlight_line,
+                    size: 16.r,
+                    color: AppStyle.primary,
+                  ),
+                  10.horizontalSpace,
+                  Expanded(
+                    child: Text(
+                      AppHelpers.getTranslation(TrKeys.autodialArmedHint),
+                      style: AppStyle.interRegular(size: 13),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            14.verticalSpace,
+            Stack(
+              children: [
+                MoneyKeypad(
+                  keyHeight: keyHeight,
+                  gap: gap,
+                  onDigit: _onKeypadDigit,
+                  onBackspace: _onKeypadBackspace,
+                  onDecimal: _onKeypadDecimal,
+                  onOk: () => _onKeypadOk(state),
+                ),
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: _presetCaptions(
+                      settings,
+                      keyHeight: keyHeight,
+                      gap: gap,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (_lastAutodial != null) ...[
+            if (armed) 14.verticalSpace,
+            // Chip 808 — the result strip.
+            Row(
+              children: [
+                Container(
+                  width: 26.r,
+                  height: 26.r,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppStyle.primary.withValues(alpha: .15),
+                    borderRadius: BorderRadius.circular(7.r),
+                  ),
+                  child: Text(
+                    '${_lastAutodial!.digit}',
+                    style: AppStyle.interSemi(
+                      size: 12,
+                      color: AppStyle.primary,
+                    ),
+                  ),
+                ),
+                10.horizontalSpace,
+                Expanded(
+                  child: Text(
+                    _lastAutodial!.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppStyle.interSemi(size: 13),
+                  ),
+                ),
+                8.horizontalSpace,
+                Text(
+                  AppHelpers.numberFormat(number: _lastAutodial!.price),
+                  style: AppStyle.interRegular(
+                    size: 13,
+                    color: AppStyle.textDarkSecondary,
+                  ),
+                ),
+              ],
+            ),
+            if (!armed) ...[
+              8.verticalSpace,
+              Text(
+                AppHelpers.getTranslation(TrKeys.keysAreMoneyAgain),
+                style: AppStyle.interRegular(
+                  size: 12,
+                  color: AppStyle.textDarkSecondary,
+                ),
+              ),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Chip 806 — the preset name under the numeral, laid out on the
+  /// keypad's own grid: four rows of [keyHeight] separated by [gap],
+  /// three equal columns separated by [gap]. Only keys 1-9 that actually
+  /// hold a preset carry a caption; `00`, `0` and the backspace never do
+  /// (they are not item keys), and neither does the confirm row.
+  Widget _presetCaptions(
+    QuickFlowSettings settings, {
+    required double keyHeight,
+    required double gap,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var row = 0; row < 4; row++) ...[
+          if (row > 0) SizedBox(height: gap),
+          SizedBox(
+            height: keyHeight,
+            child: Row(
+              children: [
+                for (var col = 0; col < 3; col++) ...[
+                  if (col > 0) SizedBox(width: gap),
+                  Expanded(
+                    child: _presetCaption(
+                      settings,
+                      row * 3 + col + 1,
+                      row: row,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _presetCaption(QuickFlowSettings settings, int digit,
+      {required int row}) {
+    if (row > 2) return const SizedBox.shrink();
+    final preset = settings.presetFor(digit);
+    if (preset == null) return const SizedBox.shrink();
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: EdgeInsets.only(bottom: 9.h, left: 4.w, right: 4.w),
+        child: Text(
+          preset.title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+          style: AppStyle.interRegular(size: 11, color: AppStyle.primary),
+        ),
       ),
     );
   }

@@ -1,3 +1,23 @@
+// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/number.dart';
@@ -92,6 +112,26 @@ class CalculatorNotifier extends StateNotifier<CalculatorState> {
         state = state.copyWith(memoryValue: 0);
         break;
     }
+  }
+
+  /// CHIP 837 (design strip frame 45a): put a tape row's RESULT back on
+  /// the display.
+  ///
+  /// The one new behaviour section 45 adds to the tape, and a pure
+  /// client change — it makes exactly the assignment `MR` already makes
+  /// in [onMemoryPressed]: the recalled value lands in whichever operand
+  /// is being typed and becomes the display. Nothing about history,
+  /// memory or the operator chain moves.
+  void recallResult(CalculationResult entry) {
+    final value = entry.result;
+    if (value == null) return;
+    final recalled = _format(value);
+    if (_current.operator == null) {
+      _current.firstNum = recalled;
+    } else {
+      _current.secondNum = recalled;
+    }
+    state = state.copyWith(display: recalled);
   }
 
   void clearHistory() {

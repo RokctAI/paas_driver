@@ -25,14 +25,22 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 
 // Ported from paas_manager lib/presentation/pages/restaurant/widgets/
 // sections_item.dart (styles repointed to base_sdk's AppStyle).
+//
+// [subtitle] (optional) renders a small grey glance line under the title —
+// added for the approved PRODUCTIVITY gate row (frame 7e, chip 391, Ray
+// 2026-08-29 15:41Z), whose Tasks row carries open/due counts. Rows
+// without a subtitle are byte-identical to the original single-line
+// layout.
 class SectionsItem extends StatelessWidget {
   final String title;
+  final String? subtitle;
   final IconData icon;
   final VoidCallback onTap;
 
   const SectionsItem({
     super.key,
     required this.title,
+    this.subtitle,
     required this.icon,
     required this.onTap,
   });
@@ -48,13 +56,34 @@ class SectionsItem extends StatelessWidget {
           children: [
             Icon(icon),
             16.horizontalSpace,
-            Text(
-              title,
-              style: AppStyle.interRegular(
-                size: 16.sp,
-                color: AppStyle.blackColor,
-              ),
-            )
+            subtitle == null
+                ? Text(
+                    title,
+                    style: AppStyle.interRegular(
+                      size: 16.sp,
+                      color: AppStyle.blackColor,
+                    ),
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: AppStyle.interRegular(
+                          size: 16.sp,
+                          color: AppStyle.blackColor,
+                        ),
+                      ),
+                      2.verticalSpace,
+                      Text(
+                        subtitle!,
+                        style: AppStyle.interRegular(
+                          size: 12.sp,
+                          color: AppStyle.textGrey,
+                        ),
+                      ),
+                    ],
+                  ),
           ],
         ),
       ),
