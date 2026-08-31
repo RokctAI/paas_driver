@@ -13,14 +13,14 @@
 # manifests, after `fragment: merchants` has landed the shell on /main.
 #
 # Demo grounding (--dart-define=IS_DEMO=true): products_di.dart swaps in
-# MockProducts/MockCategories/MockBrands for the customer-facing facades.
-# The manager-side SellerProductsRepositoryFacade / SellerCatalog-
-# RepositoryFacade are NOT demo-gated yet, so the foods tab's lists render
-# their own empty states in demo builds - truthful for a brand-new shop,
-# and the caption below owns that framing. The create-product modal is a
-# static form (details tab + stocks tab) and renders fully without data.
-# Follow-up (rule #59): demo-gate the two seller facades so the menu still
-# shows a stocked demo menu.
+# MockProducts/MockCategories/MockBrands for the customer-facing facades,
+# and since 1.7.0 it demo-gates the manager-side
+# SellerProductsRepositoryFacade / SellerCatalogRepositoryFacade to this
+# SDK's own DemoSellerProductsRepository / DemoSellerCatalogRepository -
+# a seeded fictional menu (six dishes over three categories, two add-ons,
+# two extras groups) served from memory. So the foods tab captures a
+# stocked menu with zero backend contact. The create-product modal is a
+# static form (details tab + stocks tab) and renders fully either way.
 #
 # Cross-SDK imports below are the established shell contract: FoodsPage
 # itself imports merchants_sdk's mainProvider to drive shell scrolling, and
@@ -36,7 +36,7 @@ imports:
 steps:
   - key: menu
     title: "Your menu, organised"
-    caption: "A new shop starts here - build your menu from *products, add-ons and extras*, each on its own tab."
+    caption: "Your whole menu in one place - *products, add-ons and extras*, each on its own tab, priced and stocked."
     action: dart
     settle: 8
     dart: |

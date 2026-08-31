@@ -35,13 +35,14 @@ import 'package:auth_sdk/src/common/presentation/pages/auth/register/register_pa
 // [refork] removed host router import
 import 'package:auth_sdk/src/common/application/auth/login/login_provider.dart';
 // [refork] embed via EmbeddedWidgets
+import 'package:auth_sdk/src/common/presentation/pages/auth/login/login_embedded_slots.dart';
 import 'package:auth_sdk/src/common/presentation/pages/auth/login/login_screen.dart';
+import 'package:auth_sdk/src/common/presentation/pages/auth/login/login_terms_notice.dart';
 import 'package:auth_sdk/src/common/presentation/pages/auth/registration/registration_steps_page.dart';
 import 'package:auth_sdk/src/common/services/entry_config.dart';
 
 import 'package:base_sdk/src/presentation/theme/theme.dart';
 import 'package:base_sdk/src/presentation/components/buttons/second_button.dart';
-import 'package:base_sdk/src/navigation/embedded_widgets.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 // [refork] intro page embedded via EmbeddedWidgets registry
 // [refork] embed via EmbeddedWidgets
@@ -57,7 +58,7 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   bool _showIntro = false;
-  Widget? _introPage;
+  late final LoginEmbeddedSlots _slots;
   late String splashImage;
 
   @override
@@ -67,18 +68,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       ref.read(loginProvider.notifier).checkLanguage(context);
     });
     initDynamicLinks();
-    // Initialize IntroPage — guarded: introPage() is only real when an
-    // onboarding SDK is composed into this app and declares it in
-    // "embedded_widgets". In hosts without one (e.g. manager/driver) the
-    // registry's noSuchMethod throws a StateError, which used to crash the
-    // login screen at init; those apps simply have no intro, so the Skip
-    // affordance is hidden instead (see the Skip button below).
-    try {
-      _introPage = EmbeddedWidgets.I.introPage();
-    } on StateError catch (e) {
-      debugPrint('==> LoginPage: no intro page composed, hiding Skip: $e');
-      _introPage = null;
-    }
+    // Resolve every widget this page borrows from another SDK, once, here —
+    // guarded: a registry method is only real when the SDK that declares it
+    // in "embedded_widgets" is composed into this app. In hosts without it
+    // the registry's noSuchMethod throws a StateError, which used to crash
+    // the login screen: at init for the intro carousel (hosts with no
+    // onboarding SDK, e.g. manager/driver), and — until this guard covered
+    // them too — when the language sheet was opened (no comms_sdk) or the
+    // terms/privacy links were rendered (no corporate_sdk), which is every
+    // launcher composing just base + users + auth + launch. A missing SDK
+    // now yields null and the affordance is simply not offered: no intro
+    // means no Skip fall-through (see the Skip button below), no language
+    // screen means the picker sheet is never shown, and no legal pages mean
+    // the terms line is not drawn. Apps that DO compose them are unchanged.
+    _slots = LoginEmbeddedSlots.resolve(
+      onLanguageSaved: () {
+        Navigator.pop(context);
+      },
+    );
 
     // Determine which splash image to use based on the current date
     DateTime now = DateTime.now();
@@ -140,21 +147,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   void selectLanguage() {
+    final Widget? languageScreen = _slots.languageScreen;
+    // No comms_sdk composed means this app has no language surface at all,
+    // so there is no picker to open — and asking the registry for one is
+    // exactly what used to throw here. Skipping the sheet leaves the app on
+    // its default translations, the same as every other screen in such a
+    // build; there is no visible control to hide, since the sheet is only
+    // ever opened by the listener in build().
+    if (languageScreen == null) return;
     AppHelpers.showCustomModalBottomSheet(
       isDismissible: false,
       isDrag: false,
       context: context,
-      modal: EmbeddedWidgets.I.languageScreen(
-        onSave: () {
-          Navigator.pop(context);
-        },
-      ),
+      modal: languageScreen,
       isDarkMode: false,
     );
   }
 
   void _showIntroPage() {
-    if (_introPage == null) return;
+    if (_slots.introPage == null) return;
     setState(() {
       _showIntro = true;
     });
@@ -166,7 +177,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   /// the app's normal post-auth destination — the same default landing the
   /// registration pipeline uses — instead of the affordance being hidden.
   void _skip() {
-    if (_introPage != null) {
+    if (_slots.introPage != null) {
       _showIntroPage();
       return;
     }
@@ -216,8 +227,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         backgroundColor: isDarkMode || isWideWindow
             ? AppStyle.dontHaveAnAccBackDark
             : AppStyle.white,
-        body: _showIntro && _introPage != null
-            ? _introPage! // Show preloaded IntroPage if _showIntro is true
+        body: _showIntro && _slots.introPage != null
+            ? _slots.introPage! // Show preloaded IntroPage if _showIntro is true
             : Container(
                 // Same treatment as the splash on large screens: the
                 // phone-shaped artwork doesn't belong on a wide
@@ -400,74 +411,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               borderColor: AppStyle.white,
                             ),
                             5.verticalSpace,
-                            Container(
-                              decoration: BoxDecoration(
-                                color: AppStyle.white.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(
-                                  10,
-                                ), // Adjust the radius as needed
-                              ),
-                              padding: const EdgeInsets.all(
-                                16,
-                              ), // Adjust the padding as needed
-                              child: Wrap(
-                                alignment: WrapAlignment.center,
-                                children: [
-                                  Text(
-                                    "By using ${AppHelpers.getAppName() ?? ""}'s services, you acknowledge that you have read and accepted the",
-                                    style: const TextStyle(
-                                      color: AppStyle.black,
-                                    ), // Make text color white for visibility
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              EmbeddedWidgets.I.termPage(),
-                                        ),
-                                      );
-                                    },
-                                    child: Text(
-                                      AppHelpers.getTranslation(TrKeys.terms),
-                                      style: const TextStyle(
-                                        decoration: TextDecoration.underline,
-                                        color: AppStyle
-                                            .black, // Optional: Different color for links
-                                      ),
-                                    ),
-                                  ),
-                                  const Text(
-                                    " & ",
-                                    style: TextStyle(
-                                      color: AppStyle.black,
-                                    ), // Make text color white for visibility
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              EmbeddedWidgets.I.policyPage(),
-                                        ),
-                                      );
-                                    },
-                                    child: Text(
-                                      AppHelpers.getTranslation(
-                                        TrKeys.privacyPolicy,
-                                      ),
-                                      style: const TextStyle(
-                                        decoration: TextDecoration.underline,
-                                        color: AppStyle
-                                            .black, // Optional: Different color for links
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            // The legal line borrows corporate_sdk's terms
+                            // and privacy pages through the registry, so it
+                            // draws itself only when that SDK is composed —
+                            // see LoginTermsNotice for why the whole line
+                            // goes rather than a single link.
+                            LoginTermsNotice(slots: _slots),
                             20.verticalSpace,
                           ],
                                 ),

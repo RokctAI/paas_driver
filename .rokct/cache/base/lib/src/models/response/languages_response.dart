@@ -33,6 +33,20 @@ class LanguagesResponse {
   }
 
   LanguagesResponse.fromJson(dynamic json) {
+    // Two shapes reach here. The `api_response` envelope wraps its rows
+    // under `data` ({timestamp,status,message,data:[...]}), while a
+    // Frappe `get_list` endpoint — `api.language.get_languages` is one —
+    // answers with the row list ITSELF and no envelope around it. Treat
+    // a top-level list as the data rather than subscripting it with a
+    // String (which throws `type 'String' is not a subtype of type
+    // 'int' of 'index'`).
+    if (json is List) {
+      _data = [];
+      for (final v in json) {
+        _data?.add(LanguageData.fromJson(v));
+      }
+      return;
+    }
     _timestamp = json['timestamp'];
     _status = json['status'];
     _message = json['message'];
@@ -104,12 +118,29 @@ class LanguageData {
   LanguageData.fromJson(dynamic json) {
     // Language docname: backend emits `name`, older payloads `id`.
     _id = (json['id'] ?? json['name'])?.toString();
-    _title = json['title'];
-    _locale = json['locale'];
-    _backward = json['backward'];
-    _default = json['default'];
-    _active = json['active'];
-    _img = json['img'];
+    _title = json['title']?.toString();
+    _locale = json['locale']?.toString();
+    _backward = _asBool(json['backward']);
+    _default = _asBool(json['default']);
+    _active = _asBool(json['active']);
+    _img = json['img']?.toString();
+  }
+
+  /// Frappe `Check` fields (`backward`, `default`, `active` on PaaS
+  /// Language) come back over JSON as the ints 1/0, not as booleans —
+  /// assigning one straight to a `bool?` throws `type 'int' is not a
+  /// subtype of type 'bool?'`. Accept ints, the strings a form post can
+  /// produce, and real booleans alike; anything else stays null.
+  static bool? _asBool(dynamic value) {
+    if (value == null) return null;
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    if (value is String) {
+      final normalised = value.trim().toLowerCase();
+      if (normalised.isEmpty) return null;
+      return normalised == '1' || normalised == 'true' || normalised == 'yes';
+    }
+    return null;
   }
 
   String? _id;

@@ -28,6 +28,10 @@ dependencies:
   intl_phone_field: ^3.2.0
   permission_handler: ^11.3.1
   remixicon: ^1.4.1
+  # Direct dep: restore_credential_service.dart caches the
+  # has_synced_restore_credential marker. Same version rail as
+  # base_sdk, whose LocalStorage keeps its SharedPreferences private.
+  shared_preferences: ^2.5.2
   sign_in_with_apple: ^6.1.2
   sms_autofill: ^2.4.1
 dev_dependencies:

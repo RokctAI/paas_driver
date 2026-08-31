@@ -55,12 +55,30 @@ import 'package:revenue_sdk/src/driver/presentation/widgets/withdraw_sheet.dart'
 /// away while it is open.
 ///
 /// WHAT IS DELIBERATELY NOT HERE — **the Top up action (chip 973)**. Frame
-/// 49f draws it as the entry to 49g, and 49g is not approved: its card half
-/// is built server-side but has no card-entry surface in this app, and its
-/// bank-deposit half (49h) needs a doctype that does not exist anywhere in
-/// the fleet. A pill that opens nothing is the exact dead control this plane
-/// was drawn to end, so it is left out rather than shipped inert. It is
-/// flagged, not forgotten.
+/// 49f draws it as the entry to 49g.
+///
+/// **Correction, 2026-08-31: 49g IS approved.** This comment used to say it
+/// was not, and that was wrong — section 49's own header records every frame
+/// 49a–49s as approved. The omission below is unchanged, but it never stood
+/// on approval; it stands on two build-state facts, both re-verified against
+/// `origin/main` on the date above:
+///
+///   * **The card branch has nowhere to go.** `wallet_sdk` ships the surface
+///     (`/wallet-topup`, and `process_wallet_top_up` behind it is finished),
+///     but NO composed app installs `wallet_sdk` — not `paas_driver`, not
+///     `paas_manager`; the SDK registry lists `supacharge` as its only
+///     consumer. So the route this pill would open does not exist in the
+///     driver app, and composing a first-of-its-kind SDK into a shipping app
+///     is a composition change, not an entry on this page.
+///   * **The bank branch has nowhere to land.** 49h/49i need a deposit
+///     doctype and `pay/wallet/frappe/src/tenant/doctype/` still has none:
+///     the list is flutterwave_settings, payment_payload, payout_bank_account,
+///     platform_wallet, saved_card, transaction, wallet, wallet_history,
+///     wallet_payout_request, wallet_receive_claim.
+///
+/// A pill that opens nothing is the exact dead control this plane was drawn
+/// to end, so it stays out rather than shipped inert. It is flagged, not
+/// forgotten — and now flagged for the true reason.
 class DriverWalletPage extends ConsumerStatefulWidget {
   const DriverWalletPage({super.key});
 

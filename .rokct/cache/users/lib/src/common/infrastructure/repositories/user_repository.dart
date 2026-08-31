@@ -27,6 +27,7 @@ import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:users_sdk/src/common/models/response/weak_concepts_response.dart';
+import 'package:users_sdk/src/common/services/session_end_hooks.dart';
 
 class UserRepository implements UserRepositoryFacade {
   /// Universal platform gateway: every backend call is a POST to the single
@@ -144,6 +145,10 @@ class UserRepository implements UserRepositoryFacade {
   @override
   Future<ApiResult<dynamic>> logoutAccount({required String fcm}) async {
     try {
+      // Before the token goes: the restore-key revoke rides the session
+      // that logout is about to end, and a signed-out user whose restore
+      // key survived would be signed back in by their next device.
+      await SessionEndHooks.run();
       await _gateway.tenant('api.user.logout');
       LocalStorage.logout();
       return const ApiResult.success(data: null);
@@ -265,6 +270,9 @@ class UserRepository implements UserRepositoryFacade {
   @override
   Future<ApiResult> deleteAccount() async {
     try {
+      // Same reason as logout, and more pressing: a deleted account must
+      // not leave a restore key behind that a new device could replay.
+      await SessionEndHooks.run();
       await _gateway.tenant('api.user.delete_account');
       LocalStorage.logout();
       return const ApiResult.success(data: null);

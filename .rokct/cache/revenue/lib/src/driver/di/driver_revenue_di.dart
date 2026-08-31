@@ -18,11 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:get_it/get_it.dart';
 import 'package:revenue_sdk/src/common/domain/interface/courier_statistics.dart';
 import 'package:revenue_sdk/src/common/domain/interface/driver_payout.dart';
 import 'package:revenue_sdk/src/common/domain/interface/driver_wallet.dart';
 import 'package:revenue_sdk/src/driver/infrastructure/repositories/courier_statistics_repository.dart';
+import 'package:revenue_sdk/src/driver/infrastructure/repositories/demo_courier_statistics_repository.dart';
 import 'package:revenue_sdk/src/driver/infrastructure/repositories/driver_payout_repository.dart';
 import 'package:revenue_sdk/src/driver/infrastructure/repositories/driver_wallet_repository.dart';
 
@@ -35,9 +37,15 @@ import 'package:revenue_sdk/src/driver/infrastructure/repositories/driver_wallet
 /// idempotently so both call sites can coexist.
 class DriverRevenueDependencies {
   static void register(GetIt getIt) {
+    // Demo mode (--dart-define=IS_DEMO=true) swaps the HTTP facade for its
+    // Demo* twin serving fictional earnings offline — the same isDemo split
+    // delivery_sdk's DriverDeliveryDependencies applies to every courier
+    // facade. Zero behavior change when IS_DEMO is off.
     if (!getIt.isRegistered<CourierStatisticsRepositoryFacade>()) {
       getIt.registerSingleton<CourierStatisticsRepositoryFacade>(
-        CourierStatisticsRepository(),
+        AppConstants.isDemo
+            ? DemoCourierStatisticsRepository()
+            : CourierStatisticsRepository(),
       );
     }
     if (!getIt.isRegistered<DriverPayoutRepositoryFacade>()) {

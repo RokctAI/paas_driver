@@ -514,7 +514,7 @@ class MerchantProductivitySection extends StatelessWidget {
           title: AppHelpers.getTranslation(TrKeys.calculator),
           subtitle: AppConstants.isDemo ? 'Memory holds 1 240.50' : null,
           icon: Remix.calculator_line,
-          onTap: () => context.pushRoute(const CalculatorRoute()),
+          onTap: () => context.pushRoute(CalculatorRoute()),
         ),
       ],
     );

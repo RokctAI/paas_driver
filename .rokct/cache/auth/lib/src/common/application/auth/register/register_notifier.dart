@@ -52,6 +52,7 @@ import 'package:auth_sdk/src/common/application/auth/register/register_state.dar
 import 'package:auth_sdk/src/common/infrastructure/services/auth_sync_handler.dart';
 import 'package:auth_sdk/src/common/services/auth_error_presenter.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service.dart';
+import 'package:auth_sdk/src/common/services/restore_credential_service.dart';
 import 'package:auth_sdk/src/common/presentation/pages/auth/registration/registration_steps_page.dart';
 import 'package:auth_sdk/src/common/services/platform_support.dart';
 
@@ -434,6 +435,9 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           // destination as before — see RegistrationFlow.
           RegistrationFlow.completeRegistration(context, user: data.user);
           await syncFcmToken(_userRepositoryFacade);
+          // Registration just minted a session: give the account an
+          // Android restore key so a device move keeps them signed in.
+          await RestoreCredentialService().ensureRestoreKey();
         },
         failure: (failure, status) async {
           // The register call doubles as the reachability test: 5xx and
@@ -612,6 +616,9 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           // destination as before — see RegistrationFlow.
           RegistrationFlow.completeRegistration(context, user: data.user);
           await syncFcmToken(_userRepositoryFacade);
+          // Registration just minted a session: give the account an
+          // Android restore key so a device move keeps them signed in.
+          await RestoreCredentialService().ensureRestoreKey();
         },
         failure: (failure, status) {
           state = state.copyWith(isLoading: false);
@@ -703,6 +710,9 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           // destination as before — see RegistrationFlow.
           RegistrationFlow.completeRegistration(context, user: data.data);
           await syncFcmToken(_userRepositoryFacade);
+          // Registration just minted a session: give the account an
+          // Android restore key so a device move keeps them signed in.
+          await RestoreCredentialService().ensureRestoreKey();
         },
         failure: (failure, status) async {
           if (local.success && !_isDefinitiveRejection(status)) {
@@ -842,6 +852,9 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
             AppHelpers.goHome(context);
           }
           await syncFcmToken(_userRepositoryFacade);
+          // Registration just minted a session: give the account an
+          // Android restore key so a device move keeps them signed in.
+          await RestoreCredentialService().ensureRestoreKey();
         },
         failure: (failure, status) {
           state = state.copyWith(isLoading: false);
@@ -961,6 +974,9 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
               context.router.popUntilRoot();
               AppHelpers.goHome(context);
               await syncFcmToken(_userRepositoryFacade);
+              // Registration just minted a session: give the account an
+              // Android restore key so a device move keeps them signed in.
+              await RestoreCredentialService().ensureRestoreKey();
             },
             failure: (failure, status) {
               state = state.copyWith(isLoading: false);
@@ -1079,6 +1095,9 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
               AppHelpers.goHome(context);
             }
             await syncFcmToken(_userRepositoryFacade);
+            // Registration just minted a session: give the account an
+            // Android restore key so a device move keeps them signed in.
+            await RestoreCredentialService().ensureRestoreKey();
           },
           failure: (failure, s) {
             state = state.copyWith(isLoading: false);

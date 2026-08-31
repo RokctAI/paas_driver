@@ -19,6 +19,10 @@ dependencies:
   # through base_sdk; declared now that lib/ uses it directly.
   auto_route: ^9.2.0
   auto_size_text: ^3.0.0
+  # Declared now that lib/ uses it directly: frame 49b's push-offer leg
+  # strip (push_offer_decision.dart) draws the shop and recipient avatars.
+  # Previously reached transitively through base_sdk.
+  cached_network_image: ^3.3.1
   calendar_date_picker2: ^1.1.5
   dio: ^5.7.0
   flutter_html: ^3.0.0-alpha.6

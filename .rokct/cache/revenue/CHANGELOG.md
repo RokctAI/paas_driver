@@ -1,3 +1,29 @@
+## 1.9.2
+
+* **Correction to the record on `DriverWalletPage`: frame 49g IS approved.**
+  The class doc, and the 1.8.0 note below it, both said 49g "is not
+  approved" and used that as the first reason the Top up action (chip 973)
+  was left off the wallet plane. That was wrong — section 49's own header
+  records every frame 49a–49s as approved. The 1.8.0 entry is left as the
+  historical record it is; the class doc is corrected in place, because it
+  is what the next person to open the file will read.
+* **The omission itself is unchanged, and its real reasons are now written
+  down** — both re-verified against `origin/main` on 2026-08-31:
+  * *The card branch has nowhere to go.* `wallet_sdk` ships the surface
+    (`/wallet-topup`; `process_wallet_top_up` behind it is finished), but
+    **no composed app installs `wallet_sdk`** — not `paas_driver`, not
+    `paas_manager`. The SDK registry lists `supacharge` as its only
+    consumer. The route a Top up pill would open does not exist in the
+    driver app, and composing an SDK into a shipping app for the first time
+    is a composition change, not an entry on this page.
+  * *The bank branch has nowhere to land.* 49h/49i need a deposit doctype
+    and `pay/wallet/frappe/src/tenant/doctype/` still has none —
+    flutterwave_settings, payment_payload, payout_bank_account,
+    platform_wallet, saved_card, transaction, wallet, wallet_history,
+    wallet_payout_request, wallet_receive_claim, and nothing deposit-shaped.
+* No behaviour, no interface and no rendered pixel changes in this release:
+  it is a comment and a version.
+
 ## 1.8.0
 
 * The driver's own money surface, drawn from the approved design strip

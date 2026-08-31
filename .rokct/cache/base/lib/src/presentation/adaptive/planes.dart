@@ -37,7 +37,8 @@ import 'package:base_sdk/src/presentation/components/floating_nav/floating_botto
 /// deepest step in the LAST plane.
 ///
 /// Importance is DECLARED and DYNAMIC. A page declares its claim in
-/// planes ([PlanePage.span] — "I'm important, give me two"); the claim of
+/// planes ([PlanePage.span] — "I'm important, give me two", or
+/// "give me a second one only if it would otherwise sit empty"); the claim of
 /// the ACTIVE page (the flow's newest step) always wins at that moment,
 /// and earlier pages YIELD by compressing: the page just under the active
 /// step keeps whatever planes remain (up to its own claim) and re-spreads
@@ -65,15 +66,48 @@ enum PlaneSpan {
 
   /// Fill every plane the screen has (with [PlanePage.allowNeighbors]
   /// false this is a page that always presents alone).
-  all;
+  all,
+
+  /// "One plane — and a SECOND one only if it would otherwise sit
+  /// empty."
+  ///
+  /// A claim that GROWS instead of demanding. The page asks for one
+  /// plane like any default page, so it never displaces the flow
+  /// beneath it; then, once the earlier pages have taken what they
+  /// claim, it absorbs a leftover plane rather than leaving an empty
+  /// stage — up to two planes in total.
+  ///
+  /// The motivating case is a page with a second half it can show but
+  /// does not need to (the lesson session's attendees panel, which is
+  /// otherwise a swipe away inside the page): two planes shows both,
+  /// one plane shows the page exactly as a phone does, and the page
+  /// underneath is never pushed off to arrange it.
+  ///
+  /// Unlike [two] this is not a demand, so it is [claimFor] 1 — the
+  /// growth is GRANTED by [PlaneHost] out of what would have been the
+  /// empty stage, never taken from a neighbour.
+  twoIfSpare;
 
   /// The claim in planes on a screen offering [count] planes. Claims are
   /// never demoted while planes exist; a claim of at least [count] means
   /// the full screen.
+  ///
+  /// This is the claim the page MAKES — what it takes before anyone
+  /// else is served. [twoIfSpare] makes the smallest claim there is and
+  /// grows afterwards; see [growthCapFor].
   int claimFor(int count) => switch (this) {
         PlaneSpan.one => 1,
         PlaneSpan.two => math.min(2, count),
         PlaneSpan.all => count,
+        PlaneSpan.twoIfSpare => 1,
+      };
+
+  /// The most planes this claim will ever hold on a screen offering
+  /// [count] — its claim plus whatever it may grow into. Identical to
+  /// [claimFor] for every claim that does not grow.
+  int growthCapFor(int count) => switch (this) {
+        PlaneSpan.twoIfSpare => math.min(2, count),
+        _ => claimFor(count),
       };
 }
 
@@ -220,9 +254,14 @@ class PlaneHost extends StatelessWidget {
         // even at a three-plane width. Planes stay equal: the visible
         // planes share the full width.
         if (!active.allowNeighbors) {
-          count = active.span.claimFor(count);
+          // The growth cap, not the bare claim: a growing claim
+          // ([PlaneSpan.twoIfSpare]) presenting alone has no neighbours
+          // to yield to it, so the planes it would have grown into are
+          // the ones to keep. Identical to the claim for every other
+          // span.
+          count = active.span.growthCapFor(count);
         }
-        final activeSpan = active.span.claimFor(count);
+        var activeSpan = active.span.claimFor(count);
         final planeWidth = (width - (count - 1) * gap) / count;
 
         // Remaining planes go to the nearest earlier pages BY THEIR OWN
@@ -233,13 +272,34 @@ class PlaneHost extends StatelessWidget {
         // pages further out slide off entirely. When the flow has no
         // earlier pages left, the leftover planes stay an EMPTY STAGE —
         // a lone default page on a wide screen does not stretch to fill.
-        final earlier = stack.sublist(0, stack.length - 1);
+        // A page that refuses neighbours has none: the planes its own
+        // claim does not take are its to grow into, not a doorway for
+        // the flow beneath. (For every non-growing claim this is what
+        // the clamp above already achieved, since claim == cap there.)
+        final earlier = active.allowNeighbors
+            ? stack.sublist(0, stack.length - 1)
+            : const <PlanePage>[];
         var remaining = count - activeSpan;
         final neighbors = <(PlanePage, int)>[];
         for (var i = earlier.length - 1; i >= 0 && remaining > 0; i--) {
           final span = math.min(earlier[i].span.claimFor(count), remaining);
           neighbors.insert(0, (earlier[i], span));
           remaining -= span;
+        }
+        // A GROWING claim ([PlaneSpan.twoIfSpare]) takes what is left
+        // over — and only what is left over. The flow beneath has
+        // already been served above, so growth can never displace a
+        // page; it only turns what would have been an empty stage into
+        // the second half of the active page. Capped by the claim's own
+        // growth cap (two planes), so a growing page never sprawls
+        // across a wide screen either.
+        final growth = math.min(
+          remaining,
+          active.span.growthCapFor(count) - activeSpan,
+        );
+        if (growth > 0) {
+          activeSpan += growth;
+          remaining -= growth;
         }
         final emptyPlanes = remaining;
 

@@ -1,6 +1,6 @@
 {
   "name": "products_sdk",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "_comment_requires": "products_sdk >= 1.6.0 requires base_sdk >= 1.43.0 (PlaneHost/Planes/PlaneSpan and FloatingBackPill from the approved plane model - the manager catalog declares ALL planes per approved frame 35a, the pushed edit form declares TWO per 35b, and phones fold to the corner back pill per 35d) and pairs with merchants_sdk >= 1.14.1 (the shell FAB yielded the foods tab to this page's own '+ New product' header action). products_sdk >= 1.5.0 carries the int->String docname id migration for the seller authoring slice (Frappe hash docnames; fleet-wide sweep). products_sdk >= 1.2.0 requires base_sdk >= 1.5.0 (SyncEngine/SyncHandler APIs from the offline-first Phase 0, core PR #15); the composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
   "installs": [],
   "routes": [],

@@ -32,7 +32,12 @@ import 'package:base_sdk/src/models/response/tag_response.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MockShopsRepository implements ShopsRepositoryFacade {
-  final ShopData _demoShop = ShopData(
+  /// The one fictional shop every demo surface shares. Public and static so
+  /// the manager side can serve the SAME identity: merchants_sdk's own
+  /// `DemoSellerShopRepository` (this SDK, `manager/`) hands it to the
+  /// restaurant hub, so the shop a demo build browses and the shop a demo
+  /// manager runs are one shop rather than two inventions.
+  static final ShopData demoShop = ShopData(
     id: "1",
     userId: "1",
     tax: 10,
@@ -82,7 +87,7 @@ class MockShopsRepository implements ShopsRepositoryFacade {
     bool? verify,
   }) async {
     return ApiResult.success(
-      data: ShopsPaginateResponse(data: [_demoShop, _demoShop]),
+      data: ShopsPaginateResponse(data: [demoShop, demoShop]),
     );
   }
 
@@ -91,19 +96,19 @@ class MockShopsRepository implements ShopsRepositoryFacade {
     double latitude,
     double longitude,
   ) async {
-    return ApiResult.success(data: ShopsPaginateResponse(data: [_demoShop]));
+    return ApiResult.success(data: ShopsPaginateResponse(data: [demoShop]));
   }
 
   @override
   Future<ApiResult<ShopsPaginateResponse>> getShopsRecommend(int page) async {
-    return ApiResult.success(data: ShopsPaginateResponse(data: [_demoShop]));
+    return ApiResult.success(data: ShopsPaginateResponse(data: [demoShop]));
   }
 
   @override
   Future<ApiResult<SingleShopResponse>> getSingleShop({
     required String uuid,
   }) async {
-    return ApiResult.success(data: SingleShopResponse(data: _demoShop));
+    return ApiResult.success(data: SingleShopResponse(data: demoShop));
   }
 
   @override
@@ -111,7 +116,7 @@ class MockShopsRepository implements ShopsRepositoryFacade {
     required String text,
     String? categoryId,
   }) async {
-    return ApiResult.success(data: ShopsPaginateResponse(data: [_demoShop]));
+    return ApiResult.success(data: ShopsPaginateResponse(data: [demoShop]));
   }
 
   @override
@@ -136,7 +141,7 @@ class MockShopsRepository implements ShopsRepositoryFacade {
 
   @override
   Future<ApiResult<ShopsPaginateResponse>> getPickupShops() async {
-    return ApiResult.success(data: ShopsPaginateResponse(data: [_demoShop]));
+    return ApiResult.success(data: ShopsPaginateResponse(data: [demoShop]));
   }
 
   @override
@@ -160,14 +165,14 @@ class MockShopsRepository implements ShopsRepositoryFacade {
     required int page,
     String? subCategoryId,
   }) async {
-    return ApiResult.success(data: ShopsPaginateResponse(data: [_demoShop]));
+    return ApiResult.success(data: ShopsPaginateResponse(data: [demoShop]));
   }
 
   @override
   Future<ApiResult<ShopsPaginateResponse>> getShopsByIds(
     List<String> shopIds,
   ) async {
-    return ApiResult.success(data: ShopsPaginateResponse(data: [_demoShop]));
+    return ApiResult.success(data: ShopsPaginateResponse(data: [demoShop]));
   }
 
   @override

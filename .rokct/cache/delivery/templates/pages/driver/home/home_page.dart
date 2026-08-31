@@ -368,7 +368,19 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   (state.orderDetail ?? OrderDetailData()),
                             )
                           : ParcelBottomSheetScreen(parcel: state.parcelDetail)
-                    : BottomSheetScreen(isScrolling: state.isScrolling),
+                    : BottomSheetScreen(
+                        isScrolling: state.isScrolling,
+                        // The wallet lives in revenue_sdk; delivery_sdk
+                        // imports only base_sdk, so the destination is
+                        // supplied by the host here rather than routed
+                        // inside the sheet. DriverIncomeRoute is the
+                        // surface the driver's money already lives on
+                        // (profile_page.dart uses the same route).
+                        onTopUp: () =>
+                            context.pushRoute(const DriverIncomeRoute()),
+                        onOpenWallet: () =>
+                            context.pushRoute(const DriverIncomeRoute()),
+                      ),
                 state.isGoRestaurant || state.isGoUser
                     ? const SizedBox.shrink()
                     : _myFindButton(ref),
@@ -505,7 +517,57 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
+  /// CHIP 942 of design strip section 49, frame 49d — the off-duty veil.
+  ///
+  /// Off duty is a REAL, PERSISTED, CONSEQUENTIAL state:
+  /// `CourierStorage.getOnline()` gates whether the 10-minute
+  /// `fetchBackground` location task is registered at all and whether
+  /// the 10-second routing poll ever starts. Today the screen looks
+  /// IDENTICAL either way, with nothing but a switch position telling a
+  /// driver who is working from one who is not.
+  ///
+  /// Desaturating and dimming the map is the cheapest possible way to
+  /// make that legible at a glance, and it is HONEST about what actually
+  /// stopped: with the poll cancelled the map genuinely is no longer
+  /// live, so it should not look live.
+  ///
+  /// Applied as a paint-time filter over the shipped GoogleMap rather
+  /// than as a map style, deliberately: it needs no style JSON asset, no
+  /// controller round-trip, and it cannot get out of step with the
+  /// toggle because it is read from the same `getOnline()` the toggle
+  /// writes.
   Widget _map(BuildContext context, WidgetRef ref) {
+    final map = _mapSurface(context, ref);
+    if (CourierStorage.getOnline()) return map;
+    return ColorFiltered(
+      colorFilter: const ColorFilter.matrix(<double>[
+        // Greyscale luminance, then dimmed to 0.72 — drained, not hidden.
+        // The driver must still be able to read where he is.
+        0.2126 * 0.72, 0.7152 * 0.72, 0.0722 * 0.72, 0, 0,
+        0.2126 * 0.72, 0.7152 * 0.72, 0.0722 * 0.72, 0, 0,
+        0.2126 * 0.72, 0.7152 * 0.72, 0.0722 * 0.72, 0, 0,
+        0, 0, 0, 1, 0,
+      ]),
+      child: map,
+    );
+  }
+
+  /// The driver's zone, drained to grey while he is off duty.
+  Set<Polygon> _zonePolygons(Set<Polygon> polygons) {
+    if (CourierStorage.getOnline()) return polygons;
+    return polygons
+        .map(
+          (polygon) => polygon.copyWith(
+            strokeColorParam: AppStyle.unselectedBottomItem,
+            fillColorParam: AppStyle.unselectedBottomItem.withValues(
+              alpha: 0.10,
+            ),
+          ),
+        )
+        .toSet();
+  }
+
+  Widget _mapSurface(BuildContext context, WidgetRef ref) {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
       height: MediaQuery.sizeOf(context).height,
@@ -533,7 +595,10 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
           ...ref.watch(homeProvider).markers,
         },
-        polygons: ref.watch(homeProvider).polygon,
+        // CHIP 942, second half: the zone outline drains to grey off
+        // duty. Recoloured here rather than in the notifier so the zone
+        // itself stays one source of truth and only its PAINT changes.
+        polygons: _zonePolygons(ref.watch(homeProvider).polygon),
         polylines:
             ref.watch(homeProvider).isGoRestaurant ||
                 ref.watch(homeProvider).isGoUser

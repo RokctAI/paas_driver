@@ -1,3 +1,20 @@
+## 1.3.2
+
+* Version-only bump so composed shells re-extract users_sdk. `SessionEndHooks`
+  (`lib/src/common/services/session_end_hooks.dart`), its `users_sdk.dart`
+  barrel export and the two `SessionEndHooks.run()` calls in
+  `user_repository.dart` all landed in the Restore Credentials change without
+  a manifest version bump, so no shell ever refetched them — every consumer
+  stayed on the cached 1.3.1 tree, which has none of those files. auth_sdk's
+  `auth_restore_credential_gate` boot hook, which composes
+  `SessionEndHooks.register('restore_credentials', RestoreCredentialGate.clear)`
+  into every host `main.dart`, then referenced a class that was not in the
+  composed sources: `Error: Undefined name 'SessionEndHooks'` broke the
+  paas_driver and paas_manager Android builds. The bump also restores the
+  logout/delete-account half of the feature — without the refetched
+  `user_repository.dart` nothing ever fires the registered hooks. No source
+  change.
+
 ## 1.3.0
 
 * New guided-tour fragment `templates/tour/users.tour.yaml` (fragment name

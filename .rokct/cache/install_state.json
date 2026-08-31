@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.52.0",
+      "version": "1.53.0",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -238,7 +238,7 @@
       ]
     },
     "users_sdk": {
-      "version": "1.3.1",
+      "version": "1.3.2",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -249,7 +249,7 @@
       "boot_hooks": []
     },
     "orders_sdk": {
-      "version": "1.14.0",
+      "version": "1.15.0",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -260,14 +260,14 @@
       "boot_hooks": []
     },
     "delivery_sdk": {
-      "version": "1.13.0",
+      "version": "1.15.0",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "9eb1d9ff6604172074536e70899a7f3671c0ed74c0fbe845994e5b217c7e23ad",
         "lib/presentation/routes/delivery_adapters.dart": "c5a4dd185b09f282e9d620adc46a6796cad56441e8d0def12e2745c05f38cfef",
         "lib/presentation/pages/home/parcel_bottom_sheet.dart": "84975a7bf86cf29eadecabfefc91989ad35c643ae7271b9930507f6c15446198",
-        "lib/presentation/pages/home/bottom_sheet_screen.dart": "88527a53ecb6a7ca4578bf598f98d210aa787f4e1044b29209a65149d04103da",
-        "lib/presentation/pages/home/home_page.dart": "922748879e7e3fa1d70ff0c138ff8299ac6b49091f9f66ba0b3d449c687c0a40",
-        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "c62a44942c4ed7b9f6045a8e6c07f3938f963d0599fd26b44cfa19d1d4dd74d1",
+        "lib/presentation/pages/home/bottom_sheet_screen.dart": "99b0904bc6cfd97a1c49fb9c89d7b7cae0dca9ce5860c05f4345b13a0f962508",
+        "lib/presentation/pages/home/home_page.dart": "86694f249a9c30145ccf3a5df1669c67815f3aecbc54df8fc22fdfb020fc914c",
+        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "8cb9e9c7bb41234f0c51245f5ccbe968752a72a6ca3b3bb8b4894da1762c9154",
         "lib/presentation/pages/home/widgets/outside_painter.dart": "b4c82549574c72b17ca94870b9469f4c471958a734a96471cf0ebec1b7cda8a3",
         "lib/presentation/pages/home/widgets/rate_customer.dart": "f46cdce7f88860fd2f32f49686170a7ecfb18776feb67c51c0ed3edfbe15275a",
         "lib/presentation/pages/home/widgets/stores.dart": "93823d4f560366f6b5ca057cd6ce631334304f8ea620ac0b4378254680048170",
@@ -280,7 +280,7 @@
         "lib/presentation/pages/parcel/parcel_order.dart": "2a7a4724e3a50e9e133cbcb923b06cddbf1ffb4e7d27c047cd2b32269a2e473a",
         "lib/presentation/pages/parcel/parcels_page.dart": "3ae6a134940be78d20233cddfac5cbac57998a8171665f6aef4df9b03a8bc418",
         "lib/presentation/pages/parcels_history/parcel_history.dart": "e461d192a09ff16f56e1b478d45a33649dd3bca0ce3e8cecd07d7947d30e0c00",
-        "lib/presentation/pages/push_order/push_order_screen.dart": "d528668d3add597374cdfc8fb0a6d753e84ab8008e694e9949f045700721d775",
+        "lib/presentation/pages/push_order/push_order_screen.dart": "37e0e00434a2b5191ff215d5f8208286bf83ba7367c847a45cedd01a628dfe91",
         "lib/presentation/pages/profile/profile_page.dart": "10c34937c356f02c095713ed8395def6a668823e8bc2472517a276bc486224bc",
         "lib/presentation/pages/profile/edit_car.dart": "f6ecef7619151969d3d64cdbdcacb3db6ef11e5d68bfb2d024232457b77d3bf6",
         "lib/presentation/pages/profile/widgets/cancel_dialog.dart": "ea2dc524f3a06c2ad597837b3b11484e00974ceef54016b5808115e1815d557d",
@@ -432,8 +432,41 @@
         "rejection_message_tr_key": "become.driver"
       },
       "tr_keys": {
+        "accepted": "accepted",
+        "alreadyDockedFromYourWallet": "already.docked.from.your.wallet",
+        "availableNow": "available.now",
+        "away": "away",
+        "cashIsDockedAtDelivered": "cash.you.collected.is.docked.at.delivered",
+        "cashOnHand": "cash.on.hand",
+        "cashOrderPlural": "cash.orders",
+        "cashOrderSingular": "cash.order",
+        "claim": "claim",
+        "delivered": "delivered",
+        "dockedFromYourWallet": "docked.from.your.wallet",
+        "earned": "earned",
+        "firstToClaim": "first.to.claim",
+        "goOnDuty": "go.on.duty",
+        "jobsInHandStillWork": "jobs.you.already.have.still.work",
+        "jobsOpenInYourZone": "jobs.open.in.your.zone",
+        "lastFee": "last.fee",
+        "newJobsArePaused": "new.jobs.are.paused",
+        "noJobsOfferedLocationOff": "no.jobs.offered.location.no.longer.shared",
+        "openWallet": "open.wallet",
+        "operatorPausesNewJobsAt": "your.operator.pauses.new.jobs.at",
+        "owing": "owing",
+        "paid": "paid",
+        "payInAndWorkStartsAgain": "pay.some.in.and.work.starts.again",
+        "seeWhatYouOwe": "see.what.you.owe",
+        "setByYourOperator": "set.by.your.operator",
+        "topUp": "top.up",
+        "youAreOffDuty": "you.are.off.duty",
+        "youOwe": "you.owe",
+        "yourLimit": "your.limit",
+        "yourWallet": "your.wallet",
+        "yourWalletIsClear": "your.wallet.is.clear",
         "activeParcels": "active_parcels",
         "apart": "apart",
+        "atShop": "at.shop",
         "askThisCodeFromCustomer": "ask.this.code.from.customer",
         "availableOrders": "available_orders",
         "availableParcels": "available_parcels",
@@ -441,7 +474,10 @@
         "cashToCollect": "cash.to.collect",
         "checkRecipientId18Plus": "check.recipient.id.18.plus",
         "deliveryRoute": "delivery.route",
+        "dropOff": "drop.off",
         "myRoute": "my.route",
+        "offerCountdownNotAHold": "the_countdown_is_the_offer_expiring_not_a_hold_on_the_job",
+        "onAWay": "on.a.way",
         "noLocationForStop": "no.location.for.stop",
         "noRouteStops": "no.route.stops",
         "pickupRoute": "pickup.route",
@@ -505,7 +541,7 @@
       ]
     },
     "comms_sdk": {
-      "version": "1.13.0",
+      "version": "1.14.0",
       "files": {
         "lib/application/notification/notification_state.dart": "9c656e1bc05122717549b9f72a3d143f59eabbb817791afc87fcf2f5a9a15f15",
         "lib/application/notification/notification_notifier.dart": "58505bc713d9551826894f0fa31cd38acb02b4653c11f524c13ff23d1a11deb0",
@@ -567,7 +603,7 @@
       }
     },
     "processing_sdk": {
-      "version": "1.0.1",
+      "version": "1.0.2",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -578,7 +614,7 @@
       "boot_hooks": []
     },
     "corporate_sdk": {
-      "version": "1.1.2",
+      "version": "1.1.3",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -600,7 +636,7 @@
       "boot_hooks": []
     },
     "map_sdk": {
-      "version": "1.2.0",
+      "version": "1.2.1",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -672,7 +708,7 @@
       }
     },
     "revenue_sdk": {
-      "version": "1.9.0",
+      "version": "1.9.2",
       "files": {
         "lib/presentation/pages/income/statistics_screen.dart": "f41d8b0c72b30e5166165e07212fcaea025d1319f9d442084424d05c9fa084e2",
         "lib/presentation/pages/income/income_page.dart": "d9f6e16086834af68c6bf1428a0ff2f9b7efcb0004fa15b1217eae6bc9834f92",
@@ -709,7 +745,7 @@
       }
     },
     "merchants_sdk": {
-      "version": "1.21.0",
+      "version": "1.22.0",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
         "lib/presentation/pages/stores/story_page.dart": "7e22f32e7e6df8f6a4bfb697987d9b26ad58755642eab7535c321f569208abf7"
@@ -743,7 +779,7 @@
       }
     },
     "products_sdk": {
-      "version": "1.6.0",
+      "version": "1.7.0",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -754,7 +790,7 @@
       "boot_hooks": []
     },
     "calc_sdk": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "files": {
         "lib/presentation/pages/calc/calculator_page.dart": "8d6105c1ada2c2fa43f28b650207ccdc26a6c8bd4c9f95b0c7a87571514caf7d"
       },
@@ -782,7 +818,7 @@
       }
     },
     "auth_sdk": {
-      "version": "1.9.1",
+      "version": "1.9.3",
       "files": {
         "lib/presentation/routes/auth_route_pages.dart": "434c57179cc107e87e8227b562a64cce223b9e2e12c0f90e898fc7a34e847084",
         "lib/presentation/routes/registration_step_pages.dart": "0688256171defa4e5aadaa38b010cb754d0a4ca19bc517b9a6f192d4afdd4e6f",
@@ -845,6 +881,11 @@
           "id": "auth_pending_otp_gate",
           "order": 0,
           "body": "PendingOtpGate.install();"
+        },
+        {
+          "id": "auth_restore_credential_gate",
+          "order": 1,
+          "body": "RestoreCredentialGate.install(); SessionEndHooks.register('restore_credentials', RestoreCredentialGate.clear);"
         }
       ],
       "database": {
@@ -861,7 +902,7 @@
       }
     },
     "weather_sdk": {
-      "version": "1.6.0",
+      "version": "1.6.1",
       "files": {
         "lib/presentation/components/weather/weather_widget.dart": "07bf790d535dbe66cc7de4a1b54e4833609a8279da5e33f5e78d51e3d489990e"
       },
@@ -914,7 +955,7 @@
       }
     },
     "hms_sdk": {
-      "version": "1.0.0",
+      "version": "1.0.1",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -936,7 +977,7 @@
       ]
     },
     "desktop_sdk": {
-      "version": "1.2.0",
+      "version": "1.2.1",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -947,7 +988,7 @@
       "boot_hooks": []
     },
     "telemetry_sdk": {
-      "version": "1.0.0",
+      "version": "1.0.1",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -960,76 +1001,76 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.52.0",
-      "hash": "cc750fce808ee059"
+      "version": "1.53.0",
+      "hash": "81b6f55301312979"
     },
     "comms": {
-      "version": "1.13.0",
-      "hash": "d4cfe9139bb38af5"
+      "version": "1.14.0",
+      "hash": "78d8c14cc5d19bd1"
     },
     "auth": {
-      "version": "1.9.1",
-      "hash": "f537756d8e1fceea"
+      "version": "1.9.3",
+      "hash": "41a63585db461695"
     },
     "users": {
-      "version": "1.3.1",
-      "hash": "53b6b5a46cb8187f"
+      "version": "1.3.2",
+      "hash": "551bd08b590090e8"
     },
     "orders": {
-      "version": "1.14.0",
-      "hash": "e5ed7a954f259e55"
+      "version": "1.15.0",
+      "hash": "3a2c28a70f8c89ec"
     },
     "merchants": {
-      "version": "1.21.0",
-      "hash": "77e9051e564ea403"
+      "version": "1.22.0",
+      "hash": "56a19b4d27bfc084"
     },
     "products": {
-      "version": "1.6.0",
-      "hash": "86dbce25d8f8062c"
+      "version": "1.7.0",
+      "hash": "94855b8fb1f4b731"
     },
     "delivery": {
-      "version": "1.13.0",
-      "hash": "619d64d2ae09dd0c"
+      "version": "1.15.0",
+      "hash": "2b83cb8358872141"
     },
     "map": {
-      "version": "1.2.0",
-      "hash": "2b0284e0ce799521"
+      "version": "1.2.1",
+      "hash": "1b19fced6c8f5072"
     },
     "zones": {
       "version": "1.5.0",
       "hash": "c4125872260ed4cf"
     },
     "processing": {
-      "version": "1.0.1",
-      "hash": "a547adc9e15d961c"
+      "version": "1.0.2",
+      "hash": "83864d75f80cd5e1"
     },
     "calc": {
-      "version": "1.1.0",
-      "hash": "91bde72f54c94f99"
+      "version": "1.1.1",
+      "hash": "3d8a89b00f8e5b65"
     },
     "corporate": {
-      "version": "1.1.2",
-      "hash": "1a56d3b907707222"
+      "version": "1.1.3",
+      "hash": "3c6c146c9745f00f"
     },
     "revenue": {
-      "version": "1.9.0",
-      "hash": "a1ec277543d9145f"
+      "version": "1.9.2",
+      "hash": "56bf0c18c70077ff"
     },
     "weather": {
-      "version": "1.6.0",
-      "hash": "46c51646b4edfb0d"
+      "version": "1.6.1",
+      "hash": "cd9bbdcdba39427c"
     },
     "hms": {
-      "version": "1.0.0",
-      "hash": "b02abafb5e19f40d"
+      "version": "1.0.1",
+      "hash": "b030c92b54f6fefd"
     },
     "desktop": {
-      "version": "1.2.0",
-      "hash": "d3cb813ce7daee1e"
+      "version": "1.2.1",
+      "hash": "cdfba2160635b35c"
     },
     "telemetry": {
-      "version": "1.0.0",
-      "hash": "3bba74070c266db1"
+      "version": "1.0.1",
+      "hash": "d72bc5e07ff1124c"
     }
   }
 }

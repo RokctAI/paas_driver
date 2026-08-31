@@ -1,3 +1,31 @@
+## 1.15.0
+
+* `DemoSellerOrdersRepository` — demo data behind the manager's two order
+  screens. `ManagerOrdersDependencies.register` now selects it over
+  `SellerOrdersRepository` under `--dart-define=IS_DEMO=true`, the same
+  `AppConstants.isDemo` ternary merchants_sdk's POS seams and products_sdk's
+  catalog facades already use. Nothing about the production path changed.
+  * WHY: the guided tour runs the app in demo with zero backend calls, so
+    the `order_queue` and `order_history` stills were capturing empty
+    states — a brand-new shop's truth, but not a marketing screenshot.
+  * WHAT IT SERVES: a seeded shift of seven fictional orders across
+    new / accepted / ready / delivered, with plausible rand totals and
+    times that walk backwards through the trading day. Counts for every
+    board column are computed off the live overlay, so the pills agree with
+    the rows actually served. History is the delivered + canceled pair.
+  * WRITES are acknowledged in memory: a status move, a collect-in-person
+    conversion or a POS sale sticks for the rest of the session and resets
+    on the next launch (zones_sdk `DemoDriverDeliveryZonesRepository`
+    overlay convention). No HTTP client is ever constructed and nothing
+    leaves the device.
+  * The seeded dishes deliberately match products_sdk's and kitchen_sdk's
+    demo menus, so the queue, the menu and the kitchen tell one story.
+    Duplicated rather than shared — ADR-005 keeps these SDKs free of
+    cross-SDK imports, and a handful of dish names is cheaper than a seam.
+* Tour fragment: the demo-grounding note now records that both steps are
+  demo-backed. `PosProductsRepositoryFacade` is still un-gated, so the POS
+  create-order flow stays deliberately un-toured.
+
 ## 1.14.0
 
 * Saved-card payments name the CARD, not a credential. `Saved Card.token`

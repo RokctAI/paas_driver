@@ -10,15 +10,15 @@
 # composes.
 #
 # Demo grounding (--dart-define=IS_DEMO=true): merchants_di.dart swaps in
-# MockShopsRepository for the customer-facing ShopsRepositoryFacade. The
-# manager-side SellerShopRepositoryFacade is NOT demo-gated yet, so the
-# restaurant tab's shop header renders without a shop identity in demo
-# builds - that screen is deliberately NOT captured here. Follow-up (rule
-# #59): demo-gate SellerShopRepositoryFacade (reusing MockShopsRepository's
-# _demoShop) and add a restaurant-tab step. The driver-role story screen
-# (/story, app_type.driver) is also out of scope - it belongs in a future
-# driver-role fragment, since this fragment's /main route does not exist in
-# driver composes.
+# MockShopsRepository for the customer-facing ShopsRepositoryFacade, and
+# since 1.22.0 ManagerMerchantsDependencies demo-gates the manager-side
+# SellerShopRepositoryFacade to this SDK's own DemoSellerShopRepository -
+# which serves MockShopsRepository.demoShop itself, so the shop a demo
+# customer browses and the shop a demo manager runs are ONE shop. That is
+# what makes the restaurant_hub step below a real capture rather than a
+# blank header. The driver-role story screen (/story, app_type.driver) is
+# out of scope - it belongs in a future driver-role fragment, since this
+# fragment's /main route does not exist in driver composes.
 #
 # The sync-issues screen renders truthfully in demo: nothing is parked, so
 # its own empty state ("no data") is the correct all-synced picture.
@@ -87,6 +87,32 @@ steps:
     action: route
     route: /pos-checkout
     settle: 8
+  - key: restaurant_hub
+    title: "Everything else, one tap away"
+    caption: "The *restaurant hub* is the spine of the app - your shop's identity up top, and every setting, section and report a tap below it."
+    action: dart
+    settle: 8
+    dart: |
+      // Land the manager home shell and select the restaurant tab (index 4
+      // since merchants_sdk 1.14.0 - POS till 0, order queue 1, kitchen 2,
+      // foods 3) through the shell's own mainProvider, the same state the
+      // bottom-navigation buttons drive. Route first: an earlier fragment
+      // may have left the app elsewhere, and mainProvider's selection
+      // persists across routes.
+      //
+      // The tab is preload: false in the shell's IndexedStack, so selecting
+      // it is what first builds RestaurantPage - whose initState fetches
+      // the shop through SellerShopRepositoryFacade. In demo builds that is
+      // this SDK's DemoSellerShopRepository (see the demo-grounding note at
+      // the top of this file), so the header renders with the demo shop's
+      // name and rating rather than empty; the rows below it carry their
+      // own isDemo subtitles. The settle covers that first fetch.
+      router.replaceNamed('/main');
+      await Future<void>.delayed(const Duration(seconds: 3));
+      final Element element = tester.element(find.byType(Navigator).first);
+      final ProviderContainer container =
+          ProviderScope.containerOf(element, listen: false);
+      container.read(mainProvider.notifier).selectIndex(4);
   - key: sync_issues
     title: "Nothing gets lost offline"
     caption: "Sell through any outage - offline work syncs back by itself, and anything that snags waits here with *retry or discard*."

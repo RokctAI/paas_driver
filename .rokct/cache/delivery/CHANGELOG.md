@@ -1,3 +1,137 @@
+## 1.15.0
+
+* Design strip section 49 — the driver's home screen, frames **49a**
+  (on duty, nothing assigned), **49d** (off duty), **49e** (the 360
+  fold) and **49m** (the wallet floor). All four are states of one
+  composition, which is why they land together.
+  * **What came out of `bottom_sheet_screen.dart`**: three hard-coded
+    stock photographs on a 186.h horizontal `ListView`
+    (deliveryhero.com, ctfassets.net and unsplash URLs baked into the
+    source), the "Juvo benefit" promo tile, and a Balance tile reading a
+    CACHED `LocalStorage.getUser()?.wallet?.price` whose tap handler had
+    been commented out since it was written.
+  * **931** — `DriverDayStrip`: earned / delivered / last fee, from
+    `get_deliveryman_order_report` with today on both bounds. Driver home
+    never called that endpoint; adopting it is a client change, not a new
+    endpoint.
+  * **932** — `CashOnHandCard`: the one number a driver could not see and
+    most needs to. `settle_order` credits his fee AND debits his wallet
+    by the gross cash he is carrying, so the old Balance tile was already
+    net of money in his pocket with nothing explaining the gap. The
+    wording is the wording frame 49d was REJECTED and redrawn for: "Cash
+    on hand" / "docked from your wallet", never "Still to bank" /
+    "deposit before your next shift" — no deposit doctype, due date or
+    banking step exists anywhere in the fleet to back that claim.
+  * **933/934** — `AvailableWorkQueue`: the offer queue, from
+    `getAvailableOrders`, which was implemented and simply unconsumed by
+    this screen. "first to claim" is a statement about the mechanism —
+    `attach_order_to_me` succeeds only while `deliveryman` is empty, so
+    two drivers tapping Claim is a race one of them loses, and the header
+    says so before the tap. The card names a SUBURB and never a person,
+    because `serialize_deliveryman_order` emits no user block at all.
+  * **942** — the off-duty veil (`home_page.dart`): the map desaturated
+    and dimmed and the zone outline drained to grey. Honest about what
+    stopped — with `getOnline()` false the periodic `fetchBackground`
+    task is cancelled and the 10-second routing poll never starts, so the
+    map genuinely is no longer live.
+  * **945/970** — `OffDutyRestCard` and `WalletPositionCard`: what
+    replaces the carousel when he is not working, plus his wallet
+    position stated as a SENTENCE rather than a signed number ("You owe
+    R 1,240.00", not "−1,240"), naming the cause in his own terms and
+    carrying the exit. It states no deadline, no deposit and no
+    settlement obligation, because none exist.
+  * **990/991** — `WorkPausedGate`: the screen half of the wallet floor
+    shipped in zones#77. The guard already refuses work past the
+    allowance but can only speak at accept time and, by design, its error
+    carries no financial detail; the driver had no way to find out except
+    by tapping Claim. The gate leads with the way out, states the
+    operator's limit, and says that jobs already in hand are untouched —
+    all true of the guard, which reads nothing on the collection path.
+  * **49e, the fold** — a RE-LAYOUT, not a scale-down: at 360 the day
+    strip becomes a headline figure with the two supporting numbers
+    inline under a full-width rule, rather than three columns shrunk by
+    `.w` until they collide. The cash card holds full weight; the number
+    a driver is personally liable for does not get to be what degrades.
+* **Backend, additive.** `get_deliveryman_order_report` gains
+  `last_delivered_fee`, `cash_on_hand` and `cash_order_count`, all
+  derived in the pass it already makes over rows it already reads;
+  `_delivered_fields` asks for `cod_collected_amount` only on a site
+  whose meta has it, so an unmigrated site reports zero rather than
+  raising. New whitelisted `get_deliveryman_work_status` returns
+  `{allowance, balance, owing, can_take_work}` through the SAME
+  `resolve_deliveryman_wallet_allowance` and the SAME epsilon comparison
+  the guard uses, so the gate on screen can never disagree with the guard
+  that actually refuses the work. No policy is added anywhere.
+* **Flagged, drawn on the frames, and deliberately NOT built** because
+  nothing sources them: frame 49d's "SHIFT ENDED 17:04" (nothing records
+  when duty was toggled — `setOnline` stores no timestamp), chip 934's
+  customer name (no user block in the serializer) and chip 940's zone
+  badge (needs the driver's live position plumbed into the sheet plus a
+  point-in-polygon test). The day strip's `heading` parameter is where a
+  real shift timestamp would land.
+
+## 1.14.0
+
+* Design strip section 49, frames **49b** and **49c** — the two driver
+  surfaces that describe a job in progress. Both are draw-only: no
+  endpoint, no notifier and no navigation changed in either.
+  * **49b — the push offer, redrawn as a DECISION.**
+    `push_order_screen.dart` was still the white upstream card
+    (`AppStyle.white` at the panel, the ring collar and both avatar
+    wells) — the last white surface on the driver's decision path, and
+    the one screen he reads under time pressure. It now carries the
+    fleet's dark tokens (`cardDark` / `cardDarkAlt` / `strokeDark`), the
+    same set `CashCollectionSheet` adopted in 1.13.0, so the offer and
+    the money step it leads to read as one app.
+    * `PushOfferCountdown` — the ring, in a collar that is the sheet's
+      own surface rather than a white disc floating over it, so the
+      straddle reads. It owns NO clock: the page still computes the
+      percent from the shipped `timerText` over
+      `CourierHelpers.getAppDeliveryTime()` and hands it in. An
+      out-of-range percent is clamped rather than thrown. Its track and
+      progress arc move off a raw hex (`Color(0xFFF26110)`) and
+      `shimmerBase` onto `AppStyle.primary` / `strokeDark`, so the ring
+      re-brands with the composed app's palette like every other
+      surface.
+    * `PushOfferTimerNote` — the one honest line the frame asks for. The
+      ring looks like a hold on the job. It is not: it is the OFFER
+      expiring, and another driver can take the work while it counts.
+      Nothing in the shipped screen said so.
+    * `PushOfferLegs` — the two legs NAMED. The shipped layout already
+      drew shop, two dots, then customer, and never said which end was
+      which; PICKUP and DROP-OFF are the two things being decided
+      about. Same fields, same payload, nothing added or dropped.
+    * Untouched on purpose: the timer maths, the `ref.listen`-on-
+      `isTimeOut` pop, `goMarket`, `getRoutingAll`, both buttons and the
+      COD line.
+  * **49c — the job rail.** `delivery_bottom_sheet.dart` told the driver
+    where he was in the job with exactly one thing: the caption on the
+    primary button. `DeliveryStatusRail` draws the arc instead —
+    Accepted, At shop, On a Way, Delivered.
+    * The rail is DERIVED and invents nothing. The Order doctype carries
+      no "at shop" status and this does not pretend it does: the second
+      node is earned at the `completeCheckout` confirmation, which is
+      the same local transition that already swaps the button's
+      caption. `DeliveryStatusRail.stageFor` is the whole derivation and
+      it is pure, so the reading is under test without a notifier.
+    * No new state, no new call: the server `status` already on the
+      sheet plus the two live flags `HomeState` already keeps.
+  * Six new driver `tr_keys`: accepted, atShop, onAWay, delivered,
+    dropOff, offerCountdownNotAHold. `TrKeys.pickup` is base's own.
+  * `cached_network_image` is now a declared dependency (49b's leg strip
+    draws the shop and recipient avatars from `lib/`; it was previously
+    reached transitively through base_sdk) — same reason `auto_route`
+    was declared in 1.13.0.
+  * Both widgets live in `lib/` rather than in the installed template,
+    which puts them under CI: `templates/**` is excluded from analysis
+    fleet-wide.
+  * FOLLOW-UP, deliberately out of scope and unchanged by this release:
+    this package has no `tool/inject_tr_keys.dart`, so a STANDALONE
+    `flutter test` run fails to load every suite that touches a
+    manifest-declared key until the resolved `base_sdk` checkout has
+    the manifest's `tr_keys` injected by hand. merchants_sdk ships that
+    harness tool; delivery_sdk does not.
+
 ## 1.13.0
 
 * Gate 3 of design strip section 45 — the deliveryman's cash step

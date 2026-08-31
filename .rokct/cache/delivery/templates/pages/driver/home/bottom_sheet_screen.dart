@@ -18,36 +18,110 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// DESIGN STRIP SECTION 49 — the driver's home sheet.
+//
+// Frames 49a (on duty, nothing assigned), 49d (off duty), 49e (the 360
+// fold) and 49m (the wallet-floor gate) are all states of THIS ONE
+// composition, which is why they land in one file.
+//
+// WHAT CAME OUT, AND WHY.
+//   * three hard-coded stock photographs on a 186.h horizontal ListView
+//     — deliveryhero.com, ctfassets.net and unsplash URLs baked into the
+//     source. They showed the driver nothing about his own work.
+//   * the "Juvo benefit" promo tile.
+//   * a Balance tile reading a CACHED `LocalStorage.getUser()?.wallet?
+//     .price` whose tap handler had been commented out.
+//
+// WHAT WENT IN, AND WHERE IT COMES FROM. Everything drawn here was
+// already on the wire; nothing new is invented client-side:
+//   * chip 931, the day strip — `get_deliveryman_order_report` with
+//     today on both bounds. Home never called this endpoint; adopting it
+//     is a client change, not a new endpoint.
+//   * chip 932, cash on hand — `cash_on_hand` / `cash_order_count`,
+//     summed server-side from the COD the driver recorded at the door.
+//   * chips 933/934, the queue — `getAvailableOrders`, implemented and
+//     simply unconsumed by this screen.
+//   * chips 945/970, the off-duty state — `CourierStorage.getOnline()`,
+//     which already gates the background location task and the routing
+//     poll, plus the wallet position from `get_deliveryman_work_status`.
+//   * chips 990/991, the gate — the SAME `get_deliveryman_work_status`,
+//     which resolves the SAME allowance the shipped
+//     `assert_deliveryman_can_take_work` guard uses. The screen cannot
+//     disagree with the guard.
+//
+// TWO THINGS THE FRAMES FLAGGED AS UNSOURCED AND THIS FILE THEREFORE
+// DOES NOT DRAW:
+//   * frame 49d's "SHIFT ENDED 17:04" — nothing records when duty was
+//     toggled. `setOnline` flips a boolean on the server and in
+//     CourierStorage and stores no timestamp. The strip says TODAY.
+//   * chip 934's customer name — `serialize_deliveryman_order` emits no
+//     user block at all, which is why the offer card names a SUBURB.
+//
+// The sheet is now scrollable and height-flexible where it used to be a
+// fixed 336.h box, because the gate and the off-duty wallet card are
+// taller than the carousel they replace. The weather banner stays docked
+// ABOVE the card, exactly where the shipped code put it and for the
+// reason the shipped code gave.
+
 import 'package:flutter/material.dart';
-import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:${package}/presentation/pages/profile/courier_statistics_provider.dart';
 
 import 'package:base_sdk/src/navigation/embedded_widgets.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
-import 'package:${package}/presentation/pages/home/widgets/stores.dart';
-import 'package:base_sdk/src/services/app_assets.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
-import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 
-class BottomSheetScreen extends StatefulWidget {
+import 'package:delivery_sdk/src/driver/application/home/driver_home_notifier.dart';
+import 'package:delivery_sdk/src/driver/application/home/driver_home_provider.dart';
+import 'package:delivery_sdk/src/driver/application/order/order_provider.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/services/courier_storage.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/available_work_queue.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/cash_on_hand_card.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/driver_day_strip.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/off_duty_cards.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/work_paused_gate.dart';
+
+import 'package:delivery_sdk/src/driver/application/home/home_provider.dart';
+
+class BottomSheetScreen extends ConsumerStatefulWidget {
   final bool isScrolling;
 
-  const BottomSheetScreen({super.key, required this.isScrolling});
+  /// Fired when the driver asks for the top-up flow (chip 970 and chip
+  /// 990 both carry it). Passed in rather than routed here because the
+  /// wallet lives in revenue_sdk and this SDK imports only base_sdk —
+  /// the host composition supplies the destination.
+  final VoidCallback? onTopUp;
+
+  /// Fired for "Open wallet" / "See what you owe". Same reason.
+  final VoidCallback? onOpenWallet;
+
+  const BottomSheetScreen({
+    super.key,
+    required this.isScrolling,
+    this.onTopUp,
+    this.onOpenWallet,
+  });
 
   @override
-  State<BottomSheetScreen> createState() => _BottomSheetScreenState();
+  ConsumerState<BottomSheetScreen> createState() => _BottomSheetScreenState();
 }
 
-class _BottomSheetScreenState extends State<BottomSheetScreen> {
-  final List<String> image = [
-    "https://www.deliveryhero.com/wp-content/uploads/2021/01/TAR_5922.jpg",
-    'https://images.ctfassets.net/trvmqu12jq2l/1LFP1rAaPMiEx5y11ZZv2F/5167948e81a58a08e516631e07ee154c/blog-hero-1208x1080-v115.14.01.jpg',
-    'https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8cGFja2FnZSUyMGRlbGl2ZXJ5fGVufDB8fDB8fA%3D%3D&w=1000&q=80',
-  ];
+class _BottomSheetScreenState extends ConsumerState<BottomSheetScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(driverHomeProvider.notifier).refresh();
+      if (CourierStorage.getOnline()) {
+        ref.read(orderProvider.notifier).fetchAvailableOrders(context);
+      } else {
+        ref.read(driverHomeProvider.notifier).refreshOpenJobCount();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,8 +153,9 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
   /// is an active notice, so in the calm case this adds zero layout either
   /// way.
   ///
-  /// Docked above the sheet card (not inside it) because the card's height
-  /// is fixed at 336.h - a variable-height notice inside it would overflow.
+  /// CHIP 943 keeps it docked above the sheet card (not inside it) —
+  /// exactly where the shipped code put it, and for the reason the
+  /// shipped code gave.
   Widget _weatherWarningsBanner() {
     Widget? banner;
     try {
@@ -98,18 +173,27 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
   }
 
   Widget _sheetBody(BuildContext context) {
+    final onDuty = CourierStorage.getOnline();
+    final home = ref.watch(driverHomeProvider);
+
     return Container(
-      height: 336.h,
       width: MediaQuery.sizeOf(context).width,
+      // Was a fixed 336.h. The composition is now state-dependent — the
+      // gate and the off-duty wallet card are taller than the carousel
+      // they replace — so the card is capped rather than pinned and
+      // scrolls inside the cap.
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.62,
+      ),
       decoration: BoxDecoration(
-        color: AppStyle.bgGrey,
+        color: AppStyle.surfaceDark,
         borderRadius: BorderRadius.only(
           topRight: Radius.circular(12.r),
           topLeft: Radius.circular(12.r),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppStyle.black.withOpacity(0.25),
+            color: AppStyle.black.withValues(alpha: 0.25),
             blurRadius: 40,
             offset: const Offset(0, -2),
           ),
@@ -122,6 +206,7 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
         right: 16.w,
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             height: 4.h,
@@ -131,143 +216,134 @@ class _BottomSheetScreenState extends State<BottomSheetScreen> {
               borderRadius: BorderRadius.circular(40.r),
             ),
           ),
-          Column(
-            children: [
-              18.verticalSpace,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [_balance(context), _benefit(context)],
+          14.verticalSpace,
+          Flexible(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // CHIP 931 — the same strip on duty and off; frame 49d
+                  // reframes it as a closing figure rather than a running
+                  // one, which is a reading, not a different widget.
+                  DriverDayStrip(
+                    earned: home.report.earned,
+                    delivered: home.report.deliveredCount,
+                    lastFee: home.report.lastFee,
+                  ),
+                  10.verticalSpace,
+                  // CHIP 932 — survives into the off-duty frame unchanged.
+                  // Going off duty does not hand the shop's money back.
+                  if (home.report.cashOrderCount > 0) ...[
+                    CashOnHandCard(
+                      amount: home.report.cashOnHand,
+                      orderCount: home.report.cashOrderCount,
+                      compact: _isFold(context),
+                    ),
+                    10.verticalSpace,
+                  ],
+                  if (!onDuty) ..._offDuty(home) else ..._onDuty(home),
+                ],
               ),
-              SizedBox(
-                height: 186.h,
-                child: ListView.builder(
-                  padding: EdgeInsets.only(top: 24.h),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: image.length,
-                  itemBuilder: (context, index) {
-                    return StoresPage(image: image[index]);
-                  },
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _benefit(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // context.pushRoute(const OrdersRoute());
-      },
-      child: Container(
-        height: 64.h,
-        width: (MediaQuery.sizeOf(context).width - 42.w) / 2,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(color: AppStyle.primary),
+  /// Frame 49e's fold, read from the phone rather than from any box.
+  bool _isFold(BuildContext context) =>
+      MediaQuery.sizeOf(context).width <= kDriverDayStripFoldWidth;
+
+  /// FRAME 49d — off duty, drawn as a state.
+  List<Widget> _offDuty(DriverHomeState home) => [
+        OffDutyRestCard(
+          openJobsInZone: home.openJobsInZone,
+          onGoOnDuty: _goOnDuty,
         ),
-        padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
-        child: Row(
-          children: [
-            Container(
-              width: 36.r,
-              height: 36.r,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppStyle.black,
-              ),
-              child: Icon(Remix.file_list_2_fill, color: AppStyle.primary),
-            ),
-            14.horizontalSpace,
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                4.verticalSpace,
-                SizedBox(
-                  width: 60.w,
-                  child: Text(
-                    AppHelpers.getTranslation(TrKeys.juvoBenefit),
-                    style: AppStyle.interNormal(
-                      size: 12.sp,
-                      letterSpacing: -0.3,
-                    ),
-                    maxLines: 1,
-                  ),
-                ),
-                Consumer(
-                  builder: (context, ref, child) {
-                    return Text(
-                      AppHelpers.numberFormat(
-                        number:
-                            (ref
-                                .watch(courierProfileStatisticsProvider)
-                                .statistics
-                                ?.data
-                                ?.totalPrice ??
-                            0),
-                      ),
-                      style: AppStyle.interSemi(
-                        size: 14.sp,
-                        letterSpacing: -0.3,
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
+        10.verticalSpace,
+        // CHIP 970 — the wallet position. Going off duty is the moment a
+        // driver can actually do something about a negative balance, and
+        // it is the last screen that can tell him before he goes home.
+        WalletPositionCard(
+          owing: home.workStatus.owing,
+          onTopUp: widget.onTopUp ?? _noWalletHost,
+          onOpenWallet: widget.onOpenWallet ?? _noWalletHost,
         ),
+      ];
+
+  /// FRAMES 49a and 49m — on duty: the queue, or the gate that replaces
+  /// it once the SERVER says new work has stopped.
+  List<Widget> _onDuty(DriverHomeState home) {
+    if (home.isWorkPaused) {
+      return [
+        WorkPausedGate(
+          owing: home.workStatus.owing,
+          allowance: home.workStatus.allowance,
+          onTopUp: widget.onTopUp ?? _noWalletHost,
+          onSeeWhatYouOwe: widget.onOpenWallet ?? _noWalletHost,
+        ),
+      ];
+    }
+    final orders = ref.watch(orderProvider).availableOrders;
+    return [
+      AvailableWorkQueue(
+        jobs: orders.map(_toJob).toList(),
+        compact: _isFold(context),
+        onClaim: _claim,
       ),
+    ];
+  }
+
+  /// CHIP 934, flattened. Suburbs only — the payload carries no person.
+  ///
+  /// `distanceKm` is left NULL here rather than guessed: the frame calls
+  /// it client-derived from the row's location against the driver's own
+  /// position, and this sheet does not hold the driver's position. The
+  /// card omits the line rather than showing a number nobody computed.
+  AvailableJob _toJob(OrderDetailData order) {
+    final tag = order.transaction?.paymentSystem?.tag?.toLowerCase();
+    return AvailableJob(
+      id: '${order.id ?? ''}',
+      shopName: order.shop?.translation?.title ?? '',
+      pickupSuburb: order.shop?.translation?.address,
+      dropOffSuburb: order.address?.address,
+      fee: order.deliveryFee,
+      isCash: tag == 'cash',
+      cashAmount: tag == 'cash' ? order.totalPrice : null,
     );
   }
 
-  Widget _balance(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // AppHelpers.showAlertDialog(
-        //   context: context,
-        //   child:  PushOrder(),
-        // );
-      },
-      child: Container(
-        height: 64.h,
-        width: (MediaQuery.sizeOf(context).width - 42.w) / 2,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(color: AppStyle.white),
-        ),
-        padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
-        child: Row(
-          children: [
-            SvgPicture.asset(AppAssets.svgBalance),
-            14.horizontalSpace,
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppHelpers.getTranslation(TrKeys.balance),
-                  style: AppStyle.interNormal(size: 12.sp, letterSpacing: -0.3),
-                ),
-                Consumer(
-                  builder: (context, ref, child) {
-                    return Text(
-                      AppHelpers.numberFormat(
-                        number: LocalStorage.getUser()?.wallet?.price,
-                      ),
-                      style: AppStyle.interSemi(
-                        size: 14.sp,
-                        letterSpacing: -0.3,
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+  /// CHIP 933's honesty in one call: `attach_order_to_me` succeeds only
+  /// while `deliveryman` is still empty, so this is a race, and the
+  /// existing goMarket path already surfaces the loss.
+  void _claim(AvailableJob job) {
+    ref.read(homeProvider.notifier).goMarket(
+          context: context,
+          orderId: job.id,
+          setOrder: true,
+          onSuccess: () {
+            if (!mounted) return;
+            ref.read(driverHomeProvider.notifier).refresh();
+          },
+        );
+  }
+
+  /// The same toggle the top-right control drives — one component, two
+  /// states, no second control (chip 930).
+  void _goOnDuty() {
+    ref.read(homeProvider.notifier).setOnline(context: context);
+    if (mounted) setState(() {});
+  }
+
+  /// The wallet lives in revenue_sdk. A composition without it gets a
+  /// card that still states the position truthfully and simply has
+  /// nowhere to send him — better than a button that throws.
+  void _noWalletHost() {
+    AppHelpers.showCheckTopSnackBar(
+      context,
+      AppHelpers.getTranslation(TrKeys.comingSoon),
     );
   }
 }

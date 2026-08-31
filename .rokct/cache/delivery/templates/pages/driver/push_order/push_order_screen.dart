@@ -18,14 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.dart';
@@ -33,7 +31,6 @@ import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
-import 'package:base_sdk/src/presentation/components/helper/shimmer.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/marker_image_cropper.dart';
@@ -41,6 +38,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:delivery_sdk/src/driver/application/home/home_provider.dart';
 import 'package:delivery_sdk/src/driver/application/push_order/push_order_provider.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/services/courier_helpers.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/push_offer_decision.dart';
 
 class PushOrder extends ConsumerStatefulWidget {
   final OrderDetailData pushModel;
@@ -87,9 +85,13 @@ class _PushOrderState extends ConsumerState<PushOrder> {
             child: Container(
               height: widget.isActive ? 400.h : 300.h,
               width: MediaQuery.sizeOf(context).width - 32.w,
+              // FRAME 49b - the dark fleet dress. This was the last
+              // white card on the driver's decision path; the money
+              // step it leads to (45d) is already on these tokens.
               decoration: BoxDecoration(
-                color: AppStyle.white,
-                borderRadius: BorderRadius.circular(10.r),
+                color: AppStyle.cardDark,
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(color: AppStyle.strokeDarkSubtle),
               ),
               child: Padding(
                 padding: EdgeInsets.only(
@@ -99,13 +101,27 @@ class _PushOrderState extends ConsumerState<PushOrder> {
                 ),
                 child: Column(
                   children: [
-                    _orderAvatar(),
+                    // FRAME 49b - the one honest line. The ring reads
+                    // like a reservation; it is the OFFER expiring, and
+                    // the job is not held while it runs.
+                    if (widget.isActive) ...[
+                      const PushOfferTimerNote(),
+                      12.verticalSpace,
+                    ],
+                    _orderLegs(),
                     const Spacer(),
-                    const Divider(color: AppStyle.borderColor),
+                    Divider(color: AppStyle.strokeDark),
                     16.verticalSpace,
                     Row(
                       children: [
-                        SvgPicture.asset("assets/svg/cutter.svg", width: 18.r),
+                        SvgPicture.asset(
+                          "assets/svg/cutter.svg",
+                          width: 18.r,
+                          colorFilter: ColorFilter.mode(
+                            AppStyle.textPrimary,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                         10.horizontalSpace,
                         Text(
                           AppHelpers.numberFormat(
@@ -114,7 +130,11 @@ class _PushOrderState extends ConsumerState<PushOrder> {
                           style: AppStyle.interSemi(size: 12.sp),
                         ),
                         const Spacer(),
-                        Icon(Remix.takeaway_fill, size: 18.sp),
+                        Icon(
+                          Remix.takeaway_fill,
+                          size: 18.sp,
+                          color: AppStyle.textPrimary,
+                        ),
                         10.horizontalSpace,
                         Text(
                           AppHelpers.numberFormat(
@@ -123,7 +143,11 @@ class _PushOrderState extends ConsumerState<PushOrder> {
                           style: AppStyle.interSemi(size: 12.sp),
                         ),
                         const Spacer(),
-                        Icon(Remix.bank_card_2_line, size: 18.sp),
+                        Icon(
+                          Remix.bank_card_2_line,
+                          size: 18.sp,
+                          color: AppStyle.textPrimary,
+                        ),
                         10.horizontalSpace,
                         Text(
                           widget.pushModel.transaction?.paymentSystem?.tag ??
@@ -157,7 +181,7 @@ class _PushOrderState extends ConsumerState<PushOrder> {
                       ),
                     ],
                     16.verticalSpace,
-                    const Divider(color: AppStyle.borderColor),
+                    Divider(color: AppStyle.strokeDark),
                     const Spacer(),
                     Row(
                       children: [
@@ -168,7 +192,8 @@ class _PushOrderState extends ConsumerState<PushOrder> {
                               Navigator.pop(context);
                             },
                             background: AppStyle.transparent,
-                            borderColor: AppStyle.black,
+                            borderColor: AppStyle.strokeDark,
+                            textColor: AppStyle.textPrimary,
                           ),
                         ),
                         14.horizontalSpace,
@@ -281,226 +306,55 @@ class _PushOrderState extends ConsumerState<PushOrder> {
     );
   }
 
+  /// FRAME 49b - the countdown, straddling the sheet edge.
+  ///
+  /// The placement is the shipped one (the ring is deliberately half
+  /// over the panel's top edge); only the dress moved into
+  /// [PushOfferCountdown]. The maths is untouched: the same
+  /// `timerText` leading number over the same
+  /// `CourierHelpers.getAppDeliveryTime()`.
   Widget _timer(BuildContext context) {
+    final timerText = ref.watch(pushOrderProvider).timerText;
     return Positioned(
       top: 0,
       right: (MediaQuery.sizeOf(context).width - 32.w) / 2 - 52.r,
-      child: Container(
-        padding: EdgeInsets.all(4.r),
-        decoration: const BoxDecoration(
-          color: AppStyle.white,
-          shape: BoxShape.circle,
-        ),
-        child: CircularPercentIndicator(
-          radius: 48.r,
-          lineWidth: 12.r,
-          percent:
-              double.parse(
-                ref
-                    .watch(pushOrderProvider)
-                    .timerText
-                    .substring(
-                      0,
-                      ref.watch(pushOrderProvider).timerText.indexOf(' '),
-                    ),
-              ) /
-              CourierHelpers.getAppDeliveryTime(),
-          center: Text(
-            ref.watch(pushOrderProvider).timerText,
-            style: AppStyle.interSemi(size: 18.sp),
-          ),
-          fillColor: AppStyle.transparent,
-          backgroundColor: AppStyle.shimmerBase,
-          progressColor: Color(0xFFF26110),
-          circularStrokeCap: CircularStrokeCap.round,
-        ),
+      child: PushOfferCountdown(
+        percent: double.parse(
+              timerText.substring(0, timerText.indexOf(' ')),
+            ) /
+            CourierHelpers.getAppDeliveryTime(),
+        label: timerText,
       ),
     );
   }
 
-  Widget _orderAvatar() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 32.r,
-              width: 32.r,
-              decoration: const BoxDecoration(
-                color: AppStyle.white,
-                shape: BoxShape.circle,
-              ),
-              child: ClipOval(
-                child: CachedNetworkImage(
-                  imageUrl: "${widget.pushModel.shop?.logoImg}",
-                  fit: BoxFit.cover,
-                  progressIndicatorBuilder: (context, url, progress) {
-                    return ImageShimmer(isCircle: true, size: 32.r);
-                  },
-                  errorWidget: (context, url, error) {
-                    return Container(
-                      height: 32.r,
-                      width: 32.r,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppStyle.bgGrey,
-                      ),
-                      alignment: Alignment.center,
-                      child: const Icon(
-                        Remix.image_line,
-                        color: AppStyle.black,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            16.horizontalSpace,
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.pushModel.shop?.translation?.title ?? "",
-                  style: AppStyle.interSemi(size: 14.sp, letterSpacing: -0.3),
-                ),
-                2.verticalSpace,
-                IntrinsicHeight(
-                  child: Row(
-                    children: [
-                      Text(
-                        '№ ${widget.pushModel.id}',
-                        style: AppStyle.interNormal(
-                          size: 14.sp,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      const VerticalDivider(),
-                      Text(
-                        intl.DateFormat("hh:mm").format(
-                          DateTime.tryParse(
-                                widget.pushModel.updatedAt ??
-                                    DateTime.now().toString(),
-                              )?.toLocal() ??
-                              DateTime.now(),
-                        ),
-                        style: AppStyle.interNormal(
-                          size: 14.sp,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      16.horizontalSpace,
-                      Icon(Remix.building_fill, size: 18.r),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
+  /// FRAME 49b - the two legs of the job, said out loud.
+  ///
+  /// The shipped layout already drew shop -> dots -> customer and never
+  /// named either end. This maps the same payload fields onto
+  /// [PushOfferLegs], which labels them PICKUP and DROP-OFF. No field
+  /// is added and none is dropped.
+  Widget _orderLegs() {
+    return PushOfferLegs(
+      pickup: PushOfferLeg(
+        title: widget.pushModel.shop?.translation?.title ?? "",
+        subtitle: '\u2116 ${widget.pushModel.id}',
+        trailing: intl.DateFormat("hh:mm").format(
+          DateTime.tryParse(
+                widget.pushModel.updatedAt ?? DateTime.now().toString(),
+              )?.toLocal() ??
+              DateTime.now(),
         ),
-        Padding(
-          padding: EdgeInsets.only(left: 14.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 4.r,
-                height: 4.r,
-                margin: EdgeInsets.only(bottom: 6.h, top: 6.h),
-                decoration: const BoxDecoration(
-                  color: AppStyle.tabBarBorderColor,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              Container(
-                width: 4.r,
-                height: 4.r,
-                margin: EdgeInsets.only(bottom: 10.h),
-                decoration: const BoxDecoration(
-                  color: AppStyle.tabBarBorderColor,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 32.r,
-              width: 32.r,
-              decoration: const BoxDecoration(
-                color: AppStyle.white,
-                shape: BoxShape.circle,
-              ),
-              child: ClipOval(
-                child: CachedNetworkImage(
-                  imageUrl: widget.pushModel.user?.img ?? "",
-                  fit: BoxFit.cover,
-                  progressIndicatorBuilder: (context, url, progress) {
-                    return ImageShimmer(isCircle: true, size: 32.r);
-                  },
-                  errorWidget: (context, url, error) {
-                    return Container(
-                      height: 32.r,
-                      width: 32.r,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppStyle.bgGrey,
-                      ),
-                      alignment: Alignment.center,
-                      child: const Icon(
-                        Remix.image_line,
-                        color: AppStyle.black,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            16.horizontalSpace,
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 100.w,
-                  child: Text(
-                    widget.pushModel.address?.address ?? "",
-                    style: AppStyle.interSemi(size: 14.sp, letterSpacing: -0.3),
-                    maxLines: 1,
-                  ),
-                ),
-                2.verticalSpace,
-                IntrinsicHeight(
-                  child: Row(
-                    children: [
-                      Text(
-                        widget.pushModel.user == null
-                            ? AppHelpers.getTranslation(TrKeys.deletedUser)
-                            : widget.pushModel.user?.firstname ?? "",
-                        style: AppStyle.interNormal(
-                          size: 14.sp,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      const VerticalDivider(),
-                      Text(
-                        widget.pushModel.user?.phone ?? "",
-                        style: AppStyle.interNormal(
-                          size: 14.sp,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ],
+        imageUrl: widget.pushModel.shop?.logoImg,
+      ),
+      dropOff: PushOfferLeg(
+        title: widget.pushModel.address?.address ?? "",
+        subtitle: widget.pushModel.user == null
+            ? AppHelpers.getTranslation(TrKeys.deletedUser)
+            : widget.pushModel.user?.firstname ?? "",
+        trailing: widget.pushModel.user?.phone,
+        imageUrl: widget.pushModel.user?.img,
+      ),
     );
   }
 }

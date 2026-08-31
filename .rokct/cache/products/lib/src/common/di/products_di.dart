@@ -34,6 +34,8 @@ import 'package:products_sdk/src/common/infrastructure/repositories/gallery_repo
 import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:products_sdk/src/common/domain/interface/seller_products.dart';
 import 'package:products_sdk/src/common/domain/interface/seller_catalog.dart';
+import 'package:products_sdk/src/manager/infrastructure/repositories/demo_seller_catalog_repository.dart';
+import 'package:products_sdk/src/manager/infrastructure/repositories/demo_seller_products_repository.dart';
 import 'package:products_sdk/src/manager/infrastructure/repositories/seller_catalog_repository.dart';
 import 'package:products_sdk/src/manager/infrastructure/repositories/seller_products_repository.dart';
 import 'package:products_sdk/src/manager/infrastructure/services/product_create_sync_handler.dart';
@@ -63,16 +65,24 @@ class ProductsSdkDependencies {
       getIt.registerSingleton<GalleryRepositoryFacade>(GalleryRepository());
     }
   
-    // Seller/manager product authoring. Registered unconditionally: a non-
-    // manager app that composes products_sdk simply never resolves it.
+    // Seller/manager product authoring. Registered for every app that
+    // composes products_sdk: a non-manager app simply never resolves it.
+    // Demo-gated like the customer-facing facades above —
+    // --dart-define=IS_DEMO=true serves a seeded fictional menu from memory
+    // so the manager foods tab and its category/unit pickers render stocked
+    // with zero backend contact. The production path is untouched.
     if (!getIt.isRegistered<SellerProductsRepositoryFacade>()) {
       getIt.registerSingleton<SellerProductsRepositoryFacade>(
-        SellerProductsRepository(),
+        AppConstants.isDemo
+            ? DemoSellerProductsRepository()
+            : SellerProductsRepository(),
       );
     }
     if (!getIt.isRegistered<SellerCatalogRepositoryFacade>()) {
       getIt.registerSingleton<SellerCatalogRepositoryFacade>(
-        SellerCatalogRepository(),
+        AppConstants.isDemo
+            ? DemoSellerCatalogRepository()
+            : SellerCatalogRepository(),
       );
     }
     // Attach the product.create push handler so offline product creates

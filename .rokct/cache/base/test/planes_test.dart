@@ -167,6 +167,100 @@ void main() {
     });
   });
 
+  // A claim that GROWS instead of demanding: one plane like any default
+  // page, plus a SECOND one only when it would otherwise sit empty. The
+  // page beneath is served first and is never displaced to arrange it.
+  group('span=twoIfSpare — grows into an empty plane, never into a page',
+      () {
+    testWidgets(
+        'three planes: the page beneath keeps its plane and the growing '
+        'claim absorbs the one that would have been empty', (tester) async {
+      await pumpHost(tester, 900, [
+        page('a'),
+        page('b', span: PlaneSpan.twoIfSpare),
+      ]);
+      expect(captured['a']!.index, 0);
+      expect(captured['a']!.span, 1);
+      expect(captured['b']!.index, 1);
+      expect(captured['b']!.span, 2);
+      expect(captured['b']!.isLast, isTrue);
+      final planeWidth = (900 - 2 * 14) / 3;
+      expect(
+        widthOf(tester, 'b'),
+        moreOrLessEquals(2 * planeWidth + 14, epsilon: 0.5),
+      );
+    });
+
+    testWidgets(
+        'two planes: nothing is spare, so the growing claim stays at ONE '
+        'and the page beneath keeps the first plane', (tester) async {
+      await pumpHost(tester, 700, [
+        page('a'),
+        page('b', span: PlaneSpan.twoIfSpare),
+      ]);
+      // The difference from PlaneSpan.two, which pushes a off entirely.
+      expect(find.text('a'), findsOneWidget);
+      expect(captured['a']!.index, 0);
+      expect(captured['a']!.span, 1);
+      expect(captured['b']!.index, 1);
+      expect(captured['b']!.span, 1);
+      final planeWidth = (700 - 14) / 2;
+      expect(
+        widthOf(tester, 'b'),
+        moreOrLessEquals(planeWidth, epsilon: 0.5),
+      );
+    });
+
+    testWidgets('a full flow beneath leaves nothing spare — no growth',
+        (tester) async {
+      await pumpHost(tester, 900, [
+        page('a'),
+        page('b'),
+        page('c', span: PlaneSpan.twoIfSpare),
+      ]);
+      expect(captured['a']!.span, 1);
+      expect(captured['b']!.span, 1);
+      expect(captured['c']!.span, 1);
+      expect(captured['c']!.index, 2);
+    });
+
+    testWidgets('alone on three planes it grows to two, never to all',
+        (tester) async {
+      await pumpHost(tester, 900, [
+        page('b', span: PlaneSpan.twoIfSpare),
+      ]);
+      expect(captured['b']!.span, 2);
+      expect(captured['b']!.count, 3);
+      // The third plane is still an empty stage — growth is capped at
+      // two, so the page does not sprawl across the window.
+      expect(captured['b']!.isLast, isFalse);
+    });
+
+    testWidgets('one plane: the phone layout, exactly as any other claim',
+        (tester) async {
+      await pumpHost(tester, 500, [
+        page('a'),
+        page('b', span: PlaneSpan.twoIfSpare),
+      ]);
+      expect(find.text('a'), findsNothing);
+      expect(captured['b']!.count, 1);
+      expect(captured['b']!.span, 1);
+    });
+
+    testWidgets('presenting alone keeps the planes it would have grown into',
+        (tester) async {
+      await pumpHost(tester, 900, [
+        page('a'),
+        page('b', span: PlaneSpan.twoIfSpare, allowNeighbors: false),
+      ]);
+      // allowNeighbors: false clamps the screen to what the active page
+      // will hold — the growth cap, not the bare one-plane claim.
+      expect(find.text('a'), findsNothing);
+      expect(captured['b']!.count, 2);
+      expect(captured['b']!.span, 2);
+    });
+  });
+
   group('span=all', () {
     testWidgets('fills every plane the screen has', (tester) async {
       await pumpHost(tester, 900, [

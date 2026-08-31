@@ -1,5 +1,38 @@
 # Changelog
 
+## 1.53.0
+
+* `PlaneSpan` grows a fourth claim, `twoIfSpare`: **one plane, and a
+  second one only if it would otherwise sit empty**. Every existing
+  claim demands a plane count up front — `one`, `two`, `all` — so a page
+  wanting a second plane had to take it from the flow beneath. This one
+  asks for one plane like any default page and is then GRANTED a
+  leftover by `PlaneHost`, out of what would have been the empty stage.
+  A page beneath is never displaced to arrange it.
+  * `PlaneSpan.claimFor` returns 1 for the new claim — it is the claim
+    the page MAKES. The new `PlaneSpan.growthCapFor` returns the most it
+    can ever hold (two), and is identical to `claimFor` for every claim
+    that does not grow, so nothing about `one` / `two` / `all` changes.
+  * `PlaneHost` allocates the active page's claim, serves the earlier
+    pages by their own claims exactly as before, and only then lets a
+    growing claim absorb what is still unallocated, capped at two. On a
+    three-plane screen with one page beneath, that is `earlier | active
+    active`; on a two-plane screen, `earlier | active` — the earlier
+    page keeps its plane either way.
+  * `allowNeighbors: false` now clamps the visible planes to the growth
+    cap rather than the bare claim, and a page that refuses neighbours
+    is given none (previously the clamp made the two identical, so this
+    is only reachable through a growing claim).
+  * The motivating adopter is lms_sdk's lesson session (frame 52): the
+    board and the attendees panel are two halves of one page, and the
+    schedule beneath must keep its plane at two planes while the third
+    plane, at three, becomes the attendees half instead of empty space.
+  * 6 new tests in `planes_test.dart` cover the claim at one, two and
+    three planes, a full flow beneath leaving nothing spare, the page
+    alone (grows to two, never to all), and the no-neighbours clamp.
+    Package suite: 206 passing, 0 failing (200 before), verified against
+    Flutter 3.47.2 / Dart 3.13.2.
+
 ## 1.51.0
 
 * REGRESSION FIX: `main` did not compile after 1.49.0 (core#137), which

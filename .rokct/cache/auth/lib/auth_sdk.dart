@@ -30,3 +30,14 @@ export 'src/common/presentation/services/pending_otp_gate.dart';
 // Registration capability flags a composing app's home SDK may flip (see
 // AuthRegistrationConfig — e.g. lms_sdk enabling date-of-birth capture).
 export 'src/common/services/registration_config.dart';
+// Android Restore Credentials. The platform seam is exported so a composed
+// app can install core's channel implementation into
+// RestoreCredentialPlatform.instance at startup; the service is exported so
+// the app shell can drive the launch-time retrieval and the sign-out clear.
+export 'src/common/domain/interface/restore_credential_platform.dart';
+export 'src/common/infrastructure/repositories/restore_credential_repository.dart';
+export 'src/common/services/restore_credential_service.dart';
+// The boot-hook driver named by the manifest's auth_restore_credential_gate
+// entry; also the re-entry point the Android BackupAgent calls after a
+// data restore, and the sign-out clear an app shell reaches for.
+export 'src/common/presentation/services/restore_credential_gate.dart';

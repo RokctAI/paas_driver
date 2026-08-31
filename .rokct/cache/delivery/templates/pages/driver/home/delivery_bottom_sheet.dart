@@ -37,6 +37,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:delivery_sdk/src/driver/application/home/home_provider.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/services/courier_helpers.dart';
 import 'package:delivery_sdk/src/driver/presentation/widgets/cash_collection_sheet.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/delivery_status_rail.dart';
 
 class DeliverBottomSheetScreen extends StatefulWidget {
   final OrderDetailData order;
@@ -257,6 +258,26 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                           ),
                         ),
                         24.verticalSpace,
+                        // FRAME 49c - the job rail. Four nodes so the
+                        // driver sees the arc of the job instead of
+                        // inferring it from the caption on the button
+                        // below. Derived only from what the sheet
+                        // already holds: the order's server status and
+                        // the two live flags the home notifier keeps.
+                        // The "At shop" node has no server status
+                        // behind it - it is earned at the
+                        // completeCheckout confirmation, which is the
+                        // same transition that already swaps the
+                        // button's caption. See DeliveryStatusRail.
+                        DeliveryStatusRail(
+                          current: DeliveryStatusRail.stageFor(
+                            status: widget.order.status,
+                            isGoRestaurant:
+                                ref.watch(homeProvider).isGoRestaurant,
+                            isGoUser: ref.watch(homeProvider).isGoUser,
+                          ),
+                        ),
+                        20.verticalSpace,
                         OrderItem(
                           order: widget.order,
                           isDeliveryShop:

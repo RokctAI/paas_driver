@@ -1,3 +1,26 @@
+## 1.22.0
+
+* `DemoSellerShopRepository` — the demo manager finally has a shop.
+  `ManagerMerchantsDependencies.register` now selects it over
+  `SellerShopRepository` under `--dart-define=IS_DEMO=true`, alongside the
+  POS catalog, POS orders and quick-flow seams this SDK already gates.
+  Nothing about the production path changed.
+  * The shop it serves is `MockShopsRepository.demoShop` ITSELF, not a
+    second invention: that field moved from a private instance field to a
+    public static one so the manager side can share the identity the
+    customer-facing `ShopsRepositoryFacade` already serves in demo. A
+    manager who renames or closes the shop in the hub is renaming or
+    closing the shop a demo customer browses. Same SDK, so no cross-SDK
+    import is involved (ADR-005).
+  * Working days are seeded as a plausible trading week (late Friday and
+    Saturday, Sunday disabled) and are session-local; `order_payment`
+    answers 'before', the value the UI otherwise defaults to.
+* Tour fragment: a new `restaurant_hub` step captures the manager home's
+  tab 4 — the restaurant hub, the app's navigational spine, whose rows
+  already carry `isDemo` sub-lines. It is worth capturing only because of
+  the gate above; the stale "NOT demo-gated yet" note is replaced.
+* Builds on 1.21.1 (the non-const `CalculatorRoute` compile fix).
+
 ## 1.21.0
 
 * Gates 1 and 2 of design strip section 45 — the two doors to `/calc`

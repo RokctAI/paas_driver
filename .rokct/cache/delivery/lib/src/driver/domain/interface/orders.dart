@@ -20,6 +20,7 @@
 
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_paginate_response.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/models/data/driver_day_report.dart';
 
 import 'package:base_sdk/src/handlers/handlers.dart';
 
@@ -33,6 +34,20 @@ abstract class CourierOrdersRepositoryFacade {
   Future<ApiResult<OrderPaginateResponse>> getActiveOrders(int page);
 
   Future<ApiResult<List<OrderDetailData>>> getAvailableOrders(int page);
+
+  /// `get_deliveryman_order_report` for one date range — the day strip
+  /// and cash card on driver home (design strip section 49, frame 49a
+  /// chips 931/932). Home did not call this endpoint before; adopting it
+  /// is a client change, not a new endpoint.
+  Future<ApiResult<DriverDayReport>> getDayReport({
+    required DateTime from,
+    required DateTime to,
+  });
+
+  /// `get_deliveryman_work_status` — the wallet floor as the server
+  /// resolves it, so frame 49m's gate can state the limit before the
+  /// driver taps Claim instead of after.
+  Future<ApiResult<DriverWorkStatus>> getWorkStatus();
 
   Future<ApiResult<List<OrderDetailData>>> getHistoryOrders(int page,
       {DateTime? start, DateTime? end});

@@ -48,6 +48,7 @@ import 'package:auth_sdk/src/common/domain/interface/auth_session_policy.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service.dart';
 import 'package:auth_sdk/src/common/services/auth_error_presenter.dart';
 import 'package:auth_sdk/src/common/services/platform_support.dart';
+import 'package:auth_sdk/src/common/services/restore_credential_service.dart';
 
 class LoginNotifier extends StateNotifier<LoginState> {
   final AuthRepositoryFacade _authRepository;
@@ -253,6 +254,12 @@ class LoginNotifier extends StateNotifier<LoginState> {
     }
     AuthSessionPolicy.I.onAuthenticated(context, role: role);
     await syncFcmToken(_userRepositoryFacade);
+    // Register an Android restore key for the account that just signed in,
+    // so a move to a new device lands them signed in instead of here
+    // again. No-ops on every other platform, and on Android once this
+    // install already has one. Never blocks or fails the sign-in it
+    // follows -- the session is already established by this point.
+    await RestoreCredentialService().ensureRestoreKey();
   }
 
   Future<void> login(BuildContext context) async {

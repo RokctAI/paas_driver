@@ -12,15 +12,15 @@
 #
 # Demo grounding (--dart-define=IS_DEMO=true): orders_di.dart swaps in
 # MockOrdersRepository + MockCartRepository for the customer-facing
-# facades. The manager-side SellerOrdersRepositoryFacade is NOT demo-gated
-# yet, so in demo builds both screens render their own real empty states
-# (NoOrders on the queue, "there are 0 orders" on history) - truthful for a
-# brand-new shop, and the captions below own that framing. Follow-up (rule
-# #59): demo-gate SellerOrdersRepositoryFacade so the queue shows a live
-# demo rush. The POS create-order flow (/order-products and its pickers) is
-# deliberately NOT toured yet: its product grid comes from the un-gated
+# facades, and since 1.15.0 ManagerOrdersDependencies demo-gates the
+# manager-side SellerOrdersRepositoryFacade to this SDK's own
+# DemoSellerOrdersRepository - a seeded shift of seven fictional orders in
+# mixed states, priced in rand, served from memory. So both screens below
+# capture a stocked queue and a stocked history with zero backend contact.
+# The POS create-order flow (/order-products and its pickers) is still
+# deliberately NOT toured: its product grid comes from the un-gated
 # PosProductsRepositoryFacade and the flow needs cart state, so there is no
-# honest still until those get demo data.
+# honest still until that facade gets demo data too.
 #
 # The cross-SDK import below is the established shell contract: the queue
 # tab is selected through merchants_sdk's mainProvider, the same state the

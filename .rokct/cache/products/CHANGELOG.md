@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.7.0
+
+* `DemoSellerProductsRepository` + `DemoSellerCatalogRepository` — demo data
+  behind the manager's foods tab. `ProductsSdkDependencies.register` now
+  selects them over `SellerProductsRepository` / `SellerCatalogRepository`
+  under `--dart-define=IS_DEMO=true`, the same `AppConstants.isDemo` ternary
+  this SDK already applies to its customer-facing products, categories and
+  brands facades. Nothing about the production path changed.
+  * WHY: the guided tour runs the app in demo with zero backend calls, so
+    the `menu` still was capturing three empty tabs.
+  * WHAT THEY SERVE: six sellable dishes over three categories (Mains,
+    Sides, Drinks), two add-ons, two extras groups (Heat, Portion), three
+    units, and a sub-shop category pair — enough for the catalog strip, the
+    add-ons tab, the extras tab and the create-product form's pickers to
+    render stocked without spilling past one screen.
+  * WRITES are acknowledged in memory: creating, editing, re-stocking or
+    deleting during a tour sticks for the session and resets on the next
+    launch. No HTTP client is ever constructed and nothing leaves the
+    device.
+  * The seeded dishes deliberately match orders_sdk's demo order board.
+    Duplicated rather than shared (ADR-005).
+* Tour fragment: the demo-grounding note and the `menu` caption no longer
+  frame the screen as a brand-new shop's empty menu.
+
 ## 1.6.0
 
 * The APPROVED product management + stock update surfaces (Ray 2026-08-29

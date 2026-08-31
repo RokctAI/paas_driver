@@ -19,9 +19,11 @@
 // SOFTWARE.
 
 import 'package:get_it/get_it.dart';
+import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:orders_sdk/src/manager/domain/interface/pos_products.dart';
 import 'package:orders_sdk/src/manager/domain/interface/seller_orders.dart';
+import 'package:orders_sdk/src/manager/infrastructure/repositories/demo_seller_orders_repository.dart';
 import 'package:orders_sdk/src/manager/infrastructure/repositories/pos_products_repository.dart';
 import 'package:orders_sdk/src/manager/infrastructure/repositories/seller_orders_repository.dart';
 import 'package:orders_sdk/src/manager/infrastructure/services/collect_conversion_sync_handler.dart';
@@ -44,9 +46,16 @@ import 'package:orders_sdk/src/manager/infrastructure/services/order_create_sync
 /// comment); their providers fall back to a failing stand-in when unwired.
 class ManagerOrdersDependencies {
   static void register(GetIt getIt) {
+    // Demo-gated like merchants_sdk's POS seams and products_sdk's catalog
+    // facades: --dart-define=IS_DEMO=true serves a seeded shift of seller
+    // orders from memory, so the manager order board and /order-history
+    // render stocked with zero backend contact instead of capturing their
+    // empty states. The production path is untouched.
     if (!getIt.isRegistered<SellerOrdersRepositoryFacade>()) {
       getIt.registerSingleton<SellerOrdersRepositoryFacade>(
-        SellerOrdersRepository(),
+        AppConstants.isDemo
+            ? DemoSellerOrdersRepository()
+            : SellerOrdersRepository(),
       );
     }
     if (!getIt.isRegistered<PosProductsRepositoryFacade>()) {

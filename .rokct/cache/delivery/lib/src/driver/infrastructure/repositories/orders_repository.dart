@@ -35,6 +35,7 @@ import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.
 import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_paginate_response.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/models/data/driver_day_report.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 
 class CourierOrdersRepository implements CourierOrdersRepositoryFacade {
@@ -101,6 +102,50 @@ class CourierOrdersRepository implements CourierOrdersRepositoryFacade {
       );
     } catch (e) {
       debugPrint('==> get available orders failure: $e');
+      return ApiResult.failure(
+          error: AppHelpers.errorHandler(e),
+          statusCode: NetworkExceptions.getDioStatus(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<DriverDayReport>> getDayReport({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    // The endpoint is date-bounded and has been whitelisted since before
+    // this screen existed (delivery manifest key
+    // `api.delivery_man.get_deliveryman_order_report`); driver home
+    // simply never called it. Bounds are sent as plain yyyy-MM-dd, which
+    // is what `creation_range_filter` parses.
+    final formatter = DateFormat('yyyy-MM-dd');
+    try {
+      final response = await _gateway.tenant(
+        '$_deliveryCmd.get_deliveryman_order_report',
+        {
+          'from_date': formatter.format(from),
+          'to_date': formatter.format(to),
+        },
+      );
+      return ApiResult.success(data: DriverDayReport.fromJson(response));
+    } catch (e) {
+      debugPrint('==> get deliveryman day report failure: $e');
+      return ApiResult.failure(
+          error: AppHelpers.errorHandler(e),
+          statusCode: NetworkExceptions.getDioStatus(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<DriverWorkStatus>> getWorkStatus() async {
+    try {
+      final response = await _gateway.tenant(
+        '$_deliveryCmd.get_deliveryman_work_status',
+        const {},
+      );
+      return ApiResult.success(data: DriverWorkStatus.fromJson(response));
+    } catch (e) {
+      debugPrint('==> get deliveryman work status failure: $e');
       return ApiResult.failure(
           error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));

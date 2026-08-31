@@ -93,26 +93,34 @@ class SettingsRepository implements SettingsRepositoryFacade {
   @override
   Future<ApiResult<LanguagesResponse>> getLanguages() async {
     try {
+      // The picker's catalogue is the `PaaS Language` doctype, NOT
+      // Frappe's stock `Language` list. `api.system.get_languages` serves
+      // the latter and answers only `name`/`language_name`, so every row
+      // parsed out of it carried a null `title` AND a null `locale` — and
+      // because that parse SUCCEEDS, the failure never surfaced: the
+      // picker drew blank rows and `getMobileTranslations` fell back to
+      // `'en'` for every language. `api.language.get_languages` is the
+      // endpoint shaped for LanguageData (title/locale/backward/default/
+      // active/img) and is whitelisted allow_guest, so the pre-login
+      // picker still reaches it.
       final data = await _gateway.call(
-        'api.system.get_languages',
+        'api.language.get_languages',
         requireAuth: false,
       );
+      final languages = LanguagesResponse.fromJson(data);
       // A null stored id must never count as "found" (two missing ids used
       // to read as a match through contains(null)).
       final storedLanguageId = LocalStorage.getLanguage()?.id;
       if (storedLanguageId == null ||
-          !(LanguagesResponse.fromJson(data)
-                  .data
-                  ?.map((e) => e.id)
-                  .contains(storedLanguageId) ??
+          !(languages.data?.map((e) => e.id).contains(storedLanguageId) ??
               true)) {
-        LanguagesResponse.fromJson(data).data?.forEach((element) {
+        languages.data?.forEach((element) {
           if (element.isDefault ?? false) {
             LocalStorage.setLanguageData(element);
           }
         });
       }
-      return ApiResult.success(data: LanguagesResponse.fromJson(data));
+      return ApiResult.success(data: languages);
     } catch (e) {
       debugPrint('==> get languages failure: $e');
       return ApiResult.failure(

@@ -1,0 +1,49 @@
+# Guided-tour fragment for base_sdk.
+#
+# Brand-neutral by rule: app names, taglines and any per-app wording live in
+# the app shell's tour/app.tour.yaml ({app_name}/{app_tagline} placeholders
+# are substituted at merge time). This fragment owns only the screens
+# base_sdk itself routes in manifest.json: the generic profile
+# (/generic-profile), the UI-type picker (/ui-type) and the two status
+# screens (/no-connection, /maintenance).
+#
+# The splash route (/) is deliberately NOT toured: every app opens on it and
+# the shells' own welcome step already captures that moment; re-routing to
+# '/' mid-tour would replay the splash redirect logic instead of showing a
+# screen.
+#
+# Session note: /generic-profile renders the signed-in account (it falls
+# back to LocalStorage.getUser() while the profile fetch is in flight), so
+# include this fragment after the manifest's sign-in steps. The two status
+# screens and the UI-type picker render entirely locally.
+#
+# No demo seed needed: all four screens draw from local state and installed
+# assets - no backend reads gate their first paint.
+#
+# Format: RokctAI/shared-workflows scripts/tour/README.md
+sdk: base
+steps:
+  - key: base_profile
+    title: "Your account at a glance"
+    caption: "Your name, role and details - *your account* in one clean card."
+    action: route
+    route: /generic-profile
+    settle: 7
+  - key: base_ui_type
+    title: "Pick the look you like"
+    caption: "Four home styles, one tap each - *make {app_name} look* the way you want."
+    action: route
+    route: /ui-type
+    settle: 6
+  - key: base_no_connection
+    title: "Honest about connection"
+    caption: "Signal drops happen - {app_name} says so *clearly* and gets you back with one tap."
+    action: route
+    route: /no-connection
+    settle: 6
+  - key: base_maintenance
+    title: "Honest about downtime"
+    caption: "When we're improving things behind the scenes, you get a *clear, friendly heads-up* - never a blank screen."
+    action: route
+    route: /maintenance
+    settle: 6

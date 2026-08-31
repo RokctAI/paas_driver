@@ -18,6 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// This file makes no outgoing HTTP calls: GMS/HMS availability is probed via
+// platform-channel plugins only. Flagged solely because its path contains
+// 'services'; there is no request to attach a trace header to.
+// compliance-ignore-file: obs-flutter-trace
+
 import 'package:flutter/foundation.dart';
 import 'package:google_api_availability/google_api_availability.dart';
 import 'package:huawei_hmsavailability/huawei_hmsavailability.dart';

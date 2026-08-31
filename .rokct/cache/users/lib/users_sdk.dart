@@ -22,3 +22,7 @@ library users_sdk;
 
 // Import concrete files via package:users_sdk/src/common/...
 export 'src/common/di/users_di.dart';
+// Session-end subscription point. user_repository fires these on logout
+// and on delete_account; auth_sdk's boot hook subscribes the Android
+// restore-key delete to it.
+export 'src/common/services/session_end_hooks.dart';
