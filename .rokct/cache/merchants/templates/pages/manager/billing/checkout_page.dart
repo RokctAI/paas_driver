@@ -154,6 +154,10 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
   /// paas_pos tender-pad feel; ⌫ edits in place.
   bool _paidNowFresh = true;
 
+  /// The route chip 843 opens. `pick=true` asks calc_sdk's /calc page
+  /// for its number back (design strip chip 840).
+  static const String _calcPickRoute = '/calc?pick=true';
+
   /// Send-for-delivery address (chip 314).
   String _address = '';
 
@@ -1193,6 +1197,19 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   _paidNowFresh = true;
                 }),
               ),
+              // CHIP 843 - the till's calculator shortcut (design strip
+              // frame 45c). Deliberately NOT a header button and NOT a
+              // FAB: it sits exactly where the till's other
+              // amount-shortcuts already live, so it reads as one more
+              // way to FILL THE AMOUNT rather than a detour. Calc does
+              // not replace the keypad - it feeds it.
+              _quickAmountChip(
+                key: const Key('posCalcShortcut'),
+                icon: Remix.calculator_line,
+                primary: true,
+                label: AppHelpers.getTranslation(TrKeys.calculator),
+                onTap: () => unawaited(_openCalculator()),
+              ),
             ],
           ),
           14.verticalSpace,
@@ -1411,22 +1428,74 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     );
   }
 
+  /// CHIP 843 -> CHIP 840: open /calc and take the number back.
+  ///
+  /// `pick=true` is what makes the calculator grow its "use this
+  /// amount" pill and pop its display; without it /calc pops nothing
+  /// (design strip section 45, flag (a) - fixed in calc_sdk 1.1.0).
+  /// Navigation is BY ROUTE PATH, so merchants_sdk never imports
+  /// calc_sdk (ADR-005); on a composition without calc_sdk, or on an
+  /// older one, the push simply returns null and the amount is
+  /// untouched.
+  ///
+  /// The result fills the AMOUNT DISPLAY and nothing else - it never
+  /// touches the cart, the order or a balance.
+  Future<void> _openCalculator() async {
+    final picked = await context.router.pushNamed(_calcPickRoute);
+    if (!mounted) return;
+    if (picked is String) {
+      final amount = double.tryParse(picked.trim().replaceAll(',', '.'));
+      if (amount == null || amount < 0) return;
+      setState(() {
+        _paidNowController.text = amount.toStringAsFixed(2);
+        _paidNowFresh = true;
+      });
+    }
+  }
+
   Widget _quickAmountChip({
     required String label,
     required VoidCallback onTap,
+    Key? key,
+    IconData? icon,
+    bool primary = false,
   }) {
     return GestureDetector(
+      key: key,
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
         decoration: BoxDecoration(
-          color: AppStyle.cardDarkAlt,
+          color: primary
+              ? AppStyle.primary.withValues(alpha: .12)
+              : AppStyle.cardDarkAlt,
           borderRadius: BorderRadius.circular(100.r),
-          border: Border.all(color: AppStyle.strokeDarkSubtle, width: 1.r),
+          border: Border.all(
+            color: primary
+                ? AppStyle.primary.withValues(alpha: .45)
+                : AppStyle.strokeDarkSubtle,
+            width: 1.r,
+          ),
         ),
-        child: Text(
-          label,
-          style: AppStyle.interSemi(size: 13),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 15.r,
+                color: primary ? AppStyle.primary : AppStyle.textPrimary,
+              ),
+              6.horizontalSpace,
+            ],
+            Text(
+              label,
+              style: AppStyle.interSemi(
+                size: 13,
+                color: primary ? AppStyle.primary : AppStyle.textPrimary,
+              ),
+            ),
+          ],
         ),
       ),
     );

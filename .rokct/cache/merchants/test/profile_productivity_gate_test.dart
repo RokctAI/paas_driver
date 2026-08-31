@@ -18,8 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// The PRODUCTIVITY gate's hub row (approved frame 7e, chip 391 — Ray
-// 2026-08-29 15:41Z): SectionsItem pumped DIRECTLY from templates/ (the
+// The PRODUCTIVITY gate's hub rows — Tasks (approved frame 7e, chip 391,
+// Ray 2026-08-29 15:41Z) and Calculator (approved frame 45b, chip 842):
+// SectionsItem pumped DIRECTLY from templates/ (the
 // widget carries no ${package} imports, so this harness is its compile
 // gate, same contract as the POS suites). Pins the row shapes the gate
 // relies on: the two-line glance row (title + seeded open/due counts) and
@@ -65,6 +66,58 @@ void main() {
 
     await tester.tap(find.text('Tasks'));
     expect(tapped, 1);
+  });
+
+  testWidgets(
+      'CHIP 842: the Calculator gate row renders its glance and fires its tap',
+      (tester) async {
+    // Design strip frame 45b, GATE 1 of section 45: the PRODUCTIVITY
+    // group gains a second row, in the same idiom as the Tasks row —
+    // calculator glyph, title, and the earn-your-glance sub-line. The
+    // sub-line is SEEDED (frame 45b's persistence flag): calc_sdk's
+    // memory lives in an in-memory autoDispose StateNotifier, so there
+    // is nothing live for merchants_sdk to read, and ADR-005 forbids
+    // reaching for it anyway.
+    var tapped = 0;
+    await tester.pumpWidget(_host(SectionsItem(
+      title: 'Calculator',
+      subtitle: 'Memory holds 1 240.50',
+      icon: Remix.calculator_line,
+      onTap: () => tapped++,
+    )));
+
+    expect(find.text('Calculator'), findsOneWidget);
+    expect(find.text('Memory holds 1 240.50'), findsOneWidget);
+    expect(find.byIcon(Remix.calculator_line), findsOneWidget);
+
+    await tester.tap(find.text('Calculator'));
+    expect(tapped, 1);
+  });
+
+  testWidgets('the two productivity rows are the same shape, not two shapes',
+      (tester) async {
+    // 45b's whole claim is that gate 1 costs nothing: the Calculator row
+    // is the Tasks row with different content, so a change to one can
+    // never silently diverge the other.
+    await tester.pumpWidget(_host(Column(children: [
+      SectionsItem(
+        title: 'Tasks',
+        subtitle: '3 open · 1 due today',
+        icon: Remix.task_line,
+        onTap: () {},
+      ),
+      SectionsItem(
+        title: 'Calculator',
+        subtitle: 'Memory holds 1 240.50',
+        icon: Remix.calculator_line,
+        onTap: () {},
+      ),
+    ])));
+
+    expect(find.byType(SectionsItem), findsNWidgets(2));
+    final first = tester.getSize(find.byType(SectionsItem).first);
+    final second = tester.getSize(find.byType(SectionsItem).last);
+    expect(second, first);
   });
 
   testWidgets('a row without a subtitle keeps the single-line shape',

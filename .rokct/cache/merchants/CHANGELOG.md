@@ -1,3 +1,79 @@
+## 1.21.0
+
+* Gates 1 and 2 of design strip section 45 — the two doors to `/calc`
+  on the manager side (frames 45b and 45c; chips 842 and 843, with 840
+  on the calculator's side). `calc_sdk` ships a live `/calc` route
+  (composed at `paas_manager/composer.json:162`) that **nothing
+  navigated to**; these are the ways in.
+  * **842 — the Calculator row on the hub** (frame 45b): a second row
+    in the PRODUCTIVITY group that frame 7e created for Tasks, with the
+    same earn-your-glance sub-line idiom. Costs nothing structurally —
+    one `SectionsItem` in a group that already exists, routing the way
+    every other hub row routes (the host's generated `CalculatorRoute`
+    via the already-imported `app_router`), and merchants_sdk never
+    imports calc_sdk.
+    * The approved render's glance ("Memory holds 1 240.50") is SEEDED
+      behind `AppConstants.isDemo`, exactly as the Tasks counts are.
+      Frame 45b names the fork itself — *"either the row drops the
+      sub-line, or memory gets persisted"* — and live memory is not
+      readable from here: `calculatorProvider` is an in-memory
+      `autoDispose` `StateNotifier` inside calc_sdk, so the value does
+      not survive the page, and reading it across SDKs would need a
+      base_sdk `LocalStorage` key (a base_sdk change). Real composes
+      show the plain row until then.
+  * **843 — the till's calculator shortcut** (frame 45c): a THIRD chip
+    inside the amount card's quick-chip row, after "Full amount" and
+    "R0 all on credit" — deliberately not a header button and not a
+    FAB, so it reads as one more way to fill the amount rather than a
+    detour. Primary-tinted with the calculator glyph so it reads as an
+    action rather than a preset.
+    * It opens `/calc?pick=true` and takes the number back into the
+      amount display (chip 840, calc_sdk 1.1.0). **Calc feeds the
+      keypad; it does not replace it** — chip 390 stays exactly where
+      it is and is not modified. The result never touches the cart, the
+      order or a balance.
+    * Navigation is BY ROUTE PATH, so merchants_sdk still never imports
+      calc_sdk (ADR-005). A composition without calc_sdk, or on a
+      calc_sdk older than 1.1.0, gets `null` back and the amount is
+      untouched — the two PRs are order-independent.
+  * `_quickAmountChip` gains an optional glyph and a primary tint; the
+    two existing chips render byte-identically.
+  * One new manager `tr_key`: `calculator`, declared with the same wire
+    value calc_sdk declares, so a double declaration resolves to the
+    same string either way.
+
+## 1.20.1
+
+* Dark-mode fix — the manager profile hub's lower two-thirds was
+  unreadable. When the hub moved onto base_sdk's `GenericProfilePage`
+  (PR #75) its scaffold became `AppStyle.surfaceDark` (#101010 in dark
+  mode). The shop block at the head of the page was repointed to the
+  mode-resolving ink tokens; the blocks below it were missed, so on a
+  dark build:
+    - every Sections / PRODUCTIVITY row title painted
+      `AppStyle.blackColor` (#000000) — 1.10:1 against the page, i.e.
+      invisible. Now `AppStyle.textPrimary` (`sections_item.dart`).
+    - both group titles fell through to `TitleAndIcon`'s pinned
+      `titleColor` default, `AppStyle.black` (#232B2F) — 1.32:1, also
+      invisible. The two hub call sites now pass
+      `titleColor: AppStyle.textPrimary` explicitly. The shared default
+      in base_sdk is deliberately LEFT pinned: ~90 fleet call sites sit
+      on `ModalWrap`'s white sheet (including the two sheets this hub
+      opens), and flipping it would blank those instead.
+    - the working-hours pill stroked `AppStyle.borderColor` (#E6E6E6) —
+      the inverse failure: a near-white 15.25:1 hairline shouting off a
+      page whose every other stroke is #2E2E2E, and 1.06:1 (invisible)
+      on the light page. Now `AppStyle.strokeDark`, the token
+      `GenericProfilePage` strokes its own cards with.
+  No layout, copy or routing change; ink and stroke only.
+* Test: `profile_hub_dark_mode_test.dart` — pumps `SectionsItem` and
+  `TitleAndIcon` in both polarities and holds their resolved ink to the
+  WCAG 1.4.3 4.5:1 body floor against the host surface, and gates
+  `restaurant_page.dart` (a `${package}` template, unpumpable from this
+  package and excluded from CI) on paint tokens that resolve with the
+  mode. Fails on the pre-fix tree at 4 passed / 6 failed.
+
+
 ## 1.20.0
 
 * DELIVERY COLLECTED IN PERSON — the server half (approved design strip
@@ -147,295 +223,3 @@
     `SyncIssuesService.boxes`, per-tab filtering and counts, the untabbed
     box still reachable under All, the 33a colours, and the card's label
     / summary / rejection message / action pair.
-## 1.17.0
-
-* The user-card edit pencil returns (chip 109, approved frame 4d
-  2026-08-30): `registerMerchantProfileSections()` now wires
-  `ProfileSectionRegistry.I.onEditProfile` (next to the `onLogout ??=`
-  block, `??=` so a host that already owns the affordance keeps its
-  wiring), so base_sdk's GenericProfilePage renders its gated pencil on
-  the manager's unified identity card again — the manager app regains an
-  edit-OWN-details path, the gap Ray reported after the chip-243
-  shop-pencil move (PR #80; the user card had shipped pencil-less since
-  the profile-host adoption in PR #75). The pencil opens base_sdk's
-  shared edit sheet (base_sdk 1.45.0 — the shipped customer
-  `EditProfileScreen`, promoted; email, firstname | surname, phone,
-  birth date, gender, avatar photo-pencil, Save) as the standard drag
-  bottom sheet in the current theme mode. Save was already plumbed end
-  to end (base_sdk `editProfileProvider` -> the self-scoped
-  `update_user_profile` endpoint) — NO backend change, and the SHOP
-  pencil (chip 243) on the shop info row is untouched.
-* Test: `profile_edit_pencil_gate_test.dart` — the host's user-card
-  pencil stays hidden while `onEditProfile` is unset and renders (and
-  fires) once it is wired, with the shared base_sdk sheet resolvable
-  from this SDK's dependency graph.
-
-## 1.16.0
-
-* THE KEY PAD at checkout (design chip 390 — approved frame 11u, tablet
-  2026-08-29 15:41Z, and frame 11y, phone 2026-08-30): the
-  "Amount paying now" typed `TextField` (`posPaidNowField`) is replaced
-  by base_sdk's shared `MoneyKeypad` (base_sdk 1.44.0 — Ray's standing
-  direction: the keypad is the standard money-entry surface fleet-wide,
-  so delivery/wallet/calc adopt the same component later). The amount
-  display (chip 336) is now a plain read-out that CANNOT focus — the OS
-  keyboard never appears (the 11y ruling); digits, the `00` money key,
-  ⌫ and the `.` | OK confirm row do the editing, with calculator-entry
-  freshness (the prefilled total is REPLACED by the first keypress; the
-  Full / all-on-credit quick chips and OK re-arm it) and OK normalizing
-  to the clamped two-decimal amount the sale takes. At plane widths the
-  keys grow to the card's full width (11u's two-plane spread); on phone
-  it is the 11y one-plane fold. Everything else is unchanged: prefill,
-  change/credit remainder math, quick chips, customer attach, Cash | QR,
-  delivery state and the dual finish buttons.
-* Key feedback (the paas_pos tender-pad recipe, carried by base_sdk
-  `KeySound` behind its persisted default-ON gate): every keypress plays
-  tap.wav + a light haptic; refused finishes (delivery without customer/
-  address, a failed print, a failed submit) and a rejected 6-digit code
-  play the wrong.wav error buzz.
-* Tests: `pos_checkout_keypad_test.dart` (the 11y no-OS-keyboard gate,
-  keypad editing end to end into the submitted draft, quick-chip
-  freshness); the credit-split test now drives the keypad instead of
-  typing.
-
-## 1.15.0
-
-* Backend: `get_seller_profit_report` — the one endpoint behind the
-  approved revenue/statistics dashboard (design section 36, Ray's
-  2026-08-29 14:51Z profitability requirement, approved 2026-08-30
-  10:38Z). Shop-scoped (`_get_seller_shop`, the kitchen `cook.py`
-  pattern) profitability aggregates over Order / Order Item: profit per
-  line `(price − cost_price) × quantity` strictly from the `cost_price`
-  snapshot frozen at sale (order.py's create path), lines with
-  `cost_price <= 0` into the UNKNOWN bucket (excluded from profit and
-  from the margin denominator — never counted as free/100% margin, the
-  approved cost-0 ruling), `margin_pct` over COSTED revenue only.
-  Returns `totals` / `unknown_bucket` / `series` (per-day, per-hour when
-  `from_date == to_date`) / `products` (with the current Price/Cost for
-  the 35a strip and `cost_missing`) / `status_counts` (split-bar wire
-  vocabulary; `Ready` counts under `cooking`, `Paid`/`Failed` stay out
-  of the bar). Whitelisted as `api.seller_report.get_seller_profit_report`
-  so revenue_sdk's existing `api.seller_report` `_cmd` path reaches it.
-  `get_order_report` / `get_order_report_paginate` are untouched — the
-  payout strip and today count still read `get_order_report`, and
-  previous-period deltas come from the client re-calling the new
-  endpoint for the shifted window. Bench-independent contract tests
-  cover the bucket math, hourly series, product ordering and shop
-  scoping (`tests/test_seller_report_contract.py`).
-
-## 1.14.2
-
-* Restaurant tab (the manager profile hub): the approved PRODUCTIVITY
-  gate (frame 7e, chip 391 — Ray 2026-08-29 15:06Z "we can expose it.
-  that will be productivity gate", approved 15:41Z). A new
-  `merchants.productivity` section (order 125) gives productivity_sdk's
-  composed-but-orphaned `/tasks` page its one entry point: a PRODUCTIVITY
-  group title plus the Tasks row, routed like every other hub row via the
-  host's generated `TasksRoute`. Order 125 closes plane 1 under the
-  restaurant content at two-plane widths while wallet/sections/footer
-  keep plane 2, exactly the approved 7d distribution. `SectionsItem`
-  gained an optional `subtitle` glance line (grey, under the title);
-  demo composes seed the approved "3 open · 1 due today" glance — live
-  counts wait for the `/tasks` screen's own design pass (coverage-map
-  group M), since merchants_sdk cannot read productivity task data
-  (ADR-005). New manager tr_keys: `productivity`, `tasks`. Manager
-  composes pair with productivity_sdk (the manager composer list already
-  carries it); the `/tasks` screen itself is unchanged — this is gate
-  exposure only.
-
-## 1.14.1
-
-* Manager home shell: the create FAB no longer rides the foods tab (index
-  3) — the approved product-management workspace (products_sdk 1.6.0,
-  frames 35a/35c, Ray 2026-08-29 15:41Z) carries its own "+ New product"
-  header action with the same inner-tab create dispatch, and the approved
-  floating-nav language has no FAB. The orders tab (1) keeps its create
-  button in both nav shapes (bottom pill and tablet-mode rail). Composes
-  that include merchants_sdk's manager block pair with products_sdk >=
-  1.6.0.
-
-## 1.14.0
-
-* Manager home shell mounts the KITCHEN tab (the approved manager Kitchen
-  screen, kitchen_sdk 1.3.0, frames 34a–34d — Ray 2026-08-29 13:06Z /
-  13:53Z): `main_page.dart` imports the kitchen_sdk-installed
-  `pages/kitchen/kitchen_page.dart` at index 2, between the order queue
-  (1) and foods (now 3); the restaurant/shop-profile tab moved to 4. Both
-  nav shapes (bottom pill and the tablet-mode rail) gained the bowl-icon
-  Kitchen destination; the create FAB rule follows foods to index 3 (the
-  kitchen creates nothing). Composes that include merchants_sdk's manager
-  block now REQUIRE kitchen_sdk >= 1.3.0 alongside it (the manager
-  composer list already carries kitchen_sdk), exactly as the shell
-  already requires orders_sdk's and products_sdk's page installs.
-
-## 1.13.1
-
-* `mobile_scanner` aligned with hardware_sdk: `^5.1.0` -> `^6.0.4`
-  (resolves 6.0.11). The 1.13.0 POS till pinned the 5.x line while
-  hardware_sdk pins `^6.0.4`; the two caret ranges have an empty
-  intersection, so any composer (paas_manager) depending on both SDKs
-  failed version solving. No till code changes: the Dart API surface the
-  BillingPage template uses (`MobileScannerController(detectionSpeed:)`,
-  `start`/`stop`/`dispose`/`toggleTorch`, `MobileScanner(controller:,
-  onDetect:)`, `BarcodeCapture.barcodes.first.rawValue`) is unchanged in
-  6.x — 6.0.0's breaking changes are platform-level (iOS 15.5 minimum,
-  MLKit 7, Xcode 15.3). Scanner pause/resume, barcode -> addByBarcode
-  forwarding, and the debugConnectivityOverride seams are byte-identical.
-
-## 1.13.0
-
-* POS till ships per Ray's approvals (2026-08-28, strip 11a–11i:
-  "approved: 11i, 11c-h" + 11a/11b with the icon dedup):
-  * BillingPage deltas (11a/11b): the Scan lane (chip 276) moved INTO
-    the viewfinder stage (273), centered, in chip 227's settings-row
-    idiom — leading scan glyph + semi label + trailing chevron on a
-    light card (Ray's icon dedup: the stand-in's ghost scan watermark is
-    removed, the lane keeps its glyph); Add Items keeps the lane row and
-    its sheet follows new frame 11j (chips 316-321: the 171-pattern bare
-    title row + the section-12 back-only floating pill dismissing the
-    sheet); the
-    summary (286) became the checkout-pattern free-standing rounded card
-    (292) with the Continue button (287) outside it; a pending-sync
-    chip surfaces till sales still queued for the backend.
-  * CheckoutPage headers (11c–11f): the big-title app-bar block replaced
-    by the 171-pattern host top-row (chip 304) — bare `interSemi 18.sp
-    textPrimary` title on the page surface, no AppBar. ONE back (strip
-    section 12, core#125): the floating nav's back-only pill
-    (`FloatingNavBack`) replaces the floating PopButton — requires
-    base_sdk >= 1.39.0.
-  * Create-order pipeline wiring (Ray: "you just need to add scanned
-    ones to that pipeline"): every finished sale submits through the new
-    `PosOrdersFacade` (`domain/interface/pos_orders.dart`) —
-    OFFLINE-FIRST, local drift store first, then the existing SyncEngine
-    `order.create` queue (orders_sdk 1.10.0 `PosSaleQueue`); checkout
-    never blocks on the network. The sale goes up with the status it is
-    IN: 'delivered' in-store, 'ready' send-for-delivery (an offline
-    delivery sale HOLDS at Ready locally until the sync drains it).
-    Host registration: the installed ADR-005 adapter
-    `templates/adapters/manager/pos_orders_adapter.dart`
-    (ManagerPosOrdersAdapter); demo builds register the new
-    `MockPosOrdersRepository` for zero-backend tours and tests.
-  * Credit / partly-paid + send-for-delivery (11g–11i, chips 305–315):
-    "Billing to" customer attach (the shop-scoped create-order picker
-    reused; REQUIRED before credit unlocks) with the credit-outstanding
-    "owes" chip; "Amount paying now" with Full / R0-all-on-credit quick
-    actions; the remainder-due banner with the Shop.credit_allowance
-    gate line (counter-sale fronting = the item commission); summary
-    Paying-now / On-credit split rows; takes/records finish sublabel;
-    the delivery address card and "Send for delivery & Finish" (the
-    sale enters the NORMAL order queue at Ready). All-on-credit rides
-    the merged credit machinery end to end; partly-paid pairs with the
-    backend's ONE new piece (create_order `payment_status: 'Credit'` +
-    `paid_now` → `Order.pos_paid_amount`, the Paid till Transaction row,
-    and the FIFO auto-collect sweeping the remainder). The pay-link QR
-    and the offline 6-digit code both carry the PAYING-NOW amount.
-
-## 1.12.0
-
-* POS port (approved strip section 11, frames 11a-11f): the old Spazafy
-  manager billing flow rebuilt inside this SDK around the retired Quick
-  Receipt app's working ideas, in the current `AppStyle` token language
-  (dark-mode compliant throughout - no fixed white/black page surfaces).
-  * `templates/pages/manager/billing/billing_page.dart` - the till, now
-    manager tab 0 (scan icon; the shell's create FAB shows only on tabs
-    1 orders / 2 foods): MobileScanner viewfinder stage with torch,
-    pause and a 45s idle auto-pause, 2s scan dedupe, haptic on accepted
-    scans; Scan and Add Items (manual search) lanes; cart line cards
-    with -/+ steppers, tap-the-quantity decimal edit for weighed kg/L
-    units, currency-formatted line totals, per-line remove; item-count
-    chip; Clear All; receipt-style summary; Continue carrying the total.
-  * `templates/pages/manager/billing/checkout_page.dart` (installed with
-    the new `/pos-checkout` route): Cash | QR pay-link toggle, pay-link
-    QR card + "I've Scanned" phase gate, dual finish - "Finish without
-    Receipt" and the ATOMIC "Print Receipt & Finish" (record only after
-    the printer returns) - and the OFFLINE INVERSION: an offline till
-    banners and goes straight to 6-digit code entry (the QR stays - the
-    customer's phone is online) verified locally by
-    `lib/src/manager/utils/pos_pay_verification.dart` (sha256-derived
-    6-digit code, widened from Spazafy's 5-digit helper, zero server
-    contact), over a `debugConnectivityOverride`-seamed probe
-    (`pos_connectivity.dart`).
-  * Cart state `lib/src/manager/application/pos_cart/` on base_sdk's
-    REAL `ProductData`/`Stocks` family; money cents-rounded at the state
-    boundary (18.99×3 + 150×0.75 renders exactly R169.47 - the Spazafy
-    float-sum exponential bug is impossible), derived total (Clear All
-    can't leave it stale), stable per-order id minted in the notifier.
-  * Demo gating: `--dart-define=IS_DEMO=true` routes the till's product
-    lookup to this SDK's `MockProductsRepository` ("Demo Product",
-    150.00) via the new `PosCatalogRepositoryFacade` registration in
-    `ManagerMerchantsDependencies` - headless tours and the standalone
-    test harness (`test/pos_*`, `tool/inject_tr_keys.dart`, lms_sdk's
-    harness pattern) run with zero backend contact.
-  * All five committed Spazafy compile errors are gone by construction
-    (crossAxisAlignment; the real model family; `numberFormat(number:)`;
-    `bgGrey`/mode-resolving tokens; base_sdk widgets only), plus the
-    held-build review findings: the scanner controller is disposed, and
-    scans dedupe per physical scan, never per camera frame.
-  * Tour fragments pos_scan / pos_cart / pos_checkout added to
-    `merchants.tour.yaml`; orders_sdk's queue-selection step moved to
-    tab index 1 in the same change (tour-sync rule: screen + fragment
-    ship together). New host deps: `mobile_scanner`, `pretty_qr_code`,
-    `crypto`.
-
-## 1.11.0
-
-* Added an edit pencil to the wallet card on the manager restaurant tab
-  (`templates/pages/manager/restaurant/restaurant_page.dart`, approved
-  render 2026-08-28): a top-right `Remix.pencil_line` IconButton stacked
-  over `BaseWalletCard` in `MerchantWalletSection`, opening the shop-edit
-  flow via the exact same `EditRestaurantModal` bottom-sheet invocation as
-  the "Restaurant settings" sections row. Overlaid rather than passed
-  through the card's `actions` parameter because base_sdk renders
-  `actions` as a bottom strip, not top-right.
-
-## 1.10.0
-
-* Rebuilt the manager restaurant tab (`templates/pages/manager/restaurant/
-  restaurant_page.dart`) as a host of base_sdk's generic profile page
-  (approved profile-host design, section 7, 2026-08-28): standard host
-  header, no cover art (the `ShopBanner` sliver is retired from the page;
-  the widget file stays installed but unreferenced), and every old content
-  block re-registered as a profile section in the old order —
-  `merchants.shop_info`, `merchants.working_hours`, `merchants.wallet`,
-  `merchants.sections`, plus the `merchants.open_toggle` top-row action
-  (the old floating Open/Closed toggle) and a `base.footer` override adding
-  the old bottom-nav clearance. The hand-built balance box is replaced by
-  base_sdk's `BaseWalletCard` in display-only form (`actions: const []`,
-  no history arrow) over the same cached shop-JSON seller wallet source.
-  The old floating logout button maps to the host's sign-out affordance
-  (registry `onLogout`, the LogoutModal's confirmed branch). Tab wiring is
-  untouched: `main_page.dart` still imports the page directly and it
-  declares no route. Requires base_sdk >= 1.32.0.
-
-## 1.9.4
-
-* Routed the broken direct `/api/method/paas.api.*` call sites through
-  base_sdk's universal platform gateway (`PlatformGateway`, fleet rule
-  2026-08-15): shops repository (`api.shop.search_shops`/`get_shops`/
-  `get_nearby_shops`/`get_shops_by_ids`/`create_shop`/`get_shops_recommend`,
-  cross-module `api.cart.join_order`, `api.delivery.check_delivery_zone`,
-  `api.story.get_story`, `api.tag.get_tags`, `api.product.get_suggest_price`)
-  and the offline shop-create sync handler (`api.shop.create_shop`,
-  idempotency header preserved). Fixed payload keys that never matched the
-  backend kwargs: get_shops_by_ids `shop_ids`, join_order
-  `cart_id`/`user_name`, create_shop wrapped in `shop_data`. Registered the
-  missing `api.seller_operations.get_seller_sections`/`get_seller_tables` and
-  `api.seller_product.create_product` whitelisted-method keys in
-  merchants/frappe/manifest.json. Recorded endpoint gaps
-  (get_shop_by_uuid/get_shop_branch/get_pickup_shops) are untouched.
-
-## 1.9.3
-
-* Freezed 3 follow-through (PR #28 missed the templates dir): the installed
-  `merchants_adapters.dart` template now imports
-  `package:base_sdk/src/handlers/api_result.dart` directly so its
-  `ApiResult.when` call site resolves against freezed-3 base_sdk. No behavior
-  change.
-
-## 1.9.1
-
-* Sliced `manager/infrastructure/models/` into the canonical `data/` and `response/` subfolders: moved `sections_tables.dart` to `models/data/` and `my_shop_response.dart` to `models/response/`. Updated all imports. No API changes.
-
-## 1.9.0
-
-* Driver migration S-D6: adopted paas_driver's intro-story block (`driver/application/story` + story page + `/story` route). See manifest comment for details.

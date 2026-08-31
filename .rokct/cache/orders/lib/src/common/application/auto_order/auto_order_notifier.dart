@@ -255,6 +255,11 @@ class AutoOrderNotifier extends StateNotifier<AutoOrderState> {
       return;
     }
 
+    // `savedCardId` is already the Saved Card docname (the dropdown's
+    // value is `card.id`), which is exactly the handle the charge takes.
+    // `walletTopUp`'s parameter keeps the name `token` because it
+    // overrides a base_sdk interface; the gateway reuse credential is
+    // server-side only and never reaches this device.
     final res = await walletRepository.walletTopUp(
       amount: amount,
       token: state.savedCardId,

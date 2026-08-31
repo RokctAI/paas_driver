@@ -1,3 +1,46 @@
+## 1.14.0
+
+* Saved-card payments name the CARD, not a credential. `Saved Card.token`
+  is the gateway reuse credential — presenting it to the gateway charges
+  that card again — and pay confined it to a Frappe `Password` field
+  (pay#46), so it stopped travelling to clients at all. Every saved-card
+  path in this SDK now follows the handle:
+  * REPEATING / AUTO ORDERS — the one that actually broke.
+    `process_repeating_orders` in `orders/frappe/src/tenant/tasks.py`
+    fetched the Saved Card and passed `card.token`. Under a `Password`
+    column that reads back as a row of asterisks, which resolves to no
+    card, so the charge was REFUSED before any gateway call: repeating
+    orders quietly stopped paying. It now passes
+    `saved_card=ro.saved_card` — the docname the Repeating Order already
+    stores — and the `frappe.get_doc` that existed only to reach the
+    credential is gone. `promotions/frappe/src/tenant/tasks.py` is a
+    byte-identical composed copy and carries the same change.
+  * `order_check.dart` passes `_selectedCard!.id` — the Saved Card
+    docname — to `processTokenPayment`, where it passed
+    `_selectedCard!.token`.
+  * `auto_order_notifier.dart` needed NO change: its `savedCardId`
+    already IS the docname (the picker's value is `card.id`), which the
+    old API refused and the new one accepts. It is now commented so the
+    next reader does not "fix" it back.
+* Tests: `orders/frappe/tests/test_repeating_order_saved_card_charge.py`
+  and the identical suite under `promotions/frappe/tests/` (8 tests
+  each; 3 of the 8 fail against the pre-change task). The headline test
+  is end to end — a due repeat order on a saved card is created, charged
+  once against the docname, and produces no payment-failed notification
+  — with guards for an unknown card, another user's card, the
+  ringfenced-wallet path, and a saved-card method with no card. The
+  bench script `tests/verify_auto_order_flow.py` took
+  `tokenize_card(...)["token"]`, which can now only KeyError; it takes
+  `["name"]` and tops up with `saved_card=`. No real credential value
+  appears in any test, fixture or message.
+* REQUIRES base_sdk >= 1.50.0 and a backend carrying pay#46. Against an
+  older backend a saved-card charge is REFUSED without being made — the
+  failure mode is a payment that does not happen, never a wrong one.
+* VERSIONING NOTE: the `order_check.dart` half shipped in commerce#92
+  with no orders_sdk bump (that PR was deliberately held to two files),
+  so it went out under 1.13.0. This entry covers it as well as the
+  backend half landed here.
+
 ## 1.13.0
 
 * DELIVERY COLLECTED IN PERSON (approved design strip section 43, frames

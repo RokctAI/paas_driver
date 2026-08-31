@@ -26,6 +26,13 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 // Ported from paas_manager lib/presentation/pages/restaurant/widgets/
 // sections_item.dart (styles repointed to base_sdk's AppStyle).
 //
+// Row ink rides the host's mode-resolving [AppStyle.textPrimary], NOT the
+// polarity-pinned [AppStyle.blackColor] the paas_manager original used: the
+// rows render inside GenericProfilePage, whose scaffold is
+// [AppStyle.surfaceDark] (#101010 in dark mode), so pure black left every
+// row title effectively invisible (1.10:1). textPrimary resolves to white on
+// the dark surface and near-black on the light one.
+//
 // [subtitle] (optional) renders a small grey glance line under the title —
 // added for the approved PRODUCTIVITY gate row (frame 7e, chip 391, Ray
 // 2026-08-29 15:41Z), whose Tasks row carries open/due counts. Rows
@@ -61,7 +68,7 @@ class SectionsItem extends StatelessWidget {
                     title,
                     style: AppStyle.interRegular(
                       size: 16.sp,
-                      color: AppStyle.blackColor,
+                      color: AppStyle.textPrimary,
                     ),
                   )
                 : Column(
@@ -71,7 +78,7 @@ class SectionsItem extends StatelessWidget {
                         title,
                         style: AppStyle.interRegular(
                           size: 16.sp,
-                          color: AppStyle.blackColor,
+                          color: AppStyle.textPrimary,
                         ),
                       ),
                       2.verticalSpace,

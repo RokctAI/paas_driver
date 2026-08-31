@@ -362,8 +362,13 @@ class MerchantShopInfoSection extends ConsumerWidget {
   }
 }
 
-/// Today's working-hours pill, verbatim from the old page (the Shop
-/// Working Day mapping stays RestaurantHelpers').
+/// Today's working-hours pill (the Shop Working Day mapping stays
+/// RestaurantHelpers'). The pill's hairline rides the host's mode-resolving
+/// [AppStyle.strokeDark] — the same stroke token GenericProfilePage paints
+/// its own card edges with — instead of the polarity-pinned
+/// [AppStyle.borderColor] (#E6E6E6), which shouted as a near-white outline
+/// on the dark page (15.25:1) and all but vanished on the light one
+/// (1.06:1 against #ECECEF).
 class MerchantWorkingHoursSection extends ConsumerWidget {
   const MerchantWorkingHoursSection({super.key});
 
@@ -376,7 +381,7 @@ class MerchantWorkingHoursSection extends ConsumerWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.r),
         border: Border.all(
-          color: AppStyle.borderColor,
+          color: AppStyle.strokeDark,
           width: 1.r,
         ),
       ),
@@ -451,13 +456,15 @@ class MerchantWalletSection extends StatelessWidget {
   }
 }
 
-/// The PRODUCTIVITY group (approved frame 7e, chip 391): a group title and
-/// the Tasks row, the sole entry point for productivity_sdk's composed
-/// /tasks page. Routes the same way the other hub rows route — the host's
-/// generated route class (TasksRoute, from productivity_sdk's manifest
-/// /tasks entry) via the already-imported app_router; manager composes
-/// carry productivity_sdk (paas_manager composer.json), so the class is
-/// always generated here.
+/// The PRODUCTIVITY group (approved frame 7e, chip 391): a group title,
+/// the Tasks row and - since section 45's frame 45b - the Calculator row
+/// (chip 842), the sole entry points for productivity_sdk's composed
+/// /tasks page and calc_sdk's composed /calc page. Both route the same
+/// way every other hub row routes — the host's generated route class
+/// (TasksRoute from productivity_sdk's manifest /tasks entry,
+/// CalculatorRoute from calc_sdk's /calc entry) via the already-imported
+/// app_router; manager composes carry both SDKs (paas_manager
+/// composer.json), so the classes are always generated here.
 ///
 /// The approved render's row glance ("3 open · 1 due today") is SEEDED
 /// content, disclosed as such on the frame; live open/due counts need
@@ -472,13 +479,42 @@ class MerchantProductivitySection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        TitleAndIcon(title: AppHelpers.getTranslation(TrKeys.productivity)),
+        TitleAndIcon(
+          title: AppHelpers.getTranslation(TrKeys.productivity),
+          // TitleAndIcon's own titleColor default is the polarity-pinned
+          // AppStyle.black, which is correct for its many white-sheet call
+          // sites (ModalWrap) but invisible on this host's dark page — so
+          // the hub passes the mode-resolving token explicitly.
+          titleColor: AppStyle.textPrimary,
+        ),
         20.verticalSpace,
         SectionsItem(
           title: AppHelpers.getTranslation(TrKeys.tasks),
           subtitle: AppConstants.isDemo ? '3 open · 1 due today' : null,
           icon: Remix.task_line,
           onTap: () => context.pushRoute(const TasksRoute()),
+        ),
+        // CHIP 842 - the Calculator row (approved design strip frame
+        // 45b, GATE 1 of section 45): calc_sdk ships a live /calc route
+        // that NOTHING navigated to. This is its door, in the group 7e
+        // already built, with the same earn-your-glance sub-line idiom
+        // the Tasks row uses.
+        //
+        // The approved render's glance reads "Memory holds 1 240.50".
+        // It is SEEDED, for the same reason the Tasks counts are: the
+        // calculator's memory lives in an in-memory autoDispose
+        // StateNotifier inside calc_sdk, so it does not survive the page
+        // and merchants_sdk could not read it anyway (ADR-005 - SDKs
+        // import only base). Frame 45b names the fork explicitly -
+        // "either the row drops the sub-line, or memory gets persisted"
+        // - and persisting it needs a base_sdk LocalStorage key, which
+        // is a base_sdk change. Real composes show the plain row until
+        // then.
+        SectionsItem(
+          title: AppHelpers.getTranslation(TrKeys.calculator),
+          subtitle: AppConstants.isDemo ? 'Memory holds 1 240.50' : null,
+          icon: Remix.calculator_line,
+          onTap: () => context.pushRoute(const CalculatorRoute()),
         ),
       ],
     );
@@ -495,7 +531,12 @@ class MerchantSectionsList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        TitleAndIcon(title: AppHelpers.getTranslation(TrKeys.sections)),
+        TitleAndIcon(
+          title: AppHelpers.getTranslation(TrKeys.sections),
+          // See MerchantProductivitySection: the shared default is pinned
+          // black for white-sheet hosts; this page is dark-surfaced.
+          titleColor: AppStyle.textPrimary,
+        ),
         20.verticalSpace,
         SectionsItem(
           title: AppHelpers.getTranslation(TrKeys.restaurantSettings),

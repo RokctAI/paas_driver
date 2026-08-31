@@ -249,7 +249,7 @@
       "boot_hooks": []
     },
     "orders_sdk": {
-      "version": "1.13.0",
+      "version": "1.14.0",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -709,7 +709,7 @@
       }
     },
     "merchants_sdk": {
-      "version": "1.20.0",
+      "version": "1.21.0",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
         "lib/presentation/pages/stores/story_page.dart": "7e22f32e7e6df8f6a4bfb697987d9b26ad58755642eab7535c321f569208abf7"
@@ -976,12 +976,12 @@
       "hash": "53b6b5a46cb8187f"
     },
     "orders": {
-      "version": "1.13.0",
-      "hash": "2a62494a623fc466"
+      "version": "1.14.0",
+      "hash": "e5ed7a954f259e55"
     },
     "merchants": {
-      "version": "1.20.0",
-      "hash": "ed5b37db2fb65cd7"
+      "version": "1.21.0",
+      "hash": "77e9051e564ea403"
     },
     "products": {
       "version": "1.6.0",
