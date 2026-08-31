@@ -49,6 +49,10 @@ export 'src/presentation/components/blur_wrap.dart';
 // shells every composed app builds its phone/wide split from.
 export 'src/presentation/adaptive/breakpoints.dart';
 export 'src/presentation/adaptive/adaptive_shell.dart';
+// The orientation policy plus the FreeRotation claim a page declares to be
+// excused from it (base honours and restores it; pages never touch
+// SystemChrome).
+export 'src/presentation/adaptive/orientation.dart';
 export 'src/presentation/adaptive/planes.dart';
 export 'src/presentation/adaptive/split_pane.dart';
 

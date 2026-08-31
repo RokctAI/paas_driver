@@ -19,14 +19,15 @@
 // SOFTWARE.
 
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 // Deep adaptive import (same reasoning as the theme import below): the
-// phone-only orientation lock reads AppBreakpoints.medium directly.
-import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
+// phone-only orientation lock IS AppOrientation.shouldLockPortrait() — the
+// one copy of that rule, shared with the FreeRotation claim a page uses to
+// be excused from it.
+import 'package:base_sdk/src/presentation/adaptive/orientation.dart';
 // Deep theme import (not the base_sdk barrel — that would produce a
 // duplicate_import lint wherever an SDK's wiring imports also pull theme
 // symbols): this file itself references AppStyle.systemUiOverlay in the
@@ -130,27 +131,15 @@ void main() async {
 /// Whether this launch should pin the app to portrait.
 ///
 /// Only phone-sized mobile devices lock: web and desktop never do, and a
-/// mobile device whose logical shortest side reaches [AppBreakpoints.medium]
+/// mobile device whose logical shortest side reaches AppBreakpoints.medium
 /// (a tablet) keeps free rotation. Runs before runApp, so the size comes
 /// from the platformDispatcher's views rather than a MediaQuery.
-bool _shouldLockPortrait() {
-  if (kIsWeb) return false;
-  switch (defaultTargetPlatform) {
-    case TargetPlatform.windows:
-    case TargetPlatform.linux:
-    case TargetPlatform.macOS:
-      return false;
-    case TargetPlatform.android:
-    case TargetPlatform.iOS:
-    case TargetPlatform.fuchsia:
-      break;
-  }
-  for (final view in WidgetsBinding.instance.platformDispatcher.views) {
-    final shortestSide = view.physicalSize.shortestSide / view.devicePixelRatio;
-    if (shortestSide >= AppBreakpoints.medium) return false;
-  }
-  return true;
-}
+///
+/// The rule itself lives in base_sdk's [AppOrientation] and is deliberately
+/// NOT copied here: the same answer is what base restores to when a page's
+/// [FreeRotation] claim ends, so a second copy could drift from the one the
+/// restore uses. This stays as the host's named seam onto it.
+bool _shouldLockPortrait() => AppOrientation.shouldLockPortrait();
 
 class _HostEmbeddedWidgets implements EmbeddedWidgets {
   // @generated-embeddedwidgets-start
