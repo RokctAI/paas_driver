@@ -7,13 +7,22 @@
 # RokctAI/shared-workflows .github/workflows/universal-guided-tour.yml;
 # format documentation lives in that repo at scripts/tour/README.md.
 #
-# Role chaining: auth_sdk's fragment ends with its generic demo sign-in
-# (demo.student@example.com). Driver's session policy (delivery_sdk
-# manifest, app_type.driver) admits any role through its '*' fallback and
-# lands non-couriers on /become-driver, so that session is signed out and
-# the tour signs back in as driver@demo.rokct.ai - in demo builds
-# MockAuthRepository maps that email to the deliveryman role, which the
-# policy lands on /home, exactly where the delivery fragment starts.
+# Demo account: setup.demo_email below is substituted into auth_sdk's
+# shared fragment, so its demo sign-in signs straight in as
+# driver@demo.rokct.ai - in demo builds MockAuthRepository maps that email
+# to the deliveryman role, which Driver's session policy (delivery_sdk
+# manifest, app_type.driver) lands on /home, exactly where the delivery
+# fragment starts. Left unset, the fragment falls back to
+# demo.student@example.com, which maps to 'customer'; that role is not
+# rejected here - the policy's '*' fallback admits it - but it lands on
+# /become-driver, the recruitment funnel, so the tour would film the wrong
+# app.
+#
+# The sign_out_customer + driver_sign_in steps below predate
+# setup.demo_email and are no longer what carries the tour to /home. They
+# are kept as a defensive reset - they tear any session down and sign in as
+# the courier again, which stays correct and keeps this tour working if the
+# session policy or the demo role map changes later.
 #
 # Fragment order mirrors the composed SDKs that ship fragments today
 # (composer profile: The-Rokct-Protocol core/utils/flutter/composer/
@@ -52,6 +61,9 @@ store:
   # (the courier /home screen the delivery fragment opens on).
   feature_step: driver_home
 setup:
+  # Account auth_sdk's shared tour fragment signs in as ({demo_email} in
+  # that fragment). Driver needs the deliveryman role - see header note.
+  demo_email: driver@demo.rokct.ai
   imports:
     - "import 'package:base_sdk/src/models/response/languages_response.dart';"
     - "import 'package:base_sdk/src/services/local_storage.dart';"
