@@ -198,9 +198,22 @@ abstract class AppHelpers {
   static errorSnackBar(BuildContext context, {required String text}) =>
       showCheckTopSnackBar(context, text);
 
+  /// Shows a top error toast.
+  ///
+  /// Every top-snackbar helper below resolves its overlay with
+  /// [Overlay.maybeOf] and returns without showing anything when the given
+  /// context has no [Overlay] ancestor. A toast is decoration: it must never
+  /// be able to take its caller down with it. `Overlay.of` asserts in that
+  /// case, so a context handed in from outside the widget tree it belongs to
+  /// -- an integration-test driver context, a callback running after its
+  /// route is gone -- used to throw straight through the caller.
   static showCheckTopSnackBar(BuildContext context, String text) {
+    final overlay = Overlay.maybeOf(context);
+    if (overlay == null) {
+      return;
+    }
     return showTopSnackBar(
-      Overlay.of(context),
+      overlay,
       CustomSnackBar.error(
         message:
             text.isEmpty ? "Please check your credentials and try again" : text,
@@ -216,8 +229,12 @@ abstract class AppHelpers {
     String text, {
     VoidCallback? onTap,
   }) {
+    final overlay = Overlay.maybeOf(context);
+    if (overlay == null) {
+      return;
+    }
     return showTopSnackBar(
-      Overlay.of(context),
+      overlay,
       CustomSnackBar.info(message: text),
       animationDuration: const Duration(milliseconds: 700),
       reverseAnimationDuration: const Duration(milliseconds: 700),
@@ -227,8 +244,12 @@ abstract class AppHelpers {
   }
 
   static showCheckTopSnackBarDone(BuildContext context, String text) {
+    final overlay = Overlay.maybeOf(context);
+    if (overlay == null) {
+      return;
+    }
     return showTopSnackBar(
-      Overlay.of(context),
+      overlay,
       CustomSnackBar.success(message: text),
       animationDuration: const Duration(milliseconds: 700),
       reverseAnimationDuration: const Duration(milliseconds: 700),
@@ -241,8 +262,12 @@ abstract class AppHelpers {
     String text, {
     VoidCallback? onTap,
   }) {
+    final overlay = Overlay.maybeOf(context);
+    if (overlay == null) {
+      return;
+    }
     return showTopSnackBar(
-      Overlay.of(context),
+      overlay,
       CustomSnackBar.info(
         message: text,
         icon: const SizedBox.shrink(),

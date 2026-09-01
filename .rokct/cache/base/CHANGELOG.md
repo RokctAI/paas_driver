@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.55.0
+
+* `AppHelpers`' four top-snackbar helpers — `showCheckTopSnackBar`,
+  `showCheckTopSnackBarInfo`, `showCheckTopSnackBarDone`,
+  `showCheckTopSnackBarInfoCustom`, and so the `errorSnackBar` alias —
+  resolve their overlay with `Overlay.maybeOf` and return without showing
+  anything when the calling context has no `Overlay` ancestor. They used
+  `Overlay.of`, which ASSERTS in that case and throws straight through the
+  caller: a toast, which is decoration, could take down whatever asked for
+  it. Behaviour is unchanged wherever an `Overlay` is in scope, and the
+  signatures are untouched.
+  * The failure that motivated it: the guided tour hands the helpers a
+    context taken from `find.byType(Navigator).first`, whose `Overlay` is a
+    DESCENDANT rather than an ancestor. The assert fired inside the sign-in
+    step's rejection path and killed the whole integration-test run: every
+    step after sign-in went unexecuted, 4 of 19 screenshots were captured,
+    and the failure surfaced as a stack trace inside an SDK toast helper
+    rather than as the sign-in outcome it actually was.
+  * `top_snack_bar_overlay_test.dart` covers all four helpers plus the
+    alias against an overlay-less context, and asserts a toast still
+    renders when an `Overlay` IS in scope.
+
 ## 1.53.0
 
 * `PlaneSpan` grows a fourth claim, `twoIfSpare`: **one plane, and a

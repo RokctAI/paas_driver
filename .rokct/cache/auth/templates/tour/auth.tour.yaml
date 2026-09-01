@@ -126,11 +126,16 @@ steps:
           container.listen(loginProvider, (_, __) {});
       try {
         final login = container.read(loginProvider.notifier);
-        login.setEmail('demo.student@example.com');
+        login.setEmail('{demo_email}');
         login.setPassword('demo-learners-2026');
-        // MockAuthRepository accepts any credentials. The timeout guards the
-        // post-session FCM sync, which can stall on an emulator - navigation
-        // to the demo landing happens before it, so a timeout is harmless.
+        // MockAuthRepository accepts any password, but the ADDRESS decides the
+        // role it hands back (MockAuthRepository._demoRolesByEmail), and the
+        // role decides whether this app's session_policy admits the session at
+        // all. So each shell picks its own account with setup.demo_email in its
+        // tour/app.tour.yaml; shells that leave it unset get the 'customer'
+        // default. The timeout guards the post-session FCM sync, which can
+        // stall on an emulator - navigation to the demo landing happens before
+        // it, so a timeout is harmless.
         await login
             .login(element)
             .timeout(const Duration(seconds: 45), onTimeout: () {});
