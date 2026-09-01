@@ -1,9 +1,9 @@
 # License-eye (apache/skywalking-eyes) header configuration.
 #
-# This repository is licensed under the GNU General Public License v3.0
-# (see LICENSE), so the header template below is the standard GPL-3.0
-# notice — not the MIT/Apache boilerplate the previous (broken) inline
-# config implied.
+# This repository is licensed under the GNU Affero General Public License
+# v3 (see LICENSE). The header template below is the AGPL v3 notice; it
+# previously carried the GPL v3 notice, and both the root LICENSE and the
+# in-tree headers have moved with it.
 #
 # Note on the ignore list: this is a composed app. lib/ is assembled from
 # the SDKs by the build pipeline, .rokct/ holds composition internals, and
@@ -12,23 +12,32 @@
 # those paths are ignored rather than stamped.
 header:
   license:
-    spdx-id: GPL-3.0-or-later
+    spdx-id: AGPL-3.0-only
     copyright-owner: ROKCT INTELLIGENCE (PTY) LTD
+    # The literal header text license-eye matches against. WITHOUT this,
+    # license-eye has no template to compare and matches nothing at all:
+    # it ships header templates for Apache-2.0 and MPL-2.0 ONLY, so neither
+    # MIT nor AGPL-3.0 can be resolved from the spdx-id alone and the check
+    # scores `valid: 0, invalid: <everything>` regardless of what the files
+    # actually carry. Supplying the text makes the check actually check.
+    #
+    # This repository is licensed under the GNU Affero General Public
+    # License v3 (see the root LICENSE file). Keep this block, the root
+    # LICENSE and the header in every source file in agreement.
     content: |
-      Copyright (C) 2024-2026 ROKCT INTELLIGENCE (PTY) LTD
+      Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
 
       This program is free software: you can redistribute it and/or modify
-      it under the terms of the GNU General Public License as published by
-      the Free Software Foundation, either version 3 of the License, or
-      (at your option) any later version.
+      it under the terms of the GNU Affero General Public License as published
+      by the Free Software Foundation, version 3.
 
       This program is distributed in the hope that it will be useful,
       but WITHOUT ANY WARRANTY; without even the implied warranty of
-      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-      GNU General Public License for more details.
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+      GNU Affero General Public License for more details.
 
-      You should have received a copy of the GNU General Public License
-      along with this program.  If not, see <https://www.gnu.org/licenses/>.
+      You should have received a copy of the GNU Affero General Public License
+      along with this program. If not, see <https://www.gnu.org/licenses/>.
 
   paths:
     - '**/*.py'
