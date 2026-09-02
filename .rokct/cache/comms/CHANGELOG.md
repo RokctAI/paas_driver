@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.15.0
+
+* `PushPermissionService` — the single guarded entry point for the OS
+  notification-permission prompt (`src/common/services/push_permission_service.dart`,
+  exported). comms_sdk owns push in every composition, so the guard around
+  `FirebaseMessaging.requestPermission` lives here instead of being re-typed
+  at each shell's call site.
+  * Guided tour run 33476454451 failed both `paas_manager` legs with
+    `[firebase_messaging/unknown] A request for permissions is already
+    running, please wait for it to finish before doing another request.`
+    The tour signs in twice; the second shell mount fired a second
+    `requestPermission` while the first was still pending on the OS prompt,
+    and the platform channel refused it. The shells did not `await` the
+    call, so the exception surfaced as an UNCAUGHT async error that their
+    surrounding `try`/`catch` could never see — in `flutter test` that is a
+    hard failure.
+  * The service carries BOTH halves of the fleet guard idiom already used by
+    comms' own `comms-firebase-fcm-boot` hook — the android/iOS/macOS
+    platform allowlist (never web; Windows keeps the
+    `DesktopNotificationPoller` path) and the fail-open `try`/`catch` that
+    `debugPrint`s the detail instead of propagating.
+  * On top of that it de-duplicates IN-FLIGHT requests: a concurrent caller
+    joins the pending request instead of starting a second one. The first
+    request is never suppressed — a single sign-in on a real device behaves
+    exactly as it did before, and Android notification permissions are not
+    silently disabled for anyone.
+  * Pending state is cleared in a `finally`, so a denied, failed or
+    synchronously-throwing request cannot latch the guard and leave
+    notifications permanently un-requestable for the rest of the process.
+  * Purely additive: no manifest key, `cmd`, payload shape or existing Dart
+    API changed, so every composed shell keeps compiling untouched. Shells
+    adopt it by swapping their raw `FirebaseMessaging.instance.requestPermission`
+    call for `PushPermissionService.request()`.
+
 ## 1.13.0
 
 * The manager NOTIFICATION LIST adopts the standard list language

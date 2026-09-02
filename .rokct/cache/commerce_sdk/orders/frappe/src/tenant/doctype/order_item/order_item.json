@@ -1,0 +1,70 @@
+{
+    "doctype": "DocType",
+    "name": "Order Item",
+    "engine": "InnoDB",
+    "istable": 1,
+    "module": "paas",
+    "permissions": [
+        {
+            "role": "System Manager",
+            "read": 1
+        }
+    ],
+    "fields": [
+        {
+            "fieldname": "product",
+            "fieldtype": "Link",
+            "label": "Product",
+            "options": "Product",
+            "reqd": 1
+        },
+        {
+            "fieldname": "quantity",
+            "fieldtype": "Int",
+            "label": "Quantity",
+            "reqd": 1
+        },
+        {
+            "fieldname": "price",
+            "fieldtype": "Currency",
+            "label": "Price",
+            "reqd": 1
+        },
+        {
+            "fieldname": "cost_price",
+            "fieldtype": "Currency",
+            "label": "Cost Price"
+        },
+        {
+            "fieldname": "discount",
+            "fieldtype": "Currency",
+            "label": "Discount"
+        },
+        {
+            "fieldname": "alternative_product",
+            "fieldtype": "Link",
+            "label": "Alternative Product",
+            "options": "Product"
+        },
+        {
+            "fieldname": "is_substituted",
+            "fieldtype": "Check",
+            "label": "Is Substituted",
+            "default": "0"
+        },
+        {
+            "fieldname": "original_product",
+            "fieldtype": "Link",
+            "label": "Original Product",
+            "options": "Product"
+        },
+        {
+            "fieldname": "prep_status",
+            "fieldtype": "Select",
+            "label": "Prep Status",
+            "options": "New\nCooking\nReady\nCancelled",
+            "default": "New",
+            "description": "Kitchen dish-line prep state (manager Kitchen screen): New = pending, Cooking = preparing, Ready = done, Cancelled = this line struck from the order. Order-level status stays the source of truth for the order's own lifecycle."
+        }
+    ]
+}

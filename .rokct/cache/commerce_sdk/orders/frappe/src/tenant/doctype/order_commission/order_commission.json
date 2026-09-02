@@ -1,0 +1,101 @@
+{
+    "doctype": "DocType",
+    "name": "Order Commission",
+    "engine": "InnoDB",
+    "is_submittable": 0,
+    "issingle": 0,
+    "istable": 0,
+    "module": "paas",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1,
+    "fields": [
+        {
+            "fieldname": "order",
+            "fieldtype": "Link",
+            "label": "Order",
+            "options": "Order",
+            "reqd": 1
+        },
+        {
+            "fieldname": "shop",
+            "fieldtype": "Link",
+            "label": "Shop",
+            "options": "Shop",
+            "reqd": 1
+        },
+        {
+            "fieldname": "commission_type",
+            "fieldtype": "Select",
+            "label": "Commission Type",
+            "options": "Item\nDelivery\nService",
+            "default": "Item",
+            "description": "Item: billed to the shop on the items portion. Delivery: billed to the deliveryman on the delivery fee. Service: the order's service fee billed to the shop at credit delivery (the platform's share, taken up front so it carries no credit risk; on non-credit orders the service fee never enters the shop wallet and needs no row). Rows created before this field existed are Item commissions."
+        },
+        {
+            "fieldname": "party",
+            "fieldtype": "Link",
+            "label": "Party",
+            "options": "User",
+            "description": "The user whose wallet was billed: the shop owner for Item commissions, the deliveryman for Delivery commissions."
+        },
+        {
+            "fieldname": "rate",
+            "fieldtype": "Percent",
+            "label": "Rate",
+            "description": "The commission rate applied at settlement time, after override resolution (Item: nonzero Shop.percentage else the Commission Settings platform default; Delivery: the Deliveryman Profile override else the Commission Settings platform default else the legacy DeliveryMan Settings default)."
+        },
+        {
+            "fieldname": "base_amount",
+            "fieldtype": "Currency",
+            "label": "Base Amount",
+            "description": "The amount the commission was computed on: the order's items portion (total_price minus delivery_fee minus service_fee)."
+        },
+        {
+            "fieldname": "commission_amount",
+            "fieldtype": "Currency",
+            "label": "Commission Amount",
+            "description": "The commission actually billed to the shop wallet at settlement (rate applied to base_amount). Deliberately differs from Order.commission_fee, which is computed on the full order total."
+        },
+        {
+            "fieldname": "reversed_amount",
+            "fieldtype": "Currency",
+            "label": "Reversed Amount",
+            "default": "0",
+            "description": "The portion of the commission credited back to the shop through refund clawbacks."
+        },
+        {
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "label": "Status",
+            "options": "Billed\nReversed",
+            "default": "Billed"
+        },
+        {
+            "fieldname": "billed_at",
+            "fieldtype": "Datetime",
+            "label": "Billed At",
+            "read_only": 1
+        },
+        {
+            "fieldname": "reversed_at",
+            "fieldtype": "Datetime",
+            "label": "Reversed At",
+            "read_only": 1
+        }
+    ]
+}

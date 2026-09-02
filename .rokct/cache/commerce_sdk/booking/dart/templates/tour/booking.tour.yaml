@@ -1,0 +1,22 @@
+# Guided-tour fragment for booking_sdk.
+#
+# Registered EMPTY on purpose - this file claims the fleet-registry fragment
+# name `booking` (fragment file names must be unique across composed SDKs)
+# and documents why there are no steps yet, so the merge's "SDK has not
+# adopted guided tours" warning does not hide a real decision.
+#
+# booking_sdk currently has NO route a tour step could navigate to:
+# manifest.json installs one customer page (reservation_shops.dart, placed
+# under the host's lib/presentation/pages/profile/) but declares no routes
+# for it in any app_type block, so the tour runner cannot reach it via
+# router.replaceNamed, and an installed template cannot be pushed portably
+# from a fragment either (its import path is host-package-specific).
+#
+# Follow-up before steps can land here (rule #59): declare an
+# app_type.customer route for the reservations page in manifest.json, then
+# tour it from this file.
+#
+# Brand-neutral by rule; format: RokctAI/shared-workflows
+# scripts/tour/README.md
+sdk: booking
+steps: []

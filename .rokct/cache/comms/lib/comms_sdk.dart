@@ -24,3 +24,9 @@ export 'src/common/di/comms_di.dart';
 export 'src/common/presentation/notifications/notification_list_language.dart';
 export 'src/common/local_notifications.dart';
 export 'src/common/services/desktop_notification_poller.dart';
+
+// The single guarded entry point for the OS notification-permission
+// prompt — platform allowlist + fail-open catch (comms' FCM boot-hook
+// idiom) plus in-flight de-duplication so a second sign-in in one process
+// cannot trip the platform channel's concurrent-request error.
+export 'src/common/services/push_permission_service.dart';

@@ -1,0 +1,71 @@
+{
+  "name": "marketplace_sdk",
+  "version": "1.12.0",
+  "_comment_requires": "marketplace_sdk >= 1.12.0 tops the wallet up by naming the Saved Card docname (`SavedCardModel.id`) rather than a gateway reuse credential, so it requires base_sdk >= 1.50.0 (SavedCardModel without `token`) and a backend carrying pay's saved-card confinement (pay#46: `process_wallet_top_up` keyed on `saved_card`). Against an older backend the top-up is refused WITHOUT being charged. marketplace_sdk >= 1.4.0 requires base_sdk >= 1.23.0 (the generic profile host: GenericProfilePage + ProfileSectionRegistry). marketplace_sdk >= 1.6.0 requires base_sdk >= 1.26.0 (AppUsageBadge, ProfileMetaRow and the base.footer default section moved into base_sdk). marketplace_sdk >= 1.7.0 requires base_sdk >= 1.27.0 (the unified profile header: registerTopRowAction and the plan/planBack/corner header slots). marketplace_sdk >= 1.8.0 requires base_sdk >= 1.32.0 (BaseWalletCard: the shared wallet card owning the balance line's hide-zero / green-positive / red-negative rule; MarketplaceWalletCard composed it). marketplace_sdk >= 1.9.0 no longer registers a 'marketplace.wallet' profile section (MarketplaceWalletCard removed): the profile wallet card is wallet_sdk's 'wallet.card' section (same order 120 slot), so customer-family apps must compose wallet_sdk >= 1.2.0 to keep a wallet card on the profile; the /wallet-topup top-up sheet (WalletTopUpScreen) stays marketplace-owned. The composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
+  "di_hooks": [
+    {
+      "id": "marketplace-profile-sections",
+      "order": 10,
+      "body": "registerMarketplaceProfileSections();",
+      "imports": [
+        "import 'package:${package}/presentation/routes/marketplace_route_pages.dart';"
+      ],
+      "_comment": "Registers every marketplace profile section (header badge actions, membership card, icon-tile grid, and the base.footer override composing the member links above base_sdk's shared ProfileMetaRow — the wallet card is wallet_sdk's 'wallet.card' section since 1.9.0) with base_sdk's ProfileSectionRegistry, plus the registry's onEditProfile (MyAccount settings hub) and onLogout callbacks - the sections base_sdk's GenericProfilePage renders on the customer profile route. Declared top-level, NOT in an app_type flavor block, mirroring lms_sdk: this SDK's manifest has no flavor blocks and marketplace_sdk only composes into customer-family apps. Requires base_sdk >= 1.23.0 (the profile host)."
+    }
+  ],
+  "installs": [
+    {
+      "from": "templates/assets",
+      "to": "assets"
+    },
+    {
+      "from": "templates/routes/marketplace_route_pages.dart",
+      "to": "lib/presentation/routes/marketplace_route_pages.dart"
+    }
+  ],
+  "app_assets": [
+    "assets/images/splash.png",
+    "assets/images/splash1.png",
+    "assets/images/splash2.png",
+    "assets/images/",
+    "assets/images/intro/",
+    "assets/images/poi/",
+    "assets/images/water/",
+    "assets/lottie/",
+    "assets/svgs/",
+    "assets/temp/"
+  ],
+  "_comment_app_assets": "Home SDKs ship the splash/login background images (base_sdk's splash_page and auth_sdk's login_page reference assets/images/splash*.png). Each home SDK provides its own copies so every composed app can brand them independently; app_assets gets them into the host pubspec's sdk-app-assets block so they are actually bundled. If base_sdk also installed identical files first, the file copy is skipped (already-present guard) and only the pubspec declaration matters.",
+  "routes": [
+    {
+      "path": "/profile",
+      "page": "ProfileRoute.page",
+      "type": "MaterialRoute",
+      "import": "package:${package}/presentation/routes/marketplace_route_pages.dart",
+      "_comment": "First manifest-declared customer route (the rest of the customer route table is still host-owned; rule #59 follow-up in templates/tour/marketplace.tour.yaml). The installed shell carries @RoutePage(name: 'ProfileRoute') rendering base_sdk's GenericProfilePage, keeping the route name and the deprecated ProfilePage's constructor params so host navigation call-sites keep working - the same migration-window convention as merchants_sdk's /main: a host that still tracks its own ProfileRoute shell must delete that manual entry + shell when it recomposes, or auto_route sees the route name twice."
+    },
+    {
+      "path": "/main",
+      "page": "MainRoute.page",
+      "type": "MaterialRoute",
+      "import": "package:${package}/presentation/routes/marketplace_route_pages.dart",
+      "_comment": "The customer app's main destination (customer twin of merchants_sdk's manager /main). Before this entry the customer compose had NO main route: AppHelpers.goHome() -> AppRoutes.replaceMainRoute hit _HostAppRoutes' noSuchMethod StateError after every login/registration/guest-skip, stranding the user (after registering: on the registration-steps shell's spinner instead of the home page's shimmer placeholders). The installed shell renders marketplace_sdk's lean CustomerMainPage (home/search/like/profile tabs); the full legacy paas_customer shell keeps migrating separately."
+    }
+  ],
+  "app_routes": [
+    {
+      "method": "replaceMainRoute",
+      "body": "context.router.replace(MainRoute());",
+      "imports": [
+        "import 'package:${package}/presentation/routes/app_router.dart';"
+      ]
+    }
+  ],
+  "_comment_app_routes": "marketplace_sdk is the customer home SDK: it owns the app's main destination, so it implements AppRoutes.replaceMainRoute (what base_sdk's AppHelpers.goHome() calls after splash/login/registration and the login page's guest Skip). Without this, _HostAppRoutes' noSuchMethod throws a StateError the moment the shell tries to navigate home. Mirrors merchants_sdk's manager declaration.",
+  "integrations": [],
+  "asset_keys": {
+    "pngMotto": "assets/images/motto.png",
+    "pngLogo2": "assets/images/water/logo.png",
+    "lottiePin": "assets/lottie/pin.json"
+  }
+}

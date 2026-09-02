@@ -1,0 +1,45 @@
+# Guided-tour fragment for kitchen_sdk (manager role).
+#
+# Brand-neutral by rule: app names, taglines and any per-app wording live in
+# the app shell's tour/app.tour.yaml ({app_name}/{app_tagline} placeholders
+# are substituted at merge time). This fragment owns the one screen
+# kitchen_sdk installs for app_type=manager composes: the Kitchen tab
+# (KitchenHomePage, tab-hosted at index 2 of merchants_sdk's home shell
+# since merchants_sdk 1.14.0 — between the order queue at 1 and foods at 3
+# — per its install contract, so it declares no route). Include it only in
+# manager-family app manifests.
+#
+# Demo grounding (--dart-define=IS_DEMO=true): since 1.4.0
+# ManagerKitchenDependencies demo-gates KitchenOrdersRepositoryFacade to
+# this SDK's own DemoKitchenOrdersRepository, which serves a seeded service
+# of five tickets across accepted/cooking/ready from memory. So the step
+# below captures a live queue with ticking flip clocks, dish pills and
+# populated filter counts, with zero backend contact.
+#
+# The cross-SDK import below is the established shell contract: the
+# Kitchen tab is selected through merchants_sdk's mainProvider, the same
+# state the shell's bottom-navigation buttons drive (orders fragment
+# precedent).
+#
+# Format: RokctAI/shared-workflows scripts/tour/README.md
+sdk: kitchen
+imports:
+  - "import 'package:flutter_riverpod/flutter_riverpod.dart';"
+  - "import 'package:merchants_sdk/src/manager/application/main/main_provider.dart';"
+steps:
+  - key: kitchen_queue
+    title: "The kitchen sees every order"
+    caption: "Accepted, cooking, ready - the *kitchen queue* tracks every dish with a live clock, so nothing burns and nothing waits."
+    action: dart
+    settle: 8
+    dart: |
+      // Land the manager home shell and select the Kitchen tab (index 2
+      // since merchants_sdk 1.14.0 - the POS till is 0, the order queue 1)
+      // explicitly - an earlier fragment may have left another tab
+      // selected, and mainProvider's selection persists across routes.
+      router.replaceNamed('/main');
+      await Future<void>.delayed(const Duration(seconds: 3));
+      final Element element = tester.element(find.byType(Navigator).first);
+      final ProviderContainer container =
+          ProviderScope.containerOf(element, listen: false);
+      container.read(mainProvider.notifier).selectIndex(2);
