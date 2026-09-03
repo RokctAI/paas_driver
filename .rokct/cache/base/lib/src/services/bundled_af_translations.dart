@@ -554,7 +554,6 @@ const Map<String, String> kBaseAfTranslations = {
   'type_here': 'Tik hier',
   'type_of_technique': 'Tipe tegniek',
   'type_something': 'Tik iets',
-  'ui_type': 'Koppelvlak-tipe',
   'unpaid': 'Onbetaal',
   'up.to': 'tot',
   'upload.documents': 'Laai dokumente op',

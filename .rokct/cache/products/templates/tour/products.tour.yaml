@@ -36,7 +36,7 @@ imports:
 steps:
   - key: menu
     title: "Your menu, organised"
-    caption: "Your whole menu in one place - *products, add-ons and extras*, each on its own tab, priced and stocked."
+    caption: "*Your whole menu* in one place - products, add-ons and extras, each on its own tab, priced and stocked."
     action: dart
     settle: 8
     dart: |

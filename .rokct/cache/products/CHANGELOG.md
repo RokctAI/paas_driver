@@ -1,5 +1,110 @@
 # Changelog
 
+## 1.10.0
+
+* THE ADD MOMENT on planes (approved frame 35a's "+ New product", chip 618,
+  and section 35 decision-transfer item 2 — "a multi-tab form modal unfolds
+  into side-by-side panes at plane widths (35b) and folds back to tabs on
+  the phone (35d). Transfers to every 2+ tab modal fleet-wide."; Ray
+  2026-08-29 15:41Z "approved: 7e, 11u,35a,35b,35c,35d,35e."). The shipped
+  two-tab `CreateProductModal` was still opening as a bottom SHEET over the
+  catalog at every width (tablet store still 11-add_product, fleet review
+  2026-09-02); the edit form already took the 35b panes.
+  * At two or more planes "+ New product" now pushes the SAME
+    `ProductEditPage` route the Edit moment uses, with `product: null`:
+    the shipped `CreateFoodDetailsBody` | `CreateFoodStocksBody` unfold
+    into the Details | Stocks panes (rail | details | stocks at three
+    planes, details | stocks at two), the origin catalog rail keeps plane 1
+    with nothing highlighted, the nav folds to the corner back pill. No new
+    page type, no new form: the create bodies, notifiers, validators and
+    satellite picker sheets are the shipped ones.
+  * The shipped create ORDER survives the fold: the modal kept its Stocks
+    tab behind an `IgnorePointer` until the details save had created the
+    product (stocks are saved against `createdProduct.uuid`). New
+    `ProductFormSplit.stocksLocked` / `stocksLockedHint` draw that lock on
+    the pane — dimmed and inert under "Save details first" until
+    `createdProduct` lands — and on one plane keep the Stocks segment
+    unselectable, hopping to it when the lock lifts (the shipped `onSave`
+    tab hop). The stocks save pops the page exactly as it closed the sheet.
+  * Phones are UNCHANGED: on one plane "+ New product" still opens the
+    shipped `CreateProductModal` bottom sheet (the 12:02Z sheet fork —
+    sheet = phone behaviour). Add-on and extras-group creates are
+    single-tab CRUD satellites and stay sheets at every width (transfer
+    item 3).
+  * `CreateFoodDetailsBody.dark` (default false): on the dark pushed page
+    the picker chevrons and toggle labels take the mode-resolving
+    `AppStyle.textPrimary`; the sheet keeps its shipped ink.
+  * Test: `add_product_plane_flow_test.dart` — 1280 / 800 / 393 logical
+    (three planes / the fold / one plane): rail and form plane grants, the
+    lock and its hint, the lift, the one-plane segment gate and hop, the
+    pill; and the edit moment untouched (unlocked, no hint).
+
+## 1.9.0
+
+* Tablet fixes 2026-09-02 (manager tablet review against the approved
+  renders). `CatalogHeader`
+  (`lib/src/manager/presentation/catalog/catalog_header.dart`): the manager
+  catalog's installed `foods_page.dart` template header now lays itself out by
+  the planes it actually holds - span >= 2 the approved 35a single row, span
+  == 1 on a multi-plane screen two rows (title + compact actions, then the tab
+  pill), a single-plane screen the shipped phone row - with the tab pill
+  always horizontally scrollable. At the two-plane fold the catalog keeps one
+  393 px plane and the header used to overflow it by ~234 px; it no longer
+  does. Test: `catalog_header_test.dart`.
+
+## 1.8.1
+
+* Demo seed data (`--dart-define=IS_DEMO=true`): `MockProductsRepository`,
+  `MockCategoriesRepository` and `MockBrandsRepository` take their imagery
+  from base_sdk's inline `DemoImages` instead of a public placeholder host.
+  A demo build talks to no backend and the CI emulator that walks the guided
+  tour has no dependable route to that host, so every seeded product,
+  category and brand rendered as a broken-image glyph - which is what the
+  published store screenshots showed.
+* Same repositories, renamed seed strings (nothing removed): "Demo Product"
+  -> "Flame-grilled beef burger", "Another Product" -> "Margherita pizza",
+  "Adults Only Demo Product" -> "Craft lager 440ml" (still `isAdult: true`,
+  still the 18+ badge/age-gate seed, now named for what it is), "Demo Brand"
+  -> "Karoo Grill Co.", "Another Brand" -> "Highveld Dairy".
+
+## 1.8.0
+
+* Fix-wave 2026-09-02 (Dart SDK audit, G4 M20/M21, G3 M7). The manager
+  product-authoring and catalog repositories no longer post to the dead
+  per-method `/api/method/paas.api.seller_product...` URLs; they reach
+  merchants' `seller_product.py` as `api.seller_product.*` gateway cmds with
+  payloads shaped to the server signatures: `get_seller_products` /
+  `get_seller_categories` / `get_seller_units` / `get_seller_extra_groups`
+  (`limit_start` + `limit_page_length` paging), `get_product_details
+  {product_name}`, `create_product {product_data}` (the exact cmd the offline
+  outbox handler already replayed), `update_seller_product {product_name,
+  product_data}`, `create_seller_category {category_data}`,
+  `delete_seller_category {uuid}`, `{create,update,delete}_seller_extra_group`
+  (`group_name` + `group_data`), `get_seller_extra_values {group_name}` and
+  `{create,update,delete}_seller_extra_value` (`value_name` + `value_data`;
+  the legacy bulk delete becomes one cmd per id).
+* FLAGGED, not built: `updateStocks` and `updateExtras` have no whitelisted
+  server method (seller_product.py's `update_product_stocks` /
+  `update_product_extras` are un-aliased placeholders that answer
+  `{status: true}` without touching data, so aliasing them would fake
+  success). They stay on the dead path with a `TODO(fix-wave 2026-09-02)`.
+* `dotted_border: ^2.1.0` added to pubspec (the manager multi-image picker
+  template imports it; pinned from the pre-fork POS pubspec).
+* Tests: `test/seller_repositories_gateway_test.dart` pins cmd + payload per
+  rewritten call over a recording HttpService (no socket).
+
+## 1.7.1
+
+* `menu`'s tour caption keeps its wording and moves its highlight. The
+  marked phrase was the whole list, "products, add-ons and extras" — and a
+  highlight phrase never splits across a line wrap, so its chip measured
+  1102px against a 936px wrap width and ran 94px off the 1080px canvas,
+  cutting "extras" down to "extra" in the published Play still. The mark
+  now sits on "Your whole menu", which is the caption's actual key phrase;
+  the list stays, unmarked and wrapping normally. shared-workflows'
+  assembler now fails the run on a row too long to fit, so this cannot
+  silently return.
+
 ## 1.7.0
 
 * `DemoSellerProductsRepository` + `DemoSellerCatalogRepository` — demo data

@@ -130,7 +130,7 @@ class OrderStatusScreen extends StatelessWidget {
                           height: 6.h,
                           width: 12.w,
                           decoration:
-                              const BoxDecoration(color: AppStyle.primary),
+                              BoxDecoration(color: AppStyle.primary),
                         ),
                         OrderStatusItem(
                           icon: Icon(
@@ -147,7 +147,7 @@ class OrderStatusScreen extends StatelessWidget {
                           height: 6.h,
                           width: 12.w,
                           decoration:
-                              const BoxDecoration(color: AppStyle.primary),
+                              BoxDecoration(color: AppStyle.primary),
                         ),
                         OrderStatusItem(
                           icon: parcel
@@ -165,7 +165,7 @@ class OrderStatusScreen extends StatelessWidget {
                           height: 6.h,
                           width: 12.w,
                           decoration:
-                              const BoxDecoration(color: AppStyle.primary),
+                              BoxDecoration(color: AppStyle.primary),
                         ),
                         OrderStatusItem(
                           icon: Icon(Icons.flag, size: 16.r),

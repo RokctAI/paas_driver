@@ -15,6 +15,8 @@
 
 import 'package:flutter/widgets.dart';
 
+import 'package:base_sdk/src/application/profile/profile_host_capabilities.dart';
+
 /// One section of the generic profile page.
 ///
 /// Feature SDKs contribute sections at bootstrap (typically from a manifest
@@ -35,11 +37,20 @@ class ProfileSection {
   /// section (mirrors the lms admin-row gating pattern).
   final Future<bool> Function()? visible;
 
+  /// The account facades this section needs, e.g. `{ProfileFacade.shops}`
+  /// for a shop-management row. The host omits the section wherever any of
+  /// them is unregistered ([ProfileHostCapabilities]) — before [visible] is
+  /// consulted, so a gate never runs against a missing facade. Empty (the
+  /// default) means the section renders in every composition, as every
+  /// section did before this field existed.
+  final Set<ProfileFacade> requires;
+
   const ProfileSection({
     required this.id,
     required this.order,
     required this.builder,
     this.visible,
+    this.requires = const {},
   });
 }
 
@@ -101,10 +112,17 @@ class ProfileHeaderSlotContent {
   /// visible; `false` or a thrown error keeps the slot empty.
   final Future<bool> Function()? visible;
 
+  /// The account facades this content needs — the same contract as
+  /// [ProfileSection.requires]: the host leaves the slot empty wherever
+  /// any of them is unregistered. Empty (the default) means the content
+  /// renders in every composition.
+  final Set<ProfileFacade> requires;
+
   const ProfileHeaderSlotContent({
     required this.id,
     required this.builder,
     this.visible,
+    this.requires = const {},
   });
 }
 

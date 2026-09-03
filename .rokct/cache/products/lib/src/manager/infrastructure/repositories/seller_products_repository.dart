@@ -15,6 +15,7 @@
 import 'package:flutter/material.dart';
 import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
@@ -30,11 +31,25 @@ import 'package:products_sdk/src/common/infrastructure/models/response/single_se
 
 /// Port of `paas_manager`'s product-authoring calls, repointed from the legacy
 /// `/api/v1/dashboard/seller/...` paths to `seller_product.py` in the merchants
-/// Frappe app. The Dart was already complete; only the server answering the URL
-/// differs.
+/// Frappe app, reached as `api.seller_product.*` cmds through the universal
+/// gateway. Payloads follow the server signatures (`product_name` +
+/// `product_data`, `group_name` + `group_data`, `value_name` + `value_data`).
+///
+/// Two calls have NO whitelisted server method yet and stay on the dead
+/// per-method path so they fail visibly (fixplan M20): [updateStocks] and
+/// [updateExtras] — see the TODOs on them.
 const _base = '/api/method/paas.api.seller_product.seller_product';
 
 class SellerProductsRepository implements SellerProductsRepositoryFacade {
+  /// Universal platform gateway (fleet rule 2026-08-15): cmds mirror the
+  /// merchants module's `manifest.json` whitelisted-method keys with the app
+  /// segment dropped.
+  static const _gateway = PlatformGateway();
+
+  /// Mirrors the backend's `limit_page_length` default; the legacy `page`
+  /// query becomes `limit_start`.
+  static const int _pageSize = 20;
+
   @override
   Future<ApiResult<SellerProductsPaginateResponse>> getProducts({
     int? page,
@@ -44,12 +59,12 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
     String? status,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '$_base.get_seller_products_paginate',
-        queryParameters: {
+      final response = await _gateway.tenant(
+        'api.seller_product.get_seller_products',
+        {
           'lang': LocalStorage.getLanguage()?.locale,
-          if (page != null) 'page': page,
+          if (page != null) 'limit_start': (page - 1) * _pageSize,
+          'limit_page_length': _pageSize,
           if (query != null && query.isNotEmpty) 'search': query,
           if (categoryId != null) 'category_id': categoryId,
           if (needAddons) 'addon': 1,
@@ -57,7 +72,7 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
         },
       );
       return ApiResult.success(
-        data: SellerProductsPaginateResponse.fromJson(response.data),
+        data: SellerProductsPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get seller products failure: $e');
@@ -70,16 +85,17 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
     String uuid,
   ) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '$_base.get_product_details',
-        queryParameters: {
-          'uuid': uuid,
+      // seller_product.get_product_details(product_name): the authoring
+      // `uuid` is the Product docname.
+      final response = await _gateway.tenant(
+        'api.seller_product.get_product_details',
+        {
+          'product_name': uuid,
           'lang': LocalStorage.getLanguage()?.locale,
         },
       );
       return ApiResult.success(
-        data: SingleSellerProductResponse.fromJson(response.data),
+        data: SingleSellerProductResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get seller product details failure: $e');
@@ -96,14 +112,18 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
     final String localId = SyncEngine.newTempId();
     await ManagerProductsLocalStore.putPending(localId, {'product': product});
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.post('$_base.create_product', data: product);
+      // Same cmd + payload shape the outbox handler replays
+      // (ProductCreateSyncHandler): seller_product.create_product(product_data).
+      final response = await _gateway.tenant(
+        'api.seller_product.create_product',
+        {'product_data': product},
+      );
       // Backend reachable and accepted: it is authoritative from here on
       // (the product list refetch supplies the row), so the write-through
       // record goes.
       await ManagerProductsLocalStore.delete(localId);
       return ApiResult.success(
-        data: SingleSellerProductResponse.fromJson(response.data),
+        data: SingleSellerProductResponse.fromJson(response),
       );
     } catch (e) {
       final status = NetworkExceptions.getDioStatus(e);
@@ -145,7 +165,10 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
     required String uuid,
     required Map<String, dynamic> product,
   }) =>
-      _postProduct('$_base.update_seller_product', {'uuid': uuid, ...product});
+      _postProduct('api.seller_product.update_seller_product', {
+        'product_name': uuid,
+        'product_data': product,
+      });
 
   @override
   Future<ApiResult<SingleSellerProductResponse>> updateStocks({
@@ -154,7 +177,12 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
     List<String> deletedStockIds = const [],
     bool isAddon = false,
   }) =>
-      _postProduct('$_base.update_product_stocks', {
+      // TODO(fix-wave 2026-09-02): no server method — seller_product.py's
+      // update_product_stocks is an un-aliased placeholder returning
+      // {"status": true} without touching stock, so aliasing it would make a
+      // stock update look successful. Left on the dead path so it fails
+      // visibly; needs an owner decision (fixplan M20).
+      _postProductLegacy('$_base.update_product_stocks', {
         'uuid': uuid,
         'stocks': stocks,
         if (deletedStockIds.isNotEmpty) 'delete_ids': deletedStockIds,
@@ -166,7 +194,10 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
     required String productUuid,
     required List<Map<String, dynamic>> extras,
   }) =>
-      _postProduct('$_base.update_product_extras', {
+      // TODO(fix-wave 2026-09-02): no server method — same placeholder
+      // situation as updateStocks (seller_product.update_product_extras);
+      // left on the dead path, needs an owner decision (fixplan M20).
+      _postProductLegacy('$_base.update_product_extras', {
         'uuid': productUuid,
         'extras': extras,
       });
@@ -177,17 +208,17 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
     bool needOnlyValid = true,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '$_base.get_extras_groups',
-        queryParameters: {
+      final response = await _gateway.tenant(
+        'api.seller_product.get_seller_extra_groups',
+        {
           'lang': LocalStorage.getLanguage()?.locale,
-          if (page != null) 'page': page,
+          if (page != null) 'limit_start': (page - 1) * _pageSize,
+          'limit_page_length': _pageSize,
           if (needOnlyValid) 'valid': true,
         },
       );
       return ApiResult.success(
-        data: SellerExtrasGroupsResponse.fromJson(response.data),
+        data: SellerExtrasGroupsResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get extras groups failure: $e');
@@ -200,16 +231,16 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
     required String groupId,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '$_base.get_seller_extra_values',
-        queryParameters: {
-          'group_id': groupId,
+      // seller_product.get_seller_extra_values(group_name, ...).
+      final response = await _gateway.tenant(
+        'api.seller_product.get_seller_extra_values',
+        {
+          'group_name': groupId,
           'lang': LocalStorage.getLanguage()?.locale,
         },
       );
       return ApiResult.success(
-        data: SellerGroupExtrasResponse.fromJson(response.data),
+        data: SellerGroupExtrasResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get extras failure: $e');
@@ -221,25 +252,26 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
   Future<ApiResult<SingleSellerExtrasGroupResponse>> createExtrasGroup({
     required Map<String, dynamic> group,
   }) =>
-      _postGroup('$_base.create_extras_group', group);
+      _postGroup('api.seller_product.create_seller_extra_group', {
+        'group_data': group,
+      });
 
   @override
   Future<ApiResult<SingleSellerExtrasGroupResponse>> updateExtrasGroup({
     required String groupId,
     required Map<String, dynamic> group,
   }) =>
-      _postGroup('$_base.update_seller_extra_group', {
-        'group_id': groupId,
-        ...group,
+      _postGroup('api.seller_product.update_seller_extra_group', {
+        'group_name': groupId,
+        'group_data': group,
       });
 
   @override
   Future<ApiResult<void>> deleteExtrasGroup({required String groupId}) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      await client.post(
-        '$_base.delete_extras_group',
-        data: {'group_id': groupId},
+      await _gateway.tenant(
+        'api.seller_product.delete_seller_extra_group',
+        {'group_name': groupId},
       );
       return const ApiResult.success(data: null);
     } catch (e) {
@@ -252,16 +284,18 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
   Future<ApiResult<CreateSellerExtrasResponse>> createExtrasItem({
     required Map<String, dynamic> item,
   }) =>
-      _postExtrasValue('$_base.create_extras_value', item);
+      _postExtrasValue('api.seller_product.create_seller_extra_value', {
+        'value_data': item,
+      });
 
   @override
   Future<ApiResult<CreateSellerExtrasResponse>> updateExtrasItem({
     required String extrasId,
     required Map<String, dynamic> item,
   }) =>
-      _postExtrasValue('$_base.update_seller_extra_value', {
-        'extra_id': extrasId,
-        ...item,
+      _postExtrasValue('api.seller_product.update_seller_extra_value', {
+        'value_name': extrasId,
+        'value_data': item,
       });
 
   @override
@@ -269,8 +303,14 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
     required List<String> ids,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      await client.post('$_base.delete_extras_value', data: {'ids': ids});
+      // seller_product.delete_seller_extra_value(value_name) takes ONE
+      // value; the legacy bulk delete becomes one cmd per id.
+      for (final id in ids) {
+        await _gateway.tenant(
+          'api.seller_product.delete_seller_extra_value',
+          {'value_name': id},
+        );
+      }
       return const ApiResult.success(data: null);
     } catch (e) {
       debugPrint('==> delete extras item failure: $e');
@@ -279,6 +319,24 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
   }
 
   Future<ApiResult<SingleSellerProductResponse>> _postProduct(
+    String cmd,
+    Map<String, dynamic> payload,
+  ) async {
+    try {
+      final response = await _gateway.tenant(cmd, payload);
+      return ApiResult.success(
+        data: SingleSellerProductResponse.fromJson(response),
+      );
+    } catch (e) {
+      debugPrint('==> $cmd failure: $e');
+      return _fail(e);
+    }
+  }
+
+  /// The pre-gateway per-method POST, kept ONLY for the two calls that have
+  /// no whitelisted server method yet ([updateStocks], [updateExtras]) so
+  /// they keep failing visibly instead of being faked.
+  Future<ApiResult<SingleSellerProductResponse>> _postProductLegacy(
     String path,
     Map<String, dynamic> body,
   ) async {
@@ -295,33 +353,31 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
   }
 
   Future<ApiResult<SingleSellerExtrasGroupResponse>> _postGroup(
-    String path,
-    Map<String, dynamic> body,
+    String cmd,
+    Map<String, dynamic> payload,
   ) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.post(path, data: body);
+      final response = await _gateway.tenant(cmd, payload);
       return ApiResult.success(
-        data: SingleSellerExtrasGroupResponse.fromJson(response.data),
+        data: SingleSellerExtrasGroupResponse.fromJson(response),
       );
     } catch (e) {
-      debugPrint('==> $path failure: $e');
+      debugPrint('==> $cmd failure: $e');
       return _fail(e);
     }
   }
 
   Future<ApiResult<CreateSellerExtrasResponse>> _postExtrasValue(
-    String path,
-    Map<String, dynamic> body,
+    String cmd,
+    Map<String, dynamic> payload,
   ) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.post(path, data: body);
+      final response = await _gateway.tenant(cmd, payload);
       return ApiResult.success(
-        data: CreateSellerExtrasResponse.fromJson(response.data),
+        data: CreateSellerExtrasResponse.fromJson(response),
       );
     } catch (e) {
-      debugPrint('==> $path failure: $e');
+      debugPrint('==> $cmd failure: $e');
       return _fail(e);
     }
   }

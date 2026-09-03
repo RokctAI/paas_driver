@@ -19,6 +19,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/domain/interface/user.dart';
@@ -33,19 +34,71 @@ import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/domain/interface/gallery.dart';
 import 'package:base_sdk/src/domain/interface/shops.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:base_sdk/src/application/profile/profile_host_capabilities.dart';
 import 'package:base_sdk/src/application/profile/profile_state.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 
 class ProfileNotifier extends StateNotifier<ProfileState> {
-  final UserRepositoryFacade _userRepository;
-  final ShopsRepositoryFacade _shopsRepository;
-  final GalleryRepositoryFacade _galleryRepository;
+  /// Null where the composing shell registered no [UserRepositoryFacade]
+  /// (no users_sdk): every account call below is then a no-op — see
+  /// [capabilities].
+  final UserRepositoryFacade? _userRepository;
+
+  /// Null where no [ShopsRepositoryFacade] is registered (no
+  /// merchants_sdk): [createShop] is then a no-op.
+  final ShopsRepositoryFacade? _shopsRepository;
+
+  /// Null where no [GalleryRepositoryFacade] is registered (no
+  /// products_sdk): [createShop] is then a no-op.
+  final GalleryRepositoryFacade? _galleryRepository;
+
+  /// Which facades this notifier holds — what the generic profile host
+  /// renders its surface from. Derived from the constructor arguments, so
+  /// a test handing in fakes and the production [ProfileNotifier.fromLocator]
+  /// agree by construction.
+  final ProfileHostCapabilities capabilities;
 
   ProfileNotifier(
-    this._userRepository,
-    this._shopsRepository,
-    this._galleryRepository,
-  ) : super(const ProfileState());
+    UserRepositoryFacade? userRepository,
+    ShopsRepositoryFacade? shopsRepository,
+    GalleryRepositoryFacade? galleryRepository,
+  )   : _userRepository = userRepository,
+        _shopsRepository = shopsRepository,
+        _galleryRepository = galleryRepository,
+        capabilities = ProfileHostCapabilities(
+          hasAccount: userRepository != null,
+          hasShops: shopsRepository != null,
+          hasGallery: galleryRepository != null,
+        ),
+        super(const ProfileState());
+
+  /// The production constructor behind `profileProvider`: resolves each
+  /// facade from [locator] (`GetIt.instance` by default) only where it is
+  /// registered. A shell that registers all three gets the same three
+  /// singletons the provider always resolved; one that registers none — a
+  /// radio composition — gets a notifier whose account calls are no-ops
+  /// instead of a `Bad state: GetIt: Object/factory with type
+  /// UserRepositoryFacade is not registered` out of the page's first build.
+  factory ProfileNotifier.fromLocator({GetIt? locator}) {
+    final resolved = locator ?? GetIt.instance;
+    return ProfileNotifier(
+      resolved.isRegistered<UserRepositoryFacade>()
+          ? resolved.get<UserRepositoryFacade>()
+          : null,
+      resolved.isRegistered<ShopsRepositoryFacade>()
+          ? resolved.get<ShopsRepositoryFacade>()
+          : null,
+      resolved.isRegistered<GalleryRepositoryFacade>()
+          ? resolved.get<GalleryRepositoryFacade>()
+          : null,
+    );
+  }
+
+  /// Kept for callers that compiled against base_sdk 1.57.0, where this
+  /// was the provider's constructor. Forwards to [fromLocator]: the
+  /// facades are resolved once here, not lazily per call.
+  factory ProfileNotifier.deferred() => ProfileNotifier.fromLocator();
+
   int page = 1;
 
   getTerm({required BuildContext context}) async {
@@ -110,7 +163,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     list[index].active = true;
     ProfileData newUser = state.userData!.copyWith(addresses: list);
     state = state.copyWith(userData: newUser);
-    _userRepository.setActiveAddress(id: id ?? "");
+    _userRepository?.setActiveAddress(id: id ?? "");
   }
 
   deleteAddress({String? id, required int index}) async {
@@ -118,7 +171,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     list.removeAt(index);
     ProfileData newUser = state.userData!.copyWith(addresses: list);
     state = state.copyWith(userData: newUser);
-    _userRepository.deleteAddress(id: id ?? "");
+    _userRepository?.deleteAddress(id: id ?? "");
   }
 
   setBgImage(String bgImage) {
@@ -146,13 +199,17 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     RefreshController? refreshController,
     VoidCallback? onSuccess,
   }) async {
+    // Anonymous host (no UserRepositoryFacade registered): nothing to
+    // fetch and no account to fetch it for — see [capabilities].
+    final userRepository = _userRepository;
+    if (userRepository == null) return;
     if (LocalStorage.getToken().isNotEmpty) {
       final connected = await AppConnectivity.connectivity();
       if (connected) {
         if (refreshController == null) {
           state = state.copyWith(isLoading: true);
         }
-        final response = await _userRepository.getProfileDetails();
+        final response = await userRepository.getProfileDetails();
         response.when(
           success: (data) async {
             LocalStorage.setWalletData(data.data?.wallet);
@@ -230,13 +287,15 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     BuildContext context, {
     RefreshController? refreshController,
   }) async {
+    final userRepository = _userRepository;
+    if (userRepository == null) return;
     if (LocalStorage.getToken().isNotEmpty) {
       final connected = await AppConnectivity.connectivity();
       if (connected) {
         if (refreshController == null) {
           state = state.copyWith(isReferralLoading: true);
         }
-        final response = await _userRepository.getReferralDetails();
+        final response = await userRepository.getReferralDetails();
         response.when(
           success: (data) async {
             if (refreshController == null) {
@@ -281,14 +340,16 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
         debugPrint('==> logout fcm token skipped: $e');
       }
     }
-    _userRepository.logoutAccount(fcm: fcm);
+    _userRepository?.logoutAccount(fcm: fcm);
   }
 
   Future<void> deleteAccount(BuildContext context) async {
+    final userRepository = _userRepository;
+    if (userRepository == null) return;
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isLoading: true);
-      final response = await _userRepository.deleteAccount();
+      final response = await userRepository.deleteAccount();
       response.when(
         success: (data) async {
           context.router.popUntilRoot();
@@ -314,6 +375,8 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     BuildContext context, {
     RefreshController? refreshController,
   }) async {
+    final userRepository = _userRepository;
+    if (userRepository == null) return;
     page = 1;
     if (LocalStorage.getToken().isNotEmpty) {
       final connected = await AppConnectivity.connectivity();
@@ -321,7 +384,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
         if (refreshController == null) {
           state = state.copyWith(isLoadingHistory: true);
         }
-        final response = await _userRepository.getWalletHistories(1);
+        final response = await userRepository.getWalletHistories(1);
         response.when(
           success: (data) async {
             if (refreshController == null) {
@@ -353,10 +416,12 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     BuildContext context,
     RefreshController refreshController,
   ) async {
+    final userRepository = _userRepository;
+    if (userRepository == null) return;
     if (LocalStorage.getToken().isNotEmpty) {
       final connected = await AppConnectivity.connectivity();
       if (connected) {
-        final response = await _userRepository.getWalletHistories(++page);
+        final response = await userRepository.getWalletHistories(++page);
         response.when(
           success: (data) async {
             List<WalletData> list = List.from(state.walletHistory ?? []);
@@ -401,6 +466,12 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     required String deliveryType,
     required String categoryId,
   }) async {
+    // Shop creation needs both the shops and the gallery facade (logo,
+    // background and document uploads precede the create call); a shell
+    // registering either one only cannot offer it — see [capabilities].
+    final galleryRepository = _galleryRepository;
+    final shopsRepository = _shopsRepository;
+    if (galleryRepository == null || shopsRepository == null) return;
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isSaveLoading: true);
@@ -408,7 +479,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       String? logoImage;
       String? backgroundImage;
       List<String>? files;
-      final logoResponse = await _galleryRepository.uploadImage(
+      final logoResponse = await galleryRepository.uploadImage(
         state.logoImage,
         UploadType.shopsLogo,
       );
@@ -421,7 +492,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
           AppHelpers.showCheckTopSnackBar(context, failure);
         },
       );
-      final backgroundResponse = await _galleryRepository.uploadImage(
+      final backgroundResponse = await galleryRepository.uploadImage(
         state.bgImage,
         UploadType.shopsBack,
       );
@@ -434,7 +505,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
           AppHelpers.showCheckTopSnackBar(context, failure);
         },
       );
-      final fileResponse = await _galleryRepository.uploadMultiImage(
+      final fileResponse = await galleryRepository.uploadMultiImage(
         state.filepath,
         UploadType.shopsBack,
       );
@@ -447,7 +518,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
           AppHelpers.showCheckTopSnackBar(context, failure);
         },
       );
-      final response = await _shopsRepository.createShop(
+      final response = await shopsRepository.createShop(
         logoImage: logoImage,
         documents: files ?? [],
         backgroundImage: backgroundImage,

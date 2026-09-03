@@ -13,7 +13,6 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
-import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/handlers/network_exceptions.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
@@ -31,12 +30,24 @@ class DeliveryPointsRepository implements DeliveryPointsRepositoryFacade {
     required double longitude,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.doctype.delivery_point.delivery_point.get_nearest_delivery_points',
-        queryParameters: {'latitude': latitude, 'longitude': longitude},
+      // Repointed from the dead direct
+      // `/api/method/paas.doctype.delivery_point.delivery_point.get_nearest_delivery_points`
+      // path (a dotted name registered in no manifest) onto the universal
+      // platform gateway. The prefix-free cmd mirrors delivery's
+      // `manifest.json` whitelisted-method key
+      // `{app_name}.api.delivery.get_nearest_delivery_points`, aliased in
+      // the same change so this SDK's Dart half is answered by its own
+      // frappe half (merchants' `api.shop.get_nearest_delivery_points`
+      // twin would have crossed SDK lines). The def is guest-readable like
+      // its get_delivery_points sibling, so the guest client is kept.
+      // FrappeResponseInterceptor already unwraps the top-level `message`
+      // key, so the gateway answer is the list itself.
+      final response = await _gateway.call(
+        'api.delivery.get_nearest_delivery_points',
+        payload: {'latitude': latitude, 'longitude': longitude},
+        requireAuth: false,
       );
-      final List<dynamic> data = response.data['message'];
+      final List<dynamic> data = response;
       final List<DeliveryPointData> deliveryPoints =
           data.map((e) => DeliveryPointData.fromJson(e)).toList();
       return ApiResult.success(data: deliveryPoints);

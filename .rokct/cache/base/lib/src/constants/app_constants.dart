@@ -38,6 +38,14 @@ abstract class AppConstants {
     );
   }
   static const bool use24Format = true;
+  /// The app's default UI type (home style), 0-based, used when the tenant
+  /// backend sends no 'ui_type' design setting. One of the two suppliers
+  /// [AppHelpers.getType] consults - the backend wins, this is the
+  /// compose-time floor. Overridable per app the same way the other
+  /// constants here are: --dart-define=UI_TYPE=2, or a home-SDK manifest
+  /// "constants" override. 0 keeps every app on today's default.
+  static const int uiType = int.fromEnvironment('UI_TYPE');
+
   static const double radius = 16;
 
   /// App identity: the display name and brand motto of THIS composed app.

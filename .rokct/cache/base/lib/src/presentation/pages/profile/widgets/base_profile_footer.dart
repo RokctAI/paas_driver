@@ -20,6 +20,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:remixicon/remixicon.dart';
 
+import 'package:base_sdk/src/presentation/pages/profile/profile_host_scope.dart';
 import 'package:base_sdk/src/presentation/pages/profile/widgets/app_usage_badge.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
@@ -112,8 +113,15 @@ class ProfileMetaRow extends StatelessWidget {
             );
           },
         ),
-        SizedBox(width: 16.w),
-        const AppUsageBadge(),
+        // The usage badge counts a signed-in user's app opens. In the
+        // host's anonymous mode (no account facade) there is no such user
+        // and the stats read answers all zeros, so the badge is left out
+        // rather than rendered dead. Outside the host, or with an account,
+        // the row is exactly as before.
+        if (ProfileHostScope.of(context).hasAccount) ...[
+          SizedBox(width: 16.w),
+          const AppUsageBadge(),
+        ],
       ],
     );
   }

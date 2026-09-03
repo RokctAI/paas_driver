@@ -16,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:${package}/presentation/pages/orders/details/order_details_modal.dart';
-import 'package:base_sdk/src/presentation/adaptive/adaptive_shell.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
@@ -27,6 +26,7 @@ import 'package:orders_sdk/src/manager/application/orders/on_a_way/on_a_way_orde
 import 'package:orders_sdk/src/manager/application/orders/ready/ready_orders_provider.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/models.dart';
 import 'package:orders_sdk/src/manager/presentation/board/board_header.dart';
+import 'package:orders_sdk/src/manager/presentation/board/board_layout_switch.dart';
 import 'package:orders_sdk/src/manager/presentation/board/board_map_dialog.dart';
 import 'package:orders_sdk/src/manager/presentation/board/board_plane_flow.dart';
 import 'package:orders_sdk/src/manager/presentation/board/board_prefs.dart';
@@ -38,16 +38,23 @@ import 'package:orders_sdk/src/manager/presentation/board/orders_list_mode.dart'
 /// renders approved 13:06Z "33a is approved" and 13:53Z
 /// "approved: 34a , 33d,33b"):
 ///
-/// * WIDE windows — the seven-column colour-coded kanban board (33a) with
-///   the workspace header (board/list toggle, date-range filter, sound
+/// * TWO PLANES OR MORE (the unfolded fold from 600 logical px, tablets)
+///   — the seven-column colour-coded kanban board (33a) with the
+///   workspace header (board/list toggle, date-range filter, sound
 ///   bell). Per 33d, the page is hosted in base_sdk's plane model: the
 ///   board declares ALL planes; tapping a card pushes the order detail
 ///   with the DEFAULT one-plane claim into the LAST plane, the board
 ///   yields/compresses, and the nav folds to the corner back pill.
-/// * PHONES — the POS's list mode (33b): one scrollable row of status
-///   tabs with counts over a single list; details open as the modal
-///   bottom sheet, exactly the degradation the plane model prescribes for
-///   one-plane screens.
+/// * ONE PLANE (phones) — the POS's list mode (33b): one scrollable row
+///   of status tabs with counts over a single list; details open as the
+///   modal bottom sheet, exactly the degradation the plane model
+///   prescribes for one-plane screens.
+///
+/// The two layouts are keyed on the PLANE COUNT ([BoardLayoutSwitch],
+/// the same PlaneHost.planeCountFor rule the host applies) — not on the
+/// 840 px `expanded` window class, which left the 600..839 band on the
+/// list mode while the plane host was already granting two planes
+/// (tablet store review 2026-09-02, still 12-order_queue).
 ///
 /// Both layouts share the queue providers, so resizing the window never
 /// refetches or loses queue state.
@@ -103,12 +110,12 @@ class _OrdersHomePageState extends ConsumerState<OrdersHomePage> {
     final bool isLtr = LocalStorage.getLangLtr();
     return Directionality(
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
-      child: AdaptiveShell(compact: _buildCompact, expanded: _buildExpanded),
+      child: BoardLayoutSwitch(compact: _buildCompact, wide: _buildExpanded),
     );
   }
 
-  /// Phones: header + the POS list mode (33b); board still reachable via
-  /// the toggle (it scrolls sideways).
+  /// One plane (phones): header + the POS list mode (33b); board still
+  /// reachable via the toggle (it scrolls sideways).
   Widget _buildCompact(BuildContext context) {
     return Scaffold(
       backgroundColor: AppStyle.surfaceDark,
@@ -137,7 +144,7 @@ class _OrdersHomePageState extends ConsumerState<OrdersHomePage> {
     );
   }
 
-  /// Wide windows: the plane-hosted workspace (33a + 33d).
+  /// Two planes or more: the plane-hosted workspace (33a + 33d).
   Widget _buildExpanded(BuildContext context) {
     return Scaffold(
       backgroundColor: AppStyle.surfaceDark,

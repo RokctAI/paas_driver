@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,12 +27,12 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:revenue_sdk/src/common/infrastructure/wallet_balance_cache.dart';
 import 'package:revenue_sdk/src/driver/application/wallet/wallet_notifier.dart';
 import 'package:revenue_sdk/src/driver/application/wallet/wallet_provider.dart';
-import 'package:revenue_sdk/src/driver/application/withdraw/withdraw_provider.dart';
-import 'package:revenue_sdk/src/driver/presentation/payouts/driver_payouts_page.dart';
+import 'package:revenue_sdk/src/common/application/withdraw/withdraw_provider.dart';
+import 'package:revenue_sdk/src/common/presentation/payouts/driver_payouts_page.dart';
 import 'package:revenue_sdk/src/driver/presentation/wallet/driver_balance_head.dart';
-import 'package:revenue_sdk/src/driver/presentation/wallet/wallet_grammar.dart';
+import 'package:revenue_sdk/src/common/presentation/wallet/wallet_grammar.dart';
 import 'package:revenue_sdk/src/driver/presentation/wallet/wallet_movement_list.dart';
-import 'package:revenue_sdk/src/driver/presentation/widgets/withdraw_sheet.dart';
+import 'package:revenue_sdk/src/common/presentation/withdraw/withdraw_sheet.dart';
 
 /// Frame 49f — the driver's wallet plane.
 ///
@@ -48,31 +49,14 @@ import 'package:revenue_sdk/src/driver/presentation/widgets/withdraw_sheet.dart'
 /// exactly as `RevenueDetailPage` is, which is what folds the host's nav
 /// away while it is open.
 ///
-/// WHAT IS DELIBERATELY NOT HERE — **the Top up action (chip 973)**. Frame
-/// 49f draws it as the entry to 49g.
-///
-/// **Correction, 2026-08-31: 49g IS approved.** This comment used to say it
-/// was not, and that was wrong — section 49's own header records every frame
-/// 49a–49s as approved. The omission below is unchanged, but it never stood
-/// on approval; it stands on two build-state facts, both re-verified against
-/// `origin/main` on the date above:
-///
-///   * **The card branch has nowhere to go.** `wallet_sdk` ships the surface
-///     (`/wallet-topup`, and `process_wallet_top_up` behind it is finished),
-///     but NO composed app installs `wallet_sdk` — not `paas_driver`, not
-///     `paas_manager`; the SDK registry lists `supacharge` as its only
-///     consumer. So the route this pill would open does not exist in the
-///     driver app, and composing a first-of-its-kind SDK into a shipping app
-///     is a composition change, not an entry on this page.
-///   * **The bank branch has nowhere to land.** 49h/49i need a deposit
-///     doctype and `pay/wallet/frappe/src/tenant/doctype/` still has none:
-///     the list is flutterwave_settings, payment_payload, payout_bank_account,
-///     platform_wallet, saved_card, transaction, wallet, wallet_history,
-///     wallet_payout_request, wallet_receive_claim.
-///
-/// A pill that opens nothing is the exact dead control this plane was drawn
-/// to end, so it stays out rather than shipped inert. It is flagged, not
-/// forgotten — and now flagged for the true reason.
+/// **The Top up action (chip 973)** is the entry to 49g. It pushes
+/// delivery_sdk's `/driver-deposits?choose=1` — the deposit status plane
+/// (49i) with the method chooser (49g) opened over it — by PATH, because
+/// revenue_sdk imports only base_sdk (ADR-005) and the two SDKs meet on
+/// the route, not on a class. A composition without that route (a driver
+/// app on an older delivery_sdk) hears one friendly line instead of
+/// seeing nothing: a pill that opens nothing is the dead control this
+/// plane was drawn to end, so the guard is the pill's price of admission.
 class DriverWalletPage extends ConsumerStatefulWidget {
   const DriverWalletPage({super.key});
 
@@ -135,6 +119,29 @@ class _DriverWalletPageState extends ConsumerState<DriverWalletPage> {
     );
   }
 
+  /// delivery_sdk's deposit route. The path is the contract between the
+  /// two SDKs (delivery_sdk >= 1.18.0 declares it); an older composition
+  /// answers the push with a failure and the driver hears why.
+  static const String depositRoutePath = '/driver-deposits?choose=1';
+
+  Future<void> _openTopUp() async {
+    await context.router.pushNamed(
+      depositRoutePath,
+      onFailure: (_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppHelpers.getTranslation(
+                'top_ups_are_not_available_in_this_app_yet',
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(driverWalletProvider);
@@ -187,6 +194,16 @@ class _DriverWalletPageState extends ConsumerState<DriverWalletPage> {
                         ),
                       ),
                     ],
+                    10.verticalSpace,
+                    // Chip 973 — Top up: the entry to the deposit route
+                    // (49g -> 49h -> 49i), which lives in delivery_sdk.
+                    CustomButton(
+                      key: const Key('walletTopUpAction'),
+                      title: AppHelpers.getTranslation('top_up'),
+                      background: AppStyle.cardDarkAlt,
+                      textColor: AppStyle.textPrimary,
+                      onPressed: _openTopUp,
+                    ),
                     16.verticalSpace,
                     GestureDetector(
                       key: const Key('walletOpenPayouts'),

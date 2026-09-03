@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:base_sdk/src/constants/demo_images.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/domain/interface/brands.dart';
 import 'package:base_sdk/src/models/data/brand_data.dart';
@@ -21,8 +22,8 @@ import 'package:base_sdk/src/models/response/single_brand_response.dart';
 class MockBrandsRepository implements BrandsRepositoryFacade {
   final BrandData _demoBrand = BrandData(
     id: "1",
-    title: "Demo Brand",
-    img: "https://via.placeholder.com/150",
+    title: "Karoo Grill Co.",
+    img: DemoImages.shopMark,
     active: true,
     createdAt: DateTime.now().toString(),
     updatedAt: DateTime.now().toString(),
@@ -37,7 +38,7 @@ class MockBrandsRepository implements BrandsRepositoryFacade {
       data: BrandsPaginateResponse(
         data: [
           _demoBrand,
-          _demoBrand.copyWith(id: "2", title: "Another Brand"),
+          _demoBrand.copyWith(id: "2", title: "Highveld Dairy"),
         ],
       ),
     );

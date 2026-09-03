@@ -14,6 +14,7 @@
 
 
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -133,7 +134,16 @@ class CommonImage extends StatelessWidget {
                     width: width,
                     fit: fit,
                   )
-                : AppHelpers.checkIsSvg(url)
+                // Inline ("data:") images carry their own pixels - the demo
+                // seed data uses them (see DemoImages) so a demo build with
+                // no backend, and the CI tour emulator with no dependable
+                // route to an image host, still render real artwork instead
+                // of the error state below. Checked before checkIsSvg(),
+                // whose filename-extension test cannot see an SVG inside a
+                // data URI.
+                : AppHelpers.isInlineImage(url)
+                    ? _inlineImage()
+                    : AppHelpers.checkIsSvg(url)
                     ? SvgPicture.network(
                         '$url',
                         width: width?.r,
@@ -183,5 +193,39 @@ class CommonImage extends StatelessWidget {
                                 ),
                         ),
                       ));
+  }
+
+  /// Renders an inline `data:` image: SVG markup through [SvgPicture.string],
+  /// any other payload (png/jpeg/webp) through [Image.memory]. A payload that
+  /// cannot be decoded degrades to a plain tinted box, the same shape this
+  /// widget shows for an unreachable URL.
+  Widget _inlineImage() {
+    Widget fallback() => Container(
+          height: height?.r,
+          width: width?.r,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(errorRadius.r),
+            color: errorBackground ?? AppStyle.bgGrey,
+          ),
+        );
+    if (AppHelpers.isInlineSvg(url)) {
+      final String svg = AppHelpers.inlineImagePayload(url);
+      if (svg.isEmpty) return fallback();
+      return SvgPicture.string(
+        svg,
+        width: width?.r,
+        height: height?.r,
+        fit: fit ?? BoxFit.cover,
+      );
+    }
+    final Uint8List? bytes = AppHelpers.inlineImageBytes(url);
+    if (bytes == null || bytes.isEmpty) return fallback();
+    return Image.memory(
+      bytes,
+      width: width?.r,
+      height: height?.r,
+      fit: fit ?? BoxFit.cover,
+      errorBuilder: (_, __, ___) => fallback(),
+    );
   }
 }

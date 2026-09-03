@@ -14,6 +14,7 @@
 
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/domain/interface/shops.dart';
+import 'package:base_sdk/src/constants/demo_images.dart';
 import 'package:base_sdk/src/models/data/shop_data.dart';
 import 'package:base_sdk/src/models/data/translation.dart';
 import 'package:base_sdk/src/models/response/shops_paginate_response.dart';
@@ -26,51 +27,103 @@ import 'package:base_sdk/src/models/response/tag_response.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MockShopsRepository implements ShopsRepositoryFacade {
-  /// The one fictional shop every demo surface shares. Public and static so
-  /// the manager side can serve the SAME identity: merchants_sdk's own
-  /// `DemoSellerShopRepository` (this SDK, `manager/`) hands it to the
-  /// restaurant hub, so the shop a demo build browses and the shop a demo
-  /// manager runs are one shop rather than two inventions.
-  static final ShopData demoShop = ShopData(
+  /// The fictional shop every demo surface shares - the demo tenant's own
+  /// shop. Public and static so the manager side can serve the SAME
+  /// identity: merchants_sdk's own `DemoSellerShopRepository` (this SDK,
+  /// `manager/`) hands it to the restaurant hub, so the shop a demo build
+  /// browses and the shop a demo manager runs are one shop rather than two
+  /// inventions. [demoShopSecond] below exists only to populate the lists;
+  /// nothing serves it as "the" demo shop.
+  static final ShopData demoShop = _seedShop(
     id: "1",
-    userId: "1",
-    tax: 10,
-    pricePerKm: 5,
-    minPrice: 10,
-    percentage: 15,
-    phone: "+1234567890",
-    visibility: true,
-    openTime: "09:00",
-    open: true,
-    verify: true,
-    closeTime: "22:00",
-    backgroundImg: "https://via.placeholder.com/600x400",
-    logoImg: "https://via.placeholder.com/150",
-    minAmount: 50,
-    status: "approved",
-    type: "restaurant",
-    deliveryTime: DeliveryTime(to: "30", from: "45", type: "min"),
-    createdAt: DateTime.now(),
-    updatedAt: DateTime.now(),
-    location: Location(latitude: 37.7749, longitude: -122.4194),
-    productsCount: 100,
-    translation: Translation(
-      title: "Demo Shop",
-      description: "Best demo food in town",
-      address: "123 Demo St",
-    ),
-    locales: ["en"],
-    seller: Seller(
-      id: "1",
-      firstname: "John",
-      lastname: "Doe",
-      active: true,
-      role: "seller",
-    ),
+    title: "Corner Kitchen",
+    description: "Flame-grilled favourites, ready in minutes",
+    address: "42 Marula Avenue, Sandton",
+    backgroundImg: DemoImages.shopCover,
+    logoImg: DemoImages.shopMark,
+    sellerFirstName: "Thandi",
+    sellerLastName: "Mokoena",
     avgRate: "4.5",
     rateCount: "120",
-    enableCod: true,
   );
+
+  /// A second fictional shop, so every screen that lists more than one shop
+  /// (browse-all, category filter, search) shows a list rather than the same
+  /// card twice - which is exactly how the marketing captures used to read.
+  static final ShopData demoShopSecond = _seedShop(
+    id: "2",
+    title: "Nonna's Pizzeria",
+    description: "Wood-fired pizza, hand-stretched every morning",
+    address: "8 Oak Lane, Parkhurst",
+    backgroundImg: DemoImages.promoBanner,
+    logoImg: DemoImages.category,
+    sellerFirstName: "Marco",
+    sellerLastName: "Bianchi",
+    avgRate: "4.8",
+    rateCount: "86",
+  );
+
+  /// The one shape both demo shops share. Only the identity fields differ,
+  /// so a change to the demo shop's economics (tax, delivery, hours) reaches
+  /// both without being retyped.
+  static ShopData _seedShop({
+    required String id,
+    required String title,
+    required String description,
+    required String address,
+    required String backgroundImg,
+    required String logoImg,
+    required String sellerFirstName,
+    required String sellerLastName,
+    required String avgRate,
+    required String rateCount,
+  }) =>
+      ShopData(
+        id: id,
+        userId: id,
+        tax: 10,
+        pricePerKm: 5,
+        minPrice: 10,
+        percentage: 15,
+        phone: "+27 11 000 0000",
+        visibility: true,
+        openTime: "09:00",
+        open: true,
+        verify: true,
+        closeTime: "22:00",
+        backgroundImg: backgroundImg,
+        logoImg: logoImg,
+        minAmount: 50,
+        status: "approved",
+        type: "restaurant",
+        // from -> to, in that order: the shop cards render it as
+        // "$from - $to min", so the old to:"30"/from:"45" pair printed the
+        // window backwards ("45 - 30 min") in every capture.
+        deliveryTime: DeliveryTime(from: "30", to: "45", type: "min"),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        // Johannesburg - the same city the demo delivery address sits in
+        // (the tour seeds -26.2041, 28.0473), so the map and the address
+        // agree with each other.
+        location: Location(latitude: -26.2041, longitude: 28.0473),
+        productsCount: 100,
+        translation: Translation(
+          title: title,
+          description: description,
+          address: address,
+        ),
+        locales: ["en"],
+        seller: Seller(
+          id: id,
+          firstname: sellerFirstName,
+          lastname: sellerLastName,
+          active: true,
+          role: "seller",
+        ),
+        avgRate: avgRate,
+        rateCount: rateCount,
+        enableCod: true,
+      );
 
   @override
   Future<ApiResult<ShopsPaginateResponse>> getAllShops(
@@ -81,7 +134,7 @@ class MockShopsRepository implements ShopsRepositoryFacade {
     bool? verify,
   }) async {
     return ApiResult.success(
-      data: ShopsPaginateResponse(data: [demoShop, demoShop]),
+      data: ShopsPaginateResponse(data: [demoShop, demoShopSecond]),
     );
   }
 

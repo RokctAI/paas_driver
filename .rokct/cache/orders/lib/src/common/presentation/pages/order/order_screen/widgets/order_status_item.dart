@@ -23,14 +23,16 @@ class OrderStatusItem extends StatelessWidget {
   final Widget icon;
   final bool isActive;
   final bool isProgress;
-  final Color bgColor;
+  /// Defaults to [AppStyle.primary] when null (a getter since core #105, so
+  /// it cannot be a const default value).
+  final Color? bgColor;
 
   const OrderStatusItem({
     super.key,
     required this.icon,
     required this.isActive,
     required this.isProgress,
-    this.bgColor = AppStyle.primary,
+    this.bgColor,
   });
 
   @override
@@ -39,7 +41,7 @@ class OrderStatusItem extends StatelessWidget {
       duration: const Duration(milliseconds: 500),
       padding: EdgeInsets.all(4.r),
       decoration: BoxDecoration(
-        color: isActive ? bgColor : AppStyle.white,
+        color: isActive ? (bgColor ?? AppStyle.primary) : AppStyle.white,
         shape: BoxShape.circle,
       ),
       child: Stack(

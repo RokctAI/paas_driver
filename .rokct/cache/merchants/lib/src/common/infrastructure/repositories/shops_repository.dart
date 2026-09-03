@@ -15,10 +15,12 @@
 import 'package:flutter/material.dart';
 import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/domain/interface/shops.dart';
+import 'package:base_sdk/src/models/data/address_old_data.dart';
 import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:base_sdk/src/models/data/filter_model.dart';
 
@@ -96,13 +98,14 @@ class ShopsRepository implements ShopsRepositoryFacade {
     required String uuid,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.shop.shop.get_shop_by_uuid',
-        queryParameters: {'uuid': uuid},
+      // merchants' shop.get_shop_details(uuid) (fixplan M22).
+      final response = await _gateway.call(
+        'api.shop.get_shop_details',
+        payload: {'uuid': uuid},
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: SingleShopResponse.fromJson(response.data),
+        data: SingleShopResponse.fromJson(response),
       );
     } catch (e) {
       return ApiResult.failure(
@@ -139,18 +142,9 @@ class ShopsRepository implements ShopsRepositoryFacade {
     }
   }
 
-  // NOTE: The following methods are not supported by the new backend or have been consolidated.
-  // - getNearbyShops
-  // - getShopBranch
-  // - joinOrder
-  // - getShopFilter
-  // - getPickupShops
-  // - getShopsByIds
-  // - createShop
-  // - getShopsRecommend
-  // - getStory
-  // - getTags
-  // - getSuggestPrice
+  // NOTE: `getShopBranch` has no customer-facing server method yet (see the
+  // TODO on it); `joinOrder` reaches a server-side placeholder. Everything
+  // else below is served by the gateway cmds named at each call.
 
   @override
   Future<ApiResult<ShopsPaginateResponse>> getNearbyShops(
@@ -180,6 +174,11 @@ class ShopsRepository implements ShopsRepositoryFacade {
   Future<ApiResult<BranchResponse>> getShopBranch({
     required String uuid,
   }) async {
+    // TODO(fix-wave 2026-09-02): no customer-facing server method — the only
+    // branch read is `api.seller_shop_settings.get_seller_branches`, which is
+    // seller-session scoped. Candidate: `get_shop_branches(shop_id)` in
+    // merchants/frappe/src/tenant/api/shop/shop.py + alias (fixplan M23).
+    // Left on the dead path so the failure stays visible.
     try {
       final client = dioHttp.client(requireAuth: false);
       final response = await client.get(
@@ -204,10 +203,11 @@ class ShopsRepository implements ShopsRepositoryFacade {
   }) async {
     try {
       // Group-order join lives in orders' cart module (cart.join_order);
-      // its kwargs are cart_id/user_name.
+      // its kwargs are cart_id/user_name — there is no shop_id kwarg, and
+      // the server side is still a placeholder (fixplan M2).
       await _gateway.tenant(
         'api.cart.join_order',
-        {'cart_id': cartId, 'user_name': name, 'shop_id': shopId},
+        {'cart_id': cartId, 'user_name': name},
       );
       return const ApiResult.success(data: null);
     } catch (e) {
@@ -231,12 +231,15 @@ class ShopsRepository implements ShopsRepositoryFacade {
   @override
   Future<ApiResult<ShopsPaginateResponse>> getPickupShops() async {
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.shop.shop.get_pickup_shops',
+      // merchants' shop.get_shops(**kwargs) maps takeaway=1 onto the
+      // pickup filter (fixplan M24).
+      final response = await _gateway.call(
+        'api.shop.get_shops',
+        payload: {'takeaway': 1},
+        requireAuth: false,
       );
       return ApiResult.success(
-        data: ShopsPaginateResponse.fromJson(response.data),
+        data: ShopsPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get pickup shops failure: $e');
@@ -320,13 +323,20 @@ class ShopsRepository implements ShopsRepositoryFacade {
 
   @override
   Future<ApiResult<ShopsPaginateResponse>> getShopsRecommend(int page) async {
+    // The base_sdk facade fixes this signature to `(int page)`, but
+    // merchants' shop.get_shops_recommend(latitude, longitude, lang) has no
+    // paging and REQUIRES coordinates: they come from the selected address,
+    // falling back to the tenant's initial location (fixplan M1). `page` is
+    // not sent — the server would only drop it.
+    final payload = recommendPayload(
+      selected: LocalStorage.getAddressSelected(),
+      fallbackLatitude: AppHelpers.getInitialLatitude(),
+      fallbackLongitude: AppHelpers.getInitialLongitude(),
+    );
     try {
-      // NOTE: backend get_shops_recommend(latitude, longitude) requires
-      // coordinates this facade does not receive — recorded contract gap;
-      // the call is at least routed to the real endpoint now.
       final response = await _gateway.call(
         'api.shop.get_shops_recommend',
-        payload: {'page': page},
+        payload: payload,
         requireAuth: false,
       );
       return ApiResult.success(
@@ -339,6 +349,24 @@ class ShopsRepository implements ShopsRepositoryFacade {
         statusCode: NetworkExceptions.getDioStatus(e),
       );
     }
+  }
+
+  /// The `get_shops_recommend` payload: the selected address's coordinates
+  /// when it has them, else the tenant's initial location; a key is only
+  /// present when a value exists, so the server's own defaults apply.
+  @visibleForTesting
+  static Map<String, dynamic> recommendPayload({
+    AddressData? selected,
+    double? fallbackLatitude,
+    double? fallbackLongitude,
+  }) {
+    final double? latitude = selected?.location?.latitude ?? fallbackLatitude;
+    final double? longitude =
+        selected?.location?.longitude ?? fallbackLongitude;
+    return {
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
+    };
   }
 
   @override
@@ -364,10 +392,12 @@ class ShopsRepository implements ShopsRepositoryFacade {
   @override
   Future<ApiResult<TagResponse>> getTags(String categoryId) async {
     try {
-      // Tags live in products' tag module (tag.get_tags).
+      // Tags live in products' tag module: tag.get_tags(lang) returns every
+      // Tag row — the doctype has no category link to filter on, so
+      // category_id is not sent and the UI sees all tags (fixplan M3,
+      // recorded behaviour).
       final response = await _gateway.call(
         'api.tag.get_tags',
-        payload: {'category_id': categoryId},
         requireAuth: false,
       );
       return ApiResult.success(data: TagResponse.fromJson(response));

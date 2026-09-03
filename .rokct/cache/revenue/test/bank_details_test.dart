@@ -43,10 +43,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:revenue_sdk/src/common/infrastructure/models/response/bank_account_record.dart';
 import 'package:revenue_sdk/src/common/infrastructure/models/response/payout_request_record.dart';
-import 'package:revenue_sdk/src/driver/presentation/bank/bank_field.dart';
-import 'package:revenue_sdk/src/driver/presentation/bank/bank_grammar.dart';
-import 'package:revenue_sdk/src/driver/presentation/bank/no_bank_account_sheet.dart';
-import 'package:revenue_sdk/src/driver/presentation/bank/payout_sent_sheet.dart';
+import 'package:revenue_sdk/src/common/presentation/bank/bank_field.dart';
+import 'package:revenue_sdk/src/common/presentation/bank/bank_grammar.dart';
+import 'package:revenue_sdk/src/common/presentation/bank/no_bank_account_sheet.dart';
+import 'package:revenue_sdk/src/common/presentation/bank/payout_sent_sheet.dart';
 
 Widget _host(Widget child) => ScreenUtilInit(
       designSize: const Size(390, 844),

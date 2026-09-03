@@ -25,11 +25,13 @@ import 'package:get_it/get_it.dart';
 /// them: `ManagerRevenueDependencies` (src/manager/di/manager_revenue_di.dart)
 /// registers [SellerStatisticsRepositoryFacade] and `DriverRevenueDependencies`
 /// (src/driver/di/driver_revenue_di.dart) registers
-/// [CourierStatisticsRepositoryFacade]. The host app calls its own role's hook
-/// from its DI setup via a direct `src/` import — same stance as zones_sdk's
-/// empty `ZonesSdkDependencies.register`, where role wiring is the host's to
-/// supply. A host that skips it fails at first resolve of the facade, loudly,
-/// not at compile time.
+/// [CourierStatisticsRepositoryFacade]. Each role's hook is wired by that
+/// role's `di_hooks` entry in this SDK's manifest (`revenue-manager-role-di` /
+/// `revenue-driver-role-di`), which injects the call into the generated
+/// `main.dart` via a direct `src/` import — same stance as zones_sdk's empty
+/// `ZonesSdkDependencies.register`, where role wiring lives outside the common
+/// register. A compose that loses that hook fails at first resolve of the
+/// facade, loudly, not at compile time.
 class RevenueSdkDependencies {
   static void register(GetIt getIt) {
     // Intentionally empty — see class doc. Role repositories are registered

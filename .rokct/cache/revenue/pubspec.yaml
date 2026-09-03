@@ -20,6 +20,17 @@ dependencies:
   # Icons of the approved dark language (same pin family as products_sdk
   # ^1.4.1 / paas_manager ^1.2.0).
   remixicon: ^1.2.0
+  # The driver income template (templates/pages/driver/income/income_page.dart)
+  # imports charts_flutter to build the earnings Series in the HOST package.
+  # The host pubspec is generated from core/base/dart/templates/pubspec.yaml,
+  # which does not carry it, so it is declared here and reaches every
+  # composed driver host transitively. Same discontinued-upstream fork the
+  # pre-fork paas_driver pinned; it requires intl ^0.20.2 (see the override
+  # below). Medium-term: port the page to fl_chart and drop this.
+  charts_flutter:
+    git:
+      url: https://github.com/Muhammadyunusxon/charts.git
+      path: charts_flutter
 
 dev_dependencies:
   flutter_test:
@@ -30,5 +41,11 @@ dev_dependencies:
 
 dependency_overrides:
   http: ^1.2.0
+  # charts_flutter / charts_common pin intl ^0.20.2 while base_sdk (and the
+  # direct dependency above) declare ^0.19.0. The composed host already
+  # arbitrates intl to ^0.20.2 in core/base/dart/templates/pubspec.yaml's
+  # dependency_overrides, so this mirrors the host for standalone
+  # resolution; the resolved intl is the one every composed build uses.
+  intl: ^0.20.2
   base_sdk:
     path: ../../../core/base/dart

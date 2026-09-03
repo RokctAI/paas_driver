@@ -1,5 +1,164 @@
 # Changelog
 
+## 1.60.0
+
+* **The UI-type picker is gone.** `UiTypePage` - the four-tile grid at
+  `/ui-type` that let a user tap a home style - is deleted, along with its
+  `UiTypeRoute` host shell in `templates/routes/route_pages.dart`, its
+  manifest `routes` entry, and the `replaceUiTypeRoute` seam (removed both
+  from the `AppRoutes` interface and from the manifest's `app_routes`). The
+  `base_ui_type` step is dropped from the tour fragment, since the screen it
+  captured no longer exists.
+* The UI type itself is untouched, and every reader still works:
+  `AppHelpers.getType()`, `title.dart`, `shop_request.dart`.
+* What changes is where the value comes from. `getType()` used to read a
+  per-device pick out of `LocalStorage` on demo builds, and that pick had
+  exactly one writer - the picker. With the picker gone it would have been a
+  stale choice with no way to change it, so `getType()` no longer consults
+  stored state at all. Resolution is now **backend, then `AppConstants`**:
+  the tenant's `ui_type` design setting wins, and `AppConstants.uiType`
+  (new; `--dart-define=UI_TYPE`, or a home-SDK manifest `constants`
+  override) is the compose-time default. It defaults to 0, the same value
+  the old code fell back to, so an app that overrides nothing is unchanged.
+* **Consumers must drop every call to `AppRoutes.I.replaceUiTypeRoute`
+  before taking this version.** auth_sdk 1.10.0 does; take it first.
+* Everything that existed only for the picker goes with it: the four
+  tile images `assets/images/ui0.png`..`ui3.png` (and their `app_assets`
+  manifest entries, the explicit `templates/pubspec.yaml` asset line and
+  the `Assets.imagesUi0`..`imagesUi3` / `assetsImagesUi3` constants),
+  `LocalStorage.setUiType` / `getUiType` with `StorageKeys.keyUiType` (the
+  picker was the key's only writer and `getType()` its only reader), the
+  `TrKeys.uiType` (`ui_type`) translation key and its bundled Afrikaans
+  string. The backend 'ui_type' design setting is untouched: it travels in
+  the global settings list (`keyGlobalSettings`), not in the deleted key.
+
+## 1.59.0
+
+* Generic JSON key API on `LocalStorage`: `setJson(key, Map?)` /
+  `getJson(key)` / `deleteJson(key)`. Every caller key is stored as
+  `StorageKeys.keyHostRecordPrefix` (`hostRecord.`) + key, so a host-owned
+  record can never land on one of the typed keys (`keyToken`, `keyUser`,
+  `keyUiType`...). Null on `setJson` removes the key; `getJson` returns null
+  for an absent, empty, corrupt or non-object value and never throws, the
+  same read contract as `getShopJson`. The caller owns the schema and its
+  versioning; nothing here is cleared by `logout()`.
+  * The gap that motivated it: design 46e drew base_sdk's `LocalStorage` as
+    the home of first-run setup progress (the store `getUser` / `getToken`
+    / `setUiType` share), but the class exposed typed accessors only, so
+    onboarding_sdk 1.1.0 opened its own SharedPreferences key
+    (`onboarding.run`) instead. This is the API that lets that record move
+    across.
+* Typed convenience pair on top of it, in the file's per-feature style:
+  `setOnboardingRun(Map?)` / `getOnboardingRun()` / `deleteOnboardingRun()`
+  under `StorageKeys.keyOnboardingRun` (stored as
+  `hostRecord.onboardingRun`). Untyped on purpose: the record's shape
+  (`OnboardingRunRecord.toJson`) stays onboarding_sdk's, exactly as
+  `setShopJson` leaves the shop's shape to the persona SDKs.
+* New `StorageKeys.keyHostRecordPrefix` and `StorageKeys.keyOnboardingRun`.
+  No new exports: `LocalStorage` and `StorageKeys` were already in the
+  barrel.
+
+## 1.58.0
+
+* The generic profile host degrades to an ANONYMOUS MODE instead of
+  throwing when the composing shell registers none of the account facades.
+  `profileProvider` resolved `UserRepositoryFacade`, `ShopsRepositoryFacade`
+  and `GalleryRepositoryFacade` through `getIt.get`, so a shell without
+  users_sdk / merchants_sdk / products_sdk — radio composes radio_sdk,
+  base_sdk, comms_sdk, telemetry_sdk, desktop_sdk and hms_sdk — threw
+  `Bad state: GetIt: Object/factory with type UserRepositoryFacade is not
+  registered` out of the page's first build.
+  * `ProfileNotifier.fromLocator()` (now behind `profileProvider`) resolves
+    each facade only where `GetIt.isRegistered`; the notifier's account,
+    shop and gallery calls are no-ops for an absent facade. The positional
+    constructor still exists and now accepts null for each facade.
+  * `ProfileHostCapabilities { hasAccount, hasShops, hasGallery }` (new,
+    exported) says what the shell registered; `ProfileNotifier.capabilities`
+    carries it and the host reads it once at mount. `ProfileHostScope` (new,
+    exported `InheritedWidget`) hands it to everything the page builds —
+    read it from the widget's own build context.
+  * With `hasAccount` false the host renders the anonymous surface: the
+    brand ground, the top row (title, SDK actions, theme toggle) WITHOUT
+    its sign-out, the shell's plan slot alone in the header card (no card
+    while unclaimed; the planBack flip works as before), the registered
+    sections, and the footer WITHOUT its usage badge — `AppUsageService`
+    answers all zeros with no token, so the badge was permanently dead in
+    a tokenless shell. No identity header, avatar, edit pencil, badge,
+    stats or corner. Nothing on screen says why.
+  * `ProfileSection.requires` and `ProfileHeaderSlotContent.requires` (new,
+    default empty; `registerHeaderSlot` takes `requires:`) let an SDK
+    declare the facades a contribution needs; the host omits it — before
+    its `visible` gate runs — wherever one is missing. With only shops or
+    gallery absent, that is the whole difference.
+  * One `profile_host_anonymous_mode` event per process goes out over
+    `TelemetryClient.logError` with `missing_facades` (the interface names)
+    when the host first mounts anonymously.
+  * Strictly additive: a shell that registers all three facades renders
+    exactly as before — same widgets, same slot order, same footer;
+    consumer apps need no re-check. `generic_profile_page_anonymous_test`
+    covers the empty locator (no throw, anonymous layout, footer present,
+    no badge, no sign-out), the account-only locator (identity header
+    present, contributions requiring shops/gallery omitted, their gates
+    never run), the full locator, and the once-per-process event.
+  * Supersedes 1.57.0's thunk deferral: `profileProvider` now builds
+    `ProfileNotifier.fromLocator()`, which guards every use site instead
+    of throwing at first use in a token-without-facade compose; the
+    `_lookUp*` thunks are gone and `ProfileNotifier.deferred()` stays as a
+    forwarder to `fromLocator()` (resolved once, not lazily per call) so
+    nothing compiled against 1.57.0 breaks. Keeps the radio-shaped
+    empty-locator compose test from #153
+    (`generic_profile_unbacked_compose_test`), which passes unchanged.
+
+## 1.57.0
+
+* `profileProvider` no longer resolves `UserRepositoryFacade`,
+  `ShopsRepositoryFacade` and `GalleryRepositoryFacade` out of `get_it`
+  when it BUILDS the notifier. `ProfileNotifier` now holds those three as
+  thunks and a new `ProfileNotifier.deferred()` constructor - the one the
+  provider uses - looks each one up at first USE instead.
+  * The failure that motivated it: `GenericProfilePage` watches
+    `profileProvider` on its first build, so in a compose that installs no
+    SDK registering those facades - only users_sdk registers
+    `UserRepositoryFacade`, only merchants_sdk `ShopsRepositoryFacade`, only
+    products_sdk `GalleryRepositoryFacade` - the generic profile host threw
+    `Bad state: GetIt: Object/factory with type UserRepositoryFacade is not
+    registered inside GetIt` out of `build()` and the whole profile route
+    came up as a full-screen debug `RenderErrorBox`. RokctAI/radio's guided
+    tour published that flat `#440000` frame as its profile screenshot
+    (run 33628026749, step 05) on both the phone and the tablet leg, and
+    the exception failed the integration test that drives the tour.
+    `launcher_auth_control.dart` already documented the same hazard and
+    routed around this provider because of it; the host itself is
+    advertised as knowing about no feature SDK (ADR-005), so it has to
+    mount without them.
+  * Nothing changes for a compose that DOES register them: the same lookup
+    happens, one frame later, at the first call that needs a repository.
+    The explicit `ProfileNotifier(user, shops, gallery)` constructor is
+    untouched, so hosts and tests that hand their own implementations in
+    are unaffected.
+## 1.56.0
+
+* Inline (`data:`) image support in `CustomNetworkImage` and `CommonImage`,
+  plus the `AppHelpers.isInlineImage` / `isInlineSvg` / `inlineImagePayload`
+  / `inlineImageBytes` helpers behind it. A URL that starts with
+  `data:image/` is now rendered from its own payload - SVG markup through
+  `SvgPicture.string`, raster bytes through `Image.memory` - instead of
+  being handed to `CachedNetworkImage`, which can only fetch it over the
+  network and therefore fell straight through to its broken-image error
+  state.
+  * The failure that motivated it: every mock repository in the commerce
+    SDKs seeded its imagery from a public placeholder host, so in a demo
+    build (`--dart-define=IS_DEMO=true`) - which talks to no backend, and in
+    CI runs on an emulator with no dependable route to that host - each
+    seeded shop, product, category, brand and banner rendered as the
+    broken-image glyph. The guided tour captured that verbatim into
+    published store screenshots.
+* New `DemoImages` (`src/constants/demo_images.dart`): the shared inline
+  artwork the demo seed data points at - a shop cover, a shop/brand mark, a
+  product tile, a category tile and a promo banner, all deliberately
+  abstract so a screenshot never implies a real merchant. Nothing outside
+  demo builds reads them.
+
 ## 1.55.0
 
 * `AppHelpers`' four top-snackbar helpers — `showCheckTopSnackBar`,

@@ -13,8 +13,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
-import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:products_sdk/src/common/domain/interface/seller_catalog.dart';
@@ -22,26 +22,34 @@ import 'package:products_sdk/src/common/infrastructure/models/response/seller_ca
 import 'package:products_sdk/src/common/infrastructure/models/response/seller_units_paginate_response.dart';
 
 /// Port of `paas_manager`'s `catalog_repository`, repointed from
-/// `/api/v1/dashboard/seller/{units,categories}` to `seller_product.py`.
+/// `/api/v1/dashboard/seller/{units,categories}` to `seller_product.py`,
+/// reached as merchants' `api.seller_product.*` cmds through the universal
+/// gateway.
 ///
 /// `getKitchens` is deliberately absent: kitchens moved to `kitchen_sdk`, and
 /// ADR-005 forbids this package importing it.
-const _base = '/api/method/paas.api.seller_product.seller_product';
-
 class SellerCatalogRepository implements SellerCatalogRepositoryFacade {
+  /// Universal platform gateway (fleet rule 2026-08-15): cmds mirror the
+  /// merchants module's `manifest.json` whitelisted-method keys with the app
+  /// segment dropped.
+  static const _gateway = PlatformGateway();
+
+  /// Mirrors the backend's `limit_page_length` default; the legacy `page`
+  /// query becomes `limit_start`.
+  static const int _pageSize = 20;
+
   @override
   Future<ApiResult<SellerUnitsPaginateResponse>> getUnits() async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '$_base.get_seller_units',
-        queryParameters: {
+      final response = await _gateway.tenant(
+        'api.seller_product.get_seller_units',
+        {
           'lang': LocalStorage.getLanguage()?.locale,
           'limit_page_length': 100,
         },
       );
       return ApiResult.success(
-        data: SellerUnitsPaginateResponse.fromJson(response.data),
+        data: SellerUnitsPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get seller units failure: $e');
@@ -76,25 +84,27 @@ class SellerCatalogRepository implements SellerCatalogRepositoryFacade {
     required String input,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      await client.post(
-        '$_base.create_seller_category',
-        data: {
-          // The legacy client posted a locale-keyed title map; kept, since the
-          // category doctype is translatable the same way.
-          //
-          // It keyed this on `LocalStorage.getSystemLanguage()` — the shop's
-          // default authoring locale, distinct from the UI display language.
-          // base_sdk's LocalStorage has no system-language accessor (only
-          // `getLanguage()`), and widening base_sdk is not this fork's call, so
-          // the display locale is used. Consequence: a seller running the app
-          // in a non-default language files a new category's title under that
-          // language instead of the shop default. Worth a base_sdk accessor if
-          // that matters.
-          'title': {LocalStorage.getLanguage()?.locale ?? 'en': title},
-          'active': 1,
-          'input': input,
-          'type': 'main',
+      // seller_product.create_seller_category(category_data).
+      await _gateway.tenant(
+        'api.seller_product.create_seller_category',
+        {
+          'category_data': {
+            // The legacy client posted a locale-keyed title map; kept, since the
+            // category doctype is translatable the same way.
+            //
+            // It keyed this on `LocalStorage.getSystemLanguage()` — the shop's
+            // default authoring locale, distinct from the UI display language.
+            // base_sdk's LocalStorage has no system-language accessor (only
+            // `getLanguage()`), and widening base_sdk is not this fork's call, so
+            // the display locale is used. Consequence: a seller running the app
+            // in a non-default language files a new category's title under that
+            // language instead of the shop default. Worth a base_sdk accessor if
+            // that matters.
+            'title': {LocalStorage.getLanguage()?.locale ?? 'en': title},
+            'active': 1,
+            'input': input,
+            'type': 'main',
+          },
         },
       );
       return const ApiResult.success(data: null);
@@ -107,11 +117,10 @@ class SellerCatalogRepository implements SellerCatalogRepositoryFacade {
   @override
   Future<ApiResult<void>> deleteCategory({required String id}) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      await client.post(
-        '$_base.delete_seller_category',
+      await _gateway.tenant(
+        'api.seller_product.delete_seller_category',
         // The endpoint resolves the category by its `uuid` argument.
-        data: {'uuid': id},
+        {'uuid': id},
       );
       return const ApiResult.success(data: null);
     } catch (e) {
@@ -127,11 +136,11 @@ class SellerCatalogRepository implements SellerCatalogRepositoryFacade {
     required bool activeOnly,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '$_base.get_seller_categories',
-        queryParameters: {
-          if (page != null) 'page': page,
+      final response = await _gateway.tenant(
+        'api.seller_product.get_seller_categories',
+        {
+          if (page != null) 'limit_start': (page - 1) * _pageSize,
+          'limit_page_length': _pageSize,
           if (query != null && query.isNotEmpty) 'search': query,
           'lang': LocalStorage.getLanguage()?.locale,
           'type': type,
@@ -139,7 +148,7 @@ class SellerCatalogRepository implements SellerCatalogRepositoryFacade {
         },
       );
       return ApiResult.success(
-        data: SellerCategoriesPaginateResponse.fromJson(response.data),
+        data: SellerCategoriesPaginateResponse.fromJson(response),
       );
     } catch (e) {
       debugPrint('==> get seller categories failure: $e');

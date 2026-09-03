@@ -13,8 +13,6 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:auto_route/auto_route.dart';
-import 'package:base_sdk/src/constants/app_constants.dart';
-import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:flutter/material.dart';
@@ -34,9 +32,10 @@ import 'package:flutter/material.dart';
 /// points where it used to hard-code the landing.
 ///
 /// The base class IS the default policy — allow every account and land it
-/// exactly where auth_sdk always did (`isDemo ? replaceUiTypeRoute :
-/// goHome`). Apps whose composition declares no "session_policy" never
-/// reassign [I], so they keep today's behavior to the letter.
+/// exactly where auth_sdk always did — `goHome`. Apps whose composition
+/// declares no "session_policy" never reassign [I], so they keep today's
+/// behavior to the letter. (Demo builds used to branch to the UI-type
+/// picker here instead; that picker is gone, so demo lands home too.)
 class AuthSessionPolicy {
   const AuthSessionPolicy();
 
@@ -56,11 +55,7 @@ class AuthSessionPolicy {
   /// Where an allowed account lands right after sign-in. Only called when
   /// [allows] returned true for [role].
   void onAuthenticated(BuildContext context, {String? role}) {
-    if (AppConstants.isDemo) {
-      AppRoutes.I.replaceUiTypeRoute(context);
-    } else {
-      AppHelpers.goHome(context);
-    }
+    AppHelpers.goHome(context);
   }
 
   /// What happens to an account [allows] turned away. The login flow has

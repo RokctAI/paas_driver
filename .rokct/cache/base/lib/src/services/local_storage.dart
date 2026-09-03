@@ -85,12 +85,6 @@ abstract class LocalStorage {
     await _preferences?.remove(StorageKeys.keyTokenExpiry);
   }
 
-  static Future<void> setUiType(int type) async {
-    await _preferences?.setInt(StorageKeys.keyUiType, type);
-  }
-
-  static int? getUiType() => _preferences?.getInt(StorageKeys.keyUiType);
-
   static Future<void> setUser(ProfileData? user) async {
     if (_preferences != null) {
       final String userString = user != null ? jsonEncode(user.toJson()) : '';
@@ -285,6 +279,61 @@ abstract class LocalStorage {
     }
     await _preferences?.setString(StorageKeys.keyShop, jsonEncode(shop));
   }
+
+  /// Generic JSON key API for records the kernel does not type (design 46e:
+  /// feature SDKs park their own small records in the same store
+  /// `getUser`/`getToken`/`setUser` use instead of opening their own
+  /// SharedPreferences key). Stored as `StorageKeys.keyHostRecordPrefix +
+  /// key`, so a caller key can never collide with a typed key above; the
+  /// caller owns the schema and its versioning. Null [value] removes the
+  /// key. No-op before [init].
+  static Future<void> setJson(String key, Map<String, dynamic>? value) async {
+    assert(key.isNotEmpty, 'LocalStorage.setJson: key must not be empty');
+    if (value == null) {
+      await _preferences?.remove(_hostRecordKey(key));
+      return;
+    }
+    await _preferences?.setString(_hostRecordKey(key), jsonEncode(value));
+  }
+
+  /// The record stored under [key] by [setJson]; null when absent, empty,
+  /// not valid JSON, or not a JSON object. Never throws: a corrupt record
+  /// reads as "nothing stored" so the owner starts fresh rather than
+  /// failing at the door.
+  static Map<String, dynamic>? getJson(String key) {
+    final raw = _preferences?.getString(_hostRecordKey(key));
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(raw);
+      return decoded is Map<String, dynamic> ? decoded : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> deleteJson(String key) async {
+    await _preferences?.remove(_hostRecordKey(key));
+  }
+
+  static String _hostRecordKey(String key) =>
+      '${StorageKeys.keyHostRecordPrefix}$key';
+
+  /// First-run setup progress (design 46e/46h): the run record
+  /// onboarding_sdk's `OnboardingProgressStore` persists so a run survives
+  /// the app closing mid-setup. Untyped here on purpose — the schema
+  /// (`OnboardingRunRecord.toJson`: version, stepIndex, done[], lastTouched,
+  /// values, role, roleStepVisible) belongs to onboarding_sdk, exactly as
+  /// [setShopJson] leaves the shop's shape to the persona SDKs. Null clears
+  /// it. Deliberately NOT part of [logout]: setup progress is per install,
+  /// not per session.
+  static Future<void> setOnboardingRun(Map<String, dynamic>? run) =>
+      setJson(StorageKeys.keyOnboardingRun, run);
+
+  static Map<String, dynamic>? getOnboardingRun() =>
+      getJson(StorageKeys.keyOnboardingRun);
+
+  static Future<void> deleteOnboardingRun() =>
+      deleteJson(StorageKeys.keyOnboardingRun);
 
   static Future<void> setSettingsList(List<SettingsData> settings) async {
     final List<String> strings =

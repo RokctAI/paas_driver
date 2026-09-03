@@ -17,7 +17,6 @@
 class Assets {
   Assets._();
 
-  static const String assetsImagesUi3 = 'assets/images/ui3.png';
   static const String imagesAppLogo = 'assets/images/app_logo.png';
   static const String imagesDelivery = 'assets/images/delivery.png';
   static const String imagesDoor = 'assets/images/door.png';
@@ -28,10 +27,6 @@ class Assets {
   static const String imagesSet = 'assets/images/set.png';
   static const String imagesSplash = 'assets/images/splash.png';
   static const String imagesSplash1 = 'assets/images/splash1.png';
-  static const String imagesUi0 = 'assets/images/ui0.png';
-  static const String imagesUi1 = 'assets/images/ui1.png';
-  static const String imagesUi2 = 'assets/images/ui2.png';
-  static const String imagesUi3 = 'assets/images/ui3.png';
   static const String imagesVisa = 'assets/images/visa.png';
   static const String lottieGirlEmpty = 'assets/lottie/girl_empty.json';
   static const String lottieNotFound = 'assets/lottie/not-found.json';

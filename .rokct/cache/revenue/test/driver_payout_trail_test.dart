@@ -33,8 +33,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:revenue_sdk/src/common/infrastructure/models/response/payout_request_record.dart';
-import 'package:revenue_sdk/src/driver/presentation/payouts/payout_history_list.dart';
-import 'package:revenue_sdk/src/driver/presentation/payouts/payout_status_trail.dart';
+import 'package:revenue_sdk/src/common/presentation/payouts/payout_history_list.dart';
+import 'package:revenue_sdk/src/common/presentation/payouts/payout_status_trail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Widget _host(Widget child) => ScreenUtilInit(

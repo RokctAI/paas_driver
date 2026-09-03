@@ -21,6 +21,7 @@ import 'package:base_sdk/src/domain/interface/user.dart';
 import 'package:base_sdk/src/handlers/http_service.dart';
 
 import 'package:delivery_sdk/src/driver/domain/interface/courier.dart';
+import 'package:delivery_sdk/src/driver/domain/interface/deposit.dart';
 import 'package:delivery_sdk/src/driver/domain/interface/orders.dart';
 import 'package:delivery_sdk/src/driver/domain/interface/parcel.dart';
 import 'package:delivery_sdk/src/driver/domain/interface/route.dart';
@@ -29,6 +30,8 @@ import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_courier
 import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_courier_parcel_repository.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_courier_repository.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_courier_route_repository.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_deposit_repository.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/repositories/deposit_repository.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/repositories/orders_repository.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/repositories/parcel_repository.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/repositories/route_repository.dart';
@@ -74,6 +77,13 @@ class DriverDeliveryDependencies {
         isDemo ? DemoCourierRouteRepository() : CourierRouteRepository(),
       );
     }
+    // Design strip frames 49g/49h/49i: the driver's bank-deposit route on
+    // wallet's api.wallet.* defs. Same isDemo split as the facades above.
+    if (!getIt.isRegistered<DriverDepositRepositoryFacade>()) {
+      getIt.registerSingleton<DriverDepositRepositoryFacade>(
+        isDemo ? DemoDriverDepositRepository() : DriverDepositRepository(),
+      );
+    }
     // Pre-warm the synchronous CourierStorage.getOnline() read; fire and
     // forget is safe (see CourierStorage docs).
     CourierStorage.init();
@@ -98,6 +108,9 @@ CourierRepositoryFacade get courierRepository =>
 
 CourierRouteRepositoryFacade get routeRepository =>
     _getIt.get<CourierRouteRepositoryFacade>();
+
+DriverDepositRepositoryFacade get depositRepository =>
+    _getIt.get<DriverDepositRepositoryFacade>();
 
 /// Registered by map_sdk's `MapSdkDependencies.register` (map_sdk is part of
 /// every driver compose — driver.json).

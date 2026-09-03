@@ -1,6 +1,6 @@
 name: orders_sdk
 description: "orders_sdk - extracted from paas_customer (refork 2026-07-11)."
-version: 1.1.0
+version: 1.4.1
 publish_to: 'none'
 environment:
   sdk: '>=3.10.0 <4.0.0'
@@ -17,6 +17,12 @@ dependencies:
   dio: ^5.7.0
   flutter_rating_bar: ^4.0.1
   flutter_remix: ^0.0.3
+  # manager templates (food_stock_item.dart, create_order/order/widgets/
+  # order_pane.dart) import flutter_slidable. Must match the manager host's
+  # pin (paas_manager pubspec: ^4.0.3) or the host's version solving fails;
+  # 3.x cannot build on Flutter >= 3.38 and the templates use only API
+  # unchanged in 4.x (fixplan M6).
+  flutter_slidable: ^4.0.3
   flutter_riverpod: ^2.5.1
   flutter_screenutil: ^5.9.0
   flutter_svg: ^2.0.9

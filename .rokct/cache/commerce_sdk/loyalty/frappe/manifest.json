@@ -1,8 +1,0 @@
-{
-  "name": "loyalty",
-  "description": "Modular backend package for loyalty",
-  "app_type": {
-    "tenant": {},
-    "control": {}
-  }
-}

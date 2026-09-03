@@ -20,7 +20,7 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 
 import 'package:revenue_sdk/src/common/infrastructure/models/response/wallet_movement.dart';
-import 'package:revenue_sdk/src/driver/presentation/wallet/wallet_grammar.dart';
+import 'package:revenue_sdk/src/common/presentation/wallet/wallet_grammar.dart';
 
 /// Chip 972 — the movement list of the driver wallet plane (frame 49f).
 ///

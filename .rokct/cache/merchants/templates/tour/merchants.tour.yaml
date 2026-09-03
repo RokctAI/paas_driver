@@ -83,7 +83,7 @@ steps:
       container.read(posCartProvider.notifier).increment(0);
   - key: pos_checkout
     title: "Cash, QR - or offline by code"
-    caption: "Take cash or a pay-link QR the customer scans on their own phone; if the till drops offline they still pay the link and *a 6-digit code* confirms it at the counter - the sale syncs itself later."
+    caption: "Take cash or a pay-link QR the customer scans on their own phone; offline, *a 6-digit code* confirms it and the sale syncs itself later."
     action: route
     route: /pos-checkout
     settle: 8

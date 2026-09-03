@@ -1,8 +1,0 @@
-{
- "dt": "Item",
- "doctype": "Custom Field",
- "fieldname": "is_adult",
- "fieldtype": "Check",
- "label": "18+ (adults only)",
- "default": "0"
-}

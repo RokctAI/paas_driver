@@ -23,6 +23,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:base_sdk/src/constants/app_constants.dart';
+import 'package:base_sdk/src/presentation/adaptive/planes.dart';
 import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/components/helper/common_image.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -33,6 +34,11 @@ import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_state.dart';
 import 'package:merchants_sdk/src/manager/application/quick_flow/quick_flow_provider.dart';
 import 'package:merchants_sdk/src/manager/domain/interface/pos_orders.dart';
+
+// Same install directory (lib/presentation/pages/billing/), so the
+// relative import resolves both here and in the composed host — the
+// restaurant_page template imports its widgets the same way.
+import 'checkout_page.dart';
 
 // The manager POS tab (BillingPage) — the old Spazafy ManagerBillingPage
 // rebuilt around the retired Quick Receipt app's working ideas, in the
@@ -83,6 +89,37 @@ import 'package:merchants_sdk/src/manager/domain/interface/pos_orders.dart';
 // same; the stage, frame and controls are the real widgets) and barcode
 // lookups route to MockProductsRepository via the DI demo gate, so
 // headless tours and the standalone test harness exercise the real page.
+//
+// TABLET MODE — the approved plane layout (design strip section 11,
+// frames 11m/11n, approved by Ray 2026-08-29 13:53Z / 13:06Z, built here
+// on base_sdk's PlaneHost): the till is the flow's ROOT and declares ALL
+// planes, spreading ITSELF by the span it is granted —
+//   * 3 planes (>= 840): scan | Add Items | cart (11m) — the Add Items
+//     experience is a PERMANENT PANE (11j's search, no sheet: Ray's
+//     12:02Z sheet fork), so the Add Items lane (277) leaves the scan
+//     plane there ("227 in 11m is redundent as they already show");
+//   * 2 planes (600..839): scan | cart — the same declaration granted
+//     two (11m: "the same declaration that yields scan | cart at 673");
+//     the lane stays, since no pane shows ("the lane stays wherever the
+//     pane is absent");
+//   * 1 plane: exactly the phone page above.
+// Continue on plane widths does NOT push the /pos-checkout route: the
+// checkout is pushed INTO THE PLANES as the flow's next step, claiming
+// TWO (11n, Ray 12:26Z: "what i came from should take first plane") —
+// at three planes the till yields to its scan plane (273 + the 277 lane,
+// "where the flow came from; Charge is one BACK away") and the checkout
+// spreads order truth | tender over planes 2–3; at two planes the
+// payment claim takes both and the till slides off (the plane model's
+// grant rule, min(claim, count)). The host's back pill sits at the
+// bottom-END corner (12d, the two-state nav) and pops the checkout; the
+// till is top-level, so it carries no pill of its own — the shell's nav
+// (the rail in the manager compose) is the full nav. Phones never enter
+// any of this: PlaneHost is one plane there, Continue pushes the route.
+//
+// NOT BUILT from the approved frames (flagged, not invented): 11m's
+// category chip bar (chip 349) — PosCatalogRepositoryFacade only
+// searches, it exposes no categories; and 11n's live receipt slip (322,
+// the 11k paper slip) — no slip widget exists in this SDK.
 
 class BillingPage extends ConsumerStatefulWidget {
   const BillingPage({super.key});
@@ -100,6 +137,10 @@ class _BillingPageState extends ConsumerState<BillingPage>
   Timer? _idleTimer;
   bool _paused = false;
   bool _torchOn = false;
+
+  /// The checkout holds planes 2–3 (11n) — plane widths only; on a phone
+  /// the checkout is the pushed /pos-checkout route and this is ignored.
+  bool _checkoutOpen = false;
 
   /// Sales recorded on this till that have not reached the backend yet
   /// (offline-first pending-sync indicator). Null hides the chip.
@@ -189,40 +230,174 @@ class _BillingPageState extends ConsumerState<BillingPage>
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(posCartProvider);
     return Scaffold(
       backgroundColor: AppStyle.surfaceDark,
-      body: Column(
-        children: [
-          _scannerStage(context),
-          16.verticalSpace,
-          _lanes(context),
-          18.verticalSpace,
-          _cartHeader(context, state),
-          10.verticalSpace,
-          Expanded(
-            child: state.lines.isEmpty
-                ? Center(
-                    child: Text(
-                      AppHelpers.getTranslation(TrKeys.cartIsEmpty),
-                      style: AppStyle.interRegular(
-                        size: 14,
-                        color: AppStyle.textDarkSecondary,
-                      ),
-                    ),
-                  )
-                : ListView.separated(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    itemCount: state.lines.length,
-                    separatorBuilder: (context, index) => 12.verticalSpace,
-                    itemBuilder: (context, index) =>
-                        _lineCard(context, state, index),
-                  ),
-          ),
-          _summary(context, state),
-        ],
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // A phone-width window never hosts the checkout in a plane —
+          // Continue pushed the route there, so a stale flag is ignored.
+          final bool onePlane =
+              PlaneHost.planeCountFor(constraints.maxWidth) == 1;
+          final bool checkoutOpen = !onePlane && _checkoutOpen;
+          return PlaneHost(
+            // The ONE back affordance while the checkout holds a plane:
+            // the host parks it at the bottom-END corner (12d) and it
+            // pops the NEWEST step — the checkout — never the till.
+            back: FloatingNavBack(
+              icon: Remix.arrow_left_wide_fill,
+              label: AppHelpers.getTranslation(TrKeys.back),
+              onTap: _closeCheckout,
+            ),
+            stack: [
+              PlanePage(
+                name: 'pos-till',
+                // 11m: "the page declares 3 and spreads ITSELF".
+                span: PlaneSpan.all,
+                builder: _till,
+              ),
+              if (checkoutOpen)
+                PlanePage(
+                  name: 'pos-checkout',
+                  // 11n: the payment cap — checkout claims TWO; the till
+                  // keeps the first plane where a third exists.
+                  span: PlaneSpan.two,
+                  builder: (context) =>
+                      CheckoutPage(onClose: _closeCheckout),
+                ),
+            ],
+          );
+        },
       ),
     );
+  }
+
+  /// The till, spread by the span the host granted it.
+  Widget _till(BuildContext context) {
+    final state = ref.watch(posCartProvider);
+    final planes = Planes.of(context);
+    // One-plane screen: the shipped phone page, untouched.
+    if (planes.count == 1) return _phoneColumn(context, state);
+    // Yielded to one plane beside the checkout (11n plane 1): the scan
+    // stage and the Add Items lane — the cart lives in the checkout's
+    // summary now.
+    if (planes.span == 1) return _scanColumn(context, lane: true);
+    final SizedBox seam = SizedBox(width: planes.gap);
+    final bool addItemsPane = planes.span >= 3;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // 11m plane 1: at three planes the lane (277) is REMOVED — the
+        // pane beside it IS Add Items; at the two-plane fold no pane
+        // shows, so the lane stays the door.
+        Expanded(child: _scanColumn(context, lane: !addItemsPane)),
+        if (addItemsPane) ...[
+          seam,
+          // 11m plane 2: the Add Items experience as a permanent pane
+          // (317 title, 318 search, 319/320 rows) — no sheet, no pill.
+          Expanded(
+            child: SafeArea(
+              bottom: false,
+              child: const _AddItemsSearch(
+                key: Key('posAddItemsPane'),
+                asPane: true,
+              ),
+            ),
+          ),
+        ],
+        seam,
+        // 11m plane 3: the cart — 278–280, 286/287.
+        Expanded(
+          child: SafeArea(
+            bottom: false,
+            child: _cartColumn(context, state),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// The shipped phone page (frames 11a/11b), exactly as before.
+  Widget _phoneColumn(BuildContext context, PosCartState state) {
+    return Column(
+      children: [
+        _scannerStage(context),
+        16.verticalSpace,
+        _lanes(context),
+        18.verticalSpace,
+        Expanded(child: _cartColumn(context, state)),
+      ],
+    );
+  }
+
+  /// The scan plane: the viewfinder stage (273–276) and, where no Add
+  /// Items pane is on screen, the Add Items lane (277).
+  Widget _scanColumn(BuildContext context, {required bool lane}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _scannerStage(context),
+        if (lane) ...[
+          16.verticalSpace,
+          _lanes(context),
+        ],
+      ],
+    );
+  }
+
+  /// The cart: header (278/279), line cards (280–285), summary + Continue
+  /// (286/287). The whole phone page below the lanes; a plane of its own
+  /// at plane widths.
+  Widget _cartColumn(BuildContext context, PosCartState state) {
+    return Column(
+      children: [
+        _cartHeader(context, state),
+        10.verticalSpace,
+        Expanded(
+          child: state.lines.isEmpty
+              ? Center(
+                  child: Text(
+                    AppHelpers.getTranslation(TrKeys.cartIsEmpty),
+                    style: AppStyle.interRegular(
+                      size: 14,
+                      color: AppStyle.textDarkSecondary,
+                    ),
+                  ),
+                )
+              : ListView.separated(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  itemCount: state.lines.length,
+                  separatorBuilder: (context, index) => 12.verticalSpace,
+                  itemBuilder: (context, index) =>
+                      _lineCard(context, state, index),
+                ),
+        ),
+        _summary(context, state),
+      ],
+    );
+  }
+
+  /// Continue (287): on a phone the checkout is the pushed /pos-checkout
+  /// route, as shipped; on plane widths it is the flow's next step and
+  /// takes its planes here (11n).
+  void _openCheckout(BuildContext context) {
+    if ((Planes.maybeOf(context)?.count ?? 1) > 1) {
+      setState(() => _checkoutOpen = true);
+      return;
+    }
+    unawaited(
+      context.router
+          .pushNamed('/pos-checkout')
+          .whenComplete(_refreshPendingSync),
+    );
+  }
+
+  /// Back pops the checkout (the host's END-corner pill), and so does a
+  /// finished sale; the pending-sync chip re-reads either way, exactly as
+  /// the route's whenComplete did.
+  void _closeCheckout() {
+    if (!_checkoutOpen) return;
+    setState(() => _checkoutOpen = false);
+    unawaited(_refreshPendingSync());
   }
 
   /// Chip 273: the viewfinder stage — a fixed dark camera housing (same in
@@ -234,6 +409,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
     final controller = _controller;
     final bool cameraLive = controller != null && !_paused;
     return Container(
+      key: const Key('posScanStage'),
       height: 340.h,
       width: double.infinity,
       decoration: BoxDecoration(
@@ -359,10 +535,13 @@ class _BillingPageState extends ConsumerState<BillingPage>
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Row(
         children: [
-          _laneChip(
-            icon: Remix.search_line,
-            label: AppHelpers.getTranslation(TrKeys.addItems),
-            onTap: () => _openAddItemsSheet(context),
+          KeyedSubtree(
+            key: const Key('posAddItemsLane'),
+            child: _laneChip(
+              icon: Remix.search_line,
+              label: AppHelpers.getTranslation(TrKeys.addItems),
+              onTap: () => _openAddItemsSheet(context),
+            ),
           ),
         ],
       ),
@@ -651,11 +830,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
             GestureDetector(
               onTap: state.lines.isEmpty && !_autodialArmed
                   ? null
-                  : () => unawaited(
-                        context.router
-                            .pushNamed('/pos-checkout')
-                            .whenComplete(_refreshPendingSync),
-                      ),
+                  : () => _openCheckout(context),
               child: Container(
                 width: double.infinity,
                 height: 56.r,
@@ -744,7 +919,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
     AppHelpers.showCustomModalBottomSheet(
       paddingTop: MediaQuery.paddingOf(context).top + 100,
       context: context,
-      modal: const _AddItemsSheet(),
+      modal: const _AddItemsSearch(),
       isDarkMode: false,
     );
   }
@@ -759,19 +934,31 @@ class _BillingPageState extends ConsumerState<BillingPage>
   }
 }
 
-/// The Add Items lane's sheet (frame 11j, chips 316–321): the 171-pattern
-/// bare title row (317), a search field over the POS catalog with one-tap
-/// add (318–320), and the section-12 back-only floating pill (321) as the
-/// sheet's single drawn close affordance. Rides the same posCartProvider
-/// search state.
-class _AddItemsSheet extends ConsumerStatefulWidget {
-  const _AddItemsSheet();
+/// The Add Items experience: the 171-pattern bare title row (317), a
+/// search field over the POS catalog with one-tap add (318–320). Rides
+/// the same posCartProvider search state.
+///
+/// Two homes, one widget (Ray's 12:02Z sheet fork):
+///  * the PHONE sheet (frame 11j, chips 316–321) — opened by the Add
+///    Items lane, rounded top, autofocused, closing on an add, with the
+///    section-12 back-only floating pill (321) as its single drawn close
+///    affordance;
+///  * the PERMANENT PANE of the three-plane till (frame 11m, plane 2) —
+///    [asPane]: on the plane grid with no sheet chrome, no pill and no
+///    autofocus (a pane must not raise the keyboard on every till
+///    visit), and an add keeps the pane and its query up for the next
+///    item. 11m's category chip bar (349) is NOT here: the catalog seam
+///    only searches (no categories to draw) — flagged, not invented.
+class _AddItemsSearch extends ConsumerStatefulWidget {
+  final bool asPane;
+
+  const _AddItemsSearch({super.key, this.asPane = false});
 
   @override
-  ConsumerState<_AddItemsSheet> createState() => _AddItemsSheetState();
+  ConsumerState<_AddItemsSearch> createState() => _AddItemsSearchState();
 }
 
-class _AddItemsSheetState extends ConsumerState<_AddItemsSheet> {
+class _AddItemsSearchState extends ConsumerState<_AddItemsSearch> {
   final TextEditingController _controller = TextEditingController();
   Timer? _debounce;
 
@@ -792,17 +979,11 @@ class _AddItemsSheetState extends ConsumerState<_AddItemsSheet> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(posCartProvider);
-    return Container(
-      decoration: BoxDecoration(
-        color: AppStyle.surfaceDark,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24.r),
-          topRight: Radius.circular(24.r),
-        ),
-      ),
+    final bool asPane = widget.asPane;
+    final Widget content = Padding(
       padding: EdgeInsets.all(16.r),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: asPane ? MainAxisSize.max : MainAxisSize.min,
         children: [
           // Chip 317 (frame 11j): the 171-pattern bare title row applied
           // to the sheet — interSemi 18, no AppBar (the strip's header
@@ -818,8 +999,9 @@ class _AddItemsSheetState extends ConsumerState<_AddItemsSheet> {
             ),
           ),
           TextField(
+            key: const Key('posAddItemsSearchField'),
             controller: _controller,
-            autofocus: true,
+            autofocus: !asPane,
             onChanged: _onChanged,
             style: AppStyle.interSemi(size: 16),
             decoration: InputDecoration(
@@ -849,8 +1031,9 @@ class _AddItemsSheetState extends ConsumerState<_AddItemsSheet> {
             )
           else
             Flexible(
+              fit: asPane ? FlexFit.tight : FlexFit.loose,
               child: ListView.separated(
-                shrinkWrap: true,
+                shrinkWrap: !asPane,
                 itemCount: state.searchResults.length,
                 separatorBuilder: (context, index) => 8.verticalSpace,
                 itemBuilder: (context, index) {
@@ -889,7 +1072,8 @@ class _AddItemsSheetState extends ConsumerState<_AddItemsSheet> {
                       ref
                           .read(posCartProvider.notifier)
                           .addProduct(product);
-                      Navigator.of(context).pop();
+                      // The sheet closes on an add; the pane stays up.
+                      if (!asPane) Navigator.of(context).pop();
                     },
                   );
                 },
@@ -899,21 +1083,41 @@ class _AddItemsSheetState extends ConsumerState<_AddItemsSheet> {
           // section-12 pill housing carrying ONLY the labelled back
           // segment (301's DNA). Its default tap is Navigator.maybePop,
           // which dismisses the sheet; per the one-back pattern the sheet
-          // draws no other back/close affordance.
-          12.verticalSpace,
-          FloatingBottomNav(
-            mode: FloatingNavTabsMode(
-              tabs: const [],
-              currentIndex: 0,
-              onSelect: (_) {},
-              back: FloatingNavBack(
-                icon: Remix.arrow_left_wide_fill,
-                label: AppHelpers.getTranslation(TrKeys.back),
+          // draws no other back/close affordance. The PANE draws none:
+          // it is part of a top-level page (11m shows the full nav).
+          if (!asPane) ...[
+            12.verticalSpace,
+            FloatingBottomNav(
+              mode: FloatingNavTabsMode(
+                tabs: const [],
+                currentIndex: 0,
+                onSelect: (_) {},
+                back: FloatingNavBack(
+                  icon: Remix.arrow_left_wide_fill,
+                  label: AppHelpers.getTranslation(TrKeys.back),
+                ),
               ),
             ),
-          ),
+          ],
         ],
       ),
+    );
+    // The pane sits on the till's own surface (the Scaffold's ground) and
+    // paints the rows' ink on a Material of its own — a coloured box
+    // between the rows and the Scaffold's Material would hide it. The
+    // sheet keeps its rounded surfaceDark housing (316).
+    if (asPane) {
+      return Material(type: MaterialType.transparency, child: content);
+    }
+    return Container(
+      decoration: BoxDecoration(
+        color: AppStyle.surfaceDark,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24.r),
+          topRight: Radius.circular(24.r),
+        ),
+      ),
+      child: content,
     );
   }
 }

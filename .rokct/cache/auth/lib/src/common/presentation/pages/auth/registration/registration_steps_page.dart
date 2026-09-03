@@ -13,9 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:auto_route/auto_route.dart';
-import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/models/data/profile_data.dart';
-import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:base_sdk/src/presentation/components/buttons/second_button.dart';
 import 'package:base_sdk/src/presentation/theme/theme.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -43,12 +41,12 @@ class RegistrationFlow {
 
   /// Registration succeeded: run the contributed steps, then land wherever
   /// registration used to land. Replaces the five hand-written
-  /// `isDemo ? replaceUiTypeRoute : goHome` completion sites — with no
+  /// `goHome` completion sites — with no
   /// contributed steps the shell falls straight through to
   /// [defaultLanding], so apps without contributions behave as before.
   static void completeRegistration(BuildContext context, {ProfileData? user}) {
     lastRegisteredUser = user;
-    // Replaces the top page like the old goHome/replaceUiTypeRoute did, so
+    // Replaces the top page like the old goHome did, so
     // the register modal sheets above it are dismissed the same way.
     context.router.replaceNamed('/registration-steps');
   }
@@ -56,11 +54,7 @@ class RegistrationFlow {
   /// The app's normal post-registration destination — exactly the branch
   /// every completion site used before the pipeline existed.
   static void defaultLanding(BuildContext context) {
-    if (AppConstants.isDemo) {
-      AppRoutes.I.replaceUiTypeRoute(context);
-    } else {
-      AppHelpers.goHome(context);
-    }
+    AppHelpers.goHome(context);
   }
 }
 

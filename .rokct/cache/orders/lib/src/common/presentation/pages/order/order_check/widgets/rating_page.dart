@@ -113,7 +113,7 @@ class _RatingPageState extends ConsumerState<RatingPage> {
             ),
             24.verticalSpace,
             RatingBar.builder(
-              itemBuilder: (context, index) => const Icon(
+              itemBuilder: (context, index) => Icon(
                 FlutterRemix.star_smile_fill,
                 color: AppStyle.primary,
               ),

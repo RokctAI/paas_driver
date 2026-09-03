@@ -125,7 +125,7 @@
       "git": "https://github.com/RokctAI/zones",
       "ref": "main",
       "sha256": "01c9a6473238f581f5286e3d0ab2be1acac6d9623201c67dfa7437a53c05c2ab",
-      "_comment": "Activates the severe-weather banner shipped dormant in zones PR #44: weather 1.4.0's app_type.driver block installs the courier locationResolver wiring plus the weather-driver-configure-location boot hook, and delivery_sdk's home sheet already renders the warnings banner fail-closed. Declaration mirrors manager.json/pos.json."
+      "_comment": "Activates the severe-weather banner shipped dormant in zones PR #44: weather 1.4.0's app_type.driver block installs the courier locationResolver wiring plus the weather-driver-configure-location boot hook, and delivery_sdk's home sheet already renders the warnings banner fail-closed. Declaration mirrors manager.json."
     },
     {
       "name": "agent_sdk",
@@ -134,6 +134,8 @@
       "git": "https://github.com/RokctAI/agent",
       "path": "../agent/agent/dart",
       "ref": "main",
+      "sha256": "84f411fc0af984d1f1ca87da296d7fb112656dfcf039356c43d7b82b5e549fe1",
+      "_sha256_comment": "SHA-256 of agent/dart/install.py at agent@798de2da; required by the composer's unpinned-installer gate. Update when upstream install.py changes.",
       "_comment": "Disabled as per requirements"
     },
     {

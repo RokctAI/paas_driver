@@ -13,8 +13,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
-import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:orders_sdk/src/manager/domain/interface/pos_products.dart';
@@ -23,13 +23,21 @@ import 'package:orders_sdk/src/manager/infrastructure/models/response/products_p
 import 'package:orders_sdk/src/manager/infrastructure/models/response/single_product_response.dart';
 
 /// The POS product-grid reads, repointed to the same `seller_product.py`
-/// endpoints products_sdk's authoring repositories call (their query contract
-/// is copied from `seller_products_repository.dart` so the two stay
-/// wire-compatible). Read-only: everything that writes products stays in
-/// products_sdk.
-const _base = '/api/method/paas.api.seller_product.seller_product';
-
+/// endpoints products_sdk's authoring repositories call (their payload
+/// contract is copied from `seller_products_repository.dart` so the two stay
+/// wire-compatible), through the universal gateway as merchants'
+/// `api.seller_product.*` cmds. Read-only: everything that writes products
+/// stays in products_sdk.
 class PosProductsRepository implements PosProductsRepositoryFacade {
+  /// Universal platform gateway (fleet rule 2026-08-15): cmds mirror the
+  /// merchants module's `manifest.json` whitelisted-method keys with the app
+  /// segment dropped.
+  static const _gateway = PlatformGateway();
+
+  /// Mirrors the backend's `limit_page_length` default; the legacy `page`
+  /// query becomes `limit_start`.
+  static const int _pageSize = 20;
+
   ApiResult<T> _fail<T>(Object e, String label) {
     debugPrint('==> $label failure: $e');
     return ApiResult.failure(
@@ -47,12 +55,12 @@ class PosProductsRepository implements PosProductsRepositoryFacade {
     String? status,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '$_base.get_seller_products_paginate',
-        queryParameters: {
+      final response = await _gateway.tenant(
+        'api.seller_product.get_seller_products',
+        {
           'lang': LocalStorage.getLanguage()?.locale,
-          if (page != null) 'page': page,
+          if (page != null) 'limit_start': (page - 1) * _pageSize,
+          'limit_page_length': _pageSize,
           if (query != null && query.isNotEmpty) 'search': query,
           if (categoryId != null) 'category_id': categoryId,
           if (status != null) 'status': status,
@@ -60,7 +68,7 @@ class PosProductsRepository implements PosProductsRepositoryFacade {
         },
       );
       return ApiResult.success(
-        data: ProductsPaginateResponse.fromJson(response.data),
+        data: ProductsPaginateResponse.fromJson(response),
       );
     } catch (e) {
       return _fail(e, 'pos get products');
@@ -72,17 +80,17 @@ class PosProductsRepository implements PosProductsRepositoryFacade {
     int? page,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '$_base.get_seller_categories',
-        queryParameters: {
+      final response = await _gateway.tenant(
+        'api.seller_product.get_seller_categories',
+        {
           'lang': LocalStorage.getLanguage()?.locale,
-          if (page != null) 'page': page,
+          if (page != null) 'limit_start': (page - 1) * _pageSize,
+          'limit_page_length': _pageSize,
           'type': 'main',
         },
       );
       return ApiResult.success(
-        data: CategoriesPaginateResponse.fromJson(response.data),
+        data: CategoriesPaginateResponse.fromJson(response),
       );
     } catch (e) {
       return _fail(e, 'pos get shop categories');
@@ -94,16 +102,17 @@ class PosProductsRepository implements PosProductsRepositoryFacade {
     String uuid,
   ) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '$_base.get_product_details',
-        queryParameters: {
-          'uuid': uuid,
+      // seller_product.get_product_details(product_name): the POS grid's
+      // `uuid` is the Product docname.
+      final response = await _gateway.tenant(
+        'api.seller_product.get_product_details',
+        {
+          'product_name': uuid,
           'lang': LocalStorage.getLanguage()?.locale,
         },
       );
       return ApiResult.success(
-        data: SingleProductResponse.fromJson(response.data),
+        data: SingleProductResponse.fromJson(response),
       );
     } catch (e) {
       return _fail(e, 'pos get product details');

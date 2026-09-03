@@ -13,7 +13,9 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
+import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:dio/dio.dart';
@@ -330,17 +332,29 @@ abstract class AppHelpers {
     return '';
   }
 
+  /// The app's UI type (home style), 0-based.
+  ///
+  /// Two suppliers only, in this order:
+  ///  1. the backend's 'ui_type' design setting (1-based on the wire, so it
+  ///     is converted here);
+  ///  2. [AppConstants.uiType], the compose-time default, when the backend
+  ///     carries no such setting.
+  ///
+  /// There is deliberately no third source. The user-facing picker that used
+  /// to write a per-device choice into LocalStorage is gone, and this reader
+  /// no longer consults that stored value at all - an install that still
+  /// holds an old pick resolves to the backend/AppConstants answer like a
+  /// fresh one, instead of being frozen on a choice it can never change
+  /// again. Demo builds take the same path (the demo settings seed carries
+  /// no 'ui_type'), so a demo shows the app's composed default.
   static int getType() {
-    if (AppConstants.isDemo) {
-      return LocalStorage.getUiType() ?? 0;
-    }
     final List<SettingsData> settings = LocalStorage.getSettingsList();
     for (final setting in settings) {
       if (setting.key == 'ui_type') {
         return (int.tryParse(setting.value ?? "1") ?? 1) - 1;
       }
     }
-    return 0;
+    return AppConstants.uiType;
   }
 
   static bool getGroupOrder() {
@@ -489,6 +503,63 @@ abstract class AppHelpers {
     }
     final length = url.length;
     return url.substring(length - 3, length) == 'svg';
+  }
+
+  /// Inline ("data:") image support.
+  ///
+  /// The demo seed data (`--dart-define=IS_DEMO=true`, see [DemoImages])
+  /// carries its imagery inline rather than pointing at an image host: a demo
+  /// build talks to no backend, and the CI emulator that walks the guided
+  /// tour has no dependable route to a public placeholder host either, so a
+  /// remote URL there renders as the image widgets' broken-image error state.
+  /// [CustomNetworkImage] and [CommonImage] check this before they reach for
+  /// the network.
+  static bool isInlineImage(String? url) =>
+      url != null && url.startsWith('data:image/');
+
+  /// True for an inline image whose payload is SVG markup.
+  static bool isInlineSvg(String? url) =>
+      url != null && url.startsWith('data:image/svg+xml');
+
+  /// The payload of a `data:` URI: the part after the first comma, base64
+  /// decoded when the media type says so, else percent-decoded. Returns an
+  /// empty string when [url] is not a well-formed `data:` URI - callers
+  /// render their normal empty/error state on that.
+  static String inlineImagePayload(String? url) {
+    if (url == null) return '';
+    final int comma = url.indexOf(',');
+    if (comma < 0) return '';
+    final String header = url.substring(0, comma);
+    final String body = url.substring(comma + 1);
+    try {
+      if (header.endsWith(';base64')) {
+        return utf8.decode(base64.decode(body));
+      }
+      return body.contains('%') ? Uri.decodeFull(body) : body;
+    } catch (e) {
+      debugPrint('==> inline image payload could not be decoded: $e');
+      return '';
+    }
+  }
+
+  /// The bytes of an inline raster image (`data:image/png;base64,...`), or
+  /// null when [url] is not one / cannot be decoded.
+  static Uint8List? inlineImageBytes(String? url) {
+    if (url == null) return null;
+    final int comma = url.indexOf(',');
+    if (comma < 0) return null;
+    try {
+      final String header = url.substring(0, comma);
+      final String body = url.substring(comma + 1);
+      return header.endsWith(';base64')
+          ? base64.decode(body)
+          : Uint8List.fromList(utf8.encode(
+              body.contains('%') ? Uri.decodeFull(body) : body,
+            ));
+    } catch (e) {
+      debugPrint('==> inline image bytes could not be decoded: $e');
+      return null;
+    }
   }
 
   static double? getInitialLatitude() {

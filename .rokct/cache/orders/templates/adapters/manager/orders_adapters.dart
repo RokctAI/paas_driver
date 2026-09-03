@@ -64,20 +64,24 @@ import 'package:orders_sdk/src/manager/infrastructure/models/response/users_pagi
 /// adapter body collapses to a delegation onto the owner SDK's facade — the
 /// method shapes below were chosen to make that a mechanical swap.
 class ManagerPosSectionsTablesAdapter implements PosSectionsTablesFacade {
+  /// Mirrors the backend's `limit_page_length` default.
+  static const int _pageSize = 20;
+
   @override
   Future<ApiResult<ShopSectionResponse>> getSections({
     int? page,
     String? query,
   }) async {
     try {
-      // merchants' seller_operations.get_seller_sections via the universal
-      // platform gateway (whitelisted-method key registered alongside this
-      // change in merchants/frappe/manifest.json).
+      // merchants' seller_operations.get_seller_sections(limit_start,
+      // limit_page_length) via the universal platform gateway. The legacy
+      // `page` maps onto limit_start; `query` has no server-side filter yet
+      // (fixplan M4 — optional server follow-up), so it is not sent.
       final response = await const PlatformGateway().tenant(
         'api.seller_operations.get_seller_sections',
         {
-          if (page != null) 'page': page,
-          if (query != null && query.isNotEmpty) 'search': query,
+          if (page != null) 'limit_start': (page - 1) * _pageSize,
+          'limit_page_length': _pageSize,
         },
       );
       return ApiResult.success(
@@ -98,15 +102,15 @@ class ManagerPosSectionsTablesAdapter implements PosSectionsTablesFacade {
     String? shopSectionId,
   }) async {
     try {
-      // merchants' seller_operations.get_seller_tables via the universal
-      // platform gateway (whitelisted-method key registered alongside this
-      // change in merchants/frappe/manifest.json).
+      // merchants' seller_operations.get_seller_tables(limit_start,
+      // limit_page_length) via the universal platform gateway. `query` and
+      // `shopSectionId` have no server-side filter yet (fixplan M4), so the
+      // POS picker filters the returned page client-side if it needs to.
       final response = await const PlatformGateway().tenant(
         'api.seller_operations.get_seller_tables',
         {
-          if (page != null) 'page': page,
-          if (query != null && query.isNotEmpty) 'search': query,
-          if (shopSectionId != null) 'shop_section_id': shopSectionId,
+          if (page != null) 'limit_start': (page - 1) * _pageSize,
+          'limit_page_length': _pageSize,
         },
       );
       return ApiResult.success(data: TableResponse.fromJson(response));
@@ -163,6 +167,11 @@ class ManagerPosCustomersAdapter implements PosCustomersFacade {
     required String phone,
     required String email,
   }) async {
+    // TODO(fix-wave 2026-09-02): no server method — nothing whitelists a
+    // walk-in customer create (users' register_user is OTP self-signup and
+    // would mint a login). Needs an owner decision on an
+    // `api.seller_order.create_walk_in_customer` in the orders/merchants
+    // frappe half (fixplan M19); until then the dead path below fails visibly.
     try {
       final client = dioHttp.client(requireAuth: true);
       final response = await client.post(

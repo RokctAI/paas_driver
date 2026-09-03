@@ -13,6 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:auto_route/auto_route.dart';
@@ -22,18 +23,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:base_sdk/src/application/app_widget/app_provider.dart';
+import 'package:base_sdk/src/application/profile/profile_host_capabilities.dart';
 import 'package:base_sdk/src/application/profile/profile_provider.dart';
 import 'package:base_sdk/src/models/data/profile_data.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
 import 'package:base_sdk/src/presentation/components/custom_network_image.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/adaptive/planes.dart';
+import 'package:base_sdk/src/presentation/pages/profile/profile_host_scope.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section_registry.dart';
 import 'package:base_sdk/src/presentation/pages/profile/widgets/profile_theme_toggle.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/services/telemetry.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 
 /// Generic profile page host.
@@ -48,9 +52,45 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 /// screen), the unified header card with its SDK-fillable slots and the
 /// in-place flip to the plan back face, the logout confirmation, and
 /// section ordering.
+///
+/// The host degrades by what the shell registered
+/// ([ProfileHostCapabilities], read off [profileProvider]'s notifier):
+///   * every account facade present — the surface described above,
+///     unchanged;
+///   * no `UserRepositoryFacade` — ANONYMOUS MODE: the brand ground, the
+///     top row without its sign-out, the shell's plan slot (alone in the
+///     header card, or no card while unclaimed), the registered sections
+///     and the footer without its usage badge. No identity header, no
+///     avatar, no edit pencil; nothing on screen says why. One
+///     [anonymousModeEvent] per process tells admins over telemetry;
+///   * only the shops or gallery facade missing — sections and header
+///     slots that `requires` it are omitted, nothing else.
 @RoutePage()
 class GenericProfilePage extends ConsumerStatefulWidget {
   const GenericProfilePage({super.key});
+
+  /// The identity header card — present in account mode only.
+  static const Key accountHeaderKey = Key('generic-profile-account-header');
+
+  /// The anonymous surface's plan-only header card — present in anonymous
+  /// mode only, and only while the plan slot is claimed.
+  static const Key anonymousHeaderKey =
+      Key('generic-profile-anonymous-header');
+
+  /// The telemetry event type sent once per process when the host first
+  /// mounts in anonymous mode; its context carries `missing_facades`, the
+  /// interface names the shell did not register.
+  static const String anonymousModeEvent = 'profile_host_anonymous_mode';
+
+  /// Whether this process already sent [anonymousModeEvent].
+  static bool _anonymousModeReported = false;
+
+  /// Forgets that [anonymousModeEvent] was sent, so a test can observe the
+  /// once-per-process send again.
+  @visibleForTesting
+  static void resetAnonymousModeReport() {
+    _anonymousModeReported = false;
+  }
 
   @override
   ConsumerState<GenericProfilePage> createState() =>
@@ -71,9 +111,16 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
   /// claimed).
   bool _showPlanBack = false;
 
+  /// Which account facades the shell registered — fixed for the page's
+  /// lifetime, read off the notifier whose constructor resolved them so
+  /// the page and the notifier never disagree about what exists.
+  late final ProfileHostCapabilities _capabilities;
+
   @override
   void initState() {
     super.initState();
+    _capabilities = ref.read(profileProvider.notifier).capabilities;
+    _reportAnonymousModeOnce();
     // Fill any section slot no SDK claimed at bootstrap with base_sdk's
     // default (currently the base.footer meta row). Runs before the
     // gates resolve so a gated override is honoured.
@@ -84,8 +131,30 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
     });
   }
 
+  /// Tells admins ONCE per process that this composition hosts the profile
+  /// anonymously, and which facades are missing — over the error lane
+  /// (ADR-006), never on screen: the anonymous surface is the product for
+  /// such a shell, not a fault to explain to the person holding it.
+  void _reportAnonymousModeOnce() {
+    if (_capabilities.hasAccount) return;
+    if (GenericProfilePage._anonymousModeReported) return;
+    GenericProfilePage._anonymousModeReported = true;
+    unawaited(
+      TelemetryClient.I.logError(
+        type: GenericProfilePage.anonymousModeEvent,
+        context: <String, dynamic>{
+          'stage': 'profile',
+          'missing_facades': _capabilities.missingFacades,
+        },
+      ),
+    );
+  }
+
   Future<void> _resolveVisibilityGates() async {
     for (final section in ProfileSectionRegistry.I.sections) {
+      // A section the composition cannot host is omitted before its gate
+      // is consulted, so no gate runs against a missing facade.
+      if (!_capabilities.satisfies(section.requires)) continue;
       final gate = section.visible;
       if (gate == null) continue;
       var visible = false;
@@ -98,7 +167,10 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
       setState(() => _gateResults[section.id] = visible);
     }
     for (final slot in ProfileHeaderSlot.values) {
-      final gate = ProfileSectionRegistry.I.headerSlot(slot)?.visible;
+      final content = ProfileSectionRegistry.I.headerSlot(slot);
+      if (content == null) continue;
+      if (!_capabilities.satisfies(content.requires)) continue;
+      final gate = content.visible;
       if (gate == null) continue;
       var visible = false;
       try {
@@ -112,7 +184,8 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
   }
 
   bool _isVisible(ProfileSection section) =>
-      section.visible == null || (_gateResults[section.id] ?? false);
+      _capabilities.satisfies(section.requires) &&
+      (section.visible == null || (_gateResults[section.id] ?? false));
 
   /// The widget filling [slot], or null while the slot is unclaimed or its
   /// gate has not resolved true — null keeps the header exactly as it
@@ -120,6 +193,7 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
   Widget? _headerSlotWidget(BuildContext context, ProfileHeaderSlot slot) {
     final content = ProfileSectionRegistry.I.headerSlot(slot);
     if (content == null) return null;
+    if (!_capabilities.satisfies(content.requires)) return null;
     if (content.visible != null &&
         !(_headerSlotGateResults[slot] ?? false)) {
       return null;
@@ -136,41 +210,69 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
     final registry = ProfileSectionRegistry.I;
     final user = state.userData ?? LocalStorage.getUser();
     final sections = registry.sections.where(_isVisible).toList();
-    final hydrating =
-        state.isLoading && user == null && LocalStorage.getToken().isNotEmpty;
+    // Only an account host hydrates: without a UserRepositoryFacade
+    // nothing ever fetches, so a stored token must not park the page on
+    // the loader for good.
+    final hydrating = _capabilities.hasAccount &&
+        state.isLoading &&
+        user == null &&
+        LocalStorage.getToken().isNotEmpty;
 
     final planBack = _headerSlotWidget(context, ProfileHeaderSlot.planBack);
 
-    final front = _IdentityHeader(
-      user: user,
-      badge: _headerSlotWidget(context, ProfileHeaderSlot.badge),
-      stats: _headerSlotWidget(context, ProfileHeaderSlot.stats),
-      plan: _headerSlotWidget(context, ProfileHeaderSlot.plan),
-      corner: _headerSlotWidget(context, ProfileHeaderSlot.corner),
-      onEditProfile: registry.onEditProfile,
-      // The plan row flips only while a planBack face exists; without one
-      // any tap handling belongs to the plan content itself.
-      onPlanTap: planBack == null
-          ? null
-          : () => setState(() => _showPlanBack = true),
-    );
+    // The plan row flips only while a planBack face exists; without one
+    // any tap handling belongs to the plan content itself.
+    final VoidCallback? onPlanTap = planBack == null
+        ? null
+        : () => setState(() => _showPlanBack = true);
 
-    final header = planBack == null
-        ? front
-        : _FlipCard(
-            showBack: _showPlanBack,
-            front: front,
-            back: _PlanBackCard(
-              onFlipBack: () => setState(() => _showPlanBack = false),
-              child: planBack,
-            ),
-          );
+    // The header card's front face. Account mode: the identity header
+    // with every slot, exactly as it always rendered. Anonymous mode: no
+    // identity to show, so the shell's plan row alone in the same card
+    // chrome — and no card at all while the plan slot is unclaimed.
+    final Widget? front;
+    if (_capabilities.hasAccount) {
+      front = _IdentityHeader(
+        key: GenericProfilePage.accountHeaderKey,
+        user: user,
+        badge: _headerSlotWidget(context, ProfileHeaderSlot.badge),
+        stats: _headerSlotWidget(context, ProfileHeaderSlot.stats),
+        plan: _headerSlotWidget(context, ProfileHeaderSlot.plan),
+        corner: _headerSlotWidget(context, ProfileHeaderSlot.corner),
+        onEditProfile: registry.onEditProfile,
+        onPlanTap: onPlanTap,
+      );
+    } else {
+      final plan = _headerSlotWidget(context, ProfileHeaderSlot.plan);
+      front = plan == null
+          ? null
+          : _AnonymousHeader(
+              key: GenericProfilePage.anonymousHeaderKey,
+              plan: plan,
+              onPlanTap: onPlanTap,
+            );
+    }
+
+    final Widget? header = front == null
+        ? null
+        : planBack == null
+            ? front
+            : _FlipCard(
+                showBack: _showPlanBack,
+                front: front,
+                back: _PlanBackCard(
+                  onFlipBack: () => setState(() => _showPlanBack = false),
+                  child: planBack,
+                ),
+              );
 
     final topRow = _TopRow(
       title:
           registry.pageTitle ?? AppHelpers.getTranslation(TrKeys.profile),
       actions: registry.topRowActions,
-      onLogout: registry.onLogout == null
+      // Sign-out needs an account to sign out of: in anonymous mode the
+      // button stays hidden even where the shell registered onLogout.
+      onLogout: registry.onLogout == null || !_capabilities.hasAccount
           ? null
           : () => _confirmLogout(registry.onLogout!),
     );
@@ -193,38 +295,46 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
     final planes = Planes.maybeOf(context);
     final grantedPlanes = math.min(planes?.span ?? 1, 2);
 
-    return Scaffold(
-      // Mode-resolving page surface: dark surface in dark mode, the soft
-      // light-grey page in light mode — same token every themed page uses.
-      backgroundColor: AppStyle.surfaceDark,
-      body: hydrating
-          ? const Loading()
-          : SafeArea(
-              child: grantedPlanes >= 2
-                  ? _SpreadBody(
-                      columns: grantedPlanes,
-                      // Column gutters on the host's seam width, so the
-                      // page's columns sit exactly on the plane grid.
-                      columnGap: planes!.gap,
-                      topRow: topRow,
-                      header: header,
-                      sections: sections,
-                    )
-                  : ListView(
-                      padding: EdgeInsets.all(16.r),
-                      children: [
-                        topRow,
-                        12.verticalSpace,
-                        header,
-                        16.verticalSpace,
-                        if (sections.isEmpty)
-                          const _EmptySections()
-                        else
-                          ...sections
-                              .map((section) => section.builder(context)),
-                      ],
-                    ),
-            ),
+    // The scope hands the resolved capabilities to everything the page
+    // builds — sections, slot content, the footer — see ProfileHostScope.
+    return ProfileHostScope(
+      capabilities: _capabilities,
+      child: Scaffold(
+        // Mode-resolving page surface: dark surface in dark mode, the soft
+        // light-grey page in light mode — same token every themed page
+        // uses. In anonymous mode this brand ground is the whole backdrop.
+        backgroundColor: AppStyle.surfaceDark,
+        body: hydrating
+            ? const Loading()
+            : SafeArea(
+                child: grantedPlanes >= 2
+                    ? _SpreadBody(
+                        columns: grantedPlanes,
+                        // Column gutters on the host's seam width, so the
+                        // page's columns sit exactly on the plane grid.
+                        columnGap: planes!.gap,
+                        topRow: topRow,
+                        header: header,
+                        sections: sections,
+                      )
+                    : ListView(
+                        padding: EdgeInsets.all(16.r),
+                        children: [
+                          topRow,
+                          12.verticalSpace,
+                          if (header != null) ...[
+                            header,
+                            16.verticalSpace,
+                          ],
+                          if (sections.isEmpty)
+                            const _EmptySections()
+                          else
+                            ...sections
+                                .map((section) => section.builder(context)),
+                        ],
+                      ),
+              ),
+      ),
     );
   }
 
@@ -282,7 +392,10 @@ class _SpreadBody extends StatelessWidget {
   final int columns;
   final double columnGap;
   final Widget topRow;
-  final Widget header;
+
+  /// The header card, or null when the page has none (anonymous mode with
+  /// the plan slot unclaimed) — the sections then lead the first column.
+  final Widget? header;
   final List<ProfileSection> sections;
 
   const _SpreadBody({
@@ -298,8 +411,10 @@ class _SpreadBody extends StatelessWidget {
     // Sections space themselves (ProfileSectionCard carries its own
     // bottom margin); only the header needs the phone layout's 16 under
     // it, so it travels with the header as one item.
+    final headerCard = header;
     final items = <Widget>[
-      Column(children: [header, 16.verticalSpace]),
+      if (headerCard != null)
+        Column(children: [headerCard, 16.verticalSpace]),
       if (sections.isEmpty)
         const _EmptySections()
       else
@@ -359,6 +474,7 @@ class _IdentityHeader extends StatelessWidget {
   final VoidCallback? onPlanTap;
 
   const _IdentityHeader({
+    super.key,
     required this.user,
     required this.badge,
     required this.stats,
@@ -445,40 +561,8 @@ class _IdentityHeader extends StatelessWidget {
     // in the app primary) leads whatever content claimed the plan slot,
     // behind the same hairline divider as the stats row. While a planBack
     // face exists, tapping anywhere on the row flips the card in place.
-    Widget? planRow;
-    if (plan != null) {
-      planRow = Container(
-        width: double.infinity,
-        margin: EdgeInsets.only(top: 12.r),
-        padding: EdgeInsets.only(top: 12.r),
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: AppStyle.strokeDark,
-              width: 0.5,
-            ),
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Remix.vip_crown_line,
-              size: 16.sp,
-              color: AppStyle.primary,
-            ),
-            8.horizontalSpace,
-            Expanded(child: plan!),
-          ],
-        ),
-      );
-      if (onPlanTap != null) {
-        planRow = GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onPlanTap,
-          child: planRow,
-        );
-      }
-    }
+    final planRow =
+        plan == null ? null : _planRow(plan: plan!, onPlanTap: onPlanTap);
 
     final card = Container(
       padding: EdgeInsets.all(16.r),
@@ -519,6 +603,83 @@ class _IdentityHeader extends StatelessWidget {
           child: corner!,
         ),
       ],
+    );
+  }
+}
+
+/// The crown-led plan row — the [ProfileHeaderSlot.plan] seam: the shared
+/// plan glyph (Remix vip_crown_line in the app primary) leads whatever
+/// content claimed the slot, and while a planBack face exists tapping
+/// anywhere on the row flips the card ([onPlanTap]). [divided] draws the
+/// same hairline divider as the stats row above it — always inside the
+/// identity header, where the row follows the identity or stats row; the
+/// anonymous card leads with the row and draws none.
+Widget _planRow({
+  required Widget plan,
+  required VoidCallback? onPlanTap,
+  bool divided = true,
+}) {
+  Widget row = Container(
+    width: double.infinity,
+    margin: divided ? EdgeInsets.only(top: 12.r) : null,
+    padding: divided ? EdgeInsets.only(top: 12.r) : null,
+    decoration: divided
+        ? BoxDecoration(
+            border: Border(
+              top: BorderSide(
+                color: AppStyle.strokeDark,
+                width: 0.5,
+              ),
+            ),
+          )
+        : null,
+    child: Row(
+      children: [
+        Icon(
+          Remix.vip_crown_line,
+          size: 16.sp,
+          color: AppStyle.primary,
+        ),
+        8.horizontalSpace,
+        Expanded(child: plan),
+      ],
+    ),
+  );
+  if (onPlanTap != null) {
+    row = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onPlanTap,
+      child: row,
+    );
+  }
+  return row;
+}
+
+/// The anonymous surface's header: the shell's plan row alone, in the
+/// identity header's card chrome — no avatar, name, contact, edit pencil,
+/// badge, stats or corner, because there is no account behind them.
+/// Rendered only while the plan slot is claimed; otherwise the anonymous
+/// page has no header card and its sections lead.
+class _AnonymousHeader extends StatelessWidget {
+  final Widget plan;
+  final VoidCallback? onPlanTap;
+
+  const _AnonymousHeader({
+    super.key,
+    required this.plan,
+    required this.onPlanTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.r),
+      decoration: BoxDecoration(
+        color: AppStyle.cardDark,
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: _planRow(plan: plan, onPlanTap: onPlanTap, divided: false),
     );
   }
 }

@@ -26,6 +26,7 @@ import 'package:base_sdk/src/constants/app_constants.dart';
 // ApiResult's `when` lives in the freezed extension declared by this
 // library, so the import is load-bearing even though no type is named.
 import 'package:base_sdk/src/handlers/api_result.dart';
+import 'package:base_sdk/src/presentation/adaptive/planes.dart';
 import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/components/helper/common_image.dart';
 import 'package:base_sdk/src/presentation/components/keypad/money_keypad.dart';
@@ -101,6 +102,22 @@ import 'package:merchants_sdk/src/manager/utils/pos_receipt_printer.dart';
 // back-only pill (FloatingNavBack) is this screen's single back
 // affordance — no PopButton, no app-bar arrow.
 //
+// TABLET MODE — frame 11n (approved by Ray 2026-08-29 13:06Z: "approved:
+// 5b,11n, 11o, 11r, ..."): on plane widths the till hosts this page IN
+// ITS PLANES (BillingPage's PlaneHost) instead of pushing the route —
+// the checkout claims TWO planes and spreads ITSELF by its own sections,
+// the SAME widgets as the phone column regrouped: ORDER TRUTH (304 title,
+// merchant row, fulfillment + Cash | QR toggles, customer attach, the
+// 292 summary) | TENDER (QR banner, pay-link QR, phase gate / code
+// entry, amount-paying-now + remainder, the 293/294 finish). The host
+// draws the ONE back pill at the bottom-END corner (12d, the two-state
+// nav) and pops this page; so hosted, this page draws no pill of its own
+// — on the pushed phone route it draws the pill exactly as before.
+// [onClose] is how the host pops it (a finished sale leaves the same
+// way); null means the route, and Navigator.maybePop as shipped.
+// NOT BUILT (flagged): 11n's live receipt slip (322) above 292 — no slip
+// widget exists in this SDK.
+//
 // Installed by the manifest to lib/presentation/pages/billing/ with the
 // /pos-checkout route; @RoutePage(name: 'PosCheckoutRoute') so the host's
 // generated router owns the route class. BillingPage reaches it by path,
@@ -109,7 +126,11 @@ import 'package:merchants_sdk/src/manager/utils/pos_receipt_printer.dart';
 
 @RoutePage(name: 'PosCheckoutRoute')
 class CheckoutPage extends ConsumerStatefulWidget {
-  const CheckoutPage({super.key});
+  /// Pops this page when it is hosted in the till's planes (11n). Null on
+  /// the pushed phone route, where leaving is Navigator.maybePop.
+  final VoidCallback? onClose;
+
+  const CheckoutPage({super.key, this.onClose});
 
   @override
   ConsumerState<CheckoutPage> createState() => _CheckoutPageState();
@@ -460,13 +481,23 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
         context,
         AppHelpers.getTranslation(TrKeys.saleCompleted),
       );
-      // Plain Navigator (the floating back pill's own default) so the
-      // page never needs the host's router at runtime — the standalone
-      // harness pumps it directly.
-      unawaited(Navigator.of(context).maybePop());
+      _leave();
     } finally {
       _finishing = false;
     }
+  }
+
+  /// Leaves the checkout: the plane host's pop when hosted (11n), else
+  /// plain Navigator (the floating back pill's own default) so the page
+  /// never needs the host's router at runtime — the standalone harness
+  /// pumps it directly.
+  void _leave() {
+    final onClose = widget.onClose;
+    if (onClose != null) {
+      onClose();
+      return;
+    }
+    unawaited(Navigator.of(context).maybePop());
   }
 
   @override
@@ -486,95 +517,171 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     final showGate = showQr && !offline && !_scannedGatePassed;
     final delivery = _fulfillment == _Fulfillment.delivery;
     final creditActive = _creditActive(state);
+    // Hosted in the till's planes (11n)? Then the host owns the back pill
+    // (bottom-END, 12d) and, granted two planes, this page spreads.
+    final Planes? planes = Planes.maybeOf(context);
+    final bool inPlanes = planes != null && planes.count > 1;
+    final bool spread = inPlanes && planes.span >= 2;
+    // While the pad is armed the ticket is empty, so there is no payment
+    // to split and no second keypad on the page: the autodial card IS
+    // the pad until an item lands.
+    final bool showPayingNow =
+        _customer != null && _creditEnabled && !_autodialArmed(state);
+    final bool showAutodial = _autodialArmed(state) || _lastAutodial != null;
+
+    Widget column(List<Widget> children) => CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: EdgeInsets.all(16.r),
+              sliver: SliverList(delegate: SliverChildListDelegate(children)),
+            ),
+          ],
+        );
+
+    final Widget body;
+    if (spread) {
+      // 11n's two sections, the same widgets in the same order as the
+      // phone column, dealt into the checkout's two planes.
+      final orderTruth = <Widget>[
+        _header(context),
+        20.verticalSpace,
+        _shopRow(context),
+        20.verticalSpace,
+        if (facade != null) ...[
+          _fulfillmentToggle(context),
+          14.verticalSpace,
+        ],
+        _methodToggle(context),
+        20.verticalSpace,
+        if (facade != null) ...[
+          _billingToCard(context),
+          14.verticalSpace,
+          if (delivery) ...[
+            _deliversToCard(context),
+            14.verticalSpace,
+          ],
+          6.verticalSpace,
+        ],
+        // 11n: the live slip (322) sits ABOVE 292 here — not built (see
+        // the header note); 292 itself is the section's floor.
+        _summary(context, state),
+        120.verticalSpace,
+      ];
+      final tender = <Widget>[
+        if (showQr) ...[
+          if (offline) _offlineBanner(context) else _qrHintBanner(context),
+          20.verticalSpace,
+          _qrCard(context, state),
+          20.verticalSpace,
+          if (showGate) _phaseGate(context),
+          if (showCodeEntry) _codeEntryCard(context),
+          20.verticalSpace,
+        ],
+        if (facade != null) ...[
+          if (showPayingNow) ...[
+            _amountPayingNowCard(context, state),
+            14.verticalSpace,
+          ],
+          if (creditActive) ...[
+            _remainderBanner(context, state),
+            14.verticalSpace,
+          ],
+        ],
+        if (showAutodial) ...[
+          _autodialCard(context, state),
+          20.verticalSpace,
+        ],
+        _finishButtons(context, state),
+        120.verticalSpace,
+      ];
+      body = Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: column(orderTruth)),
+          // The seam between the two planes: the columns then sit
+          // exactly on the plane grid.
+          SizedBox(width: planes.gap),
+          Expanded(child: column(tender)),
+        ],
+      );
+    } else {
+      body = column([
+        _header(context),
+        20.verticalSpace,
+        _shopRow(context),
+        20.verticalSpace,
+        if (facade != null) ...[
+          _fulfillmentToggle(context),
+          14.verticalSpace,
+        ],
+        _methodToggle(context),
+        20.verticalSpace,
+        if (showQr) ...[
+          if (offline) _offlineBanner(context) else _qrHintBanner(context),
+          20.verticalSpace,
+          _qrCard(context, state),
+          20.verticalSpace,
+          if (showGate) _phaseGate(context),
+          if (showCodeEntry) _codeEntryCard(context),
+          20.verticalSpace,
+        ],
+        if (facade != null) ...[
+          _billingToCard(context),
+          14.verticalSpace,
+          if (delivery) ...[
+            _deliversToCard(context),
+            14.verticalSpace,
+          ],
+          if (showPayingNow) ...[
+            _amountPayingNowCard(context, state),
+            14.verticalSpace,
+          ],
+          if (creditActive) ...[
+            _remainderBanner(context, state),
+            14.verticalSpace,
+          ],
+          6.verticalSpace,
+        ],
+        _summary(context, state),
+        if (showAutodial) ...[
+          14.verticalSpace,
+          _autodialCard(context, state),
+        ],
+        20.verticalSpace,
+        _finishButtons(context, state),
+        120.verticalSpace,
+      ]);
+    }
+
     return Scaffold(
       backgroundColor: AppStyle.surfaceDark,
       body: Stack(
         children: [
-          CustomScrollView(
-            slivers: [
-              SliverPadding(
-                padding: EdgeInsets.all(16.r),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    _header(context),
-                    20.verticalSpace,
-                    _shopRow(context),
-                    20.verticalSpace,
-                    if (facade != null) ...[
-                      _fulfillmentToggle(context),
-                      14.verticalSpace,
-                    ],
-                    _methodToggle(context),
-                    20.verticalSpace,
-                    if (showQr) ...[
-                      if (offline)
-                        _offlineBanner(context)
-                      else
-                        _qrHintBanner(context),
-                      20.verticalSpace,
-                      _qrCard(context, state),
-                      20.verticalSpace,
-                      if (showGate) _phaseGate(context),
-                      if (showCodeEntry) _codeEntryCard(context),
-                      20.verticalSpace,
-                    ],
-                    if (facade != null) ...[
-                      _billingToCard(context),
-                      14.verticalSpace,
-                      if (delivery) ...[
-                        _deliversToCard(context),
-                        14.verticalSpace,
-                      ],
-                      // While the pad is armed the ticket is empty, so
-                      // there is no payment to split and no second keypad
-                      // on the page: the autodial card below IS the pad
-                      // until an item lands.
-                      if (_customer != null &&
-                          _creditEnabled &&
-                          !_autodialArmed(state)) ...[
-                        _amountPayingNowCard(context, state),
-                        14.verticalSpace,
-                      ],
-                      if (creditActive) ...[
-                        _remainderBanner(context, state),
-                        14.verticalSpace,
-                      ],
-                      6.verticalSpace,
-                    ],
-                    _summary(context, state),
-                    if (_autodialArmed(state) || _lastAutodial != null) ...[
-                      14.verticalSpace,
-                      _autodialCard(context, state),
-                    ],
-                    20.verticalSpace,
-                    _finishButtons(context, state),
-                    120.verticalSpace,
-                  ]),
-                ),
-              ),
-            ],
-          ),
+          body,
           // The floating nav's back-only pill (FloatingNavBack, core#125 —
           // design strip section 12's one-back rule): the shared pill
           // housing carrying only the leading back segment, this screen's
           // ONE back affordance. Back-only (empty tab list) because the
           // shell's root tabs are not reachable from this pushed route.
-          Positioned.fill(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: FloatingBottomNav(
-                mode: FloatingNavTabsMode(
-                  tabs: const [],
-                  currentIndex: 0,
-                  onSelect: (_) {},
-                  back: FloatingNavBack(
-                    icon: Remix.arrow_left_wide_fill,
-                    label: AppHelpers.getTranslation(TrKeys.back),
+          // Hosted in planes the HOST draws the one pill (END corner), so
+          // none here — one back per screen, never two.
+          if (!inPlanes)
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: FloatingBottomNav(
+                  mode: FloatingNavTabsMode(
+                    tabs: const [],
+                    currentIndex: 0,
+                    onSelect: (_) {},
+                    back: FloatingNavBack(
+                      icon: Remix.arrow_left_wide_fill,
+                      label: AppHelpers.getTranslation(TrKeys.back),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

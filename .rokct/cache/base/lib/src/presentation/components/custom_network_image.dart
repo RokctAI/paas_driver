@@ -14,6 +14,8 @@
 
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -60,6 +62,15 @@ class CustomNetworkImage extends StatelessWidget {
   }
 
   Widget _buildImage() {
+    // Inline ("data:") images carry their own pixels: the demo seed data
+    // uses them so a demo build - which talks to no backend, and on the CI
+    // tour emulator has no dependable route to an image host either - shows
+    // real artwork instead of this widget's broken-image error state. Checked
+    // before checkIsSvg(), whose filename-extension test cannot see an SVG
+    // inside a data URI.
+    if (AppHelpers.isInlineImage(url)) {
+      return _buildInlineImage();
+    }
     return AppHelpers.checkIsSvg(url)
         ? SvgPicture.network(
             url ?? "",
@@ -107,4 +118,39 @@ class CustomNetworkImage extends StatelessWidget {
             },
           );
   }
+
+  /// Renders an inline `data:` image: SVG markup through [SvgPicture.string],
+  /// anything else (png/jpeg/webp payloads) through [Image.memory]. Falls
+  /// back to a plain tinted box when the payload cannot be decoded, so a
+  /// malformed URI degrades the same way an unreachable URL does.
+  Widget _buildInlineImage() {
+    if (AppHelpers.isInlineSvg(url)) {
+      final String svg = AppHelpers.inlineImagePayload(url);
+      if (svg.isEmpty) return _inlineFallback();
+      return SvgPicture.string(
+        svg,
+        width: width,
+        height: height,
+        fit: fit,
+      );
+    }
+    final Uint8List? bytes = AppHelpers.inlineImageBytes(url);
+    if (bytes == null || bytes.isEmpty) return _inlineFallback();
+    return Image.memory(
+      bytes,
+      width: width,
+      height: height,
+      fit: fit,
+      errorBuilder: (_, __, ___) => _inlineFallback(),
+    );
+  }
+
+  Widget _inlineFallback() => Container(
+        height: height,
+        width: width,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(radius),
+          color: bgColor,
+        ),
+      );
 }

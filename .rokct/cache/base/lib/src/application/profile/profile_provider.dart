@@ -14,10 +14,15 @@
 
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/application/profile/profile_notifier.dart';
 import 'package:base_sdk/src/application/profile/profile_state.dart';
 
+/// Resolves the account facades only where the composing shell registered
+/// them ([ProfileNotifier.fromLocator]): the same three GetIt singletons as
+/// before for a shell that registers all three, a no-op account surface —
+/// the generic profile host's anonymous mode — for one that registers
+/// none, instead of a `GetIt: Object/factory ... is not registered` throw
+/// out of the first `ref.watch`.
 final profileProvider = StateNotifierProvider<ProfileNotifier, ProfileState>(
-  (ref) => ProfileNotifier(userRepository, shopsRepository, galleryRepository),
+  (ref) => ProfileNotifier.fromLocator(),
 );

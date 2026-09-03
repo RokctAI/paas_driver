@@ -27,7 +27,7 @@
 //
 // With no declared policy the marker block stays empty, AuthSessionPolicy.I
 // keeps its built-in default (allow every account, land on the legacy
-// `isDemo ? replaceUiTypeRoute : goHome` branch), and the app behaves
+// `goHome` landing), and the app behaves
 // exactly as it did before this shell existed.
 //
 // [applyComposedSessionPolicy] is invoked by the installed

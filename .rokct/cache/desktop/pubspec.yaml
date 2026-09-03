@@ -1,6 +1,6 @@
 name: desktop_sdk
 description: "Custom native desktop runners (windows, macos, linux) and desktop configurations for RokctApp."
-version: 1.1.0
+version: 1.2.2
 # Internal SDK consumed via path/git, never published to pub.dev (matches
 # hardware_sdk/base_sdk).
 publish_to: 'none'

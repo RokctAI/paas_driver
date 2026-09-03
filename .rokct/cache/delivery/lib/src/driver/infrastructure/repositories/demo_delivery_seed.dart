@@ -741,8 +741,14 @@ class DemoDeliverySeed {
           'height': '110',
           'kg': '12',
           'length': '190',
-          'price': 25,
-          'price_per_km': 6,
+          // base_sdk's Data.fromJson declares price / price_per_km as
+          // String? and assigns them straight through (no toString()
+          // normalisation, unlike width/height/kg/length above), so an int
+          // here throws "type 'int' is not a subtype of type 'String?'" the
+          // moment the driver home fetches its details. Quoted to match the
+          // shape the model actually parses.
+          'price': '25',
+          'price_per_km': '6',
           'online': true,
           'location': _location(0, 0),
           'created_at': _iso(const Duration(days: 180)),

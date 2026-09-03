@@ -1,6 +1,6 @@
 {
   "name": "map_sdk",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "_comment_app_assets": "map_sdk's zone drawing page loads assets/lottie/pin.json (previously referenced but never installed by any SDK \u2014 broken at runtime). The copy comes from paas_driver develop (byte-identical to paas_manager's). app_assets registers it in the host pubspec's sdk-app-assets block so it is bundled.",
   "app_assets": [
     "assets/lottie/pin.json"
@@ -12,5 +12,49 @@
     }
   ],
   "routes": [],
-  "integrations": []
+  "integrations": [],
+  "app_type": {
+    "customer": {
+      "_comment": "Customer flavour (fix-wave 2026-09-02, route-map rows 16 and 21). Pre-fork paas_customer routed /map -> ViewMapPage and /map_search -> MapSearchPage from its host router; after the refork both pages live in this SDK's lib/ and auto_route never generates a class for an SDK-resident page, so base_sdk's AppRoutes.pushViewMapRoute (add_address, sellect_address_screen, marketplace address_list/create_shop, orders sender/recipient widgets) and pushMapSearchRoute (view_map_page's own search) hit _HostAppRoutes.noSuchMethod and the marketplace pushNamed('/map') sites found no route. The shell below is installed into the host so its build generates ViewMapRoute / MapSearchRoute; routes keep the pre-fork paths; app_routes fills the two seams (params copied verbatim from base_sdk app_routes.dart - dynamic-typed, so the bool args are defaulted in the body the way the page defaults them). Scoped to customer rather than top level because map_sdk is composed into driver/manager/pos too and those personas have no /map path today - declaring top level would change six profiles at once.",
+      "installs": [
+        {
+          "from": "templates/routes/map_route_pages.dart",
+          "to": "lib/presentation/routes/map_route_pages.dart"
+        }
+      ],
+      "routes": [
+        {
+          "path": "/map",
+          "page": "ViewMapRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/map_route_pages.dart"
+        },
+        {
+          "path": "/map_search",
+          "page": "MapSearchRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/map_route_pages.dart"
+        }
+      ],
+      "app_routes": [
+        {
+          "method": "pushViewMapRoute",
+          "params": "BuildContext context, {dynamic address, dynamic indexAddress, dynamic isParcel, dynamic isPop, dynamic isShopLocation, dynamic shopId}",
+          "body": "context.router.push(ViewMapRoute(address: address, indexAddress: indexAddress, isParcel: isParcel ?? false, isPop: isPop ?? true, isShopLocation: isShopLocation ?? false, shopId: shopId));",
+          "imports": [
+            "import 'package:auto_route/auto_route.dart';",
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        },
+        {
+          "method": "pushMapSearchRoute",
+          "body": "context.router.push(MapSearchRoute());",
+          "imports": [
+            "import 'package:auto_route/auto_route.dart';",
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        }
+      ]
+    }
+  }
 }

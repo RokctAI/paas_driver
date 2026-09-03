@@ -15,7 +15,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/models/data/location.dart';
@@ -40,17 +39,20 @@ import 'package:orders_sdk/src/manager/infrastructure/models/response/single_ord
 
 /// Port of `paas_manager`'s `OrdersRepository`, repointed from the legacy
 /// `/api/v1/dashboard/seller/...` paths to `seller_order.py` in the merchants
-/// Frappe app where a counterpart exists. Where none exists yet the legacy
-/// contract is still declared and called — see
-/// `docs/frappe-endpoint-contract.md` for the endpoint-by-endpoint state; an
-/// unanswered call fails through [ApiResult.failure] rather than being faked.
-const _base = '/api/method/paas.api.seller_order.seller_order';
-
+/// Frappe app (`api.seller_order.*` cmds through the universal gateway) where
+/// a counterpart exists. Where none exists yet the legacy contract is still
+/// declared and called — see `docs/frappe-endpoint-contract.md` for the
+/// endpoint-by-endpoint state; an unanswered call fails through
+/// [ApiResult.failure] rather than being faked.
 class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
   /// Universal platform gateway (fleet rule 2026-08-15): cmds mirror the
   /// owning modules' `manifest.json` whitelisted-method keys with the app
-  /// segment dropped.
+  /// segment dropped (`api.seller_order.*` in merchants, `api.payment.*` in
+  /// wallet, `api.product.*` in products, `api.order.*` here).
   static const _gateway = PlatformGateway();
+
+  /// Legacy page size of the seller order lists.
+  static const int _pageSize = 10;
 
   /// The wire strings are the legacy ones; base_sdk's `OrderStatus.open` is
   /// the manager fork's old `newOrder` ('new'), `onWay` is 'on_a_way'.
@@ -90,12 +92,11 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
     String? to,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '$_base.get_seller_orders',
-        queryParameters: {
-          if (page != null) 'limit_start': (page - 1) * 10,
-          'limit_page_length': 10,
+      final response = await _gateway.tenant(
+        'api.seller_order.get_seller_orders',
+        {
+          if (page != null) 'limit_start': (page - 1) * _pageSize,
+          'limit_page_length': _pageSize,
           if (rawStatus != null)
             'status': rawStatus
           else if (status != null)
@@ -106,7 +107,7 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
         },
       );
       return ApiResult.success(
-        data: OrdersPaginateResponse.fromJson(response.data),
+        data: OrdersPaginateResponse.fromJson(response),
       );
     } catch (e) {
       return _fail(e, 'get seller orders $status');
@@ -124,12 +125,11 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
     // so history is fetched as 'delivered' and the canceled bucket is part of
     // the recorded endpoint gap (statuses[] filter).
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '$_base.get_seller_orders',
-        queryParameters: {
-          if (page != null) 'limit_start': (page - 1) * 10,
-          'limit_page_length': 10,
+      final response = await _gateway.tenant(
+        'api.seller_order.get_seller_orders',
+        {
+          if (page != null) 'limit_start': (page - 1) * _pageSize,
+          'limit_page_length': _pageSize,
           'status': 'delivered',
           if (from != null) 'from_date': from,
           if (to != null) 'to_date': to,
@@ -137,7 +137,7 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
         },
       );
       return ApiResult.success(
-        data: OrdersPaginateResponse.fromJson(response.data),
+        data: OrdersPaginateResponse.fromJson(response),
       );
     } catch (e) {
       return _fail(e, 'get seller history orders');
@@ -149,16 +149,15 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
     required String orderId,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '$_base.get_seller_order_details',
-        queryParameters: {
+      final response = await _gateway.tenant(
+        'api.seller_order.get_seller_order_details',
+        {
           'order_id': orderId,
           'lang': LocalStorage.getLanguage()?.locale,
         },
       );
       return ApiResult.success(
-        data: SingleOrderResponse.fromJson(response.data),
+        data: SingleOrderResponse.fromJson(response),
       );
     } catch (e) {
       return _fail(e, 'get seller order details');
@@ -179,13 +178,12 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
     };
     debugPrint('===> update order status request ${jsonEncode(data)}');
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.post(
-        '$_base.update_seller_order_status',
-        data: data,
+      final response = await _gateway.tenant(
+        'api.seller_order.update_seller_order_status',
+        data,
       );
       return ApiResult.success(
-        data: OrderStatusResponse.fromJson(response.data),
+        data: OrderStatusResponse.fromJson(response),
       );
     } catch (e) {
       return _fail(e, 'update seller order status');
@@ -353,16 +351,15 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
     // Frappe counterpart of POST /api/v1/payments/order/{id}/transactions:
     // pay-side wallet/frappe/src/api/payment/payment.py's
     // create_order_transaction (idempotent; dedupes per order + gateway,
-    // amount/user read from the Order doc server-side).
+    // amount/user read from the Order doc server-side), via the gateway cmd.
     final data = {'order_id': orderId, 'payment_sys_id': paymentId};
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.post(
-        '/api/method/paas.api.payment.create_order_transaction',
-        data: data,
+      final response = await _gateway.tenant(
+        'api.payment.create_order_transaction',
+        data,
       );
       return ApiResult.success(
-        data: TransactionsResponse.fromJson(response.data),
+        data: TransactionsResponse.fromJson(response),
       );
     } catch (e) {
       return _fail(e, 'create transaction');
@@ -389,35 +386,47 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
     required String type,
     LocationModel? location,
   }) async {
-    // Recorded gap (FORK_MAPPING §3 Ask #6): paas.api.order.order.get_calculate
-    // is cart-id based; the seller POS needs this stock-list shape. Legacy
-    // query contract preserved verbatim.
+    // Recorded gap (FORK_MAPPING §3 Ask #6): orders' order.get_calculate is
+    // cart-id based; the seller POS needs this stock-list shape, which is
+    // products' product.order_products_calculate(products) — a JSON list of
+    // {product_id, quantity} rows (plus the stock id and addons the legacy
+    // bracket-style query carried, for when the server grows them).
+    final products = <Map<String, dynamic>>[];
+    for (final stock in stocks) {
+      final addons = stock.addons?.where((e) => e.active ?? false).toList() ??
+          const <AddonData>[];
+      products.add({
+        'product_id': stock.product?.id ?? stock.id,
+        'stock_id': stock.id,
+        'quantity': stock.cartCount ?? 1,
+        if (addons.isNotEmpty)
+          'addons': [
+            for (final addon in addons)
+              {
+                'stock_id': addon.product?.stock?.id,
+                'quantity': addon.quantity ?? 1,
+              },
+          ],
+      });
+    }
     final data = <String, dynamic>{
+      'products': products,
       'currency_id': LocalStorage.getSelectedCurrency()?.id,
       'shop_id': LocalStorage.getShopJson()?['id'],
       'type': type,
-      if (location != null) 'address[latitude]': location.latitude,
-      if (location != null) 'address[longitude]': location.longitude,
+      if (location != null)
+        'address': {
+          'latitude': location.latitude,
+          'longitude': location.longitude,
+        },
     };
-    for (int i = 0; i < stocks.length; i++) {
-      data['products[$i][stock_id]'] = stocks[i].id;
-      data['products[$i][quantity]'] = stocks[i].cartCount ?? 1;
-      final addons =
-          stocks[i].addons?.where((e) => e.active ?? false).toList() ?? [];
-      for (int j = 0; j < addons.length; j++) {
-        data['products[$i][addons][$j][stock_id]'] =
-            addons[j].product?.stock?.id;
-        data['products[$i][addons][$j][quantity]'] = addons[j].quantity ?? 1;
-      }
-    }
     debugPrint('==> order calculate request: ${jsonEncode(data)}');
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '/api/method/paas.api.order.order.get_products_calculate',
-        queryParameters: data,
+      final response = await _gateway.tenant(
+        'api.product.order_products_calculate',
+        data,
       );
-      return ApiResult.success(data: OrderCalculate.fromJson(response.data));
+      return ApiResult.success(data: OrderCalculate.fromJson(response));
     } catch (e) {
       return _fail(e, 'get seller order calculate');
     }

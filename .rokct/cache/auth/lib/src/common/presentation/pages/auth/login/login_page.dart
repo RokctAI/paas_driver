@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/application/language/language_provider.dart';
-import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
@@ -37,7 +36,6 @@ import 'package:auth_sdk/src/common/services/entry_config.dart';
 
 import 'package:base_sdk/src/presentation/theme/theme.dart';
 import 'package:base_sdk/src/presentation/components/buttons/second_button.dart';
-import 'package:base_sdk/src/navigation/app_routes.dart';
 // [refork] intro page embedded via EmbeddedWidgets registry
 // [refork] embed via EmbeddedWidgets
 // [refork] embed via EmbeddedWidgets
@@ -116,10 +114,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           );
       if (link.toString().contains("product") ||
           link.toString().contains("shop")) {
-        if (AppConstants.isDemo) {
-          AppRoutes.I.replaceUiTypeRoute(context);
-          return;
-        }
         AppHelpers.goHome(context);
       }
     }).onError((error) {
@@ -132,10 +126,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     if (deepLink.toString().contains("product") ||
         deepLink.toString().contains("shop")) {
-      if (AppConstants.isDemo) {
-        AppRoutes.I.replaceUiTypeRoute(context);
-        return;
-      }
       AppHelpers.goHome(context);
     }
   }

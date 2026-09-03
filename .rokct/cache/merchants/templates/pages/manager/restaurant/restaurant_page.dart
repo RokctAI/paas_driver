@@ -38,7 +38,19 @@ import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:merchants_sdk/src/manager/application/main/main_provider.dart';
 import 'package:merchants_sdk/src/manager/application/restaurant/restaurant_provider.dart';
+import 'package:merchants_sdk/src/manager/presentation/restaurant/restaurant_hub_plane_flow.dart';
 import 'package:merchants_sdk/src/manager/utils/restaurant_helpers.dart';
+// Composer seams (sdk_installer_base.py update_layout_integrations): an
+// SDK that this page never imports (ADR-005 - SDKs import only base)
+// claims an import slot through its manifest 'integrations' entry; the
+// installer inserts the replacement on the line UNDER the marker and
+// keeps the marker. Each column-0 line below is one such slot; its
+// widget twin sits at its own indent inside the section it feeds (the
+// bare text is a prefix of the -imports marker, and the installer
+// replaces every occurrence, so the indent is part of the contract).
+// @calc-memory-row-imports
+// @productivity-tasks-row-imports
+// @revenue-manager-wallet-imports
 
 // The manager restaurant tab, rebuilt as a host of base_sdk's generic
 // profile page (GenericProfilePage + ProfileSectionRegistry) — approved
@@ -58,7 +70,10 @@ import 'package:merchants_sdk/src/manager/utils/restaurant_helpers.dart';
 //   * 'merchants.working_hours' — today's working-hours pill.
 //   * 'merchants.wallet' — base_sdk's BaseWalletCard (no action strip, no
 //     history arrow), replacing the hand-built balance box; same data
-//     source (the cached shop JSON's seller wallet).
+//     source (the cached shop JSON's seller wallet). When revenue_sdk is
+//     composed its manifest swaps in ManagerWalletPane (frame 49l, the
+//     Withdraw action) through the wallet marker - see
+//     MerchantWalletSection.
 //   * 'merchants.sections' — the Sections list (restaurant settings /
 //     income / order history / notifications / sync issues / delete
 //     account), links unchanged.
@@ -69,6 +84,15 @@ import 'package:merchants_sdk/src/manager/utils/restaurant_helpers.dart';
 // (pages/main/main_page.dart) still imports this page directly, so it
 // carries no @RoutePage and the manifest declares no route for it (same
 // contract as orders_sdk's OrdersHomePage).
+//
+// PLANES (approved 1f / 7d / 7e, the 4c profile cap): being tab-hosted,
+// no PlaneHost sits above this page by itself, so the page wraps the host
+// in RestaurantHubPlaneFlow — the profile's two-plane declaration — the
+// way the sibling tabs wrap themselves in their flows. GenericProfilePage
+// then spreads over two balanced columns at two planes or more and keeps
+// its phone list at one; without the flow it rendered the phone list
+// stretched across the whole window (tablet store review 2026-09-02,
+// still 08-restaurant_hub).
 //
 // Route call-sites still route to the OWNING SDKs' installed pages:
 // ManagerIncomeRoute (revenue_sdk), ManagerOrderHistoryRoute (orders_sdk).
@@ -215,7 +239,9 @@ class _RestaurantPageState extends ConsumerState<RestaurantPage> {
         }
         return false;
       },
-      child: const GenericProfilePage(),
+      child: RestaurantHubPlaneFlow(
+        hubBuilder: (context) => const GenericProfilePage(),
+      ),
     );
   }
 }
@@ -422,6 +448,24 @@ class MerchantWorkingHoursSection extends ConsumerWidget {
   }
 }
 
+/// The shop the composed wallet pane stands on (design strip frame 49l):
+/// revenue_sdk's `ManagerWalletScope(shopId:, shopName:)` is built from
+/// these two values by the replacement its manifest inserts under the
+/// wallet marker in [MerchantWalletSection]. Typed state first, the
+/// cached shop JSON as fallback — the same resolution
+/// [MerchantShopInfoSection] uses for the title. A public top-level
+/// function on purpose: it has no caller until revenue_sdk is composed,
+/// and a private or local seam would read as dead code to the analyzer.
+({String shopId, String? shopName}) merchantWalletScope(WidgetRef ref) {
+  final shop = ref.watch(restaurantProvider).shop;
+  final shopJson = LocalStorage.getShopJson();
+  return (
+    shopId: shop?.id ?? shopJson?['id']?.toString() ?? '',
+    shopName: shop?.translation?.title ??
+        shopJson?['translation']?['title'] as String?,
+  );
+}
+
 /// The shop balance as base_sdk's [BaseWalletCard] (approved parameter:
 /// no actions strip, no history arrow — the old hand-built box had no
 /// history navigation either, its bar-chart glyph was inert). The card
@@ -433,17 +477,32 @@ class MerchantWorkingHoursSection extends ConsumerWidget {
 /// initState refreshes via get_user_profile — and that payload now
 /// carries the merchant's live Wallet balance. The merchant IS the
 /// logged-in user, so the profile wallet is the seller balance.
-class MerchantWalletSection extends StatelessWidget {
+///
+/// FRAME 49l (approved 2026-08-31, "49d, 49f-l approved") puts ONE action
+/// on this card's strip — Withdraw (chip 989) — and that action lives in
+/// revenue_sdk, which this page never imports. So the card is chosen
+/// through a composer seam: the wallet marker heads a candidate list and
+/// the section renders `.first`. Without revenue_sdk the list holds only
+/// base's bare card (this SDK's own tests see exactly that); with it, the
+/// installer inserts `ManagerWalletPane(scope: ManagerWalletScope(...))`
+/// under the marker and the pane wins, the bare card is never built.
+/// Nothing is deleted at compose time, so the marker's indent (six
+/// spaces) is part of the contract with revenue's manifest.
+class MerchantWalletSection extends ConsumerWidget {
   const MerchantWalletSection({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final List<Widget> wallet = <Widget>[
+      // @revenue-manager-wallet
+      const BaseWalletCard(
+        actions: [],
+        onHistory: null,
+      ),
+    ];
     return Column(
       children: [
-        const BaseWalletCard(
-          actions: [],
-          onHistory: null,
-        ),
+        wallet.first,
         16.verticalSpace,
       ],
     );
@@ -460,12 +519,21 @@ class MerchantWalletSection extends StatelessWidget {
 /// app_router; manager composes carry both SDKs (paas_manager
 /// composer.json), so the classes are always generated here.
 ///
-/// The approved render's row glance ("3 open · 1 due today") is SEEDED
-/// content, disclosed as such on the frame; live open/due counts need
-/// productivity task data merchants_sdk cannot reach (ADR-005 — SDKs
-/// import only base), so the demo compose seeds the approved glance line
-/// and real composes show the plain row until the /tasks screen's own
-/// design pass (coverage-map group M) wires a counts seam.
+/// Both rows are PLAIN — title, glyph, tap — in this SDK. What each row
+/// says under its title belongs to the SDK that owns the data, and
+/// merchants_sdk cannot reach either (ADR-005 — SDKs import only base),
+/// so each row is followed by a composer marker the owning SDK claims
+/// through its manifest 'integrations' entry (the seeded demo glances
+/// that stood in for this until 1.26.0 are gone, in demo builds too):
+///   * design strip frame 46i (chip 859): productivity_sdk >= 1.2.0
+///     inserts `PausedRunLine` under the Tasks row — a line that reads
+///     the local run store and is exactly nothing when no run is paused.
+///   * frame 45b (chip 842): calc_sdk owns the calculator memory (an
+///     in-memory autoDispose StateNotifier today), so the memory glance
+///     is its seam under the Calculator row; no calc_sdk entry claims it
+///     yet, and until one does the row stays single-line.
+/// Without the owning SDK the marker is an inert comment and the row is
+/// the same single-line shape every pre-7e hub row keeps.
 class MerchantProductivitySection extends StatelessWidget {
   const MerchantProductivitySection({super.key});
 
@@ -484,32 +552,27 @@ class MerchantProductivitySection extends StatelessWidget {
         20.verticalSpace,
         SectionsItem(
           title: AppHelpers.getTranslation(TrKeys.tasks),
-          subtitle: AppConstants.isDemo ? '3 open · 1 due today' : null,
           icon: Remix.task_line,
           onTap: () => context.pushRoute(const TasksRoute()),
         ),
+        // Frame 46i's paused-run line lands here (productivity_sdk's
+        // manifest; the eight-space indent is the contract - see the
+        // imports block).
+        // @productivity-tasks-row
         // CHIP 842 - the Calculator row (approved design strip frame
         // 45b, GATE 1 of section 45): calc_sdk ships a live /calc route
         // that NOTHING navigated to. This is its door, in the group 7e
-        // already built, with the same earn-your-glance sub-line idiom
-        // the Tasks row uses.
-        //
-        // The approved render's glance reads "Memory holds 1 240.50".
-        // It is SEEDED, for the same reason the Tasks counts are: the
-        // calculator's memory lives in an in-memory autoDispose
-        // StateNotifier inside calc_sdk, so it does not survive the page
-        // and merchants_sdk could not read it anyway (ADR-005 - SDKs
-        // import only base). Frame 45b names the fork explicitly -
-        // "either the row drops the sub-line, or memory gets persisted"
-        // - and persisting it needs a base_sdk LocalStorage key, which
-        // is a base_sdk change. Real composes show the plain row until
-        // then.
+        // already built. Frame 45b names the fork explicitly - "either
+        // the row drops the sub-line, or memory gets persisted" - and the
+        // memory lives in an in-memory autoDispose StateNotifier inside
+        // calc_sdk (calculator_provider.dart), so the glance is calc's to
+        // claim through the marker under the row once it persists it.
         SectionsItem(
           title: AppHelpers.getTranslation(TrKeys.calculator),
-          subtitle: AppConstants.isDemo ? 'Memory holds 1 240.50' : null,
           icon: Remix.calculator_line,
           onTap: () => context.pushRoute(CalculatorRoute()),
         ),
+        // @calc-memory-row
       ],
     );
   }

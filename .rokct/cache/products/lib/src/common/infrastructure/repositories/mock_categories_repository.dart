@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:base_sdk/src/constants/demo_images.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/domain/interface/categories.dart';
 import 'package:base_sdk/src/models/response/categories_paginate_response.dart';
@@ -24,7 +25,7 @@ class MockCategoriesRepository implements CategoriesRepositoryFacade {
     keywords: "burger, fast food",
     parentId: "0",
     type: "main",
-    img: "https://via.placeholder.com/150",
+    img: DemoImages.category,
     active: true,
     translation: Translation(
       title: "Burgers",

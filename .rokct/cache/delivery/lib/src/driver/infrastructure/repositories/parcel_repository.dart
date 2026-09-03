@@ -13,7 +13,6 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:delivery_sdk/src/driver/di/driver_delivery_di.dart';
 import 'package:delivery_sdk/src/driver/domain/interface/parcel.dart';
 import 'package:base_sdk/src/models/data/parcel_order.dart';
@@ -30,29 +29,103 @@ class CourierParcelRepository implements CourierParcelRepositoryFacade {
   /// (`{app_name}.api.driver_parcel.*`) with the app segment dropped.
   static const _cmd = 'api.driver_parcel';
 
+  /// Prefix-free cmd base for the deliveryman-scoped reads
+  /// (`{app_name}.api.delivery_man.*`), app segment dropped.
+  static const _deliveryCmd = 'api.delivery_man';
+
+  /// Rows fetched per page for the courier's own parcel list. Wider than the
+  /// legacy `perPage: 10` on purpose: get_deliveryman_parcel_orders takes no
+  /// status filter (a server-side kwarg is a pending owner decision), so the
+  /// active/history split happens client-side on each fetched page - with a
+  /// narrow window a page of closed parcels would read as "no active
+  /// parcels" before the notifier ever asked for the next one.
+  static const _perPage = 50;
+
+  /// Parcel Order statuses each tab keeps, compared through
+  /// [_normalizeStatus] so the doctype's Select labels ("On a way") and the
+  /// legacy lowercase driver vocabulary ("on_a_way") are the same status.
+  static const _activeStatuses = {'accepted', 'ready', 'on_a_way'};
+  static const _historyStatuses = {'delivered'};
+
   static const _gateway = PlatformGateway();
+
+  static String _normalizeStatus(dynamic status) =>
+      (status?.toString() ?? '').trim().toLowerCase().replaceAll(' ', '_');
+
+  /// One page of the session courier's own parcels through the gateway,
+  /// reduced to the statuses (and optional delivery-date window) a tab
+  /// shows. See [parseOwnParcels] for the row contract.
+  Future<List<ParcelOrder>> _fetchOwnParcels(
+    int page, {
+    required Set<String> keep,
+    DateTime? from,
+    DateTime? to,
+  }) async {
+    final data = {
+      'limit_start': (page - 1) * _perPage,
+      'limit_page_length': _perPage,
+    };
+    final response = await _gateway.tenant(
+      '$_deliveryCmd.get_deliveryman_parcel_orders',
+      data,
+    );
+    return parseOwnParcels(response, keep: keep, from: from, to: to);
+  }
+
+  /// Turns get_deliveryman_parcel_orders' answer into the models a tab
+  /// shows. The def returns a plain `frappe.get_list` row list (name,
+  /// status, total_price, delivery_date); a `{data: [...]}` envelope is
+  /// accepted too should it ever grow the paginate shape. Rows are keyed by
+  /// docname (`name`) while base_sdk's ParcelOrder reads `id`, so the
+  /// docname is mirrored under `id`. Statuses outside [keep] are dropped;
+  /// with a [from]/[to] window only rows whose delivery_date falls inside
+  /// it (both bound days inclusive, like the legacy date-only filter) stay.
+  @visibleForTesting
+  static List<ParcelOrder> parseOwnParcels(
+    dynamic response, {
+    required Set<String> keep,
+    DateTime? from,
+    DateTime? to,
+  }) {
+    final rows = response is Map ? response['data'] : response;
+    if (rows is! List) return const [];
+    final lower =
+        from == null ? null : DateTime(from.year, from.month, from.day);
+    final upper = to == null
+        ? null
+        : DateTime(to.year, to.month, to.day, 23, 59, 59, 999);
+    final orders = <ParcelOrder>[];
+    for (final row in rows) {
+      if (row is! Map) continue;
+      if (!keep.contains(_normalizeStatus(row['status']))) continue;
+      final order = ParcelOrder.fromJson({
+        ...Map<String, dynamic>.from(row),
+        'id': row['id'] ?? row['name'],
+      });
+      if (lower != null || upper != null) {
+        final when = order.deliveryDate;
+        if (when == null) continue;
+        if (lower != null && when.isBefore(lower)) continue;
+        if (upper != null && when.isAfter(upper)) continue;
+      }
+      orders.add(order);
+    }
+    return orders;
+  }
 
   @override
   Future<ApiResult<List<ParcelOrder>>> getActiveOrders(int page) async {
-    final data = {
-      'currency_id': LocalStorage.getSelectedCurrency()!.id,
-      'lang': LocalStorage.getLanguage()?.locale ?? 'en',
-      'page': page,
-      "statuses[1]": "accepted",
-      "statuses[2]": "ready",
-      "statuses[3]": "on_a_way",
-      "perPage": 10,
-      "delivery_type": "delivery"
-    };
+    // Repointed from the dead legacy
+    // `/api/v1/dashboard/deliveryman/parcel-orders/paginate?statuses[]=...`
+    // path to the whitelisted Frappe def (delivery manifest key
+    // `{app_name}.api.delivery_man.get_deliveryman_parcel_orders`) through
+    // the universal platform gateway. The def lists the session courier's
+    // own parcels (deliveryman == user) newest first with offset paging and
+    // no status filter, so the legacy currency/lang knobs are dropped and
+    // the accepted/ready/on-a-way split is applied client-side.
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '/api/v1/dashboard/deliveryman/parcel-orders/paginate',
-        queryParameters: data,
-      );
-      return ApiResult.success(
-        data: ParcelPaginateResponse.fromJson(response.data).data ?? [],
-      );
+      final orders = await _fetchOwnParcels(page, keep: _activeStatuses);
+      return ApiResult.success(data: orders);
     } catch (e) {
       debugPrint('==> get active orders failure: $e');
       return ApiResult.failure(
@@ -63,6 +136,17 @@ class CourierParcelRepository implements CourierParcelRepositoryFacade {
 
   @override
   Future<ApiResult<List<ParcelOrder>>> getAvailableOrders(int page) async {
+    // Deliberately NOT repointed in the 2026-09-02 gateway wave. The only
+    // driver parcel list on the server, get_deliveryman_parcel_orders,
+    // filters `deliveryman == session user`, so it can never answer this
+    // tab's question (parcels with NO courier yet - the legacy
+    // `empty-deliveryman=1`): routing it there would show the courier's own
+    // ready parcels as "available", wrong data silently, which is worse
+    // than the visible failure below. Needs an unassigned-parcels def (or
+    // kwarg) on the delivery frappe half; owner decision pending. Until
+    // then the call keeps failing visibly and the notifier's failure branch
+    // handles it - see the fix-wave report, not deleted (flag, never
+    // delete).
     final data = {
       'currency_id': LocalStorage.getSelectedCurrency()!.id,
       'lang': LocalStorage.getLanguage()?.locale ?? 'en',
@@ -115,25 +199,19 @@ class CourierParcelRepository implements CourierParcelRepositoryFacade {
   @override
   Future<ApiResult<List<ParcelOrder>>> getHistoryOrders(int page,
       {DateTime? start, DateTime? end}) async {
-    final data = {
-      'currency_id': LocalStorage.getSelectedCurrency()!.id,
-      'lang': LocalStorage.getLanguage()?.locale ?? 'en',
-      'page': page,
-      "status": "delivered",
-      "perPage": 10,
-      if (start != null)
-        "delivery_date_from": DateFormat("yyyy-MM-dd").format(start),
-      if (end != null) "delivery_date_to": DateFormat("yyyy-MM-dd").format(end),
-    };
+    // Same repoint as getActiveOrders (the legacy path filtered
+    // `status=delivered` plus delivery_date_from/to). The def takes no date
+    // kwargs either, so the window is applied client-side on
+    // delivery_date, both bound days inclusive like the Laravel date-only
+    // filter was.
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.get(
-        '/api/v1/dashboard/deliveryman/parcel-orders/paginate',
-        queryParameters: data,
+      final orders = await _fetchOwnParcels(
+        page,
+        keep: _historyStatuses,
+        from: start,
+        to: end,
       );
-      return ApiResult.success(
-        data: ParcelPaginateResponse.fromJson(response.data).data ?? [],
-      );
+      return ApiResult.success(data: orders);
     } catch (e) {
       debugPrint('==> get delivered orders failure: $e');
       return ApiResult.failure(

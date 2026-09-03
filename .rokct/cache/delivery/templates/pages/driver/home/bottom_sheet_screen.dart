@@ -121,6 +121,17 @@ class _BottomSheetScreenState extends ConsumerState<BottomSheetScreen> {
   Widget build(BuildContext context) {
     return AnimatedPositioned(
       bottom: widget.isScrolling ? -280.h : 0,
+      // A Stack child positioned on ONE axis only is laid out
+      // horizontally unbounded, and `CrossAxisAlignment.stretch` then
+      // hands its children w=Infinity — which is exactly what the driver
+      // home threw the moment the banner arrived and turned this sheet's
+      // single self-sized Container into a stretching Column. Pinning
+      // both edges gives the column the stack's width, which is the
+      // width this sheet has always drawn at anyway (`_sheetBody` asks
+      // for the full screen), so stretch now means "as wide as the
+      // sheet" instead of "as wide as infinity".
+      left: 0,
+      right: 0,
       duration: const Duration(milliseconds: 400),
       child: Column(
         mainAxisSize: MainAxisSize.min,

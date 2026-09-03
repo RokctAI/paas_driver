@@ -28,6 +28,7 @@ export 'src/handlers/token_interceptor.dart';
 
 // Constants + assets
 export 'src/constants/app_constants.dart';
+export 'src/constants/demo_images.dart';
 export 'src/presentation/app_assets.dart';
 
 // Per-app theme seam (default polarity for first launch — app glue sets
@@ -88,9 +89,11 @@ export 'src/presentation/components/floating_nav/floating_bottom_nav.dart';
 // open-ended list of SDK-injected sections. Feature SDKs register sections
 // and host-level actions on ProfileSectionRegistry.I at bootstrap
 // (typically from a manifest di_hooks entry — ADR-005).
+export 'src/application/profile/profile_host_capabilities.dart';
 export 'src/presentation/pages/profile/edit_profile_sheet.dart';
 export 'src/presentation/pages/profile/generic_profile_page.dart';
 export 'src/presentation/pages/profile/profile_action_item.dart';
+export 'src/presentation/pages/profile/profile_host_scope.dart';
 export 'src/presentation/pages/profile/profile_section.dart';
 export 'src/presentation/pages/profile/profile_section_registry.dart';
 export 'src/presentation/pages/profile/widgets/app_usage_badge.dart';

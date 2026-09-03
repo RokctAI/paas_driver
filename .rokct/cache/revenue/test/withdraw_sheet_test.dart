@@ -33,7 +33,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:revenue_sdk/src/common/infrastructure/models/response/payout_request_response.dart';
-import 'package:revenue_sdk/src/driver/presentation/widgets/withdraw_sheet.dart';
+import 'package:revenue_sdk/src/common/presentation/withdraw/withdraw_sheet.dart';
 
 Widget _host(Widget child) => ScreenUtilInit(
       designSize: const Size(390, 900),

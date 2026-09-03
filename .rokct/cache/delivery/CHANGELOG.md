@@ -1,3 +1,253 @@
+## 1.18.0
+
+Design strip frames 49g, 49h and 49i — the driver's bank-deposit route.
+A driver whose wallet went negative (cash docked at Delivered) can now
+pay the tenant back from the app: choose a method, pay into the tenant's
+account, photograph the slip, send it for a person to approve, and watch
+where it stands. Nothing moves in the wallet until a manager approves —
+the balance on every one of these screens is the ledger's word, never
+netted against the pending amount. No deadline, due date or "deposit
+before your next shift" appears anywhere (nothing in the fleet backs a
+deposit obligation).
+
+* **49g — method chooser** (`DepositMethodSheet`,
+  `lib/src/driver/presentation/deposit/deposit_method_sheet.dart`): the
+  wallet stated as a sentence, then Card (wallet_sdk's `/wallet-topup`,
+  pushed by path with an on-failure line because paas_driver composes no
+  wallet_sdk) and Bank deposit (inert with a line when the tenant is not
+  accepting deposits — chip 975 is read BEFORE the sheet opens).
+* **49h — capture** (`BankDepositSheet`, `bank_deposit_sheet.dart`): the
+  beneficiary block with the account masked on screen and copied in full
+  (chip 975), the amount on chip 390 (MoneyKeypad, prefilled with what he
+  owes as a suggestion), the reference generated FOR him from his initials
+  and the minute so he can write it on the slip (chip 977), the slip from
+  camera or library (chip 976), and Send for approval (978), inert while a
+  send is in flight.
+* **49i — status plane** (`DriverDepositStatusPlane`,
+  `deposit_status_page.dart`, routed as `/driver-deposits` through the
+  installed `templates/pages/driver/deposits/deposits_page.dart`;
+  `?choose=1` opens the chooser over it): balance head with the
+  "unchanged until approved" line while a request is live (971), the live
+  request (979), the Submitted · Under review · Approved trail (980), his
+  earlier deposits with a refusal's reason under a rejected row (982/981),
+  an explainer of why the wait is a person's check, and chip 347's back
+  pill.
+* **Wiring**: the home wallet card's Top up (chip 970) now opens the
+  chooser (`DriverDepositFlow.openChooser`) instead of the income page;
+  Open wallet is unchanged.
+* **Data**: `DriverDepositRepositoryFacade` / `DriverDepositRepository`
+  (`api.wallet.get_deposit_destination`, `api.wallet.submit_deposit_request`,
+  `api.wallet.list_deposit_requests`, `api.payment.get_wallet_balance` over
+  the platform gateway; the slip goes up through base's multipart gallery
+  seam and only its URL rides the envelope), `DemoDriverDepositRepository`
+  for the demo compose, `DepositNotifier` / `depositProvider`, and the
+  typed rows in `deposit_request.dart`. Registered by
+  `DriverDeliveryDependencies.register`.
+* Requires the wallet backend that carries `Wallet Deposit Request`
+  (RokctAI/pay, `{app_name}.api.wallet.*`); see
+  `_comment_requires_deposits` in the manifest. Guarded by
+  `test/deposit_repository_gateway_test.dart`,
+  `test/deposit_grammar_test.dart` and `test/deposit_screens_test.dart`.
+
+## 1.17.4
+
+Version moved to 1.17.4 so it does not collide with zones #91 (1.17.3).
+
+A driver who has no location permission now gets a working home page
+instead of an unhandled `PermissionDeniedException`.
+
+* The driver home page's location handling moves out of the template into
+  `CourierLocationFix` / `CourierLocationNotice`
+  (`lib/src/driver/infrastructure/services/courier_location_fix.dart`),
+  where it can be tested. paas_driver guided tour `33623262696` reached
+  `driver_home` and died on it:
+
+  ```
+  The following PermissionDeniedException was thrown running a test:
+  User denied permissions to access the device's location.
+  #0  GeolocatorAndroid.getCurrentPosition (...:140:7)
+  #1  _HomePageState.getMyLocation (.../home/home_page.dart:232:19)
+  ```
+
+  Frame #1 is the `else` arm of `getMyLocation()`, the one that runs when
+  `check` is not `LocationPermission.denied`. On the boot path `check` was
+  still `null` — `initState` fires `checkPermission()` and `getMyLocation()`
+  without awaiting either — so `getMyLocation` skipped both denial branches
+  and called `getCurrentPosition()` having asked the OS for nothing. Android
+  refused the call outright (the tour's logcat carries no
+  `GrantPermissionsActivity` and no `ACCESS_*_LOCATION` request against
+  `app.juvo.driver` at all) and the exception escaped an un-awaited future,
+  where nothing could catch it.
+* `CourierLocationFix.current()` never throws. It establishes the permission
+  state first and asks once, answers `deniedForever` and `denied` without
+  pointlessly calling for a fix, and catches `PermissionDeniedException`,
+  `LocationServiceDisabledException` and anything else around
+  `getCurrentPosition()` — the platform can refuse the call even when the
+  state read said otherwise, which is precisely what the tour's emulator
+  did, so no amount of state checking replaces the catch. Every refusal
+  comes back as a `CourierLocationResult` carrying the verbatim platform
+  text.
+* The refusal is reported, never swallowed. `CourierLocationNotice.show()`
+  routes it through base_sdk's `ErrorPresenter.showTechnical` — the fleet
+  split of decision-log entry 56: the driver sees one friendly translated
+  line (`TrKeys.agreeLocation`, the same line base_sdk's `LocationService`
+  shows) and the `PermissionDeniedException` text, which is diagnostic
+  detail and not copy written for a driver, rides `TelemetryClient` to
+  admins. `CourierLocationNotice.report()` is the telemetry-only form for a
+  caller whose page is already gone.
+* The home page keeps rendering throughout: `latLng` already falls back to
+  the last saved address and then the demo pin, so without a fix the map
+  simply stays there and the "my location" button remains a way forward.
+  The two un-awaited `initState` calls now share one in-flight future, so
+  the driver is asked for permission once instead of by two callers racing
+  the platform channel, and the camera move became `googleMapController?.`
+  — a fix that lands before `onMapCreated` must not throw out of that same
+  un-awaited future either.
+* The on-duty tracking lane (`getCurrentLocation`) carried the same hazard
+  in `.then(...)` and `.listen(...)`; both now route a refusal to telemetry
+  and produce nothing, rather than raising an unhandled async error.
+* `test/driver_location_permission_test.dart` pins all of it: no refusal at
+  any permission state escapes as an exception, a granted fix still comes
+  through untouched, the friendly line is what reaches the screen, the
+  exception text is what reaches telemetry, and neither swaps places.
+
+## 1.17.3
+
+Version moved to 1.17.3 so it does not collide with zones #90 (1.17.2).
+
+Dart SDK fix-wave 2026-09-02 (frappe + dart halves; Next.js deferred).
+
+* `DeliveryPointsRepository.getDeliveryPoints` (customer nearest pickup
+  points) is repointed off the dead direct
+  `/api/method/paas.doctype.delivery_point.delivery_point.get_nearest_delivery_points`
+  GET (a dotted name registered in no manifest - a silent 404 behind the
+  spinner) onto the universal platform gateway as
+  `api.delivery.get_nearest_delivery_points`. The alias is added to
+  `delivery/frappe/manifest.json` in the same change, targeting the
+  existing `Delivery Point` doctype def, so the Dart half stays answered
+  by this SDK's own frappe half (merchants' `api.shop` twin would have
+  crossed SDK lines). The def gains `allow_guest=True` like its
+  `get_delivery_points` / `get_delivery_point` siblings because the
+  repository calls with a guest client. `getAllDeliveryPoints` unchanged.
+* `CourierParcelRepository.getActiveOrders` / `getHistoryOrders` (driver
+  parcel tabs) are repointed off the Laravel-era
+  `/api/v1/dashboard/deliveryman/parcel-orders/paginate` GET (no Frappe
+  router rule serves that prefix - every tab 404ed) onto the gateway as
+  `api.delivery_man.get_deliveryman_parcel_orders` with
+  `limit_start` / `limit_page_length`. That def lists the courier's own
+  parcels newest first and takes no status or date filter (a server-side
+  kwarg is a pending owner decision), so the accepted/ready/on-a-way vs
+  delivered split and the history date window are applied client-side
+  per fetched page, with a 50-row window so a page of closed parcels
+  cannot read as "no active parcels". Rows are `frappe.get_list` dicts
+  keyed by docname; the docname is mirrored under `id` for base_sdk's
+  `ParcelOrder`.
+  * `getAvailableOrders` is deliberately NOT repointed: the only driver
+    parcel list on the server filters `deliveryman == session user`, so it
+    cannot answer "parcels with no courier yet" - routing it there would
+    show the courier's own ready parcels as available, wrong data
+    silently. It keeps failing visibly (flag, never delete) until an
+    unassigned-parcels def exists. `showParcel` likewise stays: there is
+    no driver-scoped single-parcel def (`api.parcel.get_user_parcel_order`
+    is customer-scoped). Both are listed in the fix-wave report.
+  * `getDeliveryVehicleTypes` (`/api/v1/rest/delivery-vehicle-types`) stays
+    as-is: the only server read is admin-gated
+    (`api.admin_logistics.get_delivery_vehicle_types`); a driver-readable
+    def needs an owner decision.
+* Hygiene: the `/* ... */`-commented legacy copy of `BecomeDriverPage`
+  (host `package:driver/...` imports, the missing
+  `../../../../application/providers.dart`) at the top of
+  `lib/src/common/presentation/pages/become_driver/become_driver.dart` is
+  removed - the live page below it, and the driver `/become-driver` route
+  (which imports the `templates/pages/driver/become_driver/` copy), are
+  untouched. The commented-out `_notifications` block in
+  `templates/pages/driver/profile/profile_page.dart` that referenced a
+  non-existent `ListNotificationRoute` is removed; the live call already
+  uses `NotificationListRoute`.
+* Tests: `test/delivery_points_repository_test.dart` and
+  `test/parcel_repository_gateway_test.dart` pin the cmd, payload keys,
+  auth flag, page-to-offset arithmetic and the client-side status/date
+  split through a recording `HttpService` double
+  (`test/support/recording_http_service.dart`).
+  `frappe/tests/test_manifest_whitelist_aliases.py` resolves every tenant
+  alias in `delivery/frappe/manifest.json` to a `@frappe.whitelist()`
+  def with `ast` (bench-free) and pins the guest flag on the new alias.
+* Patch bump: manifest 1.17.1 -> 1.17.3 (1.17.2 is zones #90), pubspec
+  1.3.0 -> 1.3.1. (The 1.17.0 / 1.17.1 manifest bumps landed without a
+  CHANGELOG heading; see the git log for those two.)
+
+## 1.17.2
+
+* Fix the driver home sheet's layout contract. Every `paas_driver`
+  guided-tour run died on the first frame of `driver_home` with
+  `BoxConstraints forces an infinite width` — `BoxConstraints(w=Infinity,
+  0.0<=h<=Infinity)` — thrown by the `Column` in the installed
+  `lib/presentation/pages/home/bottom_sheet_screen.dart`, and the
+  cascading `RenderBox was not laid out` on `home_page.dart`'s `Stack`
+  took the whole page with it. The run captured 4 of 18 screenshots on
+  both the phone and the tablet leg and never reached `TOUR_COMPLETE`.
+  * `BottomSheetScreen.build` returns an `AnimatedPositioned` that pins
+    `bottom` and nothing else. A `Stack` child positioned on one axis
+    only is laid out with `BoxConstraints(unconstrained)`, so the sheet
+    has always been horizontally unbounded — survivable while its child
+    was a single `Container` asking for `MediaQuery.sizeOf(context)
+    .width`, which sizes itself.
+  * 1.15.0's weather banner wrapped that container in
+    `Column(crossAxisAlignment: CrossAxisAlignment.stretch)`. Stretch
+    hands every child `minWidth == maxWidth == constraints.maxWidth`,
+    and under an unbounded parent that is `w=Infinity` — a tight
+    infinite constraint, which `RenderObject.layout` refuses. The
+    banner's `Padding` was simply the first child in line.
+  * The fix is `left: 0, right: 0` on the `AnimatedPositioned`: the
+    column is now bounded by the stack, which is the width this sheet
+    already drew at, so stretch means "as wide as the sheet". No widget
+    was removed, no state branch changed, and the sheet renders exactly
+    as before.
+  * `test/driver_home_sheet_layout_test.dart` pumps the real template as
+    a direct `Stack` child under a `Scaffold` body — on duty, off duty
+    and tucked away — and fails on any exception, reproducing the tour's
+    assert verbatim without the fix.
+
+## 1.16.0
+
+* Fix the driver-role DI hook that was never declared. `paas_driver`'s
+  courier home page crashed on its FIRST build with `Bad state: GetIt:
+  Object/factory with type CourierOrdersRepositoryFacade is not
+  registered inside GetIt.` — every driver build, release and demo
+  alike, not just the guided tour.
+  * `DriverDeliveryDependencies.register` (`lib/src/driver/di/
+    driver_delivery_di.dart`) is what registers the four courier facades
+    — `CourierOrdersRepositoryFacade`, `CourierParcelRepositoryFacade`,
+    `CourierRepositoryFacade`, `CourierRouteRepositoryFacade` — plus
+    `HttpService` and the `CourierStorage` pre-warm. It is deliberately
+    kept OUT of the barrel (a customer app's cache has `lib/src/driver/`
+    stripped), so the common `DeliverySdkDependencies.register` cannot
+    call it; it only ever registers `DeliveryPointsRepositoryFacade`.
+  * Before driver migration M4 the host called it from its own tracked
+    `dependency_manager.dart`. M4 untracked `lib/` wholesale and carried
+    the splash-preserve and workmanager lines across into this manifest's
+    `boot_hooks`, but no `di_hooks` entry was ever declared for the
+    courier DI — so from M4 onward `register()` simply never ran at boot.
+    The only surviving caller was the lazy `isRegistered` fallback inside
+    `CourierVehicleDetailsAdapter` in `templates/adapters/driver/
+    delivery_adapters.dart`, which fires solely on the post-register
+    vehicle-details step and so never covered the home page.
+  * The throw is eager, not incidental: `order_provider.dart` builds
+    `OrderNotifier(orderRepository)` at provider construction, and the
+    home page's default no-active-order branch renders
+    `BottomSheetScreen` immediately.
+  * The fix is one added `di_hooks` entry in `app_type.driver`
+    (`delivery-driver-role-di`, order 10), the exact mirror of
+    `revenue_sdk`'s `revenue-driver-role-di`. Direct `src/` import by
+    design, like that one; `register()` is `isRegistered`-guarded
+    internally, so a hand-wired host that still calls it double-boots
+    safely. Order 10 sits ahead of `revenue_sdk`'s 12 and `zones_sdk`'s
+    30 and collides with nothing in the driver compose — `orders_sdk`'s
+    order-10 hook is manager-only.
+  * Pure addition: no registration, guard, call site or UI surface was
+    removed, and `app_type` has only a `driver` block, so customer builds
+    composing `delivery_sdk` are untouched.
+
 ## 1.15.0
 
 * Design strip section 49 — the driver's home screen, frames **49a**

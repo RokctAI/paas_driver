@@ -23,7 +23,6 @@ abstract class StorageKeys {
   // Access-token expiry (not secret — the refresh token itself lives in
   // SecureStorage, not in shared preferences).
   static const String keyTokenExpiry = 'keyTokenExpiry';
-  static const String keyUiType = 'keyUiType';
   static const String keyLocaleCode = 'keyLocaleCode';
   static const String keyBoard = 'keyBoard';
   static const String keyProfileImage = 'keyProfileImage';
@@ -58,4 +57,15 @@ abstract class StorageKeys {
   static const String keyLangLtr = 'keyLangLtr';
   static const String keyCarInfo = 'keyCarInfo';
   static const String keyShop = 'shop';
+
+  // Namespace for the generic JSON key API (LocalStorage.setJson/getJson/
+  // deleteJson): every caller-supplied key is stored as
+  // `keyHostRecordPrefix + key`, so a host-owned record can never land on
+  // one of the typed keys above (or on a bare key another SDK writes to the
+  // same SharedPreferences directly).
+  static const String keyHostRecordPrefix = 'hostRecord.';
+  // First-run setup progress (design 46e): the sub-key onboarding_sdk's
+  // progress store hands to setOnboardingRun/getOnboardingRun. Stored as
+  // `hostRecord.onboardingRun`.
+  static const String keyOnboardingRun = 'onboardingRun';
 }

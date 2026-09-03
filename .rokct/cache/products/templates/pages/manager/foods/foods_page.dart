@@ -38,6 +38,7 @@ import 'package:products_sdk/src/manager/application/foods/food_categories_provi
 import 'package:products_sdk/src/manager/application/foods/food_tabs_provider.dart';
 import 'package:products_sdk/src/manager/application/foods/foods_provider.dart';
 import 'package:products_sdk/src/common/infrastructure/models/data/seller_product_data.dart';
+import 'package:products_sdk/src/manager/presentation/catalog/catalog_header.dart';
 import 'package:products_sdk/src/manager/presentation/catalog/catalog_plane_flow.dart';
 import 'package:products_sdk/src/manager/presentation/catalog/product_detail_pane.dart';
 import 'package:products_sdk/src/manager/presentation/catalog/quick_stock_view.dart';
@@ -63,6 +64,12 @@ import 'package:products_sdk/src/manager/presentation/catalog/stock_grammar.dart
 /// The header carries the shipped page's whole toolkit in the approved
 /// language: the three inner tabs with counts, the search field (the 11m
 /// search-plus-chips language), and the category chips (in FoodsBody).
+/// The header row itself is products_sdk's [CatalogHeader], which lays out
+/// by the planes the catalog holds: the 35a single row at two planes or
+/// more, and the same elements on two rows when the catalog holds ONE
+/// plane of a multi-plane screen (the two-plane fold with the detail open)
+/// — the row cannot fit a ~390 px plane, which is what the tablet store
+/// stills showed as "OVERFLOWED BY 234 PIXELS".
 /// Tab-hosted, so no route. The legacy filter icon kept its no-op tap: the
 /// app's FoodsFilterModal and foodsFilterProvider were dead code (never
 /// opened, repository calls commented out) and were not ported.
@@ -199,12 +206,10 @@ class _FoodsPageState extends ConsumerState<FoodsPage>
   }
 
   Widget _catalog(BuildContext context) {
-    final planes = Planes.maybeOf(context);
-    final bool wide = (planes?.count ?? 1) > 1;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _header(context, wide: wide),
+        _header(context),
         const SizedBox(height: 12),
         _searchField(),
         const SizedBox(height: 10),
@@ -227,219 +232,60 @@ class _FoodsPageState extends ConsumerState<FoodsPage>
     );
   }
 
-  Widget _header(BuildContext context, {required bool wide}) {
+  /// The workspace header — [CatalogHeader] decides its own row/fold
+  /// layout from the planes the catalog holds; this page only feeds it the
+  /// live counts and the actions.
+  Widget _header(BuildContext context) {
     final foods = ref.watch(foodsProvider).foods;
     final int attention = foods
         .where((p) => StockGrammar.productLevel(p) != StockLevel.healthy)
         .length;
-    return Row(
-      children: [
-        Text(
-          AppHelpers.getTranslation('products'),
-          style: AppStyle.interBold(size: 22, color: AppStyle.textPrimary),
-        ),
-        const SizedBox(width: 12),
-        Expanded(child: wide ? _innerTabs() : const SizedBox.shrink()),
-        const SizedBox(width: 8),
-        if (wide) ...[
-          _stockButton(context, attention: attention, compact: false),
-          const SizedBox(width: 8),
-          _newButton(context, compact: false),
-        ] else ...[
-          _stockButton(context, attention: attention, compact: true),
-          const SizedBox(width: 8),
-          _newButton(context, compact: true),
-        ],
-      ],
-    );
-  }
-
-  /// The three inner tabs with live (loaded) counts — Foods / Add-ons /
-  /// Extras, the shipped page's TabController in the approved pill dress.
-  Widget _innerTabs() {
-    final int foodsCount = ref.watch(foodsProvider).foods.length;
     final int addonsCount = ref.watch(addonsProvider).addons.length;
     final int extrasCount = ref.watch(extrasProvider).groups.length;
-    Widget segment(int index, String label, int count) {
-      final bool active = _tabController.index == index;
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => _tabController.animateTo(index),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-          decoration: BoxDecoration(
-            color: active ? AppStyle.textPrimary : null,
-            borderRadius: BorderRadius.circular(100),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                style: active
-                    ? AppStyle.interSemi(size: 13, color: AppStyle.surfaceDark)
-                    : AppStyle.interNormal(
-                        size: 13,
-                        color: AppStyle.textDarkSecondary,
-                      ),
-              ),
-              const SizedBox(width: 5),
-              Text(
-                '$count',
-                style: AppStyle.interSemi(
-                  size: 12,
-                  color: active
-                      ? AppStyle.surfaceDark.withValues(alpha: 0.7)
-                      : AppStyle.textDarkFaint,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: Container(
-        padding: const EdgeInsets.all(3),
-        decoration: BoxDecoration(
-          color: AppStyle.cardDark,
-          borderRadius: BorderRadius.circular(100),
-          border: Border.all(color: AppStyle.strokeDarkSubtle),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            segment(0, AppHelpers.getTranslation(TrKeys.foods), foodsCount),
-            segment(1, AppHelpers.getTranslation('addons'), addonsCount),
-            segment(2, AppHelpers.getTranslation('extras'), extrasCount),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// The amber Stock button — the doorway to the approved 35e quick-adjust:
-  /// its count is how many loaded products need attention (low + out).
-  Widget _stockButton(
-    BuildContext context, {
-    required int attention,
-    required bool compact,
-  }) {
-    void open() {
-      final bool onePlane = (Planes.maybeOf(context)?.count ?? 1) == 1;
-      if (onePlane) {
-        _openQuickStockSheet(context);
-      } else {
-        ref.read(catalogProvider.notifier).openQuickAdjust();
-      }
-    }
-
-    if (compact) {
-      return InkWell(
-        onTap: open,
-        customBorder: const CircleBorder(),
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: AppStyle.rate),
-          ),
-          child: Icon(Remix.archive_line, size: 18, color: AppStyle.rate),
-        ),
-      );
-    }
-    return InkWell(
-      onTap: open,
-      borderRadius: BorderRadius.circular(100),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(100),
-          border: Border.all(color: AppStyle.rate),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Remix.archive_line, size: 15, color: AppStyle.rate),
-            const SizedBox(width: 6),
-            Text(
-              AppHelpers.getTranslation('stock'),
-              style: AppStyle.interSemi(size: 13, color: AppStyle.rate),
-            ),
-            if (attention > 0) ...[
-              const SizedBox(width: 6),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                decoration: BoxDecoration(
-                  color: AppStyle.rate,
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                child: Text(
-                  '$attention',
-                  style: AppStyle.interSemi(
-                    size: 11,
-                    color: AppStyle.surfaceDark,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// "+ New product" — the shipped shell FAB's create dispatch, landed as a
-  /// header action: it opens the create modal of the ACTIVE inner tab
-  /// (product / add-on / extras group), exactly the FAB's rule.
-  Widget _newButton(BuildContext context, {required bool compact}) {
-    if (compact) {
-      return InkWell(
-        onTap: () => _showCreateModal(context),
-        customBorder: const CircleBorder(),
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppStyle.primary,
-          ),
-          child: Icon(Remix.add_line, size: 20, color: AppStyle.textPrimary),
-        ),
-      );
-    }
-    final String label = switch (_tabController.index) {
+    // "+ New product" opens the create modal of the ACTIVE inner tab
+    // (product / add-on / extras group), exactly the shipped FAB's rule;
+    // the label tracks the tab.
+    final String newLabel = switch (_tabController.index) {
       1 => AppHelpers.getTranslation('addons'),
       2 => AppHelpers.getTranslation('extras'),
       _ => AppHelpers.getTranslation('new_product'),
     };
-    return InkWell(
-      onTap: () => _showCreateModal(context),
-      borderRadius: BorderRadius.circular(100),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-        decoration: BoxDecoration(
-          color: AppStyle.primary,
-          borderRadius: BorderRadius.circular(100),
+    return CatalogHeader(
+      title: AppHelpers.getTranslation('products'),
+      tabs: [
+        CatalogTab(
+          label: AppHelpers.getTranslation(TrKeys.foods),
+          count: foods.length,
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Remix.add_line, size: 16, color: AppStyle.textPrimary),
-            const SizedBox(width: 5),
-            Text(
-              label,
-              style:
-                  AppStyle.interSemi(size: 13, color: AppStyle.textPrimary),
-            ),
-          ],
+        CatalogTab(
+          label: AppHelpers.getTranslation('addons'),
+          count: addonsCount,
         ),
-      ),
+        CatalogTab(
+          label: AppHelpers.getTranslation('extras'),
+          count: extrasCount,
+        ),
+      ],
+      activeTab: _tabController.index,
+      onSelectTab: _tabController.animateTo,
+      attention: attention,
+      stockLabel: AppHelpers.getTranslation('stock'),
+      onStock: () => _openQuickStock(context),
+      newLabel: newLabel,
+      onNew: () => _showCreateModal(context),
     );
+  }
+
+  /// The amber Stock button's tap — the doorway to the approved 35e
+  /// quick-adjust: a sheet on a one-plane screen, a pushed plane pane on
+  /// wide widths (the 12:02Z sheet fork).
+  void _openQuickStock(BuildContext context) {
+    final bool onePlane = (Planes.maybeOf(context)?.count ?? 1) == 1;
+    if (onePlane) {
+      _openQuickStockSheet(context);
+    } else {
+      ref.read(catalogProvider.notifier).openQuickAdjust();
+    }
   }
 
   Widget _searchField() {
@@ -530,6 +376,18 @@ class _FoodsPageState extends ConsumerState<FoodsPage>
 
   void _showCreateModal(BuildContext context) {
     final foodTabIndex = _tabController.index;
+    // THE ADD MOMENT at plane widths (35a chip 618 + section 35 transfer
+    // item 2, tabs-become-panes): the two-tab product form takes the
+    // 35b panes in the LAST planes with the catalog rail on plane 1 —
+    // the same pushed route as Edit, create bodies inside. Phones keep
+    // the shipped bottom sheet (sheet = phone behaviour, 12:02Z); the
+    // add-on and extras-group creates are single-tab CRUD satellites and
+    // stay sheets at every width (transfer item 3).
+    final bool onPlanes = (Planes.maybeOf(context)?.count ?? 1) > 1;
+    if (foodTabIndex == 0 && onPlanes) {
+      ProductEditPage.openCreate(context);
+      return;
+    }
     Widget modal;
     if (foodTabIndex == 0) {
       modal = const CreateProductModal();

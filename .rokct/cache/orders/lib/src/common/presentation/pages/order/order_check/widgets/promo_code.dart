@@ -127,7 +127,7 @@ class _PromoCodeState extends ConsumerState<PromoCodeScreen> {
                         ? Container(
                             width: 30.w,
                             height: 30.h,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: AppStyle.primary,
                             ),

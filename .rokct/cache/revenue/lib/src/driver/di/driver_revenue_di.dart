@@ -19,7 +19,7 @@ import 'package:revenue_sdk/src/common/domain/interface/driver_payout.dart';
 import 'package:revenue_sdk/src/common/domain/interface/driver_wallet.dart';
 import 'package:revenue_sdk/src/driver/infrastructure/repositories/courier_statistics_repository.dart';
 import 'package:revenue_sdk/src/driver/infrastructure/repositories/demo_courier_statistics_repository.dart';
-import 'package:revenue_sdk/src/driver/infrastructure/repositories/driver_payout_repository.dart';
+import 'package:revenue_sdk/src/common/infrastructure/repositories/driver_payout_repository.dart';
 import 'package:revenue_sdk/src/driver/infrastructure/repositories/driver_wallet_repository.dart';
 
 /// Driver-role DI hook. Not exported by the barrel — the common

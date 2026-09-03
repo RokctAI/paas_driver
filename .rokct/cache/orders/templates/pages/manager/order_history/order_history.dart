@@ -26,9 +26,11 @@
 //   shipped page's TWO floating buttons dissolve: the date filter moved
 //   into the header (chip 358) and back is the one corner pill.
 //
-// The list body itself lives in the SDK
-// (`orders_sdk/src/manager/presentation/history/order_history_list.dart`)
-// so it is unit-testable; this installed file is the host shell.
+// The list body and the plane flow live in the SDK
+// (`orders_sdk/src/manager/presentation/history/order_history_list.dart`,
+// `.../order_history_plane_flow.dart`) so both are widget-tested at 393 /
+// 800 / 1280 logical; this installed file is the host shell, supplying the
+// shipped OrderDetailsModal to the pane and the bottom sheet to the phone.
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -36,18 +38,14 @@ import 'package:remixicon/remixicon.dart';
 
 import 'package:base_sdk/src/presentation/adaptive/adaptive_shell.dart';
 import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
-import 'package:base_sdk/src/presentation/components/lists/list_plane_flow.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:${package}/presentation/pages/orders/details/order_details_modal.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/models.dart';
-import 'package:orders_sdk/src/manager/presentation/board/board_status.dart';
 import 'package:orders_sdk/src/manager/presentation/history/order_history_list.dart';
-
-/// What the pushed pane needs to draw one finished order.
-typedef HistoryDetail = ({OrderData order, BoardStatus status});
+import 'package:orders_sdk/src/manager/presentation/history/order_history_plane_flow.dart';
 
 @RoutePage(name: 'ManagerOrderHistoryRoute')
 class OrderHistoryPage extends StatelessWidget {
@@ -98,23 +96,16 @@ Widget _buildCompact(BuildContext context) {
 }
 
 /// 38a — planes: the list declares TWO, a tapped order's details push
-/// into the LAST plane, and back pops the pane.
+/// into the LAST plane (the bare third plane trailing at tablet width),
+/// and back pops the pane. The flow itself is `OrderHistoryPlaneFlow`.
 Widget _buildExpanded(BuildContext context) {
   return Scaffold(
     backgroundColor: AppStyle.surfaceDark,
     body: SafeArea(
-      child: ListDetailFlow<HistoryDetail>(
+      child: OrderHistoryPlaneFlow(
         backIcon: Remix.arrow_left_wide_fill,
-        detailNameOf: (open) => open.order.id ?? '',
-        listBuilder: (context, flow) => OrderHistoryList(
-          selectedOrderId: flow.open?.order.id,
-          onOpenDetail: (order, status) =>
-              flow.openDetail((order: order, status: status)),
-        ),
-        detailBuilder: (context, open, flow) => _OrderHistoryDetailPane(
-          order: open.order,
-          onClosed: flow.closeDetail,
-        ),
+        detailBuilder: (context, order) =>
+            OrderDetailsModal(isHistoryOrder: true, order: order),
       ),
     ),
   );
@@ -129,65 +120,4 @@ void _openHistorySheet(BuildContext context, OrderData order) {
     modal: OrderDetailsModal(isHistoryOrder: true, order: order),
     isDarkMode: true,
   );
-}
-
-/// The ORDER-DETAILS PANE holding the LAST plane (chips 701/702/703): the
-/// same [OrderDetailsModal] the phone sheet shows, hosted in a pane-local
-/// navigator so any `Navigator.pop` inside it closes the PLANE — never
-/// the history route beneath it. A finished order carries no
-/// status-change buttons, so the pane is the modal's read-only face plus
-/// Ray's 12:23Z amendment, the receipt reprint action.
-class _OrderHistoryDetailPane extends StatelessWidget {
-  final OrderData order;
-  final VoidCallback onClosed;
-
-  const _OrderHistoryDetailPane({required this.order, required this.onClosed});
-
-  static const String _sentinelName = '_history-detail-sentinel';
-
-  @override
-  Widget build(BuildContext context) {
-    return ColoredBox(
-      color: AppStyle.surfaceDark,
-      child: ClipRect(
-        child: Navigator(
-          observers: [_PopToSentinelObserver(onClosed)],
-          onGenerateInitialRoutes: (navigator, initialRoute) => [
-            MaterialPageRoute(
-              settings: const RouteSettings(name: _sentinelName),
-              builder: (_) => ColoredBox(color: AppStyle.surfaceDark),
-            ),
-            MaterialPageRoute(
-              builder: (_) => Scaffold(
-                backgroundColor: AppStyle.surfaceDark,
-                body: SafeArea(
-                  child: OrderDetailsModal(isHistoryOrder: true, order: order),
-                ),
-              ),
-            ),
-          ],
-          onGenerateRoute: (settings) => MaterialPageRoute(
-            settings: settings,
-            builder: (_) => ColoredBox(color: AppStyle.surfaceDark),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Watches the pane-local navigator: when the detail pops back onto the
-/// sentinel root, the plane has nothing left to show — fold it.
-class _PopToSentinelObserver extends NavigatorObserver {
-  final VoidCallback onPoppedToSentinel;
-
-  _PopToSentinelObserver(this.onPoppedToSentinel);
-
-  @override
-  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    if (previousRoute?.settings.name ==
-        _OrderHistoryDetailPane._sentinelName) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => onPoppedToSentinel());
-    }
-  }
 }

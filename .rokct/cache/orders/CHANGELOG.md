@@ -1,3 +1,132 @@
+## 1.18.1
+
+* fix: drop const on AppStyle.primary (getter since core #105) in six
+  order-history/status widgets so composed shells compile.
+  `order_status.dart:133,150,168` and `promo_code.dart:130` lose the `const`
+  on `BoxDecoration(color: AppStyle.primary)`, `rating_page.dart:116` on
+  `Icon(..., color: AppStyle.primary)`, and `OrderStatusItem.bgColor`
+  (`order_status_item.dart:28`) becomes nullable with `?? AppStyle.primary`
+  at the use site, since a const constructor's default value must be a
+  constant. Behaviour unchanged; the customer order screens these widgets
+  sit on were first wired into composed apps as routes in 1.16.0, which is
+  when the invalid-constant errors started breaking paas_customer /
+  supacharge composes.
+
+## 1.18.0
+
+* ORDER HISTORY's plane flow moves into the package (approved frames 38a +
+  38d, Ray 2026-08-30 12:23Z; the bare trailing plane is the 10:47Z rule
+  frame 38b draws for the sibling notifications list). The behaviour
+  itself shipped in 1.12.0 — the fleet review of the tablet store stills
+  (2026-09-02, still 13-order_history) read the installed page as "adaptive
+  columns, no PlaneHost"; on main it has been `ListDetailFlow` since
+  2026-08-31 (commerce #92), and the still's two full-width columns with
+  no detail are exactly the list holding both planes of the 800-logical
+  fold with nothing tapped. What was missing was a test of that at each
+  width, which the installed template (excluded from analysis, `${package}`
+  imports) could not carry.
+  * New `src/manager/presentation/history/order_history_plane_flow.dart`:
+    `OrderHistoryPlaneFlow` (the `ListDetailFlow<HistoryDetail>` wiring —
+    the list declares TWO, a tapped order's details push into the LAST
+    plane with the default one-plane claim, the corner back pill pops the
+    pane) and `OrderHistoryDetailPane` (the pane-local navigator whose
+    sentinel folds the plane when the detail pops), both lifted verbatim
+    from the installed `order_history.dart`, which is now the host shell
+    only: it hands the shipped `OrderDetailsModal` to the pane and keeps
+    the 38d phone branch (one column, bottom sheet) unchanged.
+  * Test: `order_history_plane_flow_test.dart` — 1280 (list over planes
+    1–2 in two columns, the third plane BARE, tap → detail in plane 3,
+    pill pops, spread restored), 800 (list fills the fold, tap → list
+    compresses to one column beside the detail, second tap swaps the pane,
+    back restores) and 393 (the host's `AdaptiveShell` picks the compact
+    branch: one column, the tap handed to the sheet, no plane flow).
+
+## 1.17.1
+
+* `pubspec.yaml`: `flutter_slidable` pin `^3.1.0` -> `^4.0.3`. The two
+  manager-only templates (`templates/components/manager/food_stock_item.dart`,
+  `templates/pages/manager/create_order/order/widgets/order_pane.dart`) are the
+  only importers; paas_manager's host pubspec pins `^4.0.3` because 3.x cannot
+  build on Flutter >= 3.38, so the disjoint ranges made every manager lane that
+  re-extracted orders_sdk >= 1.16.0 fail version solving ("manager depends on
+  flutter_slidable ^4.0.3 ... version solving failed"). The templates use only
+  API unchanged in 4.x (`Slidable`, `ActionPane`, `ScrollMotion`,
+  `SlidableAction`, `Slidable.of`, `SlidableAutoCloseBehavior`). Driver and
+  customer hosts are unaffected (`lib/` never imports it).
+
+## 1.17.0
+
+* Tablet fixes 2026-09-02 (manager tablet review against the approved
+  renders). `BoardLayoutSwitch`
+  (`lib/src/manager/presentation/board/board_layout_switch.dart`): the manager
+  orders workspace's installed `orders_home_page.dart` template now shows the
+  board (approved frame 33a) when `PlaneHost.planeCountFor(maxWidth) >= 2`,
+  measured from the page's own constraints, instead of `AdaptiveShell`'s
+  840 px expanded window class - the plane model already grants an 800 px
+  tablet two planes, so the board follows it. Test:
+  `board_layout_switch_test.dart`.
+
+## 1.16.1
+
+* Demo seed data (`--dart-define=IS_DEMO=true`), `MockOrdersRepository`: the
+  active-order card's shop is "Nonna's Pizzeria" (matching merchants_sdk's
+  demo shops) rather than "Demo Pizza Shop", and its logo is base_sdk's
+  inline `DemoImages` rather than a public placeholder host - the customer
+  home's active-order strip captured that logo as a broken-image glyph.
+
+## 1.16.0
+
+* Fix-wave 2026-09-02 (Dart SDK audit, groups G4/G6/G3/G1). Every call that
+  still hit a dead per-method `/api/method/paas.api...` URL or a Laravel-era
+  `/api/v1/...` path now goes through the universal gateway
+  (`POST /api/v1/method/rokct.platform.api`, `{cmd, payload}`) with the cmd
+  the owning module's frappe manifest whitelists:
+  * customer `CartRepository.insertCartWithGroup` ->
+    `api.cart.insert_cart_with_group {cart}`; `OrdersRepository.process` ->
+    `api.payment.initiate_{flutterwave|paypal|paystack}_payment {order_id}`
+    (any other gateway name is refused client-side with a 400-shaped failure
+    instead of a router 404 - the wallet half has no `initiate_*` for it);
+    refunds -> `api.user.create_order_refund {order, cause}` /
+    `api.user.get_user_order_refunds {page}`; repeating orders ->
+    `api.repeating_order.{create,pause,resume,delete}_repeating_order`
+    (`createAutoOrder` always sends the required `cron_pattern`, defaulting
+    to daily); `ParcelRepository.process` ->
+    `api.payment.initiate_<provider>_parcel_payment {order_id}` and
+    `createTransaction` -> `api.payment.create_order_transaction`.
+  * manager `SellerOrdersRepository` -> `api.seller_order.get_seller_orders`
+    / `get_seller_order_details` / `update_seller_order_status`,
+    `createTransaction` -> `api.payment.create_order_transaction`, and
+    `getCalculate` -> `api.product.order_products_calculate {products: [...]}`
+    (a JSON list replaces the bracket-style query). `PosProductsRepository`
+    -> `api.seller_product.get_seller_products` / `get_seller_categories` /
+    `get_product_details {product_name}` with `limit_start` paging.
+  * `OrderCreateSyncHandler` (the POS offline outbox) replays the payment
+    transaction through the same gateway cmd, keeping the
+    `X-Idempotency-Key` header via `PlatformGateway.call(options:)`.
+  * `templates/adapters/manager/orders_adapters.dart`: the section/table
+    pickers send `limit_start`/`limit_page_length` (the server takes no
+    `page`, `search` or `shop_section_id`).
+* Customer routes recovered (fix-wave route map): `app_type.customer` now
+  declares `/order`, `/orderScreen`, `/order_progress`, `/parcel_page`,
+  `/info_screen`, `/parcel_list_page`, `/parcel_progress_page` with shells in
+  `templates/routes/orders_customer_route_pages.dart`, and fills base_sdk's
+  `pushOrdersListRoute` / `replaceOrdersListRoute` / `pushOrderRoute` /
+  `pushOrderProgressRoute` / `pushParcelRoute` / `pushInfoRoute` /
+  `replaceInfoRoute` / `pushParcelListRoute` / `replaceParcelListRoute` /
+  `pushParcelProgressRoute` seams. Before this every one of those calls hit
+  the host's `noSuchMethod` StateError.
+* `flutter_slidable: ^3.1.0` added to pubspec (two manager templates import
+  it; pinned from the pre-fork POS pubspec).
+* FLAGGED, not built (no server method - owner decision needed):
+  `CartRepository.startGroupOrder`, and the walk-in customer create in
+  `orders_adapters.dart`. Both keep failing visibly on their dead path with
+  a `TODO(fix-wave 2026-09-02)` at the site. `ParcelRepository.createTransaction`
+  is routed but wallet's `create_order_transaction` only resolves Order
+  docnames today (parcels are refused server-side).
+* Tests: `test/gateway_cmd_test.dart` (cmd + payload per rewritten call,
+  over a recording HttpService; no socket) and
+  `test/manifest_wiring_test.dart` (routes <-> shells <-> seams).
+
 ## 1.15.0
 
 * `DemoSellerOrdersRepository` — demo data behind the manager's two order

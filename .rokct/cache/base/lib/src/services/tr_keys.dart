@@ -134,7 +134,6 @@ class TrKeys {
   static const String documents = 'documents';
   static const String uploadDocuments = 'upload.documents';
   static const String helpInfo = 'help.info';
-  static const String uiType = 'ui_type';
   static const String orderImage = 'order.image';
   static const String especiallyForYou = 'especially_for_you';
   static const String workForYou = 'work_for_you';

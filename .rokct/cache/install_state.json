@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.55.0",
+      "version": "1.60.0",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -91,12 +91,12 @@
         "assets/svgs/empty.svg": "145faca3f39dfdfbc1f5f9ddd7aad26c43cc58368e0cc9e878e1e1949b86a35a",
         "assets/svgs/adress.svg": "774120f4d4cd801898852fc3062683a456a8c07bf8253a0c608fc5429f604697",
         "assets/svgs/home3.svg": "be4804b6ccf3245e0fcbca4f5c1b3cd54d217024fa59011193c7c3cf5747fbdc",
-        "lib/presentation/theme/theme.dart": "a2b2ac2e4e90abdcac4247ea6d29ced0e58922a99a1c65c3d12639bfb6949f27",
-        "lib/presentation/theme/app_style.dart": "c9dc27c1648d67478f2c4633753141715735c97773b775b3a215292071521e30",
-        "lib/main.dart": "a750b3c043b64cd4205a9315f519125d6a02c1ac0d5a593517af11f3e531e0d7",
-        "lib/presentation/app_widget.dart": "62f1af87c3896e1bb9e92b8543fb2636635b2565758090d3ffacd7b47ffab217",
-        "lib/presentation/routes/app_router.dart": "a3f4d5db5deab2ef09734b3d48a22957c96906a14368ea452c594ed92c6a0411",
-        "lib/presentation/routes/route_pages.dart": "49d80533970d4eec6fdc9e5e938f42cb9534a34e364ab0c5f00521dbea44ba46",
+        "lib/presentation/theme/theme.dart": "dccd0527934c068d0b8ef48d7d0677d068d1054e7fcc1e1eea1f6682912bfcd5",
+        "lib/presentation/theme/app_style.dart": "a45367fab06abafa465a15d659d631e344f3c1badc06a8880b2298eaf063c535",
+        "lib/main.dart": "55d0cd0c0893a01cce344a11bc22e246db3d45c8fe639ed6c9d6671fd1fa7776",
+        "lib/presentation/app_widget.dart": "a0b1d99dff873deaa63543d1139bf82173412518918be1e1e8c8c9f97214174b",
+        "lib/presentation/routes/app_router.dart": "3b99e50c60dab1161ccf14aa381f7481ab1baad0223575df04e4bda89a20464b",
+        "lib/presentation/routes/route_pages.dart": "73c0b8cbf05823b865c35381355c9361c37135618d36e0ed3ea839f8d86af76d",
         "android/app/src/main/kotlin/com/app/demo/JuvoApplication.kt": "18870e8ca0b87482d3ad45fecc6211762fde11d19fd46791aba40a49b4d31d07",
         "android/app/src/main/res/xml/backup_rules.xml": "a977a3552bb8c4facc634f4060ce11d623366bc310f5b119d390feb51b2f9409",
         "android/app/src/main/res/xml/data_extraction_rules.xml": "ea351530e8fc2c342abc9798bca781ab3cabb9245b328b32ea113ed6bf1531ac",
@@ -122,12 +122,6 @@
         {
           "path": "/maintenance",
           "page": "MaintenanceRoute.page",
-          "type": "MaterialRoute",
-          "import": "package:${package}/presentation/routes/route_pages.dart"
-        },
-        {
-          "path": "/ui-type",
-          "page": "UiTypeRoute.page",
           "type": "MaterialRoute",
           "import": "package:${package}/presentation/routes/route_pages.dart"
         },
@@ -164,14 +158,6 @@
           ]
         },
         {
-          "method": "replaceUiTypeRoute",
-          "body": "context.router.replace(UiTypeRoute());",
-          "imports": [
-            "import 'package:auto_route/auto_route.dart';",
-            "import 'package:${package}/presentation/routes/app_router.dart';"
-          ]
-        },
-        {
           "method": "pushGenericProfileRoute",
           "body": "context.router.push(GenericProfileRoute());",
           "imports": [
@@ -200,10 +186,6 @@
         "assets/images/splash.png",
         "assets/images/splash1.png",
         "assets/images/splash2.png",
-        "assets/images/ui0.png",
-        "assets/images/ui1.png",
-        "assets/images/ui2.png",
-        "assets/images/ui3.png",
         "assets/images/visa.png",
         "assets/lottie/girl_empty.json",
         "assets/lottie/not-found.json",
@@ -238,7 +220,7 @@
       ]
     },
     "users_sdk": {
-      "version": "1.3.2",
+      "version": "1.3.3",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -249,7 +231,7 @@
       "boot_hooks": []
     },
     "orders_sdk": {
-      "version": "1.15.0",
+      "version": "1.18.1",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -260,50 +242,51 @@
       "boot_hooks": []
     },
     "delivery_sdk": {
-      "version": "1.15.0",
+      "version": "1.18.0",
       "files": {
-        "lib/presentation/pages/profile/courier_statistics_provider.dart": "9eb1d9ff6604172074536e70899a7f3671c0ed74c0fbe845994e5b217c7e23ad",
-        "lib/presentation/routes/delivery_adapters.dart": "c5a4dd185b09f282e9d620adc46a6796cad56441e8d0def12e2745c05f38cfef",
-        "lib/presentation/pages/home/parcel_bottom_sheet.dart": "84975a7bf86cf29eadecabfefc91989ad35c643ae7271b9930507f6c15446198",
-        "lib/presentation/pages/home/bottom_sheet_screen.dart": "99b0904bc6cfd97a1c49fb9c89d7b7cae0dca9ce5860c05f4345b13a0f962508",
-        "lib/presentation/pages/home/home_page.dart": "86694f249a9c30145ccf3a5df1669c67815f3aecbc54df8fc22fdfb020fc914c",
-        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "8cb9e9c7bb41234f0c51245f5ccbe968752a72a6ca3b3bb8b4894da1762c9154",
-        "lib/presentation/pages/home/widgets/outside_painter.dart": "b4c82549574c72b17ca94870b9469f4c471958a734a96471cf0ebec1b7cda8a3",
-        "lib/presentation/pages/home/widgets/rate_customer.dart": "f46cdce7f88860fd2f32f49686170a7ecfb18776feb67c51c0ed3edfbe15275a",
-        "lib/presentation/pages/home/widgets/stores.dart": "93823d4f560366f6b5ca057cd6ce631334304f8ea620ac0b4378254680048170",
-        "lib/presentation/pages/home/widgets/foods_page.dart": "1ff077919d170bf248eed4ec7fd89624d0f4d7d673a76bdb22ed19a7904311b2",
-        "lib/presentation/pages/home/widgets/approve_dialog.dart": "cbd62fe0ed61a33d053147bf370fb652efbfa7277cd47152201d1cc8b4264c51",
-        "lib/presentation/pages/home/widgets/add_comment.dart": "197a4ee1f634232288cafe99468980f1a7e5558ece232976d47eab5e7317849b",
-        "lib/presentation/pages/orders/orders_page.dart": "732b3aa347409a1d3c31c4343c401500e1ad9160fc4f71c86a38b3c6468340be",
-        "lib/presentation/pages/order_history/order_history.dart": "efde7ec6ba0faf658032e608b28facc5d0c15feff83de03ccbd63536b808e487",
-        "lib/presentation/pages/parcel/parcel_item.dart": "5d10c1f2498c3280a33a5d45a032c17a0dcbad2e718277c9150594dff5e167e0",
-        "lib/presentation/pages/parcel/parcel_order.dart": "2a7a4724e3a50e9e133cbcb923b06cddbf1ffb4e7d27c047cd2b32269a2e473a",
-        "lib/presentation/pages/parcel/parcels_page.dart": "3ae6a134940be78d20233cddfac5cbac57998a8171665f6aef4df9b03a8bc418",
-        "lib/presentation/pages/parcels_history/parcel_history.dart": "e461d192a09ff16f56e1b478d45a33649dd3bca0ce3e8cecd07d7947d30e0c00",
-        "lib/presentation/pages/push_order/push_order_screen.dart": "37e0e00434a2b5191ff215d5f8208286bf83ba7367c847a45cedd01a628dfe91",
-        "lib/presentation/pages/profile/profile_page.dart": "10c34937c356f02c095713ed8395def6a668823e8bc2472517a276bc486224bc",
-        "lib/presentation/pages/profile/edit_car.dart": "f6ecef7619151969d3d64cdbdcacb3db6ef11e5d68bfb2d024232457b77d3bf6",
-        "lib/presentation/pages/profile/widgets/cancel_dialog.dart": "ea2dc524f3a06c2ad597837b3b11484e00974ceef54016b5808115e1815d557d",
-        "lib/presentation/pages/profile/widgets/edit_profile_modal.dart": "3cb3ba99540bd6ee5f91621c59f6c04fcce5e7c2d49abdf5816e09b085ce4fef",
-        "lib/presentation/pages/profile/widgets/logout_modal.dart": "73def91aa53afbc223d59caeca9498203e16fc233a4ff11b409669140f13dca7",
-        "lib/presentation/pages/profile/widgets/sections_item.dart": "40a580504b9c1e4af6df36cc85be9062c342ac6defe4658610758211a5f81d5d",
-        "lib/presentation/pages/auth/become_driver/become_driver.dart": "57de14860be2390b06066a3129282809d0c4e5d483bd39949f3b2ff6dfec9444",
-        "lib/presentation/component/driver_avatar.dart": "bd5a334a0b7c4a32eef7de327f554f87385c1c3cfe0e3d40c933d1e2ac8142bf",
-        "lib/presentation/component/image_dialog.dart": "e64335601298d538ae724da21e8b5f4a483ea30a48b04d1349b80e5f87143630",
-        "lib/presentation/component/order_detail.dart": "926e052a9d05dfbc9d0da4ad650aa73ffe2ddb0507edb796ee0a92b9a13f0f85",
-        "lib/presentation/component/order_item.dart": "815d466358adc88ba745c93975131e7d5edb21c3e8907e22a15c5ce1ae15acc4",
-        "lib/presentation/component/orders_item.dart": "d00f8cd9fc745d9f0509887389af20e7260886b76e688fca514d381b449e679a",
-        "lib/presentation/component/maps_list.dart": "b913d4834d59d25f0f4ab5eb6fee76df83ff8274c2f276a7a2a3c3e70e8e902a",
-        "lib/presentation/component/product_item.dart": "4ce0edd26c79520395fd54faa5946223f424717e02a9b1c9e289e26164a93541",
-        "lib/presentation/component/restaurant_item.dart": "667f08a7eea61b9ac07327e7ad7026b2b1308def74ef36e579c31ceb123874b5",
-        "lib/presentation/component/custom_toggle.dart": "07160c5af8212c1220784e5c427529b3f3da9d4301993c6176697063c36e13a0",
-        "lib/presentation/component/custom_date_picker.dart": "d3f77986e7c81d3022a5184365051ca10bd7a846f7ac4e7ee6a9d69896eb31e6",
-        "lib/presentation/component/filter_screen.dart": "465122619c7870af6fef507748c332e1ddad63dfb7e03027bb6d83af933755d8",
-        "lib/presentation/component/shop_avarat.dart": "1b0705e4d8a79fe426ccce59d3256453938b88c6d6a8e119dc39221bd5968275",
-        "lib/presentation/component/buttons/buttons_bouncing_effect.dart": "ee7f86076cde25f0cce645cc8aa612ba4127a9115882962a124d7d4143b4c1c7",
-        "lib/presentation/component/helper/keyboard_disable.dart": "8dcc7badcbb62b964591b936a5f51850b6ae0a0d791a9ff37f842a0658a7e96c",
-        "lib/presentation/component/text_fields/underline_bordered_text_field.dart": "0804fdc4a3bb0e39c53fd5233edc549186cddf2e7ce7df8789ffcb1e355902bf",
-        "lib/presentation/pages/route/route_page.dart": "237e35688c0d71545e4a6d693808f880b3aa0b046569ab014def70e6c952cf82"
+        "lib/presentation/pages/profile/courier_statistics_provider.dart": "11db8e698632a6cee50e92a83fef8a494c4b55cf316bbaf6398f652460cb8dea",
+        "lib/presentation/routes/delivery_adapters.dart": "cd22c591ae3179bcc44d95cead4ac89abddfecdc6217a8c316037890e13ecddc",
+        "lib/presentation/pages/home/parcel_bottom_sheet.dart": "8caaa6eaf70ba800d984889002fb23b901270f7a1971cfcb190f0a35a8f25ff7",
+        "lib/presentation/pages/home/bottom_sheet_screen.dart": "87eaa122312137a9bd5b5e688937c5fad70a2f83248b49c3fe2dc239339be92e",
+        "lib/presentation/pages/home/home_page.dart": "6093af21c8a9ac5ee47e8b6f77ec625e4e7f19c9b7fe1cd8df2499bb20c6a0d3",
+        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "2369dcdbec07d31b4a1f182f4200328544f32e998eee259d04b660e13e9349e2",
+        "lib/presentation/pages/home/widgets/outside_painter.dart": "60866744c76343e4a4cf92b27adb08a17a74dbe5f0e4bd99b6657c30aba402e3",
+        "lib/presentation/pages/home/widgets/rate_customer.dart": "f0b57f9589af1414fc4084aabe43f8cdd4385af05d165ddc048a6b67cd08da19",
+        "lib/presentation/pages/home/widgets/stores.dart": "498027146cd90e11c9edc48e6bcfe2cd71574edb98f7228ed2a2507666f35b18",
+        "lib/presentation/pages/home/widgets/foods_page.dart": "72d049506f1979fcdf4a77915b8c3ab72151ec2091862b2349fdf82baec9fb03",
+        "lib/presentation/pages/home/widgets/approve_dialog.dart": "41ec329e51343ab54e3b656f4cba8708f4b819b84cc8b7eafdf30668af03332f",
+        "lib/presentation/pages/home/widgets/add_comment.dart": "464d54eb71b45d60306ae992cc099efcce5388c915af71b543bcac563962203c",
+        "lib/presentation/pages/orders/orders_page.dart": "313237c455d400905aa68a757ed6486d6169f13a3a89a355039e39cf141624e0",
+        "lib/presentation/pages/order_history/order_history.dart": "f2f022dbd677415fa6dede14a86f6252920a5113577e81769b3f219a9ff083ef",
+        "lib/presentation/pages/parcel/parcel_item.dart": "8015395837b048c121c7145941f3ad7ba1ac95ca826d073ffe741b483da5e36b",
+        "lib/presentation/pages/parcel/parcel_order.dart": "f1be00a635ff236794f1335f99b1d9133c6e57fca6b54d98ddf8be55025d0243",
+        "lib/presentation/pages/parcel/parcels_page.dart": "f9923c34c73d5c85db750a741645a37c0d060c1cbcecca2480b1f75e744ffed8",
+        "lib/presentation/pages/parcels_history/parcel_history.dart": "93aa990e049ffedf5c9d884ca43bbf2f02efa24adaa6b9da3d2d4efa659acb92",
+        "lib/presentation/pages/push_order/push_order_screen.dart": "5c66d301cf766b26ea27b4ecf13f88026b77989d2157ccd5599e12ae6eb8e8f2",
+        "lib/presentation/pages/profile/profile_page.dart": "40f0f0cfffcceb4144cbfae7df5fb04b3e9f7ac12ae80103e0fba7516091bf40",
+        "lib/presentation/pages/profile/edit_car.dart": "64504cf4168bd34e398b1ef6c267cd487204b511b693621d460696d6faa82f71",
+        "lib/presentation/pages/profile/widgets/cancel_dialog.dart": "bad546cf8503a5dd4bf8203dfd2dab132e2d798ce80162cfd546582694c93d8f",
+        "lib/presentation/pages/profile/widgets/edit_profile_modal.dart": "d211f352b1c3098a7fc3a6d218b130a42c7b63c525b88a5a1f1d73c9424b9863",
+        "lib/presentation/pages/profile/widgets/logout_modal.dart": "055b18e6903a2aeb7098ffed797804eb991d9da342915e9c57d83ff072276121",
+        "lib/presentation/pages/profile/widgets/sections_item.dart": "e1b13f1ec5c5ea3341a18ab03d1edfdfed53e2a0d251877ab2084f7d70d90f10",
+        "lib/presentation/pages/auth/become_driver/become_driver.dart": "827e48b4224df8027f6b8318b6e40922884bd4206afdb7787a9682e9c8cf1cee",
+        "lib/presentation/component/driver_avatar.dart": "c64b47e1a27ebb7f7016f7aed537315ae42565db3bc555fc3d1e89805c28c935",
+        "lib/presentation/component/image_dialog.dart": "c7b59bbd383a397bd8af63704cbc3b8a146ba40e746fb795d84ed0bca82748fb",
+        "lib/presentation/component/order_detail.dart": "a6b9012055dc92d1631fa49604d5062eb35129563749e79b12688112a7e61377",
+        "lib/presentation/component/order_item.dart": "4de5cb35113883d3df157059450e0176dac046ac41a32d84a8c2fd483b0f4a8a",
+        "lib/presentation/component/orders_item.dart": "4f2c183e5967ff991066f462e8d16e00fb7d04ceec2de2f836f96f0958a41cfe",
+        "lib/presentation/component/maps_list.dart": "2eaace39cdc51534b0d092c046915714af28fdbc02782f16fd9421a46dd59d31",
+        "lib/presentation/component/product_item.dart": "5e26837e7e4865004c305c9b680dad72aa6b7c9036c8bf49cb10d21d0df6db61",
+        "lib/presentation/component/restaurant_item.dart": "d02651d0cd40a2250e342d7d4f305083963529c287301478bb0405732f4c6c4a",
+        "lib/presentation/component/custom_toggle.dart": "99fd19209fd9d09885436e5f49369482c3531bb761041e8963119d508e29b28c",
+        "lib/presentation/component/custom_date_picker.dart": "6e1b8405fdaf5c913f7e77017ca13b8cd326ced7f48b9933f7b1644faa8f9116",
+        "lib/presentation/component/filter_screen.dart": "a3d53eaa312d3f194cd50893446d699ee593c7fd00c9acd43c32df43926acfcb",
+        "lib/presentation/component/shop_avarat.dart": "a33bb6faa15ba77e425c3045e68058dfa13558c6833597803db37bb6656a44ea",
+        "lib/presentation/component/buttons/buttons_bouncing_effect.dart": "c548da4acd677c8f1370f9ac3409fb82a7c0485fda46d23484d0e340852ceec5",
+        "lib/presentation/component/helper/keyboard_disable.dart": "837447d41e4c1b1cb0b1b1a1e938cafa413c3258d7b900552e97f2d93b8f2021",
+        "lib/presentation/component/text_fields/underline_bordered_text_field.dart": "474ae1722b84e4769540f9e8e0560017ddf0f8504aa424e85a482baf9bc27df7",
+        "lib/presentation/pages/route/route_page.dart": "6815a09241f8fcb17c6bd7c600994d5472a45c891b5ef43688b61f02ef098ec0",
+        "lib/presentation/pages/deposits/deposits_page.dart": "f48b60499c1763cf4bd9433bdf6cd09bd101ba53125762b96b1c6b06ecbe00e1"
       },
       "routes": [
         {
@@ -354,6 +337,13 @@
           "page": "BecomeDriverRoute.page",
           "type": "CupertinoRoute",
           "import": "package:${package}/presentation/pages/auth/become_driver/become_driver.dart"
+        },
+        {
+          "path": "/driver-deposits",
+          "page": "DriverDepositsRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/deposits/deposits_page.dart",
+          "_comment": "Design strip frames 49g/49h/49i: the deposit status plane; ?choose=1 opens the method chooser over it (corporate revenue_sdk's wallet plane pushes this path from its Top up pill - delivery_sdk imports only base_sdk, so the two SDKs meet on the path, not on a class)."
         }
       ],
       "app_routes": [
@@ -395,7 +385,16 @@
         "assets/image/my_location.png",
         "assets/svg/balance.svg"
       ],
-      "di_hooks": [],
+      "di_hooks": [
+        {
+          "id": "delivery-driver-role-di",
+          "order": 10,
+          "body": "DriverDeliveryDependencies.register(GetIt.instance);",
+          "imports": [
+            "import 'package:delivery_sdk/src/driver/di/driver_delivery_di.dart';"
+          ]
+        }
+      ],
       "boot_hooks": [
         {
           "id": "delivery-driver-splash-preserve",
@@ -541,12 +540,12 @@
       ]
     },
     "comms_sdk": {
-      "version": "1.14.0",
+      "version": "1.15.0",
       "files": {
-        "lib/application/notification/notification_state.dart": "9c656e1bc05122717549b9f72a3d143f59eabbb817791afc87fcf2f5a9a15f15",
-        "lib/application/notification/notification_notifier.dart": "58505bc713d9551826894f0fa31cd38acb02b4653c11f524c13ff23d1a11deb0",
-        "lib/application/notification/notification_provider.dart": "867555234e4da9bf922c26f72dd95cbc686c9d27bc931f7c637e6505b31416f4",
-        "lib/presentation/pages/profile/notification_list_page.dart": "d332cf4a67de75668ef63f3b7a512736672f0a80b588b7c63c67195d09bee128"
+        "lib/application/notification/notification_state.dart": "055c8ab42969bad5e418061cbe38699458bfc8b74ea7d4def4a03a18e261b184",
+        "lib/application/notification/notification_notifier.dart": "c5c691d1c0f1d476eea96d5a60bac5316fabe8ea0f77412db1d4d409f1e6b748",
+        "lib/application/notification/notification_provider.dart": "f18a9bb1e82f0b765471e1c0824f4d2cc34806b9b4458dbf1f137f352809b671",
+        "lib/presentation/pages/profile/notification_list_page.dart": "1669351fd00daac9067cf9e387c73a10f03309732d901215e4316464c896b7db"
       },
       "routes": [
         {
@@ -614,9 +613,24 @@
       "boot_hooks": []
     },
     "corporate_sdk": {
-      "version": "1.1.3",
-      "files": {},
-      "routes": [],
+      "version": "1.2.0",
+      "files": {
+        "lib/presentation/routes/corporate_route_pages.dart": "7bd7deacfebf5ae507821ca4778a460cb5ac709158254b1ae725003efc6992fe"
+      },
+      "routes": [
+        {
+          "path": "/term",
+          "page": "TermRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/corporate_route_pages.dart"
+        },
+        {
+          "path": "/policy",
+          "page": "PolicyRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/corporate_route_pages.dart"
+        }
+      ],
       "app_routes": [],
       "onboarding_slides": [],
       "embedded_widgets": [
@@ -636,7 +650,7 @@
       "boot_hooks": []
     },
     "map_sdk": {
-      "version": "1.2.1",
+      "version": "1.3.0",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -652,8 +666,8 @@
     "zones_sdk": {
       "version": "1.5.0",
       "files": {
-        "lib/presentation/pages/profile/delivery_zone/delivery_zone_page.dart": "d9425b46abe1f31742317ef7be5e99aa2504e2851c9759422bde6bb4851271c2",
-        "lib/presentation/routes/zones_adapters.dart": "f995df5977e0bd87ffc7b31fe8b9d1c80e3b52660bc504be10a8f52d448df2b0"
+        "lib/presentation/pages/profile/delivery_zone/delivery_zone_page.dart": "e8d8fc75332e5d2dd16840e0c250ddbeb201e559eda747873438cc029e7c3908",
+        "lib/presentation/routes/zones_adapters.dart": "554bb4030918f5d1659127cbde1ca1f5c7687b2534c771461f5a40103fc062de"
       },
       "routes": [
         {
@@ -708,13 +722,13 @@
       }
     },
     "revenue_sdk": {
-      "version": "1.9.2",
+      "version": "1.12.0",
       "files": {
-        "lib/presentation/pages/income/statistics_screen.dart": "f41d8b0c72b30e5166165e07212fcaea025d1319f9d442084424d05c9fa084e2",
-        "lib/presentation/pages/income/income_page.dart": "d9f6e16086834af68c6bf1428a0ff2f9b7efcb0004fa15b1217eae6bc9834f92",
-        "lib/presentation/pages/income/app_bar_screen.dart": "e698ed9a113ab4ef0e7fbb9d2e3db1cf07e534bcc19109544edb39d7067bf91a",
-        "lib/presentation/pages/income/widgets/statistics_item.dart": "4fc5d7dd6ae881973b036506a8b6922dc0a160449df6b794a7fce7f386198174",
-        "lib/presentation/pages/income/widgets/income_item.dart": "3ce7ec5d2096cdd2b00957a7efc0aa85dba7593e6c4ca193277a886d435304b9"
+        "lib/presentation/pages/income/statistics_screen.dart": "e07df6b531efd6fb183401f318f3d6d4e8bc83bef90c339867231e6e41150153",
+        "lib/presentation/pages/income/income_page.dart": "0a5cd3d7b712c54fd61d5599eb4dac0060498a264751ab5930342cfc7880de4e",
+        "lib/presentation/pages/income/app_bar_screen.dart": "fc5d140e1e12d52c445d915eab2021a81f9973eab393a44acff781db89fc4387",
+        "lib/presentation/pages/income/widgets/statistics_item.dart": "87d912e2c8710ac8fc3abf9cd2d3a82c2ad2465e93b029f5d919b78b8deeb989",
+        "lib/presentation/pages/income/widgets/income_item.dart": "500e95d515b3526979210f8551c8fcd9f8b4242e3521c723fc4e77e77cdb58b8"
       },
       "routes": [
         {
@@ -742,13 +756,27 @@
       "tr_keys": {
         "deliverymanTransactions": "deliveryman_transactions",
         "doneOrders": "Done orders"
-      }
+      },
+      "integrations": [
+        {
+          "target": "lib/presentation/pages/manager/restaurant/restaurant_page.dart",
+          "placeholder": "// @revenue-manager-wallet-imports",
+          "replacement": "import 'package:revenue_sdk/revenue_sdk.dart';",
+          "_comment": "Design strip frame 49l, commerce half of the seam (merchants_sdk >= 1.25.0): the merchants restaurant page never imports revenue_sdk (ADR-005 - SDKs import only base), so the pane arrives through the composer's substring-insert integration, the same mechanism productivity_sdk uses for its tasks-row line. This entry lands the barrel import under the column-0 imports marker; the pane entry below lands the widget. On a merchants_sdk without the markers the installer only warns (wiring NOT applied) and the hub keeps base's bare BaseWalletCard."
+        },
+        {
+          "target": "lib/presentation/pages/manager/restaurant/restaurant_page.dart",
+          "placeholder": "      // @revenue-manager-wallet",
+          "replacement": "      ManagerWalletPane(\n        scope: ManagerWalletScope(\n          shopId: merchantWalletScope(ref).shopId,\n          shopName: merchantWalletScope(ref).shopName,\n        ),\n      ),",
+          "_comment": "The placeholder carries its six-space indent ON PURPOSE: the bare text is a prefix of the -imports marker above, and the installer replaces every occurrence. The marker sits first inside MerchantWalletSection's candidate list and the section renders `.first`, so the inserted pane WINS over base's BaseWalletCard(actions: [], onHistory: null) that follows it; nothing is deleted. merchantWalletScope(ref) is the host page's own seam function (shop id + display name from restaurantProvider, cached shop JSON as fallback), so this replacement names no merchants internals beyond it. Byte-for-byte twin of merchants_sdk's markers - test/hub_markers_test.dart there pins both strings."
+        }
+      ]
     },
     "merchants_sdk": {
-      "version": "1.22.0",
+      "version": "1.28.0",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
-        "lib/presentation/pages/stores/story_page.dart": "7e22f32e7e6df8f6a4bfb697987d9b26ad58755642eab7535c321f569208abf7"
+        "lib/presentation/pages/stores/story_page.dart": "adeb07c24627dd3f1321a4f3eebc4d762e55f8cf8e8e3b7b91daeffdb86b3508"
       },
       "routes": [
         {
@@ -779,7 +807,7 @@
       }
     },
     "products_sdk": {
-      "version": "1.7.0",
+      "version": "1.10.0",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -792,7 +820,7 @@
     "calc_sdk": {
       "version": "1.1.1",
       "files": {
-        "lib/presentation/pages/calc/calculator_page.dart": "8d6105c1ada2c2fa43f28b650207ccdc26a6c8bd4c9f95b0c7a87571514caf7d"
+        "lib/presentation/pages/calc/calculator_page.dart": "374b46fd02df732775eb2e4319b47eda2958304a51540964e719e9bba75db124"
       },
       "routes": [
         {
@@ -818,11 +846,11 @@
       }
     },
     "auth_sdk": {
-      "version": "1.9.4",
+      "version": "1.10.1",
       "files": {
-        "lib/presentation/routes/auth_route_pages.dart": "434c57179cc107e87e8227b562a64cce223b9e2e12c0f90e898fc7a34e847084",
-        "lib/presentation/routes/registration_step_pages.dart": "0688256171defa4e5aadaa38b010cb754d0a4ca19bc517b9a6f192d4afdd4e6f",
-        "lib/presentation/routes/auth_session_policy.dart": "b2a880ddf4caf4a23b42a6fa4bca97b69a72f88fc58ba885e33f832bfb04d441"
+        "lib/presentation/routes/auth_route_pages.dart": "8eaff3abe2dd38d8a6c2f15ed4b9e4ec779c5b99f3f71a18445ee4a13d12056f",
+        "lib/presentation/routes/registration_step_pages.dart": "d18f7e35878721c688c4f0964db42c97148e1f2e9d225cd1a6bb7490e2628347",
+        "lib/presentation/routes/auth_session_policy.dart": "9524d696f956a99c2964ce0866cbab0cb282e868247d5f08b050e94bb9f5df5a"
       },
       "routes": [
         {
@@ -865,8 +893,8 @@
           ]
         },
         {
-          "method": "replaceUiTypeRoute",
-          "body": "context.router.replace(UiTypeRoute());",
+          "method": "pushLoginRoute",
+          "body": "context.router.push(LoginRoute());",
           "imports": [
             "import 'package:${package}/presentation/routes/app_router.dart';"
           ]
@@ -904,7 +932,7 @@
     "weather_sdk": {
       "version": "1.6.1",
       "files": {
-        "lib/presentation/components/weather/weather_widget.dart": "07bf790d535dbe66cc7de4a1b54e4833609a8279da5e33f5e78d51e3d489990e"
+        "lib/presentation/components/weather/weather_widget.dart": "13e7964746cd367f4e019c2d192e2a0ef8bf3445060c562a611f2caa14c2c53c"
       },
       "routes": [],
       "app_routes": [],
@@ -977,7 +1005,7 @@
       ]
     },
     "desktop_sdk": {
-      "version": "1.2.1",
+      "version": "1.2.2",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -1001,40 +1029,40 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.55.0",
-      "hash": "f4c3c0c320caa948"
+      "version": "1.60.0",
+      "hash": "22e72d3360ecab74"
     },
     "comms": {
-      "version": "1.14.0",
-      "hash": "78d8c14cc5d19bd1"
+      "version": "1.15.0",
+      "hash": "8dd0bf00a569a50a"
     },
     "auth": {
-      "version": "1.9.4",
-      "hash": "4fbbbc6af3aacceb"
+      "version": "1.10.1",
+      "hash": "efd373d74ae9f6b4"
     },
     "users": {
-      "version": "1.3.2",
-      "hash": "551bd08b590090e8"
+      "version": "1.3.3",
+      "hash": "893b5ab83ae76de6"
     },
     "orders": {
-      "version": "1.15.0",
-      "hash": "3a2c28a70f8c89ec"
+      "version": "1.18.1",
+      "hash": "d2d9dfc5d03af908"
     },
     "merchants": {
-      "version": "1.22.0",
-      "hash": "56a19b4d27bfc084"
+      "version": "1.28.0",
+      "hash": "2c1f1628ce2a753d"
     },
     "products": {
-      "version": "1.7.0",
-      "hash": "94855b8fb1f4b731"
+      "version": "1.10.0",
+      "hash": "0f3a4452babc677b"
     },
     "delivery": {
-      "version": "1.15.0",
-      "hash": "2b83cb8358872141"
+      "version": "1.18.0",
+      "hash": "0705d75a98115666"
     },
     "map": {
-      "version": "1.2.1",
-      "hash": "1b19fced6c8f5072"
+      "version": "1.3.0",
+      "hash": "145c622b8f9a6b52"
     },
     "zones": {
       "version": "1.5.0",
@@ -1049,12 +1077,12 @@
       "hash": "3d8a89b00f8e5b65"
     },
     "corporate": {
-      "version": "1.1.3",
-      "hash": "3c6c146c9745f00f"
+      "version": "1.2.0",
+      "hash": "ef378600c400e1cf"
     },
     "revenue": {
-      "version": "1.9.2",
-      "hash": "56bf0c18c70077ff"
+      "version": "1.12.0",
+      "hash": "e7cc5e9f66538433"
     },
     "weather": {
       "version": "1.6.1",
@@ -1065,8 +1093,8 @@
       "hash": "b030c92b54f6fefd"
     },
     "desktop": {
-      "version": "1.2.1",
-      "hash": "cdfba2160635b35c"
+      "version": "1.2.2",
+      "hash": "a5f94e74405057ac"
     },
     "telemetry": {
       "version": "1.0.1",

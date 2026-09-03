@@ -65,7 +65,6 @@ abstract class AppRoutes {
   Future<Object?> pushShopsBannerRoute(BuildContext context, {dynamic bannerId, dynamic isAds, dynamic title});
   Future<Object?> replaceSplashRoute(BuildContext context);
   Future<Object?> pushStoryListRoute(BuildContext context, {dynamic controller, dynamic index});
-  Future<Object?> replaceUiTypeRoute(BuildContext context);
   Future<Object?> pushViewMapRoute(BuildContext context, {dynamic address, dynamic indexAddress, dynamic isParcel, dynamic isPop, dynamic isShopLocation, dynamic shopId});
   Future<Object?> pushWalletHistoryRoute(BuildContext context);
 }

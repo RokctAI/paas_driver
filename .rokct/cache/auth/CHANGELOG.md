@@ -1,3 +1,53 @@
+## 1.10.1
+
+* `LoginNotifier` no longer throws `Bad state: Tried to use LoginNotifier
+  after 'dispose' was called` when a sign-in completes after the login
+  screen has gone. `loginProvider` is `autoDispose`, and every login
+  variant lands the user (`AuthSessionPolicy.onAuthenticated`) before its
+  final `isLoading: false` write, so the navigation could dispose the
+  notifier mid-flight and the write then hit a dead `StateNotifier`
+  (seen on the paas_manager guided tour's phone leg right after
+  `auth_reset_password`). Each post-`await` state write in `login`,
+  `loginWithGoogle`, `loginWithFacebook`, `loginWithApple` and
+  `checkLanguage` is now behind `if (!mounted) return;` (the
+  `StateNotifier` idiom, as `IntroNotifier.restore` already does). Behaviour
+  with the screen still mounted is unchanged; no public API changes.
+
+## 1.10.0
+
+* **auth_sdk no longer routes anyone to the UI-type picker.** base_sdk
+  1.58.0 removes `/ui-type` - the screen that let a user pick a home style
+  - so the six `isDemo ? replaceUiTypeRoute : goHome` landings here become
+  a plain `goHome`: `AuthSessionPolicy.onAuthenticated`,
+  `RegistrationFlow.defaultLanding`, the two `LoginPage` dynamic-link
+  handlers, `ResetPasswordNotifier` and both `RegisterNotifier` success
+  paths. Production sign-ins are unaffected (they already took the `goHome`
+  branch); demo builds now land home instead of on the picker.
+* The `replaceUiTypeRoute` declaration is dropped from the manifest's
+  `app_routes`, so composed shells stop generating it. **Take this version
+  before base_sdk 1.58.0** - 1.58.0 removes `AppRoutes.replaceUiTypeRoute`
+  from the interface, and a shell still generating that method against the
+  new interface will not analyze.
+* One `RegisterNotifier` landing (the second success path) had an unbraced
+  `if (isDemo) { ... } { ... }` that always fell through to `goHome`
+  regardless of the flag; collapsing the branch removes that ambiguity too.
+
+## 1.9.5
+
+* `manifest.json` `app_routes` gains `pushLoginRoute` -> `context.router
+  .push(LoginRoute())`. base_sdk's `AppRoutes` seam has declared
+  `pushLoginRoute` all along and three customer-side callers use it
+  (merchants_sdk shop page, products_sdk, marketplace_sdk: the "sign in to
+  continue" prompts on screens the user returns to), but only
+  `replaceLoginRoute` was ever filled, so the pushed variant fell through
+  to `_UnsetAppRoutes.noSuchMethod` and threw a StateError in every
+  customer composition. Same page, same wrapper (`LoginRouteView` in
+  `auth_route_pages.dart`), pushed instead of replaced. Manifest-only
+  (route map 2026-09-02, row 3). New `test/manifest_wiring_test.dart`
+  (radio_sdk pattern) guards that every declared route has its
+  `@RoutePage` shell in `templates/routes/` and that both login seams are
+  declared and target a route this SDK ships.
+
 ## 1.9.1
 
 * `LoginPage`: the guest Skip button now sits pinned in the top-end

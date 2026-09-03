@@ -15,7 +15,6 @@
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'dart:async';
 
-import 'package:base_sdk/src/navigation/app_routes.dart';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,7 +23,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:base_sdk/src/domain/interface/auth.dart';
 import 'package:base_sdk/src/domain/interface/user.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
-import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/app_validators.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
@@ -184,11 +182,7 @@ class ResetPasswordNotifier extends StateNotifier<ResetPasswordState> {
       response.when(
         success: (data) async {
           state = state.copyWith(isLoading: false, isSuccess: true);
-          if (AppConstants.isDemo) {
-            AppRoutes.I.replaceUiTypeRoute(context);
-          } else {
-            AppHelpers.goHome(context);
-          }
+          AppHelpers.goHome(context);
         },
         failure: (failure, status) {
           state = state.copyWith(isLoading: false, isSuccess: false);

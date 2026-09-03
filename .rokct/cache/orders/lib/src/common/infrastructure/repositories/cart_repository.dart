@@ -82,6 +82,10 @@ class CartRepository implements CartRepositoryFacade {
 
   @override
   Future<ApiResult<dynamic>> startGroupOrder({required String cartId}) async {
+    // TODO(fix-wave 2026-09-02): no server method — the orders frappe half
+    // whitelists get_cart_in_group / insert_cart_with_group / join_order only
+    // (join_order is itself a placeholder). Left on the dead per-method path
+    // so the failure stays visible; needs an owner decision (fixplan M11).
     try {
       final client = dioHttp.client(requireAuth: true);
       await client.post(
@@ -209,12 +213,13 @@ class CartRepository implements CartRepositoryFacade {
     required CartRequest cart,
   }) async {
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.post(
-        '/api/method/paas.api.add_to_cart_group',
-        data: cart.toJson(),
+      // orders' cart.insert_cart_with_group(cart, lang) — the cart body rides
+      // inside a single `cart` kwarg (fixplan M10).
+      final response = await _gateway.tenant(
+        'api.cart.insert_cart_with_group',
+        {'cart': cart.toJson()},
       );
-      return ApiResult.success(data: CartModel.fromJson(response.data));
+      return ApiResult.success(data: CartModel.fromJson(response));
     } catch (e) {
       debugPrint('==> insertCartWithGroup failure: $e');
       return ApiResult.failure(

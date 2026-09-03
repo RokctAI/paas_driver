@@ -16,6 +16,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:base_sdk/src/application/profile/profile_host_capabilities.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_action_item.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section.dart';
 import 'package:base_sdk/src/presentation/pages/profile/widgets/base_profile_footer.dart';
@@ -85,12 +86,15 @@ class ProfileSectionRegistry {
   /// at bootstrap (`di_hooks`), and a slot claimed twice keeps its first
   /// registration — the duplicate is dropped loudly. [visible] follows
   /// [ProfileSection.visible]'s contract: resolved once when the page
-  /// mounts; `false` or a throw keeps the slot empty.
+  /// mounts; `false` or a throw keeps the slot empty. [requires] follows
+  /// [ProfileSection.requires]: the slot stays empty wherever one of the
+  /// named facades is unregistered.
   void registerHeaderSlot(
     ProfileHeaderSlot slot, {
     required String id,
     required Widget Function(BuildContext context) builder,
     Future<bool> Function()? visible,
+    Set<ProfileFacade> requires = const {},
   }) {
     final existing = _headerSlots[slot];
     if (existing != null) {
@@ -103,8 +107,12 @@ class ProfileSectionRegistry {
       }());
       return;
     }
-    _headerSlots[slot] =
-        ProfileHeaderSlotContent(id: id, builder: builder, visible: visible);
+    _headerSlots[slot] = ProfileHeaderSlotContent(
+      id: id,
+      builder: builder,
+      visible: visible,
+      requires: requires,
+    );
   }
 
   /// The content claiming [slot], or null while the slot is unclaimed.

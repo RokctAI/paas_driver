@@ -1,6 +1,6 @@
 {
   "name": "base_sdk",
-  "version": "1.55.0",
+  "version": "1.60.0",
   "home_page": "templates/routes/route_pages.dart",
   "_comment_app_assets": "app_assets registers these files in the host app's pubspec 'sdk-app-assets' block so they are bundled into the build. Only assets referenced by SDK code are kept here; legacy upstream-era driver/manager assets were removed (they live in paas_driver/paas_manager develop, and custodianship copies moved to delivery_sdk/merchants_sdk).",
   "app_assets": [
@@ -20,10 +20,6 @@
     "assets/images/splash.png",
     "assets/images/splash1.png",
     "assets/images/splash2.png",
-    "assets/images/ui0.png",
-    "assets/images/ui1.png",
-    "assets/images/ui2.png",
-    "assets/images/ui3.png",
     "assets/images/visa.png",
     "assets/lottie/girl_empty.json",
     "assets/lottie/not-found.json",
@@ -111,12 +107,6 @@
       "import": "package:${package}/presentation/routes/route_pages.dart"
     },
     {
-      "path": "/ui-type",
-      "page": "UiTypeRoute.page",
-      "type": "MaterialRoute",
-      "import": "package:${package}/presentation/routes/route_pages.dart"
-    },
-    {
       "path": "/generic-profile",
       "page": "GenericProfileRoute.page",
       "type": "MaterialRoute",
@@ -144,14 +134,6 @@
     {
       "method": "replaceMaintenanceRoute",
       "body": "context.router.replace(MaintenanceRoute());",
-      "imports": [
-        "import 'package:auto_route/auto_route.dart';",
-        "import 'package:${package}/presentation/routes/app_router.dart';"
-      ]
-    },
-    {
-      "method": "replaceUiTypeRoute",
-      "body": "context.router.replace(UiTypeRoute());",
       "imports": [
         "import 'package:auto_route/auto_route.dart';",
         "import 'package:${package}/presentation/routes/app_router.dart';"

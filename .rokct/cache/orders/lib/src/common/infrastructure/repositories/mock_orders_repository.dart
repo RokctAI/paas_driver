@@ -13,6 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
+import 'package:base_sdk/src/constants/demo_images.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/domain/interface/orders.dart';
 import 'package:base_sdk/src/models/data/coupon_data.dart';
@@ -36,8 +37,8 @@ class MockOrdersRepository implements OrdersRepositoryFacade {
     createdAt: DateTime.now(),
     shop: ShopData(
       id: "demo_shop_1",
-      translation: Translation(title: "Demo Pizza Shop"),
-      logoImg: "https://via.placeholder.com/150",
+      translation: Translation(title: "Nonna's Pizzeria"),
+      logoImg: DemoImages.category,
     ),
     details: [],
     currencyModel: CurrencyModel(

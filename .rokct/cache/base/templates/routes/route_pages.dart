@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:base_sdk/src/presentation/pages/initial/maintenance/maintenance_page.dart' as pages;
 import 'package:base_sdk/src/presentation/pages/initial/no_connection/no_connection_page.dart' as pages;
 import 'package:base_sdk/src/presentation/pages/initial/splash/splash_page.dart' as pages;
-import 'package:base_sdk/src/presentation/pages/initial/ui_type/ui_type_page.dart' as pages;
 import 'package:base_sdk/src/presentation/pages/profile/generic_profile_page.dart' as pages;
 
 /// Host route shell for [pages.SplashPage] (base_sdk-resident page).
@@ -62,14 +61,4 @@ class GenericProfileRouteView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const pages.GenericProfilePage();
-}
-
-/// Host route shell for [pages.UiTypePage] (base_sdk-resident page).
-@RoutePage(name: 'UiTypeRoute')
-class UiTypeRouteView extends StatelessWidget {
-  final bool isBack;
-  const UiTypeRouteView({super.key, this.isBack = false});
-
-  @override
-  Widget build(BuildContext context) => pages.UiTypePage(isBack: isBack);
 }

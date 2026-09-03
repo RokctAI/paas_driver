@@ -1,3 +1,19 @@
+## 1.3.3
+
+* `UserRepository.updateProfileImage` now sends `{'image': ...}` — the
+  server's `update_profile_image(image)` kwarg — instead of `image_url`,
+  which frappe dropped silently before raising a TypeError on the missing
+  positional. `updatePassword` now sends `password_confirmation` alongside
+  `password`: `update_password(password, password_confirmation)` needs both
+  and compares them server-side, so the confirmation the facade already
+  received is forwarded verbatim rather than left out. Both are Dart-side
+  fixes to match the existing server signatures (Dart SDK audit
+  2026-09-02, U1/U2); the `api.user.*` aliases and `ProfileResponse`
+  mapping are unchanged. New `test/user_repository_payload_test.dart`
+  drives the real `PlatformGateway` through a recording
+  `HttpClientAdapter` and asserts the `{cmd, payload}` envelope for both
+  calls (`dio` added as a dev dependency for it).
+
 ## 1.3.2
 
 * Version-only bump so composed shells re-extract users_sdk. `SessionEndHooks`

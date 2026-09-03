@@ -1,6 +1,8 @@
 {
   "name": "delivery_sdk",
-  "version": "1.15.0",
+  "version": "1.18.0",
+  "_comment_requires": "delivery_sdk >= 1.17.0 requires comms_sdk >= 1.15.0: the installed driver home_page template asks for the OS notification permission through comms_sdk's PushPermissionService (comms owns push in every composition), which is the class that de-duplicates a concurrent request and keeps the failure inside a catch. Every driver-persona composer profile already carries comms_sdk. The composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
+  "_comment_requires_deposits": "delivery_sdk >= 1.18.0 requires the wallet backend (RokctAI/pay wallet frappe at the release carrying Wallet Deposit Request): the driver deposit flow posts api.wallet.get_deposit_destination / submit_deposit_request / list_deposit_requests through the platform gateway. A tenant without it answers 404 on those cmds and the flow states the failure; nothing else on the driver home depends on it. wallet_sdk (dart) is NOT required: delivery_sdk carries its own gateway client for these cmds (ADR-005, lib/ imports only base_sdk) and paas_driver composes no wallet_sdk.",
   "home_sdk": true,
   "home_page": "templates/pages/driver/home/home_page.dart",
   "installs": [
@@ -105,6 +107,10 @@
         {
           "from": "templates/pages/driver/become_driver/become_driver.dart",
           "to": "lib/presentation/pages/auth/become_driver/become_driver.dart"
+        },
+        {
+          "from": "templates/pages/driver/deposits/deposits_page.dart",
+          "to": "lib/presentation/pages/deposits/deposits_page.dart"
         },
         {
           "from": "templates/components/driver/driver_avatar.dart",
@@ -220,8 +226,26 @@
           "page": "BecomeDriverRoute.page",
           "type": "CupertinoRoute",
           "import": "package:${package}/presentation/pages/auth/become_driver/become_driver.dart"
+        },
+        {
+          "path": "/driver-deposits",
+          "page": "DriverDepositsRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/deposits/deposits_page.dart",
+          "_comment": "Design strip frames 49g/49h/49i: the deposit status plane; ?choose=1 opens the method chooser over it (corporate revenue_sdk's wallet plane pushes this path from its Top up pill - delivery_sdk imports only base_sdk, so the two SDKs meet on the path, not on a class)."
         }
       ],
+      "di_hooks": [
+        {
+          "id": "delivery-driver-role-di",
+          "order": 10,
+          "body": "DriverDeliveryDependencies.register(GetIt.instance);",
+          "imports": [
+            "import 'package:delivery_sdk/src/driver/di/driver_delivery_di.dart';"
+          ]
+        }
+      ],
+      "_comment_di_hooks": "Driver-role courier DI. DriverDeliveryDependencies registers the four courier facades (CourierOrdersRepositoryFacade, CourierParcelRepositoryFacade, CourierRepositoryFacade, CourierRouteRepositoryFacade) plus HttpService and the CourierStorage pre-warm. It is role code kept OUT of the delivery_sdk barrel on purpose - a customer app's cache has lib/src/driver/ stripped, so the common DeliverySdkDependencies.register cannot import it (it registers only DeliveryPointsRepositoryFacade). Before driver migration M4 the host called it from its own tracked dependency_manager.dart; M4 untracked lib/ and moved the splash/workmanager lines into boot_hooks above but never declared this DI hook, so DriverDeliveryDependencies.register stopped running at boot entirely and the installed courier home page threw 'GetIt: Object/factory with type CourierOrdersRepositoryFacade is not registered inside GetIt' on its first build (order_provider.dart resolves orderRepository eagerly). This is the exact mirror of revenue_sdk's revenue-driver-role-di entry. Direct src/ import by design, same as that one. register() is isRegistered-guarded internally, so a hand-wired host that still calls it itself double-boots safely. Order 10: ahead of revenue_sdk's 12 and zones_sdk's 30, and free in the driver compose (orders_sdk's order-10 hook is manager-only).",
       "boot_hooks": [
         {
           "id": "delivery-driver-splash-preserve",

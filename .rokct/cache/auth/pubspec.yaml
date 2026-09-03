@@ -1,6 +1,6 @@
 name: auth_sdk
 description: "auth_sdk - extracted from paas_customer (refork 2026-07-11)."
-version: 1.0.0
+version: 1.0.1
 publish_to: 'none'
 environment:
   sdk: '>=3.10.0 <4.0.0'

@@ -284,9 +284,13 @@ class UserRepository implements UserRepositoryFacade {
     required String imageUrl,
   }) async {
     try {
+      // Server signature: update_profile_image(image) -> update_profile(
+      // images=image). The old `image_url` key was silently dropped by
+      // frappe's kwargs binding and the call TypeErrored on the missing
+      // positional `image` (Dart SDK audit 2026-09-02, U1).
       final response = await _gateway.tenant(
         'api.user.update_profile_image',
-        {'image_url': imageUrl},
+        {'image': imageUrl},
       );
       return ApiResult.success(data: ProfileResponse.fromJson(response));
     } catch (e) {
@@ -303,9 +307,15 @@ class UserRepository implements UserRepositoryFacade {
     required String passwordConfirmation,
   }) async {
     try {
+      // Server signature: update_password(password, password_confirmation)
+      // and it throws "Password confirmation does not match." when the two
+      // differ, so the confirmation the facade already receives must ride
+      // along (Dart SDK audit 2026-09-02, U2). Callers keep their own
+      // client-side equality check; this only stops the server-side
+      // TypeError on the missing positional.
       final response = await _gateway.tenant(
         'api.user.update_password',
-        {'password': password},
+        {'password': password, 'password_confirmation': passwordConfirmation},
       );
       return ApiResult.success(data: ProfileResponse.fromJson(response));
     } catch (e) {

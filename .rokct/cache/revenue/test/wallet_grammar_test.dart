@@ -28,7 +28,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:revenue_sdk/src/common/infrastructure/models/response/payout_request_record.dart';
 import 'package:revenue_sdk/src/common/infrastructure/models/response/wallet_movement.dart';
-import 'package:revenue_sdk/src/driver/presentation/wallet/wallet_grammar.dart';
+import 'package:revenue_sdk/src/common/presentation/wallet/wallet_grammar.dart';
 
 PayoutRequestRecord _request({
   String id = 'req-1',

@@ -16,6 +16,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:comms_sdk/comms_sdk.dart' show PushPermissionService;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,6 +28,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:delivery_sdk/src/driver/application/order/order_provider.dart';
 import 'package:delivery_sdk/src/driver/di/driver_delivery_di.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.dart';
+import 'package:delivery_sdk/src/driver/presentation/deposit/deposit_flow.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:${package}/presentation/pages/home/parcel_bottom_sheet.dart';
@@ -60,6 +62,7 @@ import 'package:delivery_sdk/src/driver/application/profile/provider/profile_ima
 import 'package:delivery_sdk/src/driver/application/profile/provider/profile_settings_provider.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/services/courier_constants.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/services/courier_helpers.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/services/courier_location_fix.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/services/courier_storage.dart';
 
 @RoutePage()
@@ -83,8 +86,16 @@ class _HomePageState extends ConsumerState<HomePage> {
         AppConstants.demoLongitude),
   );
   Position? currentLocation;
-  dynamic check;
   final _delayed = Delayed(milliseconds: 36000);
+
+  /// De-duplicates the two un-awaited calls initState makes (see
+  /// [getMyLocation]).
+  Future<void>? _locationRequest;
+
+  /// Set once the driver has been told, in one friendly line, that the app
+  /// has no fix; cleared the moment one arrives, so a later refusal is
+  /// reported afresh instead of going silent forever.
+  bool _locationRefusalReported = false;
 
   Future<void> setCustomMarkerIcon() async {
     final Uint8List markerMyIcon = await CourierHelpers.getBytesFromAsset(
@@ -105,7 +116,14 @@ class _HomePageState extends ConsumerState<HomePage> {
             defaultTargetPlatform == TargetPlatform.iOS ||
             defaultTargetPlatform == TargetPlatform.macOS)) {
       try {
-        FirebaseMessaging.instance.requestPermission(
+        // comms_sdk owns the OS notification prompt for every composition
+        // (comms_sdk >= 1.15.0). PushPermissionService keeps this call site's
+        // platform guard + fail-open idiom AND de-duplicates concurrent
+        // requests: a second sign-in inside one process re-mounts this page
+        // and the platform channel refuses a second in-flight request. The
+        // service owns the future, so that failure is caught and logged
+        // instead of escaping as an uncaught async error past the try below.
+        PushPermissionService.request(
           sound: true,
           alert: true,
           badge: false,
@@ -175,52 +193,60 @@ class _HomePageState extends ConsumerState<HomePage> {
       }
     }
 
-    check = await _geolocatorPlatform.checkPermission();
-    if (check == LocationPermission.denied) {
-      check = await Geolocator.requestPermission();
-      if (check != LocationPermission.denied &&
-          check != LocationPermission.deniedForever) {
-        var loc = await Geolocator.getCurrentPosition();
-        latLng = LatLng(loc.latitude, loc.longitude);
-        CourierStorage.saveSelectedLocation(latLng);
-        googleMapController!.animateCamera(
-          CameraUpdate.newLatLngZoom(latLng, 15),
-        );
-      }
-    } else {
-      if (check != LocationPermission.deniedForever) {
-        var loc = await Geolocator.getCurrentPosition();
-        latLng = LatLng(loc.latitude, loc.longitude);
-        CourierStorage.saveSelectedLocation(latLng);
-        googleMapController!.animateCamera(
-          CameraUpdate.newLatLngZoom(latLng, 15),
-        );
-      }
-    }
+    await getMyLocation();
   }
 
-  Future<void> getMyLocation() async {
-    if (check == LocationPermission.denied) {
-      check = await Geolocator.requestPermission();
-      if (check != LocationPermission.denied &&
-          check != LocationPermission.deniedForever) {
-        var loc = await Geolocator.getCurrentPosition();
-        latLng = LatLng(loc.latitude, loc.longitude);
-        CourierStorage.saveSelectedLocation(latLng);
-        googleMapController!.animateCamera(
-          CameraUpdate.newLatLngZoom(latLng, 15),
-        );
+  /// Puts the map on the courier's own position — or leaves it on the
+  /// fallback [latLng] and says so, once, in one friendly line.
+  ///
+  /// The permission dance and the fix call live in delivery_sdk's
+  /// [CourierLocationFix], which never throws: a driver with no location
+  /// permission is a normal state, not a crash. This page previously
+  /// inlined that logic twice and let `PermissionDeniedException` escape
+  /// (paas_driver tour 33623262696) — `initState` fires `checkPermission()`
+  /// and this method without awaiting either, so this one ran with `check`
+  /// still null, skipped both denial branches and asked for a fix having
+  /// requested nothing. Android refused the call outright, and the throw
+  /// escaped an un-awaited future and took the whole home page down.
+  ///
+  /// The two initState calls now share one in-flight future, so the driver
+  /// is asked for permission once rather than by two callers racing the
+  /// platform channel.
+  Future<void> getMyLocation() {
+    return _locationRequest ??= _acquireLocation().whenComplete(() {
+      _locationRequest = null;
+    });
+  }
+
+  Future<void> _acquireLocation() async {
+    final result = await CourierLocationFix().current();
+
+    if (!result.hasFix) {
+      // Reported, never swallowed: one friendly translated line for the
+      // driver, the verbatim platform detail to admins via telemetry
+      // (delivery/dart CHANGELOG 1.17.4; decision-log entry 56).
+      if (_locationRefusalReported) return;
+      _locationRefusalReported = true;
+      if (mounted) {
+        CourierLocationNotice.show(context, result);
+      } else {
+        // Page gone while the platform call was in flight — nobody left to
+        // show a line to, but admins still get the detail.
+        CourierLocationNotice.report(result);
       }
-    } else {
-      if (check != LocationPermission.deniedForever) {
-        var loc = await Geolocator.getCurrentPosition();
-        latLng = LatLng(loc.latitude, loc.longitude);
-        CourierStorage.saveSelectedLocation(latLng);
-        googleMapController!.animateCamera(
-          CameraUpdate.newLatLngZoom(latLng, 15),
-        );
-      }
+      return;
     }
+
+    _locationRefusalReported = false;
+    final position = result.position!;
+    latLng = LatLng(position.latitude, position.longitude);
+    CourierStorage.saveSelectedLocation(latLng);
+    // `?.`, not `!`: initState calls this before the GoogleMap widget has
+    // handed over its controller, so a fix that lands first must not throw
+    // out of this same un-awaited future.
+    googleMapController?.animateCamera(
+      CameraUpdate.newLatLngZoom(latLng, 15),
+    );
   }
 
   void getSetProgressLocation() {
@@ -235,6 +261,13 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
   }
 
+  /// The on-duty tracking lane, started only while the courier is online.
+  ///
+  /// Same denial hazard as [getMyLocation]: both of these are un-awaited, so
+  /// a refusal here surfaces as an unhandled async error rather than
+  /// anything a driver could act on. Neither has a screen to fail to — they
+  /// only refresh [latLng], which already holds a usable fallback — so the
+  /// refusal goes to telemetry and tracking simply produces nothing.
   void getCurrentLocation() async {
     getSetProgressLocation();
     _geolocatorPlatform.getCurrentPosition().then((location) {
@@ -243,7 +276,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         currentLocation?.latitude ?? latLng.latitude,
         currentLocation?.longitude ?? latLng.longitude,
       );
-    });
+    }, onError: _reportTrackingRefusal);
     _geolocatorPlatform.getPositionStream().listen((newLoc) {
       currentLocation = newLoc;
       latLng = LatLng(
@@ -258,7 +291,20 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
         );
       });
-    });
+    }, onError: _reportTrackingRefusal);
+  }
+
+  /// Telemetry-only: the on-duty lane has no line to show that the friendly
+  /// line from [getMyLocation] has not already said.
+  void _reportTrackingRefusal(Object error) {
+    CourierLocationNotice.report(
+      CourierLocationResult.unavailable(
+        denial: error is PermissionDeniedException
+            ? CourierLocationDenial.permissionDenied
+            : CourierLocationDenial.lookupFailed,
+        detail: '$error',
+      ),
+    );
   }
 
   Future<void> attachOrder(OrderDetailData? push) async {
@@ -364,14 +410,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                           : ParcelBottomSheetScreen(parcel: state.parcelDetail)
                     : BottomSheetScreen(
                         isScrolling: state.isScrolling,
+                        // Top up (chip 970) starts the deposit route,
+                        // frames 49g -> 49h -> 49i, inside delivery_sdk.
+                        onTopUp: () => DriverDepositFlow.openChooser(context, ref),
                         // The wallet lives in revenue_sdk; delivery_sdk
                         // imports only base_sdk, so the destination is
                         // supplied by the host here rather than routed
                         // inside the sheet. DriverIncomeRoute is the
                         // surface the driver's money already lives on
                         // (profile_page.dart uses the same route).
-                        onTopUp: () =>
-                            context.pushRoute(const DriverIncomeRoute()),
                         onOpenWallet: () =>
                             context.pushRoute(const DriverIncomeRoute()),
                       ),

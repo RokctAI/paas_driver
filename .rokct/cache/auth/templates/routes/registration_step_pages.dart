@@ -28,8 +28,8 @@
 //     for both.
 //
 //   * completion behaviour — the default is RegistrationFlow.defaultLanding
-//     (the same isDemo ? UiType : goHome branch registration always ended
-//     on); an SDK that needs extra completion logic injects it above the
+//     (the same goHome landing registration always ended on); an SDK that
+//     needs extra completion logic injects it above the
 //     default via a manifest "integrations" entry targeting this file's
 //     @registration-complete-hook placeholder.
 //

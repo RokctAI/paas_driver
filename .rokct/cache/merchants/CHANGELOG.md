@@ -1,3 +1,216 @@
+## 1.28.0
+
+* Admins sign in to the manager app too (Ray 2026-09-02 15:18Z "admin
+  just wont see his order but everyones orders"; 15:56Z "if you decide
+  to lift gate you can just do a toast saying you are seller, admin
+  etc"). The app_type.manager `session_policy` now admits two more
+  roles after seller, both on the same `/main` landing: `"admin"` - the
+  string auth_sdk's demo MockAuthRepository maps admin@demo.rokct.ai to
+  (the guided tour) - and `"System Manager"` - the string users' real
+  `api.user.login` puts in the login response for the tenant owner (its
+  primary_role block: Administrator -> "Administrator", System Manager
+  -> "System Manager", everyone else -> "user"; auth_sdk's login_notifier passes
+  `data.user.role` to DeclaredSessionPolicy.allows verbatim, no
+  normalisation). No fallback `*`, so any other role is still rejected
+  to /login with `access.denied` exactly as before (DeclaredSessionPolicy
+  resolves exact roles; sdk_installer_base.py's update_session_policy()
+  emits one map entry per role).
+  * The installed manager `main_page.dart` template shows ONE top
+    snackbar on its first frame per session - "Signed in as seller" /
+    "Signed in as admin" - through the new
+    `lib/src/manager/presentation/main/signed_in_role_toast.dart`
+    (`SignedInRoleToast.showOnce`): the role is `LocalStorage.getUser()?.role`
+    as the backend sent it, keyed on the session token so a re-mount of
+    the shell or a tab switch never repeats it and a new sign-in in the
+    same process shows it again; role-less sessions show nothing. New
+    manager tr_key `signedInAs` ("Signed in as"), injected into the host's
+    TrKeys like every other manager key.
+  * Backend `get_seller_orders` (merchants/frappe seller_order.py, the
+    ONE cmd orders_sdk's board already sends through the gateway - no
+    shop, no role on the wire) drops the `shop` filter when the caller
+    `_signs_in_as_admin` - the SAME predicate users' `api.user.login`
+    uses to emit "System Manager" (Administrator or System Manager ROLE;
+    never user_type, since the Seller role has desk_access and so every
+    shop owner is a System User), so the accounts the client admits as
+    admin and the accounts this cmd widens for are one set - so an admin
+    gets every shop's orders and is never refused by `_get_seller_shop`
+    for having no Shop row. Sellers keep the exact legacy one-shop scope;
+    status/date/customer/payment filters apply to both. Pinned by the
+    bench-less `merchants/frappe/tests/test_seller_orders_admin_scope.py`.
+
+## 1.27.0
+
+* Tablet mode for the POS till and checkout — the approved plane layout
+  of design strip section 11 (frames 11m, approved by Ray 2026-08-29
+  13:53Z "approved: 34a , 33d,33b,11s,11k,11j,11p,11m"; 11n, approved
+  13:06Z "approved: 5b,11n, 11o, 11r, 34b,34c,34d"; 12d, approved 14:38Z
+  "approved: 33c,12d,12c,"), built on base_sdk's `PlaneHost` — the
+  manager tablet stills 05/06/07 showed the phone till stretched to the
+  full width with the checkout's back pill drawn at the START edge.
+  * `BillingPage` (the till) is the flow's root and declares ALL planes,
+    spreading itself: at three planes scan | Add Items | cart (11m) — the
+    Add Items search is a PERMANENT PANE there (no sheet, Ray's 12:02Z
+    sheet fork) and the Add Items lane (277) leaves the scan plane
+    ("227 in 11m is redundent as they already show"); at two planes
+    scan | cart with the lane, since no pane shows; on a phone the
+    shipped column, byte for byte.
+  * Continue on plane widths pushes the checkout INTO the planes instead
+    of the `/pos-checkout` route: `CheckoutPage` claims TWO (11n, Ray
+    12:26Z "what i came from should take first plane") and spreads its
+    own sections — order truth | tender — while the till yields to its
+    scan plane (273 + the 277 lane); at a two-plane fold the payment
+    claim takes both and the till slides off (the plane model's
+    min(claim, count) grant). The host's `FloatingBackPill` at the
+    bottom-END corner (12d) is the ONE back affordance and pops the
+    checkout; hosted this way the checkout draws no pill of its own —
+    on the pushed phone route it draws it exactly as before.
+  * `CheckoutPage` gains an optional `onClose` (the host's pop; a
+    finished sale leaves through it too). Null keeps the route's
+    `Navigator.maybePop`. Phone behaviour is unchanged.
+  * Widget tests at 393, 800 and 1280 logical widths
+    (`pos_till_plane_flow_test.dart`).
+  * NOT built from the approved frames, flagged in the page docs rather
+    than invented: 11m's category chip bar (chip 349 —
+    `PosCatalogRepositoryFacade` only searches, it exposes no categories)
+    and 11n's live receipt slip (322, the 11k paper slip — no slip widget
+    exists in this SDK). The manager shell's start rail no longer
+    overlays plane 1: 1.25.0's `NavRailLayout` reserves its footprint
+    beside the pages, so the till's planes count on the remaining width.
+  * Nothing about the manifest's installs or routes changed; the
+    checkout template now imports `checkout_page.dart` relatively from
+    the billing template (same install directory, the restaurant
+    template's idiom).
+
+## 1.26.0
+
+* **Manager hub composer seams (design strip frames 46i and 49l, and the
+  45b memory glance).** `templates/pages/manager/restaurant/restaurant_page.dart`
+  gains three marker pairs that SDKs the hub never imports (ADR-005)
+  claim through their own manifest `integrations` entries, the mechanism
+  productivity_sdk already uses for the launcher glance: column-0 imports
+  markers `// @productivity-tasks-row-imports`, `// @calc-memory-row-imports`,
+  `// @revenue-manager-wallet-imports` under the last import, and widget
+  markers `// @productivity-tasks-row` (eight-space indent, right under the
+  Tasks row - productivity_sdk >= 1.2.0 inserts `PausedRunLine`, frame 46i
+  chip 859), `// @calc-memory-row` (eight-space indent, under the Calculator
+  row - reserved for calc_sdk, no entry claims it yet) and
+  `// @revenue-manager-wallet` (six-space indent, FIRST in
+  `MerchantWalletSection`'s candidate list; the section renders `.first`, so
+  the `ManagerWalletPane(scope: ManagerWalletScope(...))` revenue_sdk >= 1.11.1
+  inserts wins over base's bare `BaseWalletCard(actions: [], onHistory: null)`
+  without deleting it - frame 49l chip 989). The widget markers carry their
+  indent because the bare text is a prefix of the `-imports` marker and the
+  installer replaces every occurrence. Without the owning SDK every marker is
+  an inert comment and the hub renders exactly as before.
+* `MerchantWalletSection` is a `ConsumerWidget` now and the page exposes
+  `merchantWalletScope(WidgetRef ref)` - shop id + display name from
+  `restaurantProvider`, cached shop JSON as fallback - the only host symbol
+  revenue's replacement names.
+* The seeded demo glances under the Tasks row (`'3 open · 1 due today'`) and
+  the Calculator row (`'Memory holds 1 240.50'`), both gated on
+  `AppConstants.isDemo`, are removed: the rows are single-line in every
+  build until the owning SDK's seam fills them. The delete-account
+  `isDemo` gate and every other demo behaviour are untouched.
+* Tests: `test/hub_markers_test.dart` pins each marker (once, at its
+  indent, in its section), the absence of the demo glances, and simulates
+  `sdk_installer_base.py`'s `update_layout_integrations` insert with the
+  byte-for-byte productivity 1.2.0 and revenue 1.11.1 replacement strings
+  (lands once, in the right slot, idempotent, brackets balanced). The
+  composed page itself cannot compile here (no productivity_sdk /
+  revenue_sdk in this package), so the compile of the inserted widgets is
+  the host compose's to prove. Manifest 1.25.0 -> 1.26.0; pubspec on its
+  own rail.
+
+## 1.25.0
+
+* Tablet fixes 2026-09-02 (manager tablet review against the approved
+  renders). Two layout defects in the manager shell, no redesign:
+  * `NavRailLayout` (`lib/src/manager/presentation/main/nav_rail_layout.dart`):
+    the installed `main_page.dart` template now lays the tablet-mode nav rail
+    out BESIDE the tab pages (a Row with the rail column at start or end,
+    RTL-aware) instead of a Stack overlay with no inset, so every shell tab
+    (POS, hub, catalog, orders, kitchen) starts clear of the rail's 92 logical
+    px footprint. A `PlaneHost` beside the rail counts its planes on the
+    remaining width (800 tablet -> 708 -> still two planes).
+  * `RestaurantHubPlaneFlow`
+    (`lib/src/manager/presentation/restaurant/restaurant_hub_plane_flow.dart`):
+    the installed `restaurant_page.dart` template hosts the hub's
+    `GenericProfilePage` in a one-step `PlaneHost` (`PlaneSpan.two`, no back
+    pill) like the sibling tabs' flows, so at two planes the restaurant hub
+    (approved frame 08) spreads into its columns instead of rendering the
+    phone list.
+  * Tests: `nav_rail_layout_test.dart`, `restaurant_hub_plane_flow_test.dart`.
+
+## 1.24.1
+
+* Demo seed data (`--dart-define=IS_DEMO=true`), `MockShopsRepository`: the
+  fictional shop is now "Corner Kitchen" ("Flame-grilled favourites, ready
+  in minutes", 42 Marula Avenue, Sandton) instead of "Demo Shop" / "Best
+  demo food in town" / "123 Demo St", and its imagery comes from base_sdk's
+  inline `DemoImages` instead of a public placeholder host that a demo build
+  cannot reach - the guided tour published both, verbatim, into
+  `paas_customer`'s store screenshots (the word "Demo" three times over, and
+  a broken-image glyph wherever a photo belonged). Nothing was removed: the
+  same shop, the same fields, renamed.
+* Same repository: the delivery window is seeded `from: "30", to: "45"`
+  (the cards render `"$from - $to min"`, so the old pair printed the window
+  backwards as "45 - 30 min"), the location is Johannesburg - where the demo
+  delivery address is - rather than San Francisco, and the seller is named
+  rather than "John Doe".
+* New `MockShopsRepository.demoShopSecond` ("Nonna's Pizzeria"): `getAllShops`
+  returned `[demoShop, demoShop]`, so every browse-all/search capture showed
+  the identical card twice. Both shops are built by one `_seedShop` factory,
+  so the shared economics stay in one place. `demoShop` itself is unchanged
+  in identity and is still what the manager side's `DemoSellerShopRepository`
+  serves.
+
+## 1.24.0
+
+* Fix-wave 2026-09-02 (Dart SDK audit, G1 M1-M3, G4 M22-M27, G6). Frappe
+  half: `api.seller_operations.create_seller_section` and
+  `api.seller_operations.delete_seller_tables` are now whitelisted in
+  `merchants/frappe/manifest.json` (the defs existed, the aliases did not);
+  `tests/test_manifest_aliases.py` keeps every alias in the table resolving
+  to a `@frappe.whitelist()` def.
+* Dart, customer `ShopsRepository`: `getSingleShop` ->
+  `api.shop.get_shop_details {uuid}`; `getPickupShops` -> `api.shop.get_shops
+  {takeaway: 1}`; `getShopsRecommend` sends the coordinates
+  `get_shops_recommend(latitude, longitude)` REQUIRES - the selected
+  address, else the tenant's initial location (`ShopsRepository.recommendPayload`)
+  - and no `page` (the server has none; the base_sdk facade signature is
+  unchanged); `joinOrder` drops `shop_id` and `getTags` drops `category_id`
+  (neither kwarg exists server-side - every Tag row comes back, recorded
+  behaviour).
+* Dart, manager: `SellerShopRepository` -> `api.shop.create_shop`,
+  `api.seller_shop.get_shop` / `update_shop` / `set_working_status`,
+  `api.seller_shop_settings.get_seller_shop_working_days` /
+  `update_seller_shop_working_days`; `QuickFlowRepository` ->
+  `api.seller_shop.get_quick_flow_settings` / `update_quick_flow_settings`;
+  `SellerSectionsTablesRepository` -> `api.seller_operations.get_seller_sections`
+  / `get_seller_tables` / `create_seller_section` / `delete_seller_tables`.
+* Customer routes recovered (fix-wave route map): a new `app_type.customer`
+  block declares `/shop` (ShopRoute, `?shopId=` deep links via @QueryParam)
+  and `/shops_detail` (ShopDetailRoute) with shells in
+  `templates/routes/merchants_customer_route_pages.dart`, filling base_sdk's
+  `pushShopRoute` / `replaceShopRoute` / `pushShopDetailRoute` seams that
+  marketplace, promotions and base_sdk call.
+* FLAGGED, not built: `getShopBranch` has no customer-facing server method
+  (`get_seller_branches` is seller-session scoped); stays on the dead path
+  with a `TODO(fix-wave 2026-09-02)`.
+* Tests: `test/gateway_cmd_test.dart` and `test/manifest_wiring_test.dart`.
+
+## 1.23.1
+
+* `pos_checkout`'s tour caption shortened to fit the store still. At 192
+  characters it wrapped to 8 rows on the phone leg, one more than the
+  caption box holds, so the assembler clamped the block to the canvas
+  margin and pasted the phone frame over the last row — the published
+  Play still lost "the sale syncs itself later." entirely. The caption now
+  wraps to 6 of the 7 rows available. Nothing but the wording changed; the
+  offer it makes (cash, a pay-link QR the customer scans on their own
+  phone, a 6-digit code confirming an offline sale that syncs itself
+  later) is intact. shared-workflows' assembler now fails the run on a
+  caption that does not fit, so this cannot silently return.
 ## 1.22.0
 
 * `DemoSellerShopRepository` — the demo manager finally has a shop.

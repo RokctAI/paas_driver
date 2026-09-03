@@ -18,7 +18,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import 'package:base_sdk/src/database/app_database.dart';
-import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -75,7 +74,6 @@ class OrderCreateSyncHandler extends SyncHandler {
     final order = (payload['order'] as Map?)?.cast<String, dynamic>() ?? {};
     _restoreReferenceIds(order);
     try {
-      final client = dioHttp.client(requireAuth: true);
       final response = await const PlatformGateway().call(
         'api.order.create_order',
         payload: {'order_data': order},
@@ -89,7 +87,7 @@ class OrderCreateSyncHandler extends SyncHandler {
         localId,
         backendId: backendId,
       );
-      await _createTransaction(client, op.id, backendId, payload['payment_id']);
+      await _createTransaction(op.id, backendId, payload['payment_id']);
       return SyncResult.synced(
         idMappings: backendId == null ? const {} : {localId: backendId},
         entityType: 'order',
@@ -133,7 +131,6 @@ class OrderCreateSyncHandler extends SyncHandler {
   /// only shows a snackbar: returning retryable here would re-run the whole
   /// op and re-create the order, which is worse than a missing transaction.
   Future<void> _createTransaction(
-    Dio client,
     String opId,
     String? orderId,
     dynamic paymentId,
@@ -144,9 +141,12 @@ class OrderCreateSyncHandler extends SyncHandler {
         (paymentId is String || paymentId is int) ? paymentId.toString() : null;
     if (orderId == null || paymentDocname == null) return;
     try {
-      await client.post(
-        '/api/method/paas.api.payment.create_order_transaction',
-        data: {'order_id': orderId, 'payment_sys_id': paymentDocname},
+      // wallet's payment.create_order_transaction(order_id, payment_sys_id)
+      // through the universal gateway cmd; the idempotency header rides on
+      // the gateway POST via `options` (fixplan M16).
+      await const PlatformGateway().call(
+        'api.payment.create_order_transaction',
+        payload: {'order_id': orderId, 'payment_sys_id': paymentDocname},
         // Derived from the same op id as the order-create call but
         // distinct from it — the two creates must not share a key (the
         // server stores one response per key per endpoint).

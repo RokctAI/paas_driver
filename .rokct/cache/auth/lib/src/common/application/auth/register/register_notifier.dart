@@ -15,8 +15,6 @@
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'dart:async';
 
-import 'package:base_sdk/src/navigation/app_routes.dart';
-
 import 'dart:io';
 
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
@@ -840,11 +838,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
             ),
           );
           context.router.popUntilRoot();
-          if (AppConstants.isDemo) {
-            AppRoutes.I.replaceUiTypeRoute(context);
-          } else {
-            AppHelpers.goHome(context);
-          }
+          AppHelpers.goHome(context);
           await syncFcmToken(_userRepositoryFacade);
           // Registration just minted a session: give the account an
           // Android restore key so a device move keeps them signed in.
@@ -1082,12 +1076,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
               ),
             );
             context.router.popUntilRoot();
-            if (AppConstants.isDemo) {
-              AppRoutes.I.replaceUiTypeRoute(context);
-            }
-            {
-              AppHelpers.goHome(context);
-            }
+            AppHelpers.goHome(context);
             await syncFcmToken(_userRepositoryFacade);
             // Registration just minted a session: give the account an
             // Android restore key so a device move keeps them signed in.

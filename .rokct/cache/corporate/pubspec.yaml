@@ -1,6 +1,6 @@
 name: corporate_sdk
 description: "corporate_sdk - extracted from paas_customer (refork 2026-07-11)."
-version: 1.0.0
+version: 1.2.0
 publish_to: 'none'
 environment:
   sdk: '>=3.10.0 <4.0.0'
@@ -14,9 +14,15 @@ dependencies:
   flutter_html: ^3.0.0-alpha.6
   flutter_riverpod: ^2.5.1
   flutter_screenutil: ^5.9.0
+  # lib/src/common/di/corporate_di.dart registers against GetIt (was only
+  # reaching it transitively through base_sdk).
+  get_it: ^8.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # test/blogs_repository_payload_test.dart stubs base_sdk's HttpService
+  # with a network-free Dio (same pin family as base_sdk).
+  dio: ^5.7.0
   build_runner: ^2.4.12
   freezed: ^2.5.7
   json_serializable: ^6.8.0

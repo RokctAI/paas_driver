@@ -37,6 +37,19 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 /// All of it is one [PlaneHost] doing what the model promises: the form is
 /// the ACTIVE step claiming [PlaneSpan.two], the rail an earlier page that
 /// keeps whatever remains. The pill pops the route at every width.
+///
+/// THE ADD MOMENT rides the same flow (35a's "+ New product", chip 618, and
+/// decision-transfer item 2 of section 35: "a multi-tab form modal unfolds
+/// into side-by-side panes at plane widths (35b) and folds back to tabs on
+/// the phone" — the shipped two-tab CreateProductModal is exactly such a
+/// modal). At two or more planes "add" pushes this flow with the CREATE
+/// bodies in the panes and no product highlighted on the rail; on a phone
+/// the shipped bottom sheet stays (the 12:02Z sheet fork: sheet = phone
+/// behaviour). The one thing the create form carries that the edit form
+/// does not is the shipped ORDER: stocks can only be saved against a
+/// product that exists, so the create modal locks its Stocks tab until the
+/// details save — [ProductFormSplit.stocksLocked] is that lock, drawn on
+/// the pane instead of the tab.
 class ProductEditPlaneFlow extends StatelessWidget {
   /// Builds the compressed origin-catalog rail (plane 1 at three planes).
   final WidgetBuilder railBuilder;
@@ -95,6 +108,19 @@ class ProductFormSplit extends StatefulWidget {
   final WidgetBuilder detailsBuilder;
   final WidgetBuilder stocksBuilder;
 
+  /// The create moment's shipped order: the stocks section is inert until
+  /// the details save has created the product (the shipped
+  /// CreateProductModal wraps its tab bar in an IgnorePointer for exactly
+  /// this). On panes the stocks pane dims under [stocksLockedHint] and
+  /// ignores pointers; on one plane the Stocks segment cannot be selected.
+  /// When the lock lifts on one plane the form hops to Stocks — the
+  /// shipped `onSave` tab hop — so the phone fold behaves as the modal did.
+  final bool stocksLocked;
+
+  /// The line drawn over the locked stocks pane (e.g. "Save details
+  /// first"). Ignored while [stocksLocked] is false.
+  final String? stocksLockedHint;
+
   const ProductFormSplit({
     super.key,
     required this.detailsTitle,
@@ -103,6 +129,8 @@ class ProductFormSplit extends StatefulWidget {
     required this.stocksBuilder,
     this.header,
     this.stocksHeaderTrailing,
+    this.stocksLocked = false,
+    this.stocksLockedHint,
   });
 
   @override
@@ -111,6 +139,16 @@ class ProductFormSplit extends StatefulWidget {
 
 class _ProductFormSplitState extends State<ProductFormSplit> {
   int _tab = 0;
+
+  @override
+  void didUpdateWidget(covariant ProductFormSplit oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // The shipped create modal animated to its Stocks tab the moment the
+    // details save succeeded; the lock lifting is that moment here.
+    if (oldWidget.stocksLocked && !widget.stocksLocked && _tab == 0) {
+      _tab = 1;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +175,7 @@ class _ProductFormSplitState extends State<ProductFormSplit> {
                   child: _pane(
                     title: widget.stocksTitle,
                     trailing: widget.stocksHeaderTrailing,
-                    child: Builder(builder: widget.stocksBuilder),
+                    child: _stocksSection(),
                   ),
                 ),
               ],
@@ -154,8 +192,48 @@ class _ProductFormSplitState extends State<ProductFormSplit> {
         _segmentedTabs(),
         const SizedBox(height: 8),
         Expanded(
-          child: Builder(
-            builder: _tab == 0 ? widget.detailsBuilder : widget.stocksBuilder,
+          child: _tab == 0
+              ? Builder(builder: widget.detailsBuilder)
+              : _stocksSection(),
+        ),
+      ],
+    );
+  }
+
+  /// The stocks body, inert and dimmed under the hint while locked.
+  Widget _stocksSection() {
+    final Widget body = Builder(builder: widget.stocksBuilder);
+    if (!widget.stocksLocked) return body;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (widget.stocksLockedHint != null)
+          Padding(
+            padding: const EdgeInsetsDirectional.only(bottom: 8),
+            child: Row(
+              children: [
+                Icon(
+                  Remix.lock_line,
+                  size: 14,
+                  color: AppStyle.textDarkSecondary,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    widget.stocksLockedHint!,
+                    style: AppStyle.interNormal(
+                      size: 12,
+                      color: AppStyle.textDarkSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        Expanded(
+          child: IgnorePointer(
+            ignoring: true,
+            child: Opacity(opacity: 0.45, child: body),
           ),
         ),
       ],
@@ -202,10 +280,13 @@ class _ProductFormSplitState extends State<ProductFormSplit> {
 
   Widget _segment(int index, String title) {
     final bool active = _tab == index;
+    // The shipped create modal's IgnorePointer tab bar: Stocks cannot be
+    // selected until the product exists.
+    final bool locked = index == 1 && widget.stocksLocked;
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => setState(() => _tab = index),
+        onTap: locked ? null : () => setState(() => _tab = index),
         child: Container(
           height: 40,
           alignment: Alignment.center,
@@ -219,7 +300,12 @@ class _ProductFormSplitState extends State<ProductFormSplit> {
             title,
             style: active
                 ? AppStyle.interSemi(size: 14, color: AppStyle.surfaceDark)
-                : AppStyle.interNormal(size: 14, color: AppStyle.textDarkSecondary),
+                : AppStyle.interNormal(
+                    size: 14,
+                    color: locked
+                        ? AppStyle.textDarkFaint
+                        : AppStyle.textDarkSecondary,
+                  ),
           ),
         ),
       ),
