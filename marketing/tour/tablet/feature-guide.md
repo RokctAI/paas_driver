@@ -29,3 +29,17 @@ New to Driver? Create your account in a few easy steps.
 ![Reset your password](screenshots/04-auth_reset_password.png)
 
 Forgot your password? Driver gets you back in with a secure reset.
+
+## 5. Your day on the map
+
+![Your day on the map](screenshots/05-driver_home.png)
+
+Go online and drive - your zone, your current delivery and your next job all
+live on one map.
+
+## 6. Deliveries in hand
+
+![Deliveries in hand](screenshots/06-driver_orders.png)
+
+Every delivery you have accepted, with the customer, the total and the cash to
+collect up front.
