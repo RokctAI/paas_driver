@@ -18,11 +18,9 @@
 # /become-driver, the recruitment funnel, so the tour would film the wrong
 # app.
 #
-# The sign_out_customer + driver_sign_in steps below predate
-# setup.demo_email and are no longer what carries the tour to /home. They
-# are kept as a defensive reset - they tear any session down and sign in as
-# the courier again, which stays correct and keeps this tour working if the
-# session policy or the demo role map changes later.
+# There is deliberately NO second sign-in after the auth fragment: the
+# demo sign-in above already lands on /home (see the note where the
+# sign_out_customer + driver_sign_in steps used to sit).
 #
 # Fragment order mirrors the composed SDKs that ship fragments today
 # (composer profile: The-Rokct-Protocol core/utils/flutter/composer/
@@ -93,55 +91,15 @@ tour:
       caption: "{app_name} puts *your whole delivery day* in one app - sign in to get started."
       action: wait
       settle: 12
-  # auth_sdk captures the auth screens, then performs its generic demo
-  # sign-in (action only, no still); driver's '*' fallback admits that
-  # account and lands it on /become-driver with a live session.
+  # auth_sdk captures the auth screens, then performs its demo sign-in
+  # (action only, no still) as setup.demo_email - the courier - so the
+  # session policy lands it straight on /home.
   - fragment: auth
-  # --- chaining: generic demo account -> courier ------------------------
-  # End the fallback session and return to the login screen. LocalStorage
-  # .logout() is base_sdk's static session teardown (the same call the
-  # app's own sign-out uses).
-  - step:
-      key: sign_out_customer
-      title: "Sign out"
-      action: dart
-      screenshot: false
-      settle: 4
-      dart: |
-        LocalStorage.logout();
-        router.replaceNamed('/login');
-  # Sign in as the demo courier through the same login flow the auth
-  # fragment's demo_sign_in uses; MockAuthRepository maps this email to
-  # the deliveryman role, and the driver session policy lands it on
-  # /home - the delivery fragment's first step routes there explicitly,
-  # so only a modest settle is needed here.
-  - step:
-      key: driver_sign_in
-      title: "Sign in (courier)"
-      action: dart
-      screenshot: false
-      settle: 6
-      dart: |
-        final Element element = tester.element(find.byType(Navigator).first);
-        final ProviderContainer container =
-            ProviderScope.containerOf(element, listen: false);
-        // loginProvider is autoDispose: hold a subscription so the notifier
-        // survives between the field writes and the login call.
-        final ProviderSubscription<dynamic> subscription =
-            container.listen(loginProvider, (_, __) {});
-        try {
-          final login = container.read(loginProvider.notifier);
-          login.setEmail('driver@demo.rokct.ai');
-          login.setPassword('demo-drivers-2026');
-          // MockAuthRepository accepts any credentials. The timeout guards the
-          // post-session FCM sync, which can stall on an emulator - navigation
-          // to the demo landing happens before it, so a timeout is harmless.
-          await login
-              .login(element)
-              .timeout(const Duration(seconds: 45), onTimeout: () {});
-        } finally {
-          subscription.close();
-        }
+  # The sign_out_customer + driver_sign_in steps that used to follow here
+  # were a redundant second sign-in (demo_sign_in already lands on /home as
+  # driver@demo.rokct.ai). Signing out disposed HomePage's Google map while
+  # the plugin's own updateTileOverlays call was in flight, which killed the
+  # phone leg 4/17 in run 34049256577 (channel-error) - so they are gone.
   # Chapter 1 - the courier day: delivery_sdk owns the driver screens and
   # the Demo* courier repositories behind them.
   - fragment: delivery
