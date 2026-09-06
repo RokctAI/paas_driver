@@ -6,6 +6,20 @@ A new Flutter project.
 <!-- @generated-store-description-end -->
 
 <!-- @generated-tour-gallery-start -->
+## App tour
+
+Styled stills from the committed guided tour - regenerated on every
+tour run, so new screens appear here automatically.
+
+| Driver Home | Driver Orders | |
+| :---: | :---: | :---: |
+| ![Driver Home][s05] | ![Driver Orders][s06] | |
+
+The full tour lives in the [feature guide](marketing/tour/feature-guide.md),
+with walkthrough videos alongside it in [`marketing/tour/`](marketing/tour).
+
+[s05]: marketing/tour/store/05-driver_home.png
+[s06]: marketing/tour/store/06-driver_orders.png
 <!-- @generated-tour-gallery-end -->
 
 ## Getting Started
