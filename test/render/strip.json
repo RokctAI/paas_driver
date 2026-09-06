@@ -1,0 +1,81 @@
+{
+  "title": "Courier profile - paas_driver",
+  "kicker": "render strip adoption - real render",
+  "lede": "Not hand-drawn. Every frame below is the actual delivery_sdk ProfilePage widget tree as paas_driver composes it, rendered headlessly to PNG by test/render/render_screen_test.dart at 390 logical px / dpr 3, with the numbered points placed automatically from each widget's measured rect. Data is the SDKs' own demo fixtures (IS_DEMO=true), never a live backend.",
+  "fonts": "system",
+  "chips_default": true,
+  "frames": [
+    {
+      "section": "Shipped - what main renders today",
+      "caption": "courier profile - light",
+      "status": "SHIPPED",
+      "png": "driver_profile_light.png",
+      "rects": "driver_profile_light.json",
+      "note": "paas_driver main, composed against the pinned SDK set in composer.json"
+    },
+    {
+      "section": "Shipped - what main renders today",
+      "caption": "courier profile - dark",
+      "status": "SHIPPED",
+      "png": "driver_profile_dark.png",
+      "rects": "driver_profile_dark.json",
+      "note": "paas_driver main, composed against the pinned SDK set in composer.json"
+    }
+  ],
+  "labels": {
+    "delivery.driver.profile.app_bar": "Identity header - avatar, name, phone, sign-out",
+    "delivery.driver.profile.avatar": "Courier avatar - photo and rating badge",
+    "delivery.driver.profile.balance_card": "Balance card - wallet balance and last profit"
+  },
+  "numbering": {
+    "map": {
+      "delivery.driver.profile.app_bar": 1,
+      "delivery.driver.profile.avatar": 2,
+      "delivery.driver.profile.balance_card": 3,
+      "delivery.driver.profile.section_row.Profile settings": 4,
+      "delivery.driver.profile.section_row.Delivery zone": 5,
+      "delivery.driver.profile.section_row.Orders": 6,
+      "delivery.driver.profile.section_row.Parcels": 7,
+      "delivery.driver.profile.section_row.Notifications": 8,
+      "delivery.driver.profile.section_row.Order history": 9,
+      "delivery.driver.profile.section_row.Parcel history": 10,
+      "delivery.driver.profile.section_row.Income": 11,
+      "delivery.driver.profile.section_row.Languages": 12
+    },
+    "retired": {}
+  },
+  "notes": [
+    {
+      "kicker": "note - how these renders were produced",
+      "body": [
+        "A widget test in this repo; zero app code touched. It pumps the real ProfilePage that delivery_sdk installs into lib/presentation/pages/profile/, wrapped exactly as lib/presentation/app_widget.dart wraps every screen (ProviderScope, ScreenUtilInit at the app's 375x812 compact design size, the app's own light and dark ThemeData), renders it at 390 logical px (dpr 3) at the page's full content height, and captures the RepaintBoundary to PNG.",
+        "The data is the SDKs' own demo data, not fixtures written for this page. The test runs with --dart-define=IS_DEMO=true and calls the same DI registrations lib/main.dart's generated blocks make, so DriverDeliveryDependencies installs DemoCourierRepository, DriverRevenueDependencies installs DemoCourierStatisticsRepository and AuthSdkDependencies installs MockAuthRepository - the same demo fixtures a demo build of the driver app serves.",
+        "Real, not simulated: Inter loaded as a real variable face through google_fonts' family-plus-variant names with runtime fetching turned off, the app's own bundled icon fonts (MaterialIcons, Remix) registered from the test asset bundle's FontManifest, and AppStyle light/dark tokens resolved by the app's own AppNotifier via the real setBrightness seam. Layout, spacing, typography, colour, row order and visibility gates are all the shipped code path."
+      ]
+    },
+    {
+      "kicker": "exception - the session the demo mode cannot supply",
+      "body": [
+        "Demo mode covers repositories; it does not hand a widget test a SESSION. The profile header reads LocalStorage.getUser(), which auth_sdk writes in _establishSession when a courier signs in, and a widget test never walks that journey.",
+        "So the harness signs in the way the app does (marker 3/8): through the REAL AuthRepositoryFacade.login - which demo mode has already made MockAuthRepository - as driver@demo.rokct.ai, maps the account with auth_sdk's own sessionProfileOf, and persists it through the app's own LocalStorage API. Every value on the header is the SDK's demo account, not a number typed in here.",
+        "The earnings card is filled by the same call the courier's own journey makes: home_page.dart's initState fires fetchProfileStatistics before profile is ever reached, so the harness fires it too, against revenue_sdk's demo statistics repository. Reached cold, that card renders zeroes - which is itself worth knowing."
+      ]
+    },
+    {
+      "kicker": "found by rendering (a drawing could not have caught these)",
+      "items": [
+        "The row labels are humanized translation-key fallbacks, not served strings: no backend answers headlessly, so AppHelpers.humanizeTrKey is what a reviewer is reading ('Profile settings', 'Order history'). That is also exactly what a first-run demo build shows before the translations fetch lands.",
+        "The demo account's avatar is a remote placeholder URL, so the header renders DriverAvatar's real no-image state rather than a photo.",
+        "'Delete account' is absent by design: the row sits behind if (!AppConstants.isDemo), and the render runs in demo mode - the gate is the shipped code path, not a harness omission.",
+        "The back pill and 'Online helper' button are the Scaffold's floatingActionButton, so they hang off the bottom of the viewport rather than the end of the content - which is why they carry no chip: a viewport-anchored element would pin the frame height to the harness probe height."
+      ]
+    },
+    {
+      "kicker": "why the profile and not the home",
+      "body": [
+        "The courier home is this shell's landing screen, but it is a full-bleed GoogleMap platform view plus Geolocator, FirebaseMessaging and WorkManager. Headless, the map surface never fetches a tile and renders as a blank grey grid, so the frame would be a picture of nothing.",
+        "The profile is the next-densest driver-owned surface - identity header, balance and earnings cards, and the whole settings register - and it renders entirely from delivery_sdk's and revenue_sdk's demo repositories. Home is worth covering once someone decides what a map surface should look like in a review frame."
+      ]
+    }
+  ]
+}
