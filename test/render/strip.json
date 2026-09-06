@@ -49,8 +49,8 @@
       "kicker": "note - how these renders were produced",
       "body": [
         "A widget test in this repo; zero app code touched. It pumps the real ProfilePage that delivery_sdk installs into lib/presentation/pages/profile/, wrapped exactly as lib/presentation/app_widget.dart wraps every screen (ProviderScope, ScreenUtilInit at the app's 375x812 compact design size, the app's own light and dark ThemeData), renders it at 390 logical px (dpr 3) at the page's full content height, and captures the RepaintBoundary to PNG.",
-        "The data is the SDKs' own demo data, not fixtures written for this page. The test runs with --dart-define=IS_DEMO=true and calls the same DI registrations lib/main.dart's generated blocks make, so DriverDeliveryDependencies installs DemoCourierRepository, DriverRevenueDependencies installs DemoCourierStatisticsRepository and AuthSdkDependencies installs MockAuthRepository - the same demo fixtures a demo build of the driver app serves.",
-        "Real, not simulated: Inter loaded as a real variable face through google_fonts' family-plus-variant names with runtime fetching turned off, the app's own bundled icon fonts (MaterialIcons, Remix) registered from the test asset bundle's FontManifest, and AppStyle light/dark tokens resolved by the app's own AppNotifier via the real setBrightness seam. Layout, spacing, typography, colour, row order and visibility gates are all the shipped code path."
+        "The data is the SDKs' own demo data, not fixtures written for this page. The test runs with --dart-define=IS_DEMO=true and calls the same DI registrations lib/main.dart's generated blocks make, so DriverDeliveryDependencies installs DemoCourierRepository, DriverRevenueDependencies installs DemoCourierStatisticsRepository and AuthSdkDependencies installs MockAuthRepository - the same demo fixtures a demo build of the driver app serves. Everything on the frames is the app's own computation over that data: the courier's identity, the R480.00 last profit and the 128 delivered orders all come back from the demo repositories.",
+        "Real, not simulated: Inter is the genuine face Google serves, committed beside the test and handed to google_fonts through its own test seam, which verifies each file's length and SHA-256 before registering it. The icon fonts (MaterialIcons, Remix) are registered from the app's own FontManifest. AppStyle's light/dark tokens are resolved by the app's own AppNotifier through the real setBrightness seam. Layout, spacing, typography, colour, row order and visibility gates are all the shipped code path."
       ]
     },
     {
@@ -64,10 +64,14 @@
     {
       "kicker": "found by rendering (a drawing could not have caught these)",
       "items": [
+        "DARK MODE PAINTS WHITE INK ON WHITE CARDS. AppStyle's type helpers default to textPrimary, which is #FFFFFF in dark, but this screen's surfaces are the constant AppStyle.white, which does not flip: CustomAppBar's background and every card. So in the dark frame the courier's name and phone, 'Balance' / 'R0.00' and 'Delivered order' / '128' are all invisible. The section-row titles survive only because SectionsItem passes color: AppStyle.black explicitly, and 'R480.00' survives because it passes AppStyle.primary.",
+        "The row icons vanish in dark for a second, independent reason: Icon(icon) carries no colour, so it takes Material's dark IconTheme - white - on the same unflipped white card.",
+        "Balance reads R0.00 because the login contract's user carries no wallet: sessionProfileOf deliberately leaves the profile-only fields for a later profile fetch, and that fetch has no demo implementation in users_sdk. The zero is real app behaviour on a fresh demo session, not a missing fixture.",
         "The row labels are humanized translation-key fallbacks, not served strings: no backend answers headlessly, so AppHelpers.humanizeTrKey is what a reviewer is reading ('Profile settings', 'Order history'). That is also exactly what a first-run demo build shows before the translations fetch lands.",
         "The demo account's avatar is a remote placeholder URL, so the header renders DriverAvatar's real no-image state rather than a photo.",
         "'Delete account' is absent by design: the row sits behind if (!AppConstants.isDemo), and the render runs in demo mode - the gate is the shipped code path, not a harness omission.",
-        "The back pill and 'Online helper' button are the Scaffold's floatingActionButton, so they hang off the bottom of the viewport rather than the end of the content - which is why they carry no chip: a viewport-anchored element would pin the frame height to the harness probe height."
+        "The back pill and 'Online helper' button are the Scaffold's floatingActionButton, so they hang off the bottom of the viewport rather than the end of the content - which is why they carry no chip: a viewport-anchored element would pin the frame height to the harness probe height.",
+        "The gap between 'Languages' and the buttons is the page's own 100.verticalSpace nav clearance, not padding."
       ]
     },
     {

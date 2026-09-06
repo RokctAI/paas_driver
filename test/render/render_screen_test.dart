@@ -1,17 +1,16 @@
 // Copyright (C) 2024-2026 ROKCT INTELLIGENCE (PTY) LTD
 //
 // This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, version 3.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Render harness for paas_driver — the courier PROFILE screen.
 //
@@ -56,6 +55,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+// The offline seam google_fonts documents for tests: `httpClient` is
+// @visibleForTesting, so the harness can serve the faces committed beside
+// this file instead of reaching fonts.gstatic.com.
+// ignore: implementation_imports
+import 'package:google_fonts/src/google_fonts_base.dart' as google_fonts_base;
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:auth_sdk/src/common/di/auth_di.dart';
@@ -63,6 +68,9 @@ import 'package:auth_sdk/src/common/services/session_profile.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/di/base_di.dart';
 import 'package:base_sdk/src/domain/interface/auth.dart';
+// ApiResult's `when` is an extension declared in its freezed part, so the
+// library that declares it has to be imported for the pattern to be in scope.
+import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
@@ -297,54 +305,51 @@ List<ElementSpec> elementSpecs() {
 ///
 /// Two sources, no network:
 ///
-///  * `Inter` — AppStyle's whole type scale is `GoogleFonts.inter(...)`, and
-///    google_fonts fetches faces at runtime. Fetching is turned OFF in
-///    `main()` below, so the variable face committed beside this file is
-///    registered under the family names google_fonts asks for
-///    (`Inter_regular`, `Inter_500`, ... plus the plain `Inter` that
-///    `fontFamilyFallback` lands on). Without this every glyph is the
-///    FlutterTest block font and the PNG is worthless.
-///  * everything the app already bundles — MaterialIcons, Remix, flutter_remix
-///    — read straight out of the test asset bundle's `FontManifest.json`, so
-///    no icon font is committed here and none can drift from the app's own.
+///  * **Inter** - `AppStyle`'s whole type scale is `GoogleFonts.inter(...)`,
+///    and google_fonts fetches faces at runtime. A test has no network, and a
+///    silent fetch failure is a silent block-font fallback, so the faces
+///    Google itself serves are committed beside this file, named by the
+///    SHA-256 google_fonts expects, and handed back through google_fonts'
+///    own `@visibleForTesting` http seam. google_fonts then takes its normal
+///    path: it verifies each file's length AND checksum before registering
+///    it, so the render is provably the real Inter and not a lookalike. A
+///    weight nobody committed 404s and fails the run loudly rather than
+///    quietly rendering the FlutterTest block font.
+///  * **Everything the app already bundles** - MaterialIcons, Remix,
+///    flutter_remix - read straight out of the test asset bundle's
+///    `FontManifest.json`, so no icon font is committed here and none can
+///    drift from the app's own.
+///
+/// See test/render/fonts/README.md for the hash -> weight table.
 Future<void> loadRealFonts() async {
-  Future<void> loadFile(String family, List<String> paths) async {
-    final loader = FontLoader(family);
-    for (final path in paths) {
-      final bytes = File(path).readAsBytesSync();
-      loader.addFont(Future<ByteData>.value(ByteData.view(bytes.buffer)));
-    }
-    await loader.load();
-  }
-
-  final inter =
-      '${Directory.current.path}/test/render/fonts/Inter-Variable.ttf';
-  if (!File(inter).existsSync()) {
+  final fontsDir = Directory('${Directory.current.path}/test/render/fonts');
+  if (!fontsDir.existsSync()) {
     throw StateError(
-      'Inter face missing at $inter — every glyph would fall back to the '
-      'FlutterTest block font and the render would be worthless.',
+      'no committed Google faces at ${fontsDir.path} - every glyph would fall '
+      'back to the FlutterTest block font and the render would be worthless.',
     );
   }
-  // google_fonts resolves a family PLUS its variant (GoogleFontsVariant:
-  // w400 is "regular", every other weight is its numeric value), and falls
-  // back to the plain family. AppStyle uses w400/w500/w700 (interRegular /
-  // interNormal / interSemi) and w600 (interNoSemi).
-  for (final variant in const <String>[
-    'Inter_regular',
-    'Inter_500',
-    'Inter_600',
-    'Inter_700',
-    'Inter',
-  ]) {
-    await loadFile(variant, <String>[inter]);
-  }
+  google_fonts_base.httpClient = _OfflineGoogleFontsClient(fontsDir);
+
+  // Warm every Inter weight AppStyle uses BEFORE the first pump, and wait for
+  // the registrations to land. google_fonts registers asynchronously, so
+  // without this the first variant lays out with fallback metrics and only
+  // re-measures once the faces arrive - which showed up as a dark frame with
+  // missing glyphs and a 3px overflow the light frame (rendered after the
+  // static font cache was warm) did not have. Deterministic, and identical
+  // for both variants.
+  await GoogleFonts.pendingFonts(<TextStyle>[
+    GoogleFonts.inter(fontWeight: FontWeight.w400),
+    GoogleFonts.inter(fontWeight: FontWeight.w500),
+    GoogleFonts.inter(fontWeight: FontWeight.w600),
+    GoogleFonts.inter(fontWeight: FontWeight.w700),
+  ]);
 
   // Bundled faces (icon fonts above all) come from the app's own asset
   // bundle. `flutter test` builds the bundle but does not register its fonts
   // with the engine, which is why this loop exists.
   final manifest =
-      json.decode(await rootBundle.loadString('FontManifest.json'))
-          as List<dynamic>;
+      json.decode(await rootBundle.loadString('FontManifest.json')) as List;
   for (final entry in manifest) {
     final family = (entry as Map<String, dynamic>)['family'] as String?;
     final fonts = entry['fonts'] as List<dynamic>?;
@@ -359,6 +364,40 @@ Future<void> loadRealFonts() async {
   }
 }
 
+/// Serves google_fonts' own font URLs from the committed faces.
+///
+/// google_fonts addresses every file as
+/// `https://fonts.gstatic.com/s/a/<sha256>.ttf`, so the file name IS the
+/// checksum: no hash is hard-coded in this harness, and a google_fonts bump
+/// that moves to different faces surfaces as an honest 404 instead of a
+/// silently wrong render.
+class _OfflineGoogleFontsClient extends http.BaseClient {
+  _OfflineGoogleFontsClient(this.fontsDir);
+
+  final Directory fontsDir;
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    final file = File('${fontsDir.path}/${request.url.pathSegments.last}');
+    if (!file.existsSync()) {
+      return http.StreamedResponse(
+        const Stream<List<int>>.empty(),
+        404,
+        request: request,
+        reasonPhrase:
+            'not committed under test/render/fonts - see its README to add it',
+      );
+    }
+    final bytes = file.readAsBytesSync();
+    return http.StreamedResponse(
+      Stream<List<int>>.value(bytes),
+      200,
+      contentLength: bytes.length,
+      request: request,
+    );
+  }
+}
+
 // ===========================================================================
 // Below here is the proven mechanism. Leave it alone.
 // ===========================================================================
@@ -366,8 +405,8 @@ Future<void> loadRealFonts() async {
 /// One numbered point: a finder, a stable key, and a human label.
 class ElementSpec {
   ElementSpec({required this.key, required this.label, required this.finder})
-    : keyOf = null,
-      labelOf = null;
+      : keyOf = null,
+        labelOf = null;
 
   /// A finder that matches SEVERAL widgets (e.g. every settings row); key and
   /// label are derived per match, so the numbering stays per-row.
@@ -375,8 +414,8 @@ class ElementSpec {
     required this.keyOf,
     required this.labelOf,
     required this.finder,
-  }) : key = '',
-       label = '';
+  })  : key = '',
+        label = '';
 
   final String key;
   final String label;
@@ -400,6 +439,28 @@ void _mockPathProvider(String dir) {
   const channel = MethodChannel('plugins.flutter.io/path_provider');
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(channel, (call) async => dir);
+}
+
+/// The other two channels this harness has to answer for paas_driver. Both
+/// answer NULL - nothing is simulated, the absent plugin is simply not allowed
+/// to throw an unhandled MissingPluginException that aborts the render:
+///
+///  * `flutter_secure_storage` - `LocalStorage.setToken` clears the stored
+///    refresh contract through it, so the app's REAL session write can run
+///    unmodified instead of the harness reimplementing a trimmed version.
+///  * `connectivity_plus` - the app subscribes to the connectivity stream on
+///    startup. Answering null leaves the app in its genuine headless state
+///    (no connectivity events), which is what the frame should show.
+void _mockAbsentPlugins() {
+  const channels = <String>[
+    'plugins.it_nomads.com/flutter_secure_storage',
+    'dev.fluttercommunity.plus/connectivity',
+    'dev.fluttercommunity.plus/connectivity_status',
+  ];
+  for (final name in channels) {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(MethodChannel(name), (call) async => null);
+  }
 }
 
 /// Lets REAL async work (drift isolate, futures, file IO) complete, then pumps
@@ -463,6 +524,7 @@ Future<void> renderVariant(
     ..createSync(recursive: true);
 
   _mockPathProvider(dbDir);
+  _mockAbsentPlugins();
 
   // App-wide state the screen reads before it builds. LocalStorage backs the
   // profile header, the language direction and the stored theme mode; the
@@ -511,14 +573,12 @@ Future<void> renderVariant(
   expect(
     measured,
     isNotEmpty,
-    reason:
-        'no elements matched - check elementSpecs() and the gates in '
+    reason: 'no elements matched - check elementSpecs() and the gates in '
         'registerScreen()',
   );
 
-  final contentBottom = measured
-      .map((m) => m.rect.bottom)
-      .reduce((a, b) => a > b ? a : b);
+  final contentBottom =
+      measured.map((m) => m.rect.bottom).reduce((a, b) => a > b ? a : b);
   final targetHeight = (contentBottom + kBottomPadding).clamp(
     400.0,
     kProbeHeight,
@@ -578,9 +638,13 @@ Future<void> _loadRealFontsOnce() async {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  // Never let a test reach out for a webfont: the render must be reproducible
-  // offline, and a silent fetch failure is a silent block-font fallback.
-  GoogleFonts.config.allowRuntimeFetching = false;
+  // Fetching stays ON, but `loadRealFonts` swaps google_fonts' http client for
+  // one that only ever answers from the faces committed under
+  // test/render/fonts. Nothing reaches the network, the render is
+  // reproducible offline, and google_fonts still checksums every face it
+  // registers. Turning fetching OFF instead would make google_fonts throw
+  // before it ever consulted the committed files.
+  GoogleFonts.config.allowRuntimeFetching = true;
 
   final dbDir = Directory.systemTemp.createTempSync('render_harness_db').path;
 
