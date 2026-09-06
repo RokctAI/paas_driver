@@ -6,7 +6,7 @@ The two halves the [render kit][kit] expects a shell to commit:
 |---|---|
 | `render_screen_test.dart` | The widget test. Pumps delivery_sdk's real `ProfilePage` as this shell composes it, at 390 logical px / dpr 3, light and dark, and writes `out/driver_profile_{light,dark}.png` plus a measured element-rect JSON per variant. |
 | `strip.json` | The strip config the composer turns those into: captions, statuses, legend aliases, the committed numbering map and the notes that declare what was seeded. |
-| `fonts/Inter-Variable.ttf` | Inter, [SIL Open Font License 1.1](fonts/OFL.txt). `AppStyle`'s whole type scale is `GoogleFonts.inter(...)`, google_fonts fetches faces at runtime, and a test has no network — without a real face every glyph is the FlutterTest block font and the PNG is worthless. |
+| `fonts/` | The four Inter weights `AppStyle` uses, exactly as Google serves them, named by the SHA-256 google_fonts checks them against. [SIL OFL 1.1](fonts/OFL.txt); see [`fonts/README.md`](fonts/README.md). Not app assets — nothing here is declared in `pubspec.yaml`, so none of it ships in a build. |
 
 Run it from CI with the **Render Strip** workflow
 (`.github/workflows/render-strip.yml`, `workflow_dispatch` only) and download
