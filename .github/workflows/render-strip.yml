@@ -1,0 +1,44 @@
+name: Render Strip
+
+# Renders a REAL driver screen headlessly and publishes a review strip.
+#
+# Manual only, deliberately. Rendering on every commit is not wanted: a shell
+# adopts this by CHOOSING to run it. Kit docs, numbering conventions and the
+# status vocabulary live in RokctAI/shared-workflows scripts/render/README.md.
+#
+# What it renders is committed in this repo:
+#   test/render/render_screen_test.dart  - the widget test (driver profile)
+#   test/render/strip.json               - the strip config (captions, legend,
+#                                          numbering map, notes)
+# The reusable workflow SKIPS CLEANLY when the render test is missing, so this
+# file stays harmless if those ever move.
+
+# Must grant at least what the reusable workflow declares
+# (universal-render-strip.yml sets `permissions: write-all`). A narrower block
+# here makes GitHub refuse the run at startup with zero jobs.
+permissions: write-all
+
+on:
+  workflow_dispatch:
+    inputs:
+      render-suffix:
+        description: "Suffix for this run's outputs (e.g. _draft)"
+        required: false
+        default: ''
+      upload-renders:
+        description: "Also upload the raw PNGs and rect JSON beside the page"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  render:
+    uses: RokctAI/shared-workflows/.github/workflows/universal-render-strip.yml@main
+    secrets: inherit
+    with:
+      render-suffix: ${{ inputs.render-suffix }}
+      upload-renders: ${{ inputs.upload-renders }}
+      # Defaults: test/render/render_screen_test.dart + test/render/strip.json,
+      # IS_DEMO=true, and the compose + build_runner passes this shell needs —
+      # paas_driver has no tracked lib/, so the render must run against the
+      # composed tree exactly as universal-flutter-build sees it.
