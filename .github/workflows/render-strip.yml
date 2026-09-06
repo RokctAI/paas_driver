@@ -33,7 +33,7 @@ on:
 
 jobs:
   render:
-    uses: RokctAI/shared-workflows/.github/workflows/universal-render-strip.yml@main
+    uses: RokctAI/shared-workflows/.github/workflows/universal-render-strip.yml@claude/hearth-thread-l5l9ob
     secrets: inherit
     with:
       render-suffix: ${{ inputs.render-suffix }}
