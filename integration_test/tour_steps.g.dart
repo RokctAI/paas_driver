@@ -125,37 +125,16 @@ final List<TourStep> tourSteps = <TourStep>[
         container.listen(loginProvider, (_, __) {});
     try {
       final login = container.read(loginProvider.notifier);
-      login.setEmail('demo.student@example.com');
-      login.setPassword('demo-learners-2026');
-      // MockAuthRepository accepts any credentials. The timeout guards the
-      // post-session FCM sync, which can stall on an emulator - navigation
-      // to the demo landing happens before it, so a timeout is harmless.
-      await login
-          .login(element)
-          .timeout(const Duration(seconds: 45), onTimeout: () {});
-    } finally {
-      subscription.close();
-    }
-  }),
-  TourStep('sign_out_customer', 4000, false, (WidgetTester tester, StackRouter router) async {
-    LocalStorage.logout();
-    router.replaceNamed('/login');
-  }),
-  TourStep('driver_sign_in', 6000, false, (WidgetTester tester, StackRouter router) async {
-    final Element element = tester.element(find.byType(Navigator).first);
-    final ProviderContainer container =
-        ProviderScope.containerOf(element, listen: false);
-    // loginProvider is autoDispose: hold a subscription so the notifier
-    // survives between the field writes and the login call.
-    final ProviderSubscription<dynamic> subscription =
-        container.listen(loginProvider, (_, __) {});
-    try {
-      final login = container.read(loginProvider.notifier);
       login.setEmail('driver@demo.rokct.ai');
-      login.setPassword('demo-drivers-2026');
-      // MockAuthRepository accepts any credentials. The timeout guards the
-      // post-session FCM sync, which can stall on an emulator - navigation
-      // to the demo landing happens before it, so a timeout is harmless.
+      login.setPassword('demo-learners-2026');
+      // MockAuthRepository accepts any password, but the ADDRESS decides the
+      // role it hands back (MockAuthRepository._demoRolesByEmail), and the
+      // role decides whether this app's session_policy admits the session at
+      // all. So each shell picks its own account with setup.demo_email in its
+      // tour/app.tour.yaml; shells that leave it unset get the 'customer'
+      // default. The timeout guards the post-session FCM sync, which can
+      // stall on an emulator - navigation to the demo landing happens before
+      // it, so a timeout is harmless.
       await login
           .login(element)
           .timeout(const Duration(seconds: 45), onTimeout: () {});
@@ -197,7 +176,7 @@ final List<TourStep> tourSteps = <TourStep>[
   TourStep('driver_parcel_history', 8000, true, (WidgetTester tester, StackRouter router) async {
     router.replaceNamed('/parcel-history');
   }),
-  TourStep('driver_profile', 8000, true, (WidgetTester tester, StackRouter router) async {
+  TourStep('driver_profile', 8000, false, (WidgetTester tester, StackRouter router) async {
     router.replaceNamed('/profile');
   }),
   TourStep('driver_delivery_zone', 8000, true, (WidgetTester tester, StackRouter router) async {
