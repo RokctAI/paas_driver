@@ -48,9 +48,8 @@ collect up front.
 
 ![The next job is waiting](screenshots/07-driver_available_orders.png)
 
-Orders ready for pickup near you - grab the next job with one tap. On the
-launcher, the same job is the driver window: the shop, the drop and Accept,
-never the money.
+Orders ready nearby - grab the next job with one tap. On the launcher: the shop,
+the drop and Accept, never the money.
 
 ## 8. Every stop, in order
 
