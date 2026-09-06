@@ -1,3 +1,30 @@
+## 1.20.3
+
+* fix(tour): the `driver_available_orders` caption in
+  `templates/tour/delivery.tour.yaml` wrapped to eight rows on the phone
+  caption canvas, one more than the box holds, so the assembler aborted
+  the phone video build on the paas_driver guided tour (run 34055656521:
+  `caption for step 'driver_available_orders': 8 rows overrun the caption
+  box by 21px (it holds 7)`) and the commit-back then dropped the shell's
+  Play listing assets (feature graphic, icon, phone chapter videos, wide
+  reel) from main. The caption now wraps to five rows at the assembler's
+  geometry (DejaVu Sans Bold 64 px, 936 px wrap width, 84 px row pitch, a
+  7-row box) with the same meaning: nearby orders taken with one tap, and
+  the launcher's driver window showing the shop, the drop and Accept but
+  never the money. Before and after:
+
+  ```text
+  Orders ready for pickup near you - *grab the next job* with one tap. On the launcher, the same job is the driver window: the shop, the drop and Accept, never the money.
+  Orders ready nearby - *grab the next job* with one tap. On the launcher: the shop, the drop and Accept, never the money.
+  ```
+
+  No screen changes. Shells pick the fragment up on their next tour run:
+  the composer refreshes the cache copy and captions only reach
+  `tour.resolved.json`, never a committed shell file. Every other caption
+  in the fragment already wraps to five rows or fewer.
+* manifest.json 1.20.2 -> 1.20.3 so version-aware cache reconciliation
+  re-merges the fragment into every shell.
+
 ## 1.20.2
 
 * Driver home defers creating the Google Maps platform view until the page

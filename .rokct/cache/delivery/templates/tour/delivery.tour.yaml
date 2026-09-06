@@ -41,7 +41,7 @@ steps:
     settle: 8
   - key: driver_available_orders
     title: "The next job is waiting"
-    caption: "Orders ready for pickup near you - *grab the next job* with one tap. On the launcher, the same job is the driver window: the shop, the drop and Accept, never the money."
+    caption: "Orders ready nearby - *grab the next job* with one tap. On the launcher: the shop, the drop and Accept, never the money."
     action: dart
     screenshot: true
     settle: 6

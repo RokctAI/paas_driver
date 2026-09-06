@@ -1,3 +1,31 @@
+## 1.20.1
+
+* fix(tour): the `order_queue` caption in `templates/tour/orders.tour.yaml`
+  wrapped to nine rows on the phone caption canvas, two more than the box
+  holds, so the assembler aborted the phone video build on the
+  paas_manager guided tour (run 34055429459: `caption for step
+  'order_queue': 9 rows overrun the caption box by 105px (it holds 7)`)
+  and the commit-back then dropped the shell's Play listing assets
+  (feature graphic, icon, phone chapter videos, wide reel) from main. The
+  caption now wraps to five rows at the assembler's geometry (DejaVu Sans
+  Bold 64 px, 936 px wrap width, 84 px row pitch, a 7-row box) with the
+  same meaning: one queue for every order state, and the launcher counting
+  what is waiting on you with no takings figure. The second `*...*` phrase
+  is gone as well - only the first marked phrase is ever highlighted.
+  Before and after:
+
+  ```text
+  New, accepted, ready, on the way - *every order* moves through one queue the moment it lands. On the launcher, the manager window counts what is *waiting on you* and keeps the takings inside the app.
+  New, accepted, ready, on the way - *every order* in one queue. The launcher counts what is waiting on you, never the takings.
+  ```
+
+  No screen changes. Shells pick the fragment up on their next tour run:
+  the composer refreshes the cache copy and captions only reach
+  `tour.resolved.json`, never a committed shell file. `order_history`
+  (five rows) already fits.
+* manifest.json 1.20.0 -> 1.20.1 so version-aware cache reconciliation
+  re-merges the fragment into every shell.
+
 ## 1.20.0
 
 THE MANAGER WINDOW ON THE LAUNCHER CANVAS - approved design strip frames
