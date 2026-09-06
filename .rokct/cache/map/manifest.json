@@ -1,6 +1,6 @@
 {
   "name": "map_sdk",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "_comment_app_assets": "map_sdk's zone drawing page loads assets/lottie/pin.json (previously referenced but never installed by any SDK \u2014 broken at runtime). The copy comes from paas_driver develop (byte-identical to paas_manager's). app_assets registers it in the host pubspec's sdk-app-assets block so it is bundled.",
   "app_assets": [
     "assets/lottie/pin.json"

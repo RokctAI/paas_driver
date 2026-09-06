@@ -43,11 +43,13 @@
 //     `assert_deliveryman_can_take_work` guard uses. The screen cannot
 //     disagree with the guard.
 //
-// TWO THINGS THE FRAMES FLAGGED AS UNSOURCED AND THIS FILE THEREFORE
-// DOES NOT DRAW:
-//   * frame 49d's "SHIFT ENDED 17:04" — nothing records when duty was
-//     toggled. `setOnline` flips a boolean on the server and in
-//     CourierStorage and stores no timestamp. The strip says TODAY.
+// TWO THINGS THE FRAMES FLAGGED AS UNSOURCED, AND WHAT BECAME OF THEM:
+//   * frame 49d's "SHIFT ENDED 17:04" — nothing on the server records
+//     when duty was toggled (`setOnline` stores a bool). The frame asked
+//     for "either a client-side local timestamp or a server field"; the
+//     client-side one now exists (CourierStorage.setShiftEndedAt, written
+//     by the same toggle) and the strip stamps it while off duty. No
+//     stamp for today means the strip says TODAY and nothing more.
 //   * chip 934's customer name — `serialize_deliveryman_order` emits no
 //     user block at all, which is why the offer card names a SUBURB.
 //
@@ -55,7 +57,8 @@
 // fixed 336.h box, because the gate and the off-duty wallet card are
 // taller than the carousel they replace. The weather banner stays docked
 // ABOVE the card, exactly where the shipped code put it and for the
-// reason the shipped code gave.
+// reason the shipped code gave. Its last child clears chip 301, the
+// root tab pill the home page floats over it.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -74,7 +77,9 @@ import 'package:delivery_sdk/src/driver/infrastructure/services/courier_storage.
 import 'package:delivery_sdk/src/driver/presentation/home/available_work_queue.dart';
 import 'package:delivery_sdk/src/driver/presentation/home/cash_on_hand_card.dart';
 import 'package:delivery_sdk/src/driver/presentation/home/driver_day_strip.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/driver_root_nav.dart';
 import 'package:delivery_sdk/src/driver/presentation/home/off_duty_cards.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/shift_stamp.dart';
 import 'package:delivery_sdk/src/driver/presentation/home/work_paused_gate.dart';
 
 import 'package:delivery_sdk/src/driver/application/home/home_provider.dart';
@@ -206,7 +211,12 @@ class _BottomSheetScreenState extends ConsumerState<BottomSheetScreen> {
       ),
       padding: EdgeInsets.only(
         top: 8.h,
-        bottom: MediaQuery.paddingOf(context).bottom + 16.h,
+        // CHIP 301 floats over the sheet's foot; the last card must clear
+        // it (frame 49e: the third offer crops at a visible edge above
+        // the pill, never under it).
+        bottom: MediaQuery.paddingOf(context).bottom +
+            16.h +
+            driverRootNavClearance(),
         left: 16.w,
         right: 16.w,
       ),
@@ -230,11 +240,18 @@ class _BottomSheetScreenState extends ConsumerState<BottomSheetScreen> {
                 children: [
                   // CHIP 931 — the same strip on duty and off; frame 49d
                   // reframes it as a closing figure rather than a running
-                  // one, which is a reading, not a different widget.
+                  // one: "TODAY · SHIFT ENDED 17:04", stamped from the
+                  // minute this phone saw the toggle go off (see
+                  // shift_stamp.dart). On duty the heading is TODAY.
                   DriverDayStrip(
                     earned: home.report.earned,
                     delivered: home.report.deliveredCount,
                     lastFee: home.report.lastFee,
+                    heading: onDuty
+                        ? null
+                        : driverShiftStampHeading(
+                            CourierStorage.getShiftEndedAt(),
+                          ),
                   ),
                   10.verticalSpace,
                   // CHIP 932 — survives into the off-duty frame unchanged.

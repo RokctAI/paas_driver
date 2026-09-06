@@ -639,7 +639,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
       final response = await courierRepository.setOnline();
       response.when(
         success: (data) {
-          CourierStorage.setOnline(!CourierStorage.getOnline());
+          final goingOnline = !CourierStorage.getOnline();
+          CourierStorage.setOnline(goingOnline);
+          // Frame 49d's "SHIFT ENDED 17:04" (design strip section 49):
+          // the server stores a bool only, so the phone notes the minute
+          // the driver went OFF duty and clears it when he comes back —
+          // one write beside the one that flips the flag, so the stamp
+          // and the state can never disagree.
+          CourierStorage.setShiftEndedAt(goingOnline ? null : DateTime.now());
         },
         failure: (failure, status) {
           AppHelpers.showCheckTopSnackBar(

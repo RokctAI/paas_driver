@@ -2,10 +2,9 @@
 #
 # Brand-neutral by rule: app names, taglines and any per-app wording live in
 # the app shell's tour/app.tour.yaml ({app_name}/{app_tagline} placeholders
-# are substituted at merge time). This fragment owns only the screens
+# are substituted at merge time). This fragment owns only the screen
 # base_sdk itself routes in manifest.json: the generic profile
-# (/generic-profile) and the two status screens (/no-connection,
-# /maintenance).
+# (/generic-profile).
 #
 # The splash route (/) is deliberately NOT toured: every app opens on it and
 # the shells' own welcome step already captures that moment; re-routing to
@@ -14,11 +13,10 @@
 #
 # Session note: /generic-profile renders the signed-in account (it falls
 # back to LocalStorage.getUser() while the profile fetch is in flight), so
-# include this fragment after the manifest's sign-in steps. The two status
-# screens render entirely locally.
+# include this fragment after the manifest's sign-in steps.
 #
-# No demo seed needed: all three screens draw from local state and installed
-# assets - no backend reads gate their first paint.
+# No demo seed needed: the screen draws from local state and installed
+# assets - no backend reads gate its first paint.
 #
 # Format: RokctAI/shared-workflows scripts/tour/README.md
 sdk: base
@@ -29,15 +27,3 @@ steps:
     action: route
     route: /generic-profile
     settle: 7
-  - key: base_no_connection
-    title: "Honest about connection"
-    caption: "Signal drops happen - {app_name} says so *clearly* and gets you back with one tap."
-    action: route
-    route: /no-connection
-    settle: 6
-  - key: base_maintenance
-    title: "Honest about downtime"
-    caption: "When we're improving things behind the scenes, you get a *clear, friendly heads-up* - never a blank screen."
-    action: route
-    route: /maintenance
-    settle: 6

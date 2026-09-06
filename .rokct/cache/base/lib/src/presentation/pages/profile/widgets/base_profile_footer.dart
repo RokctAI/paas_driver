@@ -20,6 +20,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:remixicon/remixicon.dart';
 
+import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_host_scope.dart';
 import 'package:base_sdk/src/presentation/pages/profile/widgets/app_usage_badge.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -37,6 +38,30 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 /// that to keep its member-only links above the row.
 class ProfileMetaRow extends StatelessWidget {
   const ProfileMetaRow({super.key});
+
+  /// Stands in for [AppConstants.isDemo], which is fixed at compile time
+  /// and so cannot be flipped by a test. Null means "ask the constant".
+  @visibleForTesting
+  static bool? isDemoOverride;
+
+  static bool get _isDemo => isDemoOverride ?? AppConstants.isDemo;
+
+  /// The answer the Online/Offline dot draws.
+  ///
+  /// A demo build (`--dart-define=IS_DEMO=true`, [AppConstants.isDemo])
+  /// has no backend by design, so the api_status probe behind
+  /// [AppConnectivity.backendAvailability] can only ever fail there, and
+  /// the dot drew a red Offline on every demo build - a connection-failure
+  /// state on a build that has no connection to fail, captured verbatim by
+  /// the guided tour. The demo build reads as connected without probing;
+  /// a real build still asks the backend. The probe itself stays honest:
+  /// the splash boot and `ConnectivityService` read it to gate the outbox
+  /// drain and the translation fetch, and must keep seeing the backend as
+  /// it is. Same [AppConstants.isDemo] gate the other SDKs put in front of
+  /// their network paths.
+  static Future<bool> _online() => _isDemo
+      ? Future<bool>.value(true)
+      : AppConnectivity.backendAvailability();
 
   @override
   Widget build(BuildContext context) {
@@ -86,9 +111,10 @@ class ProfileMetaRow extends StatelessWidget {
           },
         ),
         // Online/Offline dot backed by a real backend probe (guest
-        // api_status).
+        // api_status) - except in a demo build, which reads as connected
+        // (see [_online]).
         FutureBuilder<bool>(
-          future: AppConnectivity.backendAvailability(),
+          future: _online(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const SizedBox.shrink();

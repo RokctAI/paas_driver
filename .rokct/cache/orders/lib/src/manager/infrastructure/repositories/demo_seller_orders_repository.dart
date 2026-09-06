@@ -132,7 +132,7 @@ class DemoSellerOrdersRepository implements SellerOrdersRepositoryFacade {
   /// orders across new/accepted/ready and three finished ones.
   static List<OrderData> _seed() => <OrderData>[
         OrderData(
-          id: 'DEMO-1041',
+          id: '1041',
           userId: '1',
           status: 'new',
           deliveryType: 'delivery',
@@ -156,7 +156,7 @@ class DemoSellerOrdersRepository implements SellerOrdersRepositoryFacade {
           ],
         ),
         OrderData(
-          id: 'DEMO-1040',
+          id: '1040',
           userId: '2',
           status: 'new',
           deliveryType: 'dine_in',
@@ -178,7 +178,7 @@ class DemoSellerOrdersRepository implements SellerOrdersRepositoryFacade {
           ],
         ),
         OrderData(
-          id: 'DEMO-1039',
+          id: '1039',
           userId: '3',
           status: 'accepted',
           deliveryType: 'pickup',
@@ -196,7 +196,7 @@ class DemoSellerOrdersRepository implements SellerOrdersRepositoryFacade {
           ],
         ),
         OrderData(
-          id: 'DEMO-1038',
+          id: '1038',
           userId: '4',
           status: 'ready',
           deliveryType: 'delivery',
@@ -219,7 +219,7 @@ class DemoSellerOrdersRepository implements SellerOrdersRepositoryFacade {
           ],
         ),
         OrderData(
-          id: 'DEMO-1037',
+          id: '1037',
           userId: '5',
           status: 'delivered',
           deliveryType: 'delivery',
@@ -238,7 +238,7 @@ class DemoSellerOrdersRepository implements SellerOrdersRepositoryFacade {
           ],
         ),
         OrderData(
-          id: 'DEMO-1036',
+          id: '1036',
           userId: '6',
           status: 'delivered',
           deliveryType: 'pickup',
@@ -260,7 +260,7 @@ class DemoSellerOrdersRepository implements SellerOrdersRepositoryFacade {
           ],
         ),
         OrderData(
-          id: 'DEMO-1035',
+          id: '1035',
           userId: '7',
           status: 'delivered',
           deliveryType: 'dine_in',
@@ -491,7 +491,7 @@ class DemoSellerOrdersRepository implements SellerOrdersRepositoryFacade {
           sum +
           (stock.totalPrice ?? (stock.price ?? 0) * (stock.quantity ?? 1)),
     );
-    final String id = 'DEMO-${_nextId++}';
+    final String id = '${_nextId++}';
     final DateTime now = DateTime.now();
     _all.insert(
       0,

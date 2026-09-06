@@ -41,10 +41,12 @@ class MockOrdersRepository implements OrdersRepositoryFacade {
       logoImg: DemoImages.category,
     ),
     details: [],
+    // South African rand, like every other seller/customer fixture (the
+    // manager's DemoSellerOrdersRepository seeds the same currency).
     currencyModel: CurrencyModel(
-      id: "1",
-      symbol: "\$",
-      title: "USD",
+      id: "ZAR",
+      symbol: "R",
+      title: "South African Rand",
       active: true,
     ),
   );

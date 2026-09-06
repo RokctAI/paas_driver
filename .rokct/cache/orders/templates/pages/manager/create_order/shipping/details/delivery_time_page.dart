@@ -14,6 +14,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -21,9 +22,9 @@ import 'widgets/payment_item.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:${package}/presentation/pages/create_order/order/widgets/title_price.dart';
 import 'package:${package}/presentation/component/select_date_modal.dart';
-import 'package:base_sdk/src/constants/app_constants.dart';
+import 'package:base_sdk/src/presentation/adaptive/planes.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
-import 'package:base_sdk/src/presentation/components/buttons/pop_button.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/components/keyboard_dismisser.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/components/title_icon.dart';
@@ -41,7 +42,21 @@ import 'package:orders_sdk/src/manager/application/order_cart/order_cart_provide
 import 'package:orders_sdk/src/manager/application/orders/appbar/home_appbar_provider.dart';
 import 'package:orders_sdk/src/manager/application/orders/new/new_orders_provider.dart';
 
-
+// PLACE ORDER — /delivery-time, the finish step (frame 37e): the
+// delivery-time card (696, its row opening the SelectDateModal — a sheet,
+// never a plane), the payment-method rows fetched per delivery type (697;
+// the shipped wallet guard compares the balance to the total) and the
+// calculate summary card (698 — the shipped order_calculate fields).
+// "Place order · total" (699) creates the order — the shipped success path
+// pops to root, clears the cart and refreshes the board — and the shipped
+// offline path is told in one honest line under the button: no connection
+// means the order queues on this device and syncs (the queued op carries
+// the payment id; the sync handler finishes the transaction). Hosted in
+// the walk-in plane flow it declares the DEFAULT one plane, takes the LAST
+// one, and docks Place order at its foot — the host draws the corner Back
+// pill; on the pushed phone route Place order sits at the START and the
+// corner pill (347) at the END. popUntilRoot leaves the walk-in route
+// under either width, so the flow ends the same way it always did.
 @RoutePage(name: 'ManagerDeliveryTimeRoute')
 class DeliveryTimePage extends ConsumerStatefulWidget {
   const DeliveryTimePage({super.key});
@@ -69,15 +84,80 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Hosted in the walk-in planes (37e's step at plane widths)? Then the
+    // host owns the corner pill and Place order docks under the cards.
+    final Planes? planes = Planes.maybeOf(context);
+    final bool hosted = planes != null && planes.count > 1;
     return KeyboardDismisser(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor: AppStyle.bgGrey,
-        body: Container(
+        backgroundColor: AppStyle.surfaceDark,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // The 171-pattern bare title: "Place order".
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 16.h),
+                    child: Text(
+                      AppHelpers.getTranslation(TrKeys.placeOrder),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppStyle.interSemi(
+                        size: 24,
+                        color: AppStyle.textPrimary,
+                      ),
+                    ),
+                  ),
+                  Expanded(child: _cards(context, hosted: hosted)),
+                  if (hosted)
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+                      child: _placeOrder(context),
+                    ),
+                ],
+              ),
+              // The phone route: Place order (699) at the START with its
+              // offline line, the corner Back pill (347) at the END.
+              if (!hosted)
+                PositionedDirectional(
+                  start: 16,
+                  end: 16,
+                  bottom: 16,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(child: _placeOrder(context)),
+                      8.horizontalSpace,
+                      FloatingBackPill(
+                        back: FloatingNavBack(
+                          icon: Remix.arrow_left_wide_fill,
+                          label: AppHelpers.getTranslation(TrKeys.back),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 696 / 697 / 698 — the shipped cards, scrolling under the title.
+  Widget _cards(BuildContext context, {required bool hosted}) {
+    return Container(
           padding: MediaQuery.viewInsetsOf(context),
           child: SingleChildScrollView(
             padding: EdgeInsets.only(
-              bottom: MediaQuery.paddingOf(context).bottom + 48.h,
+              left: 16.w,
+              right: 16.w,
+              // Room under the last card for the floating row on the
+              // phone route; the hosted pane docks the button below.
+              bottom: hosted ? 24.h : 140.h,
             ),
             child: Column(
               children: [
@@ -86,13 +166,10 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                     return Container(
                       decoration: BoxDecoration(
                         color: AppStyle.white,
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(10.r),
-                          bottomRight: Radius.circular(10.r),
-                        ),
+                        borderRadius: BorderRadius.circular(10.r),
                       ),
                       padding: REdgeInsets.only(
-                        top: MediaQuery.paddingOf(context).top + 26,
+                        top: 24,
                         left: 16,
                         right: 16,
                         bottom: 16,
@@ -290,25 +367,30 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
               ],
             ),
           ),
-        ),
-        floatingActionButtonLocation:
-            FloatingActionButtonLocation.miniCenterDocked,
-        floatingActionButton: Padding(
-          padding: REdgeInsets.all(16),
-          child: Row(
-            children: [
-              const PopButton(heroTag: AppConstants.heroTagAddOrderButton),
-              8.horizontalSpace,
-              Expanded(
-                child: Consumer(
+        );
+  }
+
+  /// 699 — "Place order · total" and the honest offline line under it.
+  Widget _placeOrder(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Consumer(
                   builder: (context, ref, child) {
                     final addressState = ref.watch(orderAddressProvider);
                     final paymentState = ref.watch(orderPaymentProvider);
                     final userState = ref.watch(orderUserProvider);
+                    final num total =
+                        paymentState.orderCalculate?.totalPrice ?? 0;
                     return CustomButton(
-                      title: AppHelpers.getTranslation(TrKeys.next),
+                      title:
+                          '${AppHelpers.getTranslation(TrKeys.placeOrder)} • '
+                          '${AppHelpers.numberFormat(number: total)}',
                       isLoading: ref.watch(createOrderProvider).isCreating,
-                      onPressed: () {
+                      onPressed: paymentState.payments.isEmpty
+                          ? null
+                          : () {
                         if (paymentState.payments[paymentState.selectedIndex]
                                 .payment?.tag ==
                             'wallet') {
@@ -412,12 +494,33 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                       },
                     );
                   },
+        ),
+        8.verticalSpace,
+        // The shipped orderQueued path, told in one line: offline, the
+        // order queues on this device and syncs.
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Remix.wifi_off_line,
+              size: 14.r,
+              color: AppStyle.textDarkSecondary,
+            ),
+            6.horizontalSpace,
+            Expanded(
+              child: Text(
+                AppHelpers.getTranslation(TrKeys.offlineOrderQueuesAndSyncs),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppStyle.interRegular(
+                  size: 12.sp,
+                  color: AppStyle.textDarkSecondary,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ),
+      ],
     );
   }
 }

@@ -65,7 +65,7 @@ void main() {
       PosCartNotifier(GetIt.instance<PosCatalogRepositoryFacade>());
 
   test('IS_DEMO routes the barcode lane to MockProductsRepository: '
-      'a scan lands Demo Product at R150.00 × 1', () async {
+      'a scan lands Flame-grilled beef burger at R150.00 × 1', () async {
     expect(AppConstants.isDemo, isTrue,
         reason: 'run this suite with --dart-define=IS_DEMO=true');
     expect(GetIt.instance<PosCatalogRepositoryFacade>(),
@@ -78,7 +78,7 @@ void main() {
     expect(added, isTrue);
     expect(cart.state.lines, hasLength(1));
     final line = cart.state.lines.single;
-    expect(line.title, 'Demo Product');
+    expect(line.title, 'Flame-grilled beef burger');
     expect(line.unitPrice, 150);
     expect(line.quantity, 1);
     expect(AppHelpers.numberFormat(number: line.lineTotal), 'R150.00');
@@ -118,7 +118,7 @@ void main() {
     expect(first, isTrue);
     expect(replay, isFalse);
     expect(other, isTrue);
-    // Demo catalog answers every code with the same Demo Product, so the
+    // Demo catalog answers every code with the same burger, so the
     // accepted second scan STEPS the one line instead of duplicating it.
     expect(cart.state.lines, hasLength(1));
     expect(cart.state.lines.single.quantity, 2);

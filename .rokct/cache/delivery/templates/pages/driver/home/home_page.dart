@@ -29,6 +29,8 @@ import 'package:delivery_sdk/src/driver/application/order/order_provider.dart';
 import 'package:delivery_sdk/src/driver/di/driver_delivery_di.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.dart';
 import 'package:delivery_sdk/src/driver/presentation/deposit/deposit_flow.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/driver_root_nav.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/deferred_map_surface.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:${package}/presentation/pages/home/parcel_bottom_sheet.dart';
@@ -80,6 +82,12 @@ class _HomePageState extends ConsumerState<HomePage> {
   BitmapDescriptor myIcon = BitmapDescriptor.defaultMarker;
   OrderDetailData? push;
   Timer? timer;
+
+  /// The on-duty position stream (see [getCurrentLocation]). Held so the
+  /// duty toggle and [dispose] can cancel it: un-held, every toggle to
+  /// online stacked another listener that kept writing [latLng] and the
+  /// stored address for the life of the isolate, page or no page.
+  StreamSubscription<Position>? _positionSub;
   LatLng latLng = LatLng(
     (LocalStorage.getAddressSelected()?.latitude ?? AppConstants.demoLatitude),
     (LocalStorage.getAddressSelected()?.longitude ??
@@ -240,17 +248,57 @@ class _HomePageState extends ConsumerState<HomePage> {
     _locationRefusalReported = false;
     final position = result.position!;
     latLng = LatLng(position.latitude, position.longitude);
-    CourierStorage.saveSelectedLocation(latLng);
-    // `?.`, not `!`: initState calls this before the GoogleMap widget has
-    // handed over its controller, so a fix that lands first must not throw
-    // out of this same un-awaited future.
-    googleMapController?.animateCamera(
-      CameraUpdate.newLatLngZoom(latLng, 15),
-    );
+    // A pinned fix already is the stored address (or the anchor when none
+    // is stored) — see [CourierLocationFix.pinnedBuild]; only a measured
+    // one is worth remembering.
+    if (!result.pinned) CourierStorage.saveSelectedLocation(latLng);
+    await _moveCamera(latLng);
+  }
+
+  /// Puts the map on [target] - or does nothing, quietly, when there is no
+  /// live map to move.
+  ///
+  /// Two ways for there to be none. initState calls [getMyLocation] before
+  /// the GoogleMap widget has handed over its controller (`null` here, so
+  /// no `!`). And the page can be gone by the time the fix lands: the
+  /// guided tour signs the demo courier in (which lands on /home), walks
+  /// the auth screens and routes to /home again, so the first HomePage is
+  /// disposed with its location request still in flight. When that fix
+  /// finally arrived (paas_driver tour 33911125552, phone leg) the
+  /// controller it kept was non-null but its platform view was already
+  /// torn down, and `animateCamera` threw
+  /// `PlatformException(channel-error, Unable to establish connection on
+  /// channel: ...MapsApi.animateCamera)` out of an un-awaited future and
+  /// took the whole tour down. Hence `mounted` first, and the platform
+  /// call itself inside a catch: a map that is not there is a normal
+  /// state on this page, not a crash.
+  Future<void> _moveCamera(LatLng target) async {
+    if (!mounted) return;
+    final controller = googleMapController;
+    if (controller == null) return;
+    try {
+      await controller.animateCamera(CameraUpdate.newLatLngZoom(target, 15));
+    } on PlatformException catch (e) {
+      debugPrint('==> driver home: map camera move skipped: ${e.code}');
+    }
   }
 
   void getSetProgressLocation() {
+    // One poll at a time: initState (already online) and the duty toggle
+    // both start this lane, and a replaced Timer would otherwise run on,
+    // unreachable, for the life of the isolate.
+    timer?.cancel();
     timer = Timer.periodic(const Duration(seconds: 10), (Timer t) {
+      // The poll is a Timer, not a widget: nothing stops it for us when the
+      // page goes. Without this guard it fired `ref.read` on a disposed
+      // element ten seconds after the tour had routed on to /orders -
+      // "Bad state: Cannot use "ref" after the widget was disposed"
+      // (paas_driver tour 33911125552, tablet leg). [dispose] cancels it
+      // too; this is the belt to that brace.
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
       ref
           .read(homeProvider.notifier)
           .getRouting(
@@ -270,6 +318,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   /// refusal goes to telemetry and tracking simply produces nothing.
   void getCurrentLocation() async {
     getSetProgressLocation();
+    // A pinned build has no live courier to follow: the routing poll runs
+    // from [latLng] as it stands, and the platform is never asked — its
+    // fix would only overwrite the stored address the seed laid out
+    // (see [CourierLocationFix.pinnedBuild]).
+    if (CourierLocationFix.pinnedBuild) return;
     _geolocatorPlatform.getCurrentPosition().then((location) {
       currentLocation = location;
       latLng = LatLng(
@@ -277,13 +330,17 @@ class _HomePageState extends ConsumerState<HomePage> {
         currentLocation?.longitude ?? latLng.longitude,
       );
     }, onError: _reportTrackingRefusal);
-    _geolocatorPlatform.getPositionStream().listen((newLoc) {
+    // One listener at a time, for the same reason [getSetProgressLocation]
+    // keeps one Timer.
+    _positionSub?.cancel();
+    _positionSub = _geolocatorPlatform.getPositionStream().listen((newLoc) {
       currentLocation = newLoc;
       latLng = LatLng(
         currentLocation?.latitude ?? latLng.latitude,
         currentLocation?.longitude ?? latLng.longitude,
       );
       _delayed.run(() {
+        if (!mounted) return;
         CourierStorage.saveSelectedLocation(
           LatLng(
             currentLocation?.latitude ?? latLng.latitude,
@@ -292,6 +349,16 @@ class _HomePageState extends ConsumerState<HomePage> {
         );
       });
     }, onError: _reportTrackingRefusal);
+  }
+
+  /// Stops the on-duty lane: the routing poll and the position stream.
+  /// Shared by the duty toggle's OFF path and [dispose], so going off duty
+  /// and leaving the page release exactly the same things.
+  void _stopTracking() {
+    timer?.cancel();
+    timer = null;
+    _positionSub?.cancel();
+    _positionSub = null;
   }
 
   /// Telemetry-only: the on-duty lane has no line to show that the friendly
@@ -390,6 +457,23 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   @override
+  void dispose() {
+    // The 10-second routing poll outlived this page (see
+    // [getSetProgressLocation]), and so did the position stream (see
+    // [_positionSub]); the toggle's OFF path releases both, leaving the
+    // page must too.
+    _stopTracking();
+    // The controller dies with the GoogleMap platform view. Drop it so a
+    // location fix that lands after this point finds nothing to move (see
+    // [_moveCamera]); the GoogleMap widget disposes the controller itself.
+    googleMapController = null;
+    // [_delayed] (base_sdk's Delayed) exposes no cancel, so its pending
+    // 36-second callback may still fire after this point; every callback
+    // handed to it therefore checks [mounted] before touching `ref`.
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
@@ -449,73 +533,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 400),
-                  top: MediaQuery.paddingOf(context).top + 80.h,
-                  left: state.isScrolling ? -64.w : 12.w,
-                  child: ButtonsBouncingEffect(
-                    child: Consumer(
-                      builder: (context, ref, child) {
-                        ref.watch(profileImageProvider);
-                        return Stack(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: AppStyle.primary,
-                                borderRadius: BorderRadius.circular(16.r),
-                              ),
-                              margin: EdgeInsets.all(8.r),
-                              child: IconButton(
-                                onPressed: () =>
-                                    context.pushRoute(const OrdersRoute()),
-                                icon: const Icon(
-                                  Remix.history_fill,
-                                  color: AppStyle.white,
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              top: 2.r,
-                              right: 8.r,
-                              child: Text(
-                                ref
-                                    .watch(orderProvider)
-                                    .totalActiveOrder
-                                    .toString(),
-                                style: AppStyle.interBold(
-                                  color: AppStyle.black,
-                                  size: 18,
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 400),
-                  top: MediaQuery.paddingOf(context).top + 150.h,
-                  left: state.isScrolling ? -64.w : 12.w,
-                  child: ButtonsBouncingEffect(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppStyle.primary,
-                        borderRadius: BorderRadius.circular(16.r),
-                      ),
-                      margin: EdgeInsets.all(8.r),
-                      child: IconButton(
-                        onPressed: () =>
-                            context.pushRoute(const DriverRouteRoute()),
-                        icon: const Icon(
-                          Remix.route_fill,
-                          color: AppStyle.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 400),
                   top: MediaQuery.paddingOf(context).top + 10.h,
                   right: state.isScrolling ? -120.w : 16.w,
                   child: Container(
@@ -535,13 +552,37 @@ class _HomePageState extends ConsumerState<HomePage> {
                           );
                           getCurrentLocation();
                         } else {
-                          timer?.cancel();
+                          _stopTracking();
                           Workmanager().cancelAll();
                         }
                         ref
                             .read(homeProvider.notifier)
                             .setOnline(context: context);
                       },
+                    ),
+                  ),
+                ),
+                // CHIP 301 — the driver root tab set, mounted the way every
+                // sibling page mounts the pill (a full-size slot under a
+                // bottom-centre Align, so a tablet-mode rail could self-
+                // place if the app ever opted in). It replaces the two
+                // free-floating icon buttons that used to sit down the left
+                // edge (order history with a count, route): both are tabs
+                // now, and the frames draw no such buttons. Home is lit
+                // while the driver idles (49a/49d/49e) and JOBS while he is
+                // inside a job (49c). The pill is the app's spine and does
+                // not tuck away with the sheet when the map is dragged —
+                // "the tab set is the app's spine and is not what yields"
+                // (49e). It sits above the sheets and below the loading
+                // veil.
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: DriverRootNav(
+                      current: state.isGoRestaurant || state.isGoUser
+                          ? DriverRootTab.jobs
+                          : DriverRootTab.home,
+                      onSelect: _openRootTab,
                     ),
                   ),
                 ),
@@ -556,6 +597,42 @@ class _HomePageState extends ConsumerState<HomePage> {
         ),
       ),
     );
+  }
+
+  /// CHIP 301's destinations — every one an EXISTING route; nothing new
+  /// is composed for the tab set.
+  ///
+  ///  * Home — this page. A tap on the lit Home tab has nowhere to go and
+  ///    does nothing.
+  ///  * Jobs — `OrdersRoute` (/orders): the active + available orders list
+  ///    the old left-edge history button opened. It is pushed even while
+  ///    Jobs is lit mid-job (frame 49c): the lit tab reads "inside the
+  ///    job", but the list is still where a driver with several active
+  ///    orders switches between them, and the home sheet is not that list.
+  ///  * Route — `DriverRouteRoute` (/driver-route), the stop sequence the
+  ///    old left-edge route button opened.
+  ///  * Income — revenue_sdk's `DriverIncomeRoute`, the surface the
+  ///    driver's money already lives on (chip 970's Open wallet and
+  ///    profile_page.dart both use it).
+  ///  * Profile — `ProfileRoute` (/profile), the same page the avatar
+  ///    opens.
+  ///
+  /// Pushed, not swapped: the driver app has no root IndexedStack, and
+  /// each of these pages already carries the pill's back-only segment
+  /// (chip 347's one-back rule) to come home by.
+  void _openRootTab(DriverRootTab tab) {
+    switch (tab) {
+      case DriverRootTab.home:
+        return;
+      case DriverRootTab.jobs:
+        context.pushRoute(const OrdersRoute());
+      case DriverRootTab.route:
+        context.pushRoute(const DriverRouteRoute());
+      case DriverRootTab.income:
+        context.pushRoute(const DriverIncomeRoute());
+      case DriverRootTab.profile:
+        context.pushRoute(const ProfileRoute());
+    }
   }
 
   /// CHIP 942 of design strip section 49, frame 49d — the off-duty veil.
@@ -608,77 +685,93 @@ class _HomePageState extends ConsumerState<HomePage> {
         .toSet();
   }
 
+  /// The GoogleMap is constructed here but MOUNTED only once the page has
+  /// settled (see [DeferredMapSurface]): one frame painted, 800 ms of
+  /// being the current route, still mounted. The plugin fires its own
+  /// un-awaited channel calls the moment its native view connects
+  /// (`updateTileOverlays` first), and a page replaced before that point
+  /// took the phone tour down (paas_driver tour 34049256577, 4/17 on both
+  /// attempts) with a channel-error nothing in this file could catch. The
+  /// 1.19.1 mounted guard covers this page's own [_moveCamera]; the
+  /// deferral covers the plugin's. Until the map mounts the surface is a
+  /// plain box in the theme's surface colour, which is what the map area
+  /// shows before the first tiles draw anyway.
   Widget _mapSurface(BuildContext context, WidgetRef ref) {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
       height: MediaQuery.sizeOf(context).height,
-      child: GoogleMap(
-        myLocationButtonEnabled: false,
-        initialCameraPosition: CameraPosition(
-          bearing: 0,
-          target: LatLng(
-            (LocalStorage.getAddressSelected()?.latitude ??
-                AppConstants.demoLatitude),
-            (LocalStorage.getAddressSelected()?.longitude ??
-                AppConstants.demoLongitude),
-          ),
-          tilt: 0,
-          zoom: 17,
-        ),
-        markers: {
-          Marker(
-            markerId: const MarkerId("source"),
-            icon: myIcon,
-            position: LatLng(
-              currentLocation?.latitude ?? latLng.latitude,
-              currentLocation?.longitude ?? latLng.longitude,
+      child: DeferredMapSurface(
+        child: GoogleMap(
+          myLocationButtonEnabled: false,
+          initialCameraPosition: CameraPosition(
+            bearing: 0,
+            target: LatLng(
+              (LocalStorage.getAddressSelected()?.latitude ??
+                  AppConstants.demoLatitude),
+              (LocalStorage.getAddressSelected()?.longitude ??
+                  AppConstants.demoLongitude),
             ),
+            tilt: 0,
+            zoom: 17,
           ),
-          ...ref.watch(homeProvider).markers,
-        },
-        // CHIP 942, second half: the zone outline drains to grey off
-        // duty. Recoloured here rather than in the notifier so the zone
-        // itself stays one source of truth and only its PAINT changes.
-        polygons: _zonePolygons(ref.watch(homeProvider).polygon),
-        polylines:
-            ref.watch(homeProvider).isGoRestaurant ||
-                ref.watch(homeProvider).isGoUser
-            ? {
-                Polyline(
-                  polylineId: const PolylineId("startLocation"),
-                  points: ref.watch(homeProvider).endPolylineCoordinates,
-                  color: AppStyle.primary.withOpacity(0.4),
-                  width: 6,
-                ),
-                Polyline(
-                  polylineId: const PolylineId("market"),
-                  points: ref.watch(homeProvider).polylineCoordinates,
-                  color: AppStyle.primary,
-                  width: 6,
-                ),
-              }
-            : {},
-        mapToolbarEnabled: true,
-        zoomControlsEnabled: false,
-        onMapCreated: (controller) {
-          googleMapController = controller;
-        },
-        onCameraMoveStarted: () {
-          if (!(LocalStorage.getUser()?.active ?? false)) {
-            ref.read(homeProvider.notifier).scrolling(true);
-          }
-        },
-        onCameraIdle: () {
-          _delayed.run(() {
-            ref.read(homeProvider.notifier).scrolling(false);
-          });
-        },
-        padding: EdgeInsets.only(
-          bottom: ref.watch(homeProvider).isGoRestaurant
-              ? 90.h
-              : ref.watch(homeProvider).isScrolling
-              ? 60.h
-              : 330.h,
+          markers: {
+            Marker(
+              markerId: const MarkerId("source"),
+              icon: myIcon,
+              position: LatLng(
+                currentLocation?.latitude ?? latLng.latitude,
+                currentLocation?.longitude ?? latLng.longitude,
+              ),
+            ),
+            ...ref.watch(homeProvider).markers,
+          },
+          // CHIP 942, second half: the zone outline drains to grey off
+          // duty. Recoloured here rather than in the notifier so the zone
+          // itself stays one source of truth and only its PAINT changes.
+          polygons: _zonePolygons(ref.watch(homeProvider).polygon),
+          polylines: ref.watch(homeProvider).isGoRestaurant ||
+                  ref.watch(homeProvider).isGoUser
+              ? {
+                  Polyline(
+                    polylineId: const PolylineId("startLocation"),
+                    points: ref.watch(homeProvider).endPolylineCoordinates,
+                    color: AppStyle.primary.withOpacity(0.4),
+                    width: 6,
+                  ),
+                  Polyline(
+                    polylineId: const PolylineId("market"),
+                    points: ref.watch(homeProvider).polylineCoordinates,
+                    color: AppStyle.primary,
+                    width: 6,
+                  ),
+                }
+              : {},
+          mapToolbarEnabled: true,
+          zoomControlsEnabled: false,
+          onMapCreated: (controller) {
+            googleMapController = controller;
+          },
+          onCameraMoveStarted: () {
+            if (!(LocalStorage.getUser()?.active ?? false)) {
+              ref.read(homeProvider.notifier).scrolling(true);
+            }
+          },
+          onCameraIdle: () {
+            // [_delayed] is a 36-second one-shot with no cancel, so it can
+            // fire after this page is popped; reading `ref` then throws
+            // "Cannot use ref after the widget was disposed" (tablet tour).
+            _delayed.run(() {
+              if (!mounted) return;
+              ref.read(homeProvider.notifier).scrolling(false);
+            });
+          },
+          padding: EdgeInsets.only(
+            bottom: ref.watch(homeProvider).isGoRestaurant
+                ? 90.h
+                : ref.watch(homeProvider).isScrolling
+                    ? 60.h
+                    : 330.h,
+          ),
         ),
       ),
     );

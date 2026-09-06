@@ -23,7 +23,15 @@ class TrKeys {
   static const String tapeKeepsLast10 = 'the_tape_keeps_the_last_10_calculations';
   static const String useAsTheAmount = 'use_{amount}_as_the_amount';
   static const String fillsTheAmountNeverTheCart = 'fills_the_amount_display_it_never_touches_the_cart';
+  static const String orderWaiting = 'order.waiting';
+  static const String jobInHand = 'job.in.hand';
+  static const String noJobRightNow = 'no.job.right.now';
+  static const String pickUp = 'pick.up';
+  static const String drop = 'drop';
   static const String accepted = 'accepted';
+  static const String jobs = 'jobs';
+  static const String route = 'route';
+  static const String shiftEnded = 'shift.ended';
   static const String alreadyDockedFromYourWallet = 'already.docked.from.your.wallet';
   static const String availableNow = 'available.now';
   static const String away = 'away';
@@ -111,6 +119,10 @@ class TrKeys {
   static const String deliverymanbottomslide1 = 'deliveryman_bottom_slide1';
   static const String deliverymanbottomslide2 = 'deliveryman_bottom_slide2';
   static const String deliverymanbottomslide3 = 'deliveryman_bottom_slide3';
+  static const String ordersToAccept = 'orders_to_accept';
+  static const String waitingOnYou = 'waiting_on_you';
+  static const String openOrders = 'open_orders';
+  static const String manager = 'manager';
   static const String deliverymanTransactions = 'deliveryman_transactions';
   static const String doneOrders = 'Done orders';
   static const String asOf = 'as.of';
@@ -408,6 +420,8 @@ class TrKeys {
   static const String recommended = 'recommended';
   static const String send = 'send';
   static const String resetPasswordText = "reset_password_text";
+  static const String resetPasswordPhoneText = 'reset_password_phone_text';
+  static const String resetPasswordEitherText = 'reset_password_either_text';
   static const String resendOtp = 'send_new';
   static const String sendOtp = 'we_are_send_OTP_code_to';
   static const String enterOtp = 'enter_OTP_code';

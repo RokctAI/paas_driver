@@ -1,3 +1,105 @@
+## 1.10.4
+
+* Demo sign-in hands back the demo identity's own email, never the typed
+  address. `MockAuthRepository.login` returned `_demoUser.copyWith(email:
+  email, ...)`: the address the tour types in (`{demo_email}` -
+  `demo.student@example.com` where a shell sets none, `manager@` /
+  `partner@` / `admin@demo.rokct.ai` where it does) came back as the
+  account's email. Nothing rendered it while auth never persisted the
+  login user, but since 1.10.3 `LoginNotifier._establishSession` stores
+  that user, and users_sdk's `MockUserRepository.getProfileDetails`
+  adopts the stored session's email and role - so supacharge's profile
+  still (tour run 34040668065) read "demo.student@example.com" /
+  "customer" under Thandi Mokoena instead of
+  "thandi.mokoena@outlook.com". The typed address is a credential and a
+  role selector only (`_demoRolesByEmail` is unchanged, so `manager@`
+  still lands a seller): the account it signs in is always Thandi
+  Mokoena, `thandi.mokoena@outlook.com`, `DemoImages.avatar` - the one
+  identity users_sdk's demo profile serves - whatever was typed.
+  `test/demo_account_test.dart` pins the identity email and that no
+  field of the signed-in account reads "demo", "example", "sample" or
+  "placeholder" for any tour address; `test/session_profile_test.dart`
+  pins that the user the login flow persists for the supacharge tour's
+  address carries the identity email, the kernel avatar and no fixture
+  wording.
+
+## 1.10.3
+
+* The reset-password sheet's copy matches the app's sign-up type. Every
+  variant read the email/link line ("Enter the email address for your
+  account and we will send you a link..."), including the phone sign-up
+  that shows a phone field and resets by SMS code. `ResetPasswordPage`
+  now picks its key by `AppConstants.signUpType`: phone renders
+  `TrKeys.resetPasswordPhoneText` (`reset_password_phone_text`, "Enter
+  the phone number for your account and we will send you a code to reset
+  your password."), both renders `TrKeys.resetPasswordEitherText`
+  (`reset_password_either_text`, "...email address or phone number... a
+  link or a code..."), and email keeps `TrKeys.resetPasswordText`. Both
+  new rows are bundled in `kAuthEnTranslations` (registered by the
+  existing `auth_en_bundled_translations` boot hook). The selection
+  lives in new `reset_password_copy.dart` (`resetPasswordCopyKey`) so it
+  can be pinned for all three types - the sheet itself only compiles
+  inside a composed host, since its confirmation step reaches
+  `OfflineAuthService` and the table the composer injects. Requires
+  base_sdk >= 1.60.4 for the two TrKeys.
+  `test/bundled_en_translations_test.dart` pins the rows; new
+  `test/reset_password_copy_test.dart` pins the key per sign-up type and
+  that the default (phone) copy never mentions email or a link.
+* The account is persisted at login, so the profile header has a name and
+  avatar on its first paint. base_sdk's `GenericProfilePage` renders
+  `state.userData ?? LocalStorage.getUser()`, and only users_sdk's
+  `ProfileNotifier.fetchUser` ever wrote the stored user - between
+  sign-in and that fetch the header showed the empty "Profile" / "?"
+  state. `LoginNotifier._establishSession` (every login variant) now
+  stores the login response's user through new
+  `lib/src/common/services/session_profile.dart` (`sessionProfileOf`),
+  a one-to-one lift of `UserModel` into `ProfileData` (both base_sdk
+  models of the same backend user document); profile-only fields
+  (wallet, shop, membership) stay unset for the fetch to fill in.
+  `MockAuthRepository` reuses the same lift for its verify responses.
+  New `test/session_profile_test.dart` pins the mapping and the
+  LocalStorage round trip for the demo sign-in.
+* `MockAuthRepository` reads the demo avatar from base_sdk's
+  `DemoImages.avatar` (new in base_sdk 1.60.4) instead of carrying its
+  own copy of the inline SVG literal; users_sdk's `MockUserRepository`
+  reads the same constant, so the two demo repositories can no longer
+  drift apart.
+
+## 1.10.2
+
+* The reset-password sheet shows real copy instead of its translation
+  key. `ResetPasswordPage` renders `TrKeys.resetPasswordText`
+  (`reset_password_text`), and every app shell's guided tour captured it
+  as the literal "Reset password text": base_sdk bundles no `en` map
+  (English is meant to survive through `AppHelpers.humanizeTrKey`), which
+  works for keys named after their copy (`reset_password` -> "Reset
+  password") but not for a key that NAMES a string, and demo builds take
+  their served map from comms_sdk's `MockSettingsRepository`, a handful of
+  rows that never carried this key. New
+  `lib/src/translations/auth_en_translations.dart` bundles the English
+  row ("Enter the email address for your account and we will send you a
+  link to reset your password."), and a new manifest `boot_hooks` entry
+  (`auth_en_bundled_translations`, lms_sdk's `af` hook pattern) registers
+  it into `BundledTranslations` at boot. Backend-served rows still win.
+  The other 39 TrKeys this repository's SDKs render all humanize to their
+  own copy, so the map carries this one key. New
+  `test/bundled_en_translations_test.dart` guards the copy, that every
+  bundled key is one this SDK renders, and the hook wiring.
+* The demo account (`MockAuthRepository._demoUser`, what every
+  `--dart-define=IS_DEMO=true` sign-in hands back) no longer reads like a
+  fixture in the account stills. "Demo User" / `demo@example.com` /
+  `+1234567890` / a `https://via.placeholder.com/150` avatar / "123 Demo
+  St" in San Francisco became Thandi Mokoena - the seller commerce's demo
+  shop already seeds - with `+27 82 456 7890`, "42 Marula Avenue, Sandton"
+  (Sandton coordinates) and an inline-SVG initials avatar
+  (`MockAuthRepository.demoAvatar`, a `data:` URI like base_sdk's
+  `DemoImages`, so it renders offline and on the CI tour emulator; the
+  placeholder host was a network fetch a demo build cannot make and drew
+  the broken-image state). Display data only: `_demoRolesByEmail`, the
+  per-shell `{demo_email}` sign-in and the password are untouched - the
+  address still decides the role and `login` still returns the typed
+  email. New `test/demo_account_test.dart` pins both.
+
 ## 1.10.1
 
 * `LoginNotifier` no longer throws `Bad state: Tried to use LoginNotifier

@@ -1,3 +1,152 @@
+## 1.20.0
+
+THE MANAGER WINDOW ON THE LAUNCHER CANVAS - approved design strip frames
+53f and 53l (Ray 2026-09-01, "all launcher screens approved"): manager
+mode, the same screen and the same binary as driver mode, and the takings
+figure deliberately absent.
+
+* New `ManagerLaunchWindow` (`lib/src/manager/presentation/launcher/
+  manager_launch_window.dart`), the content of the launcher's manager
+  window (chip 1256): "Orders to accept", the "Waiting on you" count of
+  orders in the `new` column, and one Open orders action that opens the
+  manager app. The launcher owns the chrome and the placement (53g); only
+  the ranking and the payload differ from 53e (chip 1258).
+* NO TAKINGS (chip 1289): Ray ruled earnings and balance off the canvas on
+  53e; sales figures are money by the same reasoning, so today's takings
+  are omitted here as the frame's labelled extension of that ruling -
+  `ManagerLaunchQueue` carries a count and no amount, and nothing in the
+  window formats a currency. One word reverses it.
+* DATALESS BACK SEAT (chip 1288, ruled: "data dont show on launcher when
+  another mode is active"): `ManagerLaunchWindow.dataless` renders the Open
+  orders affordance alone, so the window is useful and tappable without
+  data. On 53l, where only the manager app is installed, the launcher
+  derives one mode and draws no driver row at all (chip 1284) - that is the
+  launcher's derivation (53k), nothing here decides it.
+* Data comes through the same facade the manager order board reads
+  (`SellerOrdersRepositoryFacade.getOrders(status: open)`: the statistic's
+  `new_orders_count`, else the page's length), which in an IS_DEMO build is
+  the seeded `DemoSellerOrdersRepository`; a composition with no facade and
+  no demo seed, or a backend that does not answer, draws the headline and
+  the action without a count and never throws.
+* manifest.json 1.19.1 -> 1.20.0: top-level `integrations` inject the
+  window under launch_sdk's `// @launcher-windows` marker and its import
+  under `// @launcher-windows-imports` (productivity_sdk's glance pattern;
+  requires launch_sdk >= 1.4.3, declared in `_comment_requires`); top-level
+  `tr_keys` for the window's copy (`orders_to_accept`, `waiting_on_you`,
+  `open_orders`) and the back-seat title (`manager`). The mode line and
+  the "set from the app found" status (chip 1257) are the launcher's
+  (53k); nothing here names a package.
+* Tests: `test/manager_launch_window_test.dart` covers the populated,
+  count-less and dataless states, the no-currency exclusion, the loader
+  against the demo seed and against a facade that fails, and the manifest
+  wiring.
+
+## 1.19.1
+
+* Fix: drop `const` on Manager shipping/select-address route constructions
+  that became non-const in 1.19.0 (compile break in every shell installing
+  orders_sdk manager pages).
+
+## 1.19.0
+
+* WALK-IN ORDER FLOW ON PLANES — approved design strip section 37, frames
+  37a–37e (Ray 2026-08-30 12:23Z "build authorized"; decision (a) locked:
+  /order dissolves into the cart pane at plane widths). The shipped
+  create-order chain (commerce#79: /order-products → /order →
+  /shipping-address → /select-address → /delivery-time) is re-laid in the
+  plane language on the SAME providers — composition only, no data change.
+  * New `src/manager/presentation/walk_in/walk_in_plane_flow.dart`:
+    `WalkInPlaneFlow`, the PlaneHost stack of the cascade — the orders
+    board as the yielded origin (`PlaneSpan.all`), the walk-in page
+    claiming TWO (products | cart; yielded to one plane at the fold it
+    compresses to its products column, the cart one Back away), the
+    product-details pane (the 12:02Z sheet fork: FoodDetailsModal is a
+    sheet on the phone, a pane at plane widths), /shipping-address and
+    /delivery-time as DEFAULT one-plane steps in the LAST plane, and
+    /select-address claiming ALL with `allowNeighbors: false` (the 19b/20b
+    map ruling). The host's corner Back pill (347, bottom-END) pops the
+    NEWEST step; at the root it exits the route and the board re-expands.
+  * New `src/manager/presentation/walk_in/walk_in_board_rail.dart`:
+    `WalkInBoardRail` (chip 675) — the ALL-declaring board compressed to a
+    one-plane rail: colour-coded column heads with the board's own count
+    pills over two-line mini cards (number + total, customer + payment),
+    read from the queue providers the workspace already fetched. Empty
+    columns are not drawn.
+  * `templates/pages/manager/create_order/create_order_page.dart` is the
+    host shell: two or more planes (`PlaneHost.planeCountFor`, the
+    BoardLayoutSwitch rule) build the flow with the `${package}` step
+    widgets; one plane is the shipped compact page (37d) with the shipped
+    pop | Ordering FAB pair re-housed per the two-state rule — "Ordering ·
+    total" (690) at the START pushing /order, the corner Back pill (347)
+    at the END. The old `AdaptiveShell` + hard-coded `SplitPane` are gone:
+    products | cart is now produced by the declaration. Header: the
+    171-pattern bare title ("Walk-in order"); canonical 318 search field
+    (with the filter suffix) + 349 category chips over the shipped
+    OrderFoodItem rows (678/679/680).
+  * `order/widgets/order_pane.dart` (681): grows `onNext` (the plane push;
+    null keeps the route push) and the calculated subtotal row (684,
+    "Subtotal · N items" — getCalculate already runs there; totals stay on
+    /delivery-time). `order/order_page.dart` (phone only, 37d's push
+    chain): Next at the START, corner Back pill at the END.
+  * `shipping/shipping_address_page.dart` (686–689): grows `onNext` /
+    `onSelectAddress` — hosted in planes they push into the planes and
+    Next docks at the pane's foot under the "Shipping" title; on the phone
+    route Next at the START, corner pill at the END. The /select-user,
+    /select-section, /select-table pickers stay pushed routes (list-picker
+    family, group J — not framed in 37).
+  * `shipping/address/select_address_page.dart` (691–695): grows
+    `onClose`; Confirm location writes the pick into 689's field and pops
+    the plane (centred on its own when hosted — the host's pill holds the
+    END corner) or the route (Confirm at the START, pill at the END).
+  * `shipping/details/delivery_time_page.dart` (696–699): "Place order"
+    title, the button becomes "Place order · total" with the offline-queue
+    line under it (the shipped orderQueued path told in one line: the
+    order queues on this device and syncs); hosted it docks under the
+    cards, on the phone it sits at the START with the corner pill at the
+    END. popUntilRoot still ends the flow under either width.
+  * Surfaces of the five pages move to `AppStyle.surfaceDark` with
+    `textPrimary` ink (the tokens every plane-hosted sibling uses); the
+    shipped row and card widgets (OrderFoodItem, FoodStockItem, the
+    delivery-type / payment cards) keep their shipped dress — their dark
+    redress belongs to the dark-mode fleet wave, not to this layout.
+  * Manifest (app_type.manager.tr_keys): `walkInOrder`,
+    `searchWalkInProducts`, `orderItems`, `shipping`, `placeOrder`,
+    `offlineOrderQueuesAndSyncs`. No new base_sdk requirement — the
+    1.43.0 plane model 1.11.0 already requires.
+  * Test: `walk_in_plane_flow_test.dart` — 1280 (rail | products | cart;
+    details pane in the last plane; shipping in the last plane with the
+    board off stage; the map ALL and alone; the pill popping one step at
+    a time down to the route exit), 800 (the two-plane claim fills the
+    fold, no rail; shipping compresses the walk-in to its products column)
+    and 393 (the newest step is the whole screen).
+
+## 1.18.3
+
+* fix(demo): `MockOrdersRepository`'s seeded customer order trades in rand
+  (Ray 2026-09-04 13:13Z "in fact you should go check all tour of the app
+  shells"). Its `CurrencyModel` was the one USD/`$` left in the fixtures
+  (id `1`, symbol `$`, title `USD`) while `DemoSellerOrdersRepository` and
+  the rest of the demo seed are ZAR; it is now id `ZAR`, symbol `R`, title
+  `South African Rand`. Total (45.00), status, shop and lines unchanged.
+  Pairs with merchants_sdk 1.28.2, which seeds the same rand into
+  LocalStorage for the manager till.
+
+## 1.18.2
+
+* fix(demo): demo order numbers stop announcing themselves as demo (Ray
+  2026-09-03 21:45Z "demo in text or demo data is not needed").
+  `DemoSellerOrdersRepository`'s seven seeded orders drop the `DEMO-`
+  prefix (`DEMO-1041` … `DEMO-1035` -> `1041` … `1035`) and orders the
+  POS creates in-session follow (`DEMO-${_nextId++}` -> `${_nextId++}`,
+  still counting from 1042), so the board card, the collect sheet and the
+  history list print "№1041" instead of "№DEMO-1041". kitchen_sdk 1.4.1
+  makes the identical change to its tickets so the two fixtures stay in
+  sync. Customers, lines, prices, statuses, times and counts are
+  unchanged.
+* fix(demo): the customer-side `MockCartRepository`'s group cart renames
+  "Demo Cart" -> "Thandi Mokoena" (the first seeded customer), which is
+  what the order screen's cart list prints; id, uuid and lines unchanged.
+
 ## 1.18.1
 
 * fix: drop const on AppStyle.primary (getter since core #105) in six

@@ -31,19 +31,27 @@ import 'package:orders_sdk/src/manager/application/order/shipping/payment/order_
 import 'package:orders_sdk/src/manager/application/order_cart/order_cart_provider.dart';
 import 'package:orders_sdk/src/manager/application/order_products/order_products_provider.dart';
 
-/// The create-order cart: title row, calculated stock list, and (when
-/// [embedded]) the "next" button.
+/// The create-order cart — chip 681 (frames 37a/37b): title row with the
+/// red Clear all, the calculated FoodStockItem lines (682 extras rows,
+/// 683 slide-to-delete), the calculated subtotal row (684) and, when
+/// [embedded], Next (685).
 ///
-/// Extracted from OrderPage's body so the same pane serves both flows on the
-/// SAME providers (orderCartProvider / orderPaymentProvider — no forked cart
-/// state): pushed as its own page on phones (OrderPage wraps it in a Scaffold
-/// with app bar and pop/next FAB), and embedded beside the product grid on
-/// expanded windows, POS main_page style, where it recalculates whenever the
-/// cart's stocks change instead of on route push.
+/// Extracted from OrderPage's body so the same pane serves both flows on
+/// the SAME providers (orderCartProvider / orderPaymentProvider — no forked
+/// cart state): pushed as its own page on phones (OrderPage wraps it with
+/// the shop app bar and the Next | Back row), and embedded as the cart
+/// PLANE beside the products plane at plane widths, where it recalculates
+/// whenever the cart's stocks change instead of on route push. Hosted in
+/// the walk-in plane flow, [onNext] pushes /shipping-address INTO THE
+/// PLANES; null is the route push, as shipped.
 class OrderPane extends ConsumerStatefulWidget {
   final bool embedded;
 
-  const OrderPane({super.key, this.embedded = false});
+  /// What Next (685) does when [embedded]. Null pushes the
+  /// ManagerShippingAddressRoute — the shipped behaviour.
+  final VoidCallback? onNext;
+
+  const OrderPane({super.key, this.embedded = false, this.onNext});
 
   @override
   ConsumerState<OrderPane> createState() => _OrderPaneState();
@@ -61,6 +69,14 @@ class _OrderPaneState extends ConsumerState<OrderPane> {
             );
       },
     );
+  }
+
+  void _next(BuildContext context) {
+    if (widget.onNext != null) {
+      widget.onNext!();
+      return;
+    }
+    context.pushRoute(ManagerShippingAddressRoute());
   }
 
   @override
@@ -84,6 +100,11 @@ class _OrderPaneState extends ConsumerState<OrderPane> {
     final paymentState = ref.watch(orderPaymentProvider);
     final paymentNotifier = ref.read(orderPaymentProvider.notifier);
     final productsEvent = ref.read(orderProductsProvider.notifier);
+    final calculate = paymentState.orderCalculate;
+    final int itemCount = (calculate?.stocks ?? const <Stock>[]).fold<int>(
+      0,
+      (sum, stock) => sum + (stock.quantity ?? 0),
+    );
     return Column(
       children: [
         Padding(
@@ -93,8 +114,11 @@ class _OrderPaneState extends ConsumerState<OrderPane> {
             top: 24,
             bottom: 16,
           ),
+          // 681: "Order" + red Clear all — the title reads on the page
+          // surface in either polarity.
           child: TitleAndIcon(
             title: AppHelpers.getTranslation(TrKeys.orders),
+            titleColor: AppStyle.textPrimary,
             rightTitleColor: AppStyle.red,
             rightTitle: state.stocks.isEmpty
                 ? null
@@ -118,13 +142,12 @@ class _OrderPaneState extends ConsumerState<OrderPane> {
                       bottom: MediaQuery.paddingOf(context).bottom + 68,
                     ),
                     shrinkWrap: true,
-                    itemCount: paymentState.orderCalculate?.stocks?.length ?? 0,
+                    itemCount: calculate?.stocks?.length ?? 0,
                     physics: const BouncingScrollPhysics(),
                     itemBuilder: (context, index) => FoodStockItem(
-                      product: paymentState.orderCalculate?.stocks?[index],
+                      product: calculate?.stocks?[index],
                       onDelete: () => event.deleteStockFromCart(
-                        stock: paymentState.orderCalculate?.stocks?[index] ??
-                            Stock(),
+                        stock: calculate?.stocks?[index] ?? Stock(),
                         updateProducts: (stocks) =>
                             productsEvent.updateProducts(cartStocks: stocks),
                       ),
@@ -132,16 +155,78 @@ class _OrderPaneState extends ConsumerState<OrderPane> {
                   ),
           ),
         ),
+        // 684: the calculated subtotal as one quiet row — getCalculate
+        // already runs on this pane; the full totals stay on
+        // /delivery-time, as shipped.
+        if (calculate != null &&
+            state.stocks.isNotEmpty &&
+            !paymentState.isCalculateLoading)
+          Padding(
+            padding: REdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: widget.embedded ? 12 : 16,
+            ),
+            child: _SubtotalRow(
+              itemCount: itemCount,
+              subtotal: calculate.price ?? 0,
+            ),
+          ),
         if (widget.embedded && state.stocks.isNotEmpty)
           Padding(
             padding: REdgeInsets.only(left: 16, right: 16, bottom: 16),
+            // 685: Next — carries the flow step to step.
             child: CustomButton(
               title: AppHelpers.getTranslation(TrKeys.next),
-              onPressed: () =>
-                  context.pushRoute(const ManagerShippingAddressRoute()),
+              onPressed: () => _next(context),
             ),
           ),
       ],
+    );
+  }
+}
+
+/// Chip 684: "Subtotal · N items" and the calculated price, in the card
+/// tokens — quiet, one row.
+class _SubtotalRow extends StatelessWidget {
+  final int itemCount;
+  final num subtotal;
+
+  const _SubtotalRow({required this.itemCount, required this.subtotal});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: REdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppStyle.cardDark,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: AppStyle.strokeDarkSubtle),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              '${AppHelpers.getTranslation(TrKeys.subtotal)} · $itemCount '
+              '${AppHelpers.getTranslation(TrKeys.orderItems)}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppStyle.interRegular(
+                size: 15.sp,
+                color: AppStyle.textDarkSecondary,
+              ),
+            ),
+          ),
+          8.horizontalSpace,
+          Text(
+            AppHelpers.numberFormat(number: subtotal),
+            style: AppStyle.interSemi(
+              size: 16.sp,
+              color: AppStyle.textPrimary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

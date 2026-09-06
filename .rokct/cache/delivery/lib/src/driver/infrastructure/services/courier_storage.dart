@@ -41,6 +41,10 @@ abstract class CourierStorage {
   /// Same literal the host used; base's StorageKeys has no counterpart.
   static const String _keyOnline = 'keyOnline';
 
+  /// Frame 49d's shift-ended stamp: the minute this phone last saw the
+  /// driver toggle OFF duty, ISO-8601. Courier-only, like [_keyOnline].
+  static const String _keyShiftEndedAt = 'keyShiftEndedAt';
+
   static Future<void> setDeliveryInfo(DeliveryResponse? info) async {
     final preferences = _cached ??= await SharedPreferences.getInstance();
     final String infoString = (info != null) ? jsonEncode(info.toJson()) : '';
@@ -57,6 +61,29 @@ abstract class CourierStorage {
   /// read never races; an unwarmed read degrades to the host's own default
   /// (offline), never a crash.
   static bool getOnline() => _cached?.getBool(_keyOnline) ?? false;
+
+  /// Records (or, with null, clears) when the driver went off duty —
+  /// design strip frame 49d's "SHIFT ENDED 17:04". The frame flagged the
+  /// time as unsourced because `setOnline` stores a bool only; this is
+  /// the client-side local timestamp it asked for. Written by the same
+  /// toggle that writes [_keyOnline], so the two cannot disagree.
+  static Future<void> setShiftEndedAt(DateTime? endedAt) async {
+    final preferences = _cached ??= await SharedPreferences.getInstance();
+    if (endedAt == null) {
+      await preferences.remove(_keyShiftEndedAt);
+    } else {
+      await preferences.setString(_keyShiftEndedAt, endedAt.toIso8601String());
+    }
+  }
+
+  /// Synchronous like [getOnline], for the same reason: the home sheet
+  /// reads it during build. Null when nothing was recorded, or when the
+  /// stored value does not parse (never a crash on a bad string).
+  static DateTime? getShiftEndedAt() {
+    final raw = _cached?.getString(_keyShiftEndedAt);
+    if (raw == null || raw.isEmpty) return null;
+    return DateTime.tryParse(raw);
+  }
 
   static SharedPreferences? _cached;
 

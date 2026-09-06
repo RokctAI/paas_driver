@@ -26,12 +26,26 @@
 # POS steps (1.12.0, tour-sync rule: screen + fragment ship in the same
 # PR): the till (BillingPage, tab 0) and the /pos-checkout flow ARE
 # demo-grounded - ManagerMerchantsDependencies demo-gates the POS product
-# lookup to this SDK's MockProductsRepository ("Demo Product", R150.00),
+# lookup to this SDK's MockProductsRepository ("Flame-grilled beef burger", R150.00),
 # and the checkout's connectivity probe fails closed to the offline-code
 # flow in a headless harness - so every POS still below renders real
 # widgets over real demo data with zero backend contact. The camera never
 # mounts in demo builds; the viewfinder stage renders its camera-less
 # stand-in (the approved strip's own render harness did the same).
+#
+# Receipt steps (1.29.0, same tour-sync rule): "Print Receipt & Finish"
+# (293) on the checkout lands on the receipt preview first (approved
+# frame 11k) - the paper slip drawn from the cart, with the checkout's own
+# dual finish beneath it. Off the till's PlaneHost (CheckoutPage.onReceipt
+# is null on the /pos-checkout route the tour lands on) the checkout
+# pushes the preview above itself as a plain route on either leg; the
+# one-plane receipt (11r) is the till-hosted variant and is not toured
+# from this route. pos_receipt_preview captures that page; the action-only
+# pos_receipt_finish step then records the sale from it. Printing in a
+# headless run is PosReceiptPrinter's default no-op (no hardware handler
+# is installed), and the demo-registered PosOrdersFacade records the sale
+# in memory - never the sync queue - so the sale completes with zero
+# backend contact and nothing is parked for the sync_issues still.
 #
 # Format: RokctAI/shared-workflows scripts/tour/README.md
 sdk: merchants
@@ -39,6 +53,8 @@ imports:
   - "import 'package:flutter_riverpod/flutter_riverpod.dart';"
   - "import 'package:merchants_sdk/src/manager/application/main/main_provider.dart';"
   - "import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider.dart';"
+  - "import 'package:base_sdk/src/services/app_helpers.dart';"
+  - "import 'package:base_sdk/src/services/tr_keys.dart';"
 steps:
   # Arrival/warm-up step: land the manager home shell (bottom navigation;
   # POS till preloaded on tab 0, the order queue on tab 1). No still is
@@ -72,7 +88,7 @@ steps:
     settle: 6
     dart: |
       // Demo build: the barcode lane resolves through this SDK's
-      // MockProductsRepository ("Demo Product", R150.00), zero backend
+      // MockProductsRepository ("Flame-grilled beef burger", R150.00), zero backend
       // contact - the same path a real scan takes.
       final Element element = tester.element(find.byType(Navigator).first);
       final ProviderContainer container =
@@ -87,6 +103,60 @@ steps:
     action: route
     route: /pos-checkout
     settle: 8
+  - key: pos_receipt_preview
+    title: "See the receipt before it prints"
+    caption: "*Print Receipt & Finish* lands on the paper first - the slip exactly as it will print, line by line - so a receipt never fires blind, and one tap finishes the sale from there."
+    action: dart
+    settle: 6
+    dart: |
+      // 293 on the checkout (merchants_sdk 1.29.0, frame 11k) opens the
+      // receipt preview - the paper slip with the checkout's own dual
+      // finish beneath it - pushed above /pos-checkout as a plain route.
+      // The button sits at the foot of the checkout's vertical scroll
+      // column (one on a phone, the tender column on the planes spread),
+      // and the sliver only builds it once it is in view, so every
+      // vertical scrollable is run to its end first. The button carries
+      // no widget key - its label is the tr_key the page itself renders.
+      final Finder scrollables = find.byType(Scrollable);
+      for (int i = 0; i < scrollables.evaluate().length; i++) {
+        final ScrollableState scrollable =
+            tester.state<ScrollableState>(scrollables.at(i));
+        if (scrollable.position.axis != Axis.vertical) continue;
+        scrollable.position.jumpTo(scrollable.position.maxScrollExtent);
+      }
+      await Future<void>.delayed(const Duration(seconds: 1));
+      await tester.tap(
+        find.text(AppHelpers.getTranslation(TrKeys.printReceipt)).first,
+        warnIfMissed: false,
+      );
+  # Action-only step: finish the sale from the preview so the next steps
+  # start from an unobstructed home shell with an empty till. No still is
+  # captured here.
+  - key: pos_receipt_finish
+    title: "Print it and finish"
+    action: dart
+    settle: 4
+    screenshot: false
+    dart: |
+      // "Print Receipt & Finish" (293) on the preview: print THEN record,
+      // the checkout's own PosSaleFinish pipeline. Headless there is no
+      // printer installed, so PosReceiptPrinter's default handler is a
+      // no-op and the finish records through the demo PosOrdersFacade (in
+      // memory, never the sync queue). A composed shell that installs a
+      // hardware printer would fail the print here and leave the preview
+      // up with the sale open - "Finish without Receipt" (294) then
+      // records it, so the tour continues either way. On success the
+      // preview pops and the checkout leaves with it, back to /main.
+      await tester.tap(
+        find.byKey(const Key('posReceiptPrintFinish')),
+        warnIfMissed: false,
+      );
+      await Future<void>.delayed(const Duration(seconds: 3));
+      final Finder finishWithout =
+          find.byKey(const Key('posReceiptFinishWithout'));
+      if (finishWithout.evaluate().isNotEmpty) {
+        await tester.tap(finishWithout, warnIfMissed: false);
+      }
   - key: restaurant_hub
     title: "Everything else, one tap away"
     caption: "The *restaurant hub* is the spine of the app - your shop's identity up top, and every setting, section and report a tap below it."

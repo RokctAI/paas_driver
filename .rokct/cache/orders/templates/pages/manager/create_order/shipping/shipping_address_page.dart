@@ -27,7 +27,8 @@ import 'package:base_sdk/src/presentation/components/text_fields/underlined_text
 import 'package:${package}/presentation/pages/main/widgets/buttons_bouncing_effect.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
-import 'package:base_sdk/src/presentation/components/buttons/pop_button.dart';
+import 'package:base_sdk/src/presentation/adaptive/planes.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/components/keyboard_dismisser.dart';
 import 'package:base_sdk/src/presentation/components/title_icon.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -38,9 +39,28 @@ import 'package:orders_sdk/src/manager/application/order/shipping/section/sectio
 import 'package:orders_sdk/src/manager/application/order/shipping/table/table_provider.dart';
 import 'package:orders_sdk/src/manager/application/order/shipping/user/order_user_provider.dart';
 
+// SHIPPING — /shipping-address, chip 686 (frame 37b): the shipped page's
+// three blocks — the delivery-type cards (687, glyphs per canonical 375),
+// Customer information (688) and the Shipping-address fieldset (689) —
+// with Next (685) carrying the flow to /delivery-time. Hosted in the
+// walk-in plane flow it declares the DEFAULT one plane and takes the
+// LAST one; [onNext] and [onSelectAddress] then push INTO THE PLANES
+// (the map claims ALL, 37c) instead of onto the route stack, and the
+// host draws the one corner Back pill — so this page draws none. On the
+// pushed phone route (null callbacks, 37d's push chain) Next sits at the
+// START and the corner Back pill (347) at the END. The dine-in branch's
+// section + table pickers and the customer picker stay pushed routes
+// (list-picker family, group J — not framed here).
 @RoutePage(name: 'ManagerShippingAddressRoute')
 class ShippingAddressPage extends StatefulWidget {
-  const ShippingAddressPage({super.key});
+  /// Hosted in planes: what Next does. Null pushes ManagerDeliveryTimeRoute.
+  final VoidCallback? onNext;
+
+  /// Hosted in planes: what the map-pin button (689) does. Null pushes
+  /// ManagerSelectAddressRoute.
+  final VoidCallback? onSelectAddress;
+
+  const ShippingAddressPage({super.key, this.onNext, this.onSelectAddress});
 
   @override
   State<ShippingAddressPage> createState() => _ShippingAddressPageState();
@@ -61,13 +81,127 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
     _userTextController.dispose();
   }
 
+  /// Next is offered once the chosen type has what it needs — the
+  /// shipped rule, unchanged.
+  bool _canProceed(WidgetRef ref) =>
+      (ref.watch(deliveryTypeProvider).type == TrKeys.delivery &&
+          ref.watch(orderUserProvider).selectedUser?.phone != null) ||
+      ref.watch(deliveryTypeProvider).type == TrKeys.pickup ||
+      (ref.watch(deliveryTypeProvider).type == TrKeys.dineIn &&
+          ref.watch(tableProvider).selectTable != null);
+
+  void _next(BuildContext context, WidgetRef ref) {
+    if (ref.watch(deliveryTypeProvider).type == TrKeys.delivery &&
+        ref.watch(orderAddressProvider).location == null) {
+      AppHelpers.showCheckTopSnackBarInfo(
+        context,
+        AppHelpers.getTranslation(TrKeys.selectedAddress),
+      );
+      return;
+    }
+    if (widget.onNext != null) {
+      widget.onNext!();
+      return;
+    }
+    context.pushRoute(const ManagerDeliveryTimeRoute());
+  }
+
+  void _selectAddress(BuildContext context) {
+    if (widget.onSelectAddress != null) {
+      widget.onSelectAddress!();
+      return;
+    }
+    context.pushRoute(ManagerSelectAddressRoute());
+  }
+
+  /// 685 — Next, in the pane's own tokens.
+  Widget _nextButton(BuildContext context, WidgetRef ref) => CustomButton(
+        title: AppHelpers.getTranslation(TrKeys.next),
+        onPressed: () => _next(context, ref),
+      );
+
   @override
   Widget build(BuildContext context) {
+    // Hosted in the walk-in planes (37b)? Then the host owns the back
+    // pill (bottom-END) and Next docks at the foot of the pane.
+    final Planes? planes = Planes.maybeOf(context);
+    final bool hosted = planes != null && planes.count > 1;
     return KeyboardDismisser(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor: AppStyle.bgGrey,
-        body: Consumer(
+        backgroundColor: AppStyle.surfaceDark,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // The 171-pattern bare title: "Shipping".
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16.w, 24.h, 16.w, 16.h),
+                    child: Text(
+                      AppHelpers.getTranslation(TrKeys.shipping),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppStyle.interSemi(
+                        size: 24,
+                        color: AppStyle.textPrimary,
+                      ),
+                    ),
+                  ),
+                  Expanded(child: _body(context, hosted: hosted)),
+                  if (hosted)
+                    Consumer(
+                      builder: (context, ref, child) => _canProceed(ref)
+                          ? Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                16.w,
+                                8.h,
+                                16.w,
+                                16.h,
+                              ),
+                              child: _nextButton(context, ref),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                ],
+              ),
+              // The phone route: Next at the START, the corner Back pill
+              // (347) at the END — the settled two-state rule.
+              if (!hosted)
+                PositionedDirectional(
+                  start: 16,
+                  end: 16,
+                  bottom: 16,
+                  child: Consumer(
+                    builder: (context, ref, child) => Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        if (_canProceed(ref))
+                          Expanded(child: _nextButton(context, ref))
+                        else
+                          const Spacer(),
+                        8.horizontalSpace,
+                        FloatingBackPill(
+                          back: FloatingNavBack(
+                            icon: Remix.arrow_left_wide_fill,
+                            label: AppHelpers.getTranslation(TrKeys.back),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// The shipped page's three blocks, scrolling under the title.
+  Widget _body(BuildContext context, {required bool hosted}) {
+    return Consumer(
           builder: (context, ref, child) {
             final deliveryEvent = ref.read(deliveryTypeProvider.notifier);
             final deliveryState = ref.watch(deliveryTypeProvider);
@@ -75,6 +209,7 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
               padding: MediaQuery.viewInsetsOf(context),
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Column(
                   children: [
                     Container(
@@ -329,9 +464,9 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
                                     10.horizontalSpace,
                                     ButtonsBouncingEffect(
                                       child: GestureDetector(
-                                        onTap: () => context.pushRoute(
-                                          const ManagerSelectAddressRoute(),
-                                        ),
+                                        // 689's map-pin: /select-address
+                                        // — into the planes when hosted.
+                                        onTap: () => _selectAddress(context),
                                         child: Container(
                                           width: 40.r,
                                           height: 40.r,
@@ -457,54 +592,14 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
                           );
                         },
                       ),
-                    78.verticalSpace,
+                    // Room under the last card for the floating row on
+                    // the phone route; the hosted pane docks Next below.
+                    SizedBox(height: hosted ? 24.h : 120.h),
                   ],
                 ),
               ),
             );
           },
-        ),
-        floatingActionButtonLocation:
-            FloatingActionButtonLocation.miniCenterDocked,
-        floatingActionButton: Padding(
-          padding: REdgeInsets.all(16),
-          child: Consumer(
-            builder: (context, ref, child) => Row(
-              children: [
-                const PopButton(heroTag: AppConstants.heroTagAddOrderButton),
-                8.horizontalSpace,
-                if ((ref.watch(deliveryTypeProvider).type == TrKeys.delivery &&
-                        ref.watch(orderUserProvider).selectedUser?.phone !=
-                            null) ||
-                    ref.watch(deliveryTypeProvider).type == TrKeys.pickup ||
-                    (ref.watch(deliveryTypeProvider).type == TrKeys.dineIn &&
-                        ref.watch(tableProvider).selectTable != null))
-                  Expanded(
-                    child: CustomButton(
-                      title: AppHelpers.getTranslation(TrKeys.next),
-                      onPressed: () {
-                        if (ref.watch(deliveryTypeProvider).type ==
-                            TrKeys.delivery) {
-                          if (ref.watch(orderAddressProvider).location ==
-                              null) {
-                            AppHelpers.showCheckTopSnackBarInfo(
-                              context,
-                              AppHelpers.getTranslation(TrKeys.selectedAddress),
-                            );
-                            return;
-                          }
-                          context.pushRoute(const ManagerDeliveryTimeRoute());
-                          return;
-                        }
-                        context.pushRoute(const ManagerDeliveryTimeRoute());
-                      },
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+        );
   }
 }

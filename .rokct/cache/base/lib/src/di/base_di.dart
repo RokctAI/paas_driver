@@ -17,6 +17,7 @@ import 'dart:async';
 
 import 'package:get_it/get_it.dart';
 
+import 'package:base_sdk/src/constants/demo_currency.dart';
 import 'package:base_sdk/src/handlers/http_service.dart';
 import 'package:base_sdk/src/services/connectivity_service.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
@@ -45,6 +46,15 @@ class BaseSdkDependencies {
     }
     // App-lifetime listener that drains the outbox on connectivity regain.
     ConnectivityService.I.start();
+
+    // Demo builds print every amount in rand. Nothing else in a demo build
+    // selects a currency (no backend to list one), and intl's default for
+    // an empty selection is the locale's ISO code as a suffix ("42.50USD" in
+    // the wallet history, the till, every price tag). Seeded here, in the
+    // one bootstrap path every composed shell hits after LocalStorage.init,
+    // so no feature SDK has to. No-op in a real build and wherever a
+    // currency is already selected.
+    DemoCurrency.seed();
 
     // Size the image cache from the device's actual RAM instead of Flutter's
     // fixed 1000 images / 100MB, and start listening for memory pressure and

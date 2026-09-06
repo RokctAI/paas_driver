@@ -130,9 +130,9 @@ void main() {
     test('editCarInfo re-parses the mutated fixture', () async {
       final result = await DemoCourierRepository().editCarInfo(
         type: 'car',
-        brand: 'Demo Motors',
+        brand: 'Toyota',
         model: 'Hauler 300',
-        number: 'DEMO 456 GP',
+        number: 'JRT 913 GP',
         color: 'Blue',
         height: '150',
         weight: '40',

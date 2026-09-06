@@ -10,8 +10,10 @@
 # book), and ships the manager profile application slice — so the steps
 # below drive the composed app's account screens, which render exactly this
 # SDK's data. In demo builds (--dart-define=IS_DEMO=true) the session comes
-# from auth_sdk's MockAuthRepository (the "Demo User" account), so the
-# account surface is fully populated with demo data.
+# from auth_sdk's MockAuthRepository and the profile from this SDK's
+# MockUserRepository — the same account (Thandi Mokoena, the seller the
+# commerce demo shop seeds) — so the account surface is fully populated
+# and reads like a real person's, never like fixture data.
 #
 # Where the steps land: composed apps that route their account surface
 # expose it at /profile (e.g. paas_driver: delivery_sdk's ProfileRoute,

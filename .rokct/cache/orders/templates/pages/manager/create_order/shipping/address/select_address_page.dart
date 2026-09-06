@@ -26,7 +26,8 @@ import 'searched_location_item.dart';
 import 'package:${package}/presentation/component/buttons/custom_icon_button.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
-import 'package:base_sdk/src/presentation/components/buttons/pop_button.dart';
+import 'package:base_sdk/src/presentation/adaptive/planes.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/components/keyboard_dismisser.dart';
 import 'package:base_sdk/src/services/app_assets.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -34,9 +35,25 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:orders_sdk/src/manager/application/order/shipping/address/order/order_address_provider.dart';
 import 'package:orders_sdk/src/manager/application/order/shipping/address/select_address_provider.dart';
 
+// SELECT ADDRESS — /select-address, chip 691 (frame 37c): the map
+// declares ALL planes and refuses neighbours — full-bleed across the
+// whole stage, no seams (the settled 19b/20b ruling; the delivery-zone
+// screen rides the same claim). Everything the shipped page has floats on
+// it: the search pill the page reverse-geocodes into as the camera moves
+// (692), the centre drop pin (693, the Lottie pin), Confirm location (694)
+// which writes the pick back into the shipping pane's address field (689)
+// and pops, and find-my-location (695). Hosted in the walk-in plane flow,
+// [onClose] is the pop — the host's corner Back pill abandons the pick and
+// Confirm calls it after writing back; the page draws no pill of its own.
+// On the pushed phone route (null, 37d's push chain) Confirm sits at the
+// START and the corner Back pill (347) at the END, and Confirm pops the
+// route as shipped.
 @RoutePage(name: 'ManagerSelectAddressRoute')
 class SelectAddressPage extends StatefulWidget {
-  const SelectAddressPage({super.key});
+  /// Hosted in planes: pops this step. Null on the pushed phone route.
+  final VoidCallback? onClose;
+
+  const SelectAddressPage({super.key, this.onClose});
 
   @override
   State<SelectAddressPage> createState() => _SelectAddressPageState();
@@ -59,11 +76,22 @@ class _SelectAddressPageState extends State<SelectAddressPage>
     _animationController.dispose();
   }
 
+  void _close(BuildContext context) {
+    if (widget.onClose != null) {
+      widget.onClose!();
+      return;
+    }
+    context.maybePop();
+  }
+
   @override
   Widget build(BuildContext context) {
+    // 691: hosted in the walk-in planes the host owns the corner pill.
+    final Planes? planes = Planes.maybeOf(context);
+    final bool hosted = planes != null && planes.count > 1;
     return KeyboardDismisser(
       child: Scaffold(
-        backgroundColor: AppStyle.bgGrey,
+        backgroundColor: AppStyle.surfaceDark,
         resizeToAvoidBottomInset: false,
         body: Consumer(
           builder: (context, ref, child) {
@@ -232,44 +260,65 @@ class _SelectAddressPageState extends State<SelectAddressPage>
                       ),
                   ],
                 ),
+                // 694: Confirm location — centred on its own when hosted
+                // (the host's pill holds the END corner); on the phone
+                // route Confirm at the START, the corner Back pill (347)
+                // at the END. Slides away while the camera moves, as
+                // shipped.
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 150),
-                  bottom: state.isChoosing ? -60.r : 20.r,
-                  left: 15.r,
-                  right: 15.r,
-                  child: Row(
-                    children: [
-                      const PopButton(
-                        heroTag: AppConstants.heroTagAddOrderButton,
-                      ),
-                      8.horizontalSpace,
-                      Expanded(
-                        child: Consumer(
-                          builder: (context, ref, child) {
-                            return CustomButton(
-                              title: AppHelpers.getTranslation(
-                                TrKeys.confirmLocation,
-                              ),
-                              onPressed: state.location == null
-                                  ? null
-                                  : () {
-                                      ref
-                                          .read(orderAddressProvider.notifier)
-                                          .setLocation(
-                                            title:
-                                                state.textController?.text ??
-                                                '',
-                                            location: state.location,
-                                          );
-                                      context.maybePop();
-                                    },
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                  bottom: state.isChoosing ? -80.r : 16.r,
+                  left: 16.r,
+                  right: 16.r,
+                  child: Builder(
+                    builder: (context) {
+                      final Widget confirm = Consumer(
+                        builder: (context, ref, child) {
+                          return CustomButton(
+                            title: AppHelpers.getTranslation(
+                              TrKeys.confirmLocation,
+                            ),
+                            onPressed: state.location == null
+                                ? null
+                                : () {
+                                    ref
+                                        .read(orderAddressProvider.notifier)
+                                        .setLocation(
+                                          title:
+                                              state.textController?.text ??
+                                              '',
+                                          location: state.location,
+                                        );
+                                    _close(context);
+                                  },
+                          );
+                        },
+                      );
+                      if (hosted) {
+                        return Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 420),
+                            child: confirm,
+                          ),
+                        );
+                      }
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Expanded(child: confirm),
+                          8.horizontalSpace,
+                          FloatingBackPill(
+                            back: FloatingNavBack(
+                              icon: Remix.arrow_left_wide_fill,
+                              label: AppHelpers.getTranslation(TrKeys.back),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
+                // 695: find-my-location, riding above the bottom row.
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 150),
                   bottom: 89.r,

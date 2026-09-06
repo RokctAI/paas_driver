@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.60.0",
+      "version": "1.60.4",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -220,7 +220,7 @@
       ]
     },
     "users_sdk": {
-      "version": "1.3.3",
+      "version": "1.3.6",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -231,7 +231,7 @@
       "boot_hooks": []
     },
     "orders_sdk": {
-      "version": "1.18.1",
+      "version": "1.20.0",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -239,17 +239,35 @@
       "embedded_widgets": [],
       "registration_steps": [],
       "di_hooks": [],
-      "boot_hooks": []
+      "boot_hooks": [],
+      "tr_keys": {
+        "ordersToAccept": "orders_to_accept",
+        "waitingOnYou": "waiting_on_you",
+        "openOrders": "open_orders",
+        "manager": "manager"
+      },
+      "integrations": [
+        {
+          "target": "lib/presentation/pages/launch/home.dart",
+          "placeholder": "// @launcher-windows-imports",
+          "replacement": "import 'package:orders_sdk/src/manager/presentation/launcher/manager_launch_window.dart';"
+        },
+        {
+          "target": "lib/presentation/pages/launch/home.dart",
+          "placeholder": "                // @launcher-windows",
+          "replacement": "                LaunchWindowSource.widget(\n                  mode: LaunchMode.manager,\n                  title: AppHelpers.getTranslation('manager'),\n                  icon: RemixIcons.store_2_line,\n                  builder: (context, openApp) =>\n                      ManagerLaunchWindow(onOpen: openApp),\n                ),"
+        }
+      ]
     },
     "delivery_sdk": {
-      "version": "1.18.0",
+      "version": "1.20.2",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "11db8e698632a6cee50e92a83fef8a494c4b55cf316bbaf6398f652460cb8dea",
         "lib/presentation/routes/delivery_adapters.dart": "cd22c591ae3179bcc44d95cead4ac89abddfecdc6217a8c316037890e13ecddc",
-        "lib/presentation/pages/home/parcel_bottom_sheet.dart": "8caaa6eaf70ba800d984889002fb23b901270f7a1971cfcb190f0a35a8f25ff7",
-        "lib/presentation/pages/home/bottom_sheet_screen.dart": "87eaa122312137a9bd5b5e688937c5fad70a2f83248b49c3fe2dc239339be92e",
-        "lib/presentation/pages/home/home_page.dart": "6093af21c8a9ac5ee47e8b6f77ec625e4e7f19c9b7fe1cd8df2499bb20c6a0d3",
-        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "2369dcdbec07d31b4a1f182f4200328544f32e998eee259d04b660e13e9349e2",
+        "lib/presentation/pages/home/parcel_bottom_sheet.dart": "02b95338f12c2942fe9548872ed942012e224112790e551dccaae833dabb28b2",
+        "lib/presentation/pages/home/bottom_sheet_screen.dart": "0943694ba39b81dbdbb0bacd155b6715bcaed7acf7f11a47c59aae70ce993cf9",
+        "lib/presentation/pages/home/home_page.dart": "640ac480a4fd52ef9de5899092043d135af9736a2d1101b5c12aec5dc449ea5a",
+        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "380e9db09a7ca0465046546bda4878dbc03ad67b679180a229959412c0b8a2c0",
         "lib/presentation/pages/home/widgets/outside_painter.dart": "60866744c76343e4a4cf92b27adb08a17a74dbe5f0e4bd99b6657c30aba402e3",
         "lib/presentation/pages/home/widgets/rate_customer.dart": "f0b57f9589af1414fc4084aabe43f8cdd4385af05d165ddc048a6b67cd08da19",
         "lib/presentation/pages/home/widgets/stores.dart": "498027146cd90e11c9edc48e6bcfe2cd71574edb98f7228ed2a2507666f35b18",
@@ -383,7 +401,8 @@
         "assets/images/splash2.png",
         "assets/lottie/empty-box.json",
         "assets/image/my_location.png",
-        "assets/svg/balance.svg"
+        "assets/svg/balance.svg",
+        "assets/svg/cutter.svg"
       ],
       "di_hooks": [
         {
@@ -431,7 +450,15 @@
         "rejection_message_tr_key": "become.driver"
       },
       "tr_keys": {
+        "orderWaiting": "order.waiting",
+        "jobInHand": "job.in.hand",
+        "noJobRightNow": "no.job.right.now",
+        "pickUp": "pick.up",
+        "drop": "drop",
         "accepted": "accepted",
+        "jobs": "jobs",
+        "route": "route",
+        "shiftEnded": "shift.ended",
         "alreadyDockedFromYourWallet": "already.docked.from.your.wallet",
         "availableNow": "available.now",
         "away": "away",
@@ -520,7 +547,8 @@
       },
       "asset_keys": {
         "pngMyLocation": "assets/image/my_location.png",
-        "svgBalance": "assets/svg/balance.svg"
+        "svgBalance": "assets/svg/balance.svg",
+        "svgCutter": "assets/svg/cutter.svg"
       },
       "platform_permissions": {
         "android": [
@@ -532,6 +560,16 @@
       },
       "integrations": [
         {
+          "target": "lib/presentation/pages/launch/home.dart",
+          "placeholder": "// @launcher-windows-imports",
+          "replacement": "import 'package:delivery_sdk/src/driver/presentation/launcher/driver_launch_window.dart';"
+        },
+        {
+          "target": "lib/presentation/pages/launch/home.dart",
+          "placeholder": "                // @launcher-windows",
+          "replacement": "                LaunchWindowSource.widget(\n                  mode: LaunchMode.driver,\n                  title: AppHelpers.getTranslation(TrKeys.driver),\n                  icon: RemixIcons.e_bike_2_line,\n                  builder: (context, openApp) =>\n                      DriverLaunchWindow(onOpen: openApp),\n                ),"
+        },
+        {
           "target": "lib/presentation/routes/auth_route_pages.dart",
           "placeholder": "// @auth-entry-config",
           "replacement": "  // Driver app (home SDK contribution): the courier shell has no guest\n  // surface \u2014 every screen needs a signed-in courier account \u2014 so the\n  // login page's default-on guest Skip affordance is hidden here.\n  AuthEntryConfig.showsGuestSkip = false;",
@@ -540,7 +578,7 @@
       ]
     },
     "comms_sdk": {
-      "version": "1.15.0",
+      "version": "1.15.1",
       "files": {
         "lib/application/notification/notification_state.dart": "055c8ab42969bad5e418061cbe38699458bfc8b74ea7d4def4a03a18e261b184",
         "lib/application/notification/notification_notifier.dart": "c5c691d1c0f1d476eea96d5a60bac5316fabe8ea0f77412db1d4d409f1e6b748",
@@ -650,7 +688,7 @@
       "boot_hooks": []
     },
     "map_sdk": {
-      "version": "1.3.0",
+      "version": "1.3.1",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -773,7 +811,7 @@
       ]
     },
     "merchants_sdk": {
-      "version": "1.28.0",
+      "version": "1.29.3",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
         "lib/presentation/pages/stores/story_page.dart": "adeb07c24627dd3f1321a4f3eebc4d762e55f8cf8e8e3b7b91daeffdb86b3508"
@@ -807,7 +845,7 @@
       }
     },
     "products_sdk": {
-      "version": "1.10.0",
+      "version": "1.10.1",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -846,7 +884,7 @@
       }
     },
     "auth_sdk": {
-      "version": "1.10.1",
+      "version": "1.10.4",
       "files": {
         "lib/presentation/routes/auth_route_pages.dart": "8eaff3abe2dd38d8a6c2f15ed4b9e4ec779c5b99f3f71a18445ee4a13d12056f",
         "lib/presentation/routes/registration_step_pages.dart": "d18f7e35878721c688c4f0964db42c97148e1f2e9d225cd1a6bb7490e2628347",
@@ -914,6 +952,16 @@
           "id": "auth_restore_credential_gate",
           "order": 1,
           "body": "RestoreCredentialGate.install(); SessionEndHooks.register('restore_credentials', RestoreCredentialGate.clear);"
+        },
+        {
+          "id": "auth_en_bundled_translations",
+          "order": 2,
+          "body": "BundledTranslations.register('en', kAuthEnTranslations);",
+          "imports": [
+            "import 'package:base_sdk/src/services/bundled_translations.dart';",
+            "import 'package:auth_sdk/src/translations/auth_en_translations.dart';"
+          ],
+          "_comment": "Registers this SDK's bundled English map into base_sdk's BundledTranslations registry at boot (lms_sdk's 'af' hook is the precedent). base_sdk bundles no 'en' map because English normally survives through the humanized-key fallback, but that only holds for keys named after their copy: reset_password_text humanized to the literal \"Reset password text\" on every app shell's reset-password sheet, because demo builds take their served map from comms_sdk's MockSettingsRepository (a handful of rows that never carried this key). Backend-served translation rows still win; the map is only the offline/unseeded fallback consulted before the humanized-key fallback. Imports are declared explicitly (src paths, like lms_sdk) because neither symbol is exported by the auth_sdk barrel every composed main.dart already imports. Requires a base_sdk with bundled_translations.dart (the bundled-af wave)."
         }
       ],
       "database": {
@@ -1029,40 +1077,40 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.60.0",
-      "hash": "22e72d3360ecab74"
+      "version": "1.60.4",
+      "hash": "9cf7d5aa6197eccd"
     },
     "comms": {
-      "version": "1.15.0",
-      "hash": "8dd0bf00a569a50a"
+      "version": "1.15.1",
+      "hash": "c3c7540e4e09b021"
     },
     "auth": {
-      "version": "1.10.1",
-      "hash": "efd373d74ae9f6b4"
+      "version": "1.10.4",
+      "hash": "5940157a40010df3"
     },
     "users": {
-      "version": "1.3.3",
-      "hash": "893b5ab83ae76de6"
+      "version": "1.3.6",
+      "hash": "a5a76f0b5fe55a0a"
     },
     "orders": {
-      "version": "1.18.1",
-      "hash": "d2d9dfc5d03af908"
+      "version": "1.20.0",
+      "hash": "5a44810b895a7520"
     },
     "merchants": {
-      "version": "1.28.0",
-      "hash": "2c1f1628ce2a753d"
+      "version": "1.29.3",
+      "hash": "e245e40ae8120c43"
     },
     "products": {
-      "version": "1.10.0",
-      "hash": "0f3a4452babc677b"
+      "version": "1.10.1",
+      "hash": "054e6c067b1ca2c5"
     },
     "delivery": {
-      "version": "1.18.0",
-      "hash": "0705d75a98115666"
+      "version": "1.20.2",
+      "hash": "f70b96a6c9bb730a"
     },
     "map": {
-      "version": "1.3.0",
-      "hash": "145c622b8f9a6b52"
+      "version": "1.3.1",
+      "hash": "59d2d79706c97184"
     },
     "zones": {
       "version": "1.5.0",

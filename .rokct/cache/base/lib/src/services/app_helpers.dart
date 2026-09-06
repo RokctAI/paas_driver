@@ -33,6 +33,7 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/bundled_translations.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
+import 'package:base_sdk/src/constants/demo_currency.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
 import 'package:base_sdk/src/handlers/network_exceptions.dart';
@@ -45,21 +46,29 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 abstract class AppHelpers {
   AppHelpers._();
 
+  /// The currency money strings print in: the selected one, else - in a
+  /// demo build only - [DemoCurrency.rand]. A real build with nothing
+  /// selected keeps intl's own default (the locale's ISO code as a suffix)
+  /// until `CurrencyNotifier.fetchCurrency` stores the backend's list.
+  static CurrencyData? _formatCurrency() =>
+      LocalStorage.getSelectedCurrency() ?? DemoCurrency.fallback;
+
   static String numberFormat({num? number, String? symbol, bool? isOrder}) {
-    if (LocalStorage.getSelectedCurrency()?.position == "before") {
+    final CurrencyData? currency = _formatCurrency();
+    if (currency?.position == "before") {
       return NumberFormat.currency(
         customPattern: '\u00a4#,###.#',
         symbol: (isOrder ?? false)
-            ? symbol ?? LocalStorage.getSelectedCurrency()?.symbol
-            : LocalStorage.getSelectedCurrency()?.symbol,
+            ? symbol ?? currency?.symbol
+            : currency?.symbol,
         decimalDigits: 2,
       ).format(number ?? 0);
     } else {
       return NumberFormat.currency(
         customPattern: '#,###.#\u00a4',
         symbol: (isOrder ?? false)
-            ? symbol ?? LocalStorage.getSelectedCurrency()?.symbol
-            : LocalStorage.getSelectedCurrency()?.symbol,
+            ? symbol ?? currency?.symbol
+            : currency?.symbol,
         decimalDigits: 2,
       ).format(number ?? 0);
     }

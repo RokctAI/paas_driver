@@ -24,7 +24,7 @@ class MockCartRepository implements CartRepositoryFacade {
     cartId: "1",
     userId: "1",
     status: true,
-    name: "Demo Cart",
+    name: "Thandi Mokoena",
     uuid: "demo_cart_uuid",
     cartDetails: [
       CartDetail(

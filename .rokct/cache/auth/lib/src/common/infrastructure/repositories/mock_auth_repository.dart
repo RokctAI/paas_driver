@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:base_sdk/src/constants/demo_images.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/domain/interface/auth.dart';
 import 'package:base_sdk/src/models/models.dart';
@@ -19,6 +20,7 @@ import 'package:base_sdk/src/models/data/address_information.dart';
 
 import 'package:auth_sdk/src/common/domain/interface/deferred_otp_email_resend.dart';
 import 'package:auth_sdk/src/common/domain/interface/session_password_rotation.dart';
+import 'package:auth_sdk/src/common/services/session_profile.dart';
 
 class MockAuthRepository
     implements
@@ -48,41 +50,43 @@ class MockAuthRepository
   static String _roleForEmail(String email) =>
       _demoRolesByEmail[email.trim().toLowerCase()] ?? 'customer';
 
+  /// The account every demo sign-in lands on. Display data only: the
+  /// sign-in ADDRESS decides the role ([_demoRolesByEmail]) and nothing
+  /// else - [login] hands back THIS account, email included, whatever was
+  /// typed, so a tour's sign-in address (`demo.student@example.com`,
+  /// `manager@demo.rokct.ai`) can never reach a profile header. It is
+  /// what the account surfaces render (profile header, edit-profile sheet,
+  /// address book), so it has to read like a real person: the old fixture
+  /// wording (a Demo name, a placeholder-host avatar, a Demo St address)
+  /// reached the published tour stills. Thandi Mokoena is the seller
+  /// commerce's demo shop already seeds. Kept in step with users_sdk's
+  /// `MockUserRepository` and `MockAddressRepository`, which serve the same
+  /// account once the session exists.
   final UserModel _demoUser = UserModel(
     id: "1",
     uuid: "demo_uuid",
-    firstname: "Demo",
-    lastname: "User",
-    email: "demo@example.com",
-    phone: "+1234567890",
+    firstname: "Thandi",
+    lastname: "Mokoena",
+    email: "thandi.mokoena@outlook.com",
+    phone: "+27 82 456 7890",
     role: "customer",
     active: true,
-    img: "https://via.placeholder.com/150",
+    // base_sdk's inline `data:` SVG initials avatar: carries its own
+    // pixels, so it renders offline and on the CI tour emulator, and it is
+    // the one avatar users_sdk's MockUserRepository serves too.
+    img: DemoImages.avatar,
     addresses: [
       AddressNewModel(
         active: true,
-        address: AddressInformation(address: "123 Demo St"),
+        address: AddressInformation(address: "42 Marula Avenue, Sandton"),
         id: "1",
-        location: [37.7749, -122.4194],
+        location: [-26.1076, 28.0567],
         title: "Home",
       ),
     ],
   );
 
-  ProfileData _mapUserToProfile(UserModel user) {
-    return ProfileData(
-      id: user.id,
-      uuid: user.uuid,
-      firstname: user.firstname,
-      lastname: user.lastname,
-      email: user.email,
-      phone: user.phone,
-      role: user.role,
-      active: user.active,
-      img: user.img,
-      addresses: user.addresses,
-    );
-  }
+  ProfileData _mapUserToProfile(UserModel user) => sessionProfileOf(user);
 
   @override
   Future<ApiResult<VerifyData>> forgotPasswordConfirm({
@@ -127,7 +131,13 @@ class MockAuthRepository
         data: UserData(
           accessToken: "demo_access_token",
           tokenType: "Bearer",
-          user: _demoUser.copyWith(email: email, role: _roleForEmail(email)),
+          // The typed address is a credential and a role selector, not an
+          // identity: the account signed in is always [_demoUser], email
+          // included. Echoing the address here is how a tour's sign-in
+          // ("demo.student@example.com", "manager@demo.rokct.ai") reached
+          // the profile header once LoginNotifier started persisting the
+          // login user (1.10.3).
+          user: _demoUser.copyWith(role: _roleForEmail(email)),
         ),
       ),
     );

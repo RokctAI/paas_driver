@@ -121,7 +121,7 @@ class MockSettingsRepository implements SettingsRepositoryFacade {
     return ApiResult.success(
       data: Translation(
         title: "Privacy Policy",
-        description: "This is a demo privacy policy.",
+        description: "We store only the account details, preferences and activity needed to run the app on your device and keep your data in sync. We never sell your information. You can request a copy or deletion of your data from Settings or by contacting support.",
         locale: "en",
       ),
     );
@@ -132,7 +132,7 @@ class MockSettingsRepository implements SettingsRepositoryFacade {
     return ApiResult.success(
       data: Translation(
         title: "Terms of Service",
-        description: "These are demo terms of service.",
+        description: "By using this app you agree to keep your account details accurate, to use the service lawfully and to respect other members. Paid features are billed as shown at checkout and can be cancelled from Settings. We may update these terms and will notify you in the app before changes take effect.",
         locale: "en",
       ),
     );

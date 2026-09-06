@@ -43,6 +43,7 @@ import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service
 import 'package:auth_sdk/src/common/services/auth_error_presenter.dart';
 import 'package:auth_sdk/src/common/services/platform_support.dart';
 import 'package:auth_sdk/src/common/services/restore_credential_service.dart';
+import 'package:auth_sdk/src/common/services/session_profile.dart';
 
 class LoginNotifier extends StateNotifier<LoginState> {
   final AuthRepositoryFacade _authRepository;
@@ -221,10 +222,10 @@ class LoginNotifier extends StateNotifier<LoginState> {
   /// One successful credential exchange -> one session, gated by the
   /// composed [AuthSessionPolicy]:
   ///
-  ///   * policy allows the account's role -> persist token + active
-  ///     address, land wherever the policy says (the default policy lands
-  ///     exactly where this code always landed: `isDemo ?
-  ///     goHome`), then refresh the FCM token.
+  ///   * policy allows the account's role -> persist token, active
+  ///     address and the account itself, land wherever the policy says
+  ///     (the default policy lands exactly where this code always landed:
+  ///     `isDemo ? goHome`), then refresh the FCM token.
   ///   * policy rejects it -> nothing is persisted; the policy presents the
   ///     rejection (message/route). Manager-style compositions use this to
   ///     admit only sellers without owning any auth code.
@@ -245,6 +246,15 @@ class LoginNotifier extends StateNotifier<LoginState> {
     await SecureStorage.setRefreshToken(data?.refreshToken);
     await LocalStorage.setTokenExpiry(data?.expiresAt);
     LocalStorage.setAddressSelected(_activeAddressOf(data?.user));
+    // Persist the account the exchange came back with, so the profile
+    // header has a name and avatar on its first paint instead of the
+    // empty "Profile" / "?" state it showed until profileProvider's
+    // fetch (the only other writer of the stored user) came back. The
+    // fetch still runs and overwrites this with the full profile.
+    final UserModel? user = data?.user;
+    if (user != null) {
+      await LocalStorage.setUser(sessionProfileOf(user));
+    }
     if (popUntilRoot) {
       context.router.popUntilRoot();
     }

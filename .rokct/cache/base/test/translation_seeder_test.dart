@@ -13,10 +13,15 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:base_sdk/src/services/app_helpers.dart';
-import 'package:base_sdk/src/services/bundled_translations.dart';
 import 'package:base_sdk/src/common/translation_seeder.dart';
+import 'package:base_sdk/src/models/response/languages_response.dart';
+import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/bundled_en_translations.dart';
+import 'package:base_sdk/src/services/bundled_translations.dart';
+import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/services/tr_keys.dart';
 
 /// Contract under test — the candidate set the seeder offers the
 /// (insert-only) backend endpoint:
@@ -24,9 +29,10 @@ import 'package:base_sdk/src/common/translation_seeder.dart';
 ///   * active-locale rows are diffed against the served map (the only
 ///     locale that CAN be diffed locally);
 ///   * an `en` row is offered for every key any bundled locale registers,
-///     valued with AppHelpers.humanizeTrKey — i.e. exactly what the UI's
-///     last-resort fallback renders — and diffed only when `en` is the
-///     active locale;
+///     valued with the bundled `en` entry when one is registered and with
+///     AppHelpers.humanizeTrKey otherwise — i.e. exactly what the UI
+///     renders for the key — and diffed only when `en` is the active
+///     locale;
 ///   * output is (locale, key)-sorted so the persisted fingerprint is
 ///     stable across launches;
 ///   * the fingerprint changes when any row or the salt changes.
@@ -76,6 +82,46 @@ void main() {
       }
     });
 
+    test('prefers a bundled en entry over the humanized key', () {
+      final rows = TranslationSeeder.computeCandidateRows(
+        servedMap: const {},
+        activeLocale: 'af',
+      );
+
+      final enRows = rowsFor(rows, 'en');
+      // The maintenance keys NAME a string rather than spelling it: the
+      // humanized "Maintenance title" is not copy, and seeding it would
+      // plant that literal in the backend for every tenant.
+      expect(enRows[TrKeys.maintenanceTitle], 'Under maintenance');
+      expect(
+        enRows[TrKeys.maintenanceBrief],
+        'We are doing some maintenance. Please try again shortly.',
+      );
+      expect(
+        enRows[TrKeys.maintenanceTitle],
+        isNot(AppHelpers.humanizeTrKey(TrKeys.maintenanceTitle)),
+      );
+      // A key with no bundled en entry is still humanized.
+      final af = BundledTranslations.entriesFor('af')!;
+      final plainKey = af.keys.firstWhere(
+        (key) => !kBaseEnTranslations.containsKey(key),
+      );
+      expect(enRows[plainKey], AppHelpers.humanizeTrKey(plainKey));
+    });
+
+    test('an SDK-registered en entry wins over the humanized key too', () {
+      const key = 'seeder_test_registered_key';
+      BundledTranslations.register('en', const {key: 'Registered copy'});
+      addTearDown(() => BundledTranslations.register('en', const {key: ''}));
+
+      final rows = TranslationSeeder.computeCandidateRows(
+        servedMap: const {},
+        activeLocale: 'af',
+      );
+
+      expect(rowsFor(rows, 'en')[key], 'Registered copy');
+    });
+
     test('diffs en rows when en IS the active locale', () {
       final af = BundledTranslations.entriesFor('af')!;
       final servedKey = af.keys.first;
@@ -123,6 +169,51 @@ void main() {
       // lowercase/digit-to-uppercase boundary is a camelCase break.
       expect(AppHelpers.humanizeTrKey('good.Morning'), 'Good Morning');
       expect(AppHelpers.humanizeTrKey('Save.for.Later'), 'Save for Later');
+    });
+  });
+
+  group('bundled en copy', () {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      await LocalStorage.init();
+    });
+
+    test('en is a bundled locale and English is still listed once', () {
+      expect(BundledTranslations.bundledLocales, contains('en'));
+      expect(BundledTranslations.entriesFor('en'), isNotNull);
+      final english = BundledTranslations.fallbackLanguages()
+          .where((l) => l.locale == 'en');
+      expect(english.length, 1);
+      expect(BundledTranslations.fallbackLanguages().first.locale, 'en');
+    });
+
+    test('the maintenance page copy resolves on an unseeded en tenant',
+        () async {
+      // No served map at all (the tenant's Translation doctype has no en
+      // rows) and English selected: getTranslation must reach the bundled
+      // copy, not the humanized key the page used to show.
+      await LocalStorage.setLanguageData(
+        LanguageData(id: 'local-en', title: 'English', locale: 'en'),
+      );
+      expect(LocalStorage.getTranslations(), isEmpty);
+      expect(
+        AppHelpers.getTranslation(TrKeys.maintenanceTitle),
+        'Under maintenance',
+      );
+      expect(
+        AppHelpers.getTranslation(TrKeys.maintenanceBrief),
+        'We are doing some maintenance. Please try again shortly.',
+      );
+    });
+
+    test('a served en row still wins over the bundled copy', () async {
+      await LocalStorage.setLanguageData(
+        LanguageData(id: 'local-en', title: 'English', locale: 'en'),
+      );
+      await LocalStorage.setTranslations(
+        {TrKeys.maintenanceTitle: 'Back soon'},
+      );
+      expect(AppHelpers.getTranslation(TrKeys.maintenanceTitle), 'Back soon');
     });
   });
 

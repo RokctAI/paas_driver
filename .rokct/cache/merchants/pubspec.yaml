@@ -11,13 +11,21 @@ dependencies:
   base_sdk:
     path: ../base
   auto_route: ^9.2.0
+  # Direct dep: the manager shell's ShopNavAvatar draws the shop logo
+  # through CachedNetworkImageProvider so its fallback can be Image's own
+  # errorBuilder (same version rail as base_sdk).
+  cached_network_image: ^3.3.1
   # Direct dep: shop_create_sync_handler.dart sends the idempotency-key
   # header via dio's Options (same version rail as base_sdk).
   dio: ^5.7.0
   flutter_riverpod: ^2.5.1
   flutter_screenutil: ^5.9.0
   flutter_staggered_animations: ^1.1.1
-  flutter_svg: ^2.0.9
+  # >= 2.0.17: the manager shell's ShopNavAvatar passes `errorBuilder` to
+  # SvgPicture.network (added to flutter_svg in 2.0.17). Composed shells
+  # resolve this package as a path dependency, so this floor is what lifts
+  # a host pubspec.lock still pinned to 2.0.10+1 (paas_manager/paas_driver).
+  flutter_svg: ^2.0.17
   # POS vertical (BillingPage/CheckoutPage templates + the offline
   # pay-verification helper): barcode camera, pay-link QR, sha256 code.
   crypto: ^3.0.3

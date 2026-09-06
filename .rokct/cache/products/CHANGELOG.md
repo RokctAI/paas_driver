@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.10.1
+
+* fix(demo): demo stock SKUs stop announcing themselves as demo (Ray
+  2026-09-03 21:45Z "demo in text or demo data is not needed").
+  `DemoSellerProductsRepository` seeds `SKU-<id>` instead of
+  `DEMO-SKU-<id>` for every product's stock and for the empty stock a new
+  product gets - the product detail pane prints the SKU verbatim. Ids,
+  titles, prices, quantities and counts are unchanged.
+
 ## 1.10.0
 
 * THE ADD MOMENT on planes (approved frame 35a's "+ New product", chip 618,

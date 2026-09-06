@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.15.1
+
+* Fixed: privacy policy and terms of service placeholder copy in the mock
+  settings repository no longer reads as demo text (rendered by corporate's
+  policy page).
+
 ## 1.15.0
 
 * `PushPermissionService` — the single guarded entry point for the OS

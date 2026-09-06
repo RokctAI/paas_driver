@@ -1,3 +1,14 @@
+## 1.3.1
+
+* Route drawing sends ORS start/end as `lon,lat` strings instead of Dart
+  record text, so directions requests no longer return HTTP 400 (code
+  2003). `DrawRepository.getRouting` passed the records
+  `(start.longitude, start.latitude)` / `(end.longitude, end.latitude)`
+  as Dio query parameters, which serialised as `(lon, lat)`; ORS's GET
+  `/v2/directions/{profile}` only accepts comma-separated `lon,lat`.
+  Regression test `draw_repository_ors_params_test.dart` captures the
+  outgoing request through a recording `HttpClientAdapter`.
+
 ## 1.3.0
 
 * Customer route wiring for the two map pages (Dart SDK fix-wave

@@ -32,8 +32,12 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:get_it/get_it.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_state.dart';
+import 'package:merchants_sdk/src/manager/application/pos_cart/pos_sale_finish.dart';
 import 'package:merchants_sdk/src/manager/application/quick_flow/quick_flow_provider.dart';
 import 'package:merchants_sdk/src/manager/domain/interface/pos_orders.dart';
+import 'package:merchants_sdk/src/manager/presentation/main/manager_nav_clearance.dart';
+import 'package:merchants_sdk/src/manager/presentation/pos/receipt_preview_page.dart';
+import 'package:merchants_sdk/src/manager/presentation/pos/receipt_slip.dart';
 
 // Same install directory (lib/presentation/pages/billing/), so the
 // relative import resolves both here and in the composed host — the
@@ -115,11 +119,19 @@ import 'checkout_page.dart';
 // till is top-level, so it carries no pill of its own — the shell's nav
 // (the rail in the manager compose) is the full nav. Phones never enter
 // any of this: PlaneHost is one plane there, Continue pushes the route.
+// THE RECEIPT AS ONE PLANE (frame 11r, approved 13:06Z — "the best ui
+// ever", the reference standard): "Print Receipt & Finish" on the hosted
+// checkout POPS the checkout off this stack and pushes the receipt
+// preview (ReceiptPreviewPage: 11k's paper slip, 322, plus the dual
+// finish) claiming the DEFAULT — ONE plane, PlaneSpan.one — so it takes
+// the LAST plane at its natural size and the till returns beneath on the
+// leftover planes (scan | cart at three, the next sale's stage); the END
+// pill pops it back to the till. On a phone the checkout pushes the
+// preview as a route itself (11k).
 //
 // NOT BUILT from the approved frames (flagged, not invented): 11m's
 // category chip bar (chip 349) — PosCatalogRepositoryFacade only
-// searches, it exposes no categories; and 11n's live receipt slip (322,
-// the 11k paper slip) — no slip widget exists in this SDK.
+// searches, it exposes no categories.
 
 class BillingPage extends ConsumerStatefulWidget {
   const BillingPage({super.key});
@@ -141,6 +153,11 @@ class _BillingPageState extends ConsumerState<BillingPage>
   /// The checkout holds planes 2–3 (11n) — plane widths only; on a phone
   /// the checkout is the pushed /pos-checkout route and this is ignored.
   bool _checkoutOpen = false;
+
+  /// The receipt preview holds the LAST plane (11r) in place of the
+  /// checkout — the sale as the checkout snapshotted it at 293. Plane
+  /// widths only, like [_checkoutOpen].
+  ({PosReceiptData receipt, PosSaleFinish sale})? _receipt;
 
   /// Sales recorded on this till that have not reached the backend yet
   /// (offline-first pending-sync indicator). Null hides the chip.
@@ -238,15 +255,18 @@ class _BillingPageState extends ConsumerState<BillingPage>
           // Continue pushed the route there, so a stale flag is ignored.
           final bool onePlane =
               PlaneHost.planeCountFor(constraints.maxWidth) == 1;
-          final bool checkoutOpen = !onePlane && _checkoutOpen;
+          final receipt = onePlane ? null : _receipt;
+          final bool checkoutOpen =
+              !onePlane && _checkoutOpen && receipt == null;
           return PlaneHost(
-            // The ONE back affordance while the checkout holds a plane:
-            // the host parks it at the bottom-END corner (12d) and it
-            // pops the NEWEST step — the checkout — never the till.
+            // The ONE back affordance while a step holds a plane: the
+            // host parks it at the bottom-END corner (12d) and it pops
+            // the NEWEST step — the receipt, else the checkout — never
+            // the till.
             back: FloatingNavBack(
               icon: Remix.arrow_left_wide_fill,
               label: AppHelpers.getTranslation(TrKeys.back),
-              onTap: _closeCheckout,
+              onTap: _popStep,
             ),
             stack: [
               PlanePage(
@@ -261,8 +281,22 @@ class _BillingPageState extends ConsumerState<BillingPage>
                   // 11n: the payment cap — checkout claims TWO; the till
                   // keeps the first plane where a third exists.
                   span: PlaneSpan.two,
-                  builder: (context) =>
-                      CheckoutPage(onClose: _closeCheckout),
+                  builder: (context) => CheckoutPage(
+                    onClose: _closeCheckout,
+                    onReceipt: _openReceipt,
+                  ),
+                ),
+              if (receipt != null)
+                PlanePage(
+                  name: 'pos-receipt',
+                  // 11r: the DEFAULT claim — one plane, never stretched;
+                  // the till fills the rest beneath, no forcing.
+                  span: PlaneSpan.one,
+                  builder: (context) => ReceiptPreviewPage(
+                    receipt: receipt.receipt,
+                    sale: receipt.sale,
+                    onFinished: _closeReceipt,
+                  ),
                 ),
             ],
           );
@@ -398,6 +432,33 @@ class _BillingPageState extends ConsumerState<BillingPage>
     if (!_checkoutOpen) return;
     setState(() => _checkoutOpen = false);
     unawaited(_refreshPendingSync());
+  }
+
+  /// 293 on the hosted checkout (11r): the checkout pops, the receipt
+  /// takes the last plane.
+  void _openReceipt(PosReceiptData receipt, PosSaleFinish sale) {
+    setState(() {
+      _checkoutOpen = false;
+      _receipt = (receipt: receipt, sale: sale);
+    });
+  }
+
+  /// Back pops the receipt (the END pill) and lands on the till — the
+  /// sale is still open, Continue re-enters the checkout; a finished sale
+  /// leaves the same way with the cart already cleared.
+  void _closeReceipt() {
+    if (_receipt == null) return;
+    setState(() => _receipt = null);
+    unawaited(_refreshPendingSync());
+  }
+
+  /// The END pill pops the NEWEST step of the flow.
+  void _popStep() {
+    if (_receipt != null) {
+      _closeReceipt();
+      return;
+    }
+    _closeCheckout();
   }
 
   /// Chip 273: the viewfinder stage — a fixed dark camera housing (same in
@@ -832,6 +893,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
                   ? null
                   : () => _openCheckout(context),
               child: Container(
+                key: const Key('posContinue'),
                 width: double.infinity,
                 height: 56.r,
                 decoration: BoxDecoration(
@@ -850,7 +912,18 @@ class _BillingPageState extends ConsumerState<BillingPage>
                 ),
               ),
             ),
-            12.verticalSpace,
+            // NAV CLEARANCE (tour run 33952102598, phone still 05): on the
+            // one-plane phone page the shell's floating pill rides the
+            // Scaffold's centerFloat slot, over this column's foot, and
+            // sat on top of Continue. The foot now clears the pill by the
+            // shell's own figures (managerNavClearance) — the pill itself
+            // is neither moved nor hidden. Plane widths keep the 12 gap:
+            // the shell docks the nav as a rail beside the pages there.
+            SizedBox(
+              height: (Planes.maybeOf(context)?.count ?? 1) == 1
+                  ? managerNavClearance()
+                  : 12.h,
+            ),
           ],
         ),
       ),

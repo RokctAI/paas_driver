@@ -17,11 +17,13 @@ import 'package:base_sdk/src/constants/app_constants.dart';
 /// Shared seed data for the delivery demo repositories
 /// (`--dart-define=IS_DEMO=true` builds only — DemoLmsRepository precedent).
 ///
-/// Everything here is obviously fictional: "Demo" names, `@demo.rokct.ai` /
-/// `@example.com` addresses, `+27 10 000 xxxx` phone numbers and coordinates
-/// derived from the app's configured demo anchor (`AppConstants.demoLatitude`
-/// / `demoLongitude`, the same fallback the courier home map already
-/// centres on) — never a real person or a real person's location.
+/// Everything here is fictional but reads like real data (Ray's rule: no
+/// "Demo" / "Sample" / "Placeholder" wording in anything the screens render):
+/// invented South African shops, customers and street addresses, `@rokct.ai`
+/// mailboxes, `+27 10 000 xxxx` phone numbers and coordinates derived from
+/// the app's configured demo anchor (`AppConstants.demoLatitude` /
+/// `demoLongitude`, the same fallback the courier home map already centres
+/// on) — never a real person or a real person's location.
 ///
 /// Payload maps deliberately mirror the shapes the HTTP repositories parse
 /// (`OrderDetailData.fromJson`, `ParcelOrder.fromJson`,
@@ -105,6 +107,7 @@ class DemoDeliverySeed {
     required int id,
     required String title,
     required String address,
+    required String description,
     required double dLat,
     required double dLng,
   }) =>
@@ -128,24 +131,26 @@ class DemoDeliverySeed {
           'id': id,
           'locale': 'en',
           'title': title,
-          'description': 'Fictional demo merchant — not a real business.',
+          'description': description,
           'address': address,
         },
         'locales': ['en'],
       };
 
-  static Map<String, dynamic> shopDemoDiner() => _shop(
+  static Map<String, dynamic> shopCornerKitchen() => _shop(
         id: 9101,
-        title: 'Demo Diner',
-        address: '1 Placeholder Plaza, Demoville',
+        title: 'Corner Kitchen',
+        address: '42 Marula Avenue, Sandton',
+        description: 'Flame-grilled favourites, ready in minutes',
         dLat: 0.0042,
         dLng: -0.0031,
       );
 
-  static Map<String, dynamic> shopSampleSpaza() => _shop(
+  static Map<String, dynamic> shopMamaThembisSpaza() => _shop(
         id: 9102,
-        title: 'Sample Spaza',
-        address: '7 Fictional Road, Demoville',
+        title: "Mama Thembi's Spaza",
+        address: '7 Vilakazi Street, Orlando West, Soweto',
+        description: 'Bread, airtime and the essentials, open till late',
         dLat: -0.0058,
         dLng: 0.0049,
       );
@@ -162,7 +167,7 @@ class DemoDeliverySeed {
         'firstname': firstname,
         'lastname': lastname,
         'email':
-            '${firstname.toLowerCase()}.${lastname.toLowerCase()}@example.com',
+            '${firstname.toLowerCase()}.${lastname.toLowerCase()}@rokct.ai',
         'phone': '+27 10 000 $phoneSuffix',
         'active': true,
         'img': null,
@@ -170,13 +175,13 @@ class DemoDeliverySeed {
       };
 
   static Map<String, dynamic> customerThandi() => _customer(
-      id: 8101, firstname: 'Thandi', lastname: 'Demo', phoneSuffix: '0101');
+      id: 8101, firstname: 'Thandi', lastname: 'Nkosi', phoneSuffix: '0101');
 
   static Map<String, dynamic> customerSipho() => _customer(
-      id: 8102, firstname: 'Sipho', lastname: 'Example', phoneSuffix: '0102');
+      id: 8102, firstname: 'Sipho', lastname: 'Dlamini', phoneSuffix: '0102');
 
   static Map<String, dynamic> customerLerato() => _customer(
-      id: 8103, firstname: 'Lerato', lastname: 'Sample', phoneSuffix: '0103');
+      id: 8103, firstname: 'Lerato', lastname: 'Mahlangu', phoneSuffix: '0103');
 
   static Map<String, dynamic> _detail({
     required int id,
@@ -229,7 +234,7 @@ class DemoDeliverySeed {
         'id': orderId + 50000,
         'payable_id': orderId,
         'price': price,
-        'note': 'demo transaction',
+        'note': 'Order payment',
         'status': status,
         'created_at': _iso(const Duration(hours: 1)),
         'payment_system': {'id': tag == 'cash' ? 1 : 2, 'tag': tag, 'active': true},
@@ -242,7 +247,7 @@ class DemoDeliverySeed {
   /// Base order seeds. `status` here is the seed value; the overlay (demo
   /// accept/deliver/cancel actions) wins when present.
   static List<Map<String, dynamic>> _orders() => [
-        // The driver's current job: collected from Demo Diner, cash on
+        // The driver's current job: collected from Corner Kitchen, cash on
         // delivery so the COD confirmation flow has something to show.
         {
           'id': '900001',
@@ -257,10 +262,10 @@ class DemoDeliverySeed {
           'current': true,
           'km': 3.2,
           'otp': 4321,
-          'note': 'Gate code 1234 — demo note.',
+          'note': 'Gate code 1234, call on arrival.',
           'location': _location(0.0121, 0.0084),
           'address': {
-            'address': '12 Fictional Lane, Demoville',
+            'address': '12 Cradock Avenue, Rosebank',
             'house': '12',
             'office': null,
             'floor': null,
@@ -270,7 +275,7 @@ class DemoDeliverySeed {
           'delivery_time': '13:30',
           'created_at': _iso(const Duration(minutes: 42)),
           'updated_at': _iso(const Duration(minutes: 12)),
-          'shop': shopDemoDiner(),
+          'shop': shopCornerKitchen(),
           'currency': currency(),
           'user': customerThandi(),
           'details': [
@@ -283,7 +288,7 @@ class DemoDeliverySeed {
             _detail(
                 id: 700012,
                 orderId: 900001,
-                product: 'Sparkling Demo Cooldrink',
+                product: 'Sparkling Lemonade 500 ml',
                 price: 15.00,
                 quantity: 1),
           ],
@@ -305,7 +310,7 @@ class DemoDeliverySeed {
           'otp': 8765,
           'location': _location(-0.0093, 0.0117),
           'address': {
-            'address': '34 Example Avenue, Demoville',
+            'address': '34 Jan Smuts Avenue, Rosebank',
             'house': '34',
             'office': null,
             'floor': null,
@@ -315,20 +320,20 @@ class DemoDeliverySeed {
           'delivery_time': '14:15',
           'created_at': _iso(const Duration(minutes: 25)),
           'updated_at': _iso(const Duration(minutes: 8)),
-          'shop': shopSampleSpaza(),
+          'shop': shopMamaThembisSpaza(),
           'currency': currency(),
           'user': customerSipho(),
           'details': [
             _detail(
                 id: 700021,
                 orderId: 900002,
-                product: 'Demo Deli Sandwich',
+                product: 'Chicken Mayo Sandwich',
                 price: 49.50,
                 quantity: 1),
             _detail(
                 id: 700022,
                 orderId: 900002,
-                product: 'Fruit Juice (Sample)',
+                product: 'Orange Juice 1 L',
                 price: 10.00,
                 quantity: 1),
           ],
@@ -350,7 +355,7 @@ class DemoDeliverySeed {
           'deliveryman': null,
           'location': _location(0.0066, -0.0102),
           'address': {
-            'address': '56 Sample Street, Demoville',
+            'address': '56 Rivonia Road, Sandton',
             'house': '56',
             'office': '2B',
             'floor': '2',
@@ -360,14 +365,14 @@ class DemoDeliverySeed {
           'delivery_time': '15:00',
           'created_at': _iso(const Duration(minutes: 9)),
           'updated_at': _iso(const Duration(minutes: 9)),
-          'shop': shopDemoDiner(),
+          'shop': shopCornerKitchen(),
           'currency': currency(),
           'user': customerLerato(),
           'details': [
             _detail(
                 id: 701011,
                 orderId: 900101,
-                product: 'Placeholder Pizza (Large)',
+                product: 'Margherita Pizza (Large)',
                 price: 109.00,
                 quantity: 1),
           ],
@@ -388,7 +393,7 @@ class DemoDeliverySeed {
           'deliveryman': null,
           'location': _location(-0.0138, -0.0059),
           'address': {
-            'address': '78 Demo Drive, Demoville',
+            'address': '78 Grayston Drive, Sandton',
             'house': '78',
             'office': null,
             'floor': null,
@@ -398,14 +403,14 @@ class DemoDeliverySeed {
           'delivery_time': '15:30',
           'created_at': _iso(const Duration(minutes: 4)),
           'updated_at': _iso(const Duration(minutes: 4)),
-          'shop': shopSampleSpaza(),
+          'shop': shopMamaThembisSpaza(),
           'currency': currency(),
           'user': customerThandi(),
           'details': [
             _detail(
                 id: 701021,
                 orderId: 900102,
-                product: 'Weekly Groceries Box (Demo)',
+                product: 'Weekly Groceries Box',
                 price: 215.40,
                 quantity: 1),
           ],
@@ -429,14 +434,14 @@ class DemoDeliverySeed {
           'delivery_time': '12:10',
           'created_at': _iso(const Duration(days: 1, hours: 3)),
           'updated_at': _iso(const Duration(days: 1, hours: 2)),
-          'shop': shopDemoDiner(),
+          'shop': shopCornerKitchen(),
           'currency': currency(),
           'user': customerSipho(),
           'details': [
             _detail(
                 id: 699011,
                 orderId: 899901,
-                product: 'Breakfast Basket (Demo)',
+                product: 'Breakfast Basket',
                 price: 84.00,
                 quantity: 1),
           ],
@@ -459,14 +464,14 @@ class DemoDeliverySeed {
           'delivery_time': '17:45',
           'created_at': _iso(const Duration(days: 2, hours: 5)),
           'updated_at': _iso(const Duration(days: 2, hours: 4)),
-          'shop': shopSampleSpaza(),
+          'shop': shopMamaThembisSpaza(),
           'currency': currency(),
           'user': customerLerato(),
           'details': [
             _detail(
                 id: 699021,
                 orderId: 899902,
-                product: 'Dinner-for-Two (Sample)',
+                product: 'Dinner for Two',
                 price: 138.75,
                 quantity: 1),
           ],
@@ -509,18 +514,18 @@ class DemoDeliverySeed {
           'user_id': '8101',
           'total_price': 45,
           'status': 'accepted',
-          'note': 'Signed demo contracts — handle flat.',
+          'note': 'Signed contracts, keep flat.',
           'phone_from': '+27 10 000 0101',
-          'username_from': 'Thandi Demo',
+          'username_from': 'Thandi Nkosi',
           'phone_to': '+27 10 000 0102',
-          'username_to': 'Sipho Example',
+          'username_to': 'Sipho Dlamini',
           'address_from': {
-            'address': '1 Placeholder Plaza, Demoville',
+            'address': '42 Marula Avenue, Sandton',
             'latitude': anchorLatitude + 0.0042,
             'longitude': anchorLongitude - 0.0031,
           },
           'address_to': {
-            'address': '34 Example Avenue, Demoville',
+            'address': '34 Jan Smuts Avenue, Rosebank',
             'latitude': anchorLatitude - 0.0093,
             'longitude': anchorLongitude + 0.0117,
           },
@@ -541,18 +546,18 @@ class DemoDeliverySeed {
           'user_id': '8103',
           'total_price': 60,
           'status': 'ready',
-          'note': 'Birthday gift — demo parcel.',
+          'note': 'Birthday gift, handle with care.',
           'phone_from': '+27 10 000 0103',
-          'username_from': 'Lerato Sample',
+          'username_from': 'Lerato Mahlangu',
           'phone_to': '+27 10 000 0101',
-          'username_to': 'Thandi Demo',
+          'username_to': 'Thandi Nkosi',
           'address_from': {
-            'address': '56 Sample Street, Demoville',
+            'address': '56 Rivonia Road, Sandton',
             'latitude': anchorLatitude + 0.0066,
             'longitude': anchorLongitude - 0.0102,
           },
           'address_to': {
-            'address': '12 Fictional Lane, Demoville',
+            'address': '12 Cradock Avenue, Rosebank',
             'latitude': anchorLatitude + 0.0121,
             'longitude': anchorLongitude + 0.0084,
           },
@@ -574,16 +579,16 @@ class DemoDeliverySeed {
           'total_price': 38,
           'status': 'delivered',
           'phone_from': '+27 10 000 0102',
-          'username_from': 'Sipho Example',
+          'username_from': 'Sipho Dlamini',
           'phone_to': '+27 10 000 0103',
-          'username_to': 'Lerato Sample',
+          'username_to': 'Lerato Mahlangu',
           'address_from': {
-            'address': '34 Example Avenue, Demoville',
+            'address': '34 Jan Smuts Avenue, Rosebank',
             'latitude': anchorLatitude - 0.0093,
             'longitude': anchorLongitude + 0.0117,
           },
           'address_to': {
-            'address': '56 Sample Street, Demoville',
+            'address': '56 Rivonia Road, Sandton',
             'latitude': anchorLatitude + 0.0066,
             'longitude': anchorLongitude - 0.0102,
           },
@@ -655,28 +660,28 @@ class DemoDeliverySeed {
           sequence: 1,
           stopType: 'Pickup',
           refDoctype: 'Dispatch Route Stop',
-          refName: 'DRS-DEMO-0001',
-          label: 'Demo Diner — collect 2 orders',
+          refName: 'DRS-0001',
+          label: 'Corner Kitchen — collect 2 orders',
           dLat: 0.0042,
           dLng: -0.0031,
           quantity: 2,
           unit: 'orders',
           distanceKm: 1.2,
-          meta: {'route_id': 'DR-DEMO-0001'},
+          meta: {'route_id': 'DR-0001'},
         ),
         _stop(
           sequence: 2,
           stopType: 'Delivery',
           refDoctype: 'Order',
           refName: '900001',
-          label: 'Thandi Demo — 12 Fictional Lane',
+          label: 'Thandi Nkosi — 12 Cradock Avenue',
           dLat: 0.0121,
           dLng: 0.0084,
           quantity: 1,
           unit: 'order',
           distanceKm: 2.4,
           meta: {
-            'route_id': 'DR-DEMO-0001',
+            'route_id': 'DR-0001',
             'payment_tag': 'cash',
             'total_price': 189.90,
           },
@@ -686,35 +691,35 @@ class DemoDeliverySeed {
           stopType: 'Delivery',
           refDoctype: 'Order',
           refName: '900002',
-          label: 'Sipho Example — 34 Example Avenue',
+          label: 'Sipho Dlamini — 34 Jan Smuts Avenue',
           dLat: -0.0093,
           dLng: 0.0117,
           quantity: 1,
           unit: 'order',
           distanceKm: 3.1,
-          meta: {'route_id': 'DR-DEMO-0001', 'payment_tag': 'wallet'},
+          meta: {'route_id': 'DR-0001', 'payment_tag': 'wallet'},
         ),
         _stop(
           sequence: 4,
           stopType: 'Delivery',
           refDoctype: 'Parcel Order',
           refName: '77001',
-          label: 'Parcel — Sipho Example, 34 Example Avenue',
+          label: 'Parcel — Sipho Dlamini, 34 Jan Smuts Avenue',
           dLat: -0.0090,
           dLng: 0.0119,
           quantity: 1,
           unit: 'parcel',
           distanceKm: 0.3,
-          meta: {'route_id': 'DR-DEMO-0001'},
+          meta: {'route_id': 'DR-0001'},
         ),
       ];
 
   static Map<String, dynamic> dispatchRoute() => {
         'route': {
-          'name': 'DR-DEMO-0001',
+          'name': 'DR-0001',
           'mode': 'Delivery',
           'status': 'In Progress',
-          'notes': 'Demo dispatch route — four fictional stops.',
+          'notes': 'Morning dispatch route, four stops',
           'total_stops': 4,
           'pending_stops': 4,
         },
@@ -733,9 +738,9 @@ class DemoDeliverySeed {
           'id': 7001,
           'user_id': 8001,
           'type_of_technique': 'motorbike',
-          'brand': 'Demo Motors',
-          'model': 'Runabout 125',
-          'number': 'DEMO 123 GP',
+          'brand': 'Honda',
+          'model': 'Ace 125',
+          'number': 'KLM 482 GP',
           'color': 'Green',
           'width': '60',
           'height': '110',
@@ -757,8 +762,8 @@ class DemoDeliverySeed {
             'id': 8001,
             'uuid': 'demo-driver-8001',
             'firstname': 'Dumi',
-            'lastname': 'Driver',
-            'email': 'driver@demo.rokct.ai',
+            'lastname': 'Khumalo',
+            'email': 'dumi.khumalo@rokct.ai',
             'phone': '+27 10 000 0200',
             'active': true,
             'img': null,
@@ -809,8 +814,8 @@ class DemoDeliverySeed {
         'id': 8001,
         'uuid': 'demo-driver-8001',
         'firstname': 'Dumi',
-        'lastname': 'Driver',
-        'email': 'driver@demo.rokct.ai',
+        'lastname': 'Khumalo',
+        'email': 'dumi.khumalo@rokct.ai',
         'phone': '+27 10 000 0200',
         'active': true,
         'img': null,

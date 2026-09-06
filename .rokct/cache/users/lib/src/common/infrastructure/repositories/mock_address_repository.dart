@@ -21,16 +21,21 @@ import 'package:base_sdk/src/models/response/addresses_response.dart';
 import 'package:base_sdk/src/models/response/single_address_response.dart';
 
 class MockAddressRepository implements AddressRepositoryFacade {
+  /// The demo account's home address - the same one auth_sdk's
+  /// `MockAuthRepository` seeds on the session user and `MockUserRepository`
+  /// serves on the profile, so the address book, the profile and the
+  /// selected-address chip agree. Reads like a real address on purpose:
+  /// the old "Demo St" fixture reached the published tour stills.
   final AddressNewModel _demoAddress = AddressNewModel(
     id: "1",
     title: "Home",
     address: AddressInformation(
-      address: "123 Demo St",
-      house: "123",
+      address: "42 Marula Avenue, Sandton",
+      house: "42",
       floor: "1",
     ),
     active: true,
-    location: [37.7749, -122.4194],
+    location: [-26.1076, 28.0567],
   );
 
   @override
@@ -67,7 +72,7 @@ class MockAddressRepository implements AddressRepositoryFacade {
           _demoAddress.copyWith(
             id: "2",
             title: "Work",
-            address: AddressInformation(address: "456 Office Blvd"),
+            address: AddressInformation(address: "15 Alice Lane, Sandton"),
           ),
         ],
       ),

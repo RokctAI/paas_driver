@@ -1,3 +1,193 @@
+## 1.29.3
+
+* fix(manager): the composed shell did not compile against the host's
+  pinned flutter_svg (paas_manager guided tour run 34049266887, shell main
+  521c2214, merchants 1.29.2): `shop_nav_avatar.dart:78:9: Error: No named
+  parameter with the name 'errorBuilder'`. 1.29.1 gave the SVG branch of
+  ShopNavAvatar the same initials fallback as the raster branch through
+  `SvgPicture.network(errorBuilder: ...)`, but flutter_svg only added that
+  parameter in 2.0.17 and this package's floor was `^2.0.9`; paas_manager
+  and paas_driver commit a pubspec.lock that pins flutter_svg 2.0.10+1,
+  which satisfies `^2.0.9`, so the composer's plain `flutter pub get` kept
+  the pin and the frontend rejected the call (this package's own lock
+  resolves 2.3.0, which is why its unit test passed). The floor is now
+  `flutter_svg: ^2.0.17`. The composer lists merchants_sdk as a path
+  dependency of the host (sdk_composer.py update_pubspec_dependencies), so
+  the host's resolution has to satisfy this constraint and `flutter pub
+  get` re-resolves the stale lock entry to a >= 2.0.17 release instead of
+  keeping it. No source change: the SVG errorBuilder fallback stays.
+  `test/flutter_svg_floor_guard_test.dart` fails the standalone harness
+  if the floor ever drops below 2.0.17 again, since this package's own
+  lock cannot reproduce the shell's break.
+
+## 1.29.2
+
+* fix(manager): the composed shell's generated router did not compile
+  (paas_manager guided tour run 34040704424, shell main 521c2214,
+  merchants 1.29.0/1.29.1): `app_router.gr.dart` failed with "Type
+  'PosReceiptData' not found" / "Type 'PosSaleFinish' not found" at the
+  `PosCheckoutRoute` constructor and `PosCheckoutRouteArgs` field.
+  auto_route_generator 10.3.1 copies every routed-page constructor
+  parameter type into the generated route, but an inline function type
+  (`void Function(PosReceiptData, PosSaleFinish)?`, the `onReceipt`
+  hand-off 1.29.0 added to `checkout_page.dart`) has no element to
+  import from, so the generator imported only the page file and left both
+  argument types unresolved. The template now declares
+  `typedef PosReceiptHandler = void Function(PosReceiptData receipt,
+  PosSaleFinish sale);` in the page's own library and types the field /
+  constructor parameter `PosReceiptHandler? onReceipt`; the generator
+  resolves the alias through the page file it already imports and emits
+  `PosReceiptHandler? onReceipt`. No behaviour change: `PosReceiptData`,
+  `PosSaleFinish` and the receipt flow are untouched, and the till's
+  `onReceipt: _openReceipt` tear-off is assignable to the alias unchanged.
+  Reproduced and verified in a minimal auto_route 10.3.0 /
+  auto_route_generator 10.3.1 host with merchants_sdk as a path dependency:
+  4 `undefined_class` errors in the generated router before, none after.
+  Version 1.29.1 -> 1.29.2 so version-aware cache reconciliation
+  re-extracts the composed checkout page.
+
+## 1.29.1
+
+* fix(manager): three UI defects from the paas_manager guided tour (run
+  33952102598, main 6af4b05).
+  * The restaurant hub's shop title row (`restaurant_page.dart`,
+    `MerchantShopInfoSection`) overflowed its column by 22 px at tablet
+    density 240 dpi (1280x800 logical: three planes, the hub capped at
+    two, so the narrowest section column of any leg; 320 dpi's 960x600
+    two-plane column was wide enough). The title was a fixed-width `Text`
+    with a `Spacer` before the badges, so a full-length title plus the
+    promo/flash badges and the edit pencil simply did not fit. The row is
+    now `lib/src/manager/presentation/restaurant/shop_title_row.dart`
+    (`ShopTitleRow`): the leading title • rating group is `Expanded` and
+    the title inside it `Flexible` with an ellipsis, so the title gives
+    way and the badges keep the end edge on every width — no hardcoded
+    widths; the template only hands it the title, rating and edit tap.
+    New `test/shop_title_row_test.dart` pumps the row where the template
+    mounts it (a ProfileSection under GenericProfilePage /
+    RestaurantHubPlaneFlow) at 1280x800 dpr 1.5 and at the 390x844 phone
+    and asserts no overflow and the reading order.
+  * The POS till's Continue button (`billing_page.dart`, phone still 05)
+    sat under the shell's floating bottom pill: the installed
+    `main_page.dart` parks the pill in its Scaffold's centerFloat
+    `floatingActionButton` slot, over the page body, and the phone
+    column's foot left only 12 under Continue. New
+    `lib/src/manager/presentation/main/manager_nav_clearance.dart`
+    (`managerNavPillHeight` = the pill's 60.r, `managerNavClearance` =
+    pill + `kFloatingActionButtonMargin` + the frames' 12 gap, the safe
+    inset excluded as the page's own SafeArea adds it — the same shape as
+    zones' `driverRootNavClearance`, there being no core helper); the
+    one-plane phone foot uses it, plane widths keep the 12 (the shell
+    docks the nav as a rail there). The pill is neither moved nor hidden;
+    `main_page.dart` now reads its height from the same helper so the two
+    figures cannot drift. New `test/pos_continue_nav_clearance_test.dart`
+    mounts BillingPage in the shell's slot geometry and asserts Continue's
+    bottom edge is above the pill's top edge on a 390x844 phone.
+  * The profile tab's avatar drew a broken-image glyph when the shop's
+    `logo_img` could not be resolved (demo / offline): `_profileItem`
+    handed the URL to base_sdk's `CustomNetworkImage`, whose error state
+    IS that glyph. New
+    `lib/src/manager/presentation/main/shop_nav_avatar.dart`
+    (`ShopNavAvatar`) degrades the way the profile header's avatar does
+    — the shop's initial on the brand circle, or a person glyph with no
+    name — through `Image`'s own errorBuilder over a
+    `CachedNetworkImageProvider` (`cached_network_image` becomes a direct
+    dependency, same rail as base_sdk); inline `data:` logos still go
+    through `CustomNetworkImage` and SVG URLs through `SvgPicture.network`
+    with the same fallback. New `test/shop_nav_avatar_test.dart` proves
+    the fallback with an image provider that throws, the no-URL and
+    no-name cases, and that the demo shop's inline mark still draws.
+
+## 1.29.0
+
+* feat(pos): the receipt preview, the live receipt slip and the receipt
+  as ONE plane - approved design strip frames 11k / 11n / 11r (Ray
+  2026-08-29 13:53Z "approved: ... 11k ..." and 13:06Z "approved:
+  5b,11n, 11o, 11r ..."; "the best ui ever, 11r"). The three "not
+  built" flags in `billing_page.dart` and `checkout_page.dart` are
+  closed; 11m's category chip bar (349) stays flagged.
+  * `ReceiptSlip` (`lib/src/manager/presentation/pos/receipt_slip.dart`,
+    chip 322): the receipt as PAPER - a 58mm-style thermal strip drawn
+    on the screen (off-white paper, speckle + feed bands, serrated tear
+    edges, monospace receipt type): centered shop masthead (323), the
+    printed line rows exactly as `PosReceiptLine` carries them - title,
+    QTY, line total, no unit price invented (324), the dashed tear line
+    (325), TOTAL in printed ink (326), then the tender the checkout
+    already computes (Cash / QR paying-now, On credit remainder), the
+    attached customer and the delivery line when send-for-delivery is
+    on, and a footer. Paper and ink are fixed in both modes; the
+    surround follows `AppStyle.isDark` (shadow on dark, hairline edge on
+    light). Intrinsic width, never stretched; grows as lines print.
+    `PosReceiptData` is its input.
+  * `ReceiptPreviewPage`
+    (`lib/src/manager/presentation/pos/receipt_preview_page.dart`, 11k):
+    the step between checkout and print. "Print Receipt & Finish" (293)
+    on the checkout now lands here first - the 171-pattern bare title
+    "Receipt" (304), the slip, and the checkout's dual finish beneath
+    the paper, verbatim: 293 prints THEN records (atomic, a dead printer
+    leaves the sale open), 294 records without printing. On a phone it
+    is pushed above the checkout as a plain route with the section-12
+    back-only pill (301/302); "Finish without Receipt" on the checkout
+    itself still records straight away, as shipped.
+  * 11r - the receipt as ONE plane: hosted in the till's planes, 293
+    pops the checkout off the `PlaneHost` stack and pushes the preview
+    claiming `PlaneSpan.one` (the default), so the receipt takes the
+    last plane at its natural size and the till returns beneath on the
+    leftover planes (scan | cart at three); the host's END-corner back
+    pill (12c/12d) pops it. New `CheckoutPage.onReceipt` seam.
+  * 11n - the live slip: on the two-plane checkout spread the compact
+    slip sits directly ABOVE the 292 summary in the order-truth column
+    and re-prints as the tender changes. The phone column carries no
+    slip (11k is the phone's receipt).
+  * `PosSaleFinish`
+    (`lib/src/manager/application/pos_cart/pos_sale_finish.dart`): the
+    checkout's print-then-submit pipeline extracted as a value the
+    preview can run after the checkout has popped - one codepath for
+    both finishes, unchanged order (print first, record only after the
+    printer returned; offline-first `submitSale`).
+  * tr_keys (manager): `receipt`, `saleReceipt`, `receiptOrder`, `qty`,
+    `paid`, `thankYou`.
+  * Tests: new `test/pos_receipt_slip_test.dart` (fixture cart, dark and
+    light); `pos_checkout_page_test` follows 293's preview step;
+    `pos_till_plane_flow_test` gains the 11r case (receipt one plane at
+    the END, till on two, finish from the plane).
+* Tour: receipt preview step added to the POS fragment.
+
+## 1.28.2
+
+* fix(demo): the POS till prints rand, not "0.00USD" (Ray 2026-09-04
+  13:13Z "in fact you should go check all tour of the app shells"; phone
+  still 05, `billing_page.dart`'s empty-cart summary). Money on the till
+  goes through `AppHelpers.numberFormat`, which reads LocalStorage's
+  selected currency; nothing in a composed manager app seeds one under
+  IS_DEMO (comms_sdk registers the real `CurrenciesRepository` regardless,
+  and no manager shell calls `CurrencyNotifier.fetchCurrency`), so intl
+  fell back to the locale's ISO code as a suffix while every other seller
+  fixture trades in rand. `ManagerMerchantsDependencies.register` now seeds
+  the new `demoCurrency` fixture (`lib/src/manager/infrastructure/
+  demo_currency.dart`: id `ZAR`, symbol `R`, position `before`, rate 1 -
+  orders_sdk's `DemoSellerOrdersRepository._rand` field for field) once,
+  only under IS_DEMO and only when no currency is selected, so a real
+  currency or a test harness's own seed is never overwritten. The real
+  path and `numberFormat` itself are untouched. New
+  `test/demo_currency_seed_test.dart` pins "R0.00"/"R150.00" and the
+  no-overwrite rule.
+
+## 1.28.1
+
+* fix(demo): the IS_DEMO POS catalog no longer announces itself as demo
+  (Ray 2026-09-03 21:45Z "demo in text or demo data is not needed").
+  `MockProductsRepository`'s one product renames "Demo Product" /
+  "This is a demo product description" -> "Flame-grilled beef burger" /
+  "Flame-grilled beef patty, toasted bun, house sauce" - the same title
+  products_sdk's customer-side mock already serves for the shared
+  `demo_product_uuid`, and a fit for the seeded "Corner Kitchen" shop.
+  Everything else is identical: id `1`, uuid, shop `1`, one stock at
+  150.00 x 100, every barcode (6001067890123 included) and search text
+  still resolves to it. The DI comment, the tour fragment's demo-grounding
+  notes and the three POS tests that assert the title
+  (`pos_billing_page_test`, `pos_till_plane_flow_test`, `pos_cart_test`)
+  follow the rename; no step, caption or timing changed.
+
 ## 1.28.0
 
 * Admins sign in to the manager app too (Ray 2026-09-02 15:18Z "admin

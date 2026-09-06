@@ -34,8 +34,11 @@ class DrawRepository implements DrawRepositoryFacade {
         '/v2/directions/driving-car',
         queryParameters: {
           "api_key": AppConstants.routingKey,
-          "start": (start.longitude, start.latitude),
-          "end": (end.longitude, end.latitude),
+          // ORS takes start/end as comma-separated `lon,lat` strings; a
+          // Dart record here is stringified as "(lon, lat)" and rejected
+          // with HTTP 400 code 2003.
+          "start": '${start.longitude},${start.latitude}',
+          "end": '${end.longitude},${end.latitude}',
         },
       );
       return ApiResult.success(data: DrawRouting.fromJson(response.data));

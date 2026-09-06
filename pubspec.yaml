@@ -225,6 +225,7 @@ flutter:
     - assets/lottie/pin.json
     - assets/lottie/processing.json
     - assets/svg/balance.svg
+    - assets/svg/cutter.svg
     - assets/svgs/adress.svg
     - assets/svgs/avatar.svg
     - assets/svgs/brand_logo_rounded.svg

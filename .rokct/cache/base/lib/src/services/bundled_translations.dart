@@ -14,6 +14,7 @@
 
 import 'package:base_sdk/src/models/response/languages_response.dart';
 import 'package:base_sdk/src/services/bundled_af_translations.dart';
+import 'package:base_sdk/src/services/bundled_en_translations.dart';
 
 /// Registry of locally bundled UI-string maps, keyed by locale.
 ///
@@ -21,11 +22,14 @@ import 'package:base_sdk/src/services/bundled_af_translations.dart';
 /// `api.translation.get_mobile_translations` and cached in LocalStorage)
 /// always wins: [lookup] is only consulted by `AppHelpers.getTranslation`
 /// for keys the served map does not contain, before the humanized-key
-/// fallback. Locales with no bundled map (everything except `af` today)
-/// behave exactly as before this registry existed.
+/// fallback. Locales with no bundled map (everything except `en` and `af`
+/// today) behave exactly as before this registry existed.
 ///
-/// base_sdk seeds its own Afrikaans map. Feature SDKs contribute the
-/// Afrikaans values for their manifest-declared tr_keys by calling
+/// base_sdk seeds its own Afrikaans map and a small English map: the
+/// English rows cover only the keys whose humanized form is NOT their copy
+/// (`maintenance_title` humanizes to "Maintenance title"), since English
+/// otherwise survives through `AppHelpers.humanizeTrKey`. Feature SDKs
+/// contribute the values for their manifest-declared tr_keys by calling
 /// [register] from a composed `boot_hooks` entry in their manifest.json —
 /// the same compose-time registration pattern DI/boot wiring already uses.
 class BundledTranslations {
@@ -41,6 +45,7 @@ class BundledTranslations {
   };
 
   static final Map<String, Map<String, String>> _byLocale = {
+    'en': Map<String, String>.of(kBaseEnTranslations),
     'af': Map<String, String>.of(kBaseAfTranslations),
   };
 
@@ -68,8 +73,9 @@ class BundledTranslations {
     return Map<String, String>.unmodifiable(map);
   }
 
-  /// Locales that ship a non-empty bundled map ('en' is implicit — English
-  /// survives through the humanized-key fallback and the served map).
+  /// Locales that ship a non-empty bundled map, sorted. Includes 'en' now
+  /// that the kernel bundles English rows for the keys whose humanized
+  /// form is not their copy; [fallbackLanguages] still lists English once.
   static List<String> get bundledLocales =>
       _byLocale.entries.where((e) => e.value.isNotEmpty).map((e) => e.key).toList()
         ..sort();

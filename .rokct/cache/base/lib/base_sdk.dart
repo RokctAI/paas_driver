@@ -28,6 +28,7 @@ export 'src/handlers/token_interceptor.dart';
 
 // Constants + assets
 export 'src/constants/app_constants.dart';
+export 'src/constants/demo_currency.dart';
 export 'src/constants/demo_images.dart';
 export 'src/presentation/app_assets.dart';
 
@@ -124,6 +125,7 @@ export 'src/services/storage_keys.dart';
 export 'src/services/tr_keys.dart';
 export 'src/services/bundled_translations.dart';
 export 'src/services/bundled_af_translations.dart';
+export 'src/services/bundled_en_translations.dart';
 export 'src/common/translation_seeder.dart';
 
 // Offline database (shared Drift instance + generic JSON document store)

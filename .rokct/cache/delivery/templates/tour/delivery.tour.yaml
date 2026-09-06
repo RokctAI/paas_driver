@@ -41,7 +41,7 @@ steps:
     settle: 8
   - key: driver_available_orders
     title: "The next job is waiting"
-    caption: "Orders ready for pickup near you - *grab the next job* with one tap."
+    caption: "Orders ready for pickup near you - *grab the next job* with one tap. On the launcher, the same job is the driver window: the shop, the drop and Accept, never the money."
     action: dart
     screenshot: true
     settle: 6
@@ -89,9 +89,20 @@ steps:
     action: route
     route: /parcel-history
     settle: 8
+  # Navigation-only step (no still). It still routes the tour to /profile so
+  # the courier chapter ends on the profile page (the next chapters open
+  # from there in normal use), but the /profile STILL is owned by users_sdk's
+  # fragment (step users_profile, Users/users/dart/templates/tour/
+  # users.tour.yaml) whenever an app shell chains both fragments - paas_driver
+  # tour/app.tour.yaml does. Two byte-identical captures under two captions
+  # trip the assembler's duplicate-still gate (shared-workflows #486;
+  # paas_driver guided-tour run 33952132288 failed with
+  # "driver_profile == users_profile"). The caption this step used to carry,
+  # kept for the record: "Your vehicle, your delivery zone and your *balance*
+  # - all in one place."
   - key: driver_profile
     title: "You, your bike, your balance"
-    caption: "Your vehicle, your delivery zone and your *balance* - all in one place."
     action: route
     route: /profile
+    screenshot: false
     settle: 8

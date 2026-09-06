@@ -19,6 +19,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:delivery_sdk/src/driver/application/home/home_provider.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/driver_root_nav.dart';
 import 'package:base_sdk/src/models/data/parcel_order.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
@@ -166,7 +167,11 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                   controller: scrollController,
                   padding: EdgeInsets.only(
                     top: 8.h,
-                    bottom: MediaQuery.paddingOf(context).bottom + 16.h,
+                    // CHIP 301: the root tab pill floats over the sheet's
+                    // foot; the last action must clear it.
+                    bottom: MediaQuery.paddingOf(context).bottom +
+                        16.h +
+                        driverRootNavClearance(),
                     left: 16.w,
                     right: 16.w,
                   ),

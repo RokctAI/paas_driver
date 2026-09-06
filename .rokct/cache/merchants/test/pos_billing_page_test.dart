@@ -54,8 +54,9 @@ void main() {
   });
 
   testWidgets(
-      'a demo scan lands Demo Product as a line card with formatted '
-      'money everywhere — and the Continue button carries the total',
+      'a demo scan lands Flame-grilled beef burger as a line card with '
+      'formatted money everywhere — and the Continue button carries the '
+      'total',
       (tester) async {
     // The render harness's geometry: 390 logical at 3x dpr (the approved
     // frames') so the page lays out exactly as shipped, not in the test
@@ -80,7 +81,7 @@ void main() {
 
     // The line card: title, formatted unit-price line ("R150.00 × 1" —
     // never the Spazafy raw "150.0 x 1"), formatted line total.
-    expect(find.text('Demo Product'), findsOneWidget);
+    expect(find.text('Flame-grilled beef burger'), findsOneWidget);
     expect(find.text('R150.00 × 1'), findsOneWidget);
 
     // Step up: the quantity, the price line and both totals track.
@@ -100,7 +101,7 @@ void main() {
     // Clear All empties the page — list AND totals (derived, never stale).
     await tester.tap(find.text('Clear all'));
     await tester.pump();
-    expect(find.text('Demo Product'), findsNothing);
+    expect(find.text('Flame-grilled beef burger'), findsNothing);
     expect(find.textContaining('R300.00'), findsNothing);
     expect(container.read(posCartProvider).total, 0);
   });

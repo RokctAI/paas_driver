@@ -111,4 +111,23 @@ abstract class DemoImages {
       '<rect x="0" y="330" width="800" height="70" fill="#0B0A09" '
       'opacity="0.30"/>'
       '</svg>';
+
+  /// Account avatar — the demo account's initials on the same amber
+  /// gradient as [shopMark], so the profile header, the edit-profile sheet
+  /// and the drawer render the one avatar every demo sign-in lands on.
+  /// Owned here so the auth and users demo repositories share a single
+  /// literal instead of each carrying its own copy (ADR-005 forbids one
+  /// importing the other).
+  static const String avatar = 'data:image/svg+xml;utf8,'
+      '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" '
+      'viewBox="0 0 160 160">'
+      '<defs><linearGradient id="a" x1="0" y1="0" x2="1" y2="1">'
+      '<stop offset="0" stop-color="#F7A93B"/>'
+      '<stop offset="1" stop-color="#E1620C"/>'
+      '</linearGradient></defs>'
+      '<circle cx="80" cy="80" r="80" fill="url(#a)"/>'
+      '<text x="80" y="101" text-anchor="middle" '
+      'font-family="Helvetica, Arial, sans-serif" font-size="60" '
+      'font-weight="600" fill="#FFFFFF">TM</text>'
+      '</svg>';
 }

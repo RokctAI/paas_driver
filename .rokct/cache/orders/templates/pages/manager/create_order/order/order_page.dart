@@ -14,6 +14,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -21,10 +22,9 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:${package}/presentation/routes/app_router.dart';
 import 'package:${package}/presentation/pages/create_order/order/widgets/order_pane.dart';
 import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/components/helper/shop_bordered_avatar.dart';
-import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
-import 'package:base_sdk/src/presentation/components/buttons/pop_button.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
@@ -38,86 +38,104 @@ class OrderPage extends ConsumerStatefulWidget {
   ConsumerState<OrderPage> createState() => _OrderPageState();
 }
 
-/// Phone flow: the cart pushed as its own route. The body (title, calculated
-/// stock list, recalculation on entry) lives in [OrderPane], which the
-/// create-order page embeds directly on expanded windows instead of pushing
-/// this route.
+/// Phone flow only (frame 37d): the cart pushed as its own route by the
+/// "Ordering · total" continuation (690). At plane widths this route is
+/// never pushed — the cart pane is already on stage inside the walk-in
+/// spread (section 37 decision (a), locked). The body (title, calculated
+/// stock list, subtotal, recalculation on entry) lives in [OrderPane].
+/// The shipped pop | Next pair is re-housed in the two-state language:
+/// Next at the START, the corner Back pill (347) at the END.
 class _OrderPageState extends ConsumerState<OrderPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.bgGrey,
-      body: Column(
+      backgroundColor: AppStyle.surfaceDark,
+      body: Stack(
         children: [
-          CustomAppBar(
-            bottomPadding: 16.h,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                ShopBorderedAvatar(
-                  size: 40,
-                  imageSize: 33,
-                  borderRadius: 20,
-                  // base_sdk's LocalStorage keeps the shop as raw JSON (getShopJson) -
-                  // same access pattern as merchants_sdk's main_page.
-                  imageUrl: LocalStorage.getShopJson()?['logo_img'] as String?,
-                ),
-                12.horizontalSpace,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        (LocalStorage.getShopJson()?['translation']?['title']
-                                as String?) ??
-                            '',
-                        style: AppStyle.interSemi(size: 18.sp),
+          Column(
+            children: [
+              CustomAppBar(
+                bottomPadding: 16.h,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    ShopBorderedAvatar(
+                      size: 40,
+                      imageSize: 33,
+                      borderRadius: 20,
+                      // base_sdk's LocalStorage keeps the shop as raw JSON (getShopJson) -
+                      // same access pattern as merchants_sdk's main_page.
+                      imageUrl: LocalStorage.getShopJson()?['logo_img'] as String?,
+                    ),
+                    12.horizontalSpace,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            (LocalStorage.getShopJson()?['translation']?['title']
+                                    as String?) ??
+                                '',
+                            style: AppStyle.interSemi(size: 18.sp),
+                          ),
+                          Text(
+                            (LocalStorage.getShopJson()?['translation']
+                                    ?['description'] as String?) ??
+                                '',
+                            style: AppStyle.interRegular(
+                              size: 12.sp,
+                              letterSpacing: -0.3,
+                            ),
+                            maxLines: 1,
+                          ),
+                        ],
                       ),
-                      Text(
-                        (LocalStorage.getShopJson()?['translation']
-                                ?['description'] as String?) ??
-                            '',
-                        style: AppStyle.interRegular(
-                          size: 12.sp,
-                          letterSpacing: -0.3,
+                    ),
+                  ],
+                ),
+              ),
+              const Expanded(child: OrderPane()),
+            ],
+          ),
+          // Next (685) at the START, the corner Back pill (347) at the END
+          // — the settled two-state rule for a pushed page on one plane.
+          PositionedDirectional(
+            start: 16,
+            end: 16,
+            bottom: 16,
+            child: SafeArea(
+              child: Consumer(
+                builder: (context, ref, child) {
+                  final cartState = ref.watch(orderCartProvider);
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (cartState.stocks.isNotEmpty)
+                        Expanded(
+                          child: CustomButton(
+                            title: AppHelpers.getTranslation(TrKeys.next),
+                            onPressed: () => context.pushRoute(
+                              ManagerShippingAddressRoute(),
+                            ),
+                          ),
+                        )
+                      else
+                        const Spacer(),
+                      8.horizontalSpace,
+                      FloatingBackPill(
+                        back: FloatingNavBack(
+                          icon: Remix.arrow_left_wide_fill,
+                          label: AppHelpers.getTranslation(TrKeys.back),
                         ),
-                        maxLines: 1,
                       ),
                     ],
-                  ),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
           ),
-          const Expanded(child: OrderPane()),
         ],
-      ),
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.miniCenterDocked,
-      floatingActionButton: Padding(
-        padding: REdgeInsets.all(16),
-        child: Consumer(
-          builder: (context, ref, child) {
-            final cartState = ref.watch(orderCartProvider);
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const PopButton(heroTag: AppConstants.heroTagAddOrderButton),
-                8.horizontalSpace,
-                if (cartState.stocks.isNotEmpty)
-                  Expanded(
-                    child: CustomButton(
-                      title: AppHelpers.getTranslation(TrKeys.next),
-                      onPressed: () =>
-                          context.pushRoute(const ManagerShippingAddressRoute()),
-                    ),
-                  ),
-              ],
-            );
-          },
-        ),
       ),
     );
   }

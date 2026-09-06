@@ -32,11 +32,14 @@ import 'package:base_sdk/src/services/local_storage.dart';
 ///  * the active locale's bundled entries whose keys the just-fetched
 ///    served map does not contain (the served map is for the active
 ///    locale, so this is the only locale that can be diffed locally), and
-///  * an `en` row for every key registered in any bundled locale,
-///    humanized with [AppHelpers.humanizeTrKey] — the exact string the
-///    UI's last-resort fallback would render. These are sent without
-///    local diffing (except when `en` IS the active locale); the server's
-///    insert-only skip makes over-sending harmless.
+///  * an `en` row for every key registered in any bundled locale, valued
+///    with the bundled `en` entry when one is registered (the kernel's
+///    own map plus whatever the composed SDKs registered at boot) and
+///    otherwise humanized with [AppHelpers.humanizeTrKey] — in both cases
+///    the exact string the UI renders for the key when the served map
+///    lacks it. These are sent without local diffing (except when `en`
+///    IS the active locale); the server's insert-only skip makes
+///    over-sending harmless.
 ///
 /// The push is fire-and-forget: it never blocks splash and never surfaces
 /// anything to the user. A fingerprint of the candidate set (rows + app
@@ -151,18 +154,26 @@ class TranslationSeeder {
       }
     }
 
-    // English: humanized rows for every key any bundled locale registers.
+    // English: a row for every key any bundled locale registers, valued
+    // with the bundled en entry when an SDK registered real copy for the
+    // key and humanized otherwise — the humanized form is only right for
+    // keys named after their copy, and seeding it for a key that NAMES a
+    // string ("Maintenance title") would plant that literal server-side.
     // What exists server-side for non-active locales cannot be diffed
     // locally, so these are offered wholesale and the server skips the
     // ones it already has — except when English is the active locale,
     // where the served map is authoritative and diffing is exact.
     final enTarget = byLocale['en'] ??= <String, String>{};
+    final enBundled = BundledTranslations.entriesFor('en');
     for (final locale in BundledTranslations.bundledLocales) {
       final bundled = BundledTranslations.entriesFor(locale);
       if (bundled == null) continue;
       for (final key in bundled.keys) {
         if (activeLocale == 'en' && servedMap.containsKey(key)) continue;
-        enTarget.putIfAbsent(key, () => AppHelpers.humanizeTrKey(key));
+        enTarget.putIfAbsent(
+          key,
+          () => enBundled?[key] ?? AppHelpers.humanizeTrKey(key),
+        );
       }
     }
 

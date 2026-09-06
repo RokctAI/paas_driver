@@ -37,9 +37,12 @@ import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_state.dart';
+import 'package:merchants_sdk/src/manager/application/pos_cart/pos_sale_finish.dart';
 import 'package:merchants_sdk/src/manager/application/quick_flow/quick_flow_provider.dart';
 import 'package:merchants_sdk/src/manager/domain/interface/pos_orders.dart';
 import 'package:merchants_sdk/src/manager/domain/interface/quick_flow.dart';
+import 'package:merchants_sdk/src/manager/presentation/pos/receipt_preview_page.dart';
+import 'package:merchants_sdk/src/manager/presentation/pos/receipt_slip.dart';
 import 'package:merchants_sdk/src/manager/utils/pos_connectivity.dart';
 import 'package:merchants_sdk/src/manager/utils/pos_pay_verification.dart';
 import 'package:merchants_sdk/src/manager/utils/pos_receipt_printer.dart';
@@ -81,7 +84,11 @@ import 'package:merchants_sdk/src/manager/utils/pos_receipt_printer.dart';
 //     pipeline"); a credit marking rides along per the settlement rules;
 //   * receipt-style order summary (292) and the dual finish: "Print
 //     Receipt & Finish" — atomic print-then-record (293) — and "Finish
-//     without Receipt" (294);
+//     without Receipt" (294). Per approved frame 11k (Ray 2026-08-29
+//     13:53Z) 293 lands on the RECEIPT PREVIEW first (ReceiptPreviewPage:
+//     the paper slip, 322, with the same dual finish beneath it) —
+//     printing happens from there, never blind; 294 records straight
+//     away, as shipped. Both run ONE pipeline, PosSaleFinish;
 //   * OFFLINE INVERSION (frames 11e/11f): when the till is offline the
 //     phase gate is replaced by straight-to-code entry — offline banner
 //     (295), 6-digit confirmation code (296). The QR STAYS: the
@@ -115,8 +122,13 @@ import 'package:merchants_sdk/src/manager/utils/pos_receipt_printer.dart';
 // — on the pushed phone route it draws the pill exactly as before.
 // [onClose] is how the host pops it (a finished sale leaves the same
 // way); null means the route, and Navigator.maybePop as shipped.
-// NOT BUILT (flagged): 11n's live receipt slip (322) above 292 — no slip
-// widget exists in this SDK.
+// 11n's live receipt slip (322, the 11k paper slip — ReceiptSlip) sits
+// directly ABOVE 292 in the order-truth column, compact so 292 stays on
+// screen, and updates live as the tender changes (Ray 12:26Z "that
+// recipt sit above 292"). The phone column carries no slip: 11k is the
+// phone's receipt. [onReceipt] is how the host takes 293 on planes —
+// frame 11r: the checkout POPS and the receipt takes ONE plane; null
+// means the phone route, where the preview is pushed above this page.
 //
 // Installed by the manifest to lib/presentation/pages/billing/ with the
 // /pos-checkout route; @RoutePage(name: 'PosCheckoutRoute') so the host's
@@ -124,13 +136,35 @@ import 'package:merchants_sdk/src/manager/utils/pos_receipt_printer.dart';
 // so both templates compile without the host router (standalone test
 // harness compiles them directly).
 
+/// The host's receipt hand-off (11r): the checkout hands the finished
+/// sale's receipt and its finish record to whoever hosts it.
+///
+/// Declared HERE, in the routed page's own library, on purpose: the
+/// host's generated router (auto_route_generator 10.3.x) copies every
+/// constructor parameter type into `PosCheckoutRoute`/`PosCheckoutRouteArgs`
+/// but only imports the page file, so an inline
+/// `void Function(PosReceiptData, PosSaleFinish)?` leaves both types
+/// unresolved in `app_router.gr.dart` ("Type 'PosReceiptData' not found",
+/// paas_manager guided tour run 34040704424). A typedef is resolved
+/// through this library, which the router already imports.
+typedef PosReceiptHandler = void Function(
+  PosReceiptData receipt,
+  PosSaleFinish sale,
+);
+
 @RoutePage(name: 'PosCheckoutRoute')
 class CheckoutPage extends ConsumerStatefulWidget {
   /// Pops this page when it is hosted in the till's planes (11n). Null on
   /// the pushed phone route, where leaving is Navigator.maybePop.
   final VoidCallback? onClose;
 
-  const CheckoutPage({super.key, this.onClose});
+  /// Hosted in the till's planes: "Print Receipt & Finish" hands the
+  /// receipt to the host, which swaps this page for the one-plane
+  /// receipt (11r). Null on the pushed phone route, where this page
+  /// pushes the preview itself (11k).
+  final PosReceiptHandler? onReceipt;
+
+  const CheckoutPage({super.key, this.onClose, this.onReceipt});
 
   @override
   ConsumerState<CheckoutPage> createState() => _CheckoutPageState();
@@ -393,98 +427,170 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       }
     }
 
+    final sale = _saleFinish(state, facade: facade, delivery: delivery);
+
+    // 11k: "Print Receipt & Finish" lands on the receipt preview first —
+    // printing happens from there, never blind. The preview runs the
+    // same pipeline and clears the cart; this page then leaves.
+    if (withReceipt) {
+      await _openReceiptPreview(_receipt(state), sale);
+      return;
+    }
+
     _finishing = true;
     try {
-      if (withReceipt && !delivery) {
-        try {
-          await PosReceiptPrinter.print(
-            state.orderId,
-            state.lines
-                .map((l) => PosReceiptLine(
-                      title: l.title,
-                      quantity: l.quantity,
-                      lineTotal: l.lineTotal,
-                    ))
-                .toList(),
-            state.total,
+      final failure = await sale.run(withReceipt: false, facade: facade);
+      if (failure != null) {
+        KeySound.error();
+        if (mounted) {
+          AppHelpers.showCheckTopSnackBar(
+            context,
+            failure.printFailed
+                ? AppHelpers.getTranslation(TrKeys.printFailed)
+                : failure.message ??
+                    AppHelpers.getTranslation(
+                      TrKeys.somethingWentWrongWithTheServer,
+                    ),
           );
-        } catch (e) {
-          KeySound.error();
-          if (mounted) {
-            AppHelpers.showCheckTopSnackBar(
-              context,
-              AppHelpers.getTranslation(TrKeys.printFailed),
-            );
-          }
-          return;
         }
-      }
-
-      if (facade != null) {
-        final draft = PosSaleDraft(
-          orderId: state.orderId,
-          lines: [
-            for (final line in state.lines)
-              PosDraftLine(
-                productId: line.product.id ?? '',
-                quantity: line.quantity,
-              ),
-          ],
-          total: state.total,
-          deliveryType: delivery ? 'delivery' : 'pickup',
-          // Ray's ruling: the sale goes up with the status it is IN — an
-          // in-store sale is already handed over ('delivered'); a packed
-          // send-for-delivery sale is 'ready' (and HOLDS there locally
-          // while offline, until the sync drains it).
-          status: delivery ? 'ready' : 'delivered',
-          customerId: _customer?.id,
-          phone: _customer?.phone,
-          address: delivery ? _address.trim() : null,
-          paidNow: _payingNow(state),
-          onCredit: _creditActive(state),
-        );
-        final result = await facade.submitSale(draft);
-        var submitted = false;
-        String? failure;
-        result.when(
-          success: (_) => submitted = true,
-          failure: (error, statusCode) => failure = error,
-        );
-        if (!submitted) {
-          KeySound.error();
-          if (mounted) {
-            AppHelpers.showCheckTopSnackBar(
-              context,
-              failure ??
-                  AppHelpers.getTranslation(
-                    TrKeys.somethingWentWrongWithTheServer,
-                  ),
-            );
-          }
-          return;
-        }
+        return;
       }
 
       ref.read(posCartProvider.notifier).finishSale();
       if (!mounted) return;
-      setState(() {
-        _customer = null;
-        _customerOutstanding = null;
-        _address = '';
-        _paidNowController.clear();
-        _prefilledForOrderId = '';
-        _paidNowFresh = true;
-        // The ticket is empty again, so the pad re-arms from scratch.
-        _lastAutodial = null;
-      });
       AppHelpers.showCheckTopSnackBarDone(
         context,
         AppHelpers.getTranslation(TrKeys.saleCompleted),
       );
-      _leave();
+      _afterFinished();
     } finally {
       _finishing = false;
     }
+  }
+
+  /// The sale is recorded and the cart cleared (here, or on the receipt
+  /// preview): the tender state resets for the next sale and the page
+  /// leaves.
+  void _afterFinished() {
+    setState(() {
+      _customer = null;
+      _customerOutstanding = null;
+      _address = '';
+      _paidNowController.clear();
+      _prefilledForOrderId = '';
+      _paidNowFresh = true;
+      // The ticket is empty again, so the pad re-arms from scratch.
+      _lastAutodial = null;
+    });
+    _leave();
+  }
+
+  /// 11k / 11r: the receipt preview. Hosted in the till's planes the host
+  /// takes it (the checkout pops, the receipt claims ONE plane — 11r);
+  /// on the phone it is pushed above this page as a plain route (no
+  /// generated router needed — the standalone harness pumps it too) and
+  /// pops `true` once the sale is recorded.
+  Future<void> _openReceiptPreview(
+    PosReceiptData receipt,
+    PosSaleFinish sale,
+  ) async {
+    final onReceipt = widget.onReceipt;
+    if (onReceipt != null) {
+      onReceipt(receipt, sale);
+      return;
+    }
+    final finished = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (routeContext) => ReceiptPreviewPage(
+          receipt: receipt,
+          sale: sale,
+          onFinished: () => Navigator.of(routeContext).pop(true),
+        ),
+      ),
+    );
+    if (finished == true && mounted) _afterFinished();
+  }
+
+  /// What the dual finish records — the receipt lines exactly as
+  /// PosReceiptPrinter takes them, and the offline-first draft (Ray's
+  /// ruling: the sale goes up with the status it is IN — an in-store
+  /// sale is already handed over, 'delivered'; a packed send-for-delivery
+  /// sale is 'ready', and HOLDS there locally while offline until the
+  /// sync drains it). No facade: local-only completion.
+  PosSaleFinish _saleFinish(
+    PosCartState state, {
+    required PosOrdersFacade? facade,
+    required bool delivery,
+  }) {
+    return PosSaleFinish(
+      orderId: state.orderId,
+      lines: _receiptLines(state),
+      total: state.total,
+      draft: facade == null
+          ? null
+          : PosSaleDraft(
+              orderId: state.orderId,
+              lines: [
+                for (final line in state.lines)
+                  PosDraftLine(
+                    productId: line.product.id ?? '',
+                    quantity: line.quantity,
+                  ),
+              ],
+              total: state.total,
+              deliveryType: delivery ? 'delivery' : 'pickup',
+              status: delivery ? 'ready' : 'delivered',
+              customerId: _customer?.id,
+              phone: _customer?.phone,
+              address: delivery ? _address.trim() : null,
+              paidNow: _payingNow(state),
+              onCredit: _creditActive(state),
+            ),
+    );
+  }
+
+  List<PosReceiptLine> _receiptLines(PosCartState state) => [
+        for (final l in state.lines)
+          PosReceiptLine(
+            title: l.title,
+            quantity: l.quantity,
+            lineTotal: l.lineTotal,
+          ),
+      ];
+
+  /// Chip 322's data: the slip prints what this page already computes —
+  /// the printer's lines and total, the paying-now tender under the
+  /// selected method, the on-credit remainder when the sale splits, the
+  /// attached customer and the delivery line when send-for-delivery is
+  /// on. Nothing is invented (no unit price, no tax, no change: the till
+  /// takes an amount, it never counts cash handed over).
+  PosReceiptData _receipt(PosCartState state) {
+    final shopJson = LocalStorage.getShopJson();
+    final delivery = _fulfillment == _Fulfillment.delivery;
+    final address = _address.trim();
+    return PosReceiptData(
+      shopName: (shopJson?['translation']?['title'] as String?) ?? '',
+      orderId: state.orderId,
+      issuedAt: DateTime.now(),
+      lines: _receiptLines(state),
+      total: state.total,
+      tender: [
+        PosReceiptTender(
+          label: AppHelpers.getTranslation(
+            _method == _PayMethod.cash ? TrKeys.cash : TrKeys.qrPayLink,
+          ),
+          amount: _payingNow(state),
+        ),
+        if (_creditActive(state))
+          PosReceiptTender(
+            label: AppHelpers.getTranslation(TrKeys.onCredit),
+            amount: _remainder(state),
+          ),
+      ],
+      customerName: _customer?.fullName,
+      delivery: delivery,
+      deliveryAddress: delivery && address.isNotEmpty ? address : null,
+    );
   }
 
   /// Leaves the checkout: the plane host's pop when hosted (11n), else
@@ -562,8 +668,11 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           ],
           6.verticalSpace,
         ],
-        // 11n: the live slip (322) sits ABOVE 292 here — not built (see
-        // the header note); 292 itself is the section's floor.
+        // 11n: the live slip (322) sits directly ABOVE 292 — compact so
+        // the summary stays on screen — and re-prints as the tender
+        // changes (the same build that redraws 292 redraws the paper).
+        ReceiptSlip(receipt: _receipt(state), compact: true),
+        14.verticalSpace,
         _summary(context, state),
         120.verticalSpace,
       ];

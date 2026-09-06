@@ -39,6 +39,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:merchants_sdk/src/manager/application/main/main_provider.dart';
 import 'package:merchants_sdk/src/manager/application/restaurant/restaurant_provider.dart';
 import 'package:merchants_sdk/src/manager/presentation/restaurant/restaurant_hub_plane_flow.dart';
+import 'package:merchants_sdk/src/manager/presentation/restaurant/shop_title_row.dart';
 import 'package:merchants_sdk/src/manager/utils/restaurant_helpers.dart';
 // Composer seams (sdk_installer_base.py update_layout_integrations): an
 // SDK that this page never imports (ADR-005 - SDKs import only base)
@@ -289,86 +290,27 @@ class MerchantShopInfoSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              RestaurantHelpers.truncate(
-                state.shop?.translation?.title ??
-                    (shopJson?['translation']?['title'] as String?) ??
-                    "",
-                16,
-              ),
-              style: AppStyle.interSemi(
-                size: 22.sp,
-                color: AppStyle.textPrimary,
-              ),
-            ),
-            Container(
-              width: 4.w,
-              height: 4.h,
-              margin: REdgeInsets.symmetric(horizontal: 8),
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppStyle.textGrey,
-              ),
-            ),
-            Icon(
-              Remix.star_smile_fill,
-              color: AppStyle.starColor,
-              size: 20.r,
-            ),
-            4.horizontalSpace,
-            Text(
-              state.shop?.avgRate ?? '0.0',
-              style: AppStyle.interNormal(
-                size: 12.sp,
-                color: AppStyle.textPrimary,
-              ),
-            ),
-            const Spacer(),
-            Container(
-              width: 22.w,
-              height: 22.h,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppStyle.red,
-              ),
-              child: Icon(
-                Remix.percent_fill,
-                color: AppStyle.white,
-                size: 12.r,
-              ),
-            ),
-            14.horizontalSpace,
-            Container(
-              width: 22.w,
-              height: 22.h,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppStyle.primary,
-              ),
-              child: Icon(Remix.flashlight_fill, size: 16.r),
-            ),
-            14.horizontalSpace,
-            // The shop-edit pencil (approved fix 2026-08-28): it edits the
-            // SHOP, so it rides the shop title row — moved here from its
-            // earlier wallet-card overlay.
-            IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              icon: Icon(
-                Remix.pencil_line,
-                size: 20.r,
-                color: AppStyle.textPrimary,
-              ),
-              onPressed: () => AppHelpers.showCustomModalBottomSheet(
-                paddingTop: MediaQuery.paddingOf(context).top + 60,
-                context: context,
-                modal: const EditRestaurantModal(),
-                isDarkMode: false,
-              ),
-            ),
-          ],
+        // The title row lives in lib (ShopTitleRow) so the widget test can
+        // pump it at the 240 dpi tablet geometry where the old bare Row
+        // overflowed its column by 22 px (tour run 33952102598): the title
+        // gives way (ellipsis) and the badges keep the end edge.
+        ShopTitleRow(
+          title: RestaurantHelpers.truncate(
+            state.shop?.translation?.title ??
+                (shopJson?['translation']?['title'] as String?) ??
+                "",
+            16,
+          ),
+          rating: state.shop?.avgRate ?? '0.0',
+          // The shop-edit pencil (approved fix 2026-08-28): it edits the
+          // SHOP, so it rides the shop title row — moved here from its
+          // earlier wallet-card overlay.
+          onEdit: () => AppHelpers.showCustomModalBottomSheet(
+            paddingTop: MediaQuery.paddingOf(context).top + 60,
+            context: context,
+            modal: const EditRestaurantModal(),
+            isDarkMode: false,
+          ),
         ),
         Text(
           '${state.shop?.translation?.description}',

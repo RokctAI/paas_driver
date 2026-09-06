@@ -62,8 +62,8 @@ class DemoDriverDepositRepository implements DriverDepositRepositoryFacade {
       const ApiResult.success(
         data: DepositDestination(
           accepting: true,
-          accountHolderName: 'Demo Operations',
-          bankName: 'Demo Bank',
+          accountHolderName: 'Rokct Operations',
+          bankName: 'Standard Bank',
           accountNumber: '0000004417',
           branchCode: '000000',
           accountType: 'Cheque',

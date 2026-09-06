@@ -32,6 +32,7 @@ import 'package:base_sdk/src/presentation/components/text_fields/outline_bordere
 import 'package:auth_sdk/src/common/presentation/pages/auth/confirmation/register_confirmation_page.dart';
 import 'package:base_sdk/src/presentation/theme/theme.dart';
 import 'package:auth_sdk/src/common/application/auth/auth.dart';
+import 'package:auth_sdk/src/common/presentation/pages/auth/reset/reset_password_copy.dart';
 
 @RoutePage()
 class ResetPasswordPage extends ConsumerWidget {
@@ -86,8 +87,12 @@ class ResetPasswordPage extends ConsumerWidget {
                             TrKeys.resetPassword,
                           ),
                         ),
+                        // Copy that matches the field below (phone / email
+                        // / either) and what the backend sends for it.
                         Text(
-                          AppHelpers.getTranslation(TrKeys.resetPasswordText),
+                          AppHelpers.getTranslation(
+                            resetPasswordCopyKey(AppConstants.signUpType),
+                          ),
                           style: AppStyle.interRegular(
                             size: 14.sp,
                             color: AppStyle.textDarkSecondary,

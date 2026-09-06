@@ -43,7 +43,9 @@ import 'package:${package}/presentation/routes/app_router.dart';
 import 'package:${package}/presentation/pages/main/widgets/bottom_navigator_item.dart';
 import 'package:${package}/presentation/pages/main/widgets/buttons_bouncing_effect.dart';
 import 'package:merchants_sdk/src/manager/application/main/main_provider.dart';
+import 'package:merchants_sdk/src/manager/presentation/main/manager_nav_clearance.dart';
 import 'package:merchants_sdk/src/manager/presentation/main/nav_rail_layout.dart';
+import 'package:merchants_sdk/src/manager/presentation/main/shop_nav_avatar.dart';
 import 'package:merchants_sdk/src/manager/presentation/main/signed_in_role_toast.dart';
 import 'package:products_sdk/src/manager/application/foods/food_tabs_provider.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
@@ -55,7 +57,6 @@ import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/presentation/components/blur_wrap.dart';
 import 'package:base_sdk/src/presentation/components/keyboard_dismisser.dart';
-import 'package:base_sdk/src/presentation/components/custom_network_image.dart';
 
 @RoutePage(name: 'MainRoute')
 class MainPage extends StatefulWidget {
@@ -198,7 +199,9 @@ class _MainPageState extends State<MainPage> {
                         ),
                         borderRadius: BorderRadius.circular(100.r),
                       ),
-                      height: 60.r,
+                      // The one figure the POS till's Continue clears
+                      // (managerNavClearance) — read from the same place.
+                      height: managerNavPillHeight(),
                       child: Padding(
                         padding: REdgeInsets.only(
                           right: 10,
@@ -465,11 +468,14 @@ class _MainPageState extends State<MainPage> {
           ),
           shape: BoxShape.circle,
         ),
-        child: CustomNetworkImage(
+        // An unresolvable logo (demo / offline shells) degrades to the
+        // shop's initial on the brand circle, never a broken-image glyph
+        // (tour run 33952102598).
+        child: ShopNavAvatar(
           url: LocalStorage.getShopJson()?['logo_img'] as String?,
-          width: 40.r,
-          height: 40.r,
-          radius: 20.r,
+          name: LocalStorage.getShopJson()?['translation']?['title']
+              as String?,
+          size: 40.r,
         ),
       ),
     );

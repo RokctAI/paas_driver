@@ -84,6 +84,7 @@ void main() {
         'product': DemoImages.product,
         'category': DemoImages.category,
         'promoBanner': DemoImages.promoBanner,
+        'avatar': DemoImages.avatar,
       };
       all.forEach((String name, String uri) {
         expect(AppHelpers.isInlineSvg(uri), isTrue, reason: name);
@@ -110,8 +111,9 @@ void main() {
         DemoImages.product,
         DemoImages.category,
         DemoImages.promoBanner,
+        DemoImages.avatar,
       };
-      expect(unique.length, 5);
+      expect(unique.length, 6);
     });
   });
 

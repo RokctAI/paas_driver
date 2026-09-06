@@ -109,7 +109,7 @@ class DemoSellerProductsRepository implements SellerProductsRepositoryFacade {
             tax: 0,
             discount: 0,
             totalPrice: price,
-            sku: 'DEMO-SKU-$id',
+            sku: 'SKU-$id',
           ),
         ],
       );
@@ -355,7 +355,7 @@ class DemoSellerProductsRepository implements SellerProductsRepositoryFacade {
               tax: 0,
               discount: 0,
               totalPrice: 0,
-              sku: 'DEMO-SKU-$id',
+              sku: 'SKU-$id',
             ),
           ],
     );

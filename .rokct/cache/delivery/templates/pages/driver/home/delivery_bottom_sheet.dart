@@ -30,6 +30,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:delivery_sdk/src/driver/application/home/home_provider.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/services/courier_helpers.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/driver_root_nav.dart';
 import 'package:delivery_sdk/src/driver/presentation/widgets/cash_collection_sheet.dart';
 import 'package:delivery_sdk/src/driver/presentation/widgets/delivery_status_rail.dart';
 
@@ -236,7 +237,12 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                       controller: scrollController,
                       padding: EdgeInsets.only(
                           top: 8.h,
-                          bottom: MediaQuery.paddingOf(context).bottom + 16.h,
+                          // CHIP 301 (frame 49c): the root tab pill floats
+                          // over the sheet's foot, Jobs lit; the primary
+                          // action must clear it.
+                          bottom: MediaQuery.paddingOf(context).bottom +
+                              16.h +
+                              driverRootNavClearance(),
                           left: 16.w,
                           right: 16.w),
                       children: [

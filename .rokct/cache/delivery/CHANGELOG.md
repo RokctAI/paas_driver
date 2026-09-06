@@ -1,3 +1,262 @@
+## 1.20.2
+
+* Driver home defers creating the Google Maps platform view until the page
+  has settled and is the current route, so a page replaced within a second
+  of opening (demo sign-in churn) no longer trips the plugin's
+  `updateTileOverlays` channel error. The map is wrapped in the new
+  `DeferredMapSurface` (`lib/src/driver/presentation/widgets/
+  deferred_map_surface.dart`): one frame painted, 800 ms as the current
+  route, still mounted - then the `GoogleMap` mounts; a route replaced
+  inside that window never spawns the native view (the plugin's own
+  un-awaited post-creation calls are what threw, from
+  `google_maps_flutter_android/src/messages.g.dart`, so no guard in the
+  page could catch them - paas_driver tour 34049256577, phone leg 4/17 on
+  both attempts). Until then the map area is a plain surface-coloured box.
+  The timer is cancelled on dispose and re-armed when a covered route
+  becomes current again. Pinned by `test/deferred_map_surface_test.dart`
+  and `test/driver_home_deferred_map_test.dart`. No visible screen change
+  beyond the first 800 ms of the home page.
+* CHANGELOG: the two bare code fences (the 1.18.2 `cutter.svg` and the
+  1.17.4 location-permission log excerpts) now carry a `text` language
+  tag. This file is vendored into every shell's
+  `.rokct/cache/delivery/CHANGELOG.md`, where markdownlint MD040 is on,
+  so `lint / Markdown Lint` was red on every paas_driver PR.
+
+## 1.20.1
+
+* Driver home no longer reads `ref` from its 36 s camera-idle timer after
+  the page is disposed (tablet tour crash: `Bad state: Cannot use "ref"
+  after the widget was disposed`). Every callback handed to the page's
+  `Delayed` helper now bails out with `if (!mounted) return;` first. The
+  helper lives in base_sdk (`tpying_delay.dart`) and exposes no cancel, so
+  `dispose()` cannot cancel the pending timer; the guard is the fix and
+  `dispose()` documents why. Pinned by
+  `test/driver_home_delayed_timer_test.dart`. No visible screen change.
+
+## 1.20.0
+
+THE DRIVER WINDOW ON THE LAUNCHER CANVAS - approved design strip frame 53e
+(Ray 2026-09-01, "all launcher screens approved"): driver mode, set by the
+app the launcher found, carrying one window and no money.
+
+* New `DriverLaunchWindow` (`lib/src/driver/presentation/launcher/
+  driver_launch_window.dart`), the content of the launcher's driver window
+  (chip 1255): "Order waiting" with the pick-up shop and the drop suburb,
+  each with its distance when known (chip 1287), and one Accept that opens
+  the driver app on the job; "Job in hand" with an Open for the order the
+  driver is already working; "No job right now" with an Open when nothing
+  is waiting. The launcher owns the chrome and the placement (53g).
+* NO MONEY (chip 1291, ruled): the fee and the cash on hand that the frame
+  used to carry are absent, not masked - `DriverLaunchJob` has no fee
+  field. NO PERSON (chip 1290, open): the drop is the suburb only
+  (`DriverLaunchJob.suburbOf` keeps the last segment of the address), never
+  a name, a street or a number.
+* DATALESS BACK SEAT (chip 1288, ruled: "data dont show on launcher when
+  another mode is active"): `DriverLaunchWindow.dataless` renders the Open
+  affordance alone, so the window is useful and tappable without data.
+* Data comes through the same facade the driver home reads
+  (`CourierOrdersRepositoryFacade`: the current order first, then the first
+  available one), which in an IS_DEMO build is the seeded
+  `DemoCourierOrdersRepository`; a composition with no facade and no demo
+  seed, or a backend that does not answer, renders the no-job state and
+  never throws.
+* manifest.json 1.19.1 -> 1.20.0: top-level `integrations` inject the
+  window under launch_sdk's `// @launcher-windows` marker and its import
+  under `// @launcher-windows-imports` (productivity_sdk's glance pattern;
+  requires launch_sdk >= 1.4.3, declared in `_comment_requires_launcher`);
+  top-level `tr_keys` for the window's copy (`order.waiting`,
+  `job.in.hand`, `no.job.right.now`, `pick.up`, `drop`). The mode line and
+  the "set from the app found" status (chips 1257, 1283) are the launcher's
+  (53k); nothing here names a package.
+* Tests: `test/driver_launch_window_test.dart` covers the populated,
+  in-hand, no-job and dataless states, the money and person exclusions,
+  the loader against the demo seed and against a facade that fails, the
+  suburb reduction and the distance derivation, and the manifest wiring.
+
+## 1.19.3
+
+Two more plain bugs in the installed driver home template
+(`templates/pages/driver/home/home_page.dart`), no design change.
+
+* **Position stream leaked past the page** (`getCurrentLocation`): the
+  on-duty lane's `getPositionStream().listen(...)` subscription was never
+  held, so nothing could cancel it — not the duty toggle's OFF path, not
+  `dispose`. Every toggle to online stacked one more listener, and each
+  kept writing `latLng` and the stored address for the life of the
+  isolate, page or no page. The subscription is now held
+  (`_positionSub`), starting the lane again cancels the earlier listener
+  first, and a shared `_stopTracking()` — the OFF path and `dispose` both
+  call it — cancels the poll and the stream together.
+* **`IS_DEMO` builds opened on the device's real position** rather than
+  the seeded South African address: `_acquireLocation` asked the platform
+  for a fix like any other build, wrote it over the stored address and
+  animated the map there (an emulator's default Californian coordinate,
+  an ocean away from every seeded job), and the on-duty lane did the same
+  through its stream. `CourierLocationFix` now carries the gate
+  (`pinnedBuild`, `AppConstants.isDemo`): a pinned build never touches
+  the platform, `current()` answers with the stored address — else the
+  seed's anchor — tagged `CourierLocationResult.pinned` so the page
+  leaves storage alone and only moves the camera, and `getCurrentLocation`
+  starts the routing poll but not the platform lane. The gate is
+  injectable (`CourierLocationFix(pinned: ...)`) and unit-tested; nothing
+  changes for a build without `IS_DEMO`.
+* **Manifest**: 1.19.1 -> 1.19.3 (1.19.2 is the driver_profile tour-still
+  release).
+
+## 1.19.2
+
+Tour: driver_profile step no longer captures a still; the users fragment's
+users_profile owns the /profile still when both fragments are chained
+(paas_driver run 33952132288 duplicate-still gate).
+
+* `templates/tour/delivery.tour.yaml`: `driver_profile` keeps its
+  `action: route` to /profile (the courier chapter still ends on the
+  profile page) but is now `screenshot: false`. In paas_driver both the
+  delivery and users fragments photograph /profile, and the assembler's
+  duplicate-still gate (shared-workflows #486) fails the run when two
+  captures are byte-identical (`driver_profile == users_profile`). The
+  users fragment's still is load-bearing for other shells, so the
+  delivery side yields.
+
+## 1.19.1
+
+Two crashes that stopped the paas_driver guided tour on the driver home
+page (run 33911125552; phone leg 4/18 stills, tablet leg 6/18). Both are
+plain bugs in the installed home template, no design change.
+
+* **Map camera after the page is gone** (`_acquireLocation` /
+  `_moveCamera`, `templates/pages/driver/home/home_page.dart`): the tour
+  signs the demo courier in (landing on /home), walks the auth screens and
+  routes to /home again, so the first HomePage is disposed with its
+  location request still in flight. When the fix landed, the
+  `GoogleMapController` it kept was non-null but its platform view was
+  already torn down, and `animateCamera` threw
+  `PlatformException(channel-error, ...MapsApi.animateCamera)` out of an
+  un-awaited future, ending the test. The camera move now checks
+  `mounted`, requires a controller, and catches `PlatformException`;
+  `dispose` drops the controller reference.
+* **Routing poll after dispose** (`getSetProgressLocation`): the
+  10-second `Timer.periodic` started once the courier is online was only
+  cancelled by the duty toggle's OFF path, never by leaving the page, so
+  it fired `ref.read` on a disposed element ten seconds after the tour had
+  routed on to /orders (`Bad state: Cannot use "ref" after the widget was
+  disposed`). The page now cancels it in `dispose`, the callback returns
+  (and cancels itself) when unmounted, and starting the lane again
+  cancels any earlier poll instead of orphaning it.
+* **Manifest**: 1.19.0 -> 1.19.1.
+
+## 1.19.0
+
+Design strip section 49, the last piece: **chip 301 — the driver root tab
+set** (Home · Jobs · Route · Income · Profile) and **frame 49d's
+"TODAY · SHIFT ENDED 17:04" stamp**. Approved by Ray 2026-08-31.
+
+* **Chip 301 — the root tab set** (`DriverRootNav`, `DriverRootTab`,
+  `lib/src/driver/presentation/home/driver_root_nav.dart`): the shared
+  `FloatingBottomNav` pill, which every other driver page already mounts
+  with `tabs: const []` ("the driver app composes no root tab set"), now
+  carries a tab set for the first time. The installed home template
+  mounts it the way its siblings mount the pill and maps each tab to an
+  EXISTING route — Jobs → `OrdersRoute`, Route → `DriverRouteRoute`,
+  Income → revenue's `DriverIncomeRoute`, Profile → `ProfileRoute`; Home
+  is the page itself. Home is lit while the driver idles (49a/49d/49e)
+  and Jobs while he is inside a job (49c). Active mark is the filled
+  rectangle, as the frames draw it. No `tabletPlacement`: section 49 is
+  phone-only and the nav inherits the fleet default (bottom pill).
+* **Removed from home**: the two free-floating left-edge icon buttons
+  (order history with a count badge, route) — both are tabs now and the
+  frames draw no such buttons. The avatar (→ Profile) and the duty
+  toggle stay where the driver's thumb expects them.
+* **Sheets clear the pill**: `driverRootNavClearance()` is added to the
+  bottom padding of the idle sheet, the job sheet and the parcel sheet
+  so the last card / primary action is never buried under the nav.
+* **Frame 49d — the SHIFT ENDED stamp** (`shift_stamp.dart`,
+  `CourierStorage.setShiftEndedAt` / `getShiftEndedAt`): the frame
+  flagged the time as unsourced (`setOnline` stores a bool only) and
+  asked for "either a client-side local timestamp or a server field".
+  This is the client-side one: the duty toggle's success path records
+  the minute the driver went OFF duty beside the flag it already flips,
+  and clears it when he comes back; the off-duty day strip (chip 931)
+  reads it back as `TODAY · SHIFT ENDED HH:mm`. Never guessed: no stamp,
+  or a stamp from an earlier day, and the strip says TODAY.
+* **Manifest**: `jobs`, `route` and `shiftEnded` tr_keys (home / income /
+  profile are base keys). 1.18.0 → 1.19.0.
+* **Tests**: `test/driver_root_nav_test.dart` — five tabs in the drawn
+  order, the lit tab follows the state, every tap reports its tab, the
+  stamp only ever names today's shift.
+
+## 1.18.2
+
+Version moved to 1.18.2 so it does not collide with zones #94 (1.18.1).
+
+The paas_driver guided tour aborted on every leg right after the driver
+sign-in. Run `33783152823` (log lines 2384-2477) died three times on the
+courier home with
+
+```text
+Unable to load asset: "assets/svg/cutter.svg".
+The asset does not exist or has empty data.
+#6      SvgLoader._load.<anonymous closure> (package:flutter_svg/src/loaders.dart:153:41)
+```
+
+* The courier home renders `SvgPicture.asset("assets/svg/cutter.svg")` in
+  `templates/components/driver/orders_item.dart:294`,
+  `templates/components/driver/order_item.dart:310` and
+  `templates/pages/driver/push_order/push_order_screen.dart:112`, but the
+  manifest's `app_assets` listed only `assets/svg/balance.svg` and
+  `templates/assets/svg/` carried only `balance.svg`. The installer
+  regenerates the shell pubspec's `sdk-app-assets` block from `app_assets`
+  alone, so `cutter.svg` never reached the bundle even though paas_driver
+  tracks the file at `assets/svg/cutter.svg` (paas_driver #77). In a real
+  build the icon is missing; under `flutter_test` the load failure is an
+  uncaught assertion and the tour ends there.
+* `cutter.svg` is now a custodianship copy in `templates/assets/svg/`
+  (byte-identical to paas_driver main), `app_assets` declares
+  `assets/svg/cutter.svg`, and `asset_keys` gains `svgCutter` next to
+  `svgBalance`. The three templates reference the path literally, so no
+  Dart changes; paas_driver's tracked copy survives the already-present
+  guard and only the pubspec declaration is new.
+
+## 1.18.1
+
+Ray's rule for demo builds: "demo in text or demo data is not needed". The
+driver demo seed (`DemoDeliverySeed`, `--dart-define=IS_DEMO=true`) rendered
+"Demo Diner", "Sample Spaza", "1 Placeholder Plaza, Demoville", "Thandi
+Demo", "Sipho Example", "Placeholder Pizza (Large)", "DRS-DEMO-0001",
+"Demo Motors" / "DEMO 123 GP" and the bank-deposit sheet's "Demo
+Operations" / "Demo Bank" on every tour screen. Every rendered string now
+reads like real (still invented) South African data; ids, uuids, keys and
+handles are unchanged.
+
+* **Shops**: "Corner Kitchen", 42 Marula Avenue, Sandton (the same seller
+  the commerce fixtures use) and "Mama Thembi's Spaza", 7 Vilakazi Street,
+  Orlando West, Soweto, each with a real-sounding one-line description
+  instead of "Fictional demo merchant — not a real business."
+* **Customers**: Thandi Nkosi, Sipho Dlamini, Lerato Mahlangu with
+  `@rokct.ai` mailboxes instead of `@example.com`; parcel sender/recipient
+  names follow.
+* **Products**: Sparkling Lemonade 500 ml, Chicken Mayo Sandwich, Orange
+  Juice 1 L, Margherita Pizza (Large), Weekly Groceries Box, Breakfast
+  Basket, Dinner for Two.
+* **Addresses**: 12 Cradock Avenue, Rosebank; 34 Jan Smuts Avenue,
+  Rosebank; 56 Rivonia Road, Sandton; 78 Grayston Drive, Sandton (orders,
+  parcels and route stop labels all agree).
+* **Notes**: "Gate code 1234, call on arrival.", "Signed contracts, keep
+  flat.", "Birthday gift, handle with care."; the transaction note is
+  "Order payment".
+* **Dispatch route**: `DR-0001` / `DRS-0001` (the DEMO segment dropped),
+  labels rebuilt from the new names, notes "Morning dispatch route, four
+  stops".
+* **Courier**: Dumi Khumalo, `dumi.khumalo@rokct.ai`, on a Honda Ace 125
+  registered KLM 482 GP.
+* **Bank deposit** (`DemoDriverDepositRepository`): beneficiary "Rokct
+  Operations" at "Standard Bank". The `DEMO-DEP-*` record ids only ever
+  reach widget `Key`s, never text, so they stay.
+
+`test/demo_driver_details_test.dart` follows the vehicle fixture. No Dart
+toolchain was available where this change was made, so the tests were
+hand-updated and not run.
+
 ## 1.18.0
 
 Design strip frames 49g, 49h and 49i — the driver's bank-deposit route.
@@ -62,7 +321,7 @@ instead of an unhandled `PermissionDeniedException`.
   where it can be tested. paas_driver guided tour `33623262696` reached
   `driver_home` and died on it:
 
-  ```
+  ```text
   The following PermissionDeniedException was thrown running a test:
   User denied permissions to access the device's location.
   #0  GeolocatorAndroid.getCurrentPosition (...:140:7)

@@ -19,6 +19,7 @@ import 'package:base_sdk/src/domain/interface/user.dart';
 import 'package:users_sdk/src/common/infrastructure/repositories/user_repository.dart';
 import 'package:users_sdk/src/common/infrastructure/repositories/address_repository.dart';
 import 'package:users_sdk/src/common/infrastructure/repositories/mock_address_repository.dart';
+import 'package:users_sdk/src/common/infrastructure/repositories/mock_user_repository.dart';
 
 /// Installer-convention DI hook: the composed app's generated `main.dart`
 /// calls `UsersSdkDependencies.register(GetIt.instance)` for every
@@ -26,8 +27,15 @@ import 'package:users_sdk/src/common/infrastructure/repositories/mock_address_re
 /// facades (idempotently, so hand-wired hosts can call it too).
 class UsersSdkDependencies {
   static void register(GetIt getIt) {
+    // Demo builds talk to no backend: without this split every
+    // profileProvider.fetchUser went to the HTTP repository, failed, and
+    // base_sdk's GenericProfilePage fell back to "Profile" / "?" in the
+    // tour stills (auth never persists the login user; production relies on
+    // this fetch).
     if (!getIt.isRegistered<UserRepositoryFacade>()) {
-      getIt.registerSingleton<UserRepositoryFacade>(UserRepository());
+      getIt.registerSingleton<UserRepositoryFacade>(
+        AppConstants.isDemo ? MockUserRepository() : UserRepository(),
+      );
     }
     if (!getIt.isRegistered<AddressRepositoryFacade>()) {
       getIt.registerSingleton<AddressRepositoryFacade>(

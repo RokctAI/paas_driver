@@ -1,5 +1,93 @@
 # Changelog
 
+## 1.60.4
+
+* Fixed: the maintenance page rendered its translation keys. On a tenant
+  whose Translation doctype had no `en` rows, `MaintenancePage` showed
+  "Maintenance title" / "Maintenance brief": base_sdk bundled no `en` map
+  at all (English was meant to survive through
+  `AppHelpers.humanizeTrKey`), which holds for keys named after their copy
+  and fails for keys that NAME a string. New
+  `lib/src/services/bundled_en_translations.dart` (`kBaseEnTranslations`,
+  exported from the barrel) bundles "Under maintenance" and "We are doing
+  some maintenance. Please try again shortly." for `maintenance_title` /
+  `maintenance_brief`, and `BundledTranslations` seeds `en` alongside `af`
+  so `AppHelpers.getTranslation` reaches the copy before humanizing.
+  `bundledLocales` now lists `en`; `fallbackLanguages()` still lists
+  English once. A served row always wins, as before.
+* Fixed: `TranslationSeeder` offered the humanized key as a key's English
+  value even when an SDK had registered real `en` copy for it
+  (auth_sdk's `reset_password_text` boot hook, now the kernel's own map),
+  so an unseeded backend was planted with "Reset password text" /
+  "Maintenance title" as the tenant's English. The `en` candidate row now
+  takes the bundled `en` entry when one is registered and humanizes only
+  the rest; what the seeder offers is exactly what the UI renders.
+  `test/translation_seeder_test.dart` covers both paths, the
+  registry-level fallback, and the maintenance copy resolving through
+  `getTranslation` on an unseeded `en` tenant.
+* Added `DemoImages.avatar`: the demo account's initials avatar as an
+  inline `data:` SVG on the same amber gradient as `DemoImages.shopMark`.
+  auth_sdk's `MockAuthRepository` and users_sdk's `MockUserRepository`
+  each carried their own copy of the literal because the kernel had no
+  avatar entry and ADR-005 forbids one importing the other; both now read
+  this constant. Covered by the `DemoImages` group in
+  `test/inline_image_test.dart`.
+* Added `TrKeys.resetPasswordPhoneText` (`reset_password_phone_text`) and
+  `TrKeys.resetPasswordEitherText` (`reset_password_either_text`), so the
+  reset-password sheet can pick copy that matches the app's sign-up type
+  (auth_sdk 1.10.3 renders and bundles them).
+
+## 1.60.3
+
+* Fixed: demo builds print every amount in rand. The guided tour's wallet
+  history read "42.50USD" / "1,500.00USD": `AppHelpers.numberFormat` takes
+  its symbol and position from `LocalStorage.getSelectedCurrency()`, which
+  a real build fills from the backend's currency list
+  (`CurrencyNotifier.fetchCurrency`) and which nothing in a demo build ever
+  sets - so intl fell through to its locale default, the ISO code as a
+  suffix - while every seed fixture in the fleet trades in rand (the demo
+  account is in Sandton, the wallet ledger cashes out to a South African
+  bank, the seeded shops and orders carry ZAR). New
+  `lib/src/constants/demo_currency.dart` (`DemoCurrency`, exported from the
+  barrel) owns the one copy of that currency for the kernel - id `ZAR`,
+  symbol `R`, rate 1, position `before`, field for field the currency the
+  seller-side demo fixtures already carry - and
+  `BaseSdkDependencies.register` seeds it into `LocalStorage` in a demo
+  build where nothing is selected (the seller-side SDKs each did this from
+  their own DI; now every composed shell gets it from the kernel). As a
+  second seam, `numberFormat` falls back to `DemoCurrency.fallback` while
+  the store is empty, so a demo build cannot print the ISO-code suffix even
+  if the store is cleared under it. Both seams are inert in a real build:
+  the seed is `AppConstants.isDemo`-gated and never overwrites a selected
+  currency, and a real build with nothing selected keeps intl's own default
+  until the backend's list is stored. `DemoCurrency.isDemoOverride`
+  (`@visibleForTesting`) lets a test stand in a demo build. New
+  `test/demo_currency_test.dart` guards the fixture, the seed (stores once,
+  never overwrites, no-op outside demo) and the rendered strings
+  ("R1,500.00", "R42.50").
+
+## 1.60.2
+
+* Fixed: demo builds no longer show the red Offline pill in the profile
+  footer (the demo build has no backend, so the connectivity signal was
+  always false). `ProfileMetaRow`'s Online/Offline dot read
+  `AppConnectivity.backendAvailability()`, a real `api_status` probe of
+  the tenant backend, which under `--dart-define=IS_DEMO=true` can only
+  ever fail - so every demo build, and the guided tour's profile still,
+  drew Offline. The dot now resolves as connected when
+  `AppConstants.isDemo` is true, without probing; real builds are
+  unchanged. The probe itself is untouched, since the splash boot and
+  `ConnectivityService` read it to gate the outbox drain and the
+  translation fetch and must keep seeing the backend as it is.
+  `ProfileMetaRow.isDemoOverride` (`@visibleForTesting`) lets a test stand
+  in a demo build, since the constant is fixed at compile time.
+
+## 1.60.1
+
+* Removed: `base_no_connection` and `base_maintenance` steps from the base
+  tour fragment (no-connection and maintenance pages are not part of the
+  guide).
+
 ## 1.60.0
 
 * **The UI-type picker is gone.** `UiTypePage` - the four-tile grid at

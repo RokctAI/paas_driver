@@ -33,6 +33,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider.dart';
 import 'package:merchants_sdk/src/manager/di/manager_merchants_di.dart';
+import 'package:merchants_sdk/src/manager/presentation/pos/receipt_preview_page.dart';
+import 'package:merchants_sdk/src/manager/presentation/pos/receipt_slip.dart';
 import 'package:merchants_sdk/src/manager/utils/pos_connectivity.dart';
 import 'package:merchants_sdk/src/manager/utils/pos_pay_verification.dart';
 import 'package:merchants_sdk/src/manager/utils/pos_receipt_printer.dart';
@@ -153,24 +155,49 @@ void main() {
   });
 
   testWidgets(
-      'dual finish: "Print Receipt & Finish" is atomic — a dead printer '
-      'leaves the sale open; "Finish without Receipt" completes it',
-      (tester) async {
+      'dual finish (11k): "Print Receipt & Finish" lands on the receipt '
+      'preview first — printing from there is atomic, a dead printer '
+      'leaves the sale open on the preview; "Finish without Receipt" on '
+      'the checkout completes it straight away', (tester) async {
     PosConnectivity.debugConnectivityOverride = true;
     final container = await _pumpWithCart(tester);
     expect(container.read(posCartProvider).lines, hasLength(1));
+    // The phone column carries no live slip — 11k is the phone's receipt.
+    expect(find.byType(ReceiptSlip), findsNothing);
 
-    // A throwing printer: the sale must NOT be recorded (the retired
-    // Spazafy checkout recorded first and silently ate the receipt).
+    // 293 on the checkout prints NOTHING yet: it lands on the preview —
+    // the paper slip with the same lines and total, the "Receipt" title,
+    // and the dual finish beneath the paper.
+    var printCalls = 0;
     PosReceiptPrinter.handler = (orderId, lines, total) async {
-      throw StateError('printer offline');
+      printCalls++;
     };
     await tester.tap(find.text('Print Receipt & Finish'));
     await tester.pumpAndSettle();
+    expect(printCalls, 0, reason: '11k: printing never fires blind');
+    expect(find.byType(ReceiptPreviewPage), findsOneWidget);
+    expect(find.byType(ReceiptSlip), findsOneWidget);
+    expect(find.text('Receipt'), findsOneWidget);
+    expect(find.text('Flame-grilled beef burger'), findsOneWidget);
+    expect(find.text('QTY 1'), findsOneWidget);
+    expect(find.text('TOTAL'), findsOneWidget);
+    expect(find.text('R150.00'), findsWidgets);
+    expect(container.read(posCartProvider).lines, hasLength(1));
+
+    // A throwing printer: the sale must NOT be recorded (the retired
+    // Spazafy checkout recorded first and silently ate the receipt) —
+    // and the preview stays up for another try.
+    PosReceiptPrinter.handler = (orderId, lines, total) async {
+      throw StateError('printer offline');
+    };
+    await tester.tap(find.byKey(const Key('posReceiptPrintFinish')));
+    await tester.pumpAndSettle();
     expect(container.read(posCartProvider).lines, hasLength(1),
         reason: 'atomic print+finish: failed print leaves the sale open');
+    expect(find.byType(ReceiptPreviewPage), findsOneWidget);
 
-    // A working printer receives the order and THEN the sale records.
+    // A working printer receives the order and THEN the sale records;
+    // the preview pops and the checkout leaves with it.
     String? printedOrder;
     double? printedTotal;
     int? printedLineCount;
@@ -180,16 +207,18 @@ void main() {
       printedLineCount = lines.length;
     };
     final orderId = container.read(posCartProvider).orderId;
-    await tester.tap(find.text('Print Receipt & Finish'));
+    await tester.tap(find.byKey(const Key('posReceiptPrintFinish')));
     await tester.pumpAndSettle();
     expect(printedOrder, orderId);
     expect(printedTotal, 150);
     expect(printedLineCount, 1);
     expect(container.read(posCartProvider).lines, isEmpty);
     expect(container.read(posCartProvider).total, 0);
+    expect(find.byType(ReceiptPreviewPage), findsNothing);
 
-    // Finish without Receipt: no printing, straight to done.
-    var printCalls = 0;
+    // Finish without Receipt on the checkout: no printing, no preview,
+    // straight to done — the shipped behaviour stays reachable.
+    printCalls = 0;
     PosReceiptPrinter.handler = (orderId, lines, total) async {
       printCalls++;
     };
@@ -198,6 +227,26 @@ void main() {
     await tester.tap(find.text('Finish without Receipt'));
     await tester.pumpAndSettle();
     expect(printCalls, 0);
+    expect(find.byType(ReceiptPreviewPage), findsNothing);
     expect(container.read(posCartProvider).lines, isEmpty);
+  });
+
+  testWidgets(
+      'the preview\'s "Finish without Receipt" (294) records without '
+      'printing and pops back', (tester) async {
+    PosConnectivity.debugConnectivityOverride = true;
+    final container = await _pumpWithCart(tester);
+    var printCalls = 0;
+    PosReceiptPrinter.handler = (orderId, lines, total) async {
+      printCalls++;
+    };
+    await tester.tap(find.text('Print Receipt & Finish'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ReceiptPreviewPage), findsOneWidget);
+    await tester.tap(find.byKey(const Key('posReceiptFinishWithout')));
+    await tester.pumpAndSettle();
+    expect(printCalls, 0);
+    expect(container.read(posCartProvider).lines, isEmpty);
+    expect(find.byType(ReceiptPreviewPage), findsNothing);
   });
 }

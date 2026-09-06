@@ -17,10 +17,14 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/error_presenter.dart';
+import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/telemetry.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
+
+import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_delivery_seed.dart';
 
 /// Why the courier's own position could not be read.
 enum CourierLocationDenial {
@@ -46,16 +50,31 @@ enum CourierLocationDenial {
 class CourierLocationResult {
   const CourierLocationResult.fix(Position this.position)
       : denial = null,
-        detail = null;
+        detail = null,
+        pinned = false;
+
+  /// A position this build asserted rather than measured (see
+  /// [CourierLocationFix.pinnedBuild]). It already IS the stored address,
+  /// or the configured anchor when none is stored, so a caller must not
+  /// write it back over the address the courier chose.
+  const CourierLocationResult.pinned(Position this.position)
+      : denial = null,
+        detail = null,
+        pinned = true;
 
   const CourierLocationResult.unavailable({
     required this.denial,
     required this.detail,
-  }) : position = null;
+  })  : position = null,
+        pinned = false;
 
   final Position? position;
   final CourierLocationDenial? denial;
   final String? detail;
+
+  /// True when [position] came from [CourierLocationFix.pinnedPosition]
+  /// rather than the platform.
+  final bool pinned;
 
   bool get hasFix => position != null;
 }
@@ -82,15 +101,61 @@ class CourierLocationResult {
 /// Reporting is deliberately NOT done here — see [CourierLocationNotice].
 /// Callers must not swallow the result.
 class CourierLocationFix {
-  CourierLocationFix({GeolocatorPlatform? platform}) : _injected = platform;
+  CourierLocationFix({GeolocatorPlatform? platform, bool? pinned})
+      : _injected = platform,
+        _pinned = pinned ?? pinnedBuild;
 
   final GeolocatorPlatform? _injected;
+
+  /// Injectable for tests; defaults to [pinnedBuild].
+  final bool _pinned;
 
   /// Resolved per call, so a test may equally inject through the
   /// constructor or swap `GeolocatorPlatform.instance`.
   GeolocatorPlatform get _platform => _injected ?? GeolocatorPlatform.instance;
 
+  /// Whether this build pins the courier to the stored address instead of
+  /// reading the device's position.
+  ///
+  /// `IS_DEMO` builds run against [DemoDeliverySeed]: invented South
+  /// African shops, customers and addresses laid out around the app's
+  /// configured anchor, with the courier's stored address seeded among
+  /// them. The device's own GPS means nothing there — an emulator sits at
+  /// its default Californian coordinate, a reviewer's phone wherever the
+  /// reviewer is — and a real fix used to overwrite that stored address
+  /// and animate the map an ocean away from every job on it. So a pinned
+  /// build never asks the platform: [current] answers with
+  /// [pinnedPosition], tagged [CourierLocationResult.pinned] so the caller
+  /// leaves storage alone, and the on-duty tracking lane does not start.
+  static bool get pinnedBuild => AppConstants.isDemo;
+
+  /// Where a pinned build stands: the stored address, else the seed's
+  /// anchor (which is the same fallback the home map already centres on).
+  static Position pinnedPosition() {
+    final stored = LocalStorage.getAddressSelected();
+    final latitude = stored?.latitude;
+    final longitude = stored?.longitude;
+    return Position(
+      latitude: latitude != null && longitude != null
+          ? latitude
+          : DemoDeliverySeed.anchorLatitude,
+      longitude: latitude != null && longitude != null
+          ? longitude
+          : DemoDeliverySeed.anchorLongitude,
+      timestamp: DateTime.now(),
+      accuracy: 0,
+      altitude: 0,
+      altitudeAccuracy: 0,
+      heading: 0,
+      headingAccuracy: 0,
+      speed: 0,
+      speedAccuracy: 0,
+    );
+  }
+
   Future<CourierLocationResult> current() async {
+    if (_pinned) return CourierLocationResult.pinned(pinnedPosition());
+
     LocationPermission permission;
     try {
       permission = await _platform.checkPermission();
