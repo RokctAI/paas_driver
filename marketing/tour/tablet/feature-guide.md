@@ -43,3 +43,9 @@ live on one map.
 
 Every delivery you have accepted, with the customer, the total and the cash to
 collect up front.
+
+## 7. The next job is waiting
+
+![The next job is waiting](screenshots/07-driver_available_orders.png)
+
+Orders ready for pickup near you - grab the next job with one tap.
