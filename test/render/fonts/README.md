@@ -37,3 +37,26 @@ curl -sSL -o "test/render/fonts/<hash>.ttf" "https://fonts.gstatic.com/s/a/<hash
 and add a row above. The same table is what a google_fonts version bump would
 change — which is why a bump surfaces as an honest 404 rather than a silently
 wrong render.
+
+## What is *not* fixed by adding a face here
+
+Two elements on the courier profile once rendered as solid white blocks — the
+Back pill's label and the demo avatar's "TM" initials. Neither was a missing
+Inter weight; all four weights above were already loading. They were text that
+asks the engine for a family this directory does not own, and `flutter test`
+registers no system faces, so both fell through to the block font:
+
+* the **Back pill** floats in the route `Stack` with no `Material` ancestor,
+  so its bare `TextStyle` inherits WidgetsApp's fallback `DefaultTextStyle`,
+  whose family is `monospace`. (Inside a `Material` a bare `TextStyle`
+  inherits `Roboto` from the theme's `Typography`, which is why the offline
+  SnackBar's "Close" was always fine.)
+* the **demo avatar** is an inline SVG whose `<text>` asks for
+  `"Helvetica, Arial, sans-serif"`. vector_graphics_compiler passes the
+  `font-family` attribute through whole — `fontFamily: attributeMap['font-family']`
+  — so a CSS font stack becomes one family name, not a fallback list.
+
+`loadRealFonts` handles both by pointing those family names at the Roboto that
+ships in the Flutter SDK's own artifact cache, so nothing extra is committed
+here. If a new block appears on a frame, check which family the text asks for
+before reaching for `curl`.
