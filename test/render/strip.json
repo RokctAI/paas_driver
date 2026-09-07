@@ -1,7 +1,7 @@
 {
   "title": "Courier profile - paas_driver",
   "kicker": "render strip adoption - real render",
-  "lede": "Not hand-drawn. Every frame below is the actual delivery_sdk ProfilePage widget tree as paas_driver composes it, rendered headlessly to PNG by test/render/render_screen_test.dart at 390 logical px / dpr 3, with the numbered points placed automatically from each widget's measured rect. Data is the SDKs' own demo fixtures (IS_DEMO=true), never a live backend.",
+  "lede": "Not hand-drawn. Every frame below is the actual route paas_driver composes for the courier profile - delivery_sdk's ProfilePage shell hosting base_sdk's GenericProfilePage, with delivery_sdk's own driver sections registered into it - rendered headlessly to PNG by test/render/render_screen_test.dart at 390 logical px / dpr 3, with the numbered points placed automatically from each widget's measured rect. Data is the SDKs' own demo fixtures (IS_DEMO=true), never a live backend.",
   "fonts": "system",
   "chips_default": true,
   "frames": [
@@ -23,62 +23,80 @@
     }
   ],
   "labels": {
-    "delivery.driver.profile.app_bar": "Identity header - avatar, name, phone, sign-out",
-    "delivery.driver.profile.avatar": "Courier avatar - photo and rating badge",
-    "delivery.driver.profile.balance_card": "Balance card - wallet balance and last profit"
+    "driver.profile.theme_toggle": "Theme toggle - the light/dark pill in the host's top row",
+    "driver.profile.identity_card": "Identity card - avatar, name, email, role and the edit pencil",
+    "driver.profile.stats_row": "Courier stats - balance, last profit, delivered orders",
+    "driver.profile.rows_card": "Settings register - the driver row list on one card",
+    "driver.profile.online_helper": "Online helper - the support call button",
+    "driver.profile.footer": "Host footer - app name, version, online dot and usage badge"
   },
   "numbering": {
     "map": {
-      "delivery.driver.profile.app_bar": 1,
-      "delivery.driver.profile.avatar": 2,
-      "delivery.driver.profile.balance_card": 3,
-      "delivery.driver.profile.section_row.Profile settings": 4,
-      "delivery.driver.profile.section_row.Delivery zone": 5,
-      "delivery.driver.profile.section_row.Orders": 6,
-      "delivery.driver.profile.section_row.Parcels": 7,
-      "delivery.driver.profile.section_row.Notifications": 8,
-      "delivery.driver.profile.section_row.Order history": 9,
-      "delivery.driver.profile.section_row.Parcel history": 10,
-      "delivery.driver.profile.section_row.Income": 11,
-      "delivery.driver.profile.section_row.Languages": 12
+      "driver.profile.theme_toggle": 13,
+      "driver.profile.identity_card": 14,
+      "driver.profile.stats_row": 15,
+      "driver.profile.rows_card": 16,
+      "driver.profile.nav_tile.Profile settings": 17,
+      "driver.profile.nav_tile.Delivery zone": 18,
+      "driver.profile.nav_tile.Orders": 19,
+      "driver.profile.nav_tile.Parcels": 20,
+      "driver.profile.nav_tile.Notifications": 21,
+      "driver.profile.nav_tile.Order history": 22,
+      "driver.profile.nav_tile.Parcel history": 23,
+      "driver.profile.nav_tile.Income": 24,
+      "driver.profile.nav_tile.Languages": 25,
+      "driver.profile.online_helper": 26,
+      "driver.profile.footer": 27
     },
-    "retired": {}
+    "retired": {
+      "1": "delivery.driver.profile.app_bar - CustomAppBar identity header, deleted with the standalone driver profile",
+      "2": "delivery.driver.profile.avatar - DriverAvatar, deleted with the standalone driver profile",
+      "3": "delivery.driver.profile.balance_card - standalone balance card, replaced by the header stats slot",
+      "4": "delivery.driver.profile.section_row.Profile settings - SectionsItem row, deleted",
+      "5": "delivery.driver.profile.section_row.Delivery zone - SectionsItem row, deleted",
+      "6": "delivery.driver.profile.section_row.Orders - SectionsItem row, deleted",
+      "7": "delivery.driver.profile.section_row.Parcels - SectionsItem row, deleted",
+      "8": "delivery.driver.profile.section_row.Notifications - SectionsItem row, deleted",
+      "9": "delivery.driver.profile.section_row.Order history - SectionsItem row, deleted",
+      "10": "delivery.driver.profile.section_row.Parcel history - SectionsItem row, deleted",
+      "11": "delivery.driver.profile.section_row.Income - SectionsItem row, deleted",
+      "12": "delivery.driver.profile.section_row.Languages - SectionsItem row, deleted"
+    }
   },
   "notes": [
     {
       "kicker": "note - how these renders were produced",
       "body": [
-        "A widget test in this repo; zero app code touched. It pumps the real ProfilePage that delivery_sdk installs into lib/presentation/pages/profile/, wrapped exactly as lib/presentation/app_widget.dart wraps every screen (ProviderScope, ScreenUtilInit at the app's 375x812 compact design size, the app's own light and dark ThemeData), renders it at 390 logical px (dpr 3) at the page's full content height, and captures the RepaintBoundary to PNG.",
+        "A widget test in this repo; zero app code touched. It pumps the real ProfilePage that delivery_sdk installs into lib/presentation/pages/profile/, which is now a route shell: it registers delivery_sdk's driver sections and then hosts base_sdk's GenericProfilePage inside a PlaneHost, with the floating back pill in the route Stack above it. The harness wraps that page exactly as lib/presentation/app_widget.dart wraps every screen (ProviderScope, ScreenUtilInit at the app's 375x812 compact design size, and the app's own theme, darkTheme and themeMode arguments copied verbatim), renders it at 390 logical px (dpr 3) at the page's full content height, and captures the RepaintBoundary to PNG.",
         "The data is the SDKs' own demo data, not fixtures written for this page. The test runs with --dart-define=IS_DEMO=true and calls the same DI registrations lib/main.dart's generated blocks make, so DriverDeliveryDependencies installs DemoCourierRepository, DriverRevenueDependencies installs DemoCourierStatisticsRepository and AuthSdkDependencies installs MockAuthRepository - the same demo fixtures a demo build of the driver app serves. Everything on the frames is the app's own computation over that data: the courier's identity, the R480.00 last profit and the 128 delivered orders all come back from the demo repositories.",
-        "Real, not simulated: Inter is the genuine face Google serves, committed beside the test and handed to google_fonts through its own test seam, which verifies each file's length and SHA-256 before registering it. The icon fonts (MaterialIcons, Remix) are registered from the app's own FontManifest. AppStyle's light/dark tokens are resolved by the app's own AppNotifier through the real setBrightness seam. Layout, spacing, typography, colour, row order and visibility gates are all the shipped code path."
+        "Real, not simulated: Inter is the genuine face Google serves, committed beside the test and handed to google_fonts through its own test seam, which verifies each file's length and SHA-256 before registering it. The icon fonts (MaterialIcons, Remix) are registered from the app's own FontManifest. AppStyle's light/dark tokens are resolved by the app's own AppNotifier through the real setBrightness seam. Layout, spacing, typography, colour, row order and visibility gates are all the shipped code path.",
+        "Every finder is arity-checked before the frame is measured (verifyFinders in the harness): each numbered element must resolve to exactly one widget, the row list to exactly nine, and the anonymous header to none. A page that changes underneath the harness fails the test rather than quietly dropping or duplicating a numbered point."
       ]
     },
     {
       "kicker": "exception - the session the demo mode cannot supply",
       "body": [
-        "Demo mode covers repositories; it does not hand a widget test a SESSION. The profile header reads LocalStorage.getUser(), which auth_sdk writes in _establishSession when a courier signs in, and a widget test never walks that journey.",
-        "So the harness signs in the way the app does (marker 3/8): through the REAL AuthRepositoryFacade.login - which demo mode has already made MockAuthRepository - as driver@demo.rokct.ai, maps the account with auth_sdk's own sessionProfileOf, and persists it through the app's own LocalStorage API. Every value on the header is the SDK's demo account, not a number typed in here.",
-        "The earnings card is filled by the same call the courier's own journey makes: home_page.dart's initState fires fetchProfileStatistics before profile is ever reached, so the harness fires it too, against revenue_sdk's demo statistics repository. Reached cold, that card renders zeroes - which is itself worth knowing."
+        "Demo mode covers repositories; it does not hand a widget test a SESSION. The identity card reads LocalStorage.getUser(), which auth_sdk writes in _establishSession when a courier signs in, and a widget test never walks that journey.",
+        "So the harness signs in the way the app does (marker 3/8): through the REAL AuthRepositoryFacade.login - which demo mode has already made MockAuthRepository - as driver@demo.rokct.ai, maps the account with auth_sdk's own sessionProfileOf, and persists it through the app's own LocalStorage API. Every value on the identity card is the SDK's demo account, not a number typed in here.",
+        "The earnings figures are filled by the same call the courier's own journey makes: home_page.dart's initState fires fetchProfileStatistics before profile is ever reached, so the harness fires it too, against revenue_sdk's demo statistics repository. Reached cold, those figures render zeroes - which is itself worth knowing."
       ]
     },
     {
       "kicker": "found by rendering (a drawing could not have caught these)",
       "items": [
-        "DARK MODE PAINTS WHITE INK ON WHITE CARDS. AppStyle's type helpers default to textPrimary, which is #FFFFFF in dark, but this screen's surfaces are the constant AppStyle.white, which does not flip: CustomAppBar's background and every card. So in the dark frame the courier's name and phone, 'Balance' / 'R0.00' and 'Delivered order' / '128' are all invisible. The section-row titles survive only because SectionsItem passes color: AppStyle.black explicitly, and 'R480.00' survives because it passes AppStyle.primary.",
-        "The row icons vanish in dark for a second, independent reason: Icon(icon) carries no colour, so it takes Material's dark IconTheme - white - on the same unflipped white card.",
         "Balance reads R0.00 because the login contract's user carries no wallet: sessionProfileOf deliberately leaves the profile-only fields for a later profile fetch, and that fetch has no demo implementation in users_sdk. The zero is real app behaviour on a fresh demo session, not a missing fixture.",
         "The row labels are humanized translation-key fallbacks, not served strings: no backend answers headlessly, so AppHelpers.humanizeTrKey is what a reviewer is reading ('Profile settings', 'Order history'). That is also exactly what a first-run demo build shows before the translations fetch lands.",
-        "The demo account's avatar is a remote placeholder URL, so the header renders DriverAvatar's real no-image state rather than a photo.",
-        "'Delete account' is absent by design: the row sits behind if (!AppConstants.isDemo), and the render runs in demo mode - the gate is the shipped code path, not a harness omission.",
-        "The back pill and 'Online helper' button are the Scaffold's floatingActionButton, so they hang off the bottom of the viewport rather than the end of the content - which is why they carry no chip: a viewport-anchored element would pin the frame height to the harness probe height.",
-        "The gap between 'Languages' and the buttons is the page's own 100.verticalSpace nav clearance, not padding."
+        "'Delete account' is absent by design: the row sits behind a demo gate, and the render runs in demo mode - the gate is the shipped code path, not a harness omission. The harness asserts its absence rather than assuming it.",
+        "The back pill and the SnackBar are viewport-anchored rather than content-anchored - the pill floats in the route Stack, the SnackBar in the app's ScaffoldMessenger - so they carry no chip: numbering them would pin the frame height to the harness probe height rather than the page's own content height.",
+        "Two elements rendered as solid white blocks until the harness registered the generic font families they ask for. The Back pill sits above the page with no Material ancestor, so its bare TextStyle inherits WidgetsApp's fallback style, whose family is 'monospace'; and the demo avatar is an inline SVG whose text asks for 'Helvetica, Arial, sans-serif', which vector_graphics_compiler passes to the engine whole, as one family name. A device resolves both to real system faces; a headless test engine has neither registered and falls through to the Ahem block font. Not a missing Inter weight - all four committed weights were already loading.",
+        "The gap between 'Languages' and the buttons is the page's own nav clearance, not padding."
       ]
     },
     {
       "kicker": "why the profile and not the home",
       "body": [
         "The courier home is this shell's landing screen, but it is a full-bleed GoogleMap platform view plus Geolocator, FirebaseMessaging and WorkManager. Headless, the map surface never fetches a tile and renders as a blank grey grid, so the frame would be a picture of nothing.",
-        "The profile is the next-densest driver-owned surface - identity header, balance and earnings cards, and the whole settings register - and it renders entirely from delivery_sdk's and revenue_sdk's demo repositories. Home is worth covering once someone decides what a map surface should look like in a review frame."
+        "The profile is the next-densest driver-owned surface - identity card, courier stats, and the whole settings register - and it renders entirely from base_sdk's, delivery_sdk's and revenue_sdk's demo repositories. Home is worth covering once someone decides what a map surface should look like in a review frame."
       ]
     }
   ]
