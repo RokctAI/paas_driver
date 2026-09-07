@@ -88,7 +88,7 @@ tour:
   - step:
       key: welcome
       title: "Welcome to Driver"
-      caption: "{app_name} puts *your whole delivery day* in one app - sign in to get started."
+      caption: "{app_name} puts *your delivery day* in one app - sign in to get started."
       action: wait
       settle: 12
   # auth_sdk captures the auth screens, then performs its demo sign-in
