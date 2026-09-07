@@ -44,6 +44,7 @@ import 'package:remixicon/remixicon.dart';
 
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section.dart';
+import 'package:base_sdk/src/presentation/pages/profile/profile_section_navigator.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section_registry.dart';
 import 'package:base_sdk/src/presentation/pages/profile/widgets/base_profile_footer.dart';
 import 'package:base_sdk/src/presentation/pages/profile/widgets/profile_nav_tile.dart';
@@ -72,6 +73,14 @@ class DriverProfileActions {
   /// The Online helper call.
   final void Function(BuildContext context) onOnlineHelper;
 
+  /// The Order history row's content EMBEDDED for a plane host's detail
+  /// plane (base_sdk 1.60.10: [ProfileSection.detailBuilder]) - the same
+  /// list [onOrderHistory] pushes, without its Scaffold, app bar or back.
+  /// The installed shell supplies it from the composed app's order-history
+  /// page; null (the default) declares no detail, so the rows section is
+  /// never the registry's default and every row pushes as before.
+  final WidgetBuilder? orderHistoryDetail;
+
   const DriverProfileActions({
     required this.onProfileSettings,
     required this.onDeliveryZone,
@@ -84,6 +93,7 @@ class DriverProfileActions {
     required this.onLanguage,
     required this.onDeleteAccount,
     required this.onOnlineHelper,
+    this.orderHistoryDetail,
   });
 }
 
@@ -96,6 +106,22 @@ class DriverProfileSections {
 
   static const String rowsId = 'delivery.driver_rows';
   static const int rowsOrder = 110;
+
+  /// The section a plane host opens BY DEFAULT (tablet audit 2026-09-07,
+  /// 16-users_profile: the driver profile left its third plane empty).
+  ///
+  /// The driver profile has ONE content section - the row list - so the
+  /// choice is which row's content that section's detail plane carries.
+  /// Income would be the driver's first pick, but it is revenue_sdk's
+  /// route page (its own Scaffold, tabs and withdraw flow; a revenue_sdk
+  /// change to embed, recorded as a follow-up). Order history is the
+  /// next: it is the courier's own record, the list the header's
+  /// "delivered" and "last profit" figures summarise, and it is this
+  /// SDK's page, so the shell can embed its content without a second
+  /// Scaffold. The Order history row opens it through
+  /// [ProfileSectionNavigator.open]; on a phone the seam answers false
+  /// and the row pushes exactly as before.
+  static const String defaultSectionId = rowsId;
 
   static const String onlineHelperId = 'delivery.online_helper';
   static const int onlineHelperOrder = 120;
@@ -116,8 +142,15 @@ class DriverProfileSections {
         id: rowsId,
         order: rowsOrder,
         builder: (context) => DriverProfileRows(actions: actions),
+        detailBuilder: actions.orderHistoryDetail,
       ),
     );
+    // Seeded into the third plane on a three-plane screen by the plane
+    // host (GenericProfileRoutePage); a section without a detail cannot be
+    // the default, so a shell that supplies none leaves the plane bare.
+    if (actions.orderHistoryDetail != null) {
+      registry.defaultSectionId ??= defaultSectionId;
+    }
 
     registry.register(
       ProfileSection(
@@ -275,7 +308,18 @@ class DriverProfileRows extends StatelessWidget {
           ProfileNavTile(
             icon: Remix.history_line,
             title: AppHelpers.getTranslation(TrKeys.orderHistory),
-            onTap: () => actions.onOrderHistory(context),
+            onTap: () {
+              // On planes the host opens the detail beside the profile;
+              // anywhere else (a phone, no host scope, no detail) the seam
+              // answers false and the row pushes as it always did.
+              if (ProfileSectionNavigator.open(
+                context,
+                DriverProfileSections.defaultSectionId,
+              )) {
+                return;
+              }
+              actions.onOrderHistory(context);
+            },
           ),
           ProfileNavTile(
             icon: Remix.folder_history_fill,

@@ -1,6 +1,6 @@
 name: zones_sdk
 description: "zones_sdk - delivery-zone geometry for the driver (ported from paas_driver, refork 2026-07) and manager (ported from paas_manager, refork 2026-08) flavours."
-version: 1.1.0
+version: 1.1.1
 publish_to: 'none'
 
 environment:

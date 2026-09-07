@@ -45,12 +45,26 @@ class ProfileSection {
   /// section did before this field existed.
   final Set<ProfileFacade> requires;
 
+  /// Builds the section's DETAIL surface — what the section's card opens.
+  ///
+  /// Null (the default) means the card owns its own navigation, exactly as
+  /// before this field existed. Given, a profile host on planes opens the
+  /// detail in its DETAIL PLANE (the last plane) instead of the card
+  /// pushing a full-screen route — see [ProfileSectionNavigator.open] —
+  /// and the host seeds the detail of [ProfileSectionRegistry.defaultSectionId]
+  /// into the third plane when the profile lands on a three-plane screen
+  /// (Ray 2026-09-07: the tablet profile never leaves its third plane
+  /// empty). The widget is embedded in a plane the host owns: render the
+  /// content only, no app bar or back of its own.
+  final WidgetBuilder? detailBuilder;
+
   const ProfileSection({
     required this.id,
     required this.order,
     required this.builder,
     this.visible,
     this.requires = const {},
+    this.detailBuilder,
   });
 }
 

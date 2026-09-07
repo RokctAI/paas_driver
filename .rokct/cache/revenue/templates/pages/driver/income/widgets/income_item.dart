@@ -32,7 +32,7 @@ class IncomeItem extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 4.h),
       decoration: BoxDecoration(
-        color: isBlack ? AppStyle.blackColor : AppStyle.white,
+        color: isBlack ? AppStyle.textPrimary : AppStyle.cardDark,
         borderRadius: BorderRadius.circular(10.r),
       ),
       padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 16.w),
@@ -44,7 +44,7 @@ class IncomeItem extends StatelessWidget {
             style: AppStyle.interNormal(
                 size: 14,
                 letterSpacing: -0.3,
-                color: isBlack ? AppStyle.white : AppStyle.blackColor),
+                color: isBlack ? AppStyle.cardDark : AppStyle.textPrimary),
           ),
           6.horizontalSpace,
           Expanded(
@@ -53,7 +53,7 @@ class IncomeItem extends StatelessWidget {
               style: AppStyle.interSemi(
                 size: 14,
                 letterSpacing: -0.3,
-                color: isBlack ? AppStyle.white : AppStyle.blackColor,
+                color: isBlack ? AppStyle.cardDark : AppStyle.textPrimary,
               ),
               overflow: TextOverflow.ellipsis,
               maxLines: 2,

@@ -59,6 +59,16 @@ class ProfileSectionRegistry {
   /// the profile surface may set a different title at bootstrap.
   String? pageTitle;
 
+  /// The section whose detail a plane host opens BY DEFAULT: when the
+  /// profile lands on a three-plane screen the host seeds this section's
+  /// [ProfileSection.detailBuilder] into the third plane, so the plane is
+  /// never an empty stage (Ray 2026-09-07). Null (the default) seeds
+  /// nothing — the third plane stays the bare stage it always was. Set at
+  /// bootstrap (`di_hooks`) by the SDK that owns the profile surface, next
+  /// to the section's own [register] call; a section without a
+  /// `detailBuilder` cannot be the default ([defaultSection] is null then).
+  String? defaultSectionId;
+
   /// Registers [section]. Duplicate id: first registration wins and the
   /// duplicate is dropped loudly — the same semantics as the installer's
   /// embedded_widgets/onboarding_slides composers.
@@ -77,6 +87,19 @@ class ProfileSectionRegistry {
 
   /// Whether a section with [id] is already registered.
   bool contains(String id) => _sections.containsKey(id);
+
+  /// The registered section with [id], or null while none has it.
+  ProfileSection? section(String id) => _sections[id];
+
+  /// The section named by [defaultSectionId], or null while no default is
+  /// named, the named section is unregistered, or it declares no
+  /// [ProfileSection.detailBuilder] (there is nothing to seed then).
+  ProfileSection? get defaultSection {
+    final id = defaultSectionId;
+    if (id == null) return null;
+    final section = _sections[id];
+    return section?.detailBuilder == null ? null : section;
+  }
 
   /// Claims [slot] of the identity header card with SDK-supplied content.
   ///
@@ -262,5 +285,6 @@ class ProfileSectionRegistry {
     onEditProfile = null;
     onLogout = null;
     pageTitle = null;
+    defaultSectionId = null;
   }
 }

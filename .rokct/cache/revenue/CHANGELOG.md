@@ -1,3 +1,24 @@
+## 1.12.2
+
+* **Driver income: the page was still light on the tablet.** Tablet design
+  audit 2026-09-07 (paas_driver still 14-revenue_income, mean luminance
+  220). The driver income template pinned light-only tokens: the Scaffold
+  ground on `AppStyle.bgGrey`, the order-price, statistics and chart cards
+  on `AppStyle.white`, and their ink on `AppStyle.blackColor`, so the
+  screen ignored the mode base sets. Same recipe as the pay-side fix:
+  ground -> `AppStyle.surfaceDark`, cards and tiles -> `AppStyle.cardDark`,
+  primary ink -> `AppStyle.textPrimary` (every one a mode-resolving getter,
+  so light hosts keep a light page). `templates/pages/driver/income/
+  income_page.dart`, `app_bar_screen.dart` (the calendar chip, `const`
+  dropped since its colours are now getters), `statistics_screen.dart`
+  and `widgets/income_item.dart` (the `isBlack` tile now inverts
+  `textPrimary`/`cardDark` instead of `blackColor`/`white`). Left alone on
+  purpose: the black-on-primary Withdraw label and the white ink on the
+  green/red statistics tiles (brand-on-colour, legible in both modes), and
+  the manager `/income` workspace, which was already dark. Colour-only:
+  the tour fragment's `revenue_income` step is unchanged. Manifest
+  1.12.1 -> 1.12.2.
+
 ## 1.12.1
 
 * **Driver income: the earnings chart could never scroll out from under

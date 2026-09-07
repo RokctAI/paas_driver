@@ -263,7 +263,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
   Widget build(BuildContext context) {
     final state = ref.watch(statisticsProvider);
     return Scaffold(
-      backgroundColor: AppStyle.bgGrey,
+      backgroundColor: AppStyle.surfaceDark,
       // The withdraw bar rides in the Scaffold's bottom slot and the body
       // runs on UNDER it (extendBody), so the content still passes beneath
       // the translucent stack on the way down exactly as before, while the
@@ -476,7 +476,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
             width: double.infinity,
             height: 300.h,
             decoration: BoxDecoration(
-              color: AppStyle.white,
+              color: AppStyle.cardDark,
               borderRadius: BorderRadius.circular(10.r),
             ),
             padding: EdgeInsets.all(16.r),
@@ -499,7 +499,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppStyle.white,
+            color: AppStyle.cardDark,
             borderRadius: BorderRadius.circular(10.r),
           ),
           padding: EdgeInsets.all(16.r),
@@ -510,7 +510,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
                 AppHelpers.getTranslation(TrKeys.orderPrice),
                 style: AppStyle.interNormal(
                     size: 14,
-                    color: AppStyle.blackColor,
+                    color: AppStyle.textPrimary,
                     letterSpacing: -0.3),
               ),
               16.verticalSpace,
@@ -519,7 +519,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
                     number: state.countData?.data?.lastOrderTotalPrice ?? 0),
                 style: AppStyle.interSemi(
                     size: 32,
-                    color: AppStyle.blackColor,
+                    color: AppStyle.textPrimary,
                     letterSpacing: -0.3),
               ),
               4.verticalSpace,
@@ -528,7 +528,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
                       text: AppHelpers.getTranslation(TrKeys.lastIncome),
                       style: AppStyle.interNormal(
                           size: 12,
-                          color: AppStyle.blackColor,
+                          color: AppStyle.textPrimary,
                           letterSpacing: -0.3),
                       children: [
                     TextSpan(
@@ -536,7 +536,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
                           number: state.countData?.data?.lastOrderIncome ?? 0),
                       style: AppStyle.interSemi(
                           size: 12,
-                          color: AppStyle.blackColor,
+                          color: AppStyle.textPrimary,
                           letterSpacing: -0.3),
                     )
                   ])),

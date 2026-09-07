@@ -97,6 +97,7 @@ export 'src/presentation/pages/profile/generic_profile_route_page.dart';
 export 'src/presentation/pages/profile/profile_action_item.dart';
 export 'src/presentation/pages/profile/profile_host_scope.dart';
 export 'src/presentation/pages/profile/profile_section.dart';
+export 'src/presentation/pages/profile/profile_section_navigator.dart';
 export 'src/presentation/pages/profile/profile_section_registry.dart';
 export 'src/presentation/pages/profile/widgets/app_usage_badge.dart';
 export 'src/presentation/pages/profile/widgets/base_profile_footer.dart';

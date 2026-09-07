@@ -73,11 +73,11 @@ class AbbBarScreen extends StatelessWidget {
                 },
                 child: Container(
                   padding: EdgeInsets.all(10.r),
-                  decoration: const BoxDecoration(
-                      color: AppStyle.bgGrey, shape: BoxShape.circle),
-                  child: const Icon(
+                  decoration: BoxDecoration(
+                      color: AppStyle.surfaceDark, shape: BoxShape.circle),
+                  child: Icon(
                     Remix.calendar_event_fill,
-                    color: AppStyle.blackColor,
+                    color: AppStyle.textPrimary,
                   ),
                 ),
               )

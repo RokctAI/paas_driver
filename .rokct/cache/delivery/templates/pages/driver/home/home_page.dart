@@ -31,6 +31,7 @@ import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.
 import 'package:delivery_sdk/src/driver/presentation/deposit/deposit_flow.dart';
 import 'package:delivery_sdk/src/driver/presentation/home/driver_root_nav.dart';
 import 'package:delivery_sdk/src/driver/presentation/widgets/deferred_map_surface.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_map_style.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:${package}/presentation/pages/home/parcel_bottom_sheet.dart';
@@ -702,6 +703,12 @@ class _HomePageState extends ConsumerState<HomePage> {
       height: MediaQuery.sizeOf(context).height,
       child: DeferredMapSurface(
         child: GoogleMap(
+          // Tablet audit 2026-09-07 (05-driver_home LIGHT in dark mode):
+          // the native map resolves with the mode like the chrome over
+          // it - base_sdk's night JSON when dark, the plugin's daylight
+          // default when light. The off-duty [_map] filter composes over
+          // either.
+          style: DriverMapStyle.forMode(),
           myLocationButtonEnabled: false,
           initialCameraPosition: CameraPosition(
             bearing: 0,

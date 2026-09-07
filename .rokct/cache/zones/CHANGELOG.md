@@ -1,3 +1,33 @@
+## 1.5.1
+
+* Driver delivery-zone editor (tablet audit 2026-09-07,
+  13-driver_delivery_zone rendered an all-black frame; and dark mode): the
+  installed page painted a polarity-PINNED grey scaffold (`AppStyle.
+  textGrey`), a pinned WHITE loading box and a bare `GoogleMap` whose
+  platform view had painted nothing by the time the tour took its still.
+  `templates/pages/driver/profile/delivery_zone/delivery_zone_page.dart`
+  now carries the three fixes the courier home map already has:
+  * the map is MOUNTED only once the page has settled, through
+    delivery_sdk's `DeferredMapSurface` (one frame painted, 800 ms of
+    being the current route, still mounted), so the plugin's own un-awaited
+    channel calls never land on a page that is already leaving;
+  * the ground and the loading / pre-mount box resolve with the mode
+    (`AppStyle.surfaceDark`, a `cardDark` box with a quiet
+    `textDarkSecondary` spinner) instead of the pinned grey and white;
+  * the map resolves with the mode too, through delivery_sdk's
+    `DriverMapStyle.forMode()` (base_sdk's night JSON when dark, the
+    plugin's daylight default when light).
+  Camera, polygon, tap-to-add-point and save are untouched. The page is
+  host-side template code and imports delivery_sdk the way the courier
+  home imports comms_sdk; this SDK's lib/ still imports no delivery_sdk
+  (ADR-005). Declared in the manifest's `_comment_requires`: a driver
+  compose needs delivery_sdk >= 1.21.2.
+* `templates/tour/zones.tour.yaml` is unchanged and needs no change: the
+  one step's route, caption and settle stay, and no finder names the
+  loading box. Demo zone seed untouched.
+* Version 1.5.0 -> 1.5.1 (pubspec 1.1.0 -> 1.1.1) so version-aware cache
+  reconciliation re-extracts the SDK.
+
 ## 1.5.0
 
 * Manager delivery-zone editor rebuilt to the approved design strip

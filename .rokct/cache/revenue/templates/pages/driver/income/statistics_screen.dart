@@ -59,7 +59,7 @@ class StatisticsScreen extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10.r),
-                  color: AppStyle.white,
+                  color: AppStyle.cardDark,
                 ),
                 padding: EdgeInsets.all(12.r),
                 child: Column(
@@ -69,7 +69,7 @@ class StatisticsScreen extends StatelessWidget {
                       AppHelpers.getTranslation(TrKeys.totalOrders),
                       style: AppStyle.interNormal(
                           size: 12,
-                          color: AppStyle.blackColor,
+                          color: AppStyle.textPrimary,
                           letterSpacing: -0.3),
                     ),
                     const Spacer(),
@@ -77,7 +77,7 @@ class StatisticsScreen extends StatelessWidget {
                       totalOrders,
                       style: AppStyle.interSemi(
                           size: 34,
-                          color: AppStyle.blackColor,
+                          color: AppStyle.textPrimary,
                           letterSpacing: -1),
                     ),
                     RichText(
@@ -85,14 +85,14 @@ class StatisticsScreen extends StatelessWidget {
                           text: AppHelpers.getTranslation(TrKeys.today),
                           style: AppStyle.interNormal(
                               size: 12,
-                              color: AppStyle.blackColor,
+                              color: AppStyle.textPrimary,
                               letterSpacing: -0.3),
                           children: [
                             TextSpan(
                               text: " $todayOrders",
                               style: AppStyle.interSemi(
                                   size: 12,
-                                  color: AppStyle.blackColor,
+                                  color: AppStyle.textPrimary,
                                   letterSpacing: -0.3),
                             )
                           ]),
@@ -134,16 +134,16 @@ class StatisticsScreen extends StatelessWidget {
                           title: AppHelpers.getTranslation(TrKeys.doneOrders),
                           count: doneOrders,
                           percentage: donePer == "NaN%" ? "0%" : donePer,
-                          bgColor: AppStyle.white,
-                          textColor: AppStyle.blackColor,
+                          bgColor: AppStyle.cardDark,
+                          textColor: AppStyle.textPrimary,
                           iconColor: AppStyle.icons),
                       8.horizontalSpace,
                       StatisticsItem(
                         title: AppHelpers.getTranslation(TrKeys.newOrders),
                         count: canceledOrders,
                         percentage: canceledPer == "NaN%" ? "0%" : canceledPer,
-                        bgColor: AppStyle.white,
-                        textColor: AppStyle.blackColor,
+                        bgColor: AppStyle.cardDark,
+                        textColor: AppStyle.textPrimary,
                         iconColor: AppStyle.icons,
                       ),
                     ],

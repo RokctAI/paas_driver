@@ -32,6 +32,15 @@
 // it carries the bare back pill: bottom-centre on a phone, as every other
 // driver page draws it, and at the bottom-END corner on plane widths, where
 // PlaneHost parks its own pill.
+//
+// Plane widths are base_sdk's GenericProfileRoutePage (1.60.10) rather than
+// a PlaneHost of this file's own: it is the host that provides the
+// ProfileSectionNavigator seam, opens a section's detail in the DETAIL
+// PLANE, seeds the registry's default section into the third plane on a
+// three-plane screen (tablet audit 2026-09-07, 16-users_profile: the
+// driver profile left that plane empty) and draws the same bottom-END
+// corner pill this shell drew - the pill pops an opened detail first and
+// the route after. The phone branch is untouched.
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +50,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:${package}/presentation/pages/order_history/order_history.dart';
 import 'package:${package}/presentation/pages/profile/courier_statistics_provider.dart';
 import 'package:${package}/presentation/pages/profile/widgets/edit_profile_modal.dart';
 import 'package:${package}/presentation/pages/profile/widgets/logout_modal.dart';
@@ -53,6 +63,7 @@ import 'package:base_sdk/src/navigation/embedded_widgets.dart';
 import 'package:base_sdk/src/presentation/adaptive/planes.dart';
 import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/pages/profile/generic_profile_page.dart';
+import 'package:base_sdk/src/presentation/pages/profile/generic_profile_route_page.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section_registry.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -102,6 +113,11 @@ void registerDriverProfileSections() {
       onLanguage: _openLanguage,
       onDeleteAccount: onDeleteAccount,
       onOnlineHelper: _callOnlineHelper,
+      // The rows section's detail for the plane host (base_sdk 1.60.10):
+      // the Order history list, embedded - the same content _openOrderHistory
+      // pushes, without the route's Scaffold, app bar, pill or filter.
+      // The host seeds it into the third plane on a three-plane screen.
+      orderHistoryDetail: (context) => const OrderHistoryPane(heading: true),
     ),
   );
 }
@@ -237,6 +253,12 @@ class _ProfilePageState extends State<ProfilePage> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final bool wide = PlaneHost.planeCountFor(constraints.maxWidth) > 1;
+          if (wide) {
+            // The universal profile cap (approved 4c) - two planes at
+            // most - plus the detail plane and its default, and the
+            // corner pill, all owned by base's routed host.
+            return const GenericProfileRoutePage();
+          }
           return Stack(
             children: [
               Positioned.fill(
@@ -244,34 +266,25 @@ class _ProfilePageState extends State<ProfilePage> {
                   stack: [
                     PlanePage(
                       name: 'driver-profile',
-                      // The universal profile cap (approved 4c): two
-                      // planes at most, a bare stage beyond them.
                       span: PlaneSpan.two,
                       builder: (context) => const GenericProfilePage(),
                     ),
                   ],
                 ),
               ),
-              if (wide)
-                PositionedDirectional(
-                  end: 16,
-                  bottom: 16,
-                  child: SafeArea(child: FloatingBackPill(back: back)),
-                )
-              else
-                Positioned.fill(
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: FloatingBottomNav(
-                      mode: FloatingNavTabsMode(
-                        tabs: const [],
-                        currentIndex: 0,
-                        onSelect: (_) {},
-                        back: back,
-                      ),
+              Positioned.fill(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: FloatingBottomNav(
+                    mode: FloatingNavTabsMode(
+                      tabs: const [],
+                      currentIndex: 0,
+                      onSelect: (_) {},
+                      back: back,
                     ),
                   ),
                 ),
+              ),
             ],
           );
         },

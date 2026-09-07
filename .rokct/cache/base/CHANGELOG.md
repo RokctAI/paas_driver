@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.60.10
+
+* Added: the generic profile host's DETAIL PLANE (Ray 2026-09-07, "on a
+  tablet the generic profile host must not leave the third plane empty").
+  `ProfileSection` gains an optional `detailBuilder` (the section's detail
+  surface, rendered embedded — content only, no app bar or back of its
+  own) and `ProfileSectionRegistry` a `defaultSectionId` (plus `section(id)`
+  and `defaultSection` lookups). `GenericProfileRoutePage` (the routed
+  `/generic-profile` page) now owns a plane stack instead of a constant
+  one-entry host: on a THREE-plane screen the default section's detail is
+  pushed on top of the profile from the first frame with the default
+  one-plane claim, so it fills the third plane while the profile keeps its
+  two (the universal cap; the `PlaneHost` yield rule does the rest); on two
+  planes nothing is seeded. New `ProfileSectionNavigator` seam: a section
+  card calls `ProfileSectionNavigator.open(context, id)` from its tap and
+  keeps its ordinary push as the fallback — on planes the host opens the
+  detail in its last plane (replacing the default; the corner Back returns
+  to the default before it pops the route), while a phone route, a host
+  without the seam, or a section without a detail answers false so the
+  card pushes exactly as before. Phone behaviour and every other plane
+  flow are untouched; a registry with no `defaultSectionId` renders the
+  route page byte-identical to 1.60.9.
+
 ## 1.60.9
 
 * Fixed: the floating Back pill's chevron and label were under the WCAG

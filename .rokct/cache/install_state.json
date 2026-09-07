@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.60.9",
+      "version": "1.60.10",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -260,13 +260,13 @@
       ]
     },
     "delivery_sdk": {
-      "version": "1.21.1",
+      "version": "1.21.3",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "11db8e698632a6cee50e92a83fef8a494c4b55cf316bbaf6398f652460cb8dea",
         "lib/presentation/routes/delivery_adapters.dart": "cd22c591ae3179bcc44d95cead4ac89abddfecdc6217a8c316037890e13ecddc",
         "lib/presentation/pages/home/parcel_bottom_sheet.dart": "008bb9812843fe0024cf77b29640494f63416c76ba4795f174a27e9227f1cb95",
         "lib/presentation/pages/home/bottom_sheet_screen.dart": "0943694ba39b81dbdbb0bacd155b6715bcaed7acf7f11a47c59aae70ce993cf9",
-        "lib/presentation/pages/home/home_page.dart": "47e91dffc439bbc47872a4be957dc688b8d925da8368c52d0ec3f270d0983f60",
+        "lib/presentation/pages/home/home_page.dart": "d26d1d7da70ca48b4550c7f6635d0d740ac9e3bbfc26658d6a9888a48397b163",
         "lib/presentation/pages/home/delivery_bottom_sheet.dart": "cc501115039ed9fe1a5034585256743eb7a3c62b2bf0e466b2c159eee8062349",
         "lib/presentation/pages/home/widgets/outside_painter.dart": "60866744c76343e4a4cf92b27adb08a17a74dbe5f0e4bd99b6657c30aba402e3",
         "lib/presentation/pages/home/widgets/rate_customer.dart": "1cc8cad88894b84141ac2bf18cf6e945414daf20226dc9078dc2810ef3770358",
@@ -275,13 +275,13 @@
         "lib/presentation/pages/home/widgets/approve_dialog.dart": "8a943db976f465fccfed0ed3f60dfce95edf14c55ab078e2a35b79818fc1e6fc",
         "lib/presentation/pages/home/widgets/add_comment.dart": "464d54eb71b45d60306ae992cc099efcce5388c915af71b543bcac563962203c",
         "lib/presentation/pages/orders/orders_page.dart": "8557b6fc37f917d5eac645d2ab69cf8f792b264f81904c67d1db720087e7f541",
-        "lib/presentation/pages/order_history/order_history.dart": "bfa50a866c086f099dae383e2d592af400c7dd3906d5fbd8a143abc6c9a69f12",
+        "lib/presentation/pages/order_history/order_history.dart": "e2c4addb089c9ee965678b7b910bb668e76eae73d34f71026c2be4519a83e379",
         "lib/presentation/pages/parcel/parcel_item.dart": "729eb6fe6d8ddac801bd1bbfc399dbf9c9eca6dce16a4886ecc23399cfbefa6b",
         "lib/presentation/pages/parcel/parcel_order.dart": "f1be00a635ff236794f1335f99b1d9133c6e57fca6b54d98ddf8be55025d0243",
         "lib/presentation/pages/parcel/parcels_page.dart": "ffc2e63c5804a4f7182da17c98a2a45960a8e751581c28b7147d0c4b2f1cc751",
         "lib/presentation/pages/parcels_history/parcel_history.dart": "f6b261d7f80f84e67e96eec2b130c3861122a16b2f77388f1d200e6340ce74df",
         "lib/presentation/pages/push_order/push_order_screen.dart": "5c66d301cf766b26ea27b4ecf13f88026b77989d2157ccd5599e12ae6eb8e8f2",
-        "lib/presentation/pages/profile/profile_page.dart": "5767faa2e681218cfbebc3cf453992ff5961b15aadcb48d9c44be4e98d4dbf8a",
+        "lib/presentation/pages/profile/profile_page.dart": "6a9b49edc552fa956fdc71e6d2f84616e113a5e6d4efd4f742535498d0da9f82",
         "lib/presentation/pages/profile/edit_car.dart": "648a82e48b46ba35df36dce1ce5de8882fea7c2ecd3eac7ac6a6521375a1c180",
         "lib/presentation/pages/profile/widgets/cancel_dialog.dart": "07780d5e61c179d24a5c4694412f61d052bccf20eaf5c946b0cbf85be1b09ed0",
         "lib/presentation/pages/profile/widgets/edit_profile_modal.dart": "1fd0b85e930b53f2db5e2eaf93b0a9b11c3a7ecf73c0e61dd9177f9f66a012bf",
@@ -703,9 +703,9 @@
       "boot_hooks": []
     },
     "zones_sdk": {
-      "version": "1.5.0",
+      "version": "1.5.1",
       "files": {
-        "lib/presentation/pages/profile/delivery_zone/delivery_zone_page.dart": "e8d8fc75332e5d2dd16840e0c250ddbeb201e559eda747873438cc029e7c3908",
+        "lib/presentation/pages/profile/delivery_zone/delivery_zone_page.dart": "6f411ebaa05581e1ee6efcc903ecc0ef434a51e05cd5856d09f13fbae4a1b5b4",
         "lib/presentation/routes/zones_adapters.dart": "554bb4030918f5d1659127cbde1ca1f5c7687b2534c771461f5a40103fc062de"
       },
       "routes": [
@@ -761,13 +761,13 @@
       }
     },
     "revenue_sdk": {
-      "version": "1.12.1",
+      "version": "1.12.2",
       "files": {
-        "lib/presentation/pages/income/statistics_screen.dart": "e07df6b531efd6fb183401f318f3d6d4e8bc83bef90c339867231e6e41150153",
-        "lib/presentation/pages/income/income_page.dart": "d2c581f92a741b36c5922b3f9e9783ca604a7b56fcf4bc403d0db1d3462c670a",
-        "lib/presentation/pages/income/app_bar_screen.dart": "fc5d140e1e12d52c445d915eab2021a81f9973eab393a44acff781db89fc4387",
+        "lib/presentation/pages/income/statistics_screen.dart": "f46826102f934c57239ccf1b02f0c2dbbd549124439ba273b3110e17d4dbc8a1",
+        "lib/presentation/pages/income/income_page.dart": "830d40f0327e7e8780fd907b145cddbd938d089a92d322cf1a6c82ddbc0c69fa",
+        "lib/presentation/pages/income/app_bar_screen.dart": "f1904f211621d1e96b14f0f550d7bd3211add5b6bb3d80b049ac6b133990bd84",
         "lib/presentation/pages/income/widgets/statistics_item.dart": "87d912e2c8710ac8fc3abf9cd2d3a82c2ad2465e93b029f5d919b78b8deeb989",
-        "lib/presentation/pages/income/widgets/income_item.dart": "500e95d515b3526979210f8551c8fcd9f8b4242e3521c723fc4e77e77cdb58b8"
+        "lib/presentation/pages/income/widgets/income_item.dart": "7ede514501b14b81093a7cbabc03787a9f2eaac3aa4668e8eaa471bbf94e9f1d"
       },
       "routes": [
         {
@@ -1078,8 +1078,8 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.60.9",
-      "hash": "cd39e6a5eb42d313"
+      "version": "1.60.10",
+      "hash": "acd5637d1575e09e"
     },
     "comms": {
       "version": "1.15.3",
@@ -1106,16 +1106,16 @@
       "hash": "054e6c067b1ca2c5"
     },
     "delivery": {
-      "version": "1.21.1",
-      "hash": "d8821a411a94d195"
+      "version": "1.21.3",
+      "hash": "b11d86af5c9e03b5"
     },
     "map": {
       "version": "1.3.1",
       "hash": "59d2d79706c97184"
     },
     "zones": {
-      "version": "1.5.0",
-      "hash": "c4125872260ed4cf"
+      "version": "1.5.1",
+      "hash": "124136283c003aa1"
     },
     "processing": {
       "version": "1.0.2",
@@ -1130,8 +1130,8 @@
       "hash": "ef378600c400e1cf"
     },
     "revenue": {
-      "version": "1.12.1",
-      "hash": "0ed1e64285f8cd0c"
+      "version": "1.12.2",
+      "hash": "eab0490a5d5b3e3f"
     },
     "weather": {
       "version": "1.6.1",

@@ -1,3 +1,77 @@
+## 1.21.3
+
+* Tablet: the driver profile opens a DEFAULT section in the plane host's
+  detail plane (tablet audit 2026-09-07, 16-users_profile: the third
+  plane stayed empty). base_sdk 1.60.10 (core #181) added
+  `ProfileSection.detailBuilder`, `ProfileSectionRegistry.defaultSectionId`
+  and `ProfileSectionNavigator.open`, and its `GenericProfileRoutePage`
+  seeds the default section's detail into the third plane on a
+  three-plane screen. Adopted for the driver:
+  * `lib/src/driver/presentation/profile/driver_profile_sections.dart`:
+    `DriverProfileActions.orderHistoryDetail` (optional `WidgetBuilder`)
+    is the rows section's `detailBuilder`; when the shell supplies one,
+    `register` sets `defaultSectionId ??= delivery.driver_rows`
+    (`DriverProfileSections.defaultSectionId`). The **Order history** row
+    goes through `ProfileSectionNavigator.open` before its push, so on
+    planes it opens beside the profile and on a phone it pushes exactly
+    as before.
+  * Which section, and why: the driver profile has ONE content section
+    (the row list), so the choice is which row's content its detail
+    carries. Income would be the driver's first pick, but it is
+    revenue_sdk's route page (its own Scaffold, tabs and withdraw flow) -
+    embedding it needs a revenue_sdk change, recorded as a follow-up.
+    Order history is the courier's own record, the list the header's
+    delivered / last-profit figures summarise, and this SDK's page, so
+    it embeds without a second Scaffold.
+  * `templates/pages/driver/order_history/order_history.dart`: the page
+    is split into `OrderHistoryPage` (route: Scaffold, app bar, pill,
+    filter - unchanged on screen) and the new `OrderHistoryPane` (the
+    fetch on mount, loading state and pull-to-refresh list; with
+    `heading: true` it leads with the page's title and subtitle as plain
+    text for a plane with no app bar). The routed page renders the pane
+    under its app bar, so the two can never drift.
+  * `templates/pages/driver/profile/profile_page.dart`: plane widths now
+    render base's `GenericProfileRoutePage` (the seam, the detail plane,
+    the third-plane seeding and the same bottom-END corner pill this
+    shell drew) instead of a `PlaneHost` of its own; the shell hands the
+    rows section `orderHistoryDetail: OrderHistoryPane(heading: true)`.
+    The phone branch (GenericProfilePage in a one-plane host with the
+    bottom-centre pill) is byte-identical.
+  * Requires base_sdk >= 1.60.10 (`_comment_requires_host`); base_sdk is
+    a path dependency, so no pin moves.
+* `templates/tour/delivery.tour.yaml` is unchanged and needs no change:
+  the profile step's route, finder and caption stay, and users_sdk's tour
+  still taps the Profile settings row by its title. Demo seeds untouched.
+* Version 1.21.1 -> 1.21.3 (pubspec 1.3.1 -> 1.3.3): 1.21.2 is the driver
+  map dark-style PR on its own branch; whichever merges second takes the
+  higher number.
+
+## 1.21.2
+
+* Dark mode: the driver home map (tablet audit 2026-09-07, 05-driver_home
+  LIGHT in dark mode - mean luminance 199) shipped its `GoogleMap` with no
+  style at all, so the native map painted Google's daylight tiles under
+  chrome that resolves with the mode. The map now takes base_sdk's own
+  night style - `AppMapThemes.mapDarkTheme` (`map_themes.dart`: dark
+  geometry, muted labels, the standard Google night JSON), which base has
+  carried unused since the refork - through the new
+  `DriverMapStyle.forMode()` (`lib/src/driver/presentation/widgets/
+  driver_map_style.dart`): the theme JSON-encoded once, returned while
+  `AppStyle.isDark`, `null` (the plugin's daylight default, exactly what
+  the map drew before) otherwise. Light mode is unchanged; the off-duty
+  desaturation stays the paint-time `ColorFiltered` it was and composes
+  over either style. Camera, markers, polygons, polylines and padding are
+  untouched.
+* The driver delivery-zone editor lives in zones_sdk (its
+  `templates/pages/driver/profile/delivery_zone/delivery_zone_page.dart`)
+  and takes the same style and `DeferredMapSurface` from this package in
+  zones_sdk 1.5.1; that page's fixes are recorded there.
+* `templates/tour/delivery.tour.yaml` is unchanged and needs no change:
+  no step's route, finder, caption or seed moves, and no element is added,
+  renamed or removed. Demo seeds untouched.
+* Version 1.21.1 -> 1.21.2 (pubspec 1.3.1 -> 1.3.2) so version-aware cache
+  reconciliation re-extracts the SDK.
+
 ## 1.21.1
 
 * Dark mode: the driver screens the profile links to were drawn on

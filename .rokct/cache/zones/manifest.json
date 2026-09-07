@@ -1,6 +1,7 @@
 {
   "name": "zones_sdk",
-  "version": "1.5.0",
+  "version": "1.5.1",
+  "_comment_requires": "zones_sdk >= 1.5.1 requires delivery_sdk >= 1.21.2 in a DRIVER compose: the installed driver delivery-zone page (templates/pages/driver/profile/delivery_zone/delivery_zone_page.dart, host-side code) mounts its GoogleMap through delivery_sdk's DeferredMapSurface and styles it through DriverMapStyle (both lib/src/driver/presentation/widgets/, the second new in 1.21.2), the same two pieces the courier home map uses, so the tablet tour no longer captures a blank platform view and the map resolves with the dark mode. Every driver compose carries delivery_sdk as its home SDK; the manager flavour and this SDK's lib/ import nothing from it (ADR-005). The composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
   "installs": [],
   "routes": [],
   "integrations": [],

@@ -25,6 +25,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 // stripped per-host by the composer), and this page only exists in driver
 // hosts, where src/driver/ survives.
 import 'package:zones_sdk/src/driver/application/delivery_zone/delivery_zone_provider.dart';
+// delivery_sdk's map surface pieces, host-side like every template import
+// (home_page.dart imports comms_sdk the same way): the driver zone page only
+// installs into a driver compose, which always carries delivery_sdk as its
+// home SDK, and lib/ of this SDK still imports no delivery_sdk (ADR-005).
+import 'package:delivery_sdk/src/driver/presentation/widgets/deferred_map_surface.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_map_style.dart';
 
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
@@ -55,44 +61,56 @@ class _DeliveryZonePageState extends ConsumerState<DriverDeliveryZonePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.textGrey,
+      backgroundColor: AppStyle.surfaceDark,
       resizeToAvoidBottomInset: false,
       body: Consumer(
         builder: (context, ref, child) {
           final state = ref.watch(deliveryZoneProvider);
           final event = ref.read(deliveryZoneProvider.notifier);
+          // Tablet audit 2026-09-07 (13-driver_delivery_zone, an all-black
+          // frame): the page painted a pinned grey scaffold, a pinned WHITE
+          // loading box and a bare GoogleMap whose platform view painted
+          // nothing before the tour's still. The same three fixes the
+          // driver home already carries: the ground and the loading box
+          // resolve with the mode, the map is MOUNTED only once the page
+          // has settled (DeferredMapSurface: one frame painted, 800 ms of
+          // being the current route, still mounted - the plugin's own
+          // un-awaited channel calls on a page that is already leaving are
+          // what took the phone tour down), and the map resolves with the
+          // mode too. Camera, polygon and tap handling are untouched.
+          const placeholder = _MapPlaceholder();
           return Stack(
             children: [
               state.isLoading
-                  ? Container(
-                      width: double.infinity,
-                      height: double.infinity,
-                      color: AppStyle.white,
-                    )
-                  : GoogleMap(
-                      tiltGesturesEnabled: false,
-                      myLocationButtonEnabled: false,
-                      zoomControlsEnabled: false,
-                      polygons: state.polygon,
-                      onTap: event.addTappedPoint,
-                      initialCameraPosition: CameraPosition(
-                        bearing: 0,
-                        target: LatLng(
-                          state.polygon.isNotEmpty
-                              ? state.polygon.first.points.first.latitude
-                              : LocalStorage.getAddressSelected()
-                                        ?.location
-                                        ?.latitude ??
-                                    AppConstants.demoLatitude,
-                          state.polygon.isNotEmpty
-                              ? state.polygon.first.points.first.longitude
-                              : LocalStorage.getAddressSelected()
-                                        ?.location
-                                        ?.longitude ??
-                                    AppConstants.demoLongitude,
+                  ? placeholder
+                  : DeferredMapSurface(
+                      placeholder: placeholder,
+                      child: GoogleMap(
+                        style: DriverMapStyle.forMode(),
+                        tiltGesturesEnabled: false,
+                        myLocationButtonEnabled: false,
+                        zoomControlsEnabled: false,
+                        polygons: state.polygon,
+                        onTap: event.addTappedPoint,
+                        initialCameraPosition: CameraPosition(
+                          bearing: 0,
+                          target: LatLng(
+                            state.polygon.isNotEmpty
+                                ? state.polygon.first.points.first.latitude
+                                : LocalStorage.getAddressSelected()
+                                          ?.location
+                                          ?.latitude ??
+                                      AppConstants.demoLatitude,
+                            state.polygon.isNotEmpty
+                                ? state.polygon.first.points.first.longitude
+                                : LocalStorage.getAddressSelected()
+                                          ?.location
+                                          ?.longitude ??
+                                      AppConstants.demoLongitude,
+                          ),
+                          tilt: 0,
+                          zoom: 11,
                         ),
-                        tilt: 0,
-                        zoom: 11,
                       ),
                     ),
               AnimatedPositioned(
@@ -120,6 +138,30 @@ class _DeliveryZonePageState extends ConsumerState<DriverDeliveryZonePage> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// What the map area shows before the zone has loaded and until the map
+/// mounts: a box in the mode's card colour with a quiet spinner, instead of
+/// the pinned white sheet that read as a blank page in dark mode.
+class _MapPlaceholder extends StatelessWidget {
+  const _MapPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: AppStyle.cardDark,
+      child: Center(
+        child: SizedBox(
+          width: 24.r,
+          height: 24.r,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: AppStyle.textDarkSecondary,
+          ),
+        ),
       ),
     );
   }
