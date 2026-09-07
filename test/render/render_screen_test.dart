@@ -71,12 +71,15 @@ import 'package:base_sdk/src/domain/interface/auth.dart';
 // ApiResult's `when` is an extension declared in its freezed part, so the
 // library that declares it has to be imported for the pattern to be in scope.
 import 'package:base_sdk/src/handlers/api_result.dart';
-import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
+import 'package:base_sdk/src/presentation/pages/profile/generic_profile_page.dart';
+import 'package:base_sdk/src/presentation/pages/profile/widgets/base_profile_footer.dart';
+import 'package:base_sdk/src/presentation/pages/profile/widgets/profile_nav_tile.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:comms_sdk/src/common/di/comms_di.dart';
 import 'package:delivery_sdk/src/common/di/delivery_di.dart';
 import 'package:delivery_sdk/src/driver/di/driver_delivery_di.dart';
+import 'package:delivery_sdk/src/driver/presentation/profile/driver_profile_sections.dart';
 import 'package:map_sdk/src/common/di/map_sdk_di.dart';
 import 'package:merchants_sdk/src/common/di/merchants_di.dart';
 import 'package:orders_sdk/src/common/di/orders_di.dart';
@@ -85,10 +88,8 @@ import 'package:revenue_sdk/src/driver/di/driver_revenue_di.dart';
 import 'package:users_sdk/src/common/di/users_di.dart';
 import 'package:zones_sdk/src/common/di/zones_di.dart';
 
-import 'package:driver/presentation/component/driver_avatar.dart';
 import 'package:driver/presentation/pages/profile/courier_statistics_provider.dart';
 import 'package:driver/presentation/pages/profile/profile_page.dart';
-import 'package:driver/presentation/pages/profile/widgets/sections_item.dart';
 
 // ---------------------------------------------------------------------------
 // Render settings - phone size the reviews are judged at. Only change these
@@ -193,10 +194,14 @@ void registerExceptionStubs() {}
 
 /// TODO(harness) 5/8 - register sections / routes / gates.
 ///
-/// The profile has no section registry to populate and no role gate to
-/// resolve — the register is a fixed list in delivery_sdk's template, and the
-/// one gate on it (`if (!AppConstants.isDemo)`, which hides "Delete account")
-/// resolves from the same dart-define the data does.
+/// Nothing to do by hand: since delivery_sdk 1.21.0 the installed
+/// [ProfilePage] is a host route shell over base_sdk's GenericProfilePage,
+/// and its own `initState` registers the driver's content on
+/// `ProfileSectionRegistry` (the stats header slot, the row list, the Online
+/// helper section) before the host's first build - idempotently, so the
+/// second variant re-using the singleton registry changes nothing. The one
+/// gate on it (`AppConstants.isDemo`, which hides "Delete account") resolves
+/// from the same dart-define the data does.
 void registerScreen() {}
 
 /// TODO(harness) 6/8 - the widget under test.
@@ -269,35 +274,61 @@ class _CourierJourneyState extends ConsumerState<_CourierJourney> {
 /// `key` is the stable identity the composer binds a number to for the life
 /// of the page. The section rows are keyed by their own `title`, so adding a
 /// row appends a number instead of renumbering the ones already discussed.
+///
+/// Since delivery_sdk 1.21.0 the profile renders on base_sdk's generic
+/// profile host, so every finder points at the host's widgets: the keys are
+/// unchanged (the strip's numbering is bound to them), only the widget each
+/// one resolves to moved.
 List<ElementSpec> elementSpecs() {
+  final header = find.byKey(GenericProfilePage.accountHeaderKey);
   return <ElementSpec>[
     ElementSpec(
       key: 'delivery.driver.profile.app_bar',
-      label: 'Identity header - avatar, name, phone, sign-out',
-      finder: find.byType(CustomAppBar),
+      label: 'Identity header card - avatar, name, contact, edit pencil',
+      finder: header,
     ),
     ElementSpec(
       key: 'delivery.driver.profile.avatar',
-      label: 'Courier avatar - photo and rating badge',
-      finder: find.byType(DriverAvatar),
+      label: 'Courier avatar - photo or initial',
+      // The host's avatar widget is private to generic_profile_page.dart, so
+      // it is matched by its runtime type name inside the header card.
+      finder: find.descendant(
+        of: header,
+        matching: find.byWidgetPredicate(
+          (w) => w.runtimeType.toString() == '_Avatar',
+        ),
+      ),
     ),
     ElementSpec(
       key: 'delivery.driver.profile.balance_card',
-      label: 'Balance card - wallet balance and last profit',
-      finder: find.byType(IntrinsicHeight),
+      label: 'Stats row - wallet balance, last profit, delivered orders',
+      finder: find.byType(DriverProfileStatsRow),
     ),
     ElementSpec.each(
       keyOf: (i, w) =>
-          'delivery.driver.profile.section_row.${(w as SectionsItem).title}',
-      labelOf: (i, w) => 'Section row - ${(w as SectionsItem).title}',
-      finder: find.byType(SectionsItem),
+          'delivery.driver.profile.section_row.${(w as ProfileNavTile).title}',
+      labelOf: (i, w) => 'Section row - ${(w as ProfileNavTile).title}',
+      finder: find.byType(ProfileNavTile),
     ),
-    // NOT numbered: the Scaffold's floatingActionButton (the back pill +
-    // "Online helper" call button) is VIEWPORT-anchored, not content-anchored,
-    // so its measured bottom is always the bottom of the probe viewport. The
-    // mechanism's height fixed-point takes the maximum measured bottom, so
-    // including it would pin every frame to kProbeHeight. It is still in the
-    // picture; it just cannot carry a chip.
+    // Both are body sections on the host (content-anchored, so they can
+    // carry a chip and they extend the measured content height to the end
+    // of the page); on the retired page the helper button sat in the
+    // viewport-anchored floatingActionButton and could not be numbered.
+    ElementSpec(
+      key: 'delivery.driver.profile.online_helper',
+      label: 'Online helper - call button',
+      finder: find.byType(DriverOnlineHelperSection),
+    ),
+    ElementSpec(
+      key: 'delivery.driver.profile.footer',
+      label: 'Footer - app meta row',
+      finder: find.byType(BaseProfileFooter),
+    ),
+    // NOT numbered: the shell's floating back pill is VIEWPORT-anchored, not
+    // content-anchored, so its measured bottom is always the bottom of the
+    // probe viewport. The mechanism's height fixed-point takes the maximum
+    // measured bottom, so including it would pin every frame to
+    // kProbeHeight. It is still in the picture; it just cannot carry a chip.
   ];
 }
 
