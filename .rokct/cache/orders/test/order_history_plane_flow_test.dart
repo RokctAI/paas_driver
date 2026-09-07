@@ -246,4 +246,60 @@ void main() {
     expect(sheetOrder?.id, 'd-1');
     expect(find.byType(OrderHistoryDetailPane), findsNothing);
   });
+
+  /// The installed page's wide branch as a PUSHED ROUTE: the host passes
+  /// what pops it, so the root carries the corner pill (38a: "back is the
+  /// one corner pill").
+  Widget pushedFlow(VoidCallback onExit) => OrderHistoryPlaneFlow(
+    backIcon: Icons.arrow_back,
+    onExit: onExit,
+    detailBuilder: (context, order) => Text('DETAIL-${order.id}'),
+  );
+
+  for (final size in const [
+    Size(1280, 800),
+    Size(1066, 1600),
+    Size(800, 1280),
+  ]) {
+    testWidgets(
+        '${size.width.toInt()}: a pushed history page carries the corner '
+        'Back at its ROOT — it pops the route; with a detail open the one '
+        'pill pops the pane instead, then the root pill returns',
+        (tester) async {
+      var exits = 0;
+      await pumpAt(tester, size, pushedFlow(() => exits++));
+
+      // The root: exactly one pill, at the bottom-END corner of the
+      // whole host (not of the list's own planes).
+      expect(find.byType(FloatingBackPill), findsOneWidget);
+      final pill = tester.getRect(find.byType(FloatingBackPill));
+      expect(pill.right, closeTo(size.width - 16, 0.5));
+      expect(pill.bottom, closeTo(size.height - 16, 0.5));
+      expect(find.byType(OrderHistoryDetailPane), findsNothing);
+
+      // A tapped order pushes the pane: still ONE pill — the host's, which
+      // pops the pane and never the route.
+      await tester.tap(find.text('№d-1'));
+      await tester.pumpAndSettle();
+      expect(find.byType(OrderHistoryDetailPane), findsOneWidget);
+      expect(find.byType(FloatingBackPill), findsOneWidget);
+      await tester.tap(find.byType(FloatingBackPill));
+      await tester.pumpAndSettle();
+      expect(find.byType(OrderHistoryDetailPane), findsNothing);
+      expect(exits, 0);
+
+      // Back at the root the pill is the route's.
+      expect(find.byType(FloatingBackPill), findsOneWidget);
+      await tester.tap(find.byType(FloatingBackPill));
+      await tester.pumpAndSettle();
+      expect(exits, 1);
+    });
+  }
+
+  testWidgets(
+      'a host that is not pushed passes no onExit and gets no root pill',
+      (tester) async {
+    await pumpAt(tester, const Size(1280, 800), flow());
+    expect(find.byType(FloatingBackPill), findsNothing);
+  });
 }

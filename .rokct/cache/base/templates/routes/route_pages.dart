@@ -24,7 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:base_sdk/src/presentation/pages/initial/maintenance/maintenance_page.dart' as pages;
 import 'package:base_sdk/src/presentation/pages/initial/no_connection/no_connection_page.dart' as pages;
 import 'package:base_sdk/src/presentation/pages/initial/splash/splash_page.dart' as pages;
-import 'package:base_sdk/src/presentation/pages/profile/generic_profile_page.dart' as pages;
+import 'package:base_sdk/src/presentation/pages/profile/generic_profile_route_page.dart' as pages;
 
 /// Host route shell for [pages.SplashPage] (base_sdk-resident page).
 @RoutePage(name: 'SplashRoute')
@@ -53,12 +53,15 @@ class MaintenanceRouteView extends StatelessWidget {
   Widget build(BuildContext context) => const pages.MaintenancePage();
 }
 
-/// Host route shell for [pages.GenericProfilePage] (base_sdk-resident page).
+/// Host route shell for the generic profile (base_sdk-resident page):
+/// [pages.GenericProfileRoutePage] hosts GenericProfilePage in a two-plane
+/// PlaneHost with the corner Back pill at plane widths, the phone page
+/// untouched on a phone.
 /// Named GenericProfileRoute: marketplace_sdk already owns ProfileRoute.
 @RoutePage(name: 'GenericProfileRoute')
 class GenericProfileRouteView extends StatelessWidget {
   const GenericProfileRouteView({super.key});
 
   @override
-  Widget build(BuildContext context) => const pages.GenericProfilePage();
+  Widget build(BuildContext context) => const pages.GenericProfileRoutePage();
 }

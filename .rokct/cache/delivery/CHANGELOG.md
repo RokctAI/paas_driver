@@ -1,3 +1,65 @@
+## 1.21.0
+
+* The driver profile now renders on base_sdk's generic profile host
+  (approved design strip section 1: the unified header unit, the title /
+  theme-toggle / sign-out top row and frame 1c's two-plane spread on EVERY
+  profile page) instead of the standalone page
+  `templates/pages/driver/profile/profile_page.dart` used to be - the
+  tablet audit's "driver profile is not on the host" defect. The installed
+  file keeps its route name, path and constructor (`ProfileRoute`,
+  `/profile`) and is now a host route shell: `GenericProfilePage` inside a
+  `PlaneHost` / `PlanePage(span: PlaneSpan.two)` (the universal profile cap),
+  registering the driver's content on `ProfileSectionRegistry` the way
+  merchants' restaurant_page.dart and marketplace's ProfileRoute shell do.
+  Nothing the old page showed is gone:
+  * balance, last profit and delivered-orders tiles -> the header card's
+    `stats` slot (`DriverProfileStatsRow`; balance from the host's profile
+    state, the rest from the courier statistics provider);
+  * the row list (profile settings, delivery zone, orders, parcels,
+    notifications, order history, parcel history, income, language, delete
+    account - demo builds still hide the last) -> one `delivery.driver_rows`
+    section of base `ProfileNavTile`s in the old order;
+  * the Online helper call button -> the `delivery.online_helper` section;
+  * the app-bar sign-out glyph -> the host's red top-row sign-out (chip 76),
+    running the old LogoutModal's confirmed branch after the host's own
+    confirmation; the settings sheet also opens from the header pencil
+    (chip 109) besides the Profile settings row, which stays because
+    users_sdk's tour fragment taps that row by its translated title.
+  New lib file `lib/src/driver/presentation/profile/
+  driver_profile_sections.dart` (`DriverProfileSections.register`,
+  `DriverProfileActions`, `DriverProfileStatsRow`, `DriverProfileRows`,
+  `DriverOnlineHelperSection`) holds the widgets and imports only base_sdk;
+  the shell supplies the composed app's routes as callbacks. The host's
+  `base.footer` meta row (app name, version, Online dot, usage badge) is
+  claimed with the back-pill clearance under it, as merchants' hub does.
+* Two-state nav on the profile (approved 12d): the page is pushed, so it
+  carries the bare back pill - bottom-centre on a phone exactly as before,
+  and at the bottom-END corner on plane widths (where `PlaneHost` parks its
+  own pill), drawn by the shell with base_sdk's `FloatingBackPill`.
+* The Profile settings sheet (`widgets/edit_profile_modal.dart`) and the
+  vehicle sheet it opens (`edit_car.dart`) rendered transparent: base_sdk's
+  `AppHelpers.showCustomModalBottomSheet` paints the sheet route transparent
+  and expects the sheet to bring its own card, and neither did - on the
+  tablet still the form floated over the profile's dimmed button and back
+  pill. Both now sit on the new `DriverSheetSurface`
+  (`lib/src/driver/presentation/widgets/driver_sheet_surface.dart`): the
+  same mode-resolving pair base_sdk's `EditProfileScreen` uses (dark: the
+  theme dark surface, light: the page grey), opaque, top corners rounded
+  16. The sheets' fixed black inks (titles, password eyes, the vehicle
+  line) resolve with the mode too, so the card reads in dark mode.
+* `widgets/sections_item.dart` (the old page's row tile) is removed with
+  its install entry; the rows are base `ProfileNavTile`s now.
+* `templates/tour/delivery.tour.yaml` is unchanged: `driver_profile` still
+  routes to `/profile` (navigation-only, no still), and users_sdk's
+  `users_profile_settings` step still finds the Profile settings row.
+* Requires base_sdk >= 1.58.0 (declared in `manifest.json`
+  `_comment_requires_host`): the driver compose registers no
+  ShopsRepositoryFacade / GalleryRepositoryFacade, and 1.58.0 is where
+  `profileProvider` resolves its facades lazily (`ProfileNotifier.
+  fromLocator`) instead of throwing while building the host.
+* manifest.json 1.20.3 -> 1.21.0 so version-aware cache reconciliation
+  re-extracts the shell into every driver compose.
+
 ## 1.20.3
 
 * fix(tour): the `driver_available_orders` caption in

@@ -12,448 +12,269 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+
+// Host route shell for the driver profile: base_sdk's generic profile host
+// (design strip section 1 - the unified header, top row and two-plane
+// spread on EVERY profile page) carrying delivery_sdk's driver sections,
+// in place of the retired standalone page this file used to be.
+//
+// Route name (ProfileRoute, /profile) and the parameterless constructor are
+// unchanged, so the home page's avatar and Profile tab, users_sdk's tour
+// fragment and the zones/revenue chapters that follow it keep resolving.
+// The page is auto_route-scanned host code (installed into the composed
+// app), which is what lets it name the composed app's generated routes
+// for the row destinations and hand them to the SDK-resident sections as
+// callbacks - the same split as merchants' restaurant_page.dart and
+// marketplace's route shell.
+//
+// Two-state nav (approved 12d): the profile is a PUSHED page (chip 347's
+// one-back rule - the driver app has no root tab set on pushed pages), so
+// it carries the bare back pill: bottom-centre on a phone, as every other
+// driver page draws it, and at the bottom-END corner on plane widths, where
+// PlaneHost parks its own pill.
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import 'package:${package}/presentation/pages/profile/courier_statistics_provider.dart';
 import 'package:${package}/presentation/pages/profile/widgets/edit_profile_modal.dart';
-
-import 'package:${package}/presentation/routes/app_router.dart';
-import 'package:base_sdk/src/presentation/theme/app_style.dart';
-
 import 'package:${package}/presentation/pages/profile/widgets/logout_modal.dart';
-import 'package:${package}/presentation/pages/profile/widgets/sections_item.dart';
-import 'package:${package}/presentation/component/buttons/buttons_bouncing_effect.dart';
-import 'package:${package}/presentation/component/driver_avatar.dart';
+import 'package:${package}/presentation/routes/app_router.dart';
+
 import 'package:base_sdk/src/application/app_widget/app_provider.dart';
-import 'package:base_sdk/src/navigation/embedded_widgets.dart';
+import 'package:base_sdk/src/application/profile/profile_provider.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
-import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
+import 'package:base_sdk/src/navigation/embedded_widgets.dart';
+import 'package:base_sdk/src/presentation/adaptive/planes.dart';
 import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
-import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
-import 'package:base_sdk/src/services/app_assets.dart';
+import 'package:base_sdk/src/presentation/pages/profile/generic_profile_page.dart';
+import 'package:base_sdk/src/presentation/pages/profile/profile_section.dart';
+import 'package:base_sdk/src/presentation/pages/profile/profile_section_registry.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:delivery_sdk/src/driver/application/home/home_provider.dart';
-import 'package:delivery_sdk/src/driver/application/profile/provider/profile_image_provider.dart';
-import 'package:delivery_sdk/src/driver/application/profile/provider/profile_settings_provider.dart';
-import 'package:delivery_sdk/src/driver/infrastructure/services/courier_constants.dart';
+import 'package:delivery_sdk/src/driver/presentation/profile/driver_profile_sections.dart';
+
+/// Registers the driver's profile content with base_sdk's
+/// [ProfileSectionRegistry]: the header pencil and top-row sign-out, the
+/// stats slot, and delivery_sdk's row / helper sections. Idempotent - the
+/// page calls it every time it mounts and the registry keeps the first
+/// registration.
+void registerDriverProfileSections() {
+  final registry = ProfileSectionRegistry.I;
+
+  // Header pencil (chip 109): the same Profile settings sheet the row
+  // opens - users_sdk's tour taps the row by its title, so both stay.
+  registry.onEditProfile ??= _openProfileSettings;
+
+  // Top-row sign-out (chip 76): the host runs its own confirmation, so
+  // this is the confirmed branch of the old LogoutModal, verbatim.
+  registry.onLogout ??= _signOut;
+
+  if (!registry.containsHeaderSlot(ProfileHeaderSlot.stats)) {
+    registry.registerHeaderSlot(
+      ProfileHeaderSlot.stats,
+      id: DriverProfileSections.statsSlotId,
+      builder: (context) => const _DriverStatsSlot(),
+    );
+  }
+
+  // Hidden in demo builds, as the old page hid it.
+  final void Function(BuildContext context)? onDeleteAccount =
+      AppConstants.isDemo ? null : _openDeleteAccount;
+
+  DriverProfileSections.register(
+    actions: DriverProfileActions(
+      onProfileSettings: _openProfileSettings,
+      onDeliveryZone: _openDeliveryZone,
+      onOrders: _openOrders,
+      onParcels: _openParcels,
+      onNotifications: _openNotifications,
+      onOrderHistory: _openOrderHistory,
+      onParcelHistory: _openParcelHistory,
+      onIncome: _openIncome,
+      onLanguage: _openLanguage,
+      onDeleteAccount: onDeleteAccount,
+      onOnlineHelper: _callOnlineHelper,
+    ),
+  );
+}
+
+void _openProfileSettings(BuildContext context) {
+  AppHelpers.showCustomModalBottomSheet(
+    paddingTop: MediaQuery.paddingOf(context).top + 32.h,
+    context: context,
+    modal: const EditProfileModal(),
+    isDarkMode: LocalStorage.getAppThemeMode(),
+  );
+}
+
+void _signOut(BuildContext context) {
+  final GoogleSignIn signIn = GoogleSignIn();
+  signIn.disconnect();
+  signIn.signOut();
+  LocalStorage.logout();
+  context.router.popUntilRoot();
+  context.replaceRoute(const LoginRoute());
+}
+
+Future<void> _openDeliveryZone(BuildContext context) async {
+  await context.pushRoute(const DriverDeliveryZoneRoute());
+  if (!context.mounted) return;
+  ProviderScope.containerOf(
+    context,
+    listen: false,
+  ).read(homeProvider.notifier).fetchDeliveryZone(isFetch: true);
+}
+
+void _openOrders(BuildContext context) {
+  context.pushRoute(const OrdersRoute());
+}
+
+void _openParcels(BuildContext context) {
+  context.pushRoute(const ParcelsRoute());
+}
+
+void _openNotifications(BuildContext context) {
+  context.pushRoute(const NotificationListRoute());
+}
+
+void _openOrderHistory(BuildContext context) {
+  context.pushRoute(const OrderHistoryRoute());
+}
+
+void _openParcelHistory(BuildContext context) {
+  context.pushRoute(const ParcelHistoryRoute());
+}
+
+void _openIncome(BuildContext context) {
+  context.pushRoute(const DriverIncomeRoute());
+}
+
+void _openLanguage(BuildContext context) {
+  AppHelpers.showCustomModalBottomSheet(
+    isDismissible: true,
+    isDrag: false,
+    context: context,
+    modal: EmbeddedWidgets.I.languageScreen(
+      onSave: () {
+        Navigator.pop(context);
+        ProviderScope.containerOf(
+          context,
+          listen: false,
+        ).read(appProvider.notifier).changeLocale(LocalStorage.getLanguage());
+      },
+    ),
+    isDarkMode: LocalStorage.getAppThemeMode(),
+  );
+}
+
+void _openDeleteAccount(BuildContext context) {
+  AppHelpers.showCustomModalBottomSheet(
+    context: context,
+    modal: const LogoutModal(isDeleteAccount: true),
+    isDarkMode: LocalStorage.getAppThemeMode(),
+  );
+}
+
+Future<void> _callOnlineHelper(BuildContext context) async {
+  final Uri launchUri = Uri(scheme: 'tel', path: AppHelpers.getAppPhone());
+  await launchUrl(launchUri);
+}
+
+/// The header card's stats row: wallet balance from the host's profile
+/// state (the session user until it hydrates), last profit and delivered
+/// count from the courier statistics the home page fetched.
+class _DriverStatsSlot extends ConsumerWidget {
+  const _DriverStatsSlot();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(profileProvider).userData ?? LocalStorage.getUser();
+    final statistics =
+        ref.watch(courierProfileStatisticsProvider).statistics?.data;
+    return DriverProfileStatsRow(
+      balance: user?.wallet?.price,
+      lastProfit: statistics?.totalPrice,
+      deliveredOrders: statistics?.deliveredOrdersCount ?? 0,
+    );
+  }
+}
 
 @RoutePage()
-class ProfilePage extends ConsumerStatefulWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  ConsumerState<ProfilePage> createState() => _ProfilePageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends ConsumerState<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage> {
   final bool isLtr = LocalStorage.getLangLtr();
 
   @override
+  void initState() {
+    super.initState();
+    // Before the host's first build: GenericProfilePage reads the registry
+    // and resolves its gates in its own initState.
+    registerDriverProfileSections();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final state = ref.watch(profileSettingsProvider);
-    ref.watch(appProvider);
+    final back = FloatingNavBack(
+      icon: Remix.arrow_left_wide_fill,
+      label: AppHelpers.getTranslation(TrKeys.back),
+    );
     return Directionality(
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: AppStyle.bgGrey,
-        resizeToAvoidBottomInset: false,
-        body: Stack(
-          children: [
-            Column(
-              children: [
-                CustomAppBar(
-                  bottomPadding: 4.h,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Hero(
-                        tag: CourierConstants.heroTagProfileAvatar,
-                        child: Consumer(
-                          builder: (context, ref, child) {
-                            ref.watch(profileImageProvider);
-                            return DriverAvatar(
-                              imageUrl: LocalStorage.getUser()?.img,
-                              rate: LocalStorage.getUser()?.rate,
-                            );
-                          },
-                        ),
-                      ),
-                      10.horizontalSpace,
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 24.h),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              '${LocalStorage.getUser()?.firstname ?? ''} ${LocalStorage.getUser()?.lastname ?? ''}',
-                              style: AppStyle.interSemi(size: 16.sp),
-                            ),
-                            Text(
-                              LocalStorage.getUser()?.phone ?? '',
-                              style: AppStyle.interRegular(size: 12.sp),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 24.h),
-                        child: ButtonsBouncingEffect(
-                          child: GestureDetector(
-                            onTap: () {
-                              AppHelpers.showCustomModalBottomSheet(
-                                context: context,
-                                modal: const LogoutModal(),
-                                isDarkMode: LocalStorage.getAppThemeMode(),
-                              );
-                            },
-                            child: Icon(
-                              Remix.logout_circle_r_line,
-                              size: 24.r,
-                              color: AppStyle.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
-                    shrinkWrap: true,
-                    physics: const BouncingScrollPhysics(),
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppStyle.white,
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                        padding: EdgeInsets.all(12.r),
-                        child: IntrinsicHeight(
-                          child: Row(
-                            children: [
-                              SvgPicture.asset(AppAssets.svgBalance),
-                              10.horizontalSpace,
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    AppHelpers.getTranslation(TrKeys.balance),
-                                    style: AppStyle.interNormal(
-                                      size: 12.sp,
-                                      letterSpacing: -0.3,
-                                    ),
-                                  ),
-                                  Text(
-                                    AppHelpers.numberFormat(
-                                      number: LocalStorage.getUser()?.wallet?.price,
-                                    ),
-                                    style: AppStyle.interSemi(
-                                      size: 14.sp,
-                                      letterSpacing: -0.3,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Spacer(),
-                              const VerticalDivider(color: AppStyle.borderColor),
-                              10.horizontalSpace,
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    AppHelpers.getTranslation(TrKeys.lastProfit),
-                                    style: AppStyle.interNormal(
-                                      size: 12.sp,
-                                      letterSpacing: -0.3,
-                                    ),
-                                  ),
-                                  Text(
-                                    AppHelpers.numberFormat(
-                                      number:
-                                          ref
-                                              .watch(
-                                                courierProfileStatisticsProvider,
-                                              )
-                                              .statistics
-                                              ?.data
-                                              ?.totalPrice ??
-                                          0,
-                                    ),
-                                    style: AppStyle.interSemi(
-                                      size: 14.sp,
-                                      letterSpacing: -0.3,
-                                      color: AppStyle.primary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              32.horizontalSpace,
-                            ],
-                          ),
-                        ),
-                      ),
-                      10.verticalSpace,
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppStyle.white,
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                        padding: EdgeInsets.all(12.r),
-                        child: Row(
-                          children: [
-                            Icon(Remix.checkbox_circle_fill, size: 30.r),
-                            10.horizontalSpace,
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  AppHelpers.getTranslation(TrKeys.deliveredOrder),
-                                  style: AppStyle.interNormal(
-                                    size: 12.sp,
-                                    letterSpacing: -0.3,
-                                  ),
-                                ),
-                                Text(
-                                  (ref
-                                              .watch(
-                                                courierProfileStatisticsProvider,
-                                              )
-                                              .statistics
-                                              ?.data
-                                              ?.deliveredOrdersCount ??
-                                          0)
-                                      .toString(),
-                                  style: AppStyle.interSemi(
-                                    size: 14.sp,
-                                    letterSpacing: -0.3,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Spacer(),
-                            10.horizontalSpace,
-                            // if( state.requestData?.status ==
-                            //     TrKeys.canceled)
-                            // ButtonsBouncingEffect(
-                            //   child: InkWell(
-                            //     onTap: () {
-                            //       AppHelpers.showAlertDialog(
-                            //         context: context,
-                            //         child:  CancelDialog(note: state.requestData?.statusNote ?? "",),
-                            //       );
-                            //     },
-                            //     child: Row(
-                            //       children: [
-                            //         Icon(
-                            //           Remix.close_circle_line,
-                            //           size: 30.r,
-                            //           color: AppStyle.red,
-                            //         ),
-                            //         10.horizontalSpace,
-                            //         Column(
-                            //           crossAxisAlignment: CrossAxisAlignment.start,
-                            //           children: [
-                            //             Text(
-                            //               AppHelpers.getTranslation(
-                            //                   TrKeys.youStatus),
-                            //               style: AppStyle.interNormal(
-                            //                 size: 12.sp,
-                            //                 letterSpacing: -0.3,
-                            //               ),
-                            //             ),
-                            //             Text(
-                            //               state.requestData?.status ?? '',
-                            //               style: AppStyle.interSemi(
-                            //                 size: 13.sp,
-                            //                 letterSpacing: -0.3,
-                            //                 color: state.requestData?.status ==
-                            //                         TrKeys.canceled
-                            //                     ? AppStyle.red
-                            //                     : AppStyle.primary,
-                            //               ),
-                            //             ),
-                            //           ],
-                            //         ),
-                            //       ],
-                            //     ),
-                            //   ),
-                            // ),
-                            24.horizontalSpace,
-                          ],
-                        ),
-                      ),
-                      // _notifications(context),
-                      20.verticalSpace,
-                      SectionsItem(
-                        title: AppHelpers.getTranslation(TrKeys.profileSettings),
-                        icon: Remix.user_settings_line,
-                        onTap: () {
-                          AppHelpers.showCustomModalBottomSheet(
-                            paddingTop: MediaQuery.paddingOf(context).top + 32.h,
-                            context: context,
-                            modal: const EditProfileModal(),
-                            isDarkMode: false,
-                          );
-                        },
-                      ),
-                      SectionsItem(
-                        title: AppHelpers.getTranslation(TrKeys.deliveryZone),
-                        icon: Remix.navigation_fill,
-                        onTap: () async {
-                          await context.pushRoute(const DriverDeliveryZoneRoute());
-                          ref
-                              .read(homeProvider.notifier)
-                              .fetchDeliveryZone(isFetch: true);
-                        },
-                      ),
-                      SectionsItem(
-                        title: AppHelpers.getTranslation(TrKeys.orders),
-                        icon: Remix.order_play_line,
-                        onTap: () {
-                          context.pushRoute(const OrdersRoute());
-                        },
-                      ),
-                      SectionsItem(
-                        title: AppHelpers.getTranslation(TrKeys.parcels),
-                        icon: Remix.archive_line,
-                        onTap: () {
-                          context.pushRoute(const ParcelsRoute());
-                        },
-                      ),
-                      SectionsItem(
-                        title: AppHelpers.getTranslation(TrKeys.notifications),
-                        icon: Remix.notification_2_line,
-                        onTap: () =>
-                            context.pushRoute(const NotificationListRoute()),
-                      ),
-                      SectionsItem(
-                        title: AppHelpers.getTranslation(TrKeys.orderHistory),
-                        icon: Remix.history_line,
-                        onTap: () {
-                          context.pushRoute(const OrderHistoryRoute());
-                        },
-                      ),
-                      SectionsItem(
-                        title: AppHelpers.getTranslation(TrKeys.parcelHistory),
-                        icon: Remix.folder_history_fill,
-                        onTap: () {
-                          context.pushRoute(const ParcelHistoryRoute());
-                        },
-                      ),
-                      SectionsItem(
-                        title: AppHelpers.getTranslation(TrKeys.income),
-                        icon: Remix.line_chart_line,
-                        onTap: () {
-                          context.pushRoute(const DriverIncomeRoute());
-                        },
-                      ),
-                      Consumer(
-                        builder: (context, ref, child) {
-                          return SectionsItem(
-                            title: AppHelpers.getTranslation(TrKeys.language),
-                            icon: Remix.global_line,
-                            onTap: () {
-                              AppHelpers.showCustomModalBottomSheet(
-                                isDismissible: true,
-                                isDrag: false,
-                                context: context,
-                                modal: EmbeddedWidgets.I.languageScreen(
-                                  onSave: () {
-                                    Navigator.pop(context);
-                                    ref
-                                        .read(appProvider.notifier)
-                                        .changeLocale(LocalStorage.getLanguage());
-                                  },
-                                ),
-                                isDarkMode: false,
-                              );
-                            },
-                          );
-                        },
-                      ),
-                      if (!AppConstants.isDemo)
-                        SectionsItem(
-                          title: AppHelpers.getTranslation(TrKeys.deleteAccount),
-                          icon: Remix.logout_box_r_line,
-                          onTap: () {
-                            AppHelpers.showCustomModalBottomSheet(
-                              context: context,
-                              modal: const LogoutModal(isDeleteAccount: true),
-                              isDarkMode: false,
-                            );
-                          },
-                        ),
-                      100.verticalSpace,
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            // One bottom overlay (design strip section 12, core#125): the
-            // page's online-helper action riding above the floating nav's
-            // back-only pill, whose back segment replaces the standalone
-            // PopButton as this screen's ONE back affordance. Back-only
-            // (empty tab list): the driver app composes no root tab set.
-            Positioned.fill(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: REdgeInsets.only(left: 16, right: 16),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: CustomButton(
-                              title: AppHelpers.getTranslation(
-                                  TrKeys.onlineHelper),
-                              textColor: AppStyle.white,
-                              onPressed: () async {
-                                final Uri launchUri = Uri(
-                                  scheme: 'tel',
-                                  path: AppHelpers.getAppPhone(),
-                                );
-                                await launchUrl(launchUri);
-                              },
-                              icon: Icon(
-                                Remix.chat_smile_2_fill,
-                                color: AppStyle.white,
-                                size: 20.r,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    FloatingBottomNav(
-                      mode: FloatingNavTabsMode(
-                        tabs: const [],
-                        currentIndex: 0,
-                        onSelect: (_) {},
-                        back: FloatingNavBack(
-                          icon: Remix.arrow_left_wide_fill,
-                          label: AppHelpers.getTranslation(TrKeys.back),
-                        ),
-                      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool wide = PlaneHost.planeCountFor(constraints.maxWidth) > 1;
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: PlaneHost(
+                  stack: [
+                    PlanePage(
+                      name: 'driver-profile',
+                      // The universal profile cap (approved 4c): two
+                      // planes at most, a bare stage beyond them.
+                      span: PlaneSpan.two,
+                      builder: (context) => const GenericProfilePage(),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
+              if (wide)
+                PositionedDirectional(
+                  end: 16,
+                  bottom: 16,
+                  child: SafeArea(child: FloatingBackPill(back: back)),
+                )
+              else
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: FloatingBottomNav(
+                      mode: FloatingNavTabsMode(
+                        tabs: const [],
+                        currentIndex: 0,
+                        onSelect: (_) {},
+                        back: back,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }

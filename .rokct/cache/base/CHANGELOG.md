@@ -1,5 +1,46 @@
 # Changelog
 
+## 1.60.6
+
+* Fixed: the routed `/generic-profile` page stretched its phone list
+  across a tablet window. base_sdk's route shell mounted a bare
+  `GenericProfilePage`, and the page spreads only under a `PlaneHost`
+  (`Planes.maybeOf` was null), so on the launcher's tablet leg the
+  profile rendered as one stretched column with no back. New
+  `GenericProfileRoutePage` (exported) is what the shell mounts now: at
+  plane widths it hosts `GenericProfilePage` in a two-plane `PlaneHost`
+  (the approved profile cap, frames 1c/1f: two planes at most, the
+  leftover plane a bare stage at the END on the page surface) and, the
+  routed profile being a pushed page, parks the one Back — a
+  `FloatingBackPill` — at the bottom-END corner where `PlaneHost` parks
+  its own (frame 1d, "back button should always be at a corner"), only
+  while the route can pop. On a phone the page is `GenericProfilePage`
+  exactly as before. The same fleet pattern zones' driver profile host
+  uses, now in base so no shell needs a wrapper of its own.
+
+## 1.60.5
+
+* Fixed: the bare Back pill sat in the wrong place in a tablet-mode window.
+  `FloatingBottomNav` treated a back-only `FloatingNavTabsMode` (empty
+  `tabs`, no `trailing`, a `back`) as a tab bar, so it followed the
+  app's `tabletNavPlacement`: bottom-centre on every fleet default app
+  (the driver's pushed pages, the wallet history, the comms settings and
+  notification pages), and a one-button rail at mid-height on the START
+  edge on the manager (`railStart`). The approved two-state nav rule
+  (design strip section 12, frame 12d, Ray 2026-08-29 12:36Z: "the nav
+  sits at bottom center unless i tell you to snap it on the right. but
+  back with no other buttons sit at the corner") puts a back with no other
+  buttons at the bottom-END corner. `FloatingBottomNav.build` now parks
+  that pill at the bottom-END corner in a tablet-mode window - a
+  `FloatingBackPill` 16 logical in from both edges inside the SafeArea,
+  directional so it flips in RTL - the same placement `PlaneHost` already
+  gives a pushed plane, whatever the app's or page's tablet placement
+  says. A back that rides with tabs or trailing actions still follows
+  placement; phone windows still draw the bottom-centre pill; controls
+  mode is untouched. `test/floating_nav_back_test.dart` covers the corner
+  at the fleet default, under `railStart` and `hidden`, and the unchanged
+  phone pill.
+
 ## 1.60.4
 
 * Fixed: the maintenance page rendered its translation keys. On a tenant

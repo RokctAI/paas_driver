@@ -42,6 +42,7 @@
 sdk: comms
 imports:
   - "import 'package:base_sdk/src/services/app_helpers.dart';"
+  - "import 'package:base_sdk/src/services/local_storage.dart';"
   - "import 'package:comms_sdk/src/common/presentation/pages/setting/language_page.dart';"
 steps:
   - key: comms_language
@@ -55,7 +56,9 @@ steps:
       // AppHelpers.showCustomModalBottomSheet call auth's login page and
       // marketplace's profile use for EmbeddedWidgets.I.languageScreen.
       // LanguageScreen is comms_sdk's own widget; in demo builds its list
-      // comes from MockSettingsRepository.getLanguages().
+      // comes from MockSettingsRepository.getLanguages(). The sheet follows
+      // the theme the tour is running in (the shells set it in setup), so
+      // the still never captures a light sheet inside a dark tour.
       final BuildContext sheetContext =
           tester.element(find.byType(Navigator).first);
       AppHelpers.showCustomModalBottomSheet(
@@ -64,7 +67,7 @@ steps:
           onSave: () =>
               Navigator.of(sheetContext, rootNavigator: true).pop(),
         ),
-        isDarkMode: false,
+        isDarkMode: LocalStorage.getAppThemeMode(),
       );
   # Action-only step: closes the sheet so the tour resumes on the screen it
   # came from. No still is captured here.

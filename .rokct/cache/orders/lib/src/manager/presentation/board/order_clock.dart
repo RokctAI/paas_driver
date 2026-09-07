@@ -141,10 +141,23 @@ class _OrderClockRowState extends State<OrderClockRow> {
           OrderClock.elapsed(end.difference(start)),
           style: AppStyle.interBold(size: 11.5, color: AppStyle.textPrimary),
         ),
-        const Spacer(),
-        Text(
-          OrderClock.range(start, end),
-          style: AppStyle.interNormal(size: 10, color: AppStyle.textDarkFaint),
+        const SizedBox(width: 8),
+        // The range takes what the elapsed figure leaves and ellipsises
+        // at one line when a card runs narrow (a yielded board, a wide
+        // locale), like every other row on the card — never an overflow.
+        Expanded(
+          child: Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: Text(
+              OrderClock.range(start, end),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppStyle.interNormal(
+                size: 10,
+                color: AppStyle.textDarkFaint,
+              ),
+            ),
+          ),
         ),
       ],
     );

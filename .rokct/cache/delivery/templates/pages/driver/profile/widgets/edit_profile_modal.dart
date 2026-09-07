@@ -38,6 +38,7 @@ import 'package:delivery_sdk/src/driver/application/profile/provider/profile_edi
 import 'package:delivery_sdk/src/driver/application/profile/provider/profile_image_provider.dart';
 import 'package:delivery_sdk/src/driver/application/profile/provider/profile_settings_provider.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/services/courier_constants.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 class EditProfileModal extends ConsumerStatefulWidget {
   const EditProfileModal({super.key});
@@ -74,7 +75,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(profileSettingsProvider);
-    return state.isLoading || state.userData == null
+    final Widget body = state.isLoading || state.userData == null
         ? Padding(
             padding: REdgeInsets.symmetric(vertical: 30),
             child: const Loading(),
@@ -97,6 +98,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                             title: AppHelpers.getTranslation(
                               TrKeys.profileSettings,
                             ),
+                            titleColor: AppStyle.textPrimary,
                           ),
                           24.verticalSpace,
                           Row(
@@ -309,7 +311,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                                 editState.showPassword
                                     ? Remix.eye_line
                                     : Remix.eye_close_line,
-                                color: AppStyle.black,
+                                color: AppStyle.textPrimary,
                                 size: 20.r,
                               ),
                               onPressed: editNotifier.toggleShowPassword,
@@ -335,7 +337,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                                 editState.showConfirmPassword
                                     ? Remix.eye_line
                                     : Remix.eye_close_line,
-                                color: AppStyle.black,
+                                color: AppStyle.textPrimary,
                                 size: 20.r,
                               ),
                               onPressed: editNotifier.toggleShowConfirmPassword,
@@ -372,14 +374,14 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                                     ),
                                     style: AppStyle.interNormal(
                                       size: 12.sp,
-                                      color: AppStyle.black,
+                                      color: AppStyle.textPrimary,
                                     ),
                                   ),
                                   Text(
                                     "${LocalStorage.getDeliveryInfo()?.data?.number ?? ''} — ${LocalStorage.getDeliveryInfo()?.data?.model ?? ''}, ${LocalStorage.getDeliveryInfo()?.data?.color ?? ''}",
                                     style: AppStyle.interNormal(
                                       size: 12.sp,
-                                      color: AppStyle.black,
+                                      color: AppStyle.textPrimary,
                                     ),
                                   ),
                                 ],
@@ -418,5 +420,8 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
               },
             ),
           );
+    // The sheet route is transparent (AppHelpers.showCustomModalBottomSheet);
+    // the opaque themed card is this widget's to paint, loader included.
+    return DriverSheetSurface(child: body);
   }
 }

@@ -93,6 +93,7 @@ export 'src/presentation/components/floating_nav/floating_bottom_nav.dart';
 export 'src/application/profile/profile_host_capabilities.dart';
 export 'src/presentation/pages/profile/edit_profile_sheet.dart';
 export 'src/presentation/pages/profile/generic_profile_page.dart';
+export 'src/presentation/pages/profile/generic_profile_route_page.dart';
 export 'src/presentation/pages/profile/profile_action_item.dart';
 export 'src/presentation/pages/profile/profile_host_scope.dart';
 export 'src/presentation/pages/profile/profile_section.dart';

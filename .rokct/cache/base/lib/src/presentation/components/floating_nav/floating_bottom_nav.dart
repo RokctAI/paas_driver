@@ -131,6 +131,16 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
     // stay where the thumbs are regardless of window size.
     if (mode is FloatingNavTabsMode &&
         windowSizeOf(context).isAtLeastMedium) {
+      // THE BARE BACK PILL — back with no tabs and no trailing actions —
+      // is not a tab bar and consults no placement. The approved
+      // two-state nav rule (design strip section 12, frame 12d): "the nav
+      // sits at bottom center unless i tell you to snap it on the right.
+      // but back with no other buttons sit at the corner." The corner is
+      // the bottom-END one, the same spot PlaneHost parks its pill in —
+      // not a one-button rail at the start edge, not bottom center.
+      if (mode.back != null && mode.tabs.isEmpty && mode.trailing.isEmpty) {
+        return _backCorner(mode.back!);
+      }
       final placement =
           mode.tabletPlacement ?? AppConstants.tabletNavPlacement;
       switch (placement) {
@@ -261,6 +271,34 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
           for (final action in mode.trailing)
             _NavActionButton(action: action, compact: true),
         ],
+      ),
+    );
+  }
+
+  /// Mode 1 as the bare Back pill in a tablet-mode window: the pushed
+  /// pages of the no-tab-set apps (driver/delivery) and every SDK page
+  /// that draws its own back-only nav outside a `PlaneHost`. Parked at
+  /// the bottom-END corner — 16 logical in from both edges, inside the
+  /// SafeArea, exactly the [FloatingBackPill] placement `PlaneHost` uses
+  /// for a pushed plane, so the two read as one rule: "back with no
+  /// other buttons sit at the corner" (Ray, 2026-08-29 12:36Z; frame 12d
+  /// approved 14:38Z). Directional, so the corner flips in RTL.
+  ///
+  /// Self-aligning like [_tabsRail]: hosts wrap this widget in a
+  /// bottom-centered [Align] inside a full-size Stack slot, which hands
+  /// loose full-size constraints; the [Align] here fills them and places
+  /// the pill itself, so no host needs rewriting. Where a host gives it
+  /// only a Column row (unbounded height) the Align shrink-wraps and the
+  /// pill still hugs the END edge. The keyboard inset is kept from the
+  /// bottom pill's layout so a corner pill rides above the keyboard the
+  /// way the centered one always has.
+  Widget _backCorner(FloatingNavBack back) {
+    final keyboard = MediaQuery.of(context).viewInsets.bottom;
+    return Align(
+      alignment: AlignmentDirectional.bottomEnd,
+      child: Padding(
+        padding: EdgeInsetsDirectional.only(end: 16, bottom: 16 + keyboard),
+        child: SafeArea(child: FloatingBackPill(back: back)),
       ),
     );
   }
@@ -559,12 +597,14 @@ class _BackSegment extends StatelessWidget {
 /// The back segment alone, in the pill's own housing — for hosts that
 /// place the screen's ONE back affordance themselves instead of showing
 /// the full floating nav (a `PlaneHost` plane layout parks it at the
-/// bottom-START corner per the approved ruling: "back button should
-/// always be at a corner"). Deliberately carries NO SafeArea, margin, or
-/// alignment — placement belongs to the caller; the pill is only the
-/// approved look: the same blurred housing, the same back segment, the
-/// same 60-radius row rhythm as the tab pill's back. The
-/// one-back-per-screen rule from [FloatingNavBack] applies unchanged.
+/// bottom-END corner per the approved ruling: "back button should
+/// always be at a corner" / "back be on the right"; [FloatingBottomNav]
+/// parks its own bare Back there in a tablet-mode window). Deliberately
+/// carries NO SafeArea, margin, or alignment — placement belongs to the
+/// caller; the pill is only the approved look: the same blurred housing,
+/// the same back segment, the same 60-radius row rhythm as the tab
+/// pill's back. The one-back-per-screen rule from [FloatingNavBack]
+/// applies unchanged.
 class FloatingBackPill extends StatelessWidget {
   final FloatingNavBack back;
 

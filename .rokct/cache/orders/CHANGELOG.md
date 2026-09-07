@@ -1,3 +1,49 @@
+## 1.20.2
+
+TWO TABLET DEFECTS from the 2026-09-07 tablet design audit (approved
+design strip frames 33a, 33d and 38a checked against the paas_manager and
+minilauncher stills at 1066 logical and the retry-leg geometry at 800).
+
+* Order history on planes (38a, audit defect 8): the root of the pushed
+  `/order-history` page had NO back affordance at two or three planes -
+  `PlaneHost` only draws its corner pill once a second plane exists, and
+  the installed page put `FloatingBackPill` in its compact branch alone.
+  `OrderHistoryPlaneFlow` now takes an optional `onExit`; when the host
+  passes one, the flow draws the bare corner Back (base_sdk's
+  `FloatingBackPill`, bottom-END, 16 logical in from both edges inside
+  the SafeArea - exactly where `PlaneHost` parks its own) while no detail
+  is open, and it pops the route. With a detail holding the last plane
+  the host's pill pops the pane instead, so there is never more than one
+  back per screen (the 12:36Z two-state rule: "back with no other buttons
+  sit at the corner"; 38a: "back is the one corner pill"). The installed
+  `order_history.dart` passes `Navigator.maybePop`, the same fallback the
+  phone's pill already uses. To own the open-detail state the flow now
+  builds on base_sdk's `ListPlaneFlow` directly (the same shape
+  `ListDetailFlow` wraps; no new base_sdk requirement). Phone branch
+  unchanged. `test/order_history_plane_flow_test.dart` covers the root
+  pill, its corner, and the one-pill rule at 1280 / 1066 / 800.
+* Orders board (33a, audit defect 7 - "shows 4 of 7 columns at 1066"):
+  NO layout change. The approved 33a frame reads "Columns keep the POS's
+  235-wide size and scroll SIDEWAYS (Delivered/Cancelled continue past
+  the right edge - the bar at the bottom); more space = more detail,
+  never seven squeezed columns", and its own render shows five columns at
+  1280 logical with the last two past the edge; 33d keeps the same
+  columns when the board yields ("the scrollbar carries the overflow").
+  The 1066 still is that rule at a narrower width (925 logical of board
+  behind the start rail = four 235 columns; seven would be 122 each, the
+  squeezed layout the frame rules out; 800 gives 87). All seven columns
+  are on the board and reached by the scroll; the new
+  `test/orders_board_columns_test.dart` pins that at 1066 and 800: every
+  `BoardRules.columnsFor()` status present in order at the approved
+  width, the last one past the edge and reachable by the sideways drag.
+* Board card clock row (`OrderClockRow`): the start-now range now takes
+  the space the elapsed figure leaves, end-aligned, and ellipsises at one
+  line like every other card row (33d/43a: names ellipsise at one line)
+  instead of overflowing a narrow card - a yielded board column or a
+  wide-glyph font. Identical when it fits; found by the new board test,
+  whose test font is wider than Inter at the approved 235.
+* manifest.json 1.20.1 -> 1.20.2.
+
 ## 1.20.1
 
 * fix(tour): the `order_queue` caption in `templates/tour/orders.tour.yaml`

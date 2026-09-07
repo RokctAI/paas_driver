@@ -1,3 +1,60 @@
+## 1.30.0
+
+* feat(pos): the Add Items pane's category chip bar - approved design
+  strip frame 11m, chip 349 (Ray 2026-08-29 10:52Z "11m looks good but no
+  search for items and no categories"; approved 13:53Z "approved: ...
+  11m"): "a horizontal pill row (All / ...) in the dark till tokens,
+  patterned on the paas_pos products-page category chips". The last
+  "not built" flag on the till (`billing_page.dart`) is closed; the
+  2026-09-07 tablet audit listed it as defect 5 (pos_scan / pos_cart
+  stills show the search field only).
+  * NEW `lib/src/manager/presentation/pos/pos_category_chip_bar.dart`
+    `PosCategoryChipBar`: All first, then the shop's categories, in the
+    foods page's own chip dress (products_sdk FoodsBody._categoryChips -
+    34-high horizontal row, `primary` fill when active, `cardDark` on a
+    `strokeDark` hairline otherwise, 100 radius). Draws nothing when the
+    shop has no categories. Keys `posCategoryChipBar`,
+    `posCategoryChip-all`, `posCategoryChip-<id>`.
+  * `templates/pages/manager/billing/billing_page.dart`: the bar sits
+    under the search field (318) in the PANE only - the phone sheet (11j,
+    chips 316-321) is unchanged; the pane loads the categories once per
+    till session. A tapped chip narrows the rows to its category, and
+    with nothing typed lists the category outright; All widens again.
+  * `PosCatalogRepositoryFacade` (`domain/interface/pos_catalog.dart`):
+    `searchProducts` gains an optional `categoryId`; NEW `categories()`.
+    `PosCatalogRepository` lists a category through base_sdk's
+    `ProductsRepositoryFacade.getProductsPaginate(categoryId:)`, narrows
+    a text search by each `ProductData.categoryId`, and reads the shop's
+    categories through `CategoriesRepositoryFacade.getCategoriesByShop`
+    (the kernel's cached own shop, `LocalStorage.getShopJson()`; the
+    marketplace's first page when none is cached; an empty answer when no
+    categories facade is registered). `MockProductsRepository` seeds the
+    SAME three categories products_sdk's demo seller catalog seeds
+    (Mains / Sides / Drinks) with the burger in Mains, so the demo till
+    and the demo foods tab stay one shop.
+  * `PosCartState` carries `query`, `categories` and `categoryId`;
+    `PosCartNotifier.selectCategory` / `loadCategories`; Clear All, an
+    emptied cart and a finished sale reset to `PosCartState.emptied()`,
+    which keeps the catalog browsing state so the bar never blinks out
+    between customers. A stale answer (a later query or chip already
+    moved on) is dropped.
+  * NEW `test/pos_category_chip_bar_test.dart` (run with
+    `--dart-define=IS_DEMO=true`).
+* fix(tour): the tablet leg never captured the approved plane checkout
+  and receipt (frames 11n / 11r; tablet audit 2026-09-07, defect 2).
+  `templates/tour/merchants.tour.yaml` pos_checkout was `action: route
+  /pos-checkout` - the PHONE checkout, which the tablet leg stretched to
+  one column over all planes, and whose receipt is the pushed 11k route,
+  never the one-plane 11r. At plane widths the till never pushes that
+  route: the checkout is only reached by Continue (287) inside the till's
+  PlaneHost (`BillingPage._openCheckout`). The step is now a dart action
+  that reads the plane count from the Continue button's own context, the
+  way `_openCheckout` does - taps Continue where planes host the checkout
+  (11n, then 293 hands the receipt to the till as one plane, 11r), and
+  replaces to `/pos-checkout` on one plane (the phone leg's stills are
+  unchanged). Step keys, captions and settles are unchanged; the
+  fragment imports base_sdk's `planes.dart` for `Planes.maybeOf`.
+
 ## 1.29.3
 
 * fix(manager): the composed shell did not compile against the host's

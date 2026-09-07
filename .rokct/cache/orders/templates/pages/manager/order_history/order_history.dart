@@ -20,7 +20,9 @@
 //   two plane-aligned columns; tapping an order pushes its details into
 //   the LAST plane as a PANE (the 12:02Z SHEET FORK: at plane widths the
 //   shipped OrderDetailsModal bottom sheet becomes a pane), and the nav
-//   folds to the corner back pill at the bottom-END (chip 347).
+//   folds to the corner back pill at the bottom-END (chip 347). The page
+//   is itself a pushed route, so the pill is there at the root too — it
+//   pops the route until a detail holds a plane, then it pops the pane.
 // * PHONES (38d) — the exact same shape on one plane, and the tap opens
 //   the shipped OrderDetailsModal as a bottom sheet, unchanged. The
 //   shipped page's TWO floating buttons dissolve: the date filter moved
@@ -98,12 +100,16 @@ Widget _buildCompact(BuildContext context) {
 /// 38a — planes: the list declares TWO, a tapped order's details push
 /// into the LAST plane (the bare third plane trailing at tablet width),
 /// and back pops the pane. The flow itself is `OrderHistoryPlaneFlow`.
+/// This page is a pushed route, so at the flow's root the ONE corner pill
+/// pops the route — the same `Navigator.maybePop` the phone's pill above
+/// falls back to; with a detail open the flow's own pill pops the pane.
 Widget _buildExpanded(BuildContext context) {
   return Scaffold(
     backgroundColor: AppStyle.surfaceDark,
     body: SafeArea(
       child: OrderHistoryPlaneFlow(
         backIcon: Remix.arrow_left_wide_fill,
+        onExit: () => Navigator.maybePop(context),
         detailBuilder: (context, order) =>
             OrderDetailsModal(isHistoryOrder: true, order: order),
       ),

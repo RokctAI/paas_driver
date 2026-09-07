@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.15.2
+
+* Fixed: the `comms_language` tour step opened the language sheet with
+  `isDarkMode: false`, so the still captured a light sheet inside a tour the
+  shells now start dark. The sheet follows `LocalStorage.getAppThemeMode()`,
+  the theme the tour is actually running in.
+
 ## 1.15.1
 
 * Fixed: privacy policy and terms of service placeholder copy in the mock
