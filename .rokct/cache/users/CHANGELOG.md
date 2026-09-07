@@ -1,3 +1,35 @@
+## 1.3.7
+
+* fix(tour): two highlight phrases in `templates/tour/users.tour.yaml`
+  were too long for the wide reel's caption column. The assembler wraps
+  the 1920x1080 reel's captions at 800 px (DejaVu Sans Bold 64 px, 84 px
+  row pitch) and measures a `*highlight*` phrase as one unbreakable token
+  with 40 px of chip padding, so a phrase wider than 760 px runs past the
+  wrap width into the margin (a warning, never a failure). The paas_driver
+  guided tour (run 34061972563) reported `caption for step 'users_profile'
+  in the wide reel: row 3 runs 130px past the 800px wrap width into the
+  caption margin: the highlight phrase 'your details in one place' does
+  not fit one row and a highlight never splits across rows`; the second
+  phrase, `name, phone and email` in `users_profile_settings`, measures
+  86 px past the same wrap and only escaped the warning because the reel
+  caps its beats. Both phrases now fit one reel row with margin (chip
+  widths 579 px and 754 px), the captions keep their meaning, and each
+  still wraps to three phone rows on the portrait canvas (936 px, 7-row
+  box). Before and after:
+
+  ```text
+  Your {app_name} account keeps *your details in one place*.
+  Your {app_name} account keeps *all your details* in one place.
+  Update your *name, phone and email* any time they change.
+  Update your *name, phone, email* any time they change.
+  ```
+
+  No screen changes. Shells pick the fragment up on their next tour run:
+  the composer refreshes the cache copy and captions only reach
+  `tour.resolved.json`, never a committed shell file.
+* manifest.json 1.3.6 -> 1.3.7 so version-aware cache reconciliation
+  re-merges the fragment into every shell.
+
 ## 1.3.6
 
 * `MockUserRepository` reads the demo avatar from base_sdk's
