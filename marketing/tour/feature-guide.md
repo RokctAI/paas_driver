@@ -10,7 +10,7 @@ Deliveries, parcels and payouts in one app
 
 ![Welcome to Driver](screenshots/01-welcome.png)
 
-Driver puts your whole delivery day in one app - sign in to get started.
+Driver puts your delivery day in one app - sign in to get started.
 
 ## 2. Sign in
 
