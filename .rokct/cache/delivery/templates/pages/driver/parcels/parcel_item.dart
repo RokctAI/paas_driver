@@ -54,7 +54,7 @@ class ParcelItem extends StatelessWidget {
         margin: EdgeInsets.only(bottom: 10.h),
         padding: EdgeInsets.all(16.r),
         decoration: BoxDecoration(
-            color: AppStyle.white,
+            color: AppStyle.cardDark,
             borderRadius: BorderRadius.all(Radius.circular(10.r))),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

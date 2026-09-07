@@ -55,17 +55,26 @@ class _LanguagePageState extends ConsumerState<LanguageScreen> {
       child: KeyboardDismisser(
         child: Container(
           decoration: BoxDecoration(
-            color: AppStyle.bgGrey.withOpacity(0.96),
+            // AppHelpers.showCustomModalBottomSheet paints the sheet route
+            // transparent and expects the sheet to bring its own surface,
+            // so the isDarkMode flag the caller passes never reaches this
+            // paint. Resolve the surface against AppStyle's mode flag the
+            // way base_sdk's EditProfileScreen does (dark: the theme's dark
+            // surface; light: the soft page grey) instead of the light-only
+            // bgGrey this shipped with.
+            color: (AppStyle.isDark ? AppStyle.surfaceDark : AppStyle.bgGrey)
+                .withValues(alpha: 0.96),
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(16.r),
               topRight: Radius.circular(16.r),
             ),
           ),
+          // No height cap of its own: the column sizes to its content and
+          // the helper's sheet constraints (window height minus its top
+          // padding) bound it. The 30%-of-window cap this shipped with
+          // pushed the Save button below the fold on wide windows, where
+          // the sheet is anchored to the END side as a narrow panel.
           width: double.infinity,
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height *
-                0.3, // Use only 30% of screen height
-          ),
           child: state.isLoading
               ? const Loading()
               : Padding(
@@ -91,6 +100,7 @@ class _LanguagePageState extends ConsumerState<LanguageScreen> {
                         24.verticalSpace,
                         TitleAndIcon(
                           title: AppHelpers.getTranslation(TrKeys.language),
+                          titleColor: AppStyle.textPrimary,
                           paddingHorizontalSize: 0,
                           titleSize: 18,
                         ),

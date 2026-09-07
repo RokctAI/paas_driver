@@ -40,7 +40,7 @@ class ApproveOrderDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppStyle.white,
+        color: AppStyle.cardDark,
         borderRadius: BorderRadius.circular(10.r),
       ),
       padding: EdgeInsets.symmetric(vertical: 30.h, horizontal: 24.w),

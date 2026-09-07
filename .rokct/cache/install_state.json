@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.60.6",
+      "version": "1.60.9",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -260,50 +260,50 @@
       ]
     },
     "delivery_sdk": {
-      "version": "1.21.0",
+      "version": "1.21.1",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "11db8e698632a6cee50e92a83fef8a494c4b55cf316bbaf6398f652460cb8dea",
         "lib/presentation/routes/delivery_adapters.dart": "cd22c591ae3179bcc44d95cead4ac89abddfecdc6217a8c316037890e13ecddc",
-        "lib/presentation/pages/home/parcel_bottom_sheet.dart": "02b95338f12c2942fe9548872ed942012e224112790e551dccaae833dabb28b2",
+        "lib/presentation/pages/home/parcel_bottom_sheet.dart": "008bb9812843fe0024cf77b29640494f63416c76ba4795f174a27e9227f1cb95",
         "lib/presentation/pages/home/bottom_sheet_screen.dart": "0943694ba39b81dbdbb0bacd155b6715bcaed7acf7f11a47c59aae70ce993cf9",
-        "lib/presentation/pages/home/home_page.dart": "640ac480a4fd52ef9de5899092043d135af9736a2d1101b5c12aec5dc449ea5a",
-        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "380e9db09a7ca0465046546bda4878dbc03ad67b679180a229959412c0b8a2c0",
+        "lib/presentation/pages/home/home_page.dart": "47e91dffc439bbc47872a4be957dc688b8d925da8368c52d0ec3f270d0983f60",
+        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "cc501115039ed9fe1a5034585256743eb7a3c62b2bf0e466b2c159eee8062349",
         "lib/presentation/pages/home/widgets/outside_painter.dart": "60866744c76343e4a4cf92b27adb08a17a74dbe5f0e4bd99b6657c30aba402e3",
-        "lib/presentation/pages/home/widgets/rate_customer.dart": "f0b57f9589af1414fc4084aabe43f8cdd4385af05d165ddc048a6b67cd08da19",
+        "lib/presentation/pages/home/widgets/rate_customer.dart": "1cc8cad88894b84141ac2bf18cf6e945414daf20226dc9078dc2810ef3770358",
         "lib/presentation/pages/home/widgets/stores.dart": "498027146cd90e11c9edc48e6bcfe2cd71574edb98f7228ed2a2507666f35b18",
-        "lib/presentation/pages/home/widgets/foods_page.dart": "72d049506f1979fcdf4a77915b8c3ab72151ec2091862b2349fdf82baec9fb03",
-        "lib/presentation/pages/home/widgets/approve_dialog.dart": "41ec329e51343ab54e3b656f4cba8708f4b819b84cc8b7eafdf30668af03332f",
+        "lib/presentation/pages/home/widgets/foods_page.dart": "d2164370375680f7c4a95c0944c8e954c2bf531e9d8e6bb2619c79e96bc8d290",
+        "lib/presentation/pages/home/widgets/approve_dialog.dart": "8a943db976f465fccfed0ed3f60dfce95edf14c55ab078e2a35b79818fc1e6fc",
         "lib/presentation/pages/home/widgets/add_comment.dart": "464d54eb71b45d60306ae992cc099efcce5388c915af71b543bcac563962203c",
-        "lib/presentation/pages/orders/orders_page.dart": "313237c455d400905aa68a757ed6486d6169f13a3a89a355039e39cf141624e0",
-        "lib/presentation/pages/order_history/order_history.dart": "f2f022dbd677415fa6dede14a86f6252920a5113577e81769b3f219a9ff083ef",
-        "lib/presentation/pages/parcel/parcel_item.dart": "8015395837b048c121c7145941f3ad7ba1ac95ca826d073ffe741b483da5e36b",
+        "lib/presentation/pages/orders/orders_page.dart": "8557b6fc37f917d5eac645d2ab69cf8f792b264f81904c67d1db720087e7f541",
+        "lib/presentation/pages/order_history/order_history.dart": "bfa50a866c086f099dae383e2d592af400c7dd3906d5fbd8a143abc6c9a69f12",
+        "lib/presentation/pages/parcel/parcel_item.dart": "729eb6fe6d8ddac801bd1bbfc399dbf9c9eca6dce16a4886ecc23399cfbefa6b",
         "lib/presentation/pages/parcel/parcel_order.dart": "f1be00a635ff236794f1335f99b1d9133c6e57fca6b54d98ddf8be55025d0243",
-        "lib/presentation/pages/parcel/parcels_page.dart": "f9923c34c73d5c85db750a741645a37c0d060c1cbcecca2480b1f75e744ffed8",
-        "lib/presentation/pages/parcels_history/parcel_history.dart": "93aa990e049ffedf5c9d884ca43bbf2f02efa24adaa6b9da3d2d4efa659acb92",
+        "lib/presentation/pages/parcel/parcels_page.dart": "ffc2e63c5804a4f7182da17c98a2a45960a8e751581c28b7147d0c4b2f1cc751",
+        "lib/presentation/pages/parcels_history/parcel_history.dart": "f6b261d7f80f84e67e96eec2b130c3861122a16b2f77388f1d200e6340ce74df",
         "lib/presentation/pages/push_order/push_order_screen.dart": "5c66d301cf766b26ea27b4ecf13f88026b77989d2157ccd5599e12ae6eb8e8f2",
         "lib/presentation/pages/profile/profile_page.dart": "5767faa2e681218cfbebc3cf453992ff5961b15aadcb48d9c44be4e98d4dbf8a",
-        "lib/presentation/pages/profile/edit_car.dart": "743e96f34ced7616c42a6971749bbdcca693824ab3e0f895ac823448ded6158f",
-        "lib/presentation/pages/profile/widgets/cancel_dialog.dart": "bad546cf8503a5dd4bf8203dfd2dab132e2d798ce80162cfd546582694c93d8f",
+        "lib/presentation/pages/profile/edit_car.dart": "648a82e48b46ba35df36dce1ce5de8882fea7c2ecd3eac7ac6a6521375a1c180",
+        "lib/presentation/pages/profile/widgets/cancel_dialog.dart": "07780d5e61c179d24a5c4694412f61d052bccf20eaf5c946b0cbf85be1b09ed0",
         "lib/presentation/pages/profile/widgets/edit_profile_modal.dart": "1fd0b85e930b53f2db5e2eaf93b0a9b11c3a7ecf73c0e61dd9177f9f66a012bf",
-        "lib/presentation/pages/profile/widgets/logout_modal.dart": "055b18e6903a2aeb7098ffed797804eb991d9da342915e9c57d83ff072276121",
+        "lib/presentation/pages/profile/widgets/logout_modal.dart": "8f0dabbab10f77125cfe6f510955124bbe6816d4e1b2341e3a64c47d87d74000",
         "lib/presentation/pages/profile/widgets/sections_item.dart": "e1b13f1ec5c5ea3341a18ab03d1edfdfed53e2a0d251877ab2084f7d70d90f10",
         "lib/presentation/pages/auth/become_driver/become_driver.dart": "827e48b4224df8027f6b8318b6e40922884bd4206afdb7787a9682e9c8cf1cee",
         "lib/presentation/component/driver_avatar.dart": "c64b47e1a27ebb7f7016f7aed537315ae42565db3bc555fc3d1e89805c28c935",
-        "lib/presentation/component/image_dialog.dart": "c7b59bbd383a397bd8af63704cbc3b8a146ba40e746fb795d84ed0bca82748fb",
-        "lib/presentation/component/order_detail.dart": "a6b9012055dc92d1631fa49604d5062eb35129563749e79b12688112a7e61377",
-        "lib/presentation/component/order_item.dart": "4de5cb35113883d3df157059450e0176dac046ac41a32d84a8c2fd483b0f4a8a",
-        "lib/presentation/component/orders_item.dart": "4f2c183e5967ff991066f462e8d16e00fb7d04ceec2de2f836f96f0958a41cfe",
-        "lib/presentation/component/maps_list.dart": "2eaace39cdc51534b0d092c046915714af28fdbc02782f16fd9421a46dd59d31",
-        "lib/presentation/component/product_item.dart": "5e26837e7e4865004c305c9b680dad72aa6b7c9036c8bf49cb10d21d0df6db61",
-        "lib/presentation/component/restaurant_item.dart": "d02651d0cd40a2250e342d7d4f305083963529c287301478bb0405732f4c6c4a",
+        "lib/presentation/component/image_dialog.dart": "ce98046373c6a7703e06352e5dc7dfe39d6bf262c1e10203d004939b6483d189",
+        "lib/presentation/component/order_detail.dart": "a862daeb9b1af40e8039afb23cba606cf72f0251934b6b0a6e3ed47ddb40ee5a",
+        "lib/presentation/component/order_item.dart": "6cc7384be5a1b258f2ef7945dc7ed3853b2c41d795b086adbf09fa9aed4974dd",
+        "lib/presentation/component/orders_item.dart": "f170e4c1ac0a1ec1535b28d975058af0b6828ec1f8629474e22b33e9aa233985",
+        "lib/presentation/component/maps_list.dart": "7730b6c290b4b81bc63e40b2589f61447050b58d9dee5a1e149f2b0237c55051",
+        "lib/presentation/component/product_item.dart": "ed599c9dbf763f4eaddf19623c9466ddc3c60a60d864b7d427a81e24bd31ee8f",
+        "lib/presentation/component/restaurant_item.dart": "f2de52e4212c4d3977f71111f1765cb9dc5248c24c941647365e485691e4b286",
         "lib/presentation/component/custom_toggle.dart": "99fd19209fd9d09885436e5f49369482c3531bb761041e8963119d508e29b28c",
-        "lib/presentation/component/custom_date_picker.dart": "6e1b8405fdaf5c913f7e77017ca13b8cd326ced7f48b9933f7b1644faa8f9116",
-        "lib/presentation/component/filter_screen.dart": "a3d53eaa312d3f194cd50893446d699ee593c7fd00c9acd43c32df43926acfcb",
+        "lib/presentation/component/custom_date_picker.dart": "af31a7c3051162ec2328998e5646027865e84835bb0e9aeb926c94475dbc990b",
+        "lib/presentation/component/filter_screen.dart": "1548abb5c31b1756919c1bb8983c9f0c878589cecd2adfbe7c236418dd419282",
         "lib/presentation/component/shop_avarat.dart": "a33bb6faa15ba77e425c3045e68058dfa13558c6833597803db37bb6656a44ea",
         "lib/presentation/component/buttons/buttons_bouncing_effect.dart": "c548da4acd677c8f1370f9ac3409fb82a7c0485fda46d23484d0e340852ceec5",
         "lib/presentation/component/helper/keyboard_disable.dart": "837447d41e4c1b1cb0b1b1a1e938cafa413c3258d7b900552e97f2d93b8f2021",
-        "lib/presentation/component/text_fields/underline_bordered_text_field.dart": "474ae1722b84e4769540f9e8e0560017ddf0f8504aa424e85a482baf9bc27df7",
-        "lib/presentation/pages/route/route_page.dart": "6815a09241f8fcb17c6bd7c600994d5472a45c891b5ef43688b61f02ef098ec0",
+        "lib/presentation/component/text_fields/underline_bordered_text_field.dart": "5efec626091dc54d51af545bde5a2d428042fc421cdab1e70968b6161fc0761c",
+        "lib/presentation/pages/route/route_page.dart": "fe4c4ff60358c7294d553b81ee7e5ef577171717a83893b06a742875d749c82b",
         "lib/presentation/pages/deposits/deposits_page.dart": "f48b60499c1763cf4bd9433bdf6cd09bd101ba53125762b96b1c6b06ecbe00e1"
       },
       "routes": [
@@ -579,7 +579,7 @@
       ]
     },
     "comms_sdk": {
-      "version": "1.15.2",
+      "version": "1.15.3",
       "files": {
         "lib/application/notification/notification_state.dart": "055c8ab42969bad5e418061cbe38699458bfc8b74ea7d4def4a03a18e261b184",
         "lib/application/notification/notification_notifier.dart": "c5c691d1c0f1d476eea96d5a60bac5316fabe8ea0f77412db1d4d409f1e6b748",
@@ -761,10 +761,10 @@
       }
     },
     "revenue_sdk": {
-      "version": "1.12.0",
+      "version": "1.12.1",
       "files": {
         "lib/presentation/pages/income/statistics_screen.dart": "e07df6b531efd6fb183401f318f3d6d4e8bc83bef90c339867231e6e41150153",
-        "lib/presentation/pages/income/income_page.dart": "0a5cd3d7b712c54fd61d5599eb4dac0060498a264751ab5930342cfc7880de4e",
+        "lib/presentation/pages/income/income_page.dart": "d2c581f92a741b36c5922b3f9e9783ca604a7b56fcf4bc403d0db1d3462c670a",
         "lib/presentation/pages/income/app_bar_screen.dart": "fc5d140e1e12d52c445d915eab2021a81f9973eab393a44acff781db89fc4387",
         "lib/presentation/pages/income/widgets/statistics_item.dart": "87d912e2c8710ac8fc3abf9cd2d3a82c2ad2465e93b029f5d919b78b8deeb989",
         "lib/presentation/pages/income/widgets/income_item.dart": "500e95d515b3526979210f8551c8fcd9f8b4242e3521c723fc4e77e77cdb58b8"
@@ -1078,12 +1078,12 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.60.6",
-      "hash": "6495ef136df75f35"
+      "version": "1.60.9",
+      "hash": "cd39e6a5eb42d313"
     },
     "comms": {
-      "version": "1.15.2",
-      "hash": "1f0ec975748c50d6"
+      "version": "1.15.3",
+      "hash": "61981e502a0e3bb4"
     },
     "auth": {
       "version": "1.10.4",
@@ -1106,8 +1106,8 @@
       "hash": "054e6c067b1ca2c5"
     },
     "delivery": {
-      "version": "1.21.0",
-      "hash": "372f47a91e58e9c3"
+      "version": "1.21.1",
+      "hash": "d8821a411a94d195"
     },
     "map": {
       "version": "1.3.1",
@@ -1130,8 +1130,8 @@
       "hash": "ef378600c400e1cf"
     },
     "revenue": {
-      "version": "1.12.0",
-      "hash": "e7cc5e9f66538433"
+      "version": "1.12.1",
+      "hash": "0ed1e64285f8cd0c"
     },
     "weather": {
       "version": "1.6.1",

@@ -141,7 +141,7 @@ class _FilterScreenState extends State<FilterScreen>
           child: Text(
             AppHelpers.getTranslation(TrKeys.selectDesiredOrderHistory),
             style: AppStyle.interNormal(
-                size: 14.sp, color: AppStyle.black, letterSpacing: -0.3),
+                size: 14.sp, color: AppStyle.textPrimary, letterSpacing: -0.3),
           ),
         ),
         widget.isTabBar

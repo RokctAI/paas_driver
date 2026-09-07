@@ -56,7 +56,12 @@ class _MaintenancePageState extends State<MaintenancePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.white,
+      // Was the polarity-PINNED AppStyle.white: a page ground that never
+      // flips, under a title styled with AppStyle.interSemi and no `color:`
+      // - resolving ink that goes white in dark mode, so the title vanished
+      // on its own background. surfaceDark is the mode-resolving page ground
+      // the other full-page surfaces use (generic_profile_page).
+      backgroundColor: AppStyle.surfaceDark,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 32.w),

@@ -264,180 +264,188 @@ class _IncomePageState extends ConsumerState<IncomePage>
     final state = ref.watch(statisticsProvider);
     return Scaffold(
       backgroundColor: AppStyle.bgGrey,
-      body: Stack(
+      // The withdraw bar rides in the Scaffold's bottom slot and the body
+      // runs on UNDER it (extendBody), so the content still passes beneath
+      // the translucent stack on the way down exactly as before, while the
+      // Scaffold hands the body a bottom inset equal to the slot's REAL
+      // height. The scroller pads by that inset. It used to pad a fixed
+      // `bottom + 56.h` against a stack that is button + hint line + pill +
+      // safe area tall, so its last rows (the earnings chart) could never
+      // scroll out from under the bar on any window that had to scroll -
+      // the phone always, the tablet once the chart made the column taller
+      // than the viewport.
+      extendBody: true,
+      body: Column(
         children: [
-          Column(
-            children: [
-              AbbBarScreen(event: ref.read(statisticsProvider.notifier)),
-              16.verticalSpace,
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                      right: 16.w,
-                      left: 16.w,
-                      bottom: MediaQuery.paddingOf(context).bottom + 56.h),
-                  child: Column(
-                    children: [
-                      CustomTabBar(
-                        tabController: _tabController,
-                        tabs: _tabs,
+          AbbBarScreen(event: ref.read(statisticsProvider.notifier)),
+          16.verticalSpace,
+          Expanded(
+            // Builder: the inset lives on the BODY's MediaQuery, which the
+            // Scaffold provides below this widget's own context.
+            child: Builder(
+              builder: (context) => SingleChildScrollView(
+                padding: EdgeInsets.only(
+                  right: 16.w,
+                  left: 16.w,
+                  // The slot's height plus the gap the frames leave between
+                  // the last card and the pill (the fleet's 12.h).
+                  bottom: MediaQuery.paddingOf(context).bottom + 12.h,
+                ),
+                child: Column(
+                  children: [
+                    CustomTabBar(
+                      tabController: _tabController,
+                      tabs: _tabs,
+                    ),
+                    24.verticalSpace,
+                    _orderPrices(context, state),
+                    // Thin wiring only (repo policy: substance lives in
+                    // analyzable lib/, templates/ is excluded from
+                    // `flutter analyze` fleet-wide). Both destinations
+                    // are real pages in revenue_sdk's lib/src/driver.
+                    TitleAndIcon(
+                      title: AppHelpers.getTranslation(
+                          TrKeys.deliverymanTransactions),
+                      rightTitle:
+                          AppHelpers.getTranslation('your_payouts'),
+                      // Design strip frame 49k, plane 2 of income: the
+                      // Requested -> Paid | Rejected trail. The balance
+                      // drops the moment he taps Withdraw, so this is
+                      // the screen that explains where the money is.
+                      onRightTap: () => DriverPayoutsPage.push(context),
+                    ),
+                    12.verticalSpace,
+                    // Design strip frame 49f, the wallet plane. The row
+                    // itself is unchanged - it is now a way IN to the
+                    // plane instead of a number with no explanation.
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => DriverWalletPage.push(context),
+                      child: IncomeItem(
+                        title: AppHelpers.getTranslation(TrKeys.wallet),
+                        price: AppHelpers.numberFormat(
+                            number:
+                                LocalStorage.getUser()?.wallet?.price ?? 0),
                       ),
-                      24.verticalSpace,
-                      _orderPrices(context, state),
-                      // Thin wiring only (repo policy: substance lives in
-                      // analyzable lib/, templates/ is excluded from
-                      // `flutter analyze` fleet-wide). Both destinations
-                      // are real pages in revenue_sdk's lib/src/driver.
-                      TitleAndIcon(
-                        title: AppHelpers.getTranslation(
-                            TrKeys.deliverymanTransactions),
-                        rightTitle:
-                            AppHelpers.getTranslation('your_payouts'),
-                        // Design strip frame 49k, plane 2 of income: the
-                        // Requested -> Paid | Rejected trail. The balance
-                        // drops the moment he taps Withdraw, so this is
-                        // the screen that explains where the money is.
-                        onRightTap: () => DriverPayoutsPage.push(context),
+                    ),
+                    12.verticalSpace,
+                    // Design strip frame 49q, plane 2 of income: the saved
+                    // bank accounts. Reachable on its own and not only
+                    // through a refused withdrawal, because a driver who
+                    // has closed an account needs to change it BEFORE the
+                    // next payout, not while one is being refused.
+                    GestureDetector(
+                      key: const Key('incomeBankAccountsRow'),
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => BankAccountsPage.push(context),
+                      child: IncomeItem(
+                        title: AppHelpers.getTranslation('bank_accounts'),
+                        price: '',
                       ),
-                      12.verticalSpace,
-                      // Design strip frame 49f, the wallet plane. The row
-                      // itself is unchanged - it is now a way IN to the
-                      // plane instead of a number with no explanation.
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => DriverWalletPage.push(context),
-                        child: IncomeItem(
-                          title: AppHelpers.getTranslation(TrKeys.wallet),
-                          price: AppHelpers.numberFormat(
-                              number:
-                                  LocalStorage.getUser()?.wallet?.price ?? 0),
-                        ),
-                      ),
-                      12.verticalSpace,
-                      // Design strip frame 49q, plane 2 of income: the saved
-                      // bank accounts. Reachable on its own and not only
-                      // through a refused withdrawal, because a driver who
-                      // has closed an account needs to change it BEFORE the
-                      // next payout, not while one is being refused.
-                      GestureDetector(
-                        key: const Key('incomeBankAccountsRow'),
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => BankAccountsPage.push(context),
-                        child: IncomeItem(
-                          title: AppHelpers.getTranslation('bank_accounts'),
-                          price: '',
-                        ),
-                      ),
-                      // The legacy host row showed the courier's rating from
-                      // LocalStorage.getUser()?.rate (UserData parsed
-                      // assign_reviews_avg_rating). base_sdk's ProfileData carries
-                      // no rating field, so the row is parked until the courier
-                      // profile slice (delivery_sdk, S-D3) owns that surface.
-                      // IncomeItem(
-                      //   title: AppHelpers.getTranslation(TrKeys.rating),
-                      //   price: "-",
-                      // ),
-                      24.verticalSpace,
-                      StatisticsScreen(
-                          totalOrders: (state.countData?.data?.totalCount ?? 0)
-                              .toString(),
-                          todayOrders: (state.countData?.data?.totalTodayCount ?? 0)
-                              .toString(),
-                          acceptedOrders: (state
-                                      .countData?.data?.totalAcceptedCount ??
-                                  0)
-                              .toString(),
-                          rejectedOrders: (state
-                                      .countData?.data?.totalCanceledCount ??
-                                  0)
-                              .toString(),
-                          doneOrders: (state.countData?.data?.totalDeliveredCount ??
-                                  0)
-                              .toString(),
-                          canceledOrders:
-                              (state
-                                          .countData?.data?.totalNewCount ??
-                                      0)
-                                  .toString(),
-                          acceptedPer:
-                              "${((state.countData?.data?.totalAcceptedCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
-                          rejectedPer:
-                              "${((state.countData?.data?.totalCanceledCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
-                          donePer:
-                              "${((state.countData?.data?.totalDeliveredCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
-                          canceledPer:
-                              "${((state.countData?.data?.totalNewCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%"),
-                      32.verticalSpace,
-                      _chart(state),
-                    ],
-                  ),
+                    ),
+                    // The legacy host row showed the courier's rating from
+                    // LocalStorage.getUser()?.rate (UserData parsed
+                    // assign_reviews_avg_rating). base_sdk's ProfileData carries
+                    // no rating field, so the row is parked until the courier
+                    // profile slice (delivery_sdk, S-D3) owns that surface.
+                    // IncomeItem(
+                    //   title: AppHelpers.getTranslation(TrKeys.rating),
+                    //   price: "-",
+                    // ),
+                    24.verticalSpace,
+                    StatisticsScreen(
+                        totalOrders: (state.countData?.data?.totalCount ?? 0)
+                            .toString(),
+                        todayOrders: (state.countData?.data?.totalTodayCount ?? 0)
+                            .toString(),
+                        acceptedOrders: (state
+                                    .countData?.data?.totalAcceptedCount ??
+                                0)
+                            .toString(),
+                        rejectedOrders: (state
+                                    .countData?.data?.totalCanceledCount ??
+                                0)
+                            .toString(),
+                        doneOrders: (state.countData?.data?.totalDeliveredCount ??
+                                0)
+                            .toString(),
+                        canceledOrders:
+                            (state
+                                        .countData?.data?.totalNewCount ??
+                                    0)
+                                .toString(),
+                        acceptedPer:
+                            "${((state.countData?.data?.totalAcceptedCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
+                        rejectedPer:
+                            "${((state.countData?.data?.totalCanceledCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
+                        donePer:
+                            "${((state.countData?.data?.totalDeliveredCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
+                        canceledPer:
+                            "${((state.countData?.data?.totalNewCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%"),
+                    32.verticalSpace,
+                    _chart(state),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
-          // One bottom overlay (design strip section 12, core#125): the page's
-          // withdraw action riding above the floating nav's back-only pill,
-          // whose back segment replaces the standalone PopButton as this
-          // screen's ONE back affordance. Back-only (empty tab list): the
-          // driver app composes no root tab set.
-          Positioned.fill(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: REdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: CustomButton(
-                            title: AppHelpers.getTranslation(TrKeys.withdrawMoney),
-                            // Nothing to withdraw: a wallet at or below
-                            // zero. A driver's balance going NEGATIVE is
-                            // deliberate and normal (he keeps the cash he
-                            // collects and his ledger carries the debt),
-                            // so the control is simply inert and the line
-                            // under it says why, in plain words.
-                            background: _canWithdraw
-                                ? AppStyle.primary
-                                : AppStyle.strokeDark,
-                            textColor: _canWithdraw
-                                ? AppStyle.blackColor
-                                : AppStyle.textDarkFaint,
-                            onPressed:
-                                _canWithdraw ? () => _openWithdraw() : () {},
-                          ),
-                        ),
-                      ],
-                    ),
+        ],
+      ),
+      // One bottom overlay (design strip section 12, core#125): the page's
+      // withdraw action riding above the floating nav's back-only pill,
+      // whose back segment replaces the standalone PopButton as this
+      // screen's ONE back affordance. Back-only (empty tab list): the
+      // driver app composes no root tab set.
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: REdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: CustomButton(
+                    title: AppHelpers.getTranslation(TrKeys.withdrawMoney),
+                    // Nothing to withdraw: a wallet at or below
+                    // zero. A driver's balance going NEGATIVE is
+                    // deliberate and normal (he keeps the cash he
+                    // collects and his ledger carries the debt),
+                    // so the control is simply inert and the line
+                    // under it says why, in plain words.
+                    background: _canWithdraw
+                        ? AppStyle.primary
+                        : AppStyle.strokeDark,
+                    textColor: _canWithdraw
+                        ? AppStyle.blackColor
+                        : AppStyle.textDarkFaint,
+                    onPressed: _canWithdraw ? () => _openWithdraw() : () {},
                   ),
-                  if (!_canWithdraw) ...[
-                    6.verticalSpace,
-                    Padding(
-                      padding: REdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        AppHelpers.getTranslation(TrKeys.insufficientBalance),
-                        textAlign: TextAlign.center,
-                        style: AppStyle.interRegular(
-                          size: 12,
-                          color: AppStyle.textDarkSecondary,
-                        ),
-                      ),
-                    ),
-                  ],
-                  FloatingBottomNav(
-                    mode: FloatingNavTabsMode(
-                      tabs: const [],
-                      currentIndex: 0,
-                      onSelect: (_) {},
-                      back: FloatingNavBack(
-                        icon: Remix.arrow_left_wide_fill,
-                        label: AppHelpers.getTranslation(TrKeys.back),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
+              ],
+            ),
+          ),
+          if (!_canWithdraw) ...[
+            6.verticalSpace,
+            Padding(
+              padding: REdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                AppHelpers.getTranslation(TrKeys.insufficientBalance),
+                textAlign: TextAlign.center,
+                style: AppStyle.interRegular(
+                  size: 12,
+                  color: AppStyle.textDarkSecondary,
+                ),
+              ),
+            ),
+          ],
+          FloatingBottomNav(
+            mode: FloatingNavTabsMode(
+              tabs: const [],
+              currentIndex: 0,
+              onSelect: (_) {},
+              back: FloatingNavBack(
+                icon: Remix.arrow_left_wide_fill,
+                label: AppHelpers.getTranslation(TrKeys.back),
               ),
             ),
           ),

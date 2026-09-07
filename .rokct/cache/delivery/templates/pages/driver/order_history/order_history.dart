@@ -59,7 +59,7 @@ class _OrderHistoryPageState extends ConsumerState<OrderHistoryPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(orderProvider);
     return Scaffold(
-      backgroundColor: AppStyle.bgGrey,
+      backgroundColor: AppStyle.surfaceDark,
       body: Stack(
         children: [
           Column(

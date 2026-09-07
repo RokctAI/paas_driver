@@ -69,7 +69,7 @@ class ParcelBottomSheetScreen extends StatelessWidget {
         builder: (dialogContext, setState) {
           return Container(
             decoration: BoxDecoration(
-              color: AppStyle.white,
+              color: AppStyle.cardDark,
               borderRadius: BorderRadius.circular(10.r),
             ),
             padding: EdgeInsets.symmetric(vertical: 30.h, horizontal: 24.w),
@@ -150,7 +150,7 @@ class ParcelBottomSheetScreen extends StatelessWidget {
               builder: (context, scrollController) => Container(
                 width: MediaQuery.sizeOf(context).width,
                 decoration: BoxDecoration(
-                  color: AppStyle.bgGrey,
+                  color: AppStyle.surfaceDark,
                   borderRadius: BorderRadius.only(
                     topRight: Radius.circular(12.r),
                     topLeft: Radius.circular(12.r),
@@ -453,7 +453,7 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                         width: double.infinity,
                         padding: EdgeInsets.all(16.r),
                         decoration: BoxDecoration(
-                          color: AppStyle.white,
+                          color: AppStyle.cardDark,
                           borderRadius: BorderRadius.circular(10.r),
                           border: Border.all(color: AppStyle.primary),
                         ),

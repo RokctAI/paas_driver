@@ -54,7 +54,7 @@ class _MapsListState extends State<MapsList> {
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
               decoration: BoxDecoration(
-                  color: AppStyle.white, borderRadius: BorderRadius.circular(16)),
+                  color: AppStyle.cardDark, borderRadius: BorderRadius.circular(16)),
               child: ListTile(
                 onTap: () => availableMaps[index].showMarker(
                   coords: widget.location,

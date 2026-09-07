@@ -1,5 +1,115 @@
 # Changelog
 
+## 1.60.9
+
+* Fixed: the floating Back pill's chevron and label were under the WCAG
+  floor on every light page. The pill's housing (`_Housing`, shared by the
+  tab pill, the bare Back pill, `FloatingBackPill` and the tablet rail)
+  filled itself with a 30% wash of the polarity-PINNED
+  `AppStyle.bottomNavigationBarColor` (`0xFF191919`) under pinned-white
+  ink. The housing is deliberately the same dark pill in both themes - but
+  at 30% it took 70% of whatever page it floated over, so on a light page
+  it measured `#ACACAE`-`#B2B3B5` and its white contents sat at 2.1-2.3:1.
+  The fill is now 70%: the smallest round alpha that keeps white ink at
+  or above 4.5:1 over ANY page (6.48:1 on pure white; 60% is the exact
+  floor with no margin). Size, radius, blur, icon, label and placement
+  (the bottom-END corner from 1.60.5) are untouched.
+
+  Measured from real renders of the courier profile (`paas_driver`
+  `test/render/`, the composed `ProfilePage` route with its bare Back pill)
+  and the courier Orders list, phone frame, WCAG sRGB ratios inside the
+  pill's own rects:
+
+  | frame | ink on pill, before | after | pill vs page, before | after |
+  |-------|---------------------|-------|----------------------|-------|
+  | profile, dark  | `#FFFFFF` on `#131313` - 18.58:1 | `#FFFFFF` on `#161616` - 18.10:1 | 1.02:1 | 1.05:1 |
+  | profile, light | `#FFFFFF` on `#ACACAE` - **2.27:1** | `#FFFFFF` on `#585859` - **7.11:1** | 1.92:1 | 6.03:1 |
+  | orders, dark   | `#FFFFFF` on `#B2B3B5` - **2.10:1** | `#FFFFFF` on `#5B5B5C` - **6.78:1** | 1.92:1 | 6.22:1 |
+  | orders, light  | `#FFFFFF` on `#B2B3B5` - **2.10:1** | `#FFFFFF` on `#5B5B5C` - **6.78:1** | 1.92:1 | 6.22:1 |
+
+  The dark-page look is unchanged to the eye (`#131313` -> `#161616`
+  over `surfaceDark`). The Orders row is the same in both modes because that
+  page still grounds itself on the pinned `bgGrey` on current main; zones
+  #106 (delivery_sdk 1.21.1) moves it to `surfaceDark`, after which its dark
+  row reads like the profile's. No public API changed; no call site changes.
+
+## 1.60.8
+
+* Fixed: `CustomAppBar` was invisible in dark mode - every label on it
+  vanished. The bar grounded itself on the polarity-PINNED `AppStyle.white`
+  (`0xFFFFFFFF`), a surface that never flips, while all ten of its call
+  sites put DEFAULT ink on it (`AppStyle.interSemi`/`interRegular` with no
+  `color:`, which resolve through `AppStyle.textPrimary` and go `#FFFFFF`
+  in dark mode). White ink on a white bar. `CommonAppBar`, the sibling in
+  the same folder, already grounds itself on the mode-resolving
+  `AppStyle.cardDark`; this bar was the outlier, and now matches it.
+
+  Measured from a real render of the Manager create-order screen
+  (`paas_manager` `test/render/`, `OrderPage`), element
+  `orders.create.appbar_title` (shop title, `interSemi` 18):
+
+  | mode  | before                     | after                      |
+  |-------|----------------------------|----------------------------|
+  | dark  | `#FFFFFF` on `#FFFFFF` - **1.00:1** | `#FFFFFF` on `#1C1C1C` - **17.04:1** |
+  | light | `#1B1B20` on `#FFFFFF` - 17.15:1 | `#1B1B20` on `#F9F9FB` - 16.31:1 |
+
+  The dark "before" number is not a near-miss, it is the whole story: the
+  title's box measured **100.0% a single colour**, i.e. not one glyph pixel
+  was distinguishable from the bar. After the fix the same box is 71.7%
+  ground / 28.3% ink - pixel-for-pixel the same glyph coverage the light
+  frame has always had.
+
+  In light mode the bar moves from pure `#FFFFFF` to the light palette's
+  card surface `#F9F9FB` - the value `AppStyle.cardDark` resolves to in
+  light mode, and the ground `CommonAppBar` has always drawn. Contrast
+  stays far above the 4.5:1 WCAG floor.
+
+* Fixed: the backend-maintenance page had an invisible title in dark mode.
+  `MaintenancePage` pinned `Scaffold(backgroundColor: AppStyle.white)` under
+  a title styled `AppStyle.interSemi(size: 20.sp)` - resolving ink, pinned
+  ground, the same collision as the bar above. It now uses
+  `AppStyle.surfaceDark`, the mode-resolving page ground
+  `generic_profile_page` already uses. Measured on the same harness,
+  element `base.maintenance.title`:
+
+  | mode  | before                     | after                      |
+  |-------|----------------------------|----------------------------|
+  | dark  | `#FFFFFF` on `#FFFFFF` - **1.00:1** | `#FFFFFF` on `#101010` - **19.03:1** |
+  | light | `#1B1B20` on `#FFFFFF` - 17.15:1 | `#1B1B20` on `#ECECEF` - 14.55:1 |
+
+  The palette is untouched: `AppStyle.white` keeps its value and its other
+  light-only call sites. No public API changed, and no call site needed a
+  change - all ten `CustomAppBar` call sites across `orders_sdk`,
+  `delivery_sdk` and `revenue_sdk` put only resolving ink on the bar, so
+  every one of them is strictly improved by the flip.
+
+## 1.60.7
+
+* Fixed: "Forgot password" was unreadable on the dark sign-in sheet.
+  `ForgotTextButton` styled its label with the polarity-PINNED
+  `AppStyle.black` (`0xFF232B2F`) - ink that never flips - so on the dark
+  sheet it measured **1.32:1** against the sheet's `0xFF101010` ground, far
+  under the 4.5:1 WCAG floor for body text, while the sheet title beside it
+  (which already resolves through `AppStyle.textPrimary`) sat at 19.03:1.
+  Measured from a real render of the Manager sign-in sheet
+  (`paas_manager` `test/render/render_screen_test.dart`), element
+  `auth.login.forgot_password`:
+
+  | mode  | before                     | after                      |
+  |-------|----------------------------|----------------------------|
+  | dark  | `#232B2F` on `#101010` - **1.32:1** | `#FFFFFF` on `#101010` - **19.03:1** |
+  | light | `#232B2F` on `#ECECEF` - 12.22:1 | `#1B1B20` on `#ECECEF` - 14.55:1 |
+
+  The label now takes `fontColor ?? AppStyle.textPrimary`. Two details
+  worth naming: the `fontColor` parameter was declared but never read by
+  `build` (the label was hard-coded), so it is now honoured; and its const
+  `AppStyle.black` default became `null`, because `AppStyle.textPrimary`
+  is a mode-resolving getter and cannot appear in a `const` expression -
+  the same reason the whole `AppStyle.inter*` type scale takes a nullable
+  `color`. Nothing in the fleet passes `fontColor`, so no call site changes
+  appearance in light mode beyond the ink token's own `#232B2F` ->
+  `#1B1B20`.
+
 ## 1.60.6
 
 * Fixed: the routed `/generic-profile` page stretched its phone list

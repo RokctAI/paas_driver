@@ -661,7 +661,19 @@ class _Housing extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         decoration: BoxDecoration(
-          color: AppStyle.bottomNavigationBarColor.withOpacity(0.3),
+          // Was a 30% wash of bottomNavigationBarColor (0xFF191919). The
+          // housing is DELIBERATELY the same dark pill in both themes, with
+          // pinned-white contents (see _blockFill above) - but at 30% the
+          // fill took 70% of whatever page it floated over, so on a light
+          // page (surfaceLight #ECECEF, bgGrey #F4F5F8) the pill measured
+          // ~#ACACAE-#B2B3B5 and its white chevron and label sat at
+          // 2.1-2.3:1, under the 4.5:1 WCAG floor. 70% is the smallest
+          // round alpha that keeps white ink at >= 4.5:1 over ANY page
+          // (6.48:1 on pure white; 60% is the exact floor at 4.61:1, no
+          // margin) while leaving the dark-page look as it was
+          // (#131313 -> #161616 over surfaceDark). Same size, radius,
+          // blur and placement; only the fill's alpha moves.
+          color: AppStyle.bottomNavigationBarColor.withValues(alpha: 0.7),
           borderRadius: BorderRadius.all(Radius.circular(radius)),
         ),
         height: height,

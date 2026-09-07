@@ -34,7 +34,7 @@ class ImageDialog extends StatelessWidget {
     return Container(
       padding: REdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppStyle.white,
+        color: AppStyle.cardDark,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

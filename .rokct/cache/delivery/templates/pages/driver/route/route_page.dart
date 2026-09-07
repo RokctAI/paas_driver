@@ -58,7 +58,11 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
   Widget build(BuildContext context) {
     final state = ref.watch(routeProvider);
     return Scaffold(
-      backgroundColor: AppStyle.bgGrey,
+      // Was the PINNED AppStyle.bgGrey. The stop cards on it carry no
+      // explicit ink (AppStyle.interSemi/interRegular default to
+      // textPrimary), so page and cards had to move together: fixing only
+      // one of the two would have swapped which half was unreadable.
+      backgroundColor: AppStyle.surfaceDark,
       body: Stack(
         children: [
           Column(
@@ -91,7 +95,7 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                   child: Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: AppStyle.white,
+                      color: AppStyle.cardDark,
                       borderRadius: BorderRadius.circular(10.r),
                     ),
                     padding: EdgeInsets.all(12.r),
@@ -185,7 +189,7 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
       child: Container(
         margin: EdgeInsets.only(bottom: 10.h),
         decoration: BoxDecoration(
-          color: AppStyle.white,
+          color: AppStyle.cardDark,
           borderRadius: BorderRadius.circular(10.r),
           border: isNext
               ? Border.all(color: AppStyle.primary, width: 2.r)
@@ -337,6 +341,13 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                         AppHelpers.getTranslation(TrKeys.done),
                         style: AppStyle.interSemi(
                           size: 13.sp,
+                          // NOT textPrimary: this label's ground is the
+                          // button's own AppStyle.primary, not the card, and
+                          // black on orange is the fleet's pairing (it is
+                          // CustomButton's textColor default too). Resolving
+                          // it would put white on orange - 2.94:1, WORSE than
+                          // the 4.91:1 it has. The Skip button beside it does
+                          // sit on the card, so that one does resolve.
                           color: AppStyle.black,
                         ),
                       ),
@@ -357,7 +368,7 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                         AppHelpers.getTranslation(TrKeys.skip),
                         style: AppStyle.interSemi(
                           size: 13.sp,
-                          color: AppStyle.black,
+                          color: AppStyle.textPrimary,
                         ),
                       ),
                     ),

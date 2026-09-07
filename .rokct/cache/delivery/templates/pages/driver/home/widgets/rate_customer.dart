@@ -64,7 +64,7 @@ class _RateCustomerState extends State<RateCustomer> {
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
-              color: AppStyle.white,
+              color: AppStyle.cardDark,
               borderRadius: BorderRadius.circular(10.r),
             ),
             padding: EdgeInsets.all(16.r),
@@ -133,7 +133,7 @@ class _RateCustomerState extends State<RateCustomer> {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: AppStyle.white,
+          color: AppStyle.cardDark,
           borderRadius: BorderRadius.circular(10.r),
         ),
         padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
@@ -145,7 +145,10 @@ class _RateCustomerState extends State<RateCustomer> {
               note.isEmpty
                   ? AppHelpers.getTranslation(TrKeys.noteAboutClient)
                   : note,
-              style: AppStyle.interRegular(size: 13.sp, color: AppStyle.black),
+              style: AppStyle.interRegular(
+                size: 13.sp,
+                color: AppStyle.textPrimary,
+              ),
             ),
           ],
         ),

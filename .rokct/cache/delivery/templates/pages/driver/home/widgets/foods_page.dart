@@ -66,7 +66,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.r),
-                    color: AppStyle.white,
+                    color: AppStyle.cardDark,
                   ),
                   padding: EdgeInsets.all(16.r),
                   child: Column(
@@ -106,7 +106,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
                                     Text(
                                       "${AppHelpers.getTranslation(TrKeys.note)}: ${state.order?.details?[index].note}",
                                       style: AppStyle.interRegular(
-                                          color: AppStyle.blackColor,
+                                          color: AppStyle.textPrimary,
                                           size: 14.sp,
                                           letterSpacing: -0.3),
                                     ),
@@ -175,7 +175,9 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
         : Column(
             children: [
               2.verticalSpace,
-              Divider(color: AppStyle.black.withOpacity(0.4)),
+              // Was AppStyle.black at 40% - a near-black rule that is
+              // invisible on the dark card this table now sits on.
+              Divider(color: AppStyle.strokeDark),
               2.verticalSpace,
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -187,7 +189,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
                         : AppStyle.interNormal(
                             size: 14.sp,
                             letterSpacing: -0.3,
-                            color: isDiscount ? AppStyle.red : AppStyle.black,
+                            color: isDiscount ? AppStyle.red : AppStyle.textPrimary,
                           ),
                   ),
                   Text(
@@ -198,7 +200,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
                         : AppStyle.interNormal(
                             size: 14.sp,
                             letterSpacing: -0.3,
-                            color: isDiscount ? AppStyle.red : AppStyle.black,
+                            color: isDiscount ? AppStyle.red : AppStyle.textPrimary,
                           ),
                   )
                 ],

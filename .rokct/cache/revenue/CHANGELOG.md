@@ -1,3 +1,24 @@
+## 1.12.1
+
+* **Driver income: the earnings chart could never scroll out from under
+  the withdraw bar.** Tablet design audit 2026-09-07 (paas_driver still 14,
+  defect 9). `templates/pages/driver/income/income_page.dart` floated the
+  withdraw button, its "Insufficient balance" line and the back-only
+  `FloatingBottomNav` pill in a `Stack` over a scroller padded only
+  `bottom + 56.h`, against a stack that is button + hint + `18.h` + `60.r`
+  + safe area tall — so on any window that had to scroll (the phone
+  always; the tablet once the chart made the column taller than the
+  viewport) the chart's last rows stayed buried under the bar. The stack
+  is now the Scaffold's `bottomNavigationBar` with `extendBody: true`: the
+  body still runs on under the translucent bar exactly as before, and the
+  Scaffold hands it a bottom inset equal to the bar's REAL height (hint
+  line included, at any width), which the scroller pads by plus the
+  fleet's `12.h` gap. Nothing else about the page moves: the driver income
+  screen has no ruled tablet frame (45d/49e, phone-only), so the centre
+  pill (R4, a base fix) is untouched. Template only — verified by pumping
+  the installed page in a scratch host at 390x844, 800x1280, 1066x1440 and
+  1280x800 in both wallet states. Manifest 1.12.0 -> 1.12.1.
+
 ## 1.12.0
 
 Design strip frames 49f (chip 973) and 49i, manager side — the bank-deposit

@@ -30,14 +30,23 @@ class CustomDatePicker extends StatefulWidget {
 }
 
 class _CustomDatePickerState extends State<CustomDatePicker> {
-  final config = CalendarDatePicker2Config(
+  // A getter, not a field: the styles below resolve through AppStyle's
+  // mode-dependent getters, so the config has to be rebuilt when the mode
+  // changes rather than frozen at State construction.
+  CalendarDatePicker2Config get config => CalendarDatePicker2Config(
     calendarType: CalendarDatePicker2Type.range,
     selectedDayHighlightColor: AppStyle.primary,
     weekdayLabelTextStyle:
-        AppStyle.interNormal(size: 14.sp, letterSpacing: -0.3, color: AppStyle.black),
+        AppStyle.interNormal(size: 14.sp, letterSpacing: -0.3, color: AppStyle.textPrimary),
     controlsTextStyle:
-        AppStyle.interNormal(size: 14.sp, letterSpacing: -0.3, color: AppStyle.black),
+        AppStyle.interNormal(size: 14.sp, letterSpacing: -0.3, color: AppStyle.textPrimary),
     dayTextStyle:
+        AppStyle.interNormal(size: 14.sp, letterSpacing: -0.3, color: AppStyle.textPrimary),
+    // The SELECTED day's ground is selectedDayHighlightColor above
+    // (AppStyle.primary), not the sheet, so its ink stays the pinned black
+    // that pairs with orange - resolving it would put white on orange.
+    // Declared explicitly because dayTextStyle would otherwise cover it.
+    selectedDayTextStyle:
         AppStyle.interNormal(size: 14.sp, letterSpacing: -0.3, color: AppStyle.black),
     disabledDayTextStyle: AppStyle.interNormal(
         size: 14.sp, letterSpacing: -0.3, color: AppStyle.textGrey),

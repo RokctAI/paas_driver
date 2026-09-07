@@ -1,3 +1,88 @@
+## 1.21.1
+
+* Dark mode: the driver screens the profile links to were drawn on
+  polarity-PINNED light surfaces (`AppStyle.white`, `AppStyle.bgGrey`)
+  holding ink that DOES resolve with the mode, so in dark mode the ink
+  turned white while the surface stayed white and the content
+  disappeared. Same class as base_sdk's `ForgotTextButton` (core #178,
+  base_sdk 1.60.7) and the same fix: the widget reaches for the
+  mode-resolving token instead of the pinned constant. The palette is
+  untouched - `AppStyle.white` / `black` / `bgGrey` keep their values and
+  their light-only call sites across the fleet.
+  Surfaces now resolve through the tokens the courier profile already
+  uses since 1.21.0 (`cardDark` / `cardDarkAlt` / `surfaceDark`), and the
+  inks and rules pinned ON those surfaces through `textPrimary` /
+  `strokeDark`:
+  * **Order cards** - `components/driver/order_item.dart` (the four cards
+    of the order detail: the 18+ ID warning, the shop and customer
+    address blocks, the totals row and the courier note) and
+    `components/driver/orders_item.dart` (the list card plus its two
+    round icon chips, whose `Icon()`s carry no colour at all and so
+    vanished into the chip).
+  * **Order detail chrome** - `components/driver/order_detail.dart`
+    (the outlined "Order information" button and the "Order image" tile,
+    both drawn with a pinned near-black rule and label on the
+    TRANSPARENT sheet ground), `components/driver/product_item.dart` and
+    `pages/driver/home/widgets/foods_page.dart` (the item list, its
+    price table and the rule between rows).
+  * **The delivery sheet and its dialogs** -
+    `pages/driver/home/delivery_bottom_sheet.dart` (the sheet ground, the
+    cash-to-collect banner, the age-verification and cancel dialogs),
+    `widgets/approve_dialog.dart`, `widgets/rate_customer.dart` and
+    `components/driver/image_dialog.dart`.
+  * **Parcels** - `pages/driver/home/parcel_bottom_sheet.dart` (sheet
+    ground, COD banner, cash dialog) and `pages/driver/parcels/
+    parcel_item.dart`, whose card carried NO explicit ink at all.
+  * **Route** - `pages/driver/route/route_page.dart`: the page ground,
+    the dispatch-note card, every stop card and the Done / Skip labels.
+  * **Page grounds** - `orders_page.dart`, `order_history.dart`,
+    `parcels_page.dart`, `parcel_history.dart` scaffolds, and the two
+    map-chrome pills on `home/home_page.dart` (the online toggle and the
+    my-location button, whose `Icon()` was invisible on it).
+  * **Shared components on a transparent sheet** -
+    `components/driver/maps_list.dart` (bare `Text` on a white card),
+    `components/driver/filter_screen.dart`,
+    `components/driver/custom_date_picker.dart`,
+    `components/driver/restaurant_item.dart` and
+    `components/driver/text_fields/underline_bordered_text_field.dart`,
+    whose field label and description ignored the `isDarkMode` its own
+    value and cursor already honour.
+  * **Profile dialogs** - `profile/widgets/cancel_dialog.dart`,
+    `profile/widgets/logout_modal.dart` (the outlined Cancel button
+    inherited `CustomButton`'s pinned `textColor` default on the dark
+    sheet), `profile/edit_car.dart` (the vehicle-photo dropzone rule and
+    a field label the 1.21.0 sweep missed) and, in lib,
+    `infrastructure/services/courier_helpers.dart`'s photo-source dialog.
+* Two inks stay PINNED because their ground is `AppStyle.primary`, not a
+  card, and black-on-orange is the fleet's pairing (it is `CustomButton`'s
+  own `textColor` default): the route page's **Done** button label, and
+  the **selected day** in `components/driver/custom_date_picker.dart` -
+  the latter now declares `selectedDayTextStyle` explicitly, because
+  `dayTextStyle` would otherwise have covered the highlighted day too.
+  Measured: resolving those two would have taken the Done label from
+  4.91:1 to 2.94:1, i.e. made the fix worse than the bug. The picker's
+  config also becomes a getter so the styles re-resolve when the mode
+  changes instead of freezing at `State` construction.
+* NOT changed, deliberately: the self-consistent PINNED PAIRS, where a
+  near-black chip carries white ink (the phone / SMS call buttons, the
+  route stop-sequence badge, the `AppStyle.black` confirm buttons) and
+  the avatar image backdrops and error circles. Their labels stay legible
+  in both modes - only the pill loses its edge against a dark card - so
+  they are a design call, not this invisibility bug, and flipping them
+  would be a visible dark-mode redesign rather than a polarity fix.
+* Light mode is unchanged in substance: the pinned light values are
+  replaced by the light halves of the same resolving pairs
+  (`white` 0xFFFFFFFF -> `cardDark`'s light 0xFFF9F9FB, `bgGrey`
+  0xFFF4F5F8 -> `surfaceDark`'s light 0xFFECECEF, `black` 0xFF232B2F ->
+  `textPrimary`'s light 0xFF1B1B20) - the fleet light palette every other
+  fixed screen already converged on, and every one of those pairs stays
+  far above the WCAG floor.
+* `templates/tour/delivery.tour.yaml` is unchanged and needs no change:
+  no step's route, finder, caption or seed moves - every finder goes
+  through a route name or a translated string, and no element is added,
+  renamed or removed. The demo seeds are untouched.
+* manifest.json 1.21.0 -> 1.21.1.
+
 ## 1.21.0
 
 * The driver profile now renders on base_sdk's generic profile host

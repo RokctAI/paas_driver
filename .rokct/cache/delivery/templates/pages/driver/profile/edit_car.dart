@@ -247,7 +247,7 @@ class _EditCarState extends ConsumerState<EditCar> {
                         ).toUpperCase(),
                         labelStyle: AppStyle.interNormal(
                           size: 14.sp,
-                          color: AppStyle.black,
+                          color: AppStyle.textPrimary,
                         ),
                         contentPadding: REdgeInsets.symmetric(
                           horizontal: 0,
@@ -422,7 +422,7 @@ class _EditCarState extends ConsumerState<EditCar> {
               margin: EdgeInsets.all(16.r),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: AppStyle.black),
+                border: Border.all(color: AppStyle.strokeDark),
               ),
               child: stateImage.carImageUrl == null
                   ? imagePath == null

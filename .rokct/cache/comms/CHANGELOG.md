@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.15.3
+
+* Fixed: the Languages sheet (`LanguageScreen`) painted a light surface
+  regardless of theme. `AppHelpers.showCustomModalBottomSheet` paints the
+  sheet route transparent and expects the modal to bring its own surface, so
+  the `isDarkMode` flag 1.15.2 started passing from the tour never reached
+  the paint - guided tour run 34112448075 still captured a light sheet over
+  a dark Kitchen page (`16-comms_language.png`). The sheet now resolves
+  `AppStyle.isDark ? AppStyle.surfaceDark : AppStyle.bgGrey` (the pair
+  base_sdk's `EditProfileScreen` uses) and draws its title in
+  `AppStyle.textPrimary`.
+* Fixed: the sheet capped itself at 30% of the window height, which on the
+  tablet leg (END-anchored narrow panel) pushed the Save button below the
+  fold. The cap is gone; the helper's own window-height constraint still
+  bounds the sheet and long language lists still scroll.
+
 ## 1.15.2
 
 * Fixed: the `comms_language` tour step opened the language sheet with

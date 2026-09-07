@@ -537,7 +537,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   right: state.isScrolling ? -120.w : 16.w,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: AppStyle.white,
+                      color: AppStyle.cardDark,
                       borderRadius: BorderRadius.circular(10.r),
                     ),
                     padding: EdgeInsets.all(6.r),
@@ -801,7 +801,11 @@ class _HomePageState extends ConsumerState<HomePage> {
           width: 50.r,
           height: 50.r,
           decoration: BoxDecoration(
-            color: AppStyle.white,
+            // Map chrome. Was the PINNED AppStyle.white under a bare
+            // `Icon(Remix.focus_3_fill)`, so in dark mode the my-location
+            // glyph went white on a white pill. The online-toggle pill above
+            // moves with it so the two controls stay one set.
+            color: AppStyle.cardDark,
             borderRadius: BorderRadius.circular(10.r),
             boxShadow: const [
               BoxShadow(

@@ -63,7 +63,7 @@ class OrderItem extends StatelessWidget {
             width: double.infinity,
             padding: EdgeInsets.all(16.r),
             decoration: BoxDecoration(
-              color: AppStyle.white,
+              color: AppStyle.cardDark,
               borderRadius: BorderRadius.circular(10.r),
               border: Border.all(color: AppStyle.red),
             ),
@@ -91,7 +91,7 @@ class OrderItem extends StatelessWidget {
         16.verticalSpace,
         Container(
           decoration: BoxDecoration(
-            color: AppStyle.white,
+            color: AppStyle.cardDark,
             borderRadius: BorderRadius.circular(10.r),
           ),
           padding: EdgeInsets.all(16.r),
@@ -105,7 +105,7 @@ class OrderItem extends StatelessWidget {
                     AppHelpers.getTranslation(TrKeys.restaurantHome),
                     style: AppStyle.interNormal(
                       size: 12.sp,
-                      color: AppStyle.black,
+                      color: AppStyle.textPrimary,
                       letterSpacing: -0.3,
                     ),
                   ),
@@ -113,7 +113,7 @@ class OrderItem extends StatelessWidget {
                     "${(order.distance ?? 0).toString()} ${AppHelpers.getTranslation(TrKeys.km)}",
                     style: AppStyle.interSemi(
                       size: 14.sp,
-                      color: AppStyle.black,
+                      color: AppStyle.textPrimary,
                       letterSpacing: -0.3,
                     ),
                   ),
@@ -127,7 +127,7 @@ class OrderItem extends StatelessWidget {
                           AppHelpers.getTranslation(TrKeys.home),
                           style: AppStyle.interNormal(
                             size: 12.sp,
-                            color: AppStyle.black,
+                            color: AppStyle.textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -135,7 +135,7 @@ class OrderItem extends StatelessWidget {
                           order.address?.house ?? "",
                           style: AppStyle.interSemi(
                             size: 14.sp,
-                            color: AppStyle.black,
+                            color: AppStyle.textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -150,7 +150,7 @@ class OrderItem extends StatelessWidget {
                           AppHelpers.getTranslation(TrKeys.entr),
                           style: AppStyle.interNormal(
                             size: 12.sp,
-                            color: AppStyle.black,
+                            color: AppStyle.textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -158,7 +158,7 @@ class OrderItem extends StatelessWidget {
                           order.address?.office ?? "",
                           style: AppStyle.interSemi(
                             size: 14.sp,
-                            color: AppStyle.black,
+                            color: AppStyle.textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -173,7 +173,7 @@ class OrderItem extends StatelessWidget {
                           AppHelpers.getTranslation(TrKeys.apart),
                           style: AppStyle.interNormal(
                             size: 12.sp,
-                            color: AppStyle.black,
+                            color: AppStyle.textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -181,7 +181,7 @@ class OrderItem extends StatelessWidget {
                           order.address?.floor ?? "",
                           style: AppStyle.interSemi(
                             size: 14.sp,
-                            color: AppStyle.black,
+                            color: AppStyle.textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -194,7 +194,7 @@ class OrderItem extends StatelessWidget {
         10.verticalSpace,
         Container(
           decoration: BoxDecoration(
-            color: AppStyle.white,
+            color: AppStyle.cardDark,
             borderRadius: BorderRadius.circular(10.r),
           ),
           padding: EdgeInsets.all(16.r),
@@ -208,7 +208,7 @@ class OrderItem extends StatelessWidget {
                     AppHelpers.getTranslation(TrKeys.askThisCodeFromCustomer),
                     style: AppStyle.interNormal(
                       size: 12.sp,
-                      color: AppStyle.black,
+                      color: AppStyle.textPrimary,
                       letterSpacing: -0.3,
                     ),
                   ),
@@ -216,7 +216,7 @@ class OrderItem extends StatelessWidget {
                     (order.otp ?? 0).toString(),
                     style: AppStyle.interSemi(
                       size: 14.sp,
-                      color: AppStyle.black,
+                      color: AppStyle.textPrimary,
                       letterSpacing: -0.3,
                     ),
                   ),
@@ -230,7 +230,7 @@ class OrderItem extends StatelessWidget {
                           AppHelpers.getTranslation(TrKeys.home),
                           style: AppStyle.interNormal(
                             size: 12.sp,
-                            color: AppStyle.black,
+                            color: AppStyle.textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -238,7 +238,7 @@ class OrderItem extends StatelessWidget {
                           order.address?.house ?? "",
                           style: AppStyle.interSemi(
                             size: 14.sp,
-                            color: AppStyle.black,
+                            color: AppStyle.textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -253,7 +253,7 @@ class OrderItem extends StatelessWidget {
                           AppHelpers.getTranslation(TrKeys.entr),
                           style: AppStyle.interNormal(
                             size: 12.sp,
-                            color: AppStyle.black,
+                            color: AppStyle.textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -261,7 +261,7 @@ class OrderItem extends StatelessWidget {
                           order.address?.office ?? "",
                           style: AppStyle.interSemi(
                             size: 14.sp,
-                            color: AppStyle.black,
+                            color: AppStyle.textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -276,7 +276,7 @@ class OrderItem extends StatelessWidget {
                           AppHelpers.getTranslation(TrKeys.apart),
                           style: AppStyle.interNormal(
                             size: 12.sp,
-                            color: AppStyle.black,
+                            color: AppStyle.textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -284,7 +284,7 @@ class OrderItem extends StatelessWidget {
                           order.address?.floor ?? "",
                           style: AppStyle.interSemi(
                             size: 14.sp,
-                            color: AppStyle.black,
+                            color: AppStyle.textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -299,7 +299,7 @@ class OrderItem extends StatelessWidget {
         10.verticalSpace,
         Container(
           decoration: BoxDecoration(
-            color: AppStyle.white,
+            color: AppStyle.cardDark,
             borderRadius: BorderRadius.circular(10.r),
           ),
           padding: EdgeInsets.all(16.r),
@@ -730,7 +730,14 @@ class OrderItem extends StatelessWidget {
   Widget _reminder() {
     return Container(
       decoration: BoxDecoration(
-        color: AppStyle.white,
+        // Was the polarity-PINNED AppStyle.white. Every card on this
+        // component held ink that DOES resolve (the bare `Icon` below, and
+        // the AppStyle.inter* defaults, which fall back to textPrimary), so
+        // in dark mode the ink went white while the card stayed white and
+        // the note disappeared. Same class as base_sdk's ForgotTextButton
+        // (core #178): the widget reaches for the resolving token, the
+        // palette constant keeps its value and its light-only call sites.
+        color: AppStyle.cardDark,
         borderRadius: BorderRadius.circular(10.r),
       ),
       padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
@@ -742,7 +749,7 @@ class OrderItem extends StatelessWidget {
           Expanded(
             child: Text(
               order.note ?? "",
-              style: AppStyle.interRegular(size: 13.sp, color: AppStyle.black),
+              style: AppStyle.interRegular(size: 13.sp, color: AppStyle.textPrimary),
             ),
           ),
         ],

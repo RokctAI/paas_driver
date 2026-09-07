@@ -69,7 +69,12 @@ class OrderDetail extends StatelessWidget {
                       );
                     },
                     background: AppStyle.transparent,
-                    borderColor: AppStyle.black,
+                    // Both were the PINNED AppStyle.black (textColor by way
+                    // of CustomButton's default). On a TRANSPARENT background
+                    // over the dark sheet that is a near-black rule and label
+                    // on a near-black ground - the button was invisible.
+                    borderColor: AppStyle.textPrimary,
+                    textColor: AppStyle.textPrimary,
                   ),
                   16.verticalSpace,
                   Consumer(
@@ -271,7 +276,7 @@ class OrderDetail extends StatelessWidget {
                         margin: EdgeInsets.only(top: 8.h),
                         decoration: BoxDecoration(
                           color: AppStyle.transparent,
-                          border: Border.all(color: AppStyle.black),
+                          border: Border.all(color: AppStyle.textPrimary),
                           borderRadius: BorderRadius.circular(10.r),
                         ),
                         padding: REdgeInsets.all(16),
@@ -282,7 +287,7 @@ class OrderDetail extends StatelessWidget {
                               AppHelpers.getTranslation(TrKeys.orderImage),
                               style: AppStyle.interNormal(
                                 size: 14.sp,
-                                color: AppStyle.blackColor,
+                                color: AppStyle.textPrimary,
                                 letterSpacing: -0.3,
                               ),
                             ),

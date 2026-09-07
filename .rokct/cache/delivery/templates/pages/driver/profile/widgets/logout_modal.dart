@@ -51,7 +51,13 @@ class LogoutModal extends StatelessWidget {
             children: [
               Expanded(
                 child: CustomButton(
-                    borderColor: AppStyle.black,
+                    // borderColor was the PINNED AppStyle.black and the
+                    // label inherited CustomButton's pinned black default,
+                    // so on the dark confirm sheet the whole Cancel button
+                    // was invisible. textColor is passed explicitly because
+                    // the default lives in base_sdk, not here.
+                    borderColor: AppStyle.textPrimary,
+                    textColor: AppStyle.textPrimary,
                     background: AppStyle.transparent,
                     title: AppHelpers.getTranslation(TrKeys.cancel),
                     onPressed: () {

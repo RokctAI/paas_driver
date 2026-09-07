@@ -61,7 +61,7 @@ class OrdersItem extends StatelessWidget {
         margin: EdgeInsets.only(bottom: 10.h),
         padding: EdgeInsets.symmetric(vertical: 16.h),
         decoration: BoxDecoration(
-          color: AppStyle.white,
+          color: AppStyle.cardDark,
           borderRadius: BorderRadius.circular(10.r),
         ),
         child: Column(
@@ -150,8 +150,12 @@ class OrdersItem extends StatelessWidget {
                       Container(
                         width: 36.r,
                         height: 36.r,
-                        decoration: const BoxDecoration(
-                          color: AppStyle.bgGrey,
+                        decoration: BoxDecoration(
+                          // Was the PINNED AppStyle.bgGrey. The Icon in it
+                          // carries no colour at all, so it takes the theme's
+                          // - white in dark mode - and vanished into the
+                          // light chip. Both halves resolve now.
+                          color: AppStyle.cardDarkAlt,
                           shape: BoxShape.circle,
                         ),
                         child: const Center(
@@ -312,8 +316,8 @@ class OrdersItem extends StatelessWidget {
                   Container(
                     width: 36.r,
                     height: 36.r,
-                    decoration: const BoxDecoration(
-                      color: AppStyle.bgGrey,
+                    decoration: BoxDecoration(
+                      color: AppStyle.cardDarkAlt,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Remix.arrow_right_s_line),

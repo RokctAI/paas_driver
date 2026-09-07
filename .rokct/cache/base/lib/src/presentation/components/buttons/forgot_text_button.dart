@@ -26,12 +26,17 @@ class ForgotTextButton extends ConsumerWidget {
   final Color? fontColor;
   final double? letterSpacing;
 
+  /// Ink for the label. Nullable rather than a const default, because the
+  /// mode-resolving [AppStyle.textPrimary] is a getter and cannot appear in
+  /// a `const` expression - the same reason [AppStyle.interNormal] and the
+  /// rest of the type scale take a nullable `color`. A call site that
+  /// passes a colour is honoured; one that does not gets resolving ink.
   const ForgotTextButton({
     super.key,
     required this.title,
     required this.onPressed,
     this.fontSize,
-    this.fontColor = AppStyle.black,
+    this.fontColor,
     this.letterSpacing = -14 * 0.02,
   });
 
@@ -52,7 +57,13 @@ class ForgotTextButton extends ConsumerWidget {
         style: AppStyle.interNormal(
           textDecoration: TextDecoration.underline,
           size: 12,
-          color: AppStyle.black,
+          // Was the polarity-PINNED AppStyle.black (0xFF232B2F): near-black
+          // ink that never flips, so on the dark sign-in sheet this label
+          // measured 1.32:1 against AppStyle.surfaceDark (0xFF101010) - far
+          // under the 4.5:1 WCAG floor for body text, i.e. invisible. The
+          // sheet title beside it already resolves through textPrimary
+          // (19.03:1); this label now does the same.
+          color: fontColor ?? AppStyle.textPrimary,
         ),
       ),
     );

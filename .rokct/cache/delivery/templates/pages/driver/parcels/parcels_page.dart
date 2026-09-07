@@ -91,7 +91,7 @@ class _ParcelsPageState extends ConsumerState<ParcelsPage>
   Widget build(BuildContext context) {
     final state = ref.watch(parcelProvider);
     return Scaffold(
-      backgroundColor: AppStyle.bgGrey,
+      backgroundColor: AppStyle.surfaceDark,
       body: Stack(
         children: [
           Column(

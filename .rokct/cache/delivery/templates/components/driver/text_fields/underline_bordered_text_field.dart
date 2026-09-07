@@ -97,7 +97,11 @@ class UnderlinedBorderTextField extends StatelessWidget {
             labelText: label.toUpperCase(),
             labelStyle: AppStyle.interNormal(
               size: 14.sp,
-              color: AppStyle.black,
+              // Was the PINNED AppStyle.black, alone among this field's inks
+              // in ignoring the isDarkMode the value and the cursor above
+              // already read from LocalStorage - so on a dark sheet the
+              // field's label was the one part of it nobody could read.
+              color: isDarkMode ? AppStyle.white : AppStyle.black,
             ),
             contentPadding: REdgeInsets.symmetric(horizontal: 0, vertical: 8),
             floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -127,7 +131,7 @@ class UnderlinedBorderTextField extends StatelessWidget {
                       ? AppStyle.red
                       : isSuccess
                           ? AppStyle.textGrey
-                          : AppStyle.black,
+                          : isDarkMode ? AppStyle.white : AppStyle.black,
                 ),
               ),
             ],

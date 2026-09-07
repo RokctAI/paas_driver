@@ -36,7 +36,14 @@ class CustomAppBar extends StatelessWidget {
       width: double.infinity,
       height: height.h,
       decoration: BoxDecoration(
-        color: AppStyle.white,
+        // Was the polarity-PINNED AppStyle.white (0xFFFFFFFF): a ground that
+        // never flips. Every call site puts default-ink labels straight on
+        // it - AppStyle.interSemi/interRegular with no `color:`, which
+        // resolve through AppStyle.textPrimary and go WHITE in dark mode -
+        // so the bar's own titles sat white-on-white and vanished.
+        // CommonAppBar, the sibling in this same folder, already grounds
+        // itself on the mode-resolving cardDark; this bar was the outlier.
+        color: AppStyle.cardDark,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(16.r),
           bottomRight: Radius.circular(16.r),

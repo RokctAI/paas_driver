@@ -33,7 +33,7 @@ class CancelDialog extends StatelessWidget {
       width: MediaQuery.sizeOf(context).width / 2,
       padding: REdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppStyle.white,
+        color: AppStyle.cardDark,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
