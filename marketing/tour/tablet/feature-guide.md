@@ -107,10 +107,10 @@ Quick sums without switching apps - a full calculator built in.
 
 ![Your account at a glance](screenshots/16-users_profile.png)
 
-Your Driver account keeps your details in one place.
+Your Driver account keeps all your details in one place.
 
 ## 17. Keep your details fresh
 
 ![Keep your details fresh](screenshots/17-users_profile_settings.png)
 
-Update your name, phone and email any time they change.
+Update your name, phone, email any time they change.
