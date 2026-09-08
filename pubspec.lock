@@ -484,7 +484,7 @@ packages:
       path: ".rokct/cache/delivery"
       relative: true
     source: path
-    version: "1.3.3"
+    version: "1.3.4"
   desktop_sdk:
     dependency: "direct main"
     description:

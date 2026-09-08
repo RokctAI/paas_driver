@@ -1,3 +1,78 @@
+## 1.12.0
+
+* Demo login in production, phase 2 (auth side): the `auth.register`
+  outbox handler follows the runtime demo session. `auth_di.dart` now
+  registers `DemoHoldSyncHandler(AuthSyncHandler())` (new
+  `lib/src/common/infrastructure/services/demo_hold_sync_handler.dart`):
+  the hold reads `DemoSession.demoActive` (base_sdk 1.61.0) on every push
+  and, while a demo session is active - or in a demo build - answers
+  `SyncResult.retryable` (`DemoHoldSyncHandler.sessionHoldError`, worded
+  so a sync status surface never names the demo) without handing the op
+  to `AuthSyncHandler` at all: no local account row is read, the auth
+  repository is never touched. The op stays queued, and the first drain
+  after the session ends pushes it: every sign-out path ends in
+  `LocalStorage.logout()`, which clears the session, and the engine is
+  kicked at boot and on connectivity regain. Read per push, so the
+  handler the DI attaches once needs no re-registration. The engine
+  offers no hold verdict, so a held op counts an attempt and backs off
+  like a transient failure; a demo session sees a kick or two, never the
+  ten that park an op (a first-class hold in the engine is the core
+  follow-up). `AuthSyncHandler` itself is unchanged.
+* Not part of the switch, on purpose: `AuthRepositoryFacade` stays on the
+  compile-time `AppConstants.isDemo` in `auth_di.dart`. A demo account
+  signs in through the real backend like anyone else, so
+  `MockAuthRepository` must never be selected at runtime; the phase-1
+  guard in `test/demo_account_test.dart` (one `MockAuthRepository()` on
+  the `AppConstants.isDemo` line, no `DemoSession` in the DI code) still
+  holds and stays the rule. Nothing on screen changes, nothing rendered
+  says demo, and nothing is keyed on a typed address or password.
+* Tests: `test/auth_sync_handler_demo_session_test.dart` - through a fake
+  inner handler (`AuthSyncHandler` reaches drift's generated
+  offline_users table, which this package does not generate standalone):
+  a real session pushes as before; an active demo session holds the op
+  without reaching the handler; the hold lifts on `clear()`; a demo build
+  holds too; `onSynced` passes through; the DI wraps the handler in the
+  hold and only the handler; the held error carries no fixture wording
+  and the hold never references the mock repository. Requires base_sdk
+  1.61.0.
+
+## 1.11.0
+
+* Added: demo login in production (Ray 2026-09-08). The build-time
+  `IS_DEMO` tour flag stays; on top of it, real accounts on the
+  production backend - one per role: deliveryman, seller, admin - sign in
+  through the real `AuthRepository` like anyone else, and only once the
+  real backend has accepted the credentials does the app flip base_sdk's
+  runtime `DemoSession` (base_sdk 1.61.0). `LoginNotifier
+  ._establishSession` now calls the new `applyDemoAccountSession(user)`
+  (`lib/src/common/services/demo_account_session.dart`) after it persists
+  the accepted account: `DemoSession.instance.activate()` when the
+  payload's user carries the backend's `is_demo_account` marker
+  (`UserModel.isDemoAccount`), `clear()` for any other account - so a
+  demo session left by an earlier sign-in can never leak into a real one.
+  Sign-out clears it: every sign-out path ends in `LocalStorage.logout()`,
+  which ends the demo session (base_sdk 1.61.0). `sessionProfileOf` lifts
+  the marker into the stored session. Nothing is keyed on the typed
+  address or the password, and nothing on screen changes or says demo:
+  the login screen still renders no credentials hint (the 2026-08-22
+  removal stands), `MockAuthRepository` and its address-to-role table
+  stay behind the compile-time `AppConstants.isDemo` in `auth_di.dart`
+  and are tree-shaken out of every release build.
+* Phase 2 (SDK data wiring) follows: the per-SDK DI ternaries that read
+  `AppConstants.isDemo` at registration move to `DemoSession.demoActive`
+  and re-register on `DemoSession.instance.addListener`, which is what
+  serves a demo session from the in-app fixtures and keeps demo actions
+  away from real shops, drivers and payments. With only this release
+  merged, a marked account signs in and is served exactly like any
+  other: the flip changes nothing a user can see beyond the flag.
+  Tests: `test/demo_account_session_test.dart` (the flip per role, no flip
+  for a normal account, a normal sign-in ending an earlier demo session,
+  sign-out clearing it, the stored session carrying the marker and no
+  fixture wording); `test/demo_account_test.dart` gains the login-screen
+  guard (no string literal reads demo / example / placeholder / sample,
+  no `demoUserLogin` / `demoUserPassword` / `isDemo` in its code) and the
+  `MockAuthRepository` compile-time-gate guard. Requires base_sdk 1.61.0.
+
 ## 1.10.4
 
 * Demo sign-in hands back the demo identity's own email, never the typed

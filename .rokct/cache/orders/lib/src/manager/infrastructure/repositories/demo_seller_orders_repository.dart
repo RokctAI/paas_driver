@@ -32,14 +32,16 @@ import 'package:orders_sdk/src/manager/infrastructure/models/response/orders_pag
 import 'package:orders_sdk/src/manager/infrastructure/models/response/payments_response.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/response/single_order_response.dart';
 
-/// Demo-only [SellerOrdersRepositoryFacade] (`--dart-define=IS_DEMO=true`):
-/// serves a small, fictional shift of seller orders entirely from memory, so
-/// the manager order board and `/order-history` render stocked instead of
-/// showing their empty states in demo builds. Selected in place of
-/// [SellerOrdersRepository]'s HTTP path by `ManagerOrdersDependencies` — the
-/// same `AppConstants.isDemo` ternary products_sdk's `ProductsSdkDependencies`
-/// and merchants_sdk's `ManagerMerchantsDependencies` already apply
-/// (zones_sdk's `DemoDriverDeliveryZonesRepository` precedent).
+/// Demo-only [SellerOrdersRepositoryFacade] (a demo build,
+/// `--dart-define=IS_DEMO=true`, or a demo session - base_sdk's
+/// `DemoSession.demoActive`): serves a small, fictional shift of seller
+/// orders entirely from memory, so the manager order board and
+/// `/order-history` render stocked instead of showing their empty states.
+/// Selected in place of [SellerOrdersRepository]'s HTTP path by
+/// `ManagerOrdersDependencies` — the same runtime-switch registration
+/// products_sdk's `ProductsSdkDependencies` and merchants_sdk's
+/// `ManagerMerchantsDependencies` apply (zones_sdk's
+/// `DemoDriverDeliveryZonesRepository` precedent).
 ///
 /// Never used in production: every write is acknowledged locally, nothing
 /// leaves the device and no HTTP client is constructed. The seed is

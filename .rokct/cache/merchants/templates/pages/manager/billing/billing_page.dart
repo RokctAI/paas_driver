@@ -22,12 +22,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:remixicon/remixicon.dart';
 
-import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/presentation/adaptive/planes.dart';
 import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/components/helper/common_image.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:get_it/get_it.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider.dart';
@@ -173,7 +173,11 @@ class _BillingPageState extends ConsumerState<BillingPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    if (!AppConstants.isDemo) {
+    // The camera stays unmounted in a demo build or a demo session
+    // (base_sdk's runtime switch; the stage renders its stand-in). A plain
+    // read: the till is pushed after the login flow has settled the switch,
+    // and a sign-out tears it down, so it is never on screen at the flip.
+    if (!DemoSession.demoActive) {
       _controller = MobileScannerController(
         detectionSpeed: DetectionSpeed.normal,
       );

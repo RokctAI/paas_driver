@@ -41,6 +41,7 @@ import 'package:auth_sdk/src/common/application/auth/login/login_state.dart';
 import 'package:auth_sdk/src/common/domain/interface/auth_session_policy.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service.dart';
 import 'package:auth_sdk/src/common/services/auth_error_presenter.dart';
+import 'package:auth_sdk/src/common/services/demo_account_session.dart';
 import 'package:auth_sdk/src/common/services/platform_support.dart';
 import 'package:auth_sdk/src/common/services/restore_credential_service.dart';
 import 'package:auth_sdk/src/common/services/session_profile.dart';
@@ -255,6 +256,13 @@ class LoginNotifier extends StateNotifier<LoginState> {
     if (user != null) {
       await LocalStorage.setUser(sessionProfileOf(user));
     }
+    // The runtime demo switch, decided by the backend alone: the account
+    // the real backend just accepted either carries its `is_demo_account`
+    // marker (a real, per-role demo account -> the session is served from
+    // the in-app fixtures once phase 2 wires the SDKs) or it does not (any
+    // demo session left behind is ended here). Never keyed on the typed
+    // address or the password; nothing on screen changes.
+    await applyDemoAccountSession(user);
     if (popUntilRoot) {
       context.router.popUntilRoot();
     }

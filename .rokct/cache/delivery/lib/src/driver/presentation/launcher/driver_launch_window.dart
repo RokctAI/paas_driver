@@ -43,10 +43,10 @@
 
 import 'dart:math' as math;
 
-import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:delivery_sdk/src/driver/domain/interface/orders.dart';
@@ -219,7 +219,7 @@ abstract final class DriverLaunchWindowLoader {
     if (getIt.isRegistered<CourierOrdersRepositoryFacade>()) {
       return getIt.get<CourierOrdersRepositoryFacade>();
     }
-    return AppConstants.isDemo ? DemoCourierOrdersRepository() : null;
+    return DemoSession.demoActive ? DemoCourierOrdersRepository() : null;
   }
 }
 

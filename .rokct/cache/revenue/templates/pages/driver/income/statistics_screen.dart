@@ -50,108 +50,128 @@ class StatisticsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        TitleAndIcon(title: AppHelpers.getTranslation(TrKeys.statistics)),
+        // titleColor passed explicitly: base's default is the const
+        // AppStyle.black, unreadable on surfaceDark.
+        TitleAndIcon(
+          title: AppHelpers.getTranslation(TrKeys.statistics),
+          titleColor: AppStyle.textPrimary,
+        ),
         16.verticalSpace,
-        SizedBox(
-          height: 190.h,
-          child: Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.r),
-                  color: AppStyle.cardDark,
-                ),
-                padding: EdgeInsets.all(12.r),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppHelpers.getTranslation(TrKeys.totalOrders),
-                      style: AppStyle.interNormal(
-                          size: 12,
-                          color: AppStyle.textPrimary,
-                          letterSpacing: -0.3),
+        // The tiles take their width from THIS row's constraints, not the
+        // window's. The tile's legacy formula, (window - 140.w) / 2,
+        // assumed a full-width row under the page's 16.w side padding -
+        // that is (row - 108.w) / 2, the same number on a phone - and
+        // overflowed the row by a full tile inside the half-width column
+        // the income page stacks it in on medium+ windows.
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final tileWidth = (constraints.maxWidth - 108.w) / 2;
+            return SizedBox(
+              height: 190.h,
+              child: Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.r),
+                      color: AppStyle.cardDark,
                     ),
-                    const Spacer(),
-                    Text(
-                      totalOrders,
-                      style: AppStyle.interSemi(
-                          size: 34,
-                          color: AppStyle.textPrimary,
-                          letterSpacing: -1),
-                    ),
-                    RichText(
-                      text: TextSpan(
-                          text: AppHelpers.getTranslation(TrKeys.today),
+                    padding: EdgeInsets.all(12.r),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppHelpers.getTranslation(TrKeys.totalOrders),
                           style: AppStyle.interNormal(
                               size: 12,
                               color: AppStyle.textPrimary,
                               letterSpacing: -0.3),
-                          children: [
-                            TextSpan(
-                              text: " $todayOrders",
-                              style: AppStyle.interSemi(
+                        ),
+                        const Spacer(),
+                        Text(
+                          totalOrders,
+                          style: AppStyle.interSemi(
+                              size: 34,
+                              color: AppStyle.textPrimary,
+                              letterSpacing: -1),
+                        ),
+                        RichText(
+                          text: TextSpan(
+                              text: AppHelpers.getTranslation(TrKeys.today),
+                              style: AppStyle.interNormal(
                                   size: 12,
                                   color: AppStyle.textPrimary,
                                   letterSpacing: -0.3),
-                            )
-                          ]),
-                    )
-                  ],
-                ),
-              ),
-              8.horizontalSpace,
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      StatisticsItem(
-                          title:
-                              AppHelpers.getTranslation(TrKeys.acceptedOrders),
-                          count: acceptedOrders,
-                          percentage:
-                              acceptedPer == "NaN%" ? "0%" : acceptedPer,
-                          bgColor: AppStyle.green,
-                          textColor: AppStyle.white,
-                          iconColor: AppStyle.white.withOpacity(0.54)),
-                      8.horizontalSpace,
-                      StatisticsItem(
-                          title:
-                              AppHelpers.getTranslation(TrKeys.rejectedOrders),
-                          count: rejectedOrders,
-                          percentage:
-                              rejectedPer == "NaN%" ? "0%" : rejectedPer,
-                          bgColor: AppStyle.red,
-                          textColor: AppStyle.white,
-                          iconColor: AppStyle.white.withOpacity(0.54)),
-                    ],
+                              children: [
+                                TextSpan(
+                                  text: " $todayOrders",
+                                  style: AppStyle.interSemi(
+                                      size: 12,
+                                      color: AppStyle.textPrimary,
+                                      letterSpacing: -0.3),
+                                )
+                              ]),
+                        )
+                      ],
+                    ),
                   ),
-                  Row(
+                  8.horizontalSpace,
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      StatisticsItem(
-                          title: AppHelpers.getTranslation(TrKeys.doneOrders),
-                          count: doneOrders,
-                          percentage: donePer == "NaN%" ? "0%" : donePer,
-                          bgColor: AppStyle.cardDark,
-                          textColor: AppStyle.textPrimary,
-                          iconColor: AppStyle.icons),
-                      8.horizontalSpace,
-                      StatisticsItem(
-                        title: AppHelpers.getTranslation(TrKeys.newOrders),
-                        count: canceledOrders,
-                        percentage: canceledPer == "NaN%" ? "0%" : canceledPer,
-                        bgColor: AppStyle.cardDark,
-                        textColor: AppStyle.textPrimary,
-                        iconColor: AppStyle.icons,
+                      Row(
+                        children: [
+                          StatisticsItem(
+                              width: tileWidth,
+                              title:
+                                  AppHelpers.getTranslation(TrKeys.acceptedOrders),
+                              count: acceptedOrders,
+                              percentage:
+                                  acceptedPer == "NaN%" ? "0%" : acceptedPer,
+                              bgColor: AppStyle.green,
+                              textColor: AppStyle.white,
+                              iconColor: AppStyle.white.withOpacity(0.54)),
+                          8.horizontalSpace,
+                          StatisticsItem(
+                              width: tileWidth,
+                              title:
+                                  AppHelpers.getTranslation(TrKeys.rejectedOrders),
+                              count: rejectedOrders,
+                              percentage:
+                                  rejectedPer == "NaN%" ? "0%" : rejectedPer,
+                              bgColor: AppStyle.red,
+                              textColor: AppStyle.white,
+                              iconColor: AppStyle.white.withOpacity(0.54)),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          StatisticsItem(
+                              width: tileWidth,
+                              title: AppHelpers.getTranslation(TrKeys.doneOrders),
+                              count: doneOrders,
+                              percentage: donePer == "NaN%" ? "0%" : donePer,
+                              bgColor: AppStyle.cardDark,
+                              textColor: AppStyle.textPrimary,
+                              iconColor: AppStyle.icons),
+                          8.horizontalSpace,
+                          StatisticsItem(
+                              width: tileWidth,
+                            title: AppHelpers.getTranslation(TrKeys.newOrders),
+                            count: canceledOrders,
+                            percentage: canceledPer == "NaN%" ? "0%" : canceledPer,
+                            bgColor: AppStyle.cardDark,
+                            textColor: AppStyle.textPrimary,
+                            iconColor: AppStyle.icons,
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ],
               ),
-            ],
-          ),
+            );
+          },
         )
       ],
     );

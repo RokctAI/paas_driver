@@ -23,6 +23,11 @@ import 'package:base_sdk/src/presentation/components/floating_nav/floating_nav_m
 abstract class AppConstants {
   AppConstants._();
 
+  /// The compile-time demo switch (`--dart-define=IS_DEMO=true`): the tour,
+  /// render-strip and screenshot builds. A production build that signs in
+  /// a server-marked demo account flips the RUNTIME switch instead; ask
+  /// `DemoSession.demoActive` (`isDemo || DemoSession.instance.active`)
+  /// wherever a seam must honour both.
   static const bool isDemo = bool.fromEnvironment('IS_DEMO');
   static const bool isPhoneFirebase = true;
   static const int scheduleInterval = 60;

@@ -40,18 +40,22 @@ import 'package:zones_sdk/src/driver/infrastructure/repositories/demo_delivery_z
 /// Without them deliveryZoneProvider falls back to a 501 "not wired" stand-in
 /// and the zone screen never reaches real profile data.
 class DriverDeliveryZonesAdapter extends DriverDeliveryZonesRepository {
-  /// Demo builds (`--dart-define=IS_DEMO=true`) serve the fictional offline
-  /// zone instead of hitting the profile endpoint — the same
-  /// `AppConstants.isDemo` split delivery_sdk's `DriverDeliveryDependencies`
-  /// applies to every courier facade. The gate lives here (not in the
-  /// repository) so the SDK's HTTP class stays a pure production path and
-  /// the swap sits exactly where the flavour is composed, next to the
-  /// registration that injects it. Zero behavior change when IS_DEMO is off.
+  /// Demo builds (`--dart-define=IS_DEMO=true`) and, since the demo login's
+  /// phase 2, a runtime demo session (`DemoSession.demoActive` is the OR of
+  /// the two) serve the fictional offline zone instead of hitting the
+  /// profile endpoint — the same split delivery_sdk's
+  /// `DriverDeliveryDependencies` applies to every courier facade. The gate
+  /// lives here (not in the repository) so the SDK's HTTP class stays a pure
+  /// production path and the swap sits exactly where the flavour is
+  /// composed, next to the registration that injects it. Read per call, so
+  /// the lazy singleton the di_hooks entry registers needs no
+  /// re-registration when the session flips. Zero behavior change when
+  /// neither is on.
   static final DeliveryZonesFacade _demo = DemoDriverDeliveryZonesRepository();
 
   @override
   Future<ApiResult<List<List<double>>>> fetchDeliveryZones() =>
-      AppConstants.isDemo
+      DemoSession.demoActive
           ? _demo.fetchDeliveryZones()
           : super.fetchDeliveryZones();
 
@@ -59,7 +63,7 @@ class DriverDeliveryZonesAdapter extends DriverDeliveryZonesRepository {
   Future<ApiResult<void>> updateDeliveryZones({
     required List<List<double>> points,
   }) =>
-      AppConstants.isDemo
+      DemoSession.demoActive
           ? _demo.updateDeliveryZones(points: points)
           : super.updateDeliveryZones(points: points);
 }

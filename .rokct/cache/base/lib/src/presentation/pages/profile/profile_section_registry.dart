@@ -44,9 +44,35 @@ class ProfileSectionRegistry {
   /// [registerAction].
   final Map<String, Map<String, ProfileActionItem>> _actions = {};
 
-  /// Header edit affordance; hidden while unset. Registered by the shell
-  /// or an SDK that owns the edit-profile flow.
+  /// Header edit affordance; hidden while unset (and while
+  /// [editProfileDetailBuilder] is unset too). Registered by the shell or
+  /// an SDK that owns the edit-profile flow. On planes the pencil tries
+  /// [editProfileDetailBuilder] first and calls this only when the host
+  /// cannot open a detail — so this stays the phone's flow (a sheet, a
+  /// pushed route) and the ONLY flow while no detail is registered.
   void Function(BuildContext context)? onEditProfile;
+
+  /// The identity of the edit-profile detail in a plane host's flow — the
+  /// id [ProfileSectionNavigator.openEditProfile] opens
+  /// [editProfileDetailBuilder] under, and the host's
+  /// [ProfileSectionNavigator.openSectionId] while it is open.
+  static const String editProfileDetailId = 'base.edit_profile';
+
+  /// The edit-profile form as a DETAIL PANE (Ray 2026-09-08, the sheet
+  /// fork ruling: "sheet = PHONE, plane widths get a pane"). Null (the
+  /// default) means the pencil and every edit-profile entry point run
+  /// [onEditProfile] everywhere, exactly as before this field existed.
+  /// Set at bootstrap (`di_hooks`) by the SDK that owns the edit flow:
+  /// on planes the identity-card pencil then opens this in the host's
+  /// detail plane (the last plane) instead of running [onEditProfile],
+  /// and an SDK's own "Profile settings" row reaches the same pane through
+  /// [ProfileSectionNavigator.openEditProfile]. The widget is embedded in
+  /// a plane the host owns: render the form only — no sheet chrome, app
+  /// bar or back of its own — and leave the pane with
+  /// [ProfileSectionNavigator.close] once saved. Phones never see it: a
+  /// phone route has no host seam, so the pencil runs [onEditProfile]
+  /// there as it always did.
+  WidgetBuilder? editProfileDetailBuilder;
 
   /// Sign-out affordance — the top row's icon-only round red button;
   /// hidden while unset. Invoked after the user confirms the logout
@@ -283,6 +309,7 @@ class ProfileSectionRegistry {
     _topRowActions.clear();
     _actions.clear();
     onEditProfile = null;
+    editProfileDetailBuilder = null;
     onLogout = null;
     pageTitle = null;
     defaultSectionId = null;

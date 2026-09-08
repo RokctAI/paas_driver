@@ -1,3 +1,69 @@
+## 1.4.0
+
+* Demo login in production, phase 2: the demo repositories follow the
+  runtime demo session. `UsersSdkDependencies.register` no longer picks
+  `MockUserRepository` / `MockAddressRepository` on the compile-time
+  `AppConstants.isDemo` alone: it reads `DemoSession.demoActive`
+  (base_sdk 1.61.0: a demo BUILD, or the runtime demo SESSION auth_sdk
+  flips after the real backend accepted a marked account) at
+  registration, and subscribes once to `DemoSession.instance` - the same
+  static listener is removed before it is added, so a hot restart or a
+  hand-wired host calling the hook twice never stacks subscriptions. On
+  every flip the listener unregisters this SDK's two facades (only those,
+  and only when present, so a container reset or a flip before boot
+  finished registering never throws) and registers the twins the switch
+  now selects: the in-app fixtures the moment a marked account signs in
+  (after the backend accepted it, before routing), the HTTP repositories
+  the moment the session clears (sign-out, or a sign-in the backend
+  answered without the marker). A demo session's profile edits and
+  addresses never reach a real account, and a real session never reads
+  the fixtures. Callers resolve the facades per call through get_it, so
+  the next fetch already lands on the new twin; a host that captured a
+  repository instance at construction keeps it until it rebuilds.
+  Demo builds behave exactly as before (`demoActive` includes the build
+  flag), so the tour fragment needs no change and no screen changes.
+* Tests: `test/users_di_demo_session_test.dart` - a real session registers
+  the real repositories; `activate()` swaps in the twins and `clear()`
+  swaps the real ones back; a session restored at boot registers the
+  twins directly; a demo build registers them whatever the session;
+  registering twice keeps the instances and one subscription; a flip
+  against an emptied container never throws; the DI reads
+  `DemoSession.demoActive`, not `AppConstants.isDemo`.
+* manifest.json 1.3.8 -> 1.4.0; requires base_sdk 1.61.0.
+
+## 1.3.8
+
+* feat(users): per-user `is_demo_account` marker in the login and profile
+  payloads (backend half of demo sign-in). Demo login is a runtime
+  feature keyed on a marker the server asserts: base_sdk 1.61.0 parses
+  `is_demo_account` off the user payload and auth_sdk 1.11.0 switches
+  the apps to demo data when it reads 1. This release gives the Frappe
+  side of users_sdk that marker.
+  * `users/frappe/fixtures/custom_field_user_is_demo_account.json`
+    declares a hidden Check custom field `is_demo_account` on User
+    (default 0, after `enabled`, description "Marks a demo showcase
+    account; the apps switch to demo data when this user signs in"),
+    exported through `users/frappe/manifest.json` `hooks.fixtures` next
+    to `temporary_user_expires_on`. Nothing seeds an account: an
+    operator ticks the box on the User form of the account they choose.
+  * `user.py` gains `is_demo_account(user_doc)` (`cint` of the column,
+    so a tenant without the fixture reads 0) and every payload that
+    carries a user emits it: `login`, `login_with_google`, `get_profile`,
+    `get_user_profile`, `verify_phone_code` and `verify_email_code`.
+    auth's `restore._issue_session`, shaped like `login`, emits it too.
+  * Server-asserted only: `update_user_profile`'s allow-list does not
+    carry the field (and says why), and `update_profile` has no such
+    parameter. `tests/test_api_demo_account_marker.py` drives the real
+    endpoint bodies against a stubbed User row and pins 0 for an
+    unmarked account, 1 for a marked one, 0 for a missing column, and
+    that the profile update endpoints cannot flip it;
+    `tests/test_user_custom_field_declarations.py` pins the fixture and
+    its manifest export.
+  * The tenant-wide `Permission Settings.is_demo` Check in core is a
+    different switch and is deliberately not reused.
+* manifest.json 1.3.7 -> 1.3.8. Pairs with core #184 and Users #94; the
+  backend carries no ordering dependency on either.
+
 ## 1.3.7
 
 * fix(tour): two highlight phrases in `templates/tour/users.tour.yaml`

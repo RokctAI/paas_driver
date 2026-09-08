@@ -32,6 +32,7 @@ import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/adaptive/planes.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_host_scope.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section.dart';
+import 'package:base_sdk/src/presentation/pages/profile/profile_section_navigator.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section_registry.dart';
 import 'package:base_sdk/src/presentation/pages/profile/widgets/profile_theme_toggle.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -220,6 +221,21 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
 
     final planBack = _headerSlotWidget(context, ProfileHeaderSlot.planBack);
 
+    // The identity-card pencil (hidden while nothing owns an edit flow
+    // HERE: a phone with only a detail registered has no pane to open it
+    // in, so it draws no dead pencil). On planes a registered edit-profile
+    // detail opens in the host's detail plane first (Ray 2026-09-08:
+    // "sheet = PHONE, plane widths get a pane"); the phone — no host seam
+    // — and a registry with no detail run the flow exactly as before.
+    final onEditProfile = registry.onEditProfile;
+    final void Function(BuildContext context)? onEdit = onEditProfile == null &&
+            !ProfileSectionNavigator.canOpenEditProfile(context)
+        ? null
+        : (context) {
+            if (ProfileSectionNavigator.openEditProfile(context)) return;
+            onEditProfile?.call(context);
+          };
+
     // The plan row flips only while a planBack face exists; without one
     // any tap handling belongs to the plan content itself.
     final VoidCallback? onPlanTap = planBack == null
@@ -239,7 +255,7 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
         stats: _headerSlotWidget(context, ProfileHeaderSlot.stats),
         plan: _headerSlotWidget(context, ProfileHeaderSlot.plan),
         corner: _headerSlotWidget(context, ProfileHeaderSlot.corner),
-        onEditProfile: registry.onEditProfile,
+        onEditProfile: onEdit,
         onPlanTap: onPlanTap,
       );
     } else {

@@ -23,7 +23,6 @@ import 'widgets/logout_modal.dart';
 import 'widgets/sections_item.dart';
 import 'widgets/edit_restaurant_modal.dart';
 import 'package:${package}/presentation/routes/app_router.dart';
-import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/presentation/components/custom_toggle3.dart';
 import 'package:base_sdk/src/presentation/components/title_icon.dart';
 import 'package:base_sdk/src/presentation/pages/profile/edit_profile_sheet.dart';
@@ -34,6 +33,7 @@ import 'package:base_sdk/src/presentation/pages/profile/widgets/base_profile_foo
 import 'package:base_sdk/src/presentation/pages/profile/widgets/base_wallet_card.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:merchants_sdk/src/manager/application/main/main_provider.dart';
@@ -579,7 +579,11 @@ class MerchantSectionsList extends StatelessWidget {
           icon: Remix.refresh_line,
           onTap: () => context.pushRoute(const ManagerSyncIssuesRoute()),
         ),
-        if (!AppConstants.isDemo)
+        // A demo build or a demo session (base_sdk's runtime switch) has no
+        // account to delete. A plain read: the hub is built after the login
+        // flow has already settled the switch and routed here, and a sign-out
+        // tears it down, so it is never on screen while the switch flips.
+        if (!DemoSession.demoActive)
           SectionsItem(
             title: AppHelpers.getTranslation(TrKeys.deleteAccount),
             icon: Remix.logout_box_r_line,

@@ -19,6 +19,7 @@ import 'package:base_sdk/src/models/data/notification_data.dart';
 import 'package:base_sdk/src/models/data/shop_data.dart';
 import 'package:base_sdk/src/models/data/currency_data.dart';
 import 'package:base_sdk/src/models/data/membership_data.dart';
+import 'package:base_sdk/src/models/data/user.dart';
 
 class ProfileData {
   ProfileData({
@@ -48,6 +49,7 @@ class ProfileData {
     Wallet? wallet,
     num? ringfencedBalance,
     num? rate,
+    bool? isDemoAccount,
   }) {
     _notifications = notifications;
     _id = id;
@@ -74,6 +76,7 @@ class ProfileData {
     _wallet = wallet;
     _ringfencedBalance = ringfencedBalance;
     _rate = rate;
+    _isDemoAccount = isDemoAccount;
   }
 
   ProfileData.fromJson(dynamic json) {
@@ -116,6 +119,7 @@ class ProfileData {
     _wallet = json['wallet'] != null ? Wallet.fromJson(json['wallet']) : null;
     _ringfencedBalance = json['ringfenced_balance'];
     _rate = json['rate'];
+    _isDemoAccount = parseDemoAccountMarker(json['is_demo_account']);
   }
 
   String? _id;
@@ -144,6 +148,7 @@ class ProfileData {
   Wallet? _wallet;
   num? _ringfencedBalance;
   num? _rate;
+  bool? _isDemoAccount;
 
   ProfileData copyWith({
     String? id,
@@ -167,6 +172,7 @@ class ProfileData {
     Wallet? wallet,
     num? ringfencedBalance,
     num? rate,
+    bool? isDemoAccount,
   }) =>
       ProfileData(
         id: id ?? _id,
@@ -190,6 +196,7 @@ class ProfileData {
         wallet: wallet ?? _wallet,
         ringfencedBalance: ringfencedBalance ?? _ringfencedBalance,
         rate: rate ?? _rate,
+        isDemoAccount: isDemoAccount ?? _isDemoAccount,
       );
 
   String? get id => _id;
@@ -244,6 +251,12 @@ class ProfileData {
 
   num? get rate => _rate;
 
+  /// The backend's server-asserted demo marker (`is_demo_account`), the
+  /// same field [UserModel.isDemoAccount] carries on the login payload;
+  /// false when absent. Lifted into the stored session by the login flow
+  /// and refreshed by the profile fetch.
+  bool get isDemoAccount => _isDemoAccount ?? false;
+
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['id'] = _id;
@@ -284,6 +297,7 @@ class ProfileData {
     }
     map['ringfenced_balance'] = _ringfencedBalance;
     map['rate'] = _rate;
+    map['is_demo_account'] = _isDemoAccount;
     return map;
   }
 }

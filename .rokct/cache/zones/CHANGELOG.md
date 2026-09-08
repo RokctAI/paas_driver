@@ -1,3 +1,18 @@
+## 1.6.0
+
+* Demo repositories follow the runtime demo session (demo login phase 2,
+  base_sdk 1.61.0 / core #184 `DemoSession`). The installed driver
+  `templates/adapters/driver/zones_adapters.dart` gates the offline
+  `DemoDriverDeliveryZonesRepository` on `DemoSession.demoActive` - the
+  compile-time `IS_DEMO` build OR the runtime session a server-marked
+  account opens after a real sign-in - instead of `AppConstants.isDemo`
+  alone. The adapter already read its gate per call, so the lazy singleton
+  the `app_type.driver` di_hooks entry registers follows a session that
+  flips after login (and clears on sign-out) with no re-registration.
+  Nothing on screen changes; the manager flavour has no demo seam and is
+  untouched. `test/demo_session_gate_test.dart` pins the swap both ways
+  and that no `AppConstants.isDemo` read remains in lib/ or templates/.
+
 ## 1.5.1
 
 * Driver delivery-zone editor (tablet audit 2026-09-07,

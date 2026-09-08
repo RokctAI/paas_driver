@@ -23,6 +23,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
 
 import 'package:base_sdk/src/presentation/components/loading.dart';
+import 'package:base_sdk/src/presentation/pages/profile/profile_section_navigator.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:${package}/presentation/pages/profile/edit_car.dart';
 import 'package:${package}/presentation/component/helper/keyboard_disable.dart';
@@ -40,8 +41,19 @@ import 'package:delivery_sdk/src/driver/application/profile/provider/profile_set
 import 'package:delivery_sdk/src/driver/infrastructure/services/courier_constants.dart';
 import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
+/// The driver's Profile settings form: the bottom sheet the profile opens
+/// on a phone (the default), or - [embedded] - the same form as the
+/// profile host's DETAIL PANE at plane widths (Ray 2026-09-08, the sheet
+/// fork ruling: "sheet = PHONE, plane widths get a pane"; base_sdk
+/// 1.60.11's editProfileDetailBuilder). Embedded, the form drops the
+/// sheet's rounded card, sits top-aligned in the plane the host owns, and
+/// its Save leaves the pane through ProfileSectionNavigator.close (back to
+/// the default detail) instead of popping the route. The sheet path is
+/// untouched.
 class EditProfileModal extends ConsumerStatefulWidget {
-  const EditProfileModal({super.key});
+  final bool embedded;
+
+  const EditProfileModal({super.key, this.embedded = false});
 
   @override
   ConsumerState<EditProfileModal> createState() => _EditProfileModalState();
@@ -410,7 +422,9 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                                 ),
                               );
                             },
-                            updated: context.router.maybePop,
+                            updated: widget.embedded
+                                ? () => _leavePane(context)
+                                : context.router.maybePop,
                           );
                         },
                       ),
@@ -420,8 +434,29 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
               },
             ),
           );
+    if (widget.embedded) {
+      // The pane: the host's plane is the surface, so no sheet card - the
+      // form top-aligned under the plane's safe area, the title leading.
+      return Align(
+        alignment: Alignment.topCenter,
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(top: 16.h),
+            child: body,
+          ),
+        ),
+      );
+    }
     // The sheet route is transparent (AppHelpers.showCustomModalBottomSheet);
     // the opaque themed card is this widget's to paint, loader included.
     return DriverSheetSurface(child: body);
+  }
+
+  /// Saved while embedded: pop the pane back to the profile's default
+  /// detail through the host seam; outside a host (never, on planes, but
+  /// bounded) the route pops as the sheet's Save always did.
+  void _leavePane(BuildContext context) {
+    if (ProfileSectionNavigator.close(context)) return;
+    context.router.maybePop();
   }
 }

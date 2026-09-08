@@ -24,6 +24,11 @@ class StatisticsItem extends StatelessWidget {
   final Color textColor;
   final Color iconColor;
 
+  /// The tile's width. StatisticsScreen passes the one it derives from
+  /// its own row's constraints; left null, the tile falls back to the
+  /// legacy window-width formula, which only ever fit a full-width row.
+  final double? width;
+
   const StatisticsItem(
       {super.key,
       required this.title,
@@ -31,13 +36,14 @@ class StatisticsItem extends StatelessWidget {
       required this.percentage,
       required this.bgColor,
       required this.textColor,
-      required this.iconColor});
+      required this.iconColor,
+      this.width});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 88.h,
-      width: (MediaQuery.sizeOf(context).width - 140.w) / 2,
+      width: width ?? (MediaQuery.sizeOf(context).width - 140.w) / 2,
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(10.r),

@@ -39,7 +39,7 @@
 //     renders the action and no count, so the window is "useful and
 //     tappable without data" (53g) by construction.
 
-import 'package:base_sdk/src/constants/app_constants.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -73,10 +73,11 @@ class ManagerLaunchQueue {
 
 /// Reads the queue through the same facade the manager order board reads
 /// - the `SellerOrdersRepositoryFacade` the manager DI hook registers,
-/// which in demo builds is the seeded `DemoSellerOrdersRepository`. A
-/// composition that never registered the facade (the launcher composes no
-/// manager DI) gets the demo repository when the build is a demo build and
-/// nothing otherwise; a failing call is a null queue, never an exception -
+/// which in a demo build or a demo session is the seeded
+/// `DemoSellerOrdersRepository`. A composition that never registered the
+/// facade (the launcher composes no manager DI) gets the demo repository
+/// when base_sdk's `DemoSession.demoActive` says so (read per call, so a
+/// session that flips later is honoured) and nothing otherwise; a failing call is a null queue, never an exception -
 /// the launcher canvas must not crash because a backend is away.
 abstract final class ManagerLaunchWindowLoader {
   static Future<ManagerLaunchQueue?> load({
@@ -105,7 +106,7 @@ abstract final class ManagerLaunchWindowLoader {
     if (getIt.isRegistered<SellerOrdersRepositoryFacade>()) {
       return getIt.get<SellerOrdersRepositoryFacade>();
     }
-    return AppConstants.isDemo ? DemoSellerOrdersRepository() : null;
+    return DemoSession.demoActive ? DemoSellerOrdersRepository() : null;
   }
 }
 

@@ -20,12 +20,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:remixicon/remixicon.dart';
 
-import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_host_scope.dart';
 import 'package:base_sdk/src/presentation/pages/profile/widgets/app_usage_badge.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
 
 /// The shared profile-footer meta row: app name, app version (with build
 /// number in debug), the backend-probe Online/Offline dot and the
@@ -39,26 +39,26 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 class ProfileMetaRow extends StatelessWidget {
   const ProfileMetaRow({super.key});
 
-  /// Stands in for [AppConstants.isDemo], which is fixed at compile time
-  /// and so cannot be flipped by a test. Null means "ask the constant".
+  /// Stands in for [DemoSession.demoActive]. Null means "ask the session"
+  /// (which answers the compile-time constant OR the runtime switch).
   @visibleForTesting
   static bool? isDemoOverride;
 
-  static bool get _isDemo => isDemoOverride ?? AppConstants.isDemo;
+  static bool get _isDemo => isDemoOverride ?? DemoSession.demoActive;
 
   /// The answer the Online/Offline dot draws.
   ///
-  /// A demo build (`--dart-define=IS_DEMO=true`, [AppConstants.isDemo])
-  /// has no backend by design, so the api_status probe behind
-  /// [AppConnectivity.backendAvailability] can only ever fail there, and
-  /// the dot drew a red Offline on every demo build - a connection-failure
-  /// state on a build that has no connection to fail, captured verbatim by
-  /// the guided tour. The demo build reads as connected without probing;
-  /// a real build still asks the backend. The probe itself stays honest:
-  /// the splash boot and `ConnectivityService` read it to gate the outbox
-  /// drain and the translation fetch, and must keep seeing the backend as
-  /// it is. Same [AppConstants.isDemo] gate the other SDKs put in front of
-  /// their network paths.
+  /// A demo build (`--dart-define=IS_DEMO=true`) has no backend by design,
+  /// so the api_status probe behind [AppConnectivity.backendAvailability]
+  /// can only ever fail there, and the dot drew a red Offline on every demo
+  /// build - a connection-failure state on a build that has no connection
+  /// to fail, captured verbatim by the guided tour. A demo build, or a demo
+  /// session ([DemoSession.demoActive]) served from the same fixtures,
+  /// reads as connected without probing; a real session still asks the
+  /// backend. The probe itself stays honest: the splash boot and
+  /// `ConnectivityService` read it to gate the outbox drain and the
+  /// translation fetch, and must keep seeing the backend as it is. Same
+  /// gate the other SDKs put in front of their network paths.
   static Future<bool> _online() => _isDemo
       ? Future<bool>.value(true)
       : AppConnectivity.backendAvailability();
@@ -111,33 +111,42 @@ class ProfileMetaRow extends StatelessWidget {
           },
         ),
         // Online/Offline dot backed by a real backend probe (guest
-        // api_status) - except in a demo build, which reads as connected
-        // (see [_online]).
-        FutureBuilder<bool>(
-          future: _online(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const SizedBox.shrink();
-            }
-            final isOnline = snapshot.data!;
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(width: 8),
-                Icon(
-                  Remix.checkbox_blank_circle_fill,
-                  size: 20,
-                  color: isOnline ? AppStyle.green : AppStyle.red,
-                ),
-                Text(
-                  isOnline ? 'Online' : 'Offline',
-                  style: TextStyle(
+        // api_status) - except in a demo build or session, which reads as
+        // connected (see [_online]). Listens to the runtime demo switch:
+        // the profile is on screen when a sign-out ends a demo session,
+        // and re-asks the probe at that moment instead of keeping the
+        // session's answer - keyed on the answer's source, so the flip
+        // starts a fresh builder (a FutureBuilder handed a new future
+        // keeps showing its last data until the new one resolves).
+        ListenableBuilder(
+          listenable: DemoSession.instance,
+          builder: (context, _) => FutureBuilder<bool>(
+            key: ValueKey<bool>(_isDemo),
+            future: _online(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const SizedBox.shrink();
+              }
+              final isOnline = snapshot.data!;
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(width: 8),
+                  Icon(
+                    Remix.checkbox_blank_circle_fill,
+                    size: 20,
                     color: isOnline ? AppStyle.green : AppStyle.red,
                   ),
-                ),
-              ],
-            );
-          },
+                  Text(
+                    isOnline ? 'Online' : 'Offline',
+                    style: TextStyle(
+                      color: isOnline ? AppStyle.green : AppStyle.red,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
         // The usage badge counts a signed-in user's app opens. In the
         // host's anonymous mode (no account facade) there is no such user

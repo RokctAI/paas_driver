@@ -52,9 +52,12 @@ class BaseSdkDependencies {
     // an empty selection is the locale's ISO code as a suffix ("42.50USD" in
     // the wallet history, the till, every price tag). Seeded here, in the
     // one bootstrap path every composed shell hits after LocalStorage.init,
-    // so no feature SDK has to. No-op in a real build and wherever a
-    // currency is already selected.
-    DemoCurrency.seed();
+    // so no feature SDK has to - and seeded again when the runtime demo
+    // session (DemoSession) flips on after boot, since a demo account signs
+    // in long after this ran. No-op outside a demo build or session and
+    // wherever a currency is already selected; a session ending writes
+    // nothing, so a real account's currency is never wiped.
+    DemoCurrency.followDemoSession();
 
     // Size the image cache from the device's actual RAM instead of Flutter's
     // fixed 1000 images / 100MB, and start listening for memory pressure and

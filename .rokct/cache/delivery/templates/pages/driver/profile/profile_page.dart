@@ -41,6 +41,14 @@
 // driver profile left that plane empty) and draws the same bottom-END
 // corner pill this shell drew - the pill pops an opened detail first and
 // the route after. The phone branch is untouched.
+//
+// Profile settings (Ray 2026-09-08, the sheet fork ruling: "sheet = PHONE,
+// plane widths get a pane"): at plane widths the settings form is the
+// profile's detail pane in the last plane (base_sdk 1.60.11's
+// editProfileDetailBuilder, reached by the header pencil and the Profile
+// settings row alike) instead of the END-anchored bottom sheet that left
+// an empty band beside itself at 385 dp and was cut in the store crop; on
+// a phone the sheet opens exactly as before.
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -58,13 +66,14 @@ import 'package:${package}/presentation/routes/app_router.dart';
 
 import 'package:base_sdk/src/application/app_widget/app_provider.dart';
 import 'package:base_sdk/src/application/profile/profile_provider.dart';
-import 'package:base_sdk/src/constants/app_constants.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/navigation/embedded_widgets.dart';
 import 'package:base_sdk/src/presentation/adaptive/planes.dart';
 import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/pages/profile/generic_profile_page.dart';
 import 'package:base_sdk/src/presentation/pages/profile/generic_profile_route_page.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section.dart';
+import 'package:base_sdk/src/presentation/pages/profile/profile_section_navigator.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section_registry.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
@@ -80,8 +89,10 @@ import 'package:delivery_sdk/src/driver/presentation/profile/driver_profile_sect
 void registerDriverProfileSections() {
   final registry = ProfileSectionRegistry.I;
 
-  // Header pencil (chip 109): the same Profile settings sheet the row
-  // opens - users_sdk's tour taps the row by its title, so both stay.
+  // Header pencil (chip 109): the same Profile settings surface the row
+  // opens - users_sdk's tour taps the row by its title, so both stay. On
+  // planes the host opens the registered detail (below) before it calls
+  // this, so this is the phone's sheet.
   registry.onEditProfile ??= _openProfileSettings;
 
   // Top-row sign-out (chip 76): the host runs its own confirmation, so
@@ -98,7 +109,7 @@ void registerDriverProfileSections() {
 
   // Hidden in demo builds, as the old page hid it.
   final void Function(BuildContext context)? onDeleteAccount =
-      AppConstants.isDemo ? null : _openDeleteAccount;
+      DemoSession.demoActive ? null : _openDeleteAccount;
 
   DriverProfileSections.register(
     actions: DriverProfileActions(
@@ -118,11 +129,19 @@ void registerDriverProfileSections() {
       // pushes, without the route's Scaffold, app bar, pill or filter.
       // The host seeds it into the third plane on a three-plane screen.
       orderHistoryDetail: (context) => const OrderHistoryPane(heading: true),
+      // The settings form for the plane host's detail pane (base_sdk
+      // 1.60.11): the sheet's form, embedded - no sheet card, Save closes
+      // the pane instead of popping the route.
+      profileSettingsDetail: (context) =>
+          const EditProfileModal(embedded: true),
     ),
   );
 }
 
 void _openProfileSettings(BuildContext context) {
+  // Plane widths: the form in the profile's detail pane (the last plane);
+  // the seam answers false on a phone, so the sheet opens as before.
+  if (ProfileSectionNavigator.openEditProfile(context)) return;
   AppHelpers.showCustomModalBottomSheet(
     paddingTop: MediaQuery.paddingOf(context).top + 32.h,
     context: context,

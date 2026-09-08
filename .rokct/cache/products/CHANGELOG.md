@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.11.0
+
+* feat(demo): demo repositories follow the runtime demo session. base_sdk
+  1.61.0's `DemoSession` adds the runtime half of the demo switch (a
+  server-marked demo account signs in through the real login and the app
+  serves that session from the same fixtures the tour uses; nothing on
+  screen changes). `ProductsSdkDependencies` now chooses its five demo
+  twins (products / categories / brands and the seller products / catalog
+  seams) by `DemoSession.demoActive` (a demo build OR a demo session) at
+  registration, instead of the compile-time `AppConstants.isDemo` alone,
+  and adds ONE listener on `DemoSession.instance` (once, guarded) that
+  drops and re-registers exactly the singletons it registered itself when
+  the switch flips - after a demo login, before routing, and back on
+  sign-out. A host's own registration of the same facade is never
+  swapped; a flip before the first `register` call is a no-op; nothing in
+  the re-register can throw. Requires base_sdk >= 1.61.0. No screen,
+  string or tour fragment changes. `test/demo_session_di_test.dart`
+  covers the three states and guards that no `AppConstants.isDemo` read
+  remains in lib/ or templates/.
+
 ## 1.10.1
 
 * fix(demo): demo stock SKUs stop announcing themselves as demo (Ray

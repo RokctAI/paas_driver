@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.16.0
+
+* Changed: demo repositories follow the runtime demo session (phase 2 of
+  "demo login in production", Ray 2026-09-08). `CommsSdkDependencies.register`
+  picks `MockSettingsRepository` or `SettingsRepository` from base_sdk's
+  `DemoSession.demoActive` - a demo BUILD (`--dart-define=IS_DEMO=true`,
+  exactly as before) OR a demo SESSION (a server-marked demo account
+  signed in on a real build) - instead of the compile-time constant alone,
+  and re-registers the `SettingsRepositoryFacade` singleton when
+  `DemoSession.instance` flips: a demo account signing in after boot gets
+  the fixtures, a sign-out ending its session gets the real repository
+  back. One listener per container however often `register` is called;
+  a facade a host wired before this hook is never replaced. The
+  currencies and notification repositories have no demo twin and are
+  unchanged. Requires base_sdk >= 1.62.0. Test-only
+  `stopFollowingDemoSession(getIt)`.
+* Tests: `test/comms_di_demo_test.dart` - real repository when the
+  session is off, the demo twin after `activate()`, real again after
+  `clear()`, the twin from registration when the session is already on,
+  a host's own registration untouched across flips.
+
 ## 1.15.3
 
 * Fixed: the Languages sheet (`LanguageScreen`) painted a light surface

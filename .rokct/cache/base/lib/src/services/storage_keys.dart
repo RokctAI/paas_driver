@@ -68,4 +68,7 @@ abstract class StorageKeys {
   // progress store hands to setOnboardingRun/getOnboardingRun. Stored as
   // `hostRecord.onboardingRun`.
   static const String keyOnboardingRun = 'onboardingRun';
+  // The runtime demo switch (DemoSession): set when the real backend signs
+  // in an account it marks `is_demo_account`, cleared on every sign-out.
+  static const String keyDemoSessionActive = 'demo_session_active';
 }

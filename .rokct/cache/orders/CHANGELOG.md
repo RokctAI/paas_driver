@@ -1,3 +1,31 @@
+## 1.21.0
+
+* feat(demo): demo repositories follow the runtime demo session. base_sdk
+  1.61.0's `DemoSession` adds the runtime half of the demo switch (a
+  server-marked demo account signs in through the real login and the app
+  serves that session from the same fixtures the tour uses; nothing on
+  screen changes). This SDK's demo seams now ask that switch,
+  `DemoSession.demoActive` (a demo build OR a demo session), instead of
+  the compile-time `AppConstants.isDemo` alone:
+  * `OrdersSdkDependencies` (orders + cart twins) and
+    `ManagerOrdersDependencies` (seller-orders twin) choose the twin by
+    `DemoSession.demoActive` at registration and add ONE listener each on
+    `DemoSession.instance` (once, guarded) that drops and re-registers
+    exactly the singletons the hook itself registered when the switch
+    flips - after a demo login, before routing, and back on sign-out. A
+    host's own registration of the same facade is never swapped. The
+    cart.sync push handler is re-attached over the fresh cart facade. A
+    flip that lands before the first `register` call is a no-op (the
+    registration then reads the switch itself); nothing in the re-register
+    can throw.
+  * `ManagerLaunchWindowLoader` reads `DemoSession.demoActive` per call
+    for its no-DI fallback, so a launcher that never composed manager DI
+    follows the session too.
+  * Requires base_sdk >= 1.61.0. No screen, string or tour fragment
+    changes. `test/demo_session_di_test.dart` covers the three states and
+    guards that no `AppConstants.isDemo` read remains in lib/ or
+    templates/.
+
 ## 1.20.2
 
 TWO TABLET DEFECTS from the 2026-09-07 tablet design audit (approved

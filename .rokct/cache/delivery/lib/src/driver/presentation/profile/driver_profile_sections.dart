@@ -31,7 +31,14 @@
 //   * the sign-out glyph -> the host's top-row sign-out (`onLogout`), and
 //     the settings sheet -> the header pencil (`onEditProfile`) AS WELL AS
 //     the Profile settings row (users_sdk's tour taps that row by its
-//     translated title).
+//     translated title). At plane widths the settings form is the
+//     profile's DETAIL PANE instead (Ray 2026-09-08, the sheet fork
+//     ruling: "sheet = PHONE, plane widths get a pane"): the shell's
+//     [DriverProfileActions.profileSettingsDetail] becomes the registry's
+//     `editProfileDetailBuilder` (base_sdk 1.60.11), the pencil opens it
+//     through the host and the row through
+//     [ProfileSectionNavigator.openEditProfile]; on a phone both fall back
+//     to the sheet exactly as before.
 //
 // Destinations are generated route classes of the composed app, so they
 // arrive as callbacks ([DriverProfileActions]) from the installed
@@ -81,6 +88,16 @@ class DriverProfileActions {
   /// never the registry's default and every row pushes as before.
   final WidgetBuilder? orderHistoryDetail;
 
+  /// The Profile settings form EMBEDDED for a plane host's detail plane
+  /// (base_sdk 1.60.11: `ProfileSectionRegistry.editProfileDetailBuilder`)
+  /// - the same form [onProfileSettings] opens as a sheet, without the
+  /// sheet's rounded card, top-aligned in the plane, its Save leaving the
+  /// pane through `ProfileSectionNavigator.close`. The installed shell
+  /// supplies it (the form is a template widget of the composed app);
+  /// null (the default) registers no detail, so the pencil and the row
+  /// open the sheet everywhere, as before.
+  final WidgetBuilder? profileSettingsDetail;
+
   const DriverProfileActions({
     required this.onProfileSettings,
     required this.onDeliveryZone,
@@ -94,6 +111,7 @@ class DriverProfileActions {
     required this.onDeleteAccount,
     required this.onOnlineHelper,
     this.orderHistoryDetail,
+    this.profileSettingsDetail,
   });
 }
 
@@ -150,6 +168,14 @@ class DriverProfileSections {
     // the default, so a shell that supplies none leaves the plane bare.
     if (actions.orderHistoryDetail != null) {
       registry.defaultSectionId ??= defaultSectionId;
+    }
+
+    // The settings form as the detail pane at plane widths (Ray
+    // 2026-09-08). First-wins like every other registry slot: an SDK that
+    // registered an edit detail before the driver keeps it.
+    final settingsDetail = actions.profileSettingsDetail;
+    if (settingsDetail != null) {
+      registry.editProfileDetailBuilder ??= settingsDetail;
     }
 
     registry.register(
@@ -283,7 +309,13 @@ class DriverProfileRows extends StatelessWidget {
           ProfileNavTile(
             icon: Remix.user_settings_line,
             title: AppHelpers.getTranslation(TrKeys.profileSettings),
-            onTap: () => actions.onProfileSettings(context),
+            onTap: () {
+              // Plane widths: the form in the host's detail plane (the
+              // same pane the header pencil opens); a phone, or a shell
+              // that registered no detail, gets the sheet as before.
+              if (ProfileSectionNavigator.openEditProfile(context)) return;
+              actions.onProfileSettings(context);
+            },
           ),
           ProfileNavTile(
             icon: Remix.navigation_fill,

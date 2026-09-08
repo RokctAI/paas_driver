@@ -17,7 +17,9 @@
 // tour read "42.50USD" / "1,500.00USD": nothing in a demo build selected a
 // currency, so AppHelpers.numberFormat fell through to intl's locale default.
 // The kernel now seeds ZAR at boot and falls back to it while the store is
-// empty; a real build is untouched.
+// empty; a real build is untouched. "Demo" is DemoSession.demoActive: the
+// build flag OR the runtime session, so a demo account signing in after
+// boot is seeded on the flip, and a session ending wipes nothing.
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +27,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:base_sdk/src/constants/demo_currency.dart';
 import 'package:base_sdk/src/models/data/currency_data.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 
 void main() {
@@ -35,9 +38,13 @@ void main() {
     await LocalStorage.init();
   });
 
-  tearDown(() {
-    // The override is app-global; never let one test leak into the next.
+  tearDown(() async {
+    // The overrides and the listener are app-global; never let one test
+    // leak into the next.
+    DemoCurrency.stopFollowingDemoSession();
+    await DemoSession.instance.clear();
     DemoCurrency.isDemoOverride = null;
+    DemoSession.isDemoOverride = null;
   });
 
   test('the demo currency is South African rand, symbol before the amount',
@@ -117,5 +124,73 @@ void main() {
     final rendered = AppHelpers.numberFormat(number: 1500);
 
     expect(rendered, isNot(startsWith('R')));
+  });
+
+  group('runtime demo session', () {
+    setUp(() {
+      // A real build: only the session can make it demo.
+      DemoSession.isDemoOverride = false;
+    });
+
+    test('fallback follows the session, not the build flag alone', () async {
+      expect(DemoCurrency.fallback, isNull);
+
+      await DemoSession.instance.activate();
+      expect(DemoCurrency.fallback?.id, 'ZAR');
+
+      await DemoSession.instance.clear();
+      expect(DemoCurrency.fallback, isNull);
+    });
+
+    test('followDemoSession seeds rand when the session flips on', () async {
+      DemoCurrency.followDemoSession();
+      // Session off on a real build: the boot-time seed is a no-op.
+      expect(LocalStorage.getSelectedCurrency(), isNull);
+
+      await DemoSession.instance.activate();
+
+      expect(LocalStorage.getSelectedCurrency()?.id, 'ZAR');
+      expect(AppHelpers.numberFormat(number: 1500), 'R1,500.00');
+    });
+
+    test('a session ending leaves the selected currency untouched',
+        () async {
+      DemoCurrency.followDemoSession();
+      await DemoSession.instance.activate();
+      expect(LocalStorage.getSelectedCurrency()?.id, 'ZAR');
+
+      await DemoSession.instance.clear();
+
+      // Never a delete: what was selected stays selected.
+      expect(LocalStorage.getSelectedCurrency()?.id, 'ZAR');
+    });
+
+    test('a currency a real account selected survives a demo session',
+        () async {
+      DemoCurrency.followDemoSession();
+      await LocalStorage.setSelectedCurrency(
+        CurrencyData(id: 'EUR', symbol: '€', position: 'before', rate: 1),
+      );
+
+      await DemoSession.instance.activate();
+      expect(LocalStorage.getSelectedCurrency()?.id, 'EUR');
+
+      await DemoSession.instance.clear();
+      expect(LocalStorage.getSelectedCurrency()?.id, 'EUR');
+    });
+
+    test('one listener per process however often the kernel registers',
+        () async {
+      DemoCurrency.followDemoSession();
+      DemoCurrency.followDemoSession();
+      DemoCurrency.followDemoSession();
+
+      // removeListener drops ONE registration: if three had been added,
+      // two would survive this and the flip below would still seed.
+      DemoCurrency.stopFollowingDemoSession();
+      await DemoSession.instance.activate();
+
+      expect(LocalStorage.getSelectedCurrency(), isNull);
+    });
   });
 }

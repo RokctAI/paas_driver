@@ -1,3 +1,89 @@
+## 1.22.0
+
+* Demo repositories follow the runtime demo session (demo login phase 2,
+  base_sdk 1.61.0 / core #184 `DemoSession`). Every demo seam in this SDK
+  now asks `DemoSession.demoActive` - the compile-time `IS_DEMO` build OR
+  the runtime session a server-marked account opens after a real sign-in -
+  instead of the compile-time `AppConstants.isDemo` alone. Nothing on
+  screen changes; a release build with neither on behaves exactly as
+  before.
+  * `lib/src/driver/di/driver_delivery_di.dart`:
+    `DriverDeliveryDependencies.register` registers the five courier
+    facades (CourierOrders / CourierParcel / Courier / CourierRoute /
+    DriverDeposit) through a demo-aware slot that reads the switch at
+    registration time, and keeps ONE listener on `DemoSession.instance`
+    (added once; a second `register` with the same container adds
+    nothing) that drops the facades this hook itself registered
+    (`isRegistered`-checked) and registers the other twin when the session
+    flips - after login, before the app routes on, and again on sign-out.
+    A facade a host pre-registered is never touched. Nothing throws at
+    boot, and a boot that restores an active session registers the demo
+    twins directly.
+  * `driver_launch_window.dart` (the launcher's unregistered-facade
+    fallback), `courier_location_fix.dart` (`pinnedBuild`, the pinned GPS)
+    and the installed driver `profile_page.dart` (the delete-account row
+    gate) read `DemoSession.demoActive` per call; none of the three can be
+    on screen at flip time, so a plain read is enough and no widget
+    listens.
+  * `test/demo_session_di_test.dart` pins it: the real types with the
+    session off, the Demo* twins after `activate()`, the real ones back
+    after `clear()`, a host's own facade surviving the flip, a double
+    `register` staying single, and a source contract that no
+    `AppConstants.isDemo` read remains in lib/ or templates/.
+
+## 1.21.5
+
+* Tablet: the driver's Profile settings open as the profile's DETAIL PANE
+  at plane widths instead of an END-anchored bottom sheet (Ray 2026-09-08,
+  the sheet fork ruling: "sheet = PHONE, plane widths get a pane" - the
+  sheet left an empty band beside itself at 385 dp and was cut in the
+  store crop). Requires base_sdk 1.60.11. The installed shell
+  (`profile_page.dart`) supplies `DriverProfileActions.profileSettingsDetail`
+  - `EditProfileModal(embedded: true)`, a new pane rendering mode of the
+  sheet's form: no `DriverSheetSurface` card, top-aligned in the plane
+  with its title, avatar, fields, vehicle row and Save, and Save leaves
+  the pane through `ProfileSectionNavigator.close` (back to the Order
+  history default) instead of popping the route. `DriverProfileSections
+  .register` puts it on the registry as `editProfileDetailBuilder`, so the
+  header pencil opens the pane through base's host; the Profile settings
+  row and the shell's `_openProfileSettings` try
+  `ProfileSectionNavigator.openEditProfile` first and fall back to
+  `showCustomModalBottomSheet`. On a phone the seam answers false, so the
+  sheet opens byte-identical to 1.21.4. Follow-up (users_sdk, not this
+  change): the tour's `users_close_profile_settings` chapter pops the
+  navigator while it can; at plane widths there is no sheet to pop, so
+  it pops the profile route itself - harmless as the last chapter.
+
+## 1.21.4
+
+* Tablet: the driver order card lays out inside a plane (Guided Tour run
+  34166841914, paas_driver main at 7c919273, tablet FIRST attempt at
+  1600x2560 / 240 dpi = 1066 dp, three planes: `flutter test` exited 1 on
+  `A RenderFlex overflowed by 676 pixels on the right` at the composed
+  `lib/presentation/component/orders_item.dart:200`, four times - one per
+  history row - so the tour fell back to its 800 dp native retry and the
+  landed tablet stills silently dropped to the two-plane geometry).
+  * Cause: `templates/components/driver/orders_item.dart` sized the
+    customer row's address and name / phone lines to
+    `MediaQuery.sizeOf(context).width - 124.w` - the SCREEN's width. On a
+    phone that is the card's width. Since 1.21.3 the card also renders in
+    the profile host's DETAIL plane (`OrderHistoryPane`), which at 1066 dp
+    is `(1066 - 2 * 14) / 3 = 346` dp wide: the row had 314 dp and was
+    handed 990 (`32 + 16 + (1066 - 124)`; ScreenUtil is 1:1 on a
+    non-compact window). At 800 dp the profile keeps both planes and the
+    history renders full width, which is why the retry never saw it.
+  * Fix: the column is `Expanded` (it takes the row's width) and the two
+    fixed widths become a `ConstrainedBox` `maxWidth` cap, so a phone lays
+    the lines out at exactly the width it always had while a plane bounds
+    them. Nothing else on the card changes.
+  * `test/driver_orders_item_layout_test.dart` pins the contract on the
+    template source: the template's `order_detail.dart` import chain
+    carries the `${package}` placeholder, so this package cannot pump it
+    (the same reason the driver home tests read their template). Verified
+    in a composed driver harness: the card in the 346 dp detail plane at
+    1066 dp lays out with no exception, the 800 dp and phone controls are
+    unchanged, and the phone address is still `width - 124.w` wide.
+
 ## 1.21.3
 
 * Tablet: the driver profile opens a DEFAULT section in the plane host's

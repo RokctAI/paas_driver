@@ -20,13 +20,14 @@ import 'package:products_sdk/src/common/infrastructure/models/data/seller_unit_d
 import 'package:products_sdk/src/common/infrastructure/models/response/seller_categories_paginate_response.dart';
 import 'package:products_sdk/src/common/infrastructure/models/response/seller_units_paginate_response.dart';
 
-/// Demo-only [SellerCatalogRepositoryFacade] (`--dart-define=IS_DEMO=true`):
-/// serves the fictional shop's categories and units from memory, so the
-/// manager foods tab's category strip and the create-product form's unit
-/// picker are populated in demo builds. Selected in place of
+/// Demo-only [SellerCatalogRepositoryFacade] (a demo build,
+/// `--dart-define=IS_DEMO=true`, or a demo session - base_sdk's
+/// `DemoSession.demoActive`): serves the fictional shop's categories and
+/// units from memory, so the manager foods tab's category strip and the
+/// create-product form's unit picker are populated. Selected in place of
 /// [SellerCatalogRepository] by `ProductsSdkDependencies`, the same
-/// `AppConstants.isDemo` ternary this SDK already applies to its
-/// customer-facing facades.
+/// runtime-switch registration this SDK applies to its customer-facing
+/// facades.
 ///
 /// The categories deliberately match the ones
 /// [DemoSellerProductsRepository]'s menu files its dishes under, so the strip

@@ -218,7 +218,7 @@ void main() {
     });
 
     test('the delete-account demo gate is kept', () {
-      expect(src, contains('if (!AppConstants.isDemo)'));
+      expect(src, contains('if (!DemoSession.demoActive)'));
     });
 
     testWidgets('without the owning SDKs the two rows are single-line',

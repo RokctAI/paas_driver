@@ -29,13 +29,14 @@ import 'package:products_sdk/src/common/infrastructure/models/response/seller_pr
 import 'package:products_sdk/src/common/infrastructure/models/response/single_seller_extras_group_response.dart';
 import 'package:products_sdk/src/common/infrastructure/models/response/single_seller_product_response.dart';
 
-/// Demo-only [SellerProductsRepositoryFacade] (`--dart-define=IS_DEMO=true`):
-/// serves a small fictional menu — products, add-ons and extras groups —
-/// from memory, so the manager foods tab renders a stocked menu instead of
-/// three empty tabs in demo builds. Selected in place of
+/// Demo-only [SellerProductsRepositoryFacade] (a demo build,
+/// `--dart-define=IS_DEMO=true`, or a demo session - base_sdk's
+/// `DemoSession.demoActive`): serves a small fictional menu — products,
+/// add-ons and extras groups — from memory, so the manager foods tab
+/// renders a stocked menu instead of three empty tabs. Selected in place of
 /// [SellerProductsRepository] by `ProductsSdkDependencies` — the same
-/// `AppConstants.isDemo` ternary this SDK already applies to its
-/// customer-facing products/categories/brands facades.
+/// runtime-switch registration this SDK applies to its customer-facing
+/// products/categories/brands facades.
 ///
 /// Never used in production: no HTTP client is constructed, every write is
 /// acknowledged locally and nothing leaves the device. The seed is obvious

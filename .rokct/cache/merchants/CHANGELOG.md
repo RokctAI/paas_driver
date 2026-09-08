@@ -1,3 +1,39 @@
+## 1.31.0
+
+* feat(demo): demo repositories follow the runtime demo session. base_sdk
+  1.61.0's `DemoSession` adds the runtime half of the demo switch (a
+  server-marked demo account signs in through the real login and the app
+  serves that session from the same fixtures the tour uses; nothing on
+  screen changes). This SDK's demo seams now ask that switch,
+  `DemoSession.demoActive` (a demo build OR a demo session), instead of
+  the compile-time `AppConstants.isDemo` alone:
+  * `MerchantsSdkDependencies` (shops twin) and
+    `ManagerMerchantsDependencies` (seller-shop, POS catalog and quick-flow
+    twins, the rand seed) choose by `DemoSession.demoActive` at
+    registration and add ONE listener each on `DemoSession.instance`
+    (once, guarded) that drops and re-registers exactly the singletons the
+    hook itself registered when the switch flips - after a demo login,
+    before routing, and back on sign-out. A host's own registration of the
+    same facade is never swapped. The one exception is `PosOrdersFacade`,
+    whose real side is the host's installed `ManagerPosOrdersAdapter`: a
+    demo session beginning in a wired host displaces that adapter with
+    `MockPosOrdersRepository` (the session must not create real orders),
+    remembers it, and puts it back when the session ends; an unwired host
+    gets the mock for the session and nothing after. Boot behaviour is
+    unchanged. A flip before the first `register` call is a no-op; nothing
+    in the re-register can throw.
+  * The installed restaurant hub's delete-account gate
+    (`restaurant_page.dart`) and the till's camera gate
+    (`billing_page.dart`) read `DemoSession.demoActive` - plain reads, not
+    listeners: both screens are built after the login flow has settled the
+    switch and are torn down by a sign-out, so neither is on screen while
+    it flips.
+  * Requires base_sdk >= 1.61.0. No screen, string or tour fragment
+    changes. `test/demo_session_di_test.dart` covers the three states,
+    the host-adapter displacement, the rand seed, and guards that no
+    `AppConstants.isDemo` read remains in lib/ or templates/;
+    `hub_markers_test.dart` pins the delete-account gate on the new read.
+
 ## 1.30.0
 
 * feat(pos): the Add Items pane's category chip bar - approved design

@@ -66,6 +66,24 @@ class ProfileSection {
     this.requires = const {},
     this.detailBuilder,
   });
+
+  /// A DETAIL WITHOUT A HUB CARD: a section that exists only to be opened
+  /// in a plane host's detail plane through
+  /// [ProfileSectionNavigator.openDetail] — never registered, never
+  /// rendered in the page body (its [builder] is an empty box). The
+  /// profile's edit form is the first such detail
+  /// ([ProfileSectionRegistry.editProfileDetailBuilder]): it has no card
+  /// of its own on the hub, only the identity-card pencil and whatever row
+  /// an SDK points at it.
+  const ProfileSection.detailOnly({
+    required this.id,
+    required WidgetBuilder this.detailBuilder,
+  })  : order = 0,
+        builder = _noCard,
+        visible = null,
+        requires = const {};
+
+  static Widget _noCard(BuildContext context) => const SizedBox.shrink();
 }
 
 /// The named slots inside the generic profile page's identity header card.

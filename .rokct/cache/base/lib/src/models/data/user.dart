@@ -34,6 +34,7 @@ class UserModel {
     String? password,
     String? confirmPassword,
     List<AddressNewModel>? addresses,
+    bool? isDemoAccount,
   }) {
     _id = id;
     _uuid = uuid;
@@ -52,6 +53,7 @@ class UserModel {
     _password = password;
     _addresses = addresses;
     _confirmPassword = confirmPassword;
+    _isDemoAccount = isDemoAccount;
   }
 
   UserModel.fromJson(dynamic json) {
@@ -70,6 +72,7 @@ class UserModel {
         : json['active'];
     _img = json['img'];
     _role = json['role'];
+    _isDemoAccount = parseDemoAccountMarker(json['is_demo_account']);
     if (json['addresses'] != null) {
       _addresses = [];
       json['addresses'].forEach((v) {
@@ -95,6 +98,7 @@ class UserModel {
   String? _password;
   String? _confirmPassword;
   List<AddressNewModel>? _addresses;
+  bool? _isDemoAccount;
 
   UserModel copyWith({
     String? id,
@@ -114,6 +118,7 @@ class UserModel {
     String? password,
     String? conPassword,
     List<AddressNewModel>? addresses,
+    bool? isDemoAccount,
   }) =>
       UserModel(
         id: id ?? _id,
@@ -133,6 +138,7 @@ class UserModel {
         confirmPassword: conPassword ?? _confirmPassword,
         password: password ?? _password,
         addresses: addresses ?? _addresses,
+        isDemoAccount: isDemoAccount ?? _isDemoAccount,
       );
 
   String? get id => _id;
@@ -169,6 +175,13 @@ class UserModel {
 
   String? get conPassword => _confirmPassword;
 
+  /// The backend's server-asserted demo marker (`is_demo_account` on the
+  /// login payload's user). True only for the real accounts the
+  /// production backend flags as demo; false when the key is absent, so
+  /// every existing payload reads as a real account. The login flow flips
+  /// `DemoSession` on it - never on the address or the password.
+  bool get isDemoAccount => _isDemoAccount ?? false;
+
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['id'] = _id;
@@ -185,6 +198,7 @@ class UserModel {
     map['active'] = _active;
     map['img'] = _img;
     map['role'] = _role;
+    map['is_demo_account'] = _isDemoAccount;
     if (_addresses != null) {
       map['addresses'] = _addresses?.map((v) => v.toJson()).toList();
     }
@@ -202,4 +216,14 @@ class UserModel {
         if (_referral?.isNotEmpty ?? false) 'referral': _referral,
         if (typeFirebase) "type": "firebase",
       };
+}
+
+/// Decodes the backend's `is_demo_account` marker. Frappe Check fields
+/// arrive as 0/1, JSON booleans as true/false; anything else (absent,
+/// null, an unexpected string) is NOT a demo account - the marker must
+/// only ever be asserted, never inferred.
+bool parseDemoAccountMarker(dynamic raw) {
+  if (raw is bool) return raw;
+  if (raw is num) return raw != 0;
+  return false;
 }

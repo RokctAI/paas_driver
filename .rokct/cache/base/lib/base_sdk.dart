@@ -118,6 +118,9 @@ export 'src/services/timing_telemetry.dart';
 export 'src/services/app_helpers.dart';
 export 'src/services/key_sound.dart';
 export 'src/services/local_storage.dart';
+// The runtime demo switch (a server-marked demo account signed in through
+// the real backend) alongside the compile-time AppConstants.isDemo.
+export 'src/services/demo_session.dart';
 // Memory pressure + image cache sizing (Play's Feb 2027 memory thresholds)
 // and the Restore Credentials transport (Play's April 2027 Zero-Tap
 // Sign-In requirement).

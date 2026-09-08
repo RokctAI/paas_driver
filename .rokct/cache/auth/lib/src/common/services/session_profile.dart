@@ -43,5 +43,6 @@ ProfileData sessionProfileOf(UserModel user) {
     img: user.img,
     role: user.role,
     addresses: user.addresses,
+    isDemoAccount: user.isDemoAccount,
   );
 }

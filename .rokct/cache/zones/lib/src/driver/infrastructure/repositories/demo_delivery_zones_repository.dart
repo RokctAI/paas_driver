@@ -21,7 +21,7 @@ import 'package:zones_sdk/src/common/domain/interface/delivery_zones.dart';
 /// fictional courier zone polygon offline, so the driver /delivery-zone
 /// editor is never an empty grey map in demo builds. Served in place of
 /// DriverDeliveryZonesRepository's HTTP path by the installed driver
-/// `zones_adapters.dart` — the same `AppConstants.isDemo` split delivery_sdk's
+/// `zones_adapters.dart` — the same `DemoSession.demoActive` split delivery_sdk's
 /// `DriverDeliveryDependencies` applies to every courier facade
 /// (DemoLmsRepository precedent). Never used in production; every write is
 /// acknowledged locally and nothing leaves the device.

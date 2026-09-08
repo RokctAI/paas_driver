@@ -1,5 +1,110 @@
 # Changelog
 
+## 1.62.0
+
+* Changed: base_sdk's own two demo reads follow the RUNTIME demo switch
+  (phase 2 of "demo login in production", Ray 2026-09-08; phase 1 was
+  1.61.0's `DemoSession`). `DemoCurrency` and `ProfileMetaRow` now ask
+  `DemoSession.demoActive` (a demo BUILD or a demo SESSION) where they
+  read the compile-time `AppConstants.isDemo` alone. The constant itself,
+  and `DemoSession.demoActive`'s own read of it, are untouched, so the
+  guided tour, render strip and screenshots build exactly as before.
+* Added: `DemoCurrency.followDemoSession()` - `seed()`s now and again on
+  every flip of `DemoSession.instance`, one listener per process. The
+  kernel DI (`BaseSdkDependencies.register`) calls it in place of the bare
+  `seed()`, so a demo account that signs in after boot still prints every
+  amount in rand. `seed()` keeps its contract - only where nothing is
+  selected, never a delete - so a session ending writes nothing and a
+  real account's currency stays exactly as it was. Test-only
+  `stopFollowingDemoSession()`.
+* Changed: the profile footer's Online/Offline dot (`ProfileMetaRow`)
+  reads as connected in a demo session as it does in a demo build, and
+  rebuilds on the session flip (`ListenableBuilder` on
+  `DemoSession.instance`): the profile is the screen a sign-out happens
+  on, so the dot re-asks the real probe the moment the session ends
+  instead of keeping the session's answer. Nothing new on screen.
+* `DemoCurrency.isDemoOverride` / `ProfileMetaRow.isDemoOverride` now
+  stand in for `DemoSession.demoActive` (null asks the session), same
+  seam as before for tests.
+* Tests: `test/demo_currency_test.dart` (seeded on flip, untouched on
+  clear, a selected currency survives a flip, one listener per process),
+  `test/base_profile_footer_demo_test.dart` (Online per session, back to
+  the probe on clear), and `test/demo_switch_contract_test.dart` - a
+  source contract that no `AppConstants.isDemo` read remains in any
+  `*/dart/lib` of this repo outside `app_constants.dart` (the definition)
+  and `demo_session.dart` (the OR), so a new seam cannot quietly bypass
+  the runtime switch.
+
+## 1.61.1
+
+* Added: the profile's edit form as a DETAIL PANE at plane widths (Ray
+  2026-09-08, the sheet fork ruling: "sheet = PHONE, plane widths get a
+  pane" — on the driver tablet the END-anchored Profile settings sheet
+  left an empty band at 385 dp and was cut in the store crop). A detail
+  WITHOUT a hub card: `ProfileSectionRegistry.editProfileDetailBuilder`
+  (nullable `WidgetBuilder`; the form rendered embedded — no sheet chrome,
+  app bar or back of its own) under the fixed step id
+  `ProfileSectionRegistry.editProfileDetailId`, plus
+  `ProfileSection.detailOnly(id:, detailBuilder:)` for such a section.
+  `ProfileSectionNavigator` gains `openDetail(context, id:, detailBuilder:)`
+  (an ad-hoc detail in the host's last plane), `openEditProfile(context)`
+  (the registry's edit detail), `canOpenEditProfile(context)` and
+  `close(context)` (an embedded detail's own way back to the landing state
+  — the default section's detail on three planes, the bare stage on two —
+  without popping the route), behind a new optional `onClose` on the seam
+  that `GenericProfileRoutePage` provides. The identity-card pencil now
+  tries `openEditProfile` first and runs `onEditProfile` only when the
+  host cannot open a detail, so an SDK keeps its sheet as the phone flow
+  by construction; the pencil also draws with a detail alone (planes
+  only — a phone with no `onEditProfile` draws no dead pencil). The corner
+  pill pops this detail back to the default before it pops the route,
+  exactly as for a card's detail. Every existing call site is
+  source-compatible; a registry with no `editProfileDetailBuilder` renders
+  byte-identical to 1.60.10.
+
+## 1.61.0
+
+* Added: the RUNTIME half of the demo switch, for "demo login in
+  production" (Ray 2026-09-08: keep the build-time tour flag AND let real
+  accounts on the production backend - one per role: deliveryman, seller,
+  admin - flip the app into the in-app fixtures once the real backend has
+  accepted them; nothing on screen says demo; session-scoped; sign-out
+  clears it; demo actions never reach real shops, drivers or payments).
+  `AppConstants.isDemo` (`--dart-define=IS_DEMO=true`) is untouched, so
+  the guided tour, render strip and screenshots build exactly as before.
+  New `DemoSession` (`lib/src/services/demo_session.dart`, exported): a
+  `ChangeNotifier` singleton (`DemoSession.instance`) whose `active` is
+  persisted in `LocalStorage` under `demo_session_active`, with
+  `activate()` / `clear()` (each notifies once per real flip, never on a
+  no-op) and `static bool get demoActive => isDemo ||
+  DemoSession.instance.active` - the one question every demo seam should
+  ask from now on. `LocalStorage.logout()` calls `clear()`, so every
+  sign-out path in the fleet (users_sdk logout / delete-account, the 401
+  auto-logout) ends the demo session with the session. New
+  `LocalStorage.setDemoSessionActive` / `getDemoSessionActive` /
+  `deleteDemoSessionActive` and `StorageKeys.keyDemoSessionActive`.
+* Added: the server-asserted demo marker on the user models. `UserModel`
+  (the login payload's `user`) and `ProfileData` (the profile endpoint,
+  the stored session) both parse an optional `is_demo_account` (a Frappe
+  Check's 0/1 or a JSON bool; absent, null or anything else is false) into
+  `bool get isDemoAccount`, carry it through `copyWith` / `toJson`, and
+  the shared `parseDemoAccountMarker` decodes it. auth_sdk 1.11.0 flips
+  `DemoSession` on this field alone, strictly after the real
+  `AuthRepository` has signed the account in - never on an address or a
+  password, and `MockAuthRepository` stays compile-time gated.
+* Phase 2 (SDK data wiring) follows: the per-SDK DI ternaries that read
+  `AppConstants.isDemo` at registration (auth, users, delivery, orders,
+  products, merchants, revenue, zones, comms, plus the delivery launcher /
+  location / profile gates and this kernel's `DemoCurrency.seed` and
+  `ProfileMetaRow`) move to `DemoSession.demoActive` and re-register on
+  `DemoSession.instance.addListener`. Until then `activate()` changes
+  nothing a user can see beyond the flag itself: with only this release
+  merged a demo account signs in and is served exactly like any other.
+  Tests: `test/demo_session_test.dart` (activate / clear / persist round
+  trip, listener notifications, sign-out via `LocalStorage.logout`,
+  `demoActive` under the `isDemoOverride` seam), and
+  `test/demo_account_marker_test.dart` (the marker on both models).
+
 ## 1.60.10
 
 * Added: the generic profile host's DETAIL PLANE (Ray 2026-09-07, "on a

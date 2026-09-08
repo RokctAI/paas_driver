@@ -17,8 +17,8 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 
-import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/services/error_presenter.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/telemetry.dart';
@@ -117,17 +117,21 @@ class CourierLocationFix {
   /// Whether this build pins the courier to the stored address instead of
   /// reading the device's position.
   ///
-  /// `IS_DEMO` builds run against [DemoDeliverySeed]: invented South
-  /// African shops, customers and addresses laid out around the app's
-  /// configured anchor, with the courier's stored address seeded among
-  /// them. The device's own GPS means nothing there — an emulator sits at
+  /// `IS_DEMO` builds - and, since the demo login's phase 2, a runtime
+  /// demo session ([DemoSession.demoActive] is the OR of the two) - run
+  /// against [DemoDeliverySeed]: invented South African shops, customers
+  /// and addresses laid out around the app's configured anchor, with the
+  /// courier's stored address seeded among them. The device's own GPS means nothing there — an emulator sits at
   /// its default Californian coordinate, a reviewer's phone wherever the
   /// reviewer is — and a real fix used to overwrite that stored address
   /// and animate the map an ocean away from every job on it. So a pinned
   /// build never asks the platform: [current] answers with
   /// [pinnedPosition], tagged [CourierLocationResult.pinned] so the caller
   /// leaves storage alone, and the on-duty tracking lane does not start.
-  static bool get pinnedBuild => AppConstants.isDemo;
+  /// Read per fix (the home page constructs one per call) and per lane
+  /// start, so a session that flips after login is honoured by the next
+  /// read without anything re-registering.
+  static bool get pinnedBuild => DemoSession.demoActive;
 
   /// Where a pinned build stands: the stored address, else the seed's
   /// anchor (which is the same fallback the home map already centres on).

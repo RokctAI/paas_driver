@@ -13,6 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
+import 'dart:async';
 import 'dart:convert';
 import 'package:base_sdk/src/models/data/address_information.dart';
 import 'package:base_sdk/src/models/data/address_old_data.dart';
@@ -20,6 +21,7 @@ import 'package:base_sdk/src/models/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:base_sdk/src/models/response/driver_show_response.dart';
 import 'package:base_sdk/src/presentation/theme/app_theme.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/services/secure_storage.dart';
 import 'package:base_sdk/src/services/storage_keys.dart';
 
@@ -481,7 +483,24 @@ abstract class LocalStorage {
     return DeliveryResponse.fromJson(map);
   }
 
+  /// The runtime demo switch's persisted half - see [DemoSession], which
+  /// owns the flag and is the only writer besides [logout].
+  static Future<void> setDemoSessionActive(bool active) async {
+    await _preferences?.setBool(StorageKeys.keyDemoSessionActive, active);
+  }
+
+  static bool getDemoSessionActive() =>
+      _preferences?.getBool(StorageKeys.keyDemoSessionActive) ?? false;
+
+  static Future<void> deleteDemoSessionActive() async {
+    await _preferences?.remove(StorageKeys.keyDemoSessionActive);
+  }
+
   static void logout() {
+    // A demo session is scoped to the sign-in that opened it: every
+    // sign-out path (users_sdk logout / delete-account, the 401
+    // auto-logout) ends here, so this is the one place that ends it.
+    unawaited(DemoSession.instance.clear());
     deleteWalletData();
     deleteSavedShopsList();
     deleteSearchList();

@@ -19,6 +19,7 @@ import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:auth_sdk/src/common/infrastructure/repositories/auth_repository.dart';
 import 'package:auth_sdk/src/common/infrastructure/repositories/mock_auth_repository.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/auth_sync_handler.dart';
+import 'package:auth_sdk/src/common/infrastructure/services/demo_hold_sync_handler.dart';
 
 /// Installer-convention DI hook: the composed app's generated `main.dart`
 /// calls `AuthSdkDependencies.register(GetIt.instance)` for every
@@ -36,9 +37,17 @@ class AuthSdkDependencies {
     // get_it before feature SDKs run; the process-singleton fallback keeps
     // hand-wired hosts that skipped it working. registerHandler replaces
     // any previous handler, so this is idempotent too. Requires
-    // base_sdk >= 1.5.0 (SyncEngine/SyncHandler).
+    // base_sdk >= 1.5.0 (SyncEngine/SyncHandler). DemoHoldSyncHandler
+    // holds the ops back while the runtime demo switch is on (it reads
+    // DemoSession per push, base_sdk >= 1.61.0), so registering once is
+    // enough; the repository above stays on the compile-time constant on
+    // purpose - a demo session signs in through the real backend, and the
+    // mock twin must never be selected at runtime.
     final engine =
         getIt.isRegistered<SyncEngine>() ? getIt<SyncEngine>() : SyncEngine();
-    engine.registerHandler(AuthSyncHandler.opType, AuthSyncHandler());
+    engine.registerHandler(
+      AuthSyncHandler.opType,
+      DemoHoldSyncHandler(AuthSyncHandler()),
+    );
   }
 }

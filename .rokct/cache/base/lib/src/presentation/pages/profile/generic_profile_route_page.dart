@@ -63,6 +63,12 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 /// filled; another section's detail replaces it, and the corner pill
 /// returns to the default before it pops the route. On two planes nothing
 /// is seeded — the profile keeps both planes until a card opens a detail.
+/// A detail with no hub card — the edit-profile form the registry's
+/// [ProfileSectionRegistry.editProfileDetailBuilder] supplies, opened by
+/// the identity-card pencil or [ProfileSectionNavigator.openEditProfile]
+/// — takes the same plane the same way, and the same pill returns from it;
+/// the detail itself may leave through [ProfileSectionNavigator.close]
+/// (a saved form), which is the pill's first step without the tap.
 ///
 /// On a phone (one plane) the page is [GenericProfilePage] exactly as
 /// before — no host, no pill, no seam; the platform back is the phone's
@@ -129,6 +135,14 @@ class _GenericProfileRoutePageState
     setState(() => _opened = section);
   }
 
+  /// Back to the landing state: the default on three planes, the bare
+  /// stage on two. The pill's first step, and an embedded detail's own
+  /// way out ([ProfileSectionNavigator.close]).
+  void _close() {
+    if (_opened == null) return;
+    setState(() => _opened = null);
+  }
+
   @override
   Widget build(BuildContext context) {
     // Re-resolve the stage surface when the theme toggle flips the
@@ -158,6 +172,7 @@ class _GenericProfileRoutePageState
               Positioned.fill(
                 child: ProfileSectionNavigator(
                   onOpen: _open,
+                  onClose: _close,
                   openSectionId: detail?.id,
                   child: PlaneHost(
                     stack: [
@@ -189,9 +204,7 @@ class _GenericProfileRoutePageState
                       back: FloatingNavBack(
                         icon: Remix.arrow_left_wide_fill,
                         label: AppHelpers.getTranslation(TrKeys.back),
-                        onTap: opened == null
-                            ? null
-                            : () => setState(() => _opened = null),
+                        onTap: opened == null ? null : _close,
                       ),
                     ),
                   ),
