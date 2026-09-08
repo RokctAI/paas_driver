@@ -401,9 +401,9 @@ List<ElementSpec> elementSpecs() {
     // asserted present in verifyFinders) is VIEWPORT-anchored rather than
     // content-anchored, so its measured bottom is always the bottom of the
     // probe viewport. The height fixed-point takes the maximum measured
-    // bottom, so chipping it would pin every frame to kProbeHeight. Same for
-    // the offline SnackBar the headless run raises. Both are in the picture;
-    // they just cannot carry a chip.
+    // bottom, so chipping it would pin every frame to kProbeHeight. It is in
+    // the picture - it is the screen's one Back affordance, product UI the
+    // route widget parks itself - it just cannot carry a chip.
   ];
 }
 
@@ -476,6 +476,21 @@ void verifyFinders(WidgetTester tester) {
   expectCount('host footer', find.byType(BaseProfileFooter), 1);
   expectCount('theme toggle', find.byType(ProfileThemeToggle), 1);
   expectCount('bare Back pill', find.byType(FloatingBottomNav), 1);
+
+  // And NOTHING transient on top of it. These frames become the review
+  // strip, the SVG exports, the user guide and the deck, where an offline /
+  // maintenance / error state must never appear. The online connectivity
+  // answer in [_mockAbsentPlugins] is what keeps that surface off the
+  // capture; this is the assertion that says so out loud the moment it
+  // regresses, instead of letting a snackbar quietly burn into a still.
+  expect(
+    find.byType(SnackBar),
+    findsNothing,
+    reason: 'render harness: a SnackBar is on the frame. The capture must be '
+        'the screen a courier with a working connection sees (see '
+        '_mockAbsentPlugins), not a transient error state - these frames '
+        'ship in the guided tour and the user guide.',
+  );
 }
 
 /// TODO(harness) 8/8 - real fonts.
@@ -534,7 +549,7 @@ Future<void> loadRealFonts() async {
   //
   //   * inside a Material ancestor a bare TextStyle inherits fontFamily
   //     'Roboto' from the theme's Typography - real glyphs, once Roboto is
-  //     registered (this is why the SnackBar's "Close" is fine);
+  //     registered (which is why every label inside the page itself is fine);
   //   * the floating Back pill sits in the route Stack ABOVE the page with no
   //     Material ancestor, so it inherits WidgetsApp's fallback DefaultTextStyle
   //     instead, whose family is 'monospace' (the pill's own code overrides
@@ -704,26 +719,60 @@ void _mockPathProvider(String dir) {
       .setMockMethodCallHandler(channel, (call) async => dir);
 }
 
-/// The other two channels this harness has to answer for paas_driver. Both
-/// answer NULL - nothing is simulated, the absent plugin is simply not allowed
-/// to throw an unhandled MissingPluginException that aborts the render:
+/// The three plugin channels this harness has to answer for paas_driver.
+/// Nothing here simulates a backend: each channel is answered with what the
+/// PLATFORM under a real device would answer, so the absent plugin cannot
+/// decide what the frame shows (nor throw an unhandled
+/// MissingPluginException that aborts the render).
 ///
-///  * `flutter_secure_storage` - `LocalStorage.setToken` clears the stored
-///    refresh contract through it, so the app's REAL session write can run
-///    unmodified instead of the harness reimplementing a trimmed version.
-///  * `connectivity_plus` - the app subscribes to the connectivity stream on
-///    startup. Answering null leaves the app in its genuine headless state
-///    (no connectivity events), which is what the frame should show.
+///  * `flutter_secure_storage` - NULL. `LocalStorage.setToken` clears the
+///    stored refresh contract through it, so the app's REAL session write can
+///    run unmodified instead of the harness reimplementing a trimmed version.
+///  * `connectivity_plus`, the `check` call - ONLINE (`['wifi']`). This is
+///    the platform side of `Connectivity().checkConnectivity()`, which is
+///    what `AppConnectivity.connectivity()` asks before every backend read.
+///    Answering NULL is not "no opinion": connectivity_plus parses a null
+///    reply as an EMPTY transport list, i.e. a device with no radio at all,
+///    so `GenericProfilePage`'s post-frame `fetchUser` took its offline
+///    branch and raised `AppHelpers.showNoConnectionSnackBar` - the "No
+///    internet connection / Close" bar - across the bottom of BOTH frames.
+///    That bar is an artefact of the headless runner, not of the product: a
+///    courier whose phone has a connection never sees it, and these frames
+///    are what ships in the guided tour, the user guide and the deck, where
+///    no offline / error state belongs. Answering the radio check the way a
+///    connected handset answers it is what makes the capture the screen a
+///    real user gets. It fakes no data: every repository behind that check
+///    is still the SDK's own demo implementation (IS_DEMO=true), so what
+///    fills the page is unchanged app logic over demo fixtures - which is
+///    also why the identity card's wallet now reads the demo account's real
+///    balance instead of the zero an unreachable profile fetch left behind.
+///    base_sdk's own profile footer already takes this position for the same
+///    reason: its Online dot reads connected on a demo build rather than
+///    draw a red Offline for a backend the build was never meant to have.
+///  * `connectivity_plus`, the STATUS stream - NULL. Nothing on this frame
+///    reacts to a connectivity CHANGE, and pushing events down the stream
+///    would be simulating device history rather than answering a plugin.
 void _mockAbsentPlugins() {
-  const channels = <String>[
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  const nullChannels = <String>[
     'plugins.it_nomads.com/flutter_secure_storage',
-    'dev.fluttercommunity.plus/connectivity',
     'dev.fluttercommunity.plus/connectivity_status',
   ];
-  for (final name in channels) {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(MethodChannel(name), (call) async => null);
+  for (final name in nullChannels) {
+    messenger.setMockMethodCallHandler(
+      MethodChannel(name),
+      (call) async => null,
+    );
   }
+  messenger.setMockMethodCallHandler(
+    const MethodChannel('dev.fluttercommunity.plus/connectivity'),
+    // The transport names connectivity_plus' own `parseConnectivityResults`
+    // maps to `ConnectivityResult`s ('wifi' -> ConnectivityResult.wifi, which
+    // `AppConnectivity.connectivity()` reads as connected). Any other method
+    // on this channel keeps the null answer.
+    (call) async => call.method == 'check' ? const <String>['wifi'] : null,
+  );
 }
 
 /// Lets REAL async work (drift isolate, futures, file IO) complete, then pumps
