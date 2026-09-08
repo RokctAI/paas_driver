@@ -82,12 +82,20 @@
       ]
     },
     {
+      "kicker": "declared - the radio a headless runner does not have",
+      "body": [
+        "These frames are captured ONLINE, and that is a deliberate declaration rather than a side effect. Every backend read on this page passes AppConnectivity.connectivity(), which is connectivity_plus' checkConnectivity() over a platform channel. A widget test has no such plugin, and answering the channel with null is not neutral: connectivity_plus parses null as an empty transport list - a handset with no radio at all - so the profile host's own fetchUser took its offline branch and raised the 'No internet connection / Close' SnackBar across the bottom of both frames.",
+        "So the harness answers that one call the way a connected handset answers it (['wifi'], marker in _mockAbsentPlugins) and captures the screen a courier with a working connection actually sees. Nothing else is faked: no HTTP is served, no fixture is written, and every repository behind that check is still the SDK's own demo implementation - the page is filled by unchanged app logic over demo data, which is exactly why the wallet now shows the demo account's real balance. base_sdk's profile footer already takes the same position for the same reason: its Online dot reads connected on a demo build instead of drawing a red Offline for a backend the build was never meant to have.",
+        "The harness asserts the outcome, it does not just hope for it: verifyFinders fails the run if any SnackBar is on the frame. An offline, maintenance or error state must never reach the guided tour, the user guide or the deck, and a render that quietly burns one in is worse than no render."
+      ]
+    },
+    {
       "kicker": "found by rendering (a drawing could not have caught these)",
       "items": [
-        "Balance reads R0.00 because the login contract's user carries no wallet: sessionProfileOf deliberately leaves the profile-only fields for a later profile fetch, and that fetch has no demo implementation in users_sdk. The zero is real app behaviour on a fresh demo session, not a missing fixture.",
+        "Balance reads R793.00 because the profile fetch runs: base_sdk's GenericProfilePage fires profileProvider.fetchUser on its first frame, users_sdk's demo MockUserRepository answers it, and the account's wallet lands on the header. It read R0.00 for as long as the capture was offline - the login contract's user carries no wallet (sessionProfileOf leaves the profile-only fields to that fetch), and an offline fetch never made it. The zero was the headless runner showing, not the app.",
         "The row labels are humanized translation-key fallbacks, not served strings: no backend answers headlessly, so AppHelpers.humanizeTrKey is what a reviewer is reading ('Profile settings', 'Order history'). That is also exactly what a first-run demo build shows before the translations fetch lands.",
         "'Delete account' is absent by design: the row sits behind a demo gate, and the render runs in demo mode - the gate is the shipped code path, not a harness omission. The harness asserts its absence rather than assuming it.",
-        "The back pill and the SnackBar are viewport-anchored rather than content-anchored - the pill floats in the route Stack, the SnackBar in the app's ScaffoldMessenger - so they carry no chip: numbering them would pin the frame height to the harness probe height rather than the page's own content height.",
+        "The back pill is viewport-anchored rather than content-anchored - it floats in the route Stack, above the page - so it carries no chip: numbering it would pin the frame height to the harness probe height rather than the page's own content height. It is still product UI, and the harness asserts it is there.",
         "Two elements rendered as solid white blocks until the harness registered the generic font families they ask for. The Back pill sits above the page with no Material ancestor, so its bare TextStyle inherits WidgetsApp's fallback style, whose family is 'monospace'; and the demo avatar is an inline SVG whose text asks for 'Helvetica, Arial, sans-serif', which vector_graphics_compiler passes to the engine whole, as one family name. A device resolves both to real system faces; a headless test engine has neither registered and falls through to the Ahem block font. Not a missing Inter weight - all four committed weights were already loading.",
         "The gap between 'Languages' and the buttons is the page's own nav clearance, not padding."
       ]
