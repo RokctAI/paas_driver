@@ -26,6 +26,7 @@
 // declares, so a fixture edit that reintroduces the shape fails here
 // instead of at driver_home initState.
 
+import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/models/response/driver_show_response.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_courier_repository.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_delivery_seed.dart';

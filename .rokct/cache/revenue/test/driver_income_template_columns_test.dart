@@ -13,18 +13,18 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Source contract for the driver income template's two-column plane on
-// medium+ windows (revenue_sdk 1.12.5).
+// medium+ windows (revenue_sdk 1.12.5, landscape branch 1.13.1).
 //
-// `templates/` is excluded from analysis (analysis_options.yaml) and only
-// compiles in the HOST package after install (its imports name
-// `${package}`), so nothing here can build the page; the guard is textual,
-// like driver_income_template_headers_test.dart. The geometry itself was
-// measured in a scratch host of the template under base's app_widget
-// ScreenUtil recipe: at 800x1280 dp the single column was 84 dp taller
-// than the reserved-slot viewport and the 300.h chart card straddled the
-// fold; with the plane the card sits whole, 12 dp above its column's
-// bottom edge, and neither column scrolls; at 432x768 dp (phone) the
-// widget tree and every rect are those of 1.12.4.
+// `templates/` is excluded from analysis (analysis_options.yaml), so the
+// guard here is textual, like driver_income_template_headers_test.dart -
+// it pins the SHAPE of the source. The geometry the shape produces is
+// measured for real next door, in driver_income_landscape_test.dart, which
+// builds this same file under base's app_widget host recipe at the four
+// tablet stills. Between them: at 800x1280 dp the single column was 84 dp
+// taller than the reserved-slot viewport and the 300.h chart card
+// straddled the fold; with the plane the card sits whole, 12 dp above its
+// column's bottom edge, and neither column scrolls; at 432x768 dp (phone)
+// the widget tree and every rect are those of 1.12.4.
 //
 // What it pins:
 //
@@ -42,6 +42,10 @@
 // 4. The statistics tiles size from their row's constraints (a
 //    LayoutBuilder), not the window width - the window-width formula
 //    overflowed the half-width column by a full tile.
+// 5. The left column reflows when it is LANDSCAPE (wider than it is tall,
+//    which is the 1280x800 still): the order-price card stands beside the
+//    transaction rows and the tiles keep the full width underneath, so
+//    nothing has to scroll under the Withdraw bar.
 
 import 'dart:io';
 
@@ -161,13 +165,63 @@ void main() {
     });
 
     test('the transactions section is the shared list', () {
-      final section =
-          _method(incomePage, 'List<Widget> _transactions(');
-      expect(section, contains('TrKeys.deliverymanTransactions'));
-      expect(section, contains('DriverWalletPage.push(context)'));
-      expect(section, contains("Key('incomeBankAccountsRow')"));
-      expect(section, contains('StatisticsScreen('));
+      // One definition of the portrait order, composed from the two
+      // halves the landscape branch places separately.
+      final section = _method(incomePage, 'List<Widget> _transactions(');
+      expect(
+        section,
+        matches(RegExp(r'\.\.\._transactionRows\(context\),\s*'
+            r'24\.verticalSpace,\s*_statistics\(state\),')),
+        reason: 'rows, 24, tiles - in that order:\n$section',
+      );
       expect(section, isNot(contains('_chart(')));
+
+      final rows = _method(incomePage, 'List<Widget> _transactionRows(');
+      expect(rows, contains('TrKeys.deliverymanTransactions'));
+      expect(rows, contains('DriverWalletPage.push(context)'));
+      expect(rows, contains("Key('incomeBankAccountsRow')"));
+      expect(rows, isNot(contains('StatisticsScreen(')));
+
+      final statistics = _method(incomePage, 'Widget _statistics(');
+      expect(statistics, contains('StatisticsScreen('));
+    });
+  });
+
+  group('driver income left column reflows when it is landscape', () {
+    test('the branch is the column\'s own box, not a dp threshold', () {
+      final wide = _method(incomePage, 'Widget _wideBody(');
+      expect(wide, contains('LayoutBuilder('));
+      expect(wide, contains('final landscape = box.maxWidth > box.maxHeight;'),
+          reason: 'wider than it is tall - no hand-tuned dp number');
+      expect(wide, contains('? _landscapeColumn(context, state)'));
+      // Portrait keeps the stack it has always had.
+      expect(wide, contains('_orderPrices(context, state)'));
+      expect(wide, contains('..._transactions(context, state)'));
+    });
+
+    test('landscape stands the card beside the rows, tiles full width', () {
+      final column = _method(incomePage, 'Widget _landscapeColumn(');
+      final row = _call(column, 'Row(');
+      expect(row, contains('crossAxisAlignment: CrossAxisAlignment.start'));
+      expect(RegExp(r'Expanded\(').allMatches(row), hasLength(2));
+      expect(row, contains('_orderPriceCard(context, state)'));
+      expect(row, contains('_transactionRows(context)'));
+      // The tiles are NOT in the row - they keep the column's full width.
+      expect(row, isNot(contains('_statistics(')));
+      expect(column, contains('_statistics(state)'));
+      expect(column.indexOf('Row('), lessThan(column.indexOf('_statistics(')));
+      // Nothing is dropped: the landscape column carries all four pieces.
+      expect(column, isNot(contains('_chart(')));
+    });
+
+    test('the order-price card is one widget both branches use', () {
+      final stacked = _method(incomePage, 'Column _orderPrices(');
+      expect(stacked, contains('_orderPriceCard(context, state)'));
+      expect(stacked, contains('32.verticalSpace'),
+          reason: 'the stacked branch keeps its gap under the card');
+      expect(RegExp(r'_orderPriceCard\(context, state\)')
+          .allMatches(incomePage), hasLength(2),
+          reason: 'declared once, called from each branch');
     });
   });
 

@@ -16,6 +16,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import 'package:base_sdk/src/handlers/log_redaction.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/handlers/http_service.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
@@ -155,10 +156,10 @@ abstract class TokenRefreshService {
       }
       // Transient (timeout, connectivity, 5xx): keep the stored session;
       // the original request's failure propagates to its caller.
-      debugPrint('==> token refresh transport failure: $e');
+      debugPrint('==> token refresh transport failure: ${redactLogText(e)}');
       return false;
     } catch (e) {
-      debugPrint('==> token refresh failure: $e');
+      debugPrint('==> token refresh failure: ${redactLogText(e)}');
       return false;
     }
   }

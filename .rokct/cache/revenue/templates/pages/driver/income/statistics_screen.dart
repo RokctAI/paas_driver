@@ -18,7 +18,8 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/presentation/components/title_icon.dart';
-import 'package:${package}/presentation/pages/income/widgets/statistics_item.dart';
+// Sibling of this file after install; see income_page.dart's note.
+import 'widgets/statistics_item.dart';
 
 class StatisticsScreen extends StatelessWidget {
   final String totalOrders;

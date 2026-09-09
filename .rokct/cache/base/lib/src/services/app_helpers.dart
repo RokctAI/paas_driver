@@ -36,6 +36,7 @@ import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/constants/demo_currency.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
+import 'package:base_sdk/src/handlers/log_redaction.dart';
 import 'package:base_sdk/src/handlers/network_exceptions.dart';
 import 'package:base_sdk/src/models/data/address_old_data.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
@@ -813,13 +814,18 @@ abstract class AppHelpers {
     try {
       String url = '';
       try {
-        url = e.requestOptions.uri.toString();
+        // Redacted at the source: this URL is debugPrinted by the
+        // telemetry client in debug builds (and a debug console is a CI
+        // job log), and stored server-side after that. A credential
+        // carried as a query parameter must survive neither trip.
+        url = redactUri(e.requestOptions.uri).toString();
       } catch (_) {}
       TelemetryClient.I.logError(
         type: 'network_unreachable',
         context: {
           'exception': e.type.name,
-          'message': e.message ?? '',
+          // Dio folds the failing address into some transport messages.
+          'message': redactLogText(e.message),
           if (url.isNotEmpty) 'url': url,
         },
       );

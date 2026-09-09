@@ -41,9 +41,16 @@ import 'package:revenue_sdk/src/common/presentation/bank/payout_sent_sheet.dart'
 import 'package:revenue_sdk/src/common/presentation/payouts/driver_payouts_page.dart';
 import 'package:revenue_sdk/src/driver/presentation/wallet/driver_wallet_page.dart';
 import 'package:revenue_sdk/src/common/presentation/withdraw/withdraw_sheet.dart';
-import 'package:${package}/presentation/pages/income/app_bar_screen.dart';
-import 'package:${package}/presentation/pages/income/statistics_screen.dart';
-import 'package:${package}/presentation/pages/income/widgets/income_item.dart';
+// Siblings of this file: the installer copies the whole
+// templates/pages/driver/income tree into the host's
+// lib/presentation/pages/income, so a relative import resolves in the
+// composed host exactly as the old `package:${package}/...` form did -
+// and, unlike that form, it also resolves HERE, which is what lets
+// revenue_sdk's own widget tests build this page (see
+// test/driver_income_landscape_test.dart) instead of only grepping it.
+import 'app_bar_screen.dart';
+import 'statistics_screen.dart';
+import 'widgets/income_item.dart';
 
 @RoutePage(name: 'DriverIncomeRoute')
 class IncomePage extends ConsumerStatefulWidget {
@@ -395,13 +402,27 @@ class _IncomePageState extends ConsumerState<IncomePage>
     );
   }
 
-  /// The transactions section, shared by both branches: the
+  /// The transactions section, shared by every branch: the
   /// "Deliveryman transactions" / "Your payouts" header, the wallet and
   /// bank-account rows and the statistics tiles, in the order the single
   /// column has always stacked them. A list rather than a Column so the
   /// compact branch keeps the same widget tree it had before the wide
   /// branch existed.
-  List<Widget> _transactions(BuildContext context, StatisticsState state) {
+  ///
+  /// The two halves are also reachable on their own ([_transactionRows]
+  /// and [_statistics]) because the landscape plane stands the ROWS beside
+  /// the order-price card and keeps the tiles full width underneath; this
+  /// list is the portrait order and stays the one definition of it.
+  List<Widget> _transactions(BuildContext context, StatisticsState state) =>
+      [
+        ..._transactionRows(context),
+        24.verticalSpace,
+        _statistics(state),
+      ];
+
+  /// The header and the two tappable rows - everything in the section
+  /// above the statistics tiles.
+  List<Widget> _transactionRows(BuildContext context) {
     return [
       // Thin wiring only (repo policy: substance lives in
       // analyzable lib/, templates/ is excluded from
@@ -461,37 +482,41 @@ class _IncomePageState extends ConsumerState<IncomePage>
       //   title: AppHelpers.getTranslation(TrKeys.rating),
       //   price: "-",
       // ),
-      24.verticalSpace,
-      StatisticsScreen(
-          totalOrders: (state.countData?.data?.totalCount ?? 0)
-              .toString(),
-          todayOrders: (state.countData?.data?.totalTodayCount ?? 0)
-              .toString(),
-          acceptedOrders: (state
-                      .countData?.data?.totalAcceptedCount ??
-                  0)
-              .toString(),
-          rejectedOrders: (state
-                      .countData?.data?.totalCanceledCount ??
-                  0)
-              .toString(),
-          doneOrders: (state.countData?.data?.totalDeliveredCount ??
-                  0)
-              .toString(),
-          canceledOrders:
-              (state
-                          .countData?.data?.totalNewCount ??
-                      0)
-                  .toString(),
-          acceptedPer:
-              "${((state.countData?.data?.totalAcceptedCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
-          rejectedPer:
-              "${((state.countData?.data?.totalCanceledCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
-          donePer:
-              "${((state.countData?.data?.totalDeliveredCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
-          canceledPer:
-              "${((state.countData?.data?.totalNewCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%"),
     ];
+  }
+
+  /// The statistics tiles, full width of whatever column they land in
+  /// (statistics_screen.dart sizes them from their own row's constraints).
+  Widget _statistics(StatisticsState state) {
+    return StatisticsScreen(
+        totalOrders: (state.countData?.data?.totalCount ?? 0)
+            .toString(),
+        todayOrders: (state.countData?.data?.totalTodayCount ?? 0)
+            .toString(),
+        acceptedOrders: (state
+                    .countData?.data?.totalAcceptedCount ??
+                0)
+            .toString(),
+        rejectedOrders: (state
+                    .countData?.data?.totalCanceledCount ??
+                0)
+            .toString(),
+        doneOrders: (state.countData?.data?.totalDeliveredCount ??
+                0)
+            .toString(),
+        canceledOrders:
+            (state
+                        .countData?.data?.totalNewCount ??
+                    0)
+                .toString(),
+        acceptedPer:
+            "${((state.countData?.data?.totalAcceptedCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
+        rejectedPer:
+            "${((state.countData?.data?.totalCanceledCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
+        donePer:
+            "${((state.countData?.data?.totalDeliveredCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%",
+        canceledPer:
+            "${((state.countData?.data?.totalNewCount ?? 0) / (state.countData?.data?.totalCount ?? 1) * 100).toStringAsFixed(1)}%");
   }
 
   /// Medium+ windows: the segmented control stays full width above two
@@ -519,15 +544,38 @@ class _IncomePageState extends ConsumerState<IncomePage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: SingleChildScrollView(
-                    key: const Key('incomeWideLeftColumn'),
-                    padding: EdgeInsets.only(bottom: bottom),
-                    child: Column(
-                      children: [
-                        _orderPrices(context, state),
-                        ..._transactions(context, state),
-                      ],
-                    ),
+                  child: LayoutBuilder(
+                    builder: (context, box) {
+                      // The LANDSCAPE plane. This column is bounded here
+                      // (it is an Expanded inside the body's Row), so
+                      // box.maxHeight is the viewport the scroller below
+                      // will get and box.maxWidth is the half-page it has
+                      // to spend. Wider than it is tall means the page is
+                      // short of the one thing the stacked order-price
+                      // card + transaction rows need - height - and has a
+                      // surplus of the one thing standing them side by
+                      // side costs: width. That is the whole rule; no dp
+                      // threshold to drift from the cards' real heights.
+                      //
+                      // It answers true only on a landscape tablet
+                      // (1280x800 and 1706x1066 give this column 616x474
+                      // and 829x603) and false on both portrait ones
+                      // (800x1280 -> 376x615, 1066x1706 -> 509x603),
+                      // which keep the stack Ray approved, unchanged.
+                      final landscape = box.maxWidth > box.maxHeight;
+                      return SingleChildScrollView(
+                        key: const Key('incomeWideLeftColumn'),
+                        padding: EdgeInsets.only(bottom: bottom),
+                        child: landscape
+                            ? _landscapeColumn(context, state)
+                            : Column(
+                                children: [
+                                  _orderPrices(context, state),
+                                  ..._transactions(context, state),
+                                ],
+                              ),
+                      );
+                    },
                   ),
                 ),
                 16.horizontalSpace,
@@ -543,6 +591,47 @@ class _IncomePageState extends ConsumerState<IncomePage>
           ),
         ],
       ),
+    );
+  }
+
+  /// The left column of the WIDE plane when that column is landscape
+  /// (see the rule in [_wideBody]): the order-price card stands BESIDE
+  /// the transaction rows instead of above them, and the statistics tiles
+  /// keep the full column width underneath.
+  ///
+  /// Nothing is hidden, dropped or shrunk - the same four pieces in the
+  /// same reading order, left to right then down. The card is 120 dp of
+  /// content in a half-page-wide slot it never needed, so lifting the
+  /// rows up beside it is the height the tiles were missing: at 1280x800
+  /// the stacked column measured 603 dp against a 474 dp viewport (the
+  /// Withdraw bar cut the tiles in half in the tour still); this
+  /// arrangement measures 451 and the tiles sit whole, above the bar,
+  /// with nothing to scroll.
+  Widget _landscapeColumn(BuildContext context, StatisticsState state) {
+    return Column(
+      children: [
+        Row(
+          // Both sub-columns keep their natural height and hang from the
+          // same top edge, so the card and the "Deliveryman transactions"
+          // header start on one line.
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: _orderPriceCard(context, state)),
+            // The seam between the two columns of the plane itself, so
+            // the sub-columns read as the same grid.
+            16.horizontalSpace,
+            Expanded(
+              child: Column(children: _transactionRows(context)),
+            ),
+          ],
+        ),
+        // The plane's own seam again (the portrait stack's 24 is the gap
+        // between two sections of ONE column; here the tiles follow a row
+        // that already reads as a band, and the 8 dp it gives back is
+        // headroom this short plane can spend on the tiles).
+        16.verticalSpace,
+        _statistics(state),
+      ],
     );
   }
 
@@ -594,63 +683,73 @@ class _IncomePageState extends ConsumerState<IncomePage>
     );
   }
 
+  /// The order-price card plus the gap that follows it in a stacked
+  /// column. The landscape plane stands the card beside the transaction
+  /// rows instead and supplies its own gap, so it calls
+  /// [_orderPriceCard] directly.
   Column _orderPrices(BuildContext context, StatisticsState state) {
     return Column(
       children: [
-        Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: AppStyle.cardDark,
-            borderRadius: BorderRadius.circular(10.r),
-          ),
-          padding: EdgeInsets.all(16.r),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                AppHelpers.getTranslation(TrKeys.orderPrice),
-                style: AppStyle.interNormal(
-                    size: 14,
-                    color: AppStyle.textPrimary,
-                    letterSpacing: -0.3),
-              ),
-              16.verticalSpace,
-              Text(
-                AppHelpers.numberFormat(
-                    number: state.countData?.data?.lastOrderTotalPrice ?? 0),
-                style: AppStyle.interSemi(
-                    size: 32,
-                    color: AppStyle.textPrimary,
-                    letterSpacing: -0.3),
-              ),
-              4.verticalSpace,
-              RichText(
-                  text: TextSpan(
-                      text: AppHelpers.getTranslation(TrKeys.lastIncome),
-                      style: AppStyle.interNormal(
-                          size: 12,
-                          color: AppStyle.textPrimary,
-                          letterSpacing: -0.3),
-                      children: [
-                    TextSpan(
-                      // Leading space: the label span carries none
-                      // ("Last income" is the translation, not "Last
-                      // income "), so without it the row read
-                      // "Last incomeR45.00". Same shape as the "Today"
-                      // row in statistics_screen.dart (" $todayOrders").
-                      text:
-                          ' ${AppHelpers.numberFormat(number: state.countData?.data?.lastOrderIncome ?? 0)}',
-                      style: AppStyle.interSemi(
-                          size: 12,
-                          color: AppStyle.textPrimary,
-                          letterSpacing: -0.3),
-                    )
-                  ])),
-            ],
-          ),
-        ),
+        _orderPriceCard(context, state),
         32.verticalSpace,
       ],
+    );
+  }
+
+  /// The card itself - "Order price", the last order's total and the
+  /// income line under it.
+  Widget _orderPriceCard(BuildContext context, StatisticsState state) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppStyle.cardDark,
+        borderRadius: BorderRadius.circular(10.r),
+      ),
+      padding: EdgeInsets.all(16.r),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppHelpers.getTranslation(TrKeys.orderPrice),
+            style: AppStyle.interNormal(
+                size: 14,
+                color: AppStyle.textPrimary,
+                letterSpacing: -0.3),
+          ),
+          16.verticalSpace,
+          Text(
+            AppHelpers.numberFormat(
+                number: state.countData?.data?.lastOrderTotalPrice ?? 0),
+            style: AppStyle.interSemi(
+                size: 32,
+                color: AppStyle.textPrimary,
+                letterSpacing: -0.3),
+          ),
+          4.verticalSpace,
+          RichText(
+              text: TextSpan(
+                  text: AppHelpers.getTranslation(TrKeys.lastIncome),
+                  style: AppStyle.interNormal(
+                      size: 12,
+                      color: AppStyle.textPrimary,
+                      letterSpacing: -0.3),
+                  children: [
+                TextSpan(
+                  // Leading space: the label span carries none
+                  // ("Last income" is the translation, not "Last
+                  // income "), so without it the row read
+                  // "Last incomeR45.00". Same shape as the "Today"
+                  // row in statistics_screen.dart (" $todayOrders").
+                  text:
+                      ' ${AppHelpers.numberFormat(number: state.countData?.data?.lastOrderIncome ?? 0)}',
+                  style: AppStyle.interSemi(
+                      size: 12,
+                      color: AppStyle.textPrimary,
+                      letterSpacing: -0.3),
+                )
+              ])),
+        ],
+      ),
     );
   }
 }

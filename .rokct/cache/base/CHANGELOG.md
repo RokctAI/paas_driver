@@ -1,5 +1,68 @@
 # Changelog
 
+## 1.63.1
+
+* Fixed: Tour builds hide the system bars on large screens so the launcher
+  taskbar stays out of tablet stills; shipped builds unchanged.
+  `SplashPage._removeSplash` now restores the post-splash system UI mode
+  through `postSplashSystemUiMode` (new
+  `src/presentation/adaptive/tour_system_ui.dart`): immersive-sticky only
+  when `AppConstants.isTour` (`--dart-define=TOUR_MODE=true`) AND the
+  window's shortest side is at least `AppBreakpoints.medium`, edge-to-edge
+  everywhere else - exactly what it was before.
+
+## 1.63.0
+
+* Fixed (security): a credential carried as a query parameter no longer
+  reaches a log. Dio's `LogInterceptor` prints the full request URI on
+  every request and on every failure, and a debug console is copied
+  verbatim into CI job logs - so any secret travelling in a query string
+  was written down in clear text every time the call failed. New
+  `src/handlers/log_redaction.dart` is the one place that decides what a
+  log line may say: `redactUri`, `redactLogText`, `redactHeaders` and the
+  `kSensitiveQueryParameters` / `kSensitiveHeaders` name lists. Redaction
+  is by parameter NAME, never by matching the secret itself, so nothing
+  has to know a key in order to hide it and a rotated key is covered the
+  moment it rotates. Everything else in the URI - host, path, the other
+  parameters, their order and encoding - is left exactly as it was, so a
+  redacted line is still worth reading.
+* Changed: every `LogInterceptor` this kernel builds now prints through
+  `logRedactedLine` (`HttpService.client`, both the ordinary and the
+  routing client). The credential names cover the ones in use across the
+  fleet - `api_key`, `apikey`, `api-key`, `key`, `token`, `access_token`,
+  `refresh_token`, `secret`, `signature` and friends as parameters;
+  `Authorization`, `Cookie`, `X-Api-Key`, `X-Goog-Api-Key` and
+  `X-RapidAPI-Key` as headers, since `requestHeader: true` prints those
+  verbatim too and moving a secret into a header is no fix if the header
+  is logged.
+* Changed: the network error funnel redacts before it reports.
+  `AppHelpers.errorHandler`'s connection-failure path sent
+  `requestOptions.uri` to telemetry, which debugPrints its whole payload
+  in a debug build and stores it after that; it now sends the redacted
+  URI and a redacted `message`. Same one-line treatment for the other
+  places that print a raw network exception: `TelemetryClient` (both
+  lanes, payload and delivery failure), `TokenRefreshService`,
+  `TranslationSeeder` and `RemoteConfigService`.
+* Added: `RoutingCredentialInterceptor`, on the routing client only. The
+  routing provider authenticates by an `Authorization` header as well as
+  by an `api_key` query parameter - an unauthenticated
+  GET answers 401 "Authorization field missing", and the header is
+  equivalent thereafter - so the interceptor strips every
+  credential-named parameter off a routing request and promotes its value
+  to the header. Call sites may keep passing `api_key` and none of them
+  can reintroduce the leak; the header also keeps the secret out of every
+  proxy and provider access log between the device and the API, which no
+  redaction on this side could ever reach. `AppConstants.routingKey` and
+  its `ROUTING_KEY` define are untouched.
+* Tests: `test/log_redaction_test.dart` - a failing request carrying a
+  credential parameter is driven through the real Dio logging path and
+  the emitted string is asserted to hold the path, the coordinates and
+  the 403 but not the credential; header lines redacted while a header
+  NAME quoted inside a response body is left alone; the routing
+  interceptor moving the key off the wire URL and onto the header, from
+  the query map and from a path-appended query alike; and a wiring
+  contract that no `LogInterceptor` built here prints raw.
+
 ## 1.62.0
 
 * Changed: base_sdk's own two demo reads follow the RUNTIME demo switch

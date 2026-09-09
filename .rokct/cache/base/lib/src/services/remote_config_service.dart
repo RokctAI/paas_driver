@@ -20,6 +20,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:base_sdk/src/constants/app_constants.dart';
+import 'package:base_sdk/src/handlers/log_redaction.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
 
 /// Boot-time tenant remote config (the `paas.api.remote_config.get_remote_config` API base
@@ -115,7 +116,7 @@ abstract class RemoteConfigService {
 
       debugPrint('==> remote config initialized');
     } catch (e) {
-      debugPrint('==> error initializing remote config: $e');
+      debugPrint('==> error initializing remote config: ${redactLogText(e)}');
     }
   }
 }

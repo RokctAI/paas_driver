@@ -1,3 +1,25 @@
+## 1.3.2
+
+* The Google Places API key is sent as an `X-Goog-Api-Key` header instead
+  of a `key=` query parameter. `GooglePlacesService.getPlaceDetails` put
+  the key in the query string of its GET
+  `https://places.googleapis.com/v1/places/{placeId}`, so the credential
+  was written down in full by every access log between this client and
+  Google - intermediary proxies and gateways, and Google's own - none of
+  which we can redact after the fact. Redacting our own logs does not
+  reach them; the only fix that does is not putting the secret in the URL.
+  * The sibling `getAutocomplete` had always sent the key as a header, so
+    this brings the two calls into agreement. Google documents the header
+    for the place-details endpoint specifically, alongside the query-
+    parameter form it replaces.
+  * `fields` and `sessionToken` are not credentials and stay in the query,
+    where that endpoint expects them; only the key moves.
+  * Regression test `places_service_api_key_test.dart` captures the
+    outgoing request through a recording `HttpClientAdapter` on the
+    service's `client` seam and asserts the key is absent from the URI,
+    the query string and the parameter map, and present as the header -
+    for both calls.
+
 ## 1.3.1
 
 * Route drawing sends ORS start/end as `lon,lat` strings instead of Dart

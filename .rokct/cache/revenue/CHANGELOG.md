@@ -1,3 +1,54 @@
+## 1.13.1
+
+* **Driver income: the landscape tablet still fits.** Ray's ruling is that
+  the guided tour captures the tablet in LANDSCAPE, and at 1280x800 dp
+  (the 2560x1600 panel at 320 dpi) the wide plane's left column measured a
+  474 dp viewport against 603 dp of content - a `maxScrollExtent` of 129
+  here, 136 as read off the tour's own capture - so the still showed the
+  Statistics tiles sliced in half by the Withdraw bar. The other three
+  tablet stills the tour takes (1706x1066 landscape at 240 dpi, 800x1280
+  and 1066x1706 portrait) all measured 0 and fit.
+  `templates/pages/driver/income/income_page.dart` now reflows that column
+  when it is LANDSCAPE - wider than it is tall, read straight off the
+  `LayoutBuilder` box the column is given, so there is no dp threshold to
+  drift from the cards' real heights. In landscape the order-price card
+  stands BESIDE the "Deliveryman transactions" header and the wallet and
+  bank-account rows instead of above them, and the statistics tiles keep
+  the full column width underneath; the gap between the row and the tiles
+  is the plane's own 16 rather than the stack's 24. Nothing is hidden,
+  dropped, shrunk or hung behind a scroll hint: the same four pieces in
+  the same reading order, left to right then down. The card was 120 dp of
+  content in a half-page-wide slot it never needed, and lifting the rows
+  up beside it is the height the tiles were missing. Portrait windows and
+  every compact (phone) window are untouched - the rule answers false at
+  376x615 and 509x603 dp, and the phone branch is not reached at all.
+  Measured under base's `templates/app_widget.dart` ScreenUtil recipe in a
+  Material 2 dark host with the SDK's Roboto standing in for Inter (the
+  test binding's own Ahem measures nothing like a real face), left column
+  `maxScrollExtent` before -> after:
+  1280x800 **129 -> 0** (content 603 -> 455 against a 474 dp viewport,
+  the tiles now ending 31 dp above the bar), 1706x1066 0 -> 0, 800x1280
+  0 -> 0, 1066x1706 0 -> 0; phone 432x768 unchanged to the pixel.
+* **The driver income template's sibling imports are relative.** The three
+  `package:${package}/presentation/pages/income/...` imports in
+  `income_page.dart` and the one in `statistics_screen.dart` are now
+  `'app_bar_screen.dart'`, `'statistics_screen.dart'`,
+  `'widgets/income_item.dart'` and `'widgets/statistics_item.dart'`. The
+  installer copies the whole `templates/pages/driver/income` tree into the
+  host's `lib/presentation/pages/income`, so they resolve in a composed
+  host exactly as the package form did (the composer substitutes
+  `${package}` by plain text replacement and never reads a page's own
+  imports; the route import comes from the manifest). What it buys:
+  the page now also resolves HERE, so revenue_sdk's own tests can BUILD
+  it. `test/driver_income_landscape_test.dart` pumps the real template
+  under the host recipe at all four tablet geometries and asserts both
+  columns' `maxScrollExtent` is 0, that the statistics tiles end above the
+  Withdraw button, and that the card sits beside the rows in landscape and
+  above them in portrait - plus that a phone window still gets the single
+  scrolling column. `test/driver_income_template_columns_test.dart` keeps
+  the textual guards and gains the landscape branch's shape. Manifest
+  1.13.0 -> 1.13.1.
+
 ## 1.13.0
 
 * **Demo repositories follow the runtime demo session.** Phase 2 of demo

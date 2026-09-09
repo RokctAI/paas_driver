@@ -17,6 +17,7 @@ import 'dart:math' show min;
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import 'package:base_sdk/src/handlers/log_redaction.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/bundled_translations.dart';
@@ -113,7 +114,7 @@ class TranslationSeeder {
     } catch (e) {
       // Silent failure — never user-visible; retried next launch because
       // the fingerprint was not persisted.
-      debugPrint('==> translation seed push failure: $e');
+      debugPrint('==> translation seed push failure: ${redactLogText(e)}');
     } finally {
       _inFlight = false;
     }

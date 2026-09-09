@@ -26,6 +26,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 
+import '../handlers/log_redaction.dart';
 import '../handlers/http_service.dart';
 import '../handlers/platform_gateway.dart';
 
@@ -185,7 +186,7 @@ class TelemetryClient {
       }
       // Local trail first — real even when the endpoint is unreachable.
       // Debug builds only: release logs must not carry full payloads.
-      if (kDebugMode) debugPrint('==> telemetry $encoded');
+      if (kDebugMode) debugPrint('==> telemetry ${redactLogText(encoded)}');
       final body = {
         'error_message': type,
         'context': encoded,
@@ -203,7 +204,7 @@ class TelemetryClient {
         await _deliver(controlCmd, body);
       }
     } catch (e) {
-      debugPrint('==> telemetry delivery failed ($type): $e');
+      debugPrint('==> telemetry delivery failed ($type): ${redactLogText(e)}');
     }
   }
 
@@ -246,7 +247,9 @@ class TelemetryClient {
       }
       // Local trail first — real even when the endpoint is unreachable.
       // Debug builds only: release logs must not carry full payloads.
-      if (kDebugMode) debugPrint('==> telemetry track $event $encoded');
+      if (kDebugMode) {
+        debugPrint('==> telemetry track $event ${redactLogText(encoded)}');
+      }
       final body = {
         'event': event,
         'context': encoded,
@@ -264,7 +267,9 @@ class TelemetryClient {
         return await _deliver(controlTrackCmd, body);
       }
     } catch (e) {
-      debugPrint('==> telemetry track delivery failed ($event): $e');
+      debugPrint(
+        '==> telemetry track delivery failed ($event): ${redactLogText(e)}',
+      );
       return false;
     }
   }

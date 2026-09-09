@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.62.0",
+      "version": "1.63.1",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -260,7 +260,7 @@
       ]
     },
     "delivery_sdk": {
-      "version": "1.22.0",
+      "version": "1.22.2",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "11db8e698632a6cee50e92a83fef8a494c4b55cf316bbaf6398f652460cb8dea",
         "lib/presentation/routes/delivery_adapters.dart": "cd22c591ae3179bcc44d95cead4ac89abddfecdc6217a8c316037890e13ecddc",
@@ -284,7 +284,7 @@
         "lib/presentation/pages/profile/profile_page.dart": "3c4e5ccd99e4129e3ea02b29817cd2d3283a030723721239be45ed7adc4d2f9d",
         "lib/presentation/pages/profile/edit_car.dart": "648a82e48b46ba35df36dce1ce5de8882fea7c2ecd3eac7ac6a6521375a1c180",
         "lib/presentation/pages/profile/widgets/cancel_dialog.dart": "07780d5e61c179d24a5c4694412f61d052bccf20eaf5c946b0cbf85be1b09ed0",
-        "lib/presentation/pages/profile/widgets/edit_profile_modal.dart": "8f9333b0aef899c96a947d51b3ee27d783d4cfa3676a6f4e2d772cc8a4cfe8b0",
+        "lib/presentation/pages/profile/widgets/edit_profile_modal.dart": "054d81e0f546b33e54b899d381a2a12048b593ddf81c0db75244e41c9623ab48",
         "lib/presentation/pages/profile/widgets/logout_modal.dart": "8f0dabbab10f77125cfe6f510955124bbe6816d4e1b2341e3a64c47d87d74000",
         "lib/presentation/pages/profile/widgets/sections_item.dart": "e1b13f1ec5c5ea3341a18ab03d1edfdfed53e2a0d251877ab2084f7d70d90f10",
         "lib/presentation/pages/auth/become_driver/become_driver.dart": "827e48b4224df8027f6b8318b6e40922884bd4206afdb7787a9682e9c8cf1cee",
@@ -689,7 +689,7 @@
       "boot_hooks": []
     },
     "map_sdk": {
-      "version": "1.3.1",
+      "version": "1.3.2",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -761,10 +761,10 @@
       }
     },
     "revenue_sdk": {
-      "version": "1.13.0",
+      "version": "1.13.1",
       "files": {
-        "lib/presentation/pages/income/statistics_screen.dart": "109a6991659b9a3fe0120dfece7b94055c9c90feeb1f7c87d4c69ae732505eaf",
-        "lib/presentation/pages/income/income_page.dart": "a747ecb342512ea39244563d549b445f7ff500dd4f1f2deebe96ac279575d440",
+        "lib/presentation/pages/income/statistics_screen.dart": "3e7695b40210bb562f982f606f375ef5bfdbf85cf158cb2644e8433adc15d138",
+        "lib/presentation/pages/income/income_page.dart": "48ec2cdce3cf595ad0ea36149f1cd601d255b652a082ca070d7f472c337a76b6",
         "lib/presentation/pages/income/app_bar_screen.dart": "f1904f211621d1e96b14f0f550d7bd3211add5b6bb3d80b049ac6b133990bd84",
         "lib/presentation/pages/income/widgets/statistics_item.dart": "b43a9adb482a8bd0751b9b97b04051fec9fa48f1a958dccc294d6402dba0caf5",
         "lib/presentation/pages/income/widgets/income_item.dart": "7ede514501b14b81093a7cbabc03787a9f2eaac3aa4668e8eaa471bbf94e9f1d"
@@ -1078,8 +1078,8 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.62.0",
-      "hash": "fe249e290130fd4e"
+      "version": "1.63.1",
+      "hash": "104a820b22aa352e"
     },
     "comms": {
       "version": "1.16.0",
@@ -1106,12 +1106,12 @@
       "hash": "326fd62a42d2e763"
     },
     "delivery": {
-      "version": "1.22.0",
-      "hash": "76c2f94940647cee"
+      "version": "1.22.2",
+      "hash": "b2d5566c78c8e66d"
     },
     "map": {
-      "version": "1.3.1",
-      "hash": "59d2d79706c97184"
+      "version": "1.3.2",
+      "hash": "a06c45f6e8a9a1ee"
     },
     "zones": {
       "version": "1.6.0",
@@ -1130,8 +1130,8 @@
       "hash": "ef378600c400e1cf"
     },
     "revenue": {
-      "version": "1.13.0",
-      "hash": "662023c8de9d934b"
+      "version": "1.13.1",
+      "hash": "b3d40d21fe3aabd4"
     },
     "weather": {
       "version": "1.6.1",

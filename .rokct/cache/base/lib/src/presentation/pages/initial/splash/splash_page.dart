@@ -26,6 +26,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
+import 'package:base_sdk/src/presentation/adaptive/tour_system_ui.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -61,9 +62,13 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   /// gesture pill). Re-asserting the mode and the shared overlay style here,
   /// at the exact moment the splash goes away, restores the full frame:
   /// content draws behind both transparent bars with white icons.
-  static void _removeSplash() {
+  ///
+  /// The mode itself comes from [postSplashSystemUiMode]: edge-to-edge for
+  /// every shipped build and every phone, immersive only for a tour build
+  /// on a large screen (see `tour_system_ui.dart` for why).
+  void _removeSplash() {
     FlutterNativeSplash.remove();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    applyPostSplashSystemUi(context);
     SystemChrome.setSystemUIOverlayStyle(AppStyle.systemUiOverlay);
   }
 

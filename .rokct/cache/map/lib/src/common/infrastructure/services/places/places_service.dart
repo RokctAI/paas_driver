@@ -97,9 +97,13 @@ class GooglePlacesService {
   /// https://places.googleapis.com/v1/places/{placeId}
   Future<PlaceDetails?> getPlaceDetails(String placeId, {String? sessionToken}) async {
     try {
+      // The API key travels as a header, never as a `key=` query
+      // parameter: a query string is written down verbatim by every proxy,
+      // gateway and server access log between here and Google, and none of
+      // those logs are ours to redact. `fields` and `sessionToken` are not
+      // secret and stay in the query, where this endpoint expects them.
       final Map<String, String> queryParameters = {
         'fields': 'id,displayName,formattedAddress,location',
-        'key': _apiKey,
       };
 
       if (sessionToken != null) {
@@ -109,6 +113,11 @@ class GooglePlacesService {
       final response = await _dio.get<dynamic>(
         'https://places.googleapis.com/v1/places/$placeId',
         queryParameters: queryParameters,
+        options: Options(
+          headers: {
+            'X-Goog-Api-Key': _apiKey,
+          },
+        ),
       );
 
       final body = response.data;

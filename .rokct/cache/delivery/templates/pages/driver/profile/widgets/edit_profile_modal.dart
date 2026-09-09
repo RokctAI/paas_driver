@@ -120,62 +120,75 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                                   final imageState = ref.watch(
                                     profileImageProvider,
                                   );
-                                  return Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      ShopAvatar(
-                                        radius: 16,
-                                        imageUrl: imageState.imageUrl,
-                                        path: imageState.path,
-                                        size: 50,
-                                        padding: 6,
-                                        bgColor: AppStyle.black.withOpacity(
-                                          0.27,
-                                        ),
-                                      ),
-                                      Container(
-                                        width: 50.r,
-                                        height: 50.r,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            16.r,
-                                          ),
-                                          color: AppStyle.black.withOpacity(
+                                  // The avatar's own square. A Row hands
+                                  // a non-flex child unbounded width, so
+                                  // without this the Stack is as wide as
+                                  // whatever a child asks for - the
+                                  // 100000-wide error box a build failure
+                                  // leaves behind overflowed the row on
+                                  // the tablet. Bounded, nothing inside
+                                  // can size the row.
+                                  return SizedBox.square(
+                                    dimension: 50.r,
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        ShopAvatar(
+                                          radius: 16,
+                                          imageUrl: imageState.imageUrl,
+                                          path: imageState.path,
+                                          size: 50,
+                                          padding: 6,
+                                          bgColor: AppStyle.black.withOpacity(
                                             0.27,
                                           ),
                                         ),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          Remix.camera_fill,
-                                          color: AppStyle.white,
-                                          size: 20.r,
+                                        Container(
+                                          width: 50.r,
+                                          height: 50.r,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              16.r,
+                                            ),
+                                            color: AppStyle.black.withOpacity(
+                                              0.27,
+                                            ),
+                                          ),
                                         ),
-                                        onPressed: () async {
-                                          final XFile? pickedFile =
-                                              await ImagePicker().pickImage(
-                                                source: ImageSource.gallery,
-                                                maxWidth: 1000,
-                                                maxHeight: 1000,
-                                                imageQuality: 90,
-                                              );
-                                          if (pickedFile != null) {
-                                            // ignore: use_build_context_synchronously
-                                            ref
-                                                .read(
-                                                  profileImageProvider.notifier,
-                                                )
-                                                .changePhoto(
-                                                  // ignore: use_build_context_synchronously
-                                                  context: context,
-                                                  path: pickedFile.path,
-                                                  firstname:
-                                                      state.userData?.firstname,
+                                        IconButton(
+                                          icon: Icon(
+                                            Remix.camera_fill,
+                                            color: AppStyle.white,
+                                            size: 20.r,
+                                          ),
+                                          onPressed: () async {
+                                            final XFile? pickedFile =
+                                                await ImagePicker().pickImage(
+                                                  source: ImageSource.gallery,
+                                                  maxWidth: 1000,
+                                                  maxHeight: 1000,
+                                                  imageQuality: 90,
                                                 );
-                                          }
-                                        },
-                                      ),
-                                    ],
+                                            if (pickedFile != null) {
+                                              // ignore: use_build_context_synchronously
+                                              ref
+                                                  .read(
+                                                    profileImageProvider
+                                                        .notifier,
+                                                  )
+                                                  .changePhoto(
+                                                    // ignore: use_build_context_synchronously
+                                                    context: context,
+                                                    path: pickedFile.path,
+                                                    firstname: state
+                                                        .userData
+                                                        ?.firstname,
+                                                  );
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   );
                                 },
                               ),
@@ -437,12 +450,21 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
     if (widget.embedded) {
       // The pane: the host's plane is the surface, so no sheet card - the
       // form top-aligned under the plane's safe area, the title leading.
-      return Align(
-        alignment: Alignment.topCenter,
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.only(top: 16.h),
-            child: body,
+      // The plane is a bare box, though (base's PlaneHost: Row - Expanded
+      // - Planes - Builder, no Scaffold and no sheet between the app and
+      // this form), so the Material the form's IconButtons and text
+      // fields require is this widget's to provide - transparent, the
+      // plane's surface shows through. The sheet has the bottom-sheet
+      // route's Material and keeps its own card below.
+      return Material(
+        type: MaterialType.transparency,
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(top: 16.h),
+              child: body,
+            ),
           ),
         ),
       );

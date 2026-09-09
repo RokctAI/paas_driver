@@ -29,6 +29,9 @@ abstract class AppConstants {
   /// `DemoSession.demoActive` (`isDemo || DemoSession.instance.active`)
   /// wherever a seam must honour both.
   static const bool isDemo = bool.fromEnvironment('IS_DEMO');
+  /// Set only by the Guided Tour build and test args in the shared workflow
+  /// (`--dart-define=TOUR_MODE=true`); never in a shipped build.
+  static const bool isTour = bool.fromEnvironment('TOUR_MODE');
   static const bool isPhoneFirebase = true;
   static const int scheduleInterval = 60;
   /// Defaults to phone when SIGN_UP_TYPE isn't passed via --dart-define

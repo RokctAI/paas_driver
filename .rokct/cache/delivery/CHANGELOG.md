@@ -1,3 +1,94 @@
+## 1.22.2
+
+* The standalone harness can finally load this SDK's whole test suite.
+  `TrKeys` entries this SDK's pages reference are declared in
+  `manifest.json` (`tr_keys`, plus the `app_type.driver` block) and are by
+  design absent from raw base_sdk: the installer injects every installed
+  SDK's manifest keys into the HOST app's copy of base_sdk's `TrKeys`,
+  between the `// @sdk-tr-keys-start` / `// @sdk-tr-keys-end` markers
+  base_sdk carries for that purpose. Resolved standalone, base_sdk comes
+  from the workspace checkout and that marker region is empty, so every
+  `TrKeys.<key>` failed to compile and ten test files never loaded.
+  * `tool/inject_tr_keys.dart` (new, the merchants_sdk / lms_sdk pattern)
+    performs the same injection the installer does, from the same single
+    source of truth (`manifest.json`), into the same marker region of the
+    RESOLVED base_sdk checkout, with the same collision rule - a key
+    base_sdk already declares outside the markers is skipped, base wins
+    (`juvoBenefit` is the one such key today). It is idempotent, writes
+    only inside the markers, and commits nothing anywhere. Run it from
+    `delivery/dart` after `flutter pub get`:
+    `dart run tool/inject_tr_keys.dart`. Nothing is added to `TrKeys` by
+    hand, and the standalone harness cannot drift from compose because
+    both read the same map.
+  * `test/tr_keys_injection_guard_test.dart` (new) fails with the exact
+    regeneration command whenever the resolved base_sdk is missing a
+    manifest key - ONE actionable failure instead of 58 undefined-getter
+    errors taking down the driver suite - and additionally pins the other
+    direction: every `TrKeys.<name>` referenced anywhere in `lib/`,
+    `templates/` or `test/` must be declared by this manifest or by
+    base_sdk itself, so a key added to the source but not to the manifest
+    is caught here rather than in a composed host.
+* `test/demo_driver_details_test.dart` imports
+  `package:base_sdk/src/handlers/api_result.dart`. `ApiResult.when` is not
+  missing from base_sdk - it is a member of the generated
+  `ApiResultPatterns` extension, and a Dart extension only applies where
+  its defining library is imported. This file was the one caller that
+  imported neither that library nor the barrel that exports it (every
+  other test in this package already imports it directly), so its two
+  `result.when(...)` calls were the only `undefined_method` failures of
+  their kind.
+
+## 1.22.1
+
+* Profile settings pane: give the embedded editor a Material ancestor and
+  bound the header row; fixes the error box and overflow at plane widths
+  (Guided Tour run 34219676531, paas_driver at 4e016066, both tablet legs
+  - 1066 dp three planes and 800 dp two planes; the phone sheet was
+  fine). `17-users_profile_settings` showed the detail plane as a Flutter
+  error box: `No Material widget found. IconButton widgets require a
+  Material widget ancestor` at the composed
+  `lib/presentation/pages/profile/widgets/edit_profile_modal.dart:156`
+  (seven of them - the camera button and every text field), then
+  `A RenderFlex overflowed by 99702 pixels on the right` at the header
+  `Row` (`:124`, `constraints: 0.0<=w<=314.2`, `size: 314.2 x 100000`).
+  * Cause: `EditProfileModal(embedded: true)` (1.21.5) is rendered by
+    base's routed profile host as a `PlaneHost` plane - Row, Expanded,
+    Planes, Builder - straight under the MaterialApp, with no Scaffold
+    and no sheet between the app and the form, and the host's theme is
+    Material 2 (`useMaterial3: false`), whose `IconButton` and
+    `TextField` assert a `Material` ancestor. The sheet the phone opens
+    has the bottom-sheet route's Material, which is why it never showed.
+    Each control that failed to build was replaced by Flutter's
+    `ErrorWidget`, whose render box asks for 100000 x 100000; the header
+    row's avatar `Stack` is a non-flex Row child, so it got unbounded
+    width, took the box's 100000 and overflowed the row - the second
+    error is the first one's box.
+  * Fix (`templates/pages/driver/profile/widgets/edit_profile_modal.dart`
+    only): the embedded branch returns the form on a
+    `Material(type: MaterialType.transparency)` - the plane's surface
+    still shows through - and the avatar `Stack` sits in a
+    `SizedBox.square(dimension: 50.r)`, the square its overlay and
+    `ShopAvatar` already draw, so nothing inside it can size the row. The
+    sheet branch is untouched (`DriverSheetSurface(child: body)`); on a
+    phone the header measures exactly as before wherever `50.r >= 48`
+    (every phone the 375 dp design covers), the avatar square having
+    been the Stack's largest child.
+  * `test/driver_profile_settings_pane_render_test.dart` pins it. The
+    template cannot be pumped from this package (its import chain carries
+    the composer's `${package}` placeholder, like the driver home and
+    order card tests), so the widget tests pump the header row it draws -
+    the real `ShopAvatar` and `UnderlinedBorderTextField` templates -
+    inside the real `PlaneHost` under the host's M2 theme at both tour
+    widths: bare, the row throws `No Material widget found` and the one
+    `RenderFlex overflowed` with the `ErrorWidget` in the avatar and the
+    row 100000 tall, at 314 / 361 dp exactly as the tour reported; under
+    the shell the fix installs it renders clean with the avatar 50 x 50;
+    the bound holds even against an `ErrorWidget` placed in the camera's
+    seat, and without the bound the Material alone still overflows; the
+    same row under a Material at phone width never failed. Source tests
+    pin the transparent Material on the embedded branch alone, the
+    untouched sheet return and the bounded Stack.
+
 ## 1.22.0
 
 * Demo repositories follow the runtime demo session (demo login phase 2,
