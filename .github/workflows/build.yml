@@ -80,6 +80,10 @@ jobs:
       # app and attach it to releases (windows/ scaffolding is installed by desktop_sdk
       # at compose time and committed back like android/ etc.)
       build_windows: true
+      # Ship the Windows release as a single Inno Setup installer (.exe)
+      # instead of the zip folder.
+      windows_installer: true
+      app_display_name: 'Driver'
       # Opt into Huawei Mobile Services wiring (hms_sdk in composer.json). Gracefully
       # skips to a GMS-only build until agconnect-services.json exists in Occultation.
       build_hms: true
