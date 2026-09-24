@@ -95,7 +95,6 @@ android {
         resValue "string", "facebook_app_id", dartDefines.FACEBOOK_APP_ID ?: ""
         resValue "string", "facebook_client_token", dartDefines.FACEBOOK_CLIENT_TOKEN ?: ""
         resValue "string", "fb_login_protocol_scheme", dartDefines.FB_LOGIN_PROTOCOL_SCHEME ?: ""
-        resValue "string", "app_name", dartDefines.DRIVER_APP_NAME ?: ""
     }
 
     signingConfigs {
