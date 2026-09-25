@@ -16,14 +16,16 @@ with no network.
 Locally, after a compose (the shell has no tracked `lib/`):
 
 ```bash
-flutter test --dart-define=IS_DEMO=true test/render/render_screen_test.dart
+flutter test test/render/render_screen_test.dart
 python <shared-workflows>/scripts/render/compose_strip.py \
     --config test/render/strip.json --base-dir out \
     --out render-strip.html --emit-numbering test/render/numbering.json
 ```
 
-Without `--dart-define=IS_DEMO=true` the SDKs register their real HTTP
-repositories and you render a broken, empty screen.
+The harness activates a demo session itself; the SDKs register their real
+repositories and base_sdk's DemoGatewayInterceptor answers them from each
+SDK's own `<cmd>.json` fixtures. A cmd with no fixture fails with
+`DemoFixtureMissing`.
 
 **Keep it in sync.** A PR that changes this screen updates this config in the
 same PR, exactly as it updates the owning SDK's tour fragment and demo seeds.

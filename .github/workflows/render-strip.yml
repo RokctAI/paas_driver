@@ -39,6 +39,6 @@ jobs:
       render-suffix: ${{ inputs.render-suffix }}
       upload-renders: ${{ inputs.upload-renders }}
       # Defaults: test/render/render_screen_test.dart + test/render/strip.json,
-      # IS_DEMO=true, and the compose + build_runner passes this shell needs —
+      # no dart-defines (the harness activates the demo session itself), and the compose + build_runner passes this shell needs —
       # paas_driver has no tracked lib/, so the render must run against the
       # composed tree exactly as universal-flutter-build sees it.

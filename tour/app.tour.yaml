@@ -9,7 +9,7 @@
 #
 # Demo account: setup.demo_email below is substituted into auth_sdk's
 # shared fragment, so its demo sign-in signs straight in as
-# driver@demo.rokct.ai - in demo builds MockAuthRepository maps that email
+# driver@demo.rokct.ai - in demo builds auth_sdk's api.user.login fixture maps that email
 # to the deliveryman role, which Driver's session policy (delivery_sdk
 # manifest, app_type.driver) lands on /home, exactly where the delivery
 # fragment starts. Left unset, the fragment falls back to
@@ -110,12 +110,12 @@ tour:
   # Chapter 2 - the territory: zones_sdk's delivery-zone editor
   # (/delivery-zone, opened from the courier profile in normal use - the
   # delivery chapter's last step lands on /profile right before this). In
-  # demo builds DemoDriverDeliveryZonesRepository draws the same zone
+  # demo sessions zones_sdk's fixtures draw the same zone
   # square the home map shows.
   - fragment: zones
   # Chapter 3 - the money: revenue_sdk's /income dashboard (app_type.driver
   # DriverIncomeRoute - opened from the courier profile in normal use). In
-  # demo builds DemoCourierStatisticsRepository serves a fictional week of
+  # demo sessions revenue_sdk's fixtures serve a fictional week of
   # earnings so the tiles, chart and order rows render stocked.
   - fragment: revenue
   # Chapter 4 - the pocket calculator: calc_sdk's /calc (composed on driver
