@@ -30,15 +30,15 @@
 // renders entirely from delivery_sdk's and revenue_sdk's own demo
 // repositories.
 //
-// Data comes from the SDKs, not from here: run with
-// `--dart-define=IS_DEMO=true` and the composed app's DI hands back
-// DemoCourierRepository, DemoCourierStatisticsRepository, MockAuthRepository
-// and friends. See scripts/render/README.md §2.5 in shared-workflows.
+// Data comes from the SDKs, not from here: the harness activates a demo
+// session (DemoSession.instance.activate), the composed app's DI registers
+// the SDKs' REAL repositories, and base_sdk's DemoGatewayInterceptor answers
+// every platform cmd from the SDKs' own `<cmd>.json` fixtures. See
+// scripts/render/README.md §2.5 in shared-workflows.
 //
 // Run (after a compose, so lib/ and the SDK caches exist):
-//   flutter test --dart-define=IS_DEMO=true test/render/render_screen_test.dart
-//   RENDER_SUFFIX=_draft flutter test --dart-define=IS_DEMO=true \
-//       test/render/render_screen_test.dart
+//   flutter test test/render/render_screen_test.dart
+//   RENDER_SUFFIX=_draft flutter test test/render/render_screen_test.dart
 
 import 'dart:convert';
 import 'dart:io';
@@ -65,7 +65,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:auth_sdk/src/common/di/auth_di.dart';
 import 'package:auth_sdk/src/common/services/session_profile.dart';
-import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/di/base_di.dart';
 import 'package:base_sdk/src/domain/interface/auth.dart';
 // ApiResult's `when` is an extension declared in its freezed part, so the
@@ -80,6 +79,7 @@ import 'package:base_sdk/src/presentation/pages/profile/widgets/profile_section_
 import 'package:base_sdk/src/presentation/pages/profile/widgets/profile_theme_toggle.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_ui_keys.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:comms_sdk/src/common/di/comms_di.dart';
 import 'package:delivery_sdk/src/common/di/delivery_di.dart';
@@ -115,8 +115,8 @@ const double kProbeHeight = 2600;
 /// Slack below the last element in the final frame, in logical pixels.
 const double kBottomPadding = 20;
 
-/// The demo courier this shell signs in as. auth_sdk's MockAuthRepository maps
-/// this address to the `deliveryman` role, which is the role delivery_sdk's
+/// The demo courier this shell signs in as. auth_sdk's `api.user.login`
+/// fixture maps this address to the `deliveryman` role, which is the role delivery_sdk's
 /// session policy admits to /home in the driver app.
 const String kDemoCourierEmail = 'driver@demo.rokct.ai';
 
@@ -124,20 +124,19 @@ const String kDemoCourierEmail = 'driver@demo.rokct.ai';
 ///
 /// Exactly the registrations the composed `lib/main.dart` makes, in the same
 /// order: the generated `@generated-sdk-di` block first, then the
-/// `@generated-di-hooks` block's driver-role hooks. With
-/// `--dart-define=IS_DEMO=true` those hand back the SDKs' own demo
-/// repositories (DemoCourierRepository, DemoCourierStatisticsRepository,
-/// MockAuthRepository, MockAddressRepository) instead of the HTTP ones — no
-/// fixtures are written here.
+/// `@generated-di-hooks` block's driver-role hooks. Those register the SDKs'
+/// REAL repositories; with the demo session active (set in renderVariant)
+/// base_sdk's DemoGatewayInterceptor answers their platform calls from each
+/// SDK's own `<cmd>.json` fixtures — no fixtures are written here.
 ///
 /// Only the SDKs this screen's widget tree actually resolves are registered;
 /// the rest of the composed set (telemetry, hms, desktop, calc, weather,
 /// processing, corporate) contributes nothing the profile reads.
 Future<void> registerDemoDependencies() async {
   assert(
-    AppConstants.isDemo,
-    'run with --dart-define=IS_DEMO=true, or the SDKs register their real '
-    'HTTP repositories and the render is of a broken, empty screen',
+    DemoSession.demoActive,
+    'demo session not active: the real repositories would call a live '
+    'backend and the render is of a broken, empty screen',
   );
   final GetIt getIt = GetIt.instance;
   BaseSdkDependencies.register(getIt);
@@ -164,8 +163,8 @@ Future<void> registerDemoDependencies() async {
 /// nameless.
 ///
 /// So sign in the way the app does: through the REAL
-/// `AuthRepositoryFacade.login` (demo mode has already made that
-/// MockAuthRepository), map the account with auth_sdk's own
+/// `AuthRepositoryFacade.login` (whose `api.user.login` call the demo
+/// interceptor answers from auth_sdk's fixture), map the account with auth_sdk's own
 /// `sessionProfileOf`, and persist it through the app's own `LocalStorage`
 /// API. Every value on the header is therefore the SDK's demo account, not a
 /// number typed in here. Declared in the strip config's notes.
@@ -193,8 +192,8 @@ Future<void> seedDeviceHistory(WidgetTester tester) async {
 
 /// TODO(harness) 4/8 - EXCEPTION: stub a service with no demo implementation.
 ///
-/// Empty. Every facade the profile resolves has an `isDemo` twin in its own
-/// SDK, so nothing is stubbed here.
+/// Empty. Every facade the profile resolves goes through the platform
+/// gateway, so the SDKs' fixtures answer it and nothing is stubbed here.
 void registerExceptionStubs() {}
 
 /// TODO(harness) 5/8 - register sections / routes / gates.
@@ -215,8 +214,8 @@ void registerExceptionStubs() {}
 /// that stops registering them fails the run loudly instead of rendering an
 /// empty profile that still looks plausible.
 ///
-/// The one gate on the row list (`if (!AppConstants.isDemo)`, which hides
-/// "Delete account") resolves from the same dart-define the data does.
+/// The one gate on the row list (demo mode hides "Delete account") resolves
+/// from the same demo session the data does.
 void registerScreen() {}
 
 /// TODO(harness) 6/8 - the widget under test.
@@ -463,13 +462,13 @@ void verifyFinders(WidgetTester tester) {
   );
 
   // Nine rows: the full register minus "Delete account", which the page hides
-  // behind `if (!AppConstants.isDemo)` and this run is a demo run.
+  // in demo mode and this run is a demo session.
   expectCount('navigation row', find.byType(ProfileNavTile), 9);
   expect(
     find.widgetWithText(ProfileNavTile, 'Delete account'),
     findsNothing,
-    reason: 'render harness: "Delete account" is gated on !AppConstants.isDemo '
-        'and this render is IS_DEMO=true, so it must not be on the frame.',
+    reason: 'render harness: "Delete account" is hidden in demo mode and '
+        'this render runs in a demo session, so it must not be on the frame.',
   );
 
   // Host chrome the route widget itself owns.
@@ -742,8 +741,8 @@ void _mockPathProvider(String dir) {
 ///    no offline / error state belongs. Answering the radio check the way a
 ///    connected handset answers it is what makes the capture the screen a
 ///    real user gets. It fakes no data: every repository behind that check
-///    is still the SDK's own demo implementation (IS_DEMO=true), so what
-///    fills the page is unchanged app logic over demo fixtures - which is
+///    is still the SDK's real repository answered by the demo interceptor, so
+///    what fills the page is unchanged app logic over demo fixtures - which is
 ///    also why the identity card's wallet now reads the demo account's real
 ///    balance instead of the zero an unreachable profile fetch left behind.
 ///    base_sdk's own profile footer already takes this position for the same
@@ -847,6 +846,9 @@ Future<void> renderVariant(
   await tester.runAsync(() async {
     await LocalStorage.init();
     await LocalStorage.setAppThemeMode(dark);
+    // Demo on: the mock preferences above start empty, so the persisted flag
+    // is set again for each variant. DemoGatewayInterceptor reads it.
+    await DemoSession.instance.activate();
   });
   AppStyle.setBrightness(dark ? Brightness.dark : Brightness.light);
 
