@@ -25,34 +25,36 @@
 // approved width, none is dropped, and the sideways scroll reaches the
 // last one.
 
-import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:orders_sdk/src/manager/domain/interface/seller_orders.dart';
-import 'package:orders_sdk/src/manager/infrastructure/repositories/demo_seller_orders_repository.dart';
+import 'package:orders_sdk/src/manager/infrastructure/repositories/seller_orders_repository.dart';
 import 'package:orders_sdk/src/manager/presentation/board/board_column.dart';
 import 'package:orders_sdk/src/manager/presentation/board/board_status.dart';
 import 'package:orders_sdk/src/manager/presentation/board/orders_board_body.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import 'support/demo_fixtures.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
-    SharedPreferences.setMockInitialValues({});
-    await LocalStorage.init();
-    // The queue providers read the board's facade off GetIt; the demo seed
-    // is the same stocked shift the guided tour captures.
+    // The queue providers read the board's facade off GetIt: the real
+    // repository in a demo session, answered from the seeded shift the
+    // guided tour captures (templates/assets/demo/orders).
+    await startDemoFixtures();
     GetIt.instance.registerSingleton<SellerOrdersRepositoryFacade>(
-      DemoSellerOrdersRepository(),
+      SellerOrdersRepository(),
     );
   });
 
-  tearDownAll(() => GetIt.instance.reset());
-  setUp(DemoSellerOrdersRepository.reset);
+  tearDownAll(() async {
+    await stopDemoFixtures();
+    await GetIt.instance.reset();
+  });
 
   for (final size in const [Size(1066, 1600), Size(800, 1280)]) {
     testWidgets('${size.width.toInt()} logical: all seven 33a columns at the '

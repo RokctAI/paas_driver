@@ -90,7 +90,7 @@ class _CustomToggleState extends State<CustomToggle> {
         margin: REdgeInsets.all(3),
         padding: REdgeInsets.symmetric(vertical: 7, horizontal: 9),
         decoration: BoxDecoration(
-          color: AppStyle.white,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(6.r),
           boxShadow: [
             BoxShadow(

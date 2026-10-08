@@ -24,6 +24,7 @@ import 'package:base_sdk/src/services/time_service.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 // [refork] removed host router import
 import 'package:base_sdk/src/presentation/theme/theme.dart';
+import 'package:remixicon/remixicon.dart';
 
 class ParcelItem extends StatelessWidget {
   final ParcelOrder? parcel;
@@ -41,7 +42,7 @@ class ParcelItem extends StatelessWidget {
         margin: EdgeInsets.only(bottom: 10.h),
         padding: EdgeInsets.all(16.r),
         decoration: BoxDecoration(
-          color: AppStyle.white,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(10.r),
         ),
         child: Column(
@@ -75,8 +76,8 @@ class ParcelItem extends StatelessWidget {
                         : Icon(
                             AppHelpers.getOrderStatus(parcel?.status ?? "") ==
                                     OrderStatus.delivered
-                                ? Icons.done_all
-                                : Icons.cancel_outlined,
+                                ? Remix.check_double_line
+                                : Remix.close_circle_line,
                             size: 16.r,
                           ),
                   ),
@@ -118,7 +119,7 @@ class ParcelItem extends StatelessWidget {
                     color: AppStyle.enterOrderButton,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.keyboard_arrow_right),
+                  child: const Icon(Remix.arrow_right_s_line),
                 ),
               ],
             ),

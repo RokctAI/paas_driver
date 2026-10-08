@@ -36,7 +36,7 @@ class NoDataInfo extends StatelessWidget {
             title,
             style: AppStyle.interRegular(
               size: 14,
-              color: AppStyle.black,
+              color: AppStyle.inkFor(Theme.of(context).brightness),
               letterSpacing: -0.3,
             ),
             textAlign: TextAlign.center,

@@ -162,7 +162,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage>
   Widget build(BuildContext context) {
     return KeyboardDismisser(
       child: Scaffold(
-        backgroundColor: AppStyle.surfaceDark,
+        backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
@@ -293,9 +293,9 @@ class _FoodsPageState extends ConsumerState<FoodsPage>
       height: 44,
       padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: AppStyle.strokeDarkSubtle),
+        border: Border.all(color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
       ),
       child: Consumer(
         builder: (context, ref, child) {
@@ -304,7 +304,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage>
           return Row(
             children: [
               Icon(Remix.search_line,
-                  size: 16, color: AppStyle.textDarkFaint),
+                  size: 16, color: AppStyle.faintFor(Theme.of(context).brightness)),
               const SizedBox(width: 8),
               Expanded(
                 child: TextField(
@@ -322,7 +322,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage>
                   ),
                   style: AppStyle.interNormal(
                     size: 14,
-                    color: AppStyle.textPrimary,
+                    color: AppStyle.inkFor(Theme.of(context).brightness),
                   ),
                   cursorColor: AppStyle.primary,
                   decoration: InputDecoration(
@@ -332,7 +332,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage>
                         '${AppHelpers.getTranslation(TrKeys.search)}...',
                     hintStyle: AppStyle.interNormal(
                       size: 14,
-                      color: AppStyle.textDarkFaint,
+                      color: AppStyle.faintFor(Theme.of(context).brightness),
                     ),
                   ),
                 ),
@@ -344,7 +344,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage>
                 child: Icon(
                   Remix.equalizer_line,
                   size: 16,
-                  color: AppStyle.textDarkFaint,
+                  color: AppStyle.faintFor(Theme.of(context).brightness),
                 ),
               ),
             ],

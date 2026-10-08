@@ -102,7 +102,7 @@ class NoConnectionDialog extends ConsumerWidget {
           title: AppHelpers.getTranslation(TrKeys.continueText),
           background: AppStyle.transparent,
           borderColor: AppStyle.black,
-          textColor: AppStyle.black,
+          textColor: AppStyle.inkFor(Theme.of(context).brightness),
           onPressed: () => _continueOffline(context),
         ),
       ],

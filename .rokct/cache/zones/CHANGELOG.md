@@ -1,3 +1,15 @@
+## 1.7.0
+
+* Demo runs the REAL `DriverDeliveryZonesRepository` through base_sdk
+  1.73.0's `DemoGatewayInterceptor`. `ZonesSdkDependencies` registers
+  `DemoFixtures.registerAssetDirectory('assets/demo/zones')`; the
+  `api.delivery_man.get_deliveryman_zone_polygon` and
+  `set_deliveryman_zone_polygon` fixtures ship from
+  `templates/assets/demo/zones`. Deleted `DemoDriverDeliveryZonesRepository`
+  and the driver adapter's demo gate. The demo zone is a fixed square
+  around the Johannesburg anchor; a redraw is acknowledged but not kept.
+  Requires base_sdk 1.73.0.
+
 ## 1.6.0
 
 * Demo repositories follow the runtime demo session (demo login phase 2,

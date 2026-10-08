@@ -1,9 +1,11 @@
 {
   "name": "delivery_sdk",
-  "version": "1.22.2",
+  "version": "1.28.1",
+  "_comment_version_1_28_0": "1.27.0 -> 1.28.0: driver active delivery live activity (design section 3a, approved 2026-09-26). DriverLiveActivity publishes ONE key (driver:active) to base_sdk's LiveActivities (base_sdk >= 1.76.0; drawn by comms_sdk >= 1.19.0) from HomeNotifier's state: 'Go to restaurant / Go to customer \u00b7 order #<id>' with three segments (to restaurant, collect, to customer), scooter tracker, address and cash to collect in the subtitle, 'Due HH:mm', Navigate and Delivered (opens the proof step, never completes the order); 'Online \u00b7 waiting for orders' (ongoing, no bar) between deliveries; removed when offline. Not swipeable while online. The courier Workmanager task has no foreground-service notification today, so this is the only ongoing entry and there are never two. No manifest key, cmd, payload or route changed.",
+  "_comment_version_1_27_0": "1.26.1 -> 1.27.0: demo runs the REAL courier repositories through base_sdk 1.73.0's DemoGatewayInterceptor (Ray, 2026-09-25). DriverDeliveryDependencies registers the real orders/parcel/courier/route/deposit/load/POI repositories unconditionally plus DemoFixtures.registerAssetDirectory('assets/demo/delivery'); templates/assets/demo/delivery/<cmd>.json (installed with templates/assets) carries the data the deleted Demo* twins served. Deleted: DemoCourierOrdersRepository, DemoCourierParcelRepository, DemoCourierRepository, DemoCourierRouteRepository, DemoDriverDepositRepository, DemoDriverLoadRepository, DemoDriverPoiRepository and the hook's DemoSession listener/slot swap. Kept: a trimmed DemoDeliverySeed serving the three legacy REST calls the interceptor cannot answer (vehicle types, parcel marketplace list, parcel detail) plus the demo map anchor. Demo writes are acknowledged but no longer change what later reads return (fixtures are static). Needs base_sdk 1.73.0.",
   "_comment_requires": "delivery_sdk >= 1.17.0 requires comms_sdk >= 1.15.0: the installed driver home_page template asks for the OS notification permission through comms_sdk's PushPermissionService (comms owns push in every composition), which is the class that de-duplicates a concurrent request and keeps the failure inside a catch. Every driver-persona composer profile already carries comms_sdk. The composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
   "_comment_requires_host": "delivery_sdk >= 1.21.3 opens the driver profile's default section in the plane host's DETAIL PLANE: the installed profile_page.dart shell renders GenericProfileRoutePage at plane widths and hands the rows section a detailBuilder (the embedded Order history list) with ProfileSectionRegistry.defaultSectionId set, so it requires base_sdk >= 1.60.10 (ProfileSection.detailBuilder, ProfileSectionRegistry.defaultSectionId, ProfileSectionNavigator.open and the routed host's third-plane seeding, core #181). Before that: delivery_sdk >= 1.21.0 renders the driver profile on base_sdk's generic profile host: the installed profile_page.dart shell wraps GenericProfilePage in a PlaneHost/PlanePage (PlaneSpan.two) with a FloatingBackPill, claims ProfileHeaderSlot.stats and registers the driver rows on ProfileSectionRegistry, so it requires base_sdk >= 1.58.0 (ProfileNotifier.fromLocator's lazy facade resolution behind profileProvider - the driver compose registers no ShopsRepositoryFacade/GalleryRepositoryFacade - on top of the PlaneHost and header-slot APIs base_sdk 1.43.0 / 1.27.0 introduced). The composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
-  "_comment_requires_demo_session": "delivery_sdk >= 1.22.0 requires base_sdk >= 1.61.0 (DemoSession, core #184): the driver DI hook and every demo gate in this SDK read DemoSession.demoActive - the compile-time IS_DEMO build OR the runtime demo session a server-marked account opens after a real sign-in - instead of AppConstants.isDemo, and DriverDeliveryDependencies keeps one listener on DemoSession.instance that re-registers the five courier facades when the session flips (after login, before routing; and on sign-out). The composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
+  "_comment_requires_demo_session": "delivery_sdk >= 1.27.0 requires base_sdk >= 1.73.0 (DemoGatewayInterceptor / DemoFixtures, core #268): a demo session runs the real repositories and the interceptor answers their platform cmds from assets/demo/delivery. The pinned demo GPS and the installed profile page's delete-account gate still read DemoSession.demoActive.",
   "_comment_requires_launcher": "delivery_sdk >= 1.20.0 carries the driver window for the launcher canvas (approved design strip frame 53e). The integrations below inject it under launch_sdk's '// @launcher-windows' / '// @launcher-windows-imports' markers and build it with LaunchWindowSource.widget, both of which exist from launch_sdk >= 1.4.3; on an older launch_sdk the composer reports the marker missing and skips the wiring (window absent, nothing else changes), and in hosts without launch_sdk the target file does not exist and the entry is skipped the same way. The composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
   "_comment_requires_deposits": "delivery_sdk >= 1.18.0 requires the wallet backend (RokctAI/pay wallet frappe at the release carrying Wallet Deposit Request): the driver deposit flow posts api.wallet.get_deposit_destination / submit_deposit_request / list_deposit_requests through the platform gateway. A tenant without it answers 404 on those cmds and the flow states the failure; nothing else on the driver home depends on it. wallet_sdk (dart) is NOT required: delivery_sdk carries its own gateway client for these cmds (ADR-005, lib/ imports only base_sdk) and paas_driver composes no wallet_sdk.",
   "home_sdk": true,
@@ -22,7 +24,8 @@
     "assets/lottie/empty-box.json",
     "assets/image/my_location.png",
     "assets/svg/balance.svg",
-    "assets/svg/cutter.svg"
+    "assets/svg/cutter.svg",
+    "assets/demo/delivery/"
   ],
   "_comment_app_assets": "Home SDKs ship the splash/login background images (base_sdk's splash_page and auth_sdk's login_page reference assets/images/splash*.png). Each home SDK provides its own copies so every composed app can brand them independently; app_assets gets them into the host pubspec's sdk-app-assets block so they are actually bundled. If base_sdk also installed identical files first, the file copy is skipped (already-present guard) and only the pubspec declaration matters. marker.png and empty-box.json are custodianship copies from paas_driver develop (legacy upstream-era driver assets evicted from base_sdk). my_location.png, balance.svg and cutter.svg are custodianship copies from paas_driver main (referenced by the courier home/profile pages - balance.svg via the asset_keys below, cutter.svg by literal path in the driver order cards and push_order_screen; paas_driver's own tracked assets/ copies survive, so the already-present guard skips the file copy there).",
   "asset_keys": {
@@ -132,6 +135,10 @@
         {
           "from": "templates/pages/driver/deposits/deposits_page.dart",
           "to": "lib/presentation/pages/deposits/deposits_page.dart"
+        },
+        {
+          "from": "templates/pages/driver/load",
+          "to": "lib/presentation/pages/load"
         },
         {
           "from": "templates/components/driver/driver_avatar.dart",
@@ -255,6 +262,27 @@
           "type": "CupertinoRoute",
           "import": "package:${package}/presentation/pages/deposits/deposits_page.dart",
           "_comment": "Design strip frames 49g/49h/49i: the deposit status plane; ?choose=1 opens the method chooser over it (corporate revenue_sdk's wallet plane pushes this path from its Top up pill - delivery_sdk imports only base_sdk, so the two SDKs meet on the path, not on a class)."
+        },
+        {
+          "path": "/load",
+          "page": "DriverLoadRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/load/load_page.dart",
+          "_comment": "Van sales - 'My load': the consignment load the shop issued this driver. Lists every open load with its lines (issued / sold / returned / remaining), the value still on the van, and the three actions Sell, Return, Close load, on commerce's api.order.load.* defs. The driver home's My load tile pushes the plane directly (same SDK, no route needed); the path is declared because the two write screens below live under it and a host may link the list itself."
+        },
+        {
+          "path": "/load/sell",
+          "page": "DriverLoadSellRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/load/load_sell_page.dart",
+          "_comment": "The sale at the door: steppers capped at the server's remaining figure, a live total struck at the load's own unit prices, and a cash order born Delivered + Paid by api.order.load.create_load_sale. ?load=<load order> names the load; absent, the driver's only open load."
+        },
+        {
+          "path": "/load/return",
+          "page": "DriverLoadReturnRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/load/load_return_page.dart",
+          "_comment": "Unsold stock handed back to the shop (api.order.load.return_load). The same steppers and the same cap, and deliberately no money figure - a return is not a refund."
         }
       ],
       "di_hooks": [
@@ -267,7 +295,7 @@
           ]
         }
       ],
-      "_comment_di_hooks": "Driver-role courier DI. DriverDeliveryDependencies registers the four courier facades (CourierOrdersRepositoryFacade, CourierParcelRepositoryFacade, CourierRepositoryFacade, CourierRouteRepositoryFacade) plus HttpService and the CourierStorage pre-warm. It is role code kept OUT of the delivery_sdk barrel on purpose - a customer app's cache has lib/src/driver/ stripped, so the common DeliverySdkDependencies.register cannot import it (it registers only DeliveryPointsRepositoryFacade). Before driver migration M4 the host called it from its own tracked dependency_manager.dart; M4 untracked lib/ and moved the splash/workmanager lines into boot_hooks above but never declared this DI hook, so DriverDeliveryDependencies.register stopped running at boot entirely and the installed courier home page threw 'GetIt: Object/factory with type CourierOrdersRepositoryFacade is not registered inside GetIt' on its first build (order_provider.dart resolves orderRepository eagerly). This is the exact mirror of revenue_sdk's revenue-driver-role-di entry. Direct src/ import by design, same as that one. register() is isRegistered-guarded internally, so a hand-wired host that still calls it itself double-boots safely. Order 10: ahead of revenue_sdk's 12 and zones_sdk's 30, and free in the driver compose (orders_sdk's order-10 hook is manager-only).",
+      "_comment_di_hooks": "Driver-role courier DI. DriverDeliveryDependencies registers the courier facades (CourierOrdersRepositoryFacade, CourierParcelRepositoryFacade, CourierRepositoryFacade, CourierRouteRepositoryFacade) plus HttpService and the CourierStorage pre-warm. It is role code kept OUT of the delivery_sdk barrel on purpose - a customer app's cache has lib/src/driver/ stripped, so the common DeliverySdkDependencies.register cannot import it (it registers only DeliveryPointsRepositoryFacade). Before driver migration M4 the host called it from its own tracked dependency_manager.dart; M4 untracked lib/ and moved the splash/workmanager lines into boot_hooks above but never declared this DI hook, so DriverDeliveryDependencies.register stopped running at boot entirely and the installed courier home page threw 'GetIt: Object/factory with type CourierOrdersRepositoryFacade is not registered inside GetIt' on its first build (order_provider.dart resolves orderRepository eagerly). This is the exact mirror of revenue_sdk's revenue-driver-role-di entry. Direct src/ import by design, same as that one. register() is isRegistered-guarded internally, so a hand-wired host that still calls it itself double-boots safely. Order 10: ahead of revenue_sdk's 12 and zones_sdk's 30, and free in the driver compose (orders_sdk's order-10 hook is manager-only).",
       "boot_hooks": [
         {
           "id": "delivery-driver-splash-preserve",

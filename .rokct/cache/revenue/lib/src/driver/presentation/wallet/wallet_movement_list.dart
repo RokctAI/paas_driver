@@ -68,7 +68,7 @@ class WalletMovementList extends StatelessWidget {
         Container(
           key: const Key('walletMovementList'),
           decoration: BoxDecoration(
-            color: AppStyle.cardDark,
+            color: AppStyle.cardFor(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(14.r),
           ),
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
@@ -95,7 +95,7 @@ class WalletMovementList extends StatelessWidget {
                 for (var i = 0; i < visible.length; i++) ...[
                   _row(visible[i]),
                   if (i != visible.length - 1)
-                    Divider(height: 1, color: AppStyle.strokeDarkSubtle),
+                    Divider(height: 1, color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
                 ],
             ],
           ),
@@ -111,7 +111,7 @@ class WalletMovementList extends StatelessWidget {
                 AppHelpers.getTranslation('see_all_movements'),
                 style: AppStyle.interNoSemi(
                   size: 11.5,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                 ),
               ),
             ),

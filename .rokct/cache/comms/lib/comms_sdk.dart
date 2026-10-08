@@ -23,6 +23,8 @@ export 'src/common/di/comms_di.dart';
 // read-state filter and the shipped row + unread dot, in the 33 dress.
 export 'src/common/presentation/notifications/notification_list_language.dart';
 export 'src/common/local_notifications.dart';
+export 'src/common/services/device_live_activity_sink.dart';
+export 'src/common/services/push_message_dispatcher.dart';
 export 'src/common/services/desktop_notification_poller.dart';
 
 // The single guarded entry point for the OS notification-permission
@@ -30,3 +32,6 @@ export 'src/common/services/desktop_notification_poller.dart';
 // idiom) plus in-flight de-duplication so a second sign-in in one process
 // cannot trip the platform channel's concurrent-request error.
 export 'src/common/services/push_permission_service.dart';
+// Asks once, after the first real sign-in: subscribed to base_sdk's
+// SessionStartHooks by this SDK's comms-push-permission-on-sign-in hook.
+export 'src/common/services/push_permission_prompt.dart';

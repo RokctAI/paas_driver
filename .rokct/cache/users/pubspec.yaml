@@ -1,6 +1,6 @@
 name: users_sdk
 description: "users_sdk - extracted from paas_customer (refork 2026-07-11)."
-version: 1.0.1
+version: 1.5.1
 publish_to: 'none'
 environment:
   sdk: '>=3.10.0 <4.0.0'

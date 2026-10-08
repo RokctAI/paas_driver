@@ -133,7 +133,7 @@ class _DepositApprovalsPageState extends ConsumerState<DepositApprovalsPage> {
       context: context,
       builder: (dialogContext) => Dialog(
         key: const Key('depositSlipDialog'),
-        backgroundColor: AppStyle.cardDark,
+        backgroundColor: AppStyle.cardFor(Theme.of(context).brightness),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -155,7 +155,7 @@ class _DepositApprovalsPageState extends ConsumerState<DepositApprovalsPage> {
                       AppHelpers.getTranslation('we_couldnt_load_the_slip'),
                       style: AppStyle.interRegular(
                         size: 12.5,
-                        color: AppStyle.textDarkSecondary,
+                        color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                       ),
                     ),
                   ),
@@ -179,7 +179,7 @@ class _DepositApprovalsPageState extends ConsumerState<DepositApprovalsPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(depositApprovalsProvider);
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: SafeArea(
         child: Stack(
           children: [
@@ -205,7 +205,7 @@ class _DepositApprovalsPageState extends ConsumerState<DepositApprovalsPage> {
                       key: const Key('depositApprovalsExplainer'),
                       style: AppStyle.interRegular(
                         size: 12,
-                        color: AppStyle.textDarkSecondary,
+                        color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                       ),
                     ),
                     20.verticalSpace,
@@ -274,14 +274,14 @@ class _Queue extends StatelessWidget {
       return Text(
         AppHelpers.getTranslation('we_couldnt_load_the_deposits_pull_to_try_again'),
         key: const Key('depositApprovalsFailed'),
-        style: AppStyle.interRegular(size: 12.5, color: AppStyle.textDarkSecondary),
+        style: AppStyle.interRegular(size: 12.5, color: AppStyle.secondaryInkFor(Theme.of(context).brightness)),
       );
     }
     if (state.pending.isEmpty) {
       return Text(
         AppHelpers.getTranslation('nothing_is_waiting_for_you'),
         key: const Key('depositApprovalsEmpty'),
-        style: AppStyle.interRegular(size: 12.5, color: AppStyle.textDarkSecondary),
+        style: AppStyle.interRegular(size: 12.5, color: AppStyle.secondaryInkFor(Theme.of(context).brightness)),
       );
     }
     return Column(
@@ -367,9 +367,9 @@ class _PendingCard extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 12.h),
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppStyle.strokeDark),
+        border: Border.all(color: AppStyle.strokeFor(Theme.of(context).brightness)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -397,13 +397,13 @@ class _PendingCard extends StatelessWidget {
                 '${AppHelpers.getTranslation('reference')} ${request.reference}',
               if ((request.method ?? '').isNotEmpty) request.method!,
             ].join(' · '),
-            style: AppStyle.interRegular(size: 12, color: AppStyle.textDarkSecondary),
+            style: AppStyle.interRegular(size: 12, color: AppStyle.secondaryInkFor(Theme.of(context).brightness)),
           ),
           if (submitted != null) ...[
             2.verticalSpace,
             Text(
               '${AppHelpers.getTranslation('submitted')} ${_when(submitted)}',
-              style: AppStyle.interRegular(size: 12, color: AppStyle.textDarkSecondary),
+              style: AppStyle.interRegular(size: 12, color: AppStyle.secondaryInkFor(Theme.of(context).brightness)),
             ),
           ],
           if (against != null) ...[
@@ -411,14 +411,14 @@ class _PendingCard extends StatelessWidget {
             Text(
               against,
               key: Key('depositApprovalAgainst-${request.id}'),
-              style: AppStyle.interRegular(size: 12, color: AppStyle.textDarkSecondary),
+              style: AppStyle.interRegular(size: 12, color: AppStyle.secondaryInkFor(Theme.of(context).brightness)),
             ),
           ],
           if ((request.note ?? '').isNotEmpty) ...[
             6.verticalSpace,
             Text(
               request.note!,
-              style: AppStyle.interRegular(size: 12, color: AppStyle.textPrimary),
+              style: AppStyle.interRegular(size: 12, color: AppStyle.inkFor(Theme.of(context).brightness)),
             ),
           ],
           10.verticalSpace,
@@ -433,7 +433,7 @@ class _PendingCard extends StatelessWidget {
                   Remix.image_line,
                   size: 16.r,
                   color: request.slipUrl == null
-                      ? AppStyle.textDarkFaint
+                      ? AppStyle.faintFor(Theme.of(context).brightness)
                       : AppStyle.primary,
                 ),
                 6.horizontalSpace,
@@ -444,7 +444,7 @@ class _PendingCard extends StatelessWidget {
                   style: AppStyle.interNoSemi(
                     size: 12,
                     color: request.slipUrl == null
-                        ? AppStyle.textDarkFaint
+                        ? AppStyle.faintFor(Theme.of(context).brightness)
                         : AppStyle.primary,
                   ),
                 ),
@@ -458,8 +458,8 @@ class _PendingCard extends StatelessWidget {
                 child: CustomButton(
                   key: Key('depositApprove-${request.id}'),
                   title: AppHelpers.getTranslation(TrKeys.approve),
-                  background: inert ? AppStyle.strokeDark : AppStyle.primary,
-                  textColor: inert ? AppStyle.textDarkFaint : AppStyle.blackColor,
+                  background: inert ? AppStyle.strokeFor(Theme.of(context).brightness) : AppStyle.primary,
+                  textColor: inert ? AppStyle.faintFor(Theme.of(context).brightness) : AppStyle.blackColor,
                   isLoading: resolving,
                   onPressed: inert ? () {} : onApprove,
                 ),
@@ -469,8 +469,8 @@ class _PendingCard extends StatelessWidget {
                 child: CustomButton(
                   key: Key('depositReject-${request.id}'),
                   title: AppHelpers.getTranslation('reject'),
-                  background: AppStyle.cardDarkAlt,
-                  textColor: inert ? AppStyle.textDarkFaint : AppStyle.red,
+                  background: AppStyle.cardAltFor(Theme.of(context).brightness),
+                  textColor: inert ? AppStyle.faintFor(Theme.of(context).brightness) : AppStyle.red,
                   onPressed: inert ? () {} : onReject,
                 ),
               ),

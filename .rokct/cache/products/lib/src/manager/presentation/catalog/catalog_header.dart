@@ -86,7 +86,7 @@ class CatalogHeader extends StatelessWidget {
       title,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: AppStyle.interBold(size: 22, color: AppStyle.textPrimary),
+      style: AppStyle.interBold(size: 22, color: AppStyle.inkFor(Theme.of(context).brightness)),
     );
     // On the rows without the tab pill the title takes what the actions
     // leave, start-aligned, so a long translation ellipsizes instead of
@@ -205,7 +205,7 @@ class _Segment extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: active ? AppStyle.textPrimary : null,
+          color: active ? AppStyle.inkFor(Theme.of(context).brightness) : null,
           borderRadius: BorderRadius.circular(100),
         ),
         child: Row(
@@ -214,10 +214,10 @@ class _Segment extends StatelessWidget {
             Text(
               tab.label,
               style: active
-                  ? AppStyle.interSemi(size: 13, color: AppStyle.surfaceDark)
+                  ? AppStyle.interSemi(size: 13, color: AppStyle.surfaceFor(Theme.of(context).brightness))
                   : AppStyle.interNormal(
                       size: 13,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                     ),
             ),
             const SizedBox(width: 5),
@@ -226,8 +226,8 @@ class _Segment extends StatelessWidget {
               style: AppStyle.interSemi(
                 size: 12,
                 color: active
-                    ? AppStyle.surfaceDark.withValues(alpha: 0.7)
-                    : AppStyle.textDarkFaint,
+                    ? AppStyle.surfaceFor(Theme.of(context).brightness).withValues(alpha: 0.7)
+                    : AppStyle.faintFor(Theme.of(context).brightness),
               ),
             ),
           ],
@@ -299,7 +299,7 @@ class _StockButton extends StatelessWidget {
                   '$attention',
                   style: AppStyle.interSemi(
                     size: 11,
-                    color: AppStyle.surfaceDark,
+                    color: AppStyle.surfaceFor(Theme.of(context).brightness),
                   ),
                 ),
               ),
@@ -336,7 +336,7 @@ class _NewButton extends StatelessWidget {
             shape: BoxShape.circle,
             color: AppStyle.primary,
           ),
-          child: Icon(Remix.add_line, size: 20, color: AppStyle.textPrimary),
+          child: Icon(Remix.add_line, size: 20, color: AppStyle.inkFor(Theme.of(context).brightness)),
         ),
       );
     }
@@ -352,12 +352,12 @@ class _NewButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Remix.add_line, size: 16, color: AppStyle.textPrimary),
+            Icon(Remix.add_line, size: 16, color: AppStyle.inkFor(Theme.of(context).brightness)),
             const SizedBox(width: 5),
             Text(
               label,
               style:
-                  AppStyle.interSemi(size: 13, color: AppStyle.textPrimary),
+                  AppStyle.interSemi(size: 13, color: AppStyle.inkFor(Theme.of(context).brightness)),
             ),
           ],
         ),

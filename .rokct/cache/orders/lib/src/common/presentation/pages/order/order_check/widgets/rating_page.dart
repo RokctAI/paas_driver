@@ -15,7 +15,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -114,7 +114,7 @@ class _RatingPageState extends ConsumerState<RatingPage> {
             24.verticalSpace,
             RatingBar.builder(
               itemBuilder: (context, index) => Icon(
-                FlutterRemix.star_smile_fill,
+                Remix.star_smile_fill,
                 color: AppStyle.primary,
               ),
               itemCount: 5,
@@ -172,7 +172,7 @@ class _RatingPageState extends ConsumerState<RatingPage> {
                                     size: 14,
                                     color: state.selectedIndex == i
                                         ? AppStyle.primary
-                                        : AppStyle.black,
+                                        : AppStyle.inkFor(Theme.of(context).brightness),
                                   ),
                                 ),
                                 6.verticalSpace,
@@ -185,16 +185,16 @@ class _RatingPageState extends ConsumerState<RatingPage> {
                                     size: 14,
                                     color: state.selectedIndex == i
                                         ? AppStyle.primary
-                                        : AppStyle.black,
+                                        : AppStyle.inkFor(Theme.of(context).brightness),
                                   ),
                                 ),
                               ]
                             : [
                                 Icon(
-                                  FlutterRemix.edit_2_line,
+                                  Remix.edit_2_line,
                                   color: state.selectedIndex == i
                                       ? AppStyle.primary
-                                      : AppStyle.black,
+                                      : AppStyle.inkFor(Theme.of(context).brightness),
                                 ),
                                 Text(
                                   AppHelpers.getTranslation(TrKeys.custom),
@@ -202,7 +202,7 @@ class _RatingPageState extends ConsumerState<RatingPage> {
                                     size: 14,
                                     color: state.selectedIndex == i
                                         ? AppStyle.primary
-                                        : AppStyle.black,
+                                        : AppStyle.inkFor(Theme.of(context).brightness),
                                   ),
                                 ),
                                 6.verticalSpace,
@@ -290,7 +290,7 @@ class _RatingPageState extends ConsumerState<RatingPage> {
                                   );
                             },
                           ),
-                          isDarkMode: false,
+                          isDarkMode: Theme.of(context).brightness == Brightness.dark,
                         );
                       } else {
                         if (widget.parcel) {

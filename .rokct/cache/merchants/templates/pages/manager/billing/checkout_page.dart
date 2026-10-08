@@ -763,7 +763,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     }
 
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: Stack(
         children: [
           body,
@@ -808,7 +808,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
             AppHelpers.getTranslation(TrKeys.checkout),
             style: AppStyle.interSemi(
               size: 18.sp,
-              color: AppStyle.textPrimary,
+              color: AppStyle.inkFor(Theme.of(context).brightness),
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -841,7 +841,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               AppHelpers.getTranslation(TrKeys.activeTransaction),
               style: AppStyle.interRegular(
                 size: 13,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ],
@@ -915,7 +915,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     required bool selected,
     required VoidCallback onTap,
   }) {
-    final color = selected ? AppStyle.blue : AppStyle.textPrimary;
+    final color = selected ? AppStyle.blue : AppStyle.inkFor(Theme.of(context).brightness);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -923,10 +923,10 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
         decoration: BoxDecoration(
           color: selected
               ? AppStyle.blue.withOpacity(0.08)
-              : AppStyle.cardDark,
+              : AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(14.r),
           border: Border.all(
-            color: selected ? AppStyle.blue : AppStyle.strokeDark,
+            color: selected ? AppStyle.blue : AppStyle.strokeFor(Theme.of(context).brightness),
             width: 1.r,
           ),
         ),
@@ -953,9 +953,9 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     return Container(
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDarkAlt,
+        color: AppStyle.cardAltFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: AppStyle.strokeDarkSubtle, width: 1.r),
+        border: Border.all(color: AppStyle.subtleStrokeFor(Theme.of(context).brightness), width: 1.r),
       ),
       child: Row(
         children: [
@@ -1083,7 +1083,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               textAlign: TextAlign.center,
               style: AppStyle.interRegular(
                 size: 14,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ),
@@ -1104,7 +1104,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               hintText: AppHelpers.getTranslation(TrKeys.typeHere),
               hintStyle: AppStyle.interRegular(
                 size: 16,
-                color: AppStyle.textDarkFaint,
+                color: AppStyle.faintFor(Theme.of(context).brightness),
               ),
             ),
           ),
@@ -1147,7 +1147,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: Column(
@@ -1159,7 +1159,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                 AppHelpers.getTranslation(TrKeys.billingTo).toUpperCase(),
                 style: AppStyle.interSemi(
                   size: 12,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   letterSpacing: 1.2,
                 ),
               ),
@@ -1214,7 +1214,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                         customer.phone ?? '',
                         style: AppStyle.interRegular(
                           size: 13,
-                          color: AppStyle.textDarkSecondary,
+                          color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                         ),
                       ),
                     ],
@@ -1261,7 +1261,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: Column(
@@ -1272,14 +1272,14 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               Icon(
                 Remix.map_pin_2_line,
                 size: 16.r,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
               6.horizontalSpace,
               Text(
                 AppHelpers.getTranslation(TrKeys.deliversTo).toUpperCase(),
                 style: AppStyle.interSemi(
                   size: 12,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   letterSpacing: 1.2,
                 ),
               ),
@@ -1303,7 +1303,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                 ? AppStyle.interSemi(size: 15)
                 : AppStyle.interRegular(
                     size: 14,
-                    color: AppStyle.textDarkFaint,
+                    color: AppStyle.faintFor(Theme.of(context).brightness),
                   ),
           ),
           4.verticalSpace,
@@ -1311,7 +1311,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
             AppHelpers.getTranslation(TrKeys.deliveryFeeJoins),
             style: AppStyle.interRegular(
               size: 13,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
         ],
@@ -1332,7 +1332,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: Column(
@@ -1342,7 +1342,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
             AppHelpers.getTranslation(TrKeys.amountPayingNow).toUpperCase(),
             style: AppStyle.interSemi(
               size: 12,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               letterSpacing: 1.2,
             ),
           ),
@@ -1366,8 +1366,8 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                     style: AppStyle.interSemi(
                       size: 28,
                       color: entered.isEmpty
-                          ? AppStyle.textDarkFaint
-                          : AppStyle.textPrimary,
+                          ? AppStyle.faintFor(Theme.of(context).brightness)
+                          : AppStyle.inkFor(Theme.of(context).brightness),
                     ),
                   ),
                 ),
@@ -1379,7 +1379,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   '${_decap(AppHelpers.getTranslation(TrKeys.payingOf))} ${AppHelpers.numberFormat(number: state.total)} ${AppHelpers.getTranslation(TrKeys.total).toLowerCase()}',
                   style: AppStyle.interRegular(
                     size: 14,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
                 ),
               ),
@@ -1466,7 +1466,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: Column(
@@ -1560,7 +1560,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   AppHelpers.numberFormat(number: _lastAutodial!.price),
                   style: AppStyle.interRegular(
                     size: 13,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
                 ),
               ],
@@ -1571,7 +1571,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                 AppHelpers.getTranslation(TrKeys.keysAreMoneyAgain),
                 style: AppStyle.interRegular(
                   size: 12,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                 ),
               ),
             ],
@@ -1678,12 +1678,12 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
         decoration: BoxDecoration(
           color: primary
               ? AppStyle.primary.withValues(alpha: .12)
-              : AppStyle.cardDarkAlt,
+              : AppStyle.cardAltFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(100.r),
           border: Border.all(
             color: primary
                 ? AppStyle.primary.withValues(alpha: .45)
-                : AppStyle.strokeDarkSubtle,
+                : AppStyle.subtleStrokeFor(Theme.of(context).brightness),
             width: 1.r,
           ),
         ),
@@ -1694,7 +1694,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               Icon(
                 icon,
                 size: 15.r,
-                color: primary ? AppStyle.primary : AppStyle.textPrimary,
+                color: primary ? AppStyle.primary : AppStyle.inkFor(Theme.of(context).brightness),
               ),
               6.horizontalSpace,
             ],
@@ -1702,7 +1702,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               label,
               style: AppStyle.interSemi(
                 size: 13,
-                color: primary ? AppStyle.primary : AppStyle.textPrimary,
+                color: primary ? AppStyle.primary : AppStyle.inkFor(Theme.of(context).brightness),
               ),
             ),
           ],
@@ -1769,7 +1769,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                       : AppHelpers.getTranslation(TrKeys.creditUnavailable),
                   style: AppStyle.interRegular(
                     size: 13,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
                 ),
               ),
@@ -1787,7 +1787,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     return Container(
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: Column(
@@ -1799,7 +1799,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   AppHelpers.getTranslation(TrKeys.items),
                   style: AppStyle.interRegular(
                     size: 14,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
                 ),
                 const Spacer(),
@@ -1810,7 +1810,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               ],
             ),
             10.verticalSpace,
-            Divider(height: 1.h, color: AppStyle.strokeDarkSubtle),
+            Divider(height: 1.h, color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
             10.verticalSpace,
           ],
           Row(
@@ -1828,7 +1828,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           ),
           if (creditActive) ...[
             10.verticalSpace,
-            Divider(height: 1.h, color: AppStyle.strokeDarkSubtle),
+            Divider(height: 1.h, color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
             10.verticalSpace,
             Row(
               children: [
@@ -1839,7 +1839,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                     overflow: TextOverflow.ellipsis,
                     style: AppStyle.interRegular(
                       size: 14,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                     ),
                   ),
                 ),
@@ -1851,7 +1851,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               ],
             ),
             10.verticalSpace,
-            Divider(height: 1.h, color: AppStyle.strokeDarkSubtle),
+            Divider(height: 1.h, color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
             10.verticalSpace,
             Row(
               children: [
@@ -1859,7 +1859,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   AppHelpers.getTranslation(TrKeys.onCredit),
                   style: AppStyle.interRegular(
                     size: 14,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
                 ),
                 const Spacer(),
@@ -1988,7 +1988,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     final entered = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppStyle.cardDark,
+        backgroundColor: AppStyle.cardFor(Theme.of(context).brightness),
         title: Text(
           AppHelpers.getTranslation(TrKeys.deliversTo),
           style: AppStyle.interSemi(size: 18),
@@ -2001,7 +2001,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
             hintText: AppHelpers.getTranslation(TrKeys.addDeliveryAddress),
             hintStyle: AppStyle.interRegular(
               size: 15,
-              color: AppStyle.textDarkFaint,
+              color: AppStyle.faintFor(Theme.of(context).brightness),
             ),
           ),
         ),
@@ -2012,7 +2012,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               AppHelpers.getTranslation(TrKeys.cancel),
               style: AppStyle.interSemi(
                 size: 14,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ),
@@ -2101,7 +2101,7 @@ class _CustomerPickerSheetState extends State<_CustomerPickerSheet> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppStyle.surfaceDark,
+        color: AppStyle.surfaceFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(24.r),
           topRight: Radius.circular(24.r),
@@ -2120,16 +2120,16 @@ class _CustomerPickerSheetState extends State<_CustomerPickerSheet> {
               prefixIcon: Icon(
                 Remix.user_line,
                 size: 20.r,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
               hintText:
                   AppHelpers.getTranslation(TrKeys.searchCustomers),
               hintStyle: AppStyle.interRegular(
                 size: 15,
-                color: AppStyle.textDarkFaint,
+                color: AppStyle.faintFor(Theme.of(context).brightness),
               ),
               filled: true,
-              fillColor: AppStyle.cardDark,
+              fillColor: AppStyle.cardFor(Theme.of(context).brightness),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14.r),
                 borderSide: BorderSide.none,
@@ -2184,7 +2184,7 @@ class _CustomerPickerSheetState extends State<_CustomerPickerSheet> {
                             customer.phone!,
                             style: AppStyle.interRegular(
                               size: 13,
-                              color: AppStyle.textDarkSecondary,
+                              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                             ),
                           ),
                       onTap: () =>

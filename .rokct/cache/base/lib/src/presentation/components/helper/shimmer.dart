@@ -34,7 +34,7 @@ class ImageShimmer extends StatelessWidget {
         width: size,
         decoration: BoxDecoration(
           shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
-          color: AppStyle.white,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
         ),
       ),
     );

@@ -28,6 +28,17 @@ class ProfileSectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The mode comes from the inherited theme, not from the app-wide
+    // AppStyle.isDark static (Ray, 2026-09-19: "glance doesnt change test
+    // immediately untill you come back if you switched theme mode" - the
+    // same defect, found here by the fleet audit that followed). A static
+    // is not an inherited widget, so a mode flip scheduled no rebuild of
+    // this widget and it kept the previous mode's colours until something
+    // else happened to rebuild it. The colours come from AppStyle's
+    // explicit-brightness seams, which name the same two values their
+    // mode-resolving getters resolve between.
+    final Brightness brightness = Theme.of(context).brightness;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -38,7 +49,7 @@ class ProfileSectionCard extends StatelessWidget {
               title!.toUpperCase(),
               style: AppStyle.interSemi(
                 size: 12.sp,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(brightness),
               ),
             ),
           ),
@@ -47,7 +58,7 @@ class ProfileSectionCard extends StatelessWidget {
           margin: EdgeInsets.only(bottom: 16.r),
           padding: EdgeInsets.all(8.r),
           decoration: BoxDecoration(
-            color: AppStyle.cardDark,
+            color: AppStyle.cardFor(brightness),
             borderRadius: BorderRadius.circular(16.r),
           ),
           child: child,

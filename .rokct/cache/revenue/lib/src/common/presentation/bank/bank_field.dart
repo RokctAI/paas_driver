@@ -73,7 +73,7 @@ class BankFormField extends StatelessWidget {
               style: AppStyle.interSemi(
                 size: 10.5,
                 letterSpacing: 1.2,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
             8.horizontalSpace,
@@ -81,7 +81,7 @@ class BankFormField extends StatelessWidget {
               AppHelpers.getTranslation(isRequired ? 'required' : 'optional'),
               style: AppStyle.interRegular(
                 size: 10,
-                color: AppStyle.textDarkFaint,
+                color: AppStyle.faintFor(Theme.of(context).brightness),
               ),
             ),
           ],
@@ -110,7 +110,7 @@ class BankFormField extends StatelessWidget {
             required int? maxLength,
           }) =>
               null,
-          style: AppStyle.interNoSemi(size: 15, color: AppStyle.textPrimary),
+          style: AppStyle.interNoSemi(size: 15, color: AppStyle.inkFor(Theme.of(context).brightness)),
           cursorColor: AppStyle.primary,
           cursorWidth: 1,
           decoration: InputDecoration(
@@ -118,7 +118,7 @@ class BankFormField extends StatelessWidget {
             contentPadding: EdgeInsets.symmetric(vertical: 10.h),
             enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
-                color: problem != null ? AppStyle.red : AppStyle.strokeDark,
+                color: problem != null ? AppStyle.red : AppStyle.strokeFor(Theme.of(context).brightness),
               ),
             ),
             focusedBorder: UnderlineInputBorder(
@@ -152,7 +152,7 @@ class BankFormField extends StatelessWidget {
             key: Key('${fieldKey.toString()}_helper'),
             style: AppStyle.interRegular(
               size: 11,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
         ],

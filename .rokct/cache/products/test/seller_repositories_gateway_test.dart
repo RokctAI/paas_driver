@@ -20,18 +20,24 @@
 // value_name + value_data, limit_start + limit_page_length). These cases pin
 // that wire contract without opening a socket; only the REQUEST is asserted.
 //
-// `updateStocks` / `updateExtras` are deliberately NOT covered: they have no
-// whitelisted server method and stay on the dead per-method path (flagged).
+// `updateStocks` / `updateExtras` now reach products' own
+// `stock.update_product_stocks` / `product_extra.update_product_extras`
+// cmds; the gallery upload stays a direct multipart POST, but to core's fleet
+// upload endpoint.
 
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/handlers/http_service.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:base_sdk/src/services/enums.dart';
+import 'package:products_sdk/src/common/infrastructure/repositories/gallery_repository.dart';
 import 'package:products_sdk/src/manager/infrastructure/repositories/seller_catalog_repository.dart';
 import 'package:products_sdk/src/manager/infrastructure/repositories/seller_products_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -237,6 +243,65 @@ void main() {
       await repo.deleteCategory(id: 'CAT-1');
       expect(http.last.cmd, 'api.seller_product.delete_seller_category');
       expect(http.last.payload, {'uuid': 'CAT-1'});
+    });
+  });
+
+  group('stocks + extras through the gateway (M20)', () {
+    test('updateStocks sends the stock rows to stock.update_product_stocks',
+        () async {
+      await SellerProductsRepository().updateStocks(
+        uuid: 'PROD-1',
+        stocks: [
+          {'price': 10, 'quantity': 3, 'stock_id': 'STK-1', 'ids': ['V-1']},
+        ],
+        deletedStockIds: ['STK-2'],
+        isAddon: true,
+      );
+      expect(http.last.path, kPlatformGatewayPath);
+      expect(http.last.cmd, 'api.stock.update_product_stocks');
+      expect(http.last.payload, {
+        'uuid': 'PROD-1',
+        'stocks': [
+          {'price': 10, 'quantity': 3, 'stock_id': 'STK-1', 'ids': ['V-1']},
+        ],
+        'delete_ids': ['STK-2'],
+        'addon': 1,
+      });
+    });
+
+    test('updateExtras sends the groups to product_extra.update_product_extras',
+        () async {
+      await SellerProductsRepository().updateExtras(
+        productUuid: 'PROD-1',
+        extras: [
+          {'extra_group': 'G-1'},
+        ],
+      );
+      expect(http.last.path, kPlatformGatewayPath);
+      expect(http.last.cmd, 'api.product_extra.update_product_extras');
+      expect(http.last.payload, {
+        'uuid': 'PROD-1',
+        'extras': [
+          {'extra_group': 'G-1'},
+        ],
+      });
+    });
+  });
+
+  group('GalleryRepository upload', () {
+    test('posts multipart to the fleet upload endpoint', () async {
+      final dir = await Directory.systemTemp.createTemp('gallery');
+      final file = File('${dir.path}/a.png')..writeAsBytesSync([1, 2, 3]);
+      http.reply = {'file_url': '/files/a.png', 'name': 'F-1'};
+      final res =
+          await GalleryRepository().uploadImage(file.path, UploadType.products);
+      expect(http.last.path, '/api/v1/method/rcore.api.upload.upload_file');
+      expect(http.last.cmd, isNull);
+      res.when(
+        success: (data) => expect(data.imageData?.title, '/files/a.png'),
+        failure: (e, s) => fail('upload failed: $e'),
+      );
+      dir.deleteSync(recursive: true);
     });
   });
 }

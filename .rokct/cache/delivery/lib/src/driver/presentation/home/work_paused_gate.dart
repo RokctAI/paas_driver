@@ -70,7 +70,7 @@ class WorkPausedGate extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
       decoration: BoxDecoration(
-        color: AppStyle.cardDarkAlt,
+        color: AppStyle.cardAltFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14.r),
         border: Border.all(color: AppStyle.primary),
       ),
@@ -92,7 +92,10 @@ class WorkPausedGate extends StatelessWidget {
           Text(
             '${AppHelpers.getTranslation(TrKeys.youOwe)} '
             '${AppHelpers.numberFormat(number: owing)}',
-            style: AppStyle.interSemi(size: 20, color: AppStyle.textPrimary),
+            style: AppStyle.interSemi(
+              size: 20,
+              color: AppStyle.inkFor(Theme.of(context).brightness),
+            ),
           ),
           6.verticalSpace,
           Text(
@@ -101,7 +104,7 @@ class WorkPausedGate extends StatelessWidget {
             '${AppHelpers.getTranslation(TrKeys.owing)}.',
             style: AppStyle.interNormal(
               size: 12,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
           2.verticalSpace,
@@ -110,7 +113,7 @@ class WorkPausedGate extends StatelessWidget {
             AppHelpers.getTranslation(TrKeys.payInAndWorkStartsAgain),
             style: AppStyle.interNormal(
               size: 12,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
           12.verticalSpace,
@@ -143,7 +146,9 @@ class WorkPausedGate extends StatelessWidget {
                   style: TextButton.styleFrom(
                     backgroundColor: AppStyle.transparent,
                     minimumSize: Size(0, 40.h),
-                    side: BorderSide(color: AppStyle.strokeDark),
+                    side: BorderSide(
+                      color: AppStyle.strokeFor(Theme.of(context).brightness),
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.r),
                     ),
@@ -152,7 +157,7 @@ class WorkPausedGate extends StatelessWidget {
                     AppHelpers.getTranslation(TrKeys.seeWhatYouOwe),
                     style: AppStyle.interSemi(
                       size: 13,
-                      color: AppStyle.textPrimary,
+                      color: AppStyle.inkFor(Theme.of(context).brightness),
                     ),
                   ),
                 ),
@@ -167,7 +172,7 @@ class WorkPausedGate extends StatelessWidget {
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
             decoration: BoxDecoration(
-              color: AppStyle.cardDark,
+              color: AppStyle.cardFor(Theme.of(context).brightness),
               borderRadius: BorderRadius.circular(10.r),
             ),
             child: Column(
@@ -181,7 +186,9 @@ class WorkPausedGate extends StatelessWidget {
                         AppHelpers.getTranslation(TrKeys.yourLimit),
                         style: AppStyle.interNormal(
                           size: 12,
-                          color: AppStyle.textDarkSecondary,
+                          color: AppStyle.secondaryInkFor(
+                            Theme.of(context).brightness,
+                          ),
                         ),
                       ),
                     ),
@@ -189,7 +196,7 @@ class WorkPausedGate extends StatelessWidget {
                       AppHelpers.numberFormat(number: allowance),
                       style: AppStyle.interSemi(
                         size: 13,
-                        color: AppStyle.textPrimary,
+                        color: AppStyle.inkFor(Theme.of(context).brightness),
                       ),
                     ),
                   ],
@@ -199,7 +206,7 @@ class WorkPausedGate extends StatelessWidget {
                   AppHelpers.getTranslation(TrKeys.setByYourOperator),
                   style: AppStyle.interNormal(
                     size: 11,
-                    color: AppStyle.textDarkFaint,
+                    color: AppStyle.faintFor(Theme.of(context).brightness),
                   ),
                 ),
                 6.verticalSpace,
@@ -207,7 +214,7 @@ class WorkPausedGate extends StatelessWidget {
                   AppHelpers.getTranslation(TrKeys.jobsInHandStillWork),
                   style: AppStyle.interNormal(
                     size: 11,
-                    color: AppStyle.textDarkFaint,
+                    color: AppStyle.faintFor(Theme.of(context).brightness),
                   ),
                 ),
               ],

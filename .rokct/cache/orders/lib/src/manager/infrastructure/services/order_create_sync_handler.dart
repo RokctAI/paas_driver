@@ -76,7 +76,7 @@ class OrderCreateSyncHandler extends SyncHandler {
     try {
       final response = await const PlatformGateway().call(
         'api.order.create_order',
-        payload: {'order_data': order},
+        payload: {'order_data': canonicalOrderData(order)},
         // op.id doubles as the idempotency key so an ambiguous-failure retry
         // does not double-create (backend dedupe per the Phase 0 contract).
         options: Options(headers: {'X-Idempotency-Key': op.id}),
@@ -104,6 +104,38 @@ class OrderCreateSyncHandler extends SyncHandler {
       }
       return SyncResult.retryable(message);
     }
+  }
+
+  /// Adds the canonical `create_order(order_data)` keys the backend reads
+  /// (`shop`, `user`, `currency`, `order_items[].product`) from the legacy
+  /// seller body (`shop_id`, `user_id`, `currency_id`,
+  /// `products[].product_id|stock_id`). Applied at send time so bodies
+  /// already parked in the local store / outbox are fixed too; the legacy
+  /// keys stay in place and any canonical key already present wins.
+  static Map<String, dynamic> canonicalOrderData(Map<String, dynamic> order) {
+    final Map<String, dynamic> out = Map<String, dynamic>.from(order);
+    String? asId(dynamic v) => v?.toString();
+    if (out['shop'] == null && out['shop_id'] != null) {
+      out['shop'] = asId(out['shop_id']);
+    }
+    if (out['user'] == null && out['user_id'] != null) {
+      out['user'] = asId(out['user_id']);
+    }
+    if (out['currency'] == null && out['currency_id'] != null) {
+      out['currency'] = asId(out['currency_id']);
+    }
+    final products = out['products'];
+    if (out['order_items'] == null && products is List) {
+      out['order_items'] = [
+        for (final product in products)
+          if (product is Map)
+            {
+              'product': asId(product['product_id'] ?? product['stock_id']),
+              'quantity': product['quantity'] ?? 1,
+            },
+      ];
+    }
+    return out;
   }
 
   /// The engine's temp-id substitution replaces `offline:<uuid>` tokens with

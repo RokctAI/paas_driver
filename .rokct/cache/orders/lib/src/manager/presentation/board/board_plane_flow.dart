@@ -13,7 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 
 import 'package:base_sdk/src/presentation/adaptive/planes.dart';
 import 'package:base_sdk/src/presentation/components/floating_nav/floating_nav_mode.dart';
@@ -83,7 +83,7 @@ class OrdersBoardPlaneFlowState extends State<OrdersBoardPlaneFlow> {
   Widget build(BuildContext context) {
     return PlaneHost(
       back: FloatingNavBack(
-        icon: FlutterRemix.arrow_left_s_line,
+        icon: Remix.arrow_left_s_line,
         label: AppHelpers.getTranslation(TrKeys.back),
         onTap: closeDetail,
       ),

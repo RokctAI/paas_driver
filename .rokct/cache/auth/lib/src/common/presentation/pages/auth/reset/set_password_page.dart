@@ -23,7 +23,13 @@ import 'package:base_sdk/src/presentation/components/app_bars/app_bar_bottom_she
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
 import 'package:base_sdk/src/presentation/components/text_fields/outline_bordered_text_field.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
-import 'package:auth_sdk/src/common/application/auth/auth.dart';
+// The reset-password provider directly, not the auth barrel: the barrel
+// also exports the register-confirmation provider, and pulling that in
+// drags OfflineAuthService into this library, whose drift accessors only
+// exist once the composer has injected auth_sdk's table into base_sdk's
+// @DriftDatabase. This sheet only ever needed resetPasswordProvider, and
+// importing it on its own is what lets a widget test mount this page.
+import 'package:auth_sdk/src/common/application/auth/reset_password/reset_password_provider.dart';
 import 'package:base_sdk/src/presentation/components/keyboard_dismisser.dart';
 
 class SetPasswordPage extends ConsumerWidget {
@@ -34,6 +40,23 @@ class SetPasswordPage extends ConsumerWidget {
     final notifier = ref.read(resetPasswordProvider.notifier);
     final state = ref.watch(resetPasswordProvider);
     final bool isLtr = LocalStorage.getLangLtr();
+    // A BuildContext lookup for the mode, not the app-wide AppStyle.isDark
+    // static behind AppStyle.surfaceDark (Ray, 2026-09-19: "glance doesnt
+    // change test immediately untill you come back if you switched theme
+    // mode" — the same defect, found here by the fleet audit that followed).
+    //
+    // This sheet resolved nothing from the context that a theme-mode flip
+    // touches: its surface came from AppStyle's statics, and its only other
+    // context reads are MediaQuery's view insets and safe-area padding,
+    // neither of which changes with the mode. A mutable static is not an
+    // inherited widget, so the flip scheduled no rebuild of this element and
+    // the sheet kept the previous mode's background while it stayed open —
+    // and it stays open for as long as it takes to type a new password
+    // twice. The resetPasswordProvider it watches is a feature notifier that
+    // a theme-mode change never notifies, so that is no rebuild trigger
+    // either. Reading the inherited theme here makes this element a
+    // dependent, so the mode change itself restyles the sheet in place.
+    final Brightness brightness = Theme.of(context).brightness;
     return Directionality(
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
       child: AbsorbPointer(
@@ -42,7 +65,7 @@ class SetPasswordPage extends ConsumerWidget {
           child: Container(
             padding: MediaQuery.of(context).viewInsets,
             decoration: BoxDecoration(
-              color: AppStyle.surfaceDark,
+              color: AppStyle.surfaceFor(brightness),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(16.r),
                 topRight: Radius.circular(16.r),

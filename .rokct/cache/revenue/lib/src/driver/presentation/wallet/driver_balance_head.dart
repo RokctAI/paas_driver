@@ -62,12 +62,12 @@ class DriverBalanceHead extends StatelessWidget {
         ? AppStyle.red
         : (tone == BalanceTone.available
             ? AppStyle.green
-            : AppStyle.textDarkSecondary);
+            : AppStyle.secondaryInkFor(Theme.of(context).brightness));
     return Container(
       key: const Key('driverBalanceHead'),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14.r),
         // The accent rail of frame 49f, drawn as a leading border so it
         // follows the card's radius instead of floating over it.
@@ -82,7 +82,7 @@ class DriverBalanceHead extends StatelessWidget {
             style: AppStyle.interSemi(
               size: 10.5,
               letterSpacing: 1.2,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
           14.verticalSpace,
@@ -104,7 +104,7 @@ class DriverBalanceHead extends StatelessWidget {
               key: const Key('driverBalanceWhyNegative'),
               style: AppStyle.interRegular(
                 size: 11,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ],
@@ -115,13 +115,13 @@ class DriverBalanceHead extends StatelessWidget {
               key: const Key('driverBalanceStale'),
               style: AppStyle.interRegular(
                 size: 11,
-                color: AppStyle.textDarkFaint,
+                color: AppStyle.faintFor(Theme.of(context).brightness),
               ),
             ),
           ],
           if (feesThisMonth != null) ...[
             14.verticalSpace,
-            Divider(height: 1, color: AppStyle.strokeDarkSubtle),
+            Divider(height: 1, color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
             14.verticalSpace,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -131,7 +131,7 @@ class DriverBalanceHead extends StatelessWidget {
                     AppHelpers.getTranslation('fees_earned_this_month'),
                     style: AppStyle.interRegular(
                       size: 11,
-                      color: AppStyle.textDarkFaint,
+                      color: AppStyle.faintFor(Theme.of(context).brightness),
                     ),
                   ),
                 ),
@@ -140,7 +140,7 @@ class DriverBalanceHead extends StatelessWidget {
                   key: const Key('driverBalanceFeesThisMonth'),
                   style: AppStyle.interSemi(
                     size: 11,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
                 ),
               ],

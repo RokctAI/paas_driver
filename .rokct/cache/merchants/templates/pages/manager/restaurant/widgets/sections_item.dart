@@ -62,7 +62,7 @@ class SectionsItem extends StatelessWidget {
                     title,
                     style: AppStyle.interRegular(
                       size: 16.sp,
-                      color: AppStyle.textPrimary,
+                      color: AppStyle.inkFor(Theme.of(context).brightness),
                     ),
                   )
                 : Column(
@@ -72,7 +72,7 @@ class SectionsItem extends StatelessWidget {
                         title,
                         style: AppStyle.interRegular(
                           size: 16.sp,
-                          color: AppStyle.textPrimary,
+                          color: AppStyle.inkFor(Theme.of(context).brightness),
                         ),
                       ),
                       2.verticalSpace,

@@ -50,10 +50,10 @@ class ProductCatalogCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: selected ? AppStyle.primary : AppStyle.strokeDark,
+            color: selected ? AppStyle.primary : AppStyle.strokeFor(Theme.of(context).brightness),
             width: selected ? 1.4 : 1,
           ),
         ),
@@ -87,7 +87,7 @@ class ProductCatalogCard extends StatelessWidget {
               product.translation?.title ?? '',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppStyle.interSemi(size: 14, color: AppStyle.textPrimary),
+              style: AppStyle.interSemi(size: 14, color: AppStyle.inkFor(Theme.of(context).brightness)),
             ),
             const SizedBox(height: 2),
             Text(
@@ -96,7 +96,7 @@ class ProductCatalogCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: AppStyle.interNormal(
                 size: 11,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
             const SizedBox(height: 8),
@@ -122,7 +122,7 @@ class ProductCatalogCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: AppStyle.interSemi(
                             size: 13,
-                            color: AppStyle.textPrimary,
+                            color: AppStyle.inkFor(Theme.of(context).brightness),
                           ),
                         ),
                 ),
@@ -161,9 +161,9 @@ class ProductCatalogTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppStyle.strokeDarkSubtle),
+          border: Border.all(color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,7 +176,7 @@ class ProductCatalogTile extends StatelessWidget {
                     product.translation?.title ?? '',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppStyle.interSemi(size: 15, color: AppStyle.textPrimary),
+                    style: AppStyle.interSemi(size: 15, color: AppStyle.inkFor(Theme.of(context).brightness)),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -185,7 +185,7 @@ class ProductCatalogTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppStyle.interNormal(
                       size: 12,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -200,7 +200,7 @@ class ProductCatalogTile extends StatelessWidget {
                           ),
                           style: AppStyle.interSemi(
                             size: 14,
-                            color: AppStyle.textPrimary,
+                            color: AppStyle.inkFor(Theme.of(context).brightness),
                           ),
                         ),
                         const SizedBox(width: 8),

@@ -60,11 +60,22 @@ class _ProfileSwitchTileState extends State<ProfileSwitchTile> {
 
   @override
   Widget build(BuildContext context) {
+    // The mode comes from the inherited theme, not from the app-wide
+    // AppStyle.isDark static (Ray, 2026-09-19: "glance doesnt change test
+    // immediately untill you come back if you switched theme mode" - the
+    // same defect, found here by the fleet audit that followed). A static
+    // is not an inherited widget, so a mode flip scheduled no rebuild of
+    // this widget and it kept the previous mode's colours until something
+    // else happened to rebuild it. The colours come from AppStyle's
+    // explicit-brightness seams, which name the same two values their
+    // mode-resolving getters resolve between.
+    final Brightness brightness = Theme.of(context).brightness;
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 8.r, vertical: 12.r),
       child: Row(
         children: [
-          Icon(widget.icon, size: 22.sp, color: AppStyle.textPrimary),
+          Icon(widget.icon, size: 22.sp, color: AppStyle.inkFor(brightness)),
           12.horizontalSpace,
           Expanded(
             child: Column(
@@ -74,7 +85,7 @@ class _ProfileSwitchTileState extends State<ProfileSwitchTile> {
                   widget.title,
                   style: AppStyle.interSemi(
                     size: 15.sp,
-                    color: AppStyle.textPrimary,
+                    color: AppStyle.inkFor(brightness),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -85,7 +96,7 @@ class _ProfileSwitchTileState extends State<ProfileSwitchTile> {
                     widget.subtitle!,
                     style: AppStyle.interNormal(
                       size: 13.sp,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(brightness),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

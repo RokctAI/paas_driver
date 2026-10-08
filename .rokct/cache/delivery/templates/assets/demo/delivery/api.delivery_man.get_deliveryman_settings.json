@@ -1,0 +1,15 @@
+{
+  "type_of_technique": "motorbike",
+  "brand": "Honda",
+  "car_model": "Ace 125",
+  "car_number": "KLM 482 GP",
+  "color": "Green",
+  "width": "60",
+  "height": "110",
+  "kg": "12",
+  "length": "190",
+  "online": 1,
+  "latitude": -26.2041,
+  "longitude": 28.0473,
+  "can_convert_cod_to_credit": 1
+}

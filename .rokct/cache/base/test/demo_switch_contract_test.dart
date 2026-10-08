@@ -13,26 +13,20 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
-// Source contract for the demo switch. AppConstants.isDemo is the
-// compile-time half (the guided tour's flag); DemoSession.demoActive is
-// the one question every demo seam asks - the build flag OR the runtime
-// session. A seam that reads the constant directly would serve a
-// server-marked demo account the real repositories, silently. So: no
+// Source contract for the demo switch. `DemoSession.demoActive` is the one
+// question every demo seam asks, and now the only one: the guided-tour
+// build (`AppConstants.isTour`, the one build with no backend and no
+// sign-in to assert a marker with) OR the runtime session auth_sdk
+// activates from the server-asserted demo-account marker. The compile-time
+// `AppConstants.isDemo` (`--dart-define=IS_DEMO=true`) is gone - a seam
+// that read it served a server-marked demo account the real repositories,
+// silently, and a flag no build passes could only ever read false. So: no
 // source file in any Dart package of this repo may read
-// `AppConstants.isDemo` except the two that define the switch.
+// `AppConstants.isDemo`, and `app_constants.dart` no longer declares it.
 
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-
-/// Where the constant may still be read, relative to the repo root.
-///
-/// * `app_constants.dart` defines it (`static const bool isDemo`).
-/// * `demo_session.dart` is the OR: `demoActive => isDemo || active`.
-const Set<String> _deliberatelyKept = {
-  'base/dart/lib/src/constants/app_constants.dart',
-  'base/dart/lib/src/services/demo_session.dart',
-};
 
 final RegExp _read = RegExp(r'\bAppConstants\.isDemo\b');
 
@@ -78,8 +72,7 @@ bool _readsInCode(String line) {
 }
 
 void main() {
-  test('no Dart source reads AppConstants.isDemo outside the switch itself',
-      () {
+  test('no Dart source reads AppConstants.isDemo', () {
     final root = _repoRoot();
     final readers = <String>{};
     for (final file in _sources(root)) {
@@ -87,20 +80,34 @@ void main() {
       if (file.readAsLinesSync().any(_readsInCode)) readers.add(relative);
     }
 
-    // The OR must still read the constant - that is the build-time half.
-    expect(readers, contains('base/dart/lib/src/services/demo_session.dart'));
-    // And nothing else may.
-    expect(readers.difference(_deliberatelyKept), isEmpty,
-        reason: 'read DemoSession.demoActive instead (a demo build OR a '
-            'demo session), and listen on DemoSession.instance where the '
-            'answer is registered or drawn once');
+    expect(readers, isEmpty,
+        reason: 'the constant is gone: read DemoSession.demoActive instead '
+            '(the tour build OR a demo session), and listen on '
+            'DemoSession.instance where the answer is registered or drawn '
+            'once');
   });
 
-  test('the compile-time half is still defined where it always was', () {
+  test('app_constants.dart no longer declares the compile-time flag', () {
     final root = _repoRoot();
     final source =
         File('${root.path}/base/dart/lib/src/constants/app_constants.dart')
             .readAsStringSync();
-    expect(source, contains('static const bool isDemo'));
+    expect(source, isNot(contains('static const bool isDemo')));
+    expect(source, isNot(contains("fromEnvironment('IS_DEMO')")));
+    // The tour's own flag stays: it is the build half of [demoActive].
+    expect(source, contains("bool.fromEnvironment('TOUR_MODE')"));
+  });
+
+  test('DemoSession.demoActive is the only demo switch', () {
+    final root = _repoRoot();
+    final source =
+        File('${root.path}/base/dart/lib/src/services/demo_session.dart')
+            .readAsStringSync();
+    // The tour build OR the runtime session, and nothing else - no
+    // compile-time constant and no test-only stand-in for one.
+    const or = 'static bool get demoActive => '
+        'AppConstants.isTour || instance.active;';
+    expect(source, contains(or));
+    expect(source, isNot(contains('isDemoOverride')));
   });
 }

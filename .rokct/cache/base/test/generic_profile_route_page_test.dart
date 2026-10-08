@@ -15,10 +15,14 @@
 
 // GenericProfileRoutePage — the routed /generic-profile page on planes:
 // at plane widths GenericProfilePage sits in a two-plane PlaneHost (the
-// approved profile cap, frames 1c/1f — two planes at most, the leftover
-// plane a bare stage at the END) with the pushed page's one Back parked
-// at the bottom-END corner (frame 1d, "back button should always be at a
-// corner"); on a phone the page renders exactly as before.
+// approved profile cap, frames 1c/1f — two planes at most, two columns)
+// with the pushed page's one Back parked at the bottom-END corner (frame
+// 1d, "back button should always be at a corner"); on a phone the page
+// renders exactly as before. With no detail beside it the profile is the
+// whole flow and presents on its own planes, so those two planes share
+// the full window and no stage is left bare (Ray, 2026-09-07: "on a
+// tablet the generic profile host must not leave the third plane
+// empty").
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,9 +53,6 @@ class _FakeShopsRepository extends Fake implements ShopsRepositoryFacade {}
 class _FakeGalleryRepository extends Fake implements GalleryRepositoryFacade {}
 
 const _sectionCount = 5;
-
-/// The seam PlaneHost puts between planes (its default gap).
-const _gap = 14.0;
 
 void main() {
   setUpAll(() async {
@@ -151,21 +152,25 @@ void main() {
       );
 
   testWidgets(
-      'three-plane tablet (1066 dp): hosted, capped at two planes, '
-      'Back at the bottom-END corner', (tester) async {
+      'three-plane tablet (1066 dp): hosted, capped at two planes with no '
+      'bare stage, Back at the bottom-END corner', (tester) async {
     await pumpRoutedProfile(tester, width: 1066, height: 800);
 
     expect(find.byType(PlaneHost), findsOneWidget);
     expect(find.byType(GenericProfilePage), findsOneWidget);
-    // The universal profile cap: two of the three planes, the third a
-    // bare stage — the content does not stretch across the window.
-    final planeWidth = (1066 - 2 * _gap) / 3;
-    final twoPlanes = 2 * planeWidth + _gap;
-    expect(
-      tester.getRect(profilePlanes()).right,
-      moreOrLessEquals(twoPlanes, epsilon: 0.5),
-    );
+    // Nothing is seeded here (the registry has no default section), so
+    // the profile is the whole flow and presents on its OWN planes: the
+    // host clamps the window to the two the cap allows and they share it
+    // whole. The cap is still a cap — two planes, two columns — but no
+    // third plane is left empty.
+    expect(tester.getRect(profilePlanes()).right, 1066);
     expect(columnEdges(tester), hasLength(2));
+    final planes =
+        Planes.maybeOf(tester.element(find.byType(GenericProfilePage)));
+    expect(planes, isNotNull);
+    expect(planes!.count, 2);
+    expect(planes.span, 2);
+    expect(planes.isLast, isTrue);
 
     // The pushed page's one back: a FloatingBackPill at the bottom-END
     // corner, 16 logical in from both edges.

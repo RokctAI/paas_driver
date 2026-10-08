@@ -13,7 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -48,7 +48,7 @@ class BoardMapDialog extends StatelessWidget {
     );
     final String? address = order.orderAddress?.address;
     return Dialog(
-      backgroundColor: AppStyle.cardDark,
+      backgroundColor: AppStyle.cardFor(Theme.of(context).brightness),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 480),
@@ -61,7 +61,7 @@ class BoardMapDialog extends StatelessWidget {
               child: Row(
                 children: [
                   Icon(
-                    FlutterRemix.map_pin_2_line,
+                    Remix.map_pin_2_line,
                     size: 16,
                     color: AppStyle.primary,
                   ),
@@ -73,16 +73,18 @@ class BoardMapDialog extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: AppStyle.interSemi(
                         size: 13,
-                        color: AppStyle.textPrimary,
+                        color: AppStyle.inkFor(Theme.of(context).brightness),
                       ),
                     ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
                     icon: Icon(
-                      Icons.close,
+                      Remix.close_line,
                       size: 18,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(
+                        Theme.of(context).brightness,
+                      ),
                     ),
                   ),
                 ],

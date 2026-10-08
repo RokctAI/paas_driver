@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:async';
+
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'dart:collection';
 
@@ -32,9 +34,28 @@ import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/marker_image_cropper.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/services/courier_storage.dart';
+import 'package:base_sdk/base_sdk.dart' show LiveActivities;
+import 'package:delivery_sdk/src/driver/application/live/driver_live_activity.dart';
 
 class HomeNotifier extends StateNotifier<HomeState> {
-  HomeNotifier() : super(const HomeState());
+  HomeNotifier({DriverLiveActivity? live}) : super(const HomeState()) {
+    _live = live ?? DriverLiveActivity(LiveActivities.instance);
+    // The driver's one ongoing notification (design section 3a) follows
+    // the home state: active delivery, "Online · waiting for orders", or
+    // nothing when offline. One key, so there are never two.
+    addListener((s) => _publishLive(s), fireImmediately: false);
+  }
+
+  late final DriverLiveActivity _live;
+
+  void _publishLive(HomeState s) {
+    try {
+      unawaited(_live.publish(s, online: CourierStorage.getOnline()));
+    } catch (e) {
+      // Decoration only: a storage hiccup must never reach the home state.
+      debugPrint('==> driver live activity: $e');
+    }
+  }
   final ImageCropperForMarker image = ImageCropperForMarker();
 
   fetchDeliveryZone({bool isFetch = false}) async {
@@ -647,6 +668,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
           // one write beside the one that flips the flag, so the stamp
           // and the state can never disagree.
           CourierStorage.setShiftEndedAt(goingOnline ? null : DateTime.now());
+          _publishLive(state);
         },
         failure: (failure, status) {
           AppHelpers.showCheckTopSnackBar(

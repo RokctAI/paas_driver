@@ -41,7 +41,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:orders_sdk/src/manager/domain/interface/seller_orders.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/response/orders_paginate_response.dart';
-import 'package:orders_sdk/src/manager/infrastructure/repositories/demo_seller_orders_repository.dart';
+import 'package:orders_sdk/src/manager/infrastructure/repositories/seller_orders_repository.dart';
+
+import 'support/demo_fixtures.dart';
+
 import 'package:orders_sdk/src/manager/presentation/launcher/manager_launch_window.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -114,8 +117,7 @@ class _FailingOrders implements SellerOrdersRepositoryFacade {
     int? page,
     String? from,
     String? to,
-  }) async =>
-      const ApiResult.failure(error: 'offline', statusCode: 503);
+  }) async => const ApiResult.failure(error: 'offline', statusCode: 503);
 
   @override
   dynamic noSuchMethod(Invocation invocation) =>
@@ -157,8 +159,7 @@ void main() {
       expect(opened, 1);
     });
 
-    testWidgets(
-        'chip 1289 - no takings: no currency mark, no sales, no '
+    testWidgets('chip 1289 - no takings: no currency mark, no sales, no '
         'takings, no revenue, no balance', (tester) async {
       await _pump(
         tester,
@@ -196,14 +197,9 @@ void main() {
   });
 
   group('dataless - chip 1288, the back seat', () {
-    testWidgets('renders the action alone and stays tappable', (
-      tester,
-    ) async {
+    testWidgets('renders the action alone and stays tappable', (tester) async {
       var opened = 0;
-      await _pump(
-        tester,
-        ManagerLaunchWindow.dataless(onOpen: () => opened++),
-      );
+      await _pump(tester, ManagerLaunchWindow.dataless(onOpen: () => opened++));
       expect(find.byType(Text), findsOneWidget);
       expect(find.text('Open orders'), findsOneWidget);
       expect(find.byKey(ManagerLaunchWindow.countKey), findsNothing);
@@ -213,9 +209,6 @@ void main() {
   });
 
   group('ManagerLaunchWindowLoader - the order board\'s own facade', () {
-    setUp(DemoSellerOrdersRepository.reset);
-    tearDown(DemoSellerOrdersRepository.reset);
-
     test('asks for the new column and reads the statistic', () async {
       final facade = _CountingOrders(3);
       final queue = await ManagerLaunchWindowLoader.load(repository: facade);
@@ -225,8 +218,10 @@ void main() {
     });
 
     test('the demo seed: the shift\'s two new orders', () async {
+      await startDemoFixtures();
+      addTearDown(stopDemoFixtures);
       final queue = await ManagerLaunchWindowLoader.load(
-        repository: DemoSellerOrdersRepository(),
+        repository: SellerOrdersRepository(),
       );
       expect(queue, isNotNull);
       expect(queue!.waiting, 2);
@@ -248,28 +243,29 @@ void main() {
   });
 
   group('manifest wiring - the injection under launch_sdk\'s markers', () {
-    final manifest = jsonDecode(File('manifest.json').readAsStringSync())
-        as Map<String, dynamic>;
+    final manifest = jsonDecode(
+      File('manifest.json').readAsStringSync(),
+    ) as Map<String, dynamic>;
 
-    test('declares 1.20.0 and the launch_sdk floor', () {
-      expect(manifest['version'], '1.20.0');
+    test('declares the current version and the launch_sdk floor', () {
+      expect(manifest['version'], '1.24.0');
       expect(manifest['_comment_requires'], contains('launch_sdk >= 1.4.3'));
     });
 
-    test(
-        'injects the import and the window under the two markers, with '
+    test('injects the import and the window under the two markers, with '
         'the placeholders the composer substring-matches', () {
-      final integrations =
-          (manifest['integrations'] as List).cast<Map<String, dynamic>>();
+      final integrations = (manifest['integrations'] as List)
+          .cast<Map<String, dynamic>>();
       final byPlaceholder = <String, Map<String, dynamic>>{
         for (final entry in integrations) entry['placeholder'] as String: entry,
       };
       expect(
-          byPlaceholder.keys,
-          containsAll(<String>[
-            '// @launcher-windows-imports',
-            '                // @launcher-windows',
-          ]));
+        byPlaceholder.keys,
+        containsAll(<String>[
+          '// @launcher-windows-imports',
+          '                // @launcher-windows',
+        ]),
+      );
       for (final entry in integrations) {
         expect(entry['target'], 'lib/presentation/pages/launch/home.dart');
       }
@@ -291,13 +287,14 @@ void main() {
     test('seeds the window\'s copy as top-level tr_keys', () {
       final keys = (manifest['tr_keys'] as Map).cast<String, String>();
       expect(
-          keys.values,
-          containsAll(<String>[
-            ManagerLaunchWindowKeys.ordersToAccept,
-            ManagerLaunchWindowKeys.waitingOnYou,
-            ManagerLaunchWindowKeys.openOrders,
-            'manager',
-          ]));
+        keys.values,
+        containsAll(<String>[
+          ManagerLaunchWindowKeys.ordersToAccept,
+          ManagerLaunchWindowKeys.waitingOnYou,
+          ManagerLaunchWindowKeys.openOrders,
+          'manager',
+        ]),
+      );
     });
   });
 }

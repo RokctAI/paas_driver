@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.63.1",
+      "version": "1.83.5",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -93,7 +93,7 @@
         "assets/svgs/home3.svg": "be4804b6ccf3245e0fcbca4f5c1b3cd54d217024fa59011193c7c3cf5747fbdc",
         "lib/presentation/theme/theme.dart": "dccd0527934c068d0b8ef48d7d0677d068d1054e7fcc1e1eea1f6682912bfcd5",
         "lib/presentation/theme/app_style.dart": "a45367fab06abafa465a15d659d631e344f3c1badc06a8880b2298eaf063c535",
-        "lib/main.dart": "55d0cd0c0893a01cce344a11bc22e246db3d45c8fe639ed6c9d6671fd1fa7776",
+        "lib/main.dart": "4fe65baf8e403cb55f8f2788fb50e0a4277185f51afb640233d535d00832e455",
         "lib/presentation/app_widget.dart": "a0b1d99dff873deaa63543d1139bf82173412518918be1e1e8c8c9f97214174b",
         "lib/presentation/routes/app_router.dart": "3b99e50c60dab1161ccf14aa381f7481ab1baad0223575df04e4bda89a20464b",
         "lib/presentation/routes/route_pages.dart": "32ab7543d1b94e5b5aedd5a59604a390c373d6e881801c875e37f2ddd001d8c8",
@@ -217,21 +217,47 @@
             "import 'package:base_sdk/src/services/remote_config_service.dart';"
           ]
         }
-      ]
+      ],
+      "database": {
+        "_comment": "No 'tables' key on purpose. base_sdk's own tables (KeyValueTable, OutboxTable, IdMappingsTable) are declared directly in the @DriftDatabase annotation in lib/src/database/app_database.dart, and the installer COPIES every table source named here into base_sdk's own package to import relatively - so listing them would compile two copies of each class. Only the migration is declared.",
+        "_comment_migration": "THE MIGRATION VERSION NUMBER IS SHARED WITH EVERY OTHER SDK IN THE APP, AND IS NOT THIS SDK'S TO COUNT ALONE. sdk_installer_base.py update_database_registration() sets the composed AppDatabase's schemaVersion to the MAXIMUM version any composed manifest declares, while each SDK writes its own `if (from < N)` guard into the one shared onUpgrade - one namespace, no allocator. Drift calls onUpgrade only when schemaVersion is GREATER than the stored user_version, so a number at or below the running maximum runs nothing at all on a device that is already there, and the column this step adds would simply never appear (productivity_sdk lost its notes table to exactly this, and this manifest's number is chosen the way that manifest's comment says to). Two further traps are specific to base: the composer SUBSTITUTES the schemaVersion getter in app_database.dart, so a base-owned number written only in Dart is erased at compose time; and max_version is only raised inside the installer's `if version and step` branch, so a version declared without a step raises nothing. Hence both, declared here. VERSIONS READ ACROSS THE FLEET BEFORE CLAIMING 19 (every manifest.json outside a .rokct/cache in every repo reachable from this workspace, read at their current main): radio_sdk 18 (agent/radio/dart), productivity_sdk 17 (productivity/productivity/dart), auth_sdk 16 (Users/auth/dart), agent_sdk 15 (agent/agent/dart), replay_sdk 15 (agent/replay/dart), subscriptions_sdk 15 (agent/subscriptions/dart), polaris_sdk 13 (corporate/polaris/dart), fav_sdk 12 (agent/fav/dart); no other manifest declares a database.migration at all - base_sdk, launch_sdk, comms_sdk and telemetry_sdk in this repo included, until now. 19 is above all of them. NOTE for whoever reads this next: radio_sdk's 17 and productivity_sdk's 17 are a LIVE COLLISION on that number (radio's own comment still records productivity at 14), which is not this PR's to fix but is the same defect all of this text is about. The step is idempotent - ensureOwnerScopeColumns() checks for the column before touching anything - and beforeOpen in app_database.dart calls it on every open as a floor, so a device that somehow skips this step still gets the column rather than throwing on its first read.",
+        "migration": {
+          "version": 19,
+          "step": "if (from < 19) { await ensureOwnerScopeColumns(); }"
+        }
+      }
     },
     "users_sdk": {
-      "version": "1.4.0",
-      "files": {},
+      "version": "1.5.1",
+      "files": {
+        "assets/demo/users/api.user.search_user.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/users/api.user.add_user_address.json": "94040fd50c440c6ddcbbe56ce155489e70d4ae918498599ac55082d238d799ad",
+        "assets/demo/users/api.user.get_user_profile.json": "ecd6d852c7fc618f171e6b20bcbdef6d4b848e68028fb78cb02fc29f12a86de4",
+        "assets/demo/users/api.user.update_profile_image.json": "ecd6d852c7fc618f171e6b20bcbdef6d4b848e68028fb78cb02fc29f12a86de4",
+        "assets/demo/users/api.user.get_user_addresses.json": "77712b6ec35f52696d1db69d1eb89c75da84af4d03d04dc5a5207adbcf82cfc5",
+        "assets/demo/users/api.user.set_active_address.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/users/api.user.delete_account.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/users/api.user.update_password.json": "ecd6d852c7fc618f171e6b20bcbdef6d4b848e68028fb78cb02fc29f12a86de4",
+        "assets/demo/users/api.user.register_device_token.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/users/api.user.update_user_profile.json": "ecd6d852c7fc618f171e6b20bcbdef6d4b848e68028fb78cb02fc29f12a86de4",
+        "assets/demo/users/api.user.delete_user_address.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/users/api.user.update_user_address.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/users/api.user.logout.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/users/api.user.get_referral_details.json": "0cdbf9b57c1c847eb6b0a167f394afd056b6f7e368721c5f7a6bb709e3d5f4fa"
+      },
       "routes": [],
       "app_routes": [],
       "onboarding_slides": [],
       "embedded_widgets": [],
       "registration_steps": [],
       "di_hooks": [],
-      "boot_hooks": []
+      "boot_hooks": [],
+      "app_assets": [
+        "assets/demo/users/"
+      ]
     },
     "orders_sdk": {
-      "version": "1.21.0",
+      "version": "1.29.2",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -244,7 +270,8 @@
         "ordersToAccept": "orders_to_accept",
         "waitingOnYou": "waiting_on_you",
         "openOrders": "open_orders",
-        "manager": "manager"
+        "manager": "manager",
+        "paymentCancelled": "payment_cancelled"
       },
       "integrations": [
         {
@@ -257,16 +284,19 @@
           "placeholder": "                // @launcher-windows",
           "replacement": "                LaunchWindowSource.widget(\n                  mode: LaunchMode.manager,\n                  title: AppHelpers.getTranslation('manager'),\n                  icon: RemixIcons.store_2_line,\n                  builder: (context, openApp) =>\n                      ManagerLaunchWindow(onOpen: openApp),\n                ),"
         }
+      ],
+      "app_assets": [
+        "assets/demo/orders/"
       ]
     },
     "delivery_sdk": {
-      "version": "1.22.2",
+      "version": "1.28.1",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "11db8e698632a6cee50e92a83fef8a494c4b55cf316bbaf6398f652460cb8dea",
         "lib/presentation/routes/delivery_adapters.dart": "cd22c591ae3179bcc44d95cead4ac89abddfecdc6217a8c316037890e13ecddc",
         "lib/presentation/pages/home/parcel_bottom_sheet.dart": "008bb9812843fe0024cf77b29640494f63416c76ba4795f174a27e9227f1cb95",
-        "lib/presentation/pages/home/bottom_sheet_screen.dart": "0943694ba39b81dbdbb0bacd155b6715bcaed7acf7f11a47c59aae70ce993cf9",
-        "lib/presentation/pages/home/home_page.dart": "d26d1d7da70ca48b4550c7f6635d0d740ac9e3bbfc26658d6a9888a48397b163",
+        "lib/presentation/pages/home/bottom_sheet_screen.dart": "641818bdcb1162ec956912eafb42774e6c21e107611e32a08bf6f30d58a49ee6",
+        "lib/presentation/pages/home/home_page.dart": "62b5984bef254fc6cce0fc555cd13f495ccc02acb8ea2cb384c613ccb70ee641",
         "lib/presentation/pages/home/delivery_bottom_sheet.dart": "cc501115039ed9fe1a5034585256743eb7a3c62b2bf0e466b2c159eee8062349",
         "lib/presentation/pages/home/widgets/outside_painter.dart": "60866744c76343e4a4cf92b27adb08a17a74dbe5f0e4bd99b6657c30aba402e3",
         "lib/presentation/pages/home/widgets/rate_customer.dart": "1cc8cad88894b84141ac2bf18cf6e945414daf20226dc9078dc2810ef3770358",
@@ -303,8 +333,51 @@
         "lib/presentation/component/buttons/buttons_bouncing_effect.dart": "c548da4acd677c8f1370f9ac3409fb82a7c0485fda46d23484d0e340852ceec5",
         "lib/presentation/component/helper/keyboard_disable.dart": "837447d41e4c1b1cb0b1b1a1e938cafa413c3258d7b900552e97f2d93b8f2021",
         "lib/presentation/component/text_fields/underline_bordered_text_field.dart": "5efec626091dc54d51af545bde5a2d428042fc421cdab1e70968b6161fc0761c",
-        "lib/presentation/pages/route/route_page.dart": "fe4c4ff60358c7294d553b81ee7e5ef577171717a83893b06a742875d749c82b",
-        "lib/presentation/pages/deposits/deposits_page.dart": "f48b60499c1763cf4bd9433bdf6cd09bd101ba53125762b96b1c6b06ecbe00e1"
+        "lib/presentation/pages/route/route_page.dart": "b687e04496a703f29ca13a2c5abb2f2b2d045978d10910579176826e2af78579",
+        "lib/presentation/pages/deposits/deposits_page.dart": "f48b60499c1763cf4bd9433bdf6cd09bd101ba53125762b96b1c6b06ecbe00e1",
+        "assets/demo/delivery/api.driver_order.upload_order_image.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "assets/demo/delivery/api.user.create_request_model.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "assets/demo/delivery/api.driver_parcel.set_current_parcel_order.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "assets/demo/delivery/api.driver_order.convert_cod_to_credit.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "assets/demo/delivery/api.delivery_man.get_deliveryman_order_report.json": "2585bbfb634ed1766fee7a51c08cfe0434c65ca84847b7f4166b56a3cb115847",
+        "assets/demo/delivery/api.driver_order.update_driver_order_status.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "assets/demo/delivery/api.poi.lookup_poi_owner.json": "a473231bb47f7b2ef5202851c1fe1697ded4db0e0f4e76b18a4cbda8fc11e02e",
+        "assets/demo/delivery/api.user.update_profile.json": "9dbe3f8e1224a9192908777a4f5c74b0c199c98a8c0e2decf10e63e4b6cba65d",
+        "assets/demo/delivery/api.driver_parcel.attach_parcel_order_to_me.json": "e5ad01294501ef89506d1e257820ec66e9b9dd15ba57a7090fb8b5ef8b5c32d6",
+        "assets/demo/delivery/api.driver_parcel.update_driver_parcel_order_status.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "assets/demo/delivery/api.delivery_man.get_deliveryman_settings.json": "a9120d6a8f1f36e3bec254006701d5c172f76a9b7d5b2bcc94a62059e5533948",
+        "assets/demo/delivery/api.delivery_man.get_deliveryman_zone_polygon.json": "3ed84cc3837b7d9f0cea54b068d56c30b05d1c224216aef349460be238865d00",
+        "assets/demo/delivery/api.user.get_user_request_models.json": "906edb277266ae24b3b25c52beeee1629883fe4b4ddf0f6ace2fd9f72cca1d5d",
+        "assets/demo/delivery/api.driver_order.get_driver_route.json": "7aca2264e7f9f73f048ef6ea3fcc60d3c38783e56c230fcf7168d94ddfcc61b7",
+        "assets/demo/delivery/api.order.load.get_my_load.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "assets/demo/delivery/api.poi.get_poi_types.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "assets/demo/delivery/api.driver_order.get_driver_orders_paginate.json": "6fc5ffb923a0ef0e1670c8f233a96fa675682cf3be9ecf695b15c8e9a1b8ef77",
+        "assets/demo/delivery/api.poi.get_my_poi_shops.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+        "assets/demo/delivery/api.driver_order.attach_order_to_me.json": "e5ad01294501ef89506d1e257820ec66e9b9dd15ba57a7090fb8b5ef8b5c32d6",
+        "assets/demo/delivery/api.dispatch_route.get_my_dispatch_route.json": "ed1d37906da8a6b10140aca9b911faa75f3a467a97f21d6108bbce1ca4de5a12",
+        "assets/demo/delivery/api.user.update_password.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "assets/demo/delivery/api.wallet.get_deposit_destination.json": "aa273296bed1fddd8976697e2bd411c9980bfd86bbce5618a26dc509af2aa3d4",
+        "assets/demo/delivery/api.wallet.submit_deposit_request.json": "c5f3f737d059d21c22a672465801eb927515c8be9340639b52dbb4da5c8683c2",
+        "assets/demo/delivery/api.driver_parcel.add_parcel_order_review.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "assets/demo/delivery/api.driver_parcel.confirm_parcel_cod_collection.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "assets/demo/delivery/api.payment.get_wallet_balance.json": "79d2bcb5f16f3d63795e9611a348aa6bb70ae59bf45ae253e3d2078d10d87b0f",
+        "assets/demo/delivery/api.driver_order.set_current_order.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "assets/demo/delivery/api.delivery_man.add_deliveryman_order_review.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "assets/demo/delivery/api.poi.get_nearby_pois.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "assets/demo/delivery/api.wallet.list_deposit_requests.json": "d098d99e8f732538b28d8164c65082c310c061077d3b2510f3632df2b16d04ee",
+        "assets/demo/delivery/api.delivery_man.update_deliveryman_settings.json": "a9120d6a8f1f36e3bec254006701d5c172f76a9b7d5b2bcc94a62059e5533948",
+        "assets/demo/delivery/api.delivery_man.get_deliveryman_order_details.json": "299f8f19b4c2a88aa062ea36cd76848aad716733e08a2e3c594d8a00256998c9",
+        "assets/demo/delivery/api.poi.get_poi_sales.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+        "assets/demo/delivery/api.delivery_man.get_deliveryman_work_status.json": "994655b53ce5b5a38d5bd3e34f969dda8924a6f2361bb4a8e597fcdfcf3a6b1a",
+        "assets/demo/delivery/api.delivery_man.get_deliveryman_parcel_orders.json": "275675aa497723b00270949566638c5dae3a54e95aae3b9f2c6438e79a4d9b17",
+        "assets/demo/delivery/api.driver_order.confirm_cod_collection.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "assets/demo/delivery/api.poi.get_poi_route.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "assets/demo/delivery/api.dispatch_route.complete_dispatch_stop.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "assets/demo/delivery/api.delivery_man.get_available_orders.json": "fc18baba379fc1d4a71ad19fd097bdc1d0d811af3952db1f8129e9048b09308c",
+        "assets/demo/delivery/api.driver.update_location.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+        "lib/presentation/pages/load/load_page.dart": "72e587d4f4461fecf297ac9378d8636807bcb7bbe1965aabe28ef1cd1c5b77bf",
+        "lib/presentation/pages/load/load_return_page.dart": "5da84f5be30c2499f105da019a8c59661b566cd8cd220b5d857d4e883ff14480",
+        "lib/presentation/pages/load/load_sell_page.dart": "90c2b662714c23efd70fc27467cfb098ddb15bbf446fe9802f35ed7245f6ebcd"
       },
       "routes": [
         {
@@ -363,6 +436,27 @@
           "type": "CupertinoRoute",
           "import": "package:${package}/presentation/pages/deposits/deposits_page.dart",
           "_comment": "Design strip frames 49g/49h/49i: the deposit status plane; ?choose=1 opens the method chooser over it (corporate revenue_sdk's wallet plane pushes this path from its Top up pill - delivery_sdk imports only base_sdk, so the two SDKs meet on the path, not on a class)."
+        },
+        {
+          "path": "/load",
+          "page": "DriverLoadRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/load/load_page.dart",
+          "_comment": "Van sales - 'My load': the consignment load the shop issued this driver. Lists every open load with its lines (issued / sold / returned / remaining), the value still on the van, and the three actions Sell, Return, Close load, on commerce's api.order.load.* defs. The driver home's My load tile pushes the plane directly (same SDK, no route needed); the path is declared because the two write screens below live under it and a host may link the list itself."
+        },
+        {
+          "path": "/load/sell",
+          "page": "DriverLoadSellRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/load/load_sell_page.dart",
+          "_comment": "The sale at the door: steppers capped at the server's remaining figure, a live total struck at the load's own unit prices, and a cash order born Delivered + Paid by api.order.load.create_load_sale. ?load=<load order> names the load; absent, the driver's only open load."
+        },
+        {
+          "path": "/load/return",
+          "page": "DriverLoadReturnRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/load/load_return_page.dart",
+          "_comment": "Unsold stock handed back to the shop (api.order.load.return_load). The same steppers and the same cap, and deliberately no money figure - a return is not a refund."
         }
       ],
       "app_routes": [
@@ -403,7 +497,8 @@
         "assets/lottie/empty-box.json",
         "assets/image/my_location.png",
         "assets/svg/balance.svg",
-        "assets/svg/cutter.svg"
+        "assets/svg/cutter.svg",
+        "assets/demo/delivery/"
       ],
       "di_hooks": [
         {
@@ -579,12 +674,24 @@
       ]
     },
     "comms_sdk": {
-      "version": "1.16.0",
+      "version": "1.22.2",
       "files": {
         "lib/application/notification/notification_state.dart": "055c8ab42969bad5e418061cbe38699458bfc8b74ea7d4def4a03a18e261b184",
         "lib/application/notification/notification_notifier.dart": "c5c691d1c0f1d476eea96d5a60bac5316fabe8ea0f77412db1d4d409f1e6b748",
         "lib/application/notification/notification_provider.dart": "f18a9bb1e82f0b765471e1c0824f4d2cc34806b9b4458dbf1f137f352809b671",
-        "lib/presentation/pages/profile/notification_list_page.dart": "1669351fd00daac9067cf9e387c73a10f03309732d901215e4316464c896b7db"
+        "lib/presentation/pages/profile/notification_list_page.dart": "1669351fd00daac9067cf9e387c73a10f03309732d901215e4316464c896b7db",
+        "assets/demo/comms/api.notification.read_all_notifications.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/comms/api.notification.get_notification_count.json": "e81366a1ea9400e3b0cfd014aabfbdbc12cfea74d7335a64c9feda2a6025318f",
+        "assets/demo/comms/api.notification.update_notification_settings.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/comms/api.admin_content.get_admin_faqs.json": "b6224855d5a5496f8aaf3fd07e595fef6bf9071c22a110a444ce4ffe55fd0cda",
+        "assets/demo/comms/api.notification.get_user_notifications.json": "0345797eb7c9a8572a37748670cd59d03232674f0df8b9bdb5ae61d77a1c07eb",
+        "assets/demo/comms/api.notification.read_one_notification.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/comms/api.page.get_page.json": "993f0d1ce3045b465bedbfd89c5aabf5993f80a4a10f1c93e0fc707c5f535cd9",
+        "assets/demo/comms/api.notification.get_notification_settings.json": "a7b60d72591768e25c273e27972f15702efd847212ce283c982ba5aba1d45043",
+        "assets/demo/comms/api.system.get_global_settings.json": "bd79ef4bf926cae6e9cf15c508f2aa30b0abc3af7bd98fbe5056ee8d18dee941",
+        "assets/demo/comms/api.system.get_currencies.json": "cb70e135ab501697b3c14a767decf891e029f2195fea5f40ae70e00cd64ab95b",
+        "assets/demo/comms/api.translation.get_mobile_translations.json": "ad9606c0d503b0c27150d2a0c0a82ddf44037a34619f27cbdd7a050d6f7a26fa",
+        "assets/demo/comms/api.language.get_languages.json": "6933ca5d43e6ce955b43f238b728f27e5444585699da1d722e60cae67a5bc16e"
       },
       "routes": [
         {
@@ -611,6 +718,18 @@
       "di_hooks": [],
       "boot_hooks": [
         {
+          "id": "comms-live-activity-sink",
+          "order": 40,
+          "body": "LiveActivities.instance.sink ??= DeviceLiveActivitySink();",
+          "_comment": "Live notifications (design approved 2026-09-26). Registers the device sink into base_sdk's LiveActivities (base_sdk >= 1.76.0), so orders, delivery and lms publish snapshots without importing comms_sdk. Registration only: nothing is drawn until an adopter publishes. No 'imports' entry: main.dart already imports base_sdk and comms_sdk (which exports DeviceLiveActivitySink)."
+        },
+        {
+          "id": "comms-push-permission-on-sign-in",
+          "order": 30,
+          "body": "SessionStartHooks.register(PushPermissionPrompt.hookId, PushPermissionPrompt.onSessionStart);",
+          "_comment": "Ray, 2026-09-25: ask for notification permission after a successful sign-in, in every app that composes comms_sdk (before 1.18.0 only merchants' manager shell and delivery's driver home asked; supacharge, paas_customer and the rest never did). Subscribes PushPermissionPrompt to base_sdk's SessionStartHooks (base_sdk >= 1.75.0), which auth_sdk >= 1.15.0 runs once a session is established; neither SDK depends on the other. PushPermissionPrompt skips demo sessions (DemoSession.demoActive), asks at most once per install (a LocalStorage JSON flag set only once the OS was actually asked), and goes through PushPermissionService, so platform guard, fail-open catch and in-flight de-duplication all still apply. Registration only: nothing runs at boot. No 'imports' entry: every composed main.dart already imports package:base_sdk/base_sdk.dart and package:comms_sdk/comms_sdk.dart (which exports PushPermissionPrompt) in its @generated-sdk-imports block."
+        },
+        {
           "id": "comms-firebase-fcm-boot",
           "order": 10,
           "body": "if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS)) {\n  try {\n    if (Firebase.apps.isEmpty) {\n      await Firebase.initializeApp();\n    }\n    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);\n  } catch (e) {\n    debugPrint('Firebase boot skipped: $e');\n  }\n}",
@@ -630,6 +749,15 @@
             "import 'package:comms_sdk/src/common/services/desktop_notification_poller.dart';"
           ],
           "_comment": "Windows notification delivery, POS parity (1.6.0): firebase_messaging has no Windows implementation, so the FCM hook above deliberately excludes Windows and composed Windows exes shipped with NO notification path at all. This hook starts comms' DesktopNotificationPoller (10s REST count polling + looping POS notification.wav + ValueNotifier badge feed - see the service's doc comment) on Windows only. The start is deferred to addPostFrameCallback because boot-hook bodies run BEFORE LocalStorage.init() and the sdk-di block in the generated main.dart: by first frame both are done, and runApp is never delayed by a poll. Fail-open try/catch like the FCM hook - a boot failure debugPrints instead of blanking the app. WidgetsBinding resolves via main.dart's static material import; foundation dedupes with the FCM hook's wiring import. Toast layer (still 1.6.0, same unmerged PR): poller.start() also initializes LocalNotifications fail-open (flutter_local_notifications 19.x WindowsInitializationSettings - stable hardcoded GUID, APP_NAME/WINDOWS_AUMID dart-defines for branding, works unpackaged; MSIX identity optional host-side) and each count increase raises a native toast via LocalNotifications.show() alongside the sound - no hook body change needed, the toast path lives entirely inside the service."
+        },
+        {
+          "id": "comms-push-message-dispatch",
+          "order": 15,
+          "body": "if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS)) {\n  try {\n    PushMessageDispatcher.instance.start();\n  } catch (e) {\n    debugPrint('Push message dispatch skipped: $e');\n  }\n}",
+          "imports": [
+            "import 'package:flutter/foundation.dart';"
+          ],
+          "_comment": "Feeds received FCM messages into base_sdk's PushMessages (base_sdk >= 1.79.0) by data['type'], so a feature SDK handles its own pushes without importing comms_sdk (orders_sdk registers 'order_status' for its ActiveOrderTracker). Foreground messages and taps that open the app dispatch at once; a message that arrives while the app is suspended or closed is queued by firebaseMessagingBackgroundHandler and replayed at start and on resume. Runs after comms-firebase-fcm-boot (order 10). comms_sdk exports PushMessageDispatcher, so no package import is needed."
         }
       ],
       "platform_permissions": {
@@ -638,7 +766,10 @@
           "android.permission.VIBRATE"
         ],
         "ios": {}
-      }
+      },
+      "app_assets": [
+        "assets/demo/comms/"
+      ]
     },
     "processing_sdk": {
       "version": "1.0.2",
@@ -689,24 +820,29 @@
       "boot_hooks": []
     },
     "map_sdk": {
-      "version": "1.3.2",
-      "files": {},
+      "version": "1.5.0",
+      "files": {
+        "assets/demo/map/api.poi.get_customer_pois.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
       "routes": [],
       "app_routes": [],
       "onboarding_slides": [],
       "embedded_widgets": [],
       "registration_steps": [],
       "app_assets": [
-        "assets/lottie/pin.json"
+        "assets/lottie/pin.json",
+        "assets/demo/map/"
       ],
       "di_hooks": [],
       "boot_hooks": []
     },
     "zones_sdk": {
-      "version": "1.6.0",
+      "version": "1.7.0",
       "files": {
         "lib/presentation/pages/profile/delivery_zone/delivery_zone_page.dart": "6f411ebaa05581e1ee6efcc903ecc0ef434a51e05cd5856d09f13fbae4a1b5b4",
-        "lib/presentation/routes/zones_adapters.dart": "72c0833c23425d22a7c6a04222810d1fac164b6cf3b473479e53e8ab4c02bb69"
+        "lib/presentation/routes/zones_adapters.dart": "a7e64e1765f0fb2e84a23a07c5daf2af0727b841dc58135e19da2f52c9a23812",
+        "assets/demo/zones/api.delivery_man.set_deliveryman_zone_polygon.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+        "assets/demo/zones/api.delivery_man.get_deliveryman_zone_polygon.json": "40c730f9bbdcbe98e4476861a15140f3bbe9af976dfb2b8d4ebba98e7a4c1f25"
       },
       "routes": [
         {
@@ -758,16 +894,25 @@
         "oneMorePointToCloseTheShape": "1.more.point.to.close.the.shape",
         "twoMorePointsToCloseTheShape": "2.more.points.to.close.the.shape",
         "threeMorePointsToCloseTheShape": "3.more.points.to.close.the.shape"
-      }
+      },
+      "app_assets": [
+        "assets/demo/zones/"
+      ]
     },
     "revenue_sdk": {
-      "version": "1.13.1",
+      "version": "1.14.1",
       "files": {
-        "lib/presentation/pages/income/statistics_screen.dart": "3e7695b40210bb562f982f606f375ef5bfdbf85cf158cb2644e8433adc15d138",
-        "lib/presentation/pages/income/income_page.dart": "48ec2cdce3cf595ad0ea36149f1cd601d255b652a082ca070d7f472c337a76b6",
-        "lib/presentation/pages/income/app_bar_screen.dart": "f1904f211621d1e96b14f0f550d7bd3211add5b6bb3d80b049ac6b133990bd84",
+        "lib/presentation/pages/income/statistics_screen.dart": "b385595295baa359fdd50076b5f8c4823d4e64e3e50c09adfaa885ba57d8a9f2",
+        "lib/presentation/pages/income/income_page.dart": "7bdb8248d0695667eb73bb2266609e9ceb2b48cb5112e999a50ebdd9f5aaf92e",
+        "lib/presentation/pages/income/app_bar_screen.dart": "9bb3cda736cb5f7bf62614201beef509414f7385b5c608c997a2a68ea13f1088",
         "lib/presentation/pages/income/widgets/statistics_item.dart": "b43a9adb482a8bd0751b9b97b04051fec9fa48f1a958dccc294d6402dba0caf5",
-        "lib/presentation/pages/income/widgets/income_item.dart": "7ede514501b14b81093a7cbabc03787a9f2eaac3aa4668e8eaa471bbf94e9f1d"
+        "lib/presentation/pages/income/widgets/income_item.dart": "6d6db6f0ac4ba18846fae7fad6bc23b385eaff79a682a5568bd127e1ce6be7de",
+        "assets/demo/revenue/api.delivery_man.get_deliveryman_order_report.json": "04b1d511d3c230a63dd384ccee229dea7d22fd80e8fdf7125b0f3ba2f144c60e",
+        "assets/demo/revenue/api.seller_report.get_order_report_paginate.json": "49d5fb794ab5ac38778ad3cc0fbc0fb0c7d34e22b40902a70f172dfbbf1beed5",
+        "assets/demo/revenue/api.driver_order.get_driver_orders_paginate.json": "d3996c50f2889d147fafadcdb19c51dc52eec0f478a770a7cf1f03099e670797",
+        "assets/demo/revenue/api.delivery_man.get_deliveryman_statistics.json": "db4e807b6fd7010262eb3c27f24491c5d9e57da68750da4780d6afcd365d8ac5",
+        "assets/demo/revenue/api.seller_report.get_seller_profit_report.json": "ddb19aae65c4ac8ab59accd802cd2b3fdaea06e8134838fce99fef16a706d01e",
+        "assets/demo/revenue/api.seller_report.get_order_report.json": "1de72d589e6c30e4f9e7d6bcad29dcd51aaefe40d0c0eee045b4cd860f9c10fb"
       },
       "routes": [
         {
@@ -809,13 +954,37 @@
           "replacement": "      ManagerWalletPane(\n        scope: ManagerWalletScope(\n          shopId: merchantWalletScope(ref).shopId,\n          shopName: merchantWalletScope(ref).shopName,\n        ),\n      ),",
           "_comment": "The placeholder carries its six-space indent ON PURPOSE: the bare text is a prefix of the -imports marker above, and the installer replaces every occurrence. The marker sits first inside MerchantWalletSection's candidate list and the section renders `.first`, so the inserted pane WINS over base's BaseWalletCard(actions: [], onHistory: null) that follows it; nothing is deleted. merchantWalletScope(ref) is the host page's own seam function (shop id + display name from restaurantProvider, cached shop JSON as fallback), so this replacement names no merchants internals beyond it. Byte-for-byte twin of merchants_sdk's markers - test/hub_markers_test.dart there pins both strings."
         }
+      ],
+      "app_assets": [
+        "assets/demo/revenue/"
       ]
     },
     "merchants_sdk": {
-      "version": "1.31.0",
+      "version": "1.33.3",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
-        "lib/presentation/pages/stores/story_page.dart": "adeb07c24627dd3f1321a4f3eebc4d762e55f8cf8e8e3b7b91daeffdb86b3508"
+        "lib/presentation/pages/stores/story_page.dart": "adeb07c24627dd3f1321a4f3eebc4d762e55f8cf8e8e3b7b91daeffdb86b3508",
+        "assets/demo/merchants/api.seller_shop.update_shop.json": "6217983659f930765a1349ed444d6544aae7d8aa9c2b26448f61dc25512999a3",
+        "assets/demo/merchants/api.seller_shop.get_quick_flow_settings.json": "20fa3697d095c6c611fc0ee672dbf155fae3b7f34fdd69d76e5b6d91eacd1bb8",
+        "assets/demo/merchants/api.shop.get_shop_branches.json": "44e39501c1fde8a81c948b9647e7340446cd6d0909a291271c0ddb4db4be967c",
+        "assets/demo/merchants/api.shop.get_shops_by_ids.json": "8e81243b0073e7187a7475ef75d85f25bd4fe51a313d2cbc2a3c03c72a30ed7d",
+        "assets/demo/merchants/api.seller_shop.set_working_status.json": "36f579d4c4606f9ff3c022585bab9c993c9fb9f0aec51523d0a81a7065d0eb31",
+        "assets/demo/merchants/api.seller_shop_settings.get_seller_shop_working_days.json": "be96acbabbe5a5d2ee326c9a8ed78f738cc26f2b559dd443f86166c4920fb284",
+        "assets/demo/merchants/api.shop.get_nearby_shops.json": "8e81243b0073e7187a7475ef75d85f25bd4fe51a313d2cbc2a3c03c72a30ed7d",
+        "assets/demo/merchants/api.shop.search_shops.json": "8e81243b0073e7187a7475ef75d85f25bd4fe51a313d2cbc2a3c03c72a30ed7d",
+        "assets/demo/merchants/api.seller_shop.update_quick_flow_settings.json": "20fa3697d095c6c611fc0ee672dbf155fae3b7f34fdd69d76e5b6d91eacd1bb8",
+        "assets/demo/merchants/api.shop.get_shops_recommend.json": "8e81243b0073e7187a7475ef75d85f25bd4fe51a313d2cbc2a3c03c72a30ed7d",
+        "assets/demo/merchants/api.story.get_story.json": "73a94491ab7f0c92d0be0ba71ed317aed607db2fb91a068ddc7714a08d217954",
+        "assets/demo/merchants/api.shop.create_shop.json": "36f579d4c4606f9ff3c022585bab9c993c9fb9f0aec51523d0a81a7065d0eb31",
+        "assets/demo/merchants/api.product.get_suggest_price.json": "6b096c564363cdd41c2c14af833a9eaa33acbdca59e5889666caaacddfc57e03",
+        "assets/demo/merchants/api.delivery.check_delivery_zone.json": "36f579d4c4606f9ff3c022585bab9c993c9fb9f0aec51523d0a81a7065d0eb31",
+        "assets/demo/merchants/api.shop.get_shop_details.json": "cf95550c57cdbb30444b5f1de4613de3889f7a8f514b0e54ac87ba53120f990a",
+        "assets/demo/merchants/api.cart.join_order.json": "36f579d4c4606f9ff3c022585bab9c993c9fb9f0aec51523d0a81a7065d0eb31",
+        "assets/demo/merchants/api.shop.get_shops.json": "10c37988bef57081885ac28ae4ec3a9a379aeeecfffcd622dedb0c24c1212001",
+        "assets/demo/merchants/api.seller_shop.get_shop.json": "6217983659f930765a1349ed444d6544aae7d8aa9c2b26448f61dc25512999a3",
+        "assets/demo/merchants/api.seller_shop_settings.update_seller_shop_working_days.json": "36f579d4c4606f9ff3c022585bab9c993c9fb9f0aec51523d0a81a7065d0eb31",
+        "assets/demo/merchants/api.tag.get_tags.json": "3b459147c8170c320545247d8ba79c22d55408311adafa4ad737f02c7aa78700",
+        "assets/demo/merchants/api.seller_shop_settings.get_shop_users.json": "33a98071be016297299a446ce438f450c538df533033f56061c083ce354713a8"
       },
       "routes": [
         {
@@ -831,6 +1000,7 @@
       "embedded_widgets": [],
       "registration_steps": [],
       "app_assets": [
+        "assets/demo/merchants/",
         "assets/audio/notification.wav",
         "assets/images/splash.png",
         "assets/images/splash1.png",
@@ -846,18 +1016,51 @@
       }
     },
     "products_sdk": {
-      "version": "1.11.0",
-      "files": {},
+      "version": "1.12.5",
+      "files": {
+        "assets/demo/products/api.seller_product.delete_seller_extra_value.json": "36f579d4c4606f9ff3c022585bab9c993c9fb9f0aec51523d0a81a7065d0eb31",
+        "assets/demo/products/api.seller_product.get_product_details.json": "c085451bfdfea3523c7993705fcb031786836d9ebf58d8ec9e48e85107bdb54b",
+        "assets/demo/products/api.seller_product.get_seller_categories.json": "b157cbc4a61bf1e3363e53ec2e3daba81b9286cb6a1383cba1701b2f437ad9ed",
+        "assets/demo/products/api.seller_product.update_seller_extra_group.json": "d789972934afe6df681a3880bbe3ea948d9d87ddb79f96e183a7ac28082e863b",
+        "assets/demo/products/api.seller_product.update_seller_extra_value.json": "5e68b07d3c440c252c3f3b7454497387131d32775ad532b39461d33b95586e9a",
+        "assets/demo/products/api.seller_product.delete_seller_extra_group.json": "36f579d4c4606f9ff3c022585bab9c993c9fb9f0aec51523d0a81a7065d0eb31",
+        "assets/demo/products/api.seller_product.delete_seller_category.json": "36f579d4c4606f9ff3c022585bab9c993c9fb9f0aec51523d0a81a7065d0eb31",
+        "assets/demo/products/api.brand.get_brand_by_uuid.json": "2f572655239beaef3a4258dca9213d201ad23d9092a8d44e9251e68daad92fbb",
+        "assets/demo/products/api.product.get_products.json": "35ee734e54df9925016d620c297897e033d96fc6c65d7a4de1a43adc3e14e064",
+        "assets/demo/products/api.product.get_product_by_uuid.json": "b6b6fc777b93b291a5471aeb3c0fad727c30f69c5dbebfcc8d7f45f72b1b3eff",
+        "assets/demo/products/api.stock.update_product_stocks.json": "a67554aeb86dd241f4a481ad1f71e764314bbc248b715df94b465c4d2366df87",
+        "assets/demo/products/api.product.order_products_calculate.json": "e7c2dcb1f3914f2b38754688638ea1f5c3c1f246de97335a9fe83460408f8af2",
+        "assets/demo/products/api.product.get_products_by_ids.json": "92ad12eb00e867bc3d9b9216551acd9a5f741ddc79ab26fce6e8c58d8fb3e815",
+        "assets/demo/products/api.product.most_sold_products.json": "27d429a93a610f797b1f80a20589922aa0b6153f4fd988aa24fbefab725236b2",
+        "assets/demo/products/api.seller_product.create_product.json": "bee4522df88ddd17c2b7cc0737a3bf414bdfd018fb3aa6a574b028d2fb9db5d1",
+        "assets/demo/products/api.category.get_categories.json": "00249f595c3844888ee0cb885fdd8c517a8a95000a62eacf39b11fb4d3903f88",
+        "assets/demo/products/api.seller_product.get_seller_units.json": "e1712e4e7fd416e31ca88a5d5798895aad5ab1becfb2bbc0f8054b374803e026",
+        "assets/demo/products/api.seller_product.get_seller_products.json": "03ffdbe0984c64a6a42441c5b42e01c04ba2f1d94bc4ac20cb1fdbc3605cb815",
+        "assets/demo/products/api.brand.get_brands.json": "e6d9aceed478a49c043f14905a208bf587418015ae67925eef65f7d7f07631ea",
+        "assets/demo/products/api.seller_product.create_seller_category.json": "36f579d4c4606f9ff3c022585bab9c993c9fb9f0aec51523d0a81a7065d0eb31",
+        "assets/demo/products/api.seller_product.create_seller_extra_group.json": "14ec220f5a6fea182363d994257af9e477ce0008e2a436bf39ecbb944290923d",
+        "assets/demo/products/api.seller_product.get_seller_extra_values.json": "d789972934afe6df681a3880bbe3ea948d9d87ddb79f96e183a7ac28082e863b",
+        "assets/demo/products/api.product_extra.update_product_extras.json": "a67554aeb86dd241f4a481ad1f71e764314bbc248b715df94b465c4d2366df87",
+        "assets/demo/products/api.seller_product.create_seller_extra_value.json": "f5055dc2f1bd380e02994d5eb6e1944931bce351168dae6dcf590e5a6c821e79",
+        "assets/demo/products/api.category.search_categories.json": "fc3142f6a32aeabe90c89bee0d3d39a210840fe65c89ff097ab6bdb0f993e647",
+        "assets/demo/products/api.seller_product.get_seller_extra_groups.json": "cb98ee84da19c51bbcf52a32050e526907d0ecb94fcfe27552012e7800bc9c61",
+        "assets/demo/products/api.product.get_discounted_products.json": "ecdabb118b2a2ab7be3597f2283c3e95f0642e76dc081cd9a226c7edce1033db",
+        "assets/demo/products/api.product.add_product_review.json": "36f579d4c4606f9ff3c022585bab9c993c9fb9f0aec51523d0a81a7065d0eb31",
+        "assets/demo/products/api.seller_product.update_seller_product.json": "c085451bfdfea3523c7993705fcb031786836d9ebf58d8ec9e48e85107bdb54b"
+      },
       "routes": [],
       "app_routes": [],
       "onboarding_slides": [],
       "embedded_widgets": [],
       "registration_steps": [],
       "di_hooks": [],
-      "boot_hooks": []
+      "boot_hooks": [],
+      "app_assets": [
+        "assets/demo/products/"
+      ]
     },
     "calc_sdk": {
-      "version": "1.1.1",
+      "version": "1.1.3",
       "files": {
         "lib/presentation/pages/calc/calculator_page.dart": "374b46fd02df732775eb2e4319b47eda2958304a51540964e719e9bba75db124"
       },
@@ -885,11 +1088,21 @@
       }
     },
     "auth_sdk": {
-      "version": "1.12.0",
+      "version": "1.16.5",
       "files": {
         "lib/presentation/routes/auth_route_pages.dart": "8eaff3abe2dd38d8a6c2f15ed4b9e4ec779c5b99f3f71a18445ee4a13d12056f",
         "lib/presentation/routes/registration_step_pages.dart": "d18f7e35878721c688c4f0964db42c97148e1f2e9d225cd1a6bb7490e2628347",
-        "lib/presentation/routes/auth_session_policy.dart": "9524d696f956a99c2964ce0866cbab0cb282e868247d5f08b050e94bb9f5df5a"
+        "lib/presentation/routes/auth_session_policy.dart": "9524d696f956a99c2964ce0866cbab0cb282e868247d5f08b050e94bb9f5df5a",
+        "assets/demo/auth/api.user.login.json": "69e2eac93cbb55cec718685996a364381283394a4f7776acc836107cbde82e39",
+        "assets/demo/auth/api.user.login_with_google.json": "1d5759f03e640a9c380d8900c36c4c5873498e4a75e9e4658de8adf9b912d931",
+        "assets/demo/auth/api.user.resend_verification_email.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/auth/tenant.api.verify_my_email.json": "8b231a14101c8c1587e6ea6e958a3de207f54ec27ee71149fba3c8ece4d1049e",
+        "assets/demo/auth/api.user.update_password.json": "ecd6d852c7fc618f171e6b20bcbdef6d4b848e68028fb78cb02fc29f12a86de4",
+        "assets/demo/auth/api.user.forgot_password_confirm.json": "8b231a14101c8c1587e6ea6e958a3de207f54ec27ee71149fba3c8ece4d1049e",
+        "assets/demo/auth/api.user.register_user.json": "8b231a14101c8c1587e6ea6e958a3de207f54ec27ee71149fba3c8ece4d1049e",
+        "assets/demo/auth/api.user.forgot_password.json": "b164450bd2a149d134a2dce464eda7b93856052f1269af827628ab0c6bf337f4",
+        "assets/demo/auth/api.user.send_phone_verification_code.json": "b164450bd2a149d134a2dce464eda7b93856052f1269af827628ab0c6bf337f4",
+        "assets/demo/auth/api.user.verify_phone_code.json": "8b231a14101c8c1587e6ea6e958a3de207f54ec27ee71149fba3c8ece4d1049e"
       },
       "routes": [
         {
@@ -976,10 +1189,13 @@
           "version": 16,
           "step": "if (from < 16) { await m.createTable(offlineUsersTable); }"
         }
-      }
+      },
+      "app_assets": [
+        "assets/demo/auth/"
+      ]
     },
     "weather_sdk": {
-      "version": "1.6.1",
+      "version": "1.6.2",
       "files": {
         "lib/presentation/components/weather/weather_widget.dart": "13e7964746cd367f4e019c2d192e2a0ef8bf3445060c562a611f2caa14c2c53c"
       },
@@ -1078,64 +1294,64 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.63.1",
-      "hash": "104a820b22aa352e"
+      "version": "1.83.5",
+      "hash": "c39b0345aca1e984"
     },
     "comms": {
-      "version": "1.16.0",
-      "hash": "92dd94546ff0a1ae"
+      "version": "1.22.2",
+      "hash": "ddcdb01c62fe2e85"
     },
     "auth": {
-      "version": "1.12.0",
-      "hash": "68769c4298e440ba"
+      "version": "1.16.5",
+      "hash": "efcccae7b071d9d7"
     },
     "users": {
-      "version": "1.4.0",
-      "hash": "8747546a4b006a37"
+      "version": "1.5.1",
+      "hash": "85f8847951bf6cf9"
     },
     "orders": {
-      "version": "1.21.0",
-      "hash": "a7faf430313fd792"
+      "version": "1.29.2",
+      "hash": "e7c7e49f7264529a"
     },
     "merchants": {
-      "version": "1.31.0",
-      "hash": "8d27c7d6c7d9ccec"
+      "version": "1.33.3",
+      "hash": "c78322532bc6a368"
     },
     "products": {
-      "version": "1.11.0",
-      "hash": "326fd62a42d2e763"
+      "version": "1.12.5",
+      "hash": "3226611cae486028"
     },
     "delivery": {
-      "version": "1.22.2",
-      "hash": "b2d5566c78c8e66d"
+      "version": "1.28.1",
+      "hash": "badbfe8de0dc1013"
     },
     "map": {
-      "version": "1.3.2",
-      "hash": "a06c45f6e8a9a1ee"
+      "version": "1.5.0",
+      "hash": "34bc18c75ba4cd92"
     },
     "zones": {
-      "version": "1.6.0",
-      "hash": "94e95e47a6af6766"
+      "version": "1.7.0",
+      "hash": "d2d8bb5297532465"
     },
     "processing": {
       "version": "1.0.2",
       "hash": "83864d75f80cd5e1"
     },
     "calc": {
-      "version": "1.1.1",
-      "hash": "3d8a89b00f8e5b65"
+      "version": "1.1.3",
+      "hash": "94ede6d2393d2268"
     },
     "corporate": {
       "version": "1.2.0",
       "hash": "ef378600c400e1cf"
     },
     "revenue": {
-      "version": "1.13.1",
-      "hash": "b3d40d21fe3aabd4"
+      "version": "1.14.1",
+      "hash": "68e535e466277edb"
     },
     "weather": {
-      "version": "1.6.1",
-      "hash": "cd9bbdcdba39427c"
+      "version": "1.6.2",
+      "hash": "2ef4dff138168e31"
     },
     "hms": {
       "version": "1.0.1",

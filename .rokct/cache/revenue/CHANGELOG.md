@@ -1,3 +1,35 @@
+## 1.14.1
+
+* fix(theme): widgets read their surface, card, stroke and ink colours from Theme.of(context) at build time (AppStyle.surfaceFor/cardFor/cardAltFor/strokeFor/subtleStrokeFor/inkFor/secondaryInkFor/faintFor) instead of the AppStyle.isDark-resolved statics, so a live dark/light switch restyles open pages instead of leaving the old mode's colours (Ray, 2026-10-04).
+
+## 1.14.0
+
+* **Demo runs the real statistics repositories.** Deleted
+  `DemoCourierStatisticsRepository`, `DemoSellerStatisticsRepository` and
+  the role hooks' `DemoSession` listener that swapped them in and out
+  (`resetDemoSessionListener` is gone) (Ray, 2026-09-25).
+  `DriverRevenueDependencies` / `ManagerRevenueDependencies` always
+  register `CourierStatisticsRepository` / `SellerStatisticsRepository`
+  and register `assets/demo/revenue` with base_sdk's `DemoFixtures`;
+  the `DemoGatewayInterceptor` (base_sdk 1.73.0) answers
+  `api.delivery_man.*`, `api.driver_order.get_driver_orders_paginate` and
+  `api.seller_report.*` from `templates/assets/demo/revenue/<cmd>.json`
+  while `DemoSession.demoActive`. Same fictional week as before; the chart
+  days are a fixed week and the profit report is one weekly answer (the
+  fixture tokens carry only "now"). `demo_session_di_test.dart` and
+  `demo_seller_statistics_test.dart` went with the classes;
+  `demo_fixtures_real_repository_test.dart` drives the real repositories
+  through the interceptor. Needs base_sdk 1.73.0.
+
+## 1.13.2
+
+* **Withdraw: a double tap sends one request, not two.** `WithdrawNotifier`
+  set `isSubmitting` only after awaiting the connectivity check, so a second
+  tap landed during that await and sent a second withdrawal. It now claims
+  `isSubmitting` before the first await (as `ManagerWalletNotifier` already
+  does) and releases it on the offline branch. Connectivity is injectable
+  (`ConnectivityCheck`) so `test/withdraw_double_tap_test.dart` can pin it.
+
 ## 1.13.1
 
 * **Driver income: the landscape tablet still fits.** Ray's ruling is that

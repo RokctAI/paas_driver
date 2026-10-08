@@ -42,7 +42,7 @@ class GroupItem extends StatelessWidget {
       margin: EdgeInsets.symmetric(vertical: 4.h),
       padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 10.w),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.all(Radius.circular(10.h)),
       ),
       child: Row(
@@ -54,8 +54,8 @@ class GroupItem extends StatelessWidget {
                 Container(
                   width: 24.w,
                   height: 24.h,
-                  decoration: const BoxDecoration(
-                    color: AppStyle.bgGrey,
+                  decoration: BoxDecoration(
+                    color: AppStyle.surfaceFor(Theme.of(context).brightness),
                     shape: BoxShape.circle,
                   ),
                   padding: EdgeInsets.all(6.r),
@@ -67,7 +67,7 @@ class GroupItem extends StatelessWidget {
                     name,
                     style: AppStyle.interNormal(
                       size: 14,
-                      color: AppStyle.textPrimary,
+                      color: AppStyle.inkFor(Theme.of(context).brightness),
                     ),
                   ),
                 ),
@@ -78,11 +78,11 @@ class GroupItem extends StatelessWidget {
             children: [
               Text(
                 "${isChoosing ? AppHelpers.getTranslation(TrKeys.choosing) : AppHelpers.getTranslation(TrKeys.done)} — ",
-                style: AppStyle.interNormal(size: 14, color: AppStyle.textPrimary),
+                style: AppStyle.interNormal(size: 14, color: AppStyle.inkFor(Theme.of(context).brightness)),
               ),
               Text(
                 AppHelpers.numberFormat(number: price),
-                style: AppStyle.interSemi(size: 14, color: AppStyle.textPrimary),
+                style: AppStyle.interSemi(size: 14, color: AppStyle.inkFor(Theme.of(context).brightness)),
               ),
               isDeleteButton
                   ? GestureDetector(
@@ -94,7 +94,7 @@ class GroupItem extends StatelessWidget {
                           child: Icon(
                             Remix.close_fill,
                             size: 20.r,
-                            color: AppStyle.textPrimary,
+                            color: AppStyle.inkFor(Theme.of(context).brightness),
                           ),
                         ),
                       ),

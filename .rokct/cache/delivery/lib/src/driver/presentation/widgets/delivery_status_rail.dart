@@ -41,6 +41,7 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// The four nodes of a delivery, in order.
@@ -112,7 +113,7 @@ class DeliveryStatusRail extends StatelessWidget {
                     height: 2.h,
                     color: i <= current.index
                         ? AppStyle.primary
-                        : AppStyle.strokeDark,
+                        : AppStyle.strokeFor(Theme.of(context).brightness),
                   ),
                 ),
               ),
@@ -145,7 +146,7 @@ class DeliveryStatusRail extends StatelessWidget {
               ),
             ),
             child: done
-                ? Icon(Icons.check, size: 12.r, color: AppStyle.white)
+                ? Icon(Remix.check_line, size: 12.r, color: AppStyle.white)
                 : null,
           ),
           6.verticalSpace,

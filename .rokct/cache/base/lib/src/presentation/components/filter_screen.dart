@@ -127,7 +127,7 @@ class _FilterScreenState extends State<FilterScreen>
               AppHelpers.getTranslation(TrKeys.selectDesiredOrderHistory),
               style: AppStyle.interNormal(
                 size: 14.sp,
-                color: AppStyle.blackColor,
+                color: AppStyle.inkFor(Theme.of(context).brightness),
                 letterSpacing: -0.3,
               ),
             ),

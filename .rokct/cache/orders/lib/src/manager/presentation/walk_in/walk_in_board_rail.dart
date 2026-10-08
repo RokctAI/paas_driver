@@ -80,7 +80,10 @@ class WalkInBoardRail extends ConsumerWidget {
           AppHelpers.getTranslation(TrKeys.orders),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: AppStyle.interSemi(size: 24, color: AppStyle.textPrimary),
+          style: AppStyle.interSemi(
+            size: 24,
+            color: AppStyle.inkFor(Theme.of(context).brightness),
+          ),
         ),
         if (sections.isEmpty) ...[
           const SizedBox(height: 24),
@@ -90,7 +93,7 @@ class WalkInBoardRail extends ConsumerWidget {
             AppHelpers.getTranslation('no_orders'),
             style: AppStyle.interNormal(
               size: 13,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
         ],
@@ -176,9 +179,11 @@ class _RailCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppStyle.strokeDarkSubtle),
+        border: Border.all(
+          color: AppStyle.subtleStrokeFor(Theme.of(context).brightness),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,7 +197,7 @@ class _RailCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AppStyle.interSemi(
                     size: 14,
-                    color: AppStyle.textPrimary,
+                    color: AppStyle.inkFor(Theme.of(context).brightness),
                   ),
                 ),
               ),
@@ -204,7 +209,7 @@ class _RailCard extends StatelessWidget {
                 ),
                 style: AppStyle.interSemi(
                   size: 14,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                 ),
               ),
             ],
@@ -216,7 +221,7 @@ class _RailCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: AppStyle.interNormal(
               size: 12.5,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
         ],

@@ -44,7 +44,7 @@ class ShimmerProductList extends StatelessWidget {
                 child: Container(
                   margin: EdgeInsets.all(4.r),
                   decoration: BoxDecoration(
-                    color: AppStyle.cardDark,
+                    color: AppStyle.cardFor(Theme.of(context).brightness),
                     borderRadius: BorderRadius.circular(10.r),
                   ),
                   width: double.infinity,

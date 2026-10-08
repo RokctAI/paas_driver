@@ -155,7 +155,7 @@ class _OrderPageState extends ConsumerState<OrderPage>
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = LocalStorage.getAppThemeMode();
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final isLtr = LocalStorage.getLangLtr();
     final state = ref.watch(orderProvider);
     final event = ref.read(orderProvider.notifier);
@@ -347,7 +347,7 @@ class _OrderPageState extends ConsumerState<OrderPage>
                           : (state.orderData?.shop?.translation?.title ?? ""),
                       style: AppStyle.interSemi(
                         size: 16,
-                        color: AppStyle.black,
+                        color: AppStyle.inkFor(Theme.of(context).brightness),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -359,7 +359,7 @@ class _OrderPageState extends ConsumerState<OrderPage>
                               ""),
                       style: AppStyle.interNormal(
                         size: 12,
-                        color: AppStyle.black,
+                        color: AppStyle.inkFor(Theme.of(context).brightness),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

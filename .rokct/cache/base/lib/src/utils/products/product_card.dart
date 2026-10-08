@@ -52,6 +52,16 @@ class ProductCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // The mode comes from the inherited theme, not from the app-wide
+    // AppStyle.isDark static (Ray, 2026-09-19: "glance doesnt change test
+    // immediately untill you come back if you switched theme mode" - the
+    // same defect, found here by the fleet audit that followed). Being a
+    // ConsumerWidget is no help: the brand and shop lookups below are
+    // `ref.read`s, and nothing this card watches fires when the theme mode
+    // flips, so a grid of these kept the previous mode's card fill and
+    // title ink until the page was built again from scratch.
+    final Brightness brightness = Theme.of(context).brightness;
+
     // Common properties regardless of product type
     final String? title = product.translation?.title;
     final String? description = product.translation?.description;
@@ -131,7 +141,7 @@ class ProductCard extends ConsumerWidget {
     return Container(
       margin: EdgeInsets.all(4.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(brightness),
         borderRadius: BorderRadius.circular(10.r),
       ),
       child: Stack(
@@ -177,7 +187,7 @@ class ProductCard extends ConsumerWidget {
                               : (title ?? ""),
                           style: AppStyle.interNoSemi(
                             size: 12,
-                            color: AppStyle.textPrimary,
+                            color: AppStyle.inkFor(brightness),
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -217,7 +227,7 @@ class ProductCard extends ConsumerWidget {
                                         )
                                       : AppStyle.interNoSemi(
                                           size: 16,
-                                          color: AppStyle.black,
+                                          color: AppStyle.inkFor(Theme.of(context).brightness),
                                         ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,

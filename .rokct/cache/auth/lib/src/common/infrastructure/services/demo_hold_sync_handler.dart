@@ -18,8 +18,8 @@ import 'package:base_sdk/src/sync/sync_handler.dart';
 
 /// Holds an outbox handler back while the demo switch is on.
 ///
-/// [DemoSession.demoActive] is a demo BUILD (`--dart-define=IS_DEMO=true`)
-/// or the runtime demo SESSION a backend-marked account flips at sign-in
+/// [DemoSession.demoActive] is the guided-tour build (`TOUR_MODE`) or the
+/// runtime demo SESSION a backend-marked account flips at sign-in
 /// (base_sdk 1.61.0). Neither may reach the real backend, so while it is
 /// on [push] answers [SyncResult.retryable] without handing the op to
 /// [inner] at all - no local row is read, no repository is touched - and

@@ -68,7 +68,7 @@ class _OrderPageState extends State<OrderType> {
       child: Container(
         padding: EdgeInsets.only(top: 16.r, right: 16.r, left: 16.r),
         decoration: BoxDecoration(
-          color: AppStyle.white,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(10.r),
         ),
         child: Column(

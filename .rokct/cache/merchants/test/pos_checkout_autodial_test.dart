@@ -23,8 +23,8 @@
 //
 // Pumped directly from templates/ (the analyzer excludes templates/, so
 // this test is part of checkout_page.dart's compile gate). RUN WITH
-// `flutter test --dart-define=IS_DEMO=true`: the demo Quick flow
-// repository serves the section-42 seed shop (autodial on, keys 1-5 set).
+// the demo till (support/demo_till.dart): its Quick flow store holds the
+// section-42 seed shop (autodial on, keys 1-5 set).
 
 import 'package:base_sdk/src/models/data/currency_data.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
@@ -32,21 +32,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider.dart';
 import 'package:merchants_sdk/src/manager/application/quick_flow/quick_flow_provider.dart';
-import 'package:merchants_sdk/src/manager/di/manager_merchants_di.dart';
 import 'package:merchants_sdk/src/manager/utils/pos_connectivity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../templates/pages/manager/billing/checkout_page.dart';
 
+import 'support/demo_till.dart';
+
 Widget _host(Widget child) => ProviderScope(
-      child: ScreenUtilInit(
-        designSize: const Size(390, 844),
-        builder: (context, _) => MaterialApp(home: child),
-      ),
-    );
+  child: ScreenUtilInit(
+    designSize: const Size(390, 844),
+    builder: (context, _) => MaterialApp(home: child),
+  ),
+);
 
 late ProviderContainer _container;
 
@@ -93,7 +93,7 @@ void main() {
     await LocalStorage.setSelectedCurrency(
       CurrencyData(id: 'ZAR', symbol: 'R', position: 'before', rate: 1),
     );
-    ManagerMerchantsDependencies.register(GetIt.instance);
+    await registerDemoTill();
     PosConnectivity.debugConnectivityOverride = true;
   });
 
@@ -101,8 +101,9 @@ void main() {
     PosConnectivity.debugConnectivityOverride = null;
   });
 
-  testWidgets('an empty ticket arms the pad and says the rule once',
-      (tester) async {
+  testWidgets('an empty ticket arms the pad and says the rule once', (
+    tester,
+  ) async {
     await _pumpEmptyTill(tester);
     _container.read(posCartProvider.notifier).clearAll();
     await tester.pumpAndSettle();
@@ -120,8 +121,9 @@ void main() {
     expect(find.byKey(const Key('moneyKeyBackspace')), findsOneWidget);
   });
 
-  testWidgets('a digit key drops its preset straight on the ticket',
-      (tester) async {
+  testWidgets('a digit key drops its preset straight on the ticket', (
+    tester,
+  ) async {
     await _pumpEmptyTill(tester);
     _container.read(posCartProvider.notifier).clearAll();
     await tester.pumpAndSettle();
@@ -137,8 +139,9 @@ void main() {
     expect(cart.total, 35);
   });
 
-  testWidgets('once an item is on, the arming strip goes with the rule',
-      (tester) async {
+  testWidgets('once an item is on, the arming strip goes with the rule', (
+    tester,
+  ) async {
     await _pumpEmptyTill(tester);
     _container.read(posCartProvider.notifier).clearAll();
     await tester.pumpAndSettle();
@@ -154,8 +157,9 @@ void main() {
     expect(find.textContaining('the keys are money again'), findsOneWidget);
   });
 
-  testWidgets('with a customer attached the keys really are money again',
-      (tester) async {
+  testWidgets('with a customer attached the keys really are money again', (
+    tester,
+  ) async {
     await _pumpEmptyTill(tester);
     _container.read(posCartProvider.notifier).clearAll();
     await tester.pumpAndSettle();
@@ -193,7 +197,6 @@ void main() {
       findsOneWidget,
     );
   });
-
 
   testWidgets('a shop with autodial off never sees the pad', (tester) async {
     await _pumpEmptyTill(tester);

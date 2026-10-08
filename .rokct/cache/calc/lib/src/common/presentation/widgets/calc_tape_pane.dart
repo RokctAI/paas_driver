@@ -70,16 +70,21 @@ class CalcTapePane extends ConsumerWidget {
       children: [
         Text(
           AppHelpers.getTranslation(TrKeys.tape),
-          style: AppStyle.interSemi(size: 15),
+          style: AppStyle.interSemi(
+            color: AppStyle.inkFor(Theme.of(context).brightness),
+            size: 15,
+          ),
         ),
         8.horizontalSpace,
         Container(
           key: const Key('calcTapeCountPill'),
           padding: REdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: AppStyle.cardDarkAlt,
+            color: AppStyle.cardAltFor(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(20.r),
-            border: Border.all(color: AppStyle.strokeDarkSubtle),
+            border: Border.all(
+              color: AppStyle.subtleStrokeFor(Theme.of(context).brightness),
+            ),
           ),
           child: Text(
             compact
@@ -87,7 +92,7 @@ class CalcTapePane extends ConsumerWidget {
                 : '${history.length} / $historyCap',
             style: AppStyle.interNormal(
               size: 12,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
         ),
@@ -101,23 +106,27 @@ class CalcTapePane extends ConsumerWidget {
       AppHelpers.getTranslation(TrKeys.tapeKeepsLast10),
       style: AppStyle.interNormal(
         size: 11,
-        color: AppStyle.textDarkFaint,
+        color: AppStyle.faintFor(Theme.of(context).brightness),
       ),
     );
 
     final rows = <Widget>[];
     for (var i = 0; i < shown.length; i++) {
       if (i > 0) {
-        rows.add(Divider(
-          height: 1.h,
-          thickness: 1,
-          color: AppStyle.strokeDarkSubtle,
-        ));
+        rows.add(
+          Divider(
+            height: 1.h,
+            thickness: 1,
+            color: AppStyle.subtleStrokeFor(Theme.of(context).brightness),
+          ),
+        );
       }
-      rows.add(_TapeRow(
-        result: shown[i],
-        onTap: () => notifier.recallResult(shown[i]),
-      ));
+      rows.add(
+        _TapeRow(
+          result: shown[i],
+          onTap: () => notifier.recallResult(shown[i]),
+        ),
+      );
     }
 
     final list = rows.isEmpty
@@ -133,9 +142,11 @@ class CalcTapePane extends ConsumerWidget {
       key: const Key('calcTapePane'),
       padding: REdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: AppStyle.strokeDarkSubtle),
+        border: Border.all(
+          color: AppStyle.subtleStrokeFor(Theme.of(context).brightness),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,20 +198,23 @@ class _TapeRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppStyle.interNormal(
                   size: 13,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                 ),
               ),
             ),
             8.horizontalSpace,
             Text(
               CalcFormat.number(result.result ?? 0),
-              style: AppStyle.interSemi(size: 15),
+              style: AppStyle.interSemi(
+                color: AppStyle.inkFor(Theme.of(context).brightness),
+                size: 15,
+              ),
             ),
             6.horizontalSpace,
             Icon(
               Remix.arrow_go_back_line,
               size: 14.r,
-              color: AppStyle.textDarkFaint,
+              color: AppStyle.faintFor(Theme.of(context).brightness),
             ),
           ],
         ),
@@ -237,13 +251,17 @@ class CalcClearTapeButton extends ConsumerWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(color: AppStyle.strokeDarkSubtle),
+          border: Border.all(
+            color: AppStyle.subtleStrokeFor(Theme.of(context).brightness),
+          ),
         ),
         child: Text(
           AppHelpers.getTranslation(TrKeys.clearTheTape),
           style: AppStyle.interNormal(
             size: 13,
-            color: empty ? AppStyle.textDarkFaint : AppStyle.textDarkSecondary,
+            color: empty
+                ? AppStyle.faintFor(Theme.of(context).brightness)
+                : AppStyle.secondaryInkFor(Theme.of(context).brightness),
           ),
         ),
       ),

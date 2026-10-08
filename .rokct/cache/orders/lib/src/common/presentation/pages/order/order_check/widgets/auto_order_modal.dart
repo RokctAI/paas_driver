@@ -31,6 +31,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/presentation/components/title_icon.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
+import 'package:remixicon/remixicon.dart';
 
 class AutoOrderModal extends ConsumerStatefulWidget {
   final String orderId;
@@ -182,7 +183,7 @@ class _AutoOrderModalState extends ConsumerState<AutoOrderModal> {
                                   ),
                                   const SizedBox(width: 3),
                                   const Icon(
-                                    CupertinoIcons.chevron_up_chevron_down,
+                                    Remix.arrow_up_down_line,
                                     size: 20,
                                   ),
                                 ],
@@ -230,7 +231,7 @@ class _AutoOrderModalState extends ConsumerState<AutoOrderModal> {
                                     ),
                                     const SizedBox(width: 3),
                                     const Icon(
-                                      CupertinoIcons.chevron_up_chevron_down,
+                                      Remix.arrow_up_down_line,
                                       size: 20,
                                     ),
                                   ],
@@ -459,9 +460,9 @@ class _AutoOrderModalState extends ConsumerState<AutoOrderModal> {
   ) {
     return ActionChip(
       label: Text(title),
-      backgroundColor: isSelected ? AppStyle.primary : AppStyle.white,
+      backgroundColor: isSelected ? AppStyle.primary : AppStyle.cardFor(Theme.of(context).brightness),
       labelStyle: TextStyle(
-        color: isSelected ? AppStyle.white : AppStyle.black,
+        color: isSelected ? AppStyle.white : AppStyle.inkFor(Theme.of(context).brightness),
       ),
       onPressed: () => event.setPeriod(index),
     );
@@ -474,9 +475,9 @@ class _AutoOrderModalState extends ConsumerState<AutoOrderModal> {
   ) {
     return ActionChip(
       label: Text(title),
-      backgroundColor: isSelected ? AppStyle.primary : AppStyle.white,
+      backgroundColor: isSelected ? AppStyle.primary : AppStyle.cardFor(Theme.of(context).brightness),
       labelStyle: TextStyle(
-        color: isSelected ? AppStyle.white : AppStyle.black,
+        color: isSelected ? AppStyle.white : AppStyle.inkFor(Theme.of(context).brightness),
       ),
       onPressed: () => event.setPaymentMethod(title),
     );
@@ -508,7 +509,7 @@ class _AutoOrderModalState extends ConsumerState<AutoOrderModal> {
           ),
         ),
       ),
-      isDarkMode: false,
+      isDarkMode: Theme.of(context).brightness == Brightness.dark,
     );
   }
 }

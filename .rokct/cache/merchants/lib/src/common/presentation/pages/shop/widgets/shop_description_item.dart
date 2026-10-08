@@ -32,7 +32,7 @@ class ShopDescriptionItem extends StatelessWidget {
     return Container(
       height: 54 + 48.r,
       decoration: BoxDecoration(
-        color: AppStyle.bgGrey,
+        color: AppStyle.surfaceFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(10.r),
       ),
       padding: EdgeInsets.all(12.r),
@@ -43,13 +43,19 @@ class ShopDescriptionItem extends StatelessWidget {
           4.verticalSpace,
           Text(
             title,
-            style: AppStyle.interRegular(size: 12, color: AppStyle.black),
+            style: AppStyle.interRegular(
+              size: 12,
+              color: AppStyle.inkFor(Theme.of(context).brightness),
+            ),
           ),
           SizedBox(
             width: (MediaQuery.sizeOf(context).width - 132.h) / 3,
             child: Text(
               description,
-              style: AppStyle.interSemi(size: 12, color: AppStyle.black),
+              style: AppStyle.interSemi(
+                size: 12,
+                color: AppStyle.inkFor(Theme.of(context).brightness),
+              ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),

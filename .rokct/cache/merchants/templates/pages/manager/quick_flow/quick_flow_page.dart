@@ -102,7 +102,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: SafeArea(
         child: PlaneHost(
           back: FloatingNavBack(
@@ -154,7 +154,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
             overflow: TextOverflow.ellipsis,
             style: AppStyle.interRegular(
               size: 14,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
         ],
@@ -192,7 +192,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
             Icon(
               icon,
               size: 22.r,
-              color: active ? AppStyle.primary : AppStyle.textPrimary,
+              color: active ? AppStyle.primary : AppStyle.inkFor(Theme.of(context).brightness),
             ),
             14.horizontalSpace,
             Expanded(
@@ -206,7 +206,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
             Icon(
               Remix.arrow_right_s_line,
               size: 20.r,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ],
         ),
@@ -272,9 +272,9 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
                     vertical: 7.h,
                   ),
                   decoration: BoxDecoration(
-                    color: AppStyle.cardDark,
+                    color: AppStyle.cardFor(Theme.of(context).brightness),
                     borderRadius: BorderRadius.circular(20.r),
-                    border: Border.all(color: AppStyle.strokeDarkSubtle),
+                    border: Border.all(color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -282,7 +282,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
                       Icon(
                         Remix.store_2_line,
                         size: 14.r,
-                        color: AppStyle.textDarkSecondary,
+                        color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                       ),
                       6.horizontalSpace,
                       Flexible(
@@ -305,7 +305,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
           AppHelpers.getTranslation(TrKeys.quickFlowExplainer),
           style: AppStyle.interRegular(
             size: 14,
-            color: AppStyle.textDarkSecondary,
+            color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
           ),
         ),
       ],
@@ -364,7 +364,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
           // words. A wide-read detail — dropped on the phone (42b).
           if (wide) ...[
             14.verticalSpace,
-            Divider(height: 1.h, color: AppStyle.strokeDarkSubtle),
+            Divider(height: 1.h, color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
             14.verticalSpace,
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,7 +374,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
                       ? Remix.lock_unlock_line
                       : Remix.lock_line,
                   size: 16.r,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                 ),
                 10.horizontalSpace,
                 Expanded(
@@ -384,7 +384,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
                     ),
                     style: AppStyle.interRegular(
                       size: 13,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                     ),
                   ),
                 ),
@@ -486,7 +486,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
                 ref.read(quickFlowProvider.notifier).setKeypadAutodial(value),
           ),
           14.verticalSpace,
-          Divider(height: 1.h, color: AppStyle.strokeDarkSubtle),
+          Divider(height: 1.h, color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
           14.verticalSpace,
           // Chip 803: the grid's header rail. The counter is the whole
           // point of showing it — a half-configured pad should be visible,
@@ -497,7 +497,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
                 AppHelpers.getTranslation(TrKeys.digitPresets).toUpperCase(),
                 style: AppStyle.interSemi(
                   size: 12,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   letterSpacing: 1.2,
                 ),
               ),
@@ -507,7 +507,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
                 '${_decap(AppHelpers.getTranslation(TrKeys.ofNineSet))}',
                 style: AppStyle.interRegular(
                   size: 12,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                 ),
               ),
             ],
@@ -579,12 +579,12 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
       child: Container(
         padding: EdgeInsets.all(10.r),
         decoration: BoxDecoration(
-          color: filled ? AppStyle.cardDarkAlt : AppStyle.transparent,
+          color: filled ? AppStyle.cardAltFor(Theme.of(context).brightness) : AppStyle.transparent,
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: filled
-                ? AppStyle.strokeDarkSubtle
-                : AppStyle.strokeDarkSubtle,
+                ? AppStyle.subtleStrokeFor(Theme.of(context).brightness)
+                : AppStyle.subtleStrokeFor(Theme.of(context).brightness),
           ),
         ),
         child: Row(
@@ -600,13 +600,13 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
                 borderRadius: BorderRadius.circular(8.r),
                 border: filled
                     ? null
-                    : Border.all(color: AppStyle.strokeDarkSubtle),
+                    : Border.all(color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
               ),
               child: Text(
                 '$digit',
                 style: AppStyle.interSemi(
                   size: 14,
-                  color: filled ? AppStyle.primary : AppStyle.textDarkFaint,
+                  color: filled ? AppStyle.primary : AppStyle.faintFor(Theme.of(context).brightness),
                 ),
               ),
             ),
@@ -628,7 +628,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
                           AppHelpers.numberFormat(number: preset.price),
                           style: AppStyle.interRegular(
                             size: 11,
-                            color: AppStyle.textDarkSecondary,
+                            color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                           ),
                         ),
                       ],
@@ -639,7 +639,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
                       overflow: TextOverflow.ellipsis,
                       style: AppStyle.interRegular(
                         size: 13,
-                        color: AppStyle.textDarkSecondary,
+                        color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                       ),
                     ),
             ),
@@ -653,13 +653,13 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
                     child: Icon(
                       Remix.close_line,
                       size: 16.r,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                     ),
                   )
                 : Icon(
                     Remix.add_line,
                     size: 16.r,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
           ],
         ),
@@ -676,7 +676,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
     final product = await showModalBottomSheet<ProductData>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppStyle.cardDark,
+      backgroundColor: AppStyle.cardFor(Theme.of(context).brightness),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
       ),
@@ -729,7 +729,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
                 AppHelpers.getTranslation(TrKeys.whatTheAttendantDoes),
                 style: AppStyle.interRegular(
                   size: 12,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                 ),
               ),
             ],
@@ -746,7 +746,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
                       child: Icon(
                         Remix.arrow_right_s_line,
                         size: 18.r,
-                        color: AppStyle.textDarkFaint,
+                        color: AppStyle.faintFor(Theme.of(context).brightness),
                       ),
                     ),
                   Expanded(child: _flowStep(i + 1, steps[i].$1, steps[i].$2)),
@@ -783,7 +783,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
           body,
           style: AppStyle.interRegular(
             size: 13,
-            color: AppStyle.textDarkSecondary,
+            color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
           ),
         ),
       ],
@@ -799,7 +799,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: child,
@@ -852,7 +852,7 @@ class _QuickFlowPageState extends ConsumerState<QuickFlowPage> {
                 subtitle,
                 style: AppStyle.interRegular(
                   size: 13,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                 ),
               ),
             ],
@@ -983,10 +983,10 @@ class _PresetPickerSheetState extends State<_PresetPickerSheet> {
               hintText: AppHelpers.getTranslation(TrKeys.searchProducts),
               hintStyle: AppStyle.interRegular(
                 size: 14,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
               filled: true,
-              fillColor: AppStyle.cardDarkAlt,
+              fillColor: AppStyle.cardAltFor(Theme.of(context).brightness),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
                 borderSide: BorderSide.none,
@@ -1015,7 +1015,7 @@ class _PresetPickerSheetState extends State<_PresetPickerSheet> {
                     child: Container(
                       padding: EdgeInsets.all(12.r),
                       decoration: BoxDecoration(
-                        color: AppStyle.cardDarkAlt,
+                        color: AppStyle.cardAltFor(Theme.of(context).brightness),
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Row(
@@ -1037,7 +1037,7 @@ class _PresetPickerSheetState extends State<_PresetPickerSheet> {
                             ),
                             style: AppStyle.interRegular(
                               size: 13,
-                              color: AppStyle.textDarkSecondary,
+                              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                             ),
                           ),
                         ],
@@ -1059,7 +1059,7 @@ class _PresetPickerSheetState extends State<_PresetPickerSheet> {
           message,
           style: AppStyle.interRegular(
             size: 13,
-            color: AppStyle.textDarkSecondary,
+            color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
           ),
         ),
       );

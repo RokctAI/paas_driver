@@ -32,6 +32,15 @@ class CustomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The mode the bar's ground resolves against comes from the inherited
+    // theme, not from the app-wide AppStyle.isDark static: a static is not
+    // an inherited widget, so a mode flip rescheduled no rebuild of this
+    // bar and it kept the previous mode's ground (Ray, 2026-09-19: "glance
+    // doesnt change test immediately untill you come back if you switched
+    // theme mode" - the same defect, found here by the fleet audit that
+    // followed).
+    final Brightness brightness = Theme.of(context).brightness;
+
     return Container(
       width: double.infinity,
       height: height.h,
@@ -43,7 +52,7 @@ class CustomAppBar extends StatelessWidget {
         // so the bar's own titles sat white-on-white and vanished.
         // CommonAppBar, the sibling in this same folder, already grounds
         // itself on the mode-resolving cardDark; this bar was the outlier.
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(brightness),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(16.r),
           bottomRight: Radius.circular(16.r),

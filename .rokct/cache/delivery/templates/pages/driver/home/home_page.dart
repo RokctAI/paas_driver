@@ -26,6 +26,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:delivery_sdk/src/driver/application/order/order_provider.dart';
+import 'package:delivery_sdk/src/driver/application/poi/poi_provider.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/models/data/driver_poi.dart';
+import 'package:delivery_sdk/src/driver/presentation/poi/poi_sheet.dart';
 import 'package:delivery_sdk/src/driver/di/driver_delivery_di.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.dart';
 import 'package:delivery_sdk/src/driver/presentation/deposit/deposit_flow.dart';
@@ -443,6 +446,14 @@ class _HomePageState extends ConsumerState<HomePage> {
           .fetchRequestResponse(context: context);
       ref.read(homeProvider.notifier).fetchCurrentOrder(context);
       ref.read(orderProvider.notifier).fetchActiveOrders(context);
+      // The round's own knowledge, drawn over the same map the jobs are on:
+      // the points of interest in scope near where he is standing. A
+      // refusal leaves the map exactly as it was (see the notifier).
+      ref.read(driverPoiProvider.notifier).loadNearby(
+            latitude: latLng.latitude,
+            longitude: latLng.longitude,
+            context: context,
+          );
     });
     if (CourierStorage.getOnline()) {
       Workmanager().registerPeriodicTask(
@@ -697,6 +708,24 @@ class _HomePageState extends ConsumerState<HomePage> {
   /// deferral covers the plugin's. Until the map mounts the surface is a
   /// plain box in the theme's surface colour, which is what the map area
   /// shows before the first tiles draw anyway.
+  /// The round's points as map pins. Only points the server gave usable
+  /// coordinates for: a pin at (0, 0) would put the Atlantic on his map.
+  Set<Marker> _poiMarkers(BuildContext context, List<DriverPoi> points) {
+    return {
+      for (final point in points)
+        if (point.hasCoordinates)
+          Marker(
+            markerId: MarkerId('poi-${point.id}'),
+            position: LatLng(point.latitude!, point.longitude!),
+            infoWindow: InfoWindow(
+              title: point.title,
+              snippet: point.kind.isEmpty ? null : point.kind,
+            ),
+            onTap: () => PoiSheet.open(context, point),
+          ),
+    };
+  }
+
   Widget _mapSurface(BuildContext context, WidgetRef ref) {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
@@ -731,6 +760,13 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
             ),
             ...ref.watch(homeProvider).markers,
+            // POI PINS. Tapping one opens the place - what was filed and
+            // what has been sold there - rather than navigating, because
+            // that is what the driver wants from a corner he is already
+            // standing near. The type rides the info window beside the
+            // name, so two pins in one street are told apart without
+            // opening either.
+            ..._poiMarkers(context, ref.watch(driverPoiProvider).points),
           },
           // CHIP 942, second half: the zone outline drains to grey off
           // duty. Recoloured here rather than in the notifier so the zone

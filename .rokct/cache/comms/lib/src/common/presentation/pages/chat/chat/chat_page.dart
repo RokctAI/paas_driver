@@ -212,7 +212,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                     decoration: BoxDecoration(
                       border: Border.all(color: AppStyle.black),
                       borderRadius: BorderRadius.circular(16.r),
-                      color: AppStyle.white,
+                      color: AppStyle.cardFor(Theme.of(context).brightness),
                     ),
                     child: Row(
                       children: [

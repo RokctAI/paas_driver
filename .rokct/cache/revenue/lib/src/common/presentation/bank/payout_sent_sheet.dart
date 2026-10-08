@@ -90,7 +90,7 @@ class PayoutSentSheet extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16.r),
           topRight: Radius.circular(16.r),
@@ -112,7 +112,7 @@ class PayoutSentSheet extends StatelessWidget {
                 width: 100.w,
                 height: 4.h,
                 decoration: BoxDecoration(
-                  color: AppStyle.strokeDark,
+                  color: AppStyle.strokeFor(Theme.of(context).brightness),
                   borderRadius: BorderRadius.circular(40.r),
                 ),
               ),

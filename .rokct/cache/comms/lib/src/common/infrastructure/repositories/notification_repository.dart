@@ -31,14 +31,16 @@ class NotificationRepositoryImpl extends NotificationRepositoryFacade {
 
   @override
   Future<ApiResult<NotificationResponse>> getNotifications({int? page}) async {
-    final data = {'limit_start': ((page ?? 1) - 1) * 7, 'limit_page_length': 7};
+    final data = {'start': ((page ?? 1) - 1) * 7, 'limit': 7};
     try {
       final response = await _gateway.tenant(
         'api.notification.get_user_notifications',
         data,
       );
       return ApiResult.success(
-        data: NotificationResponse.fromJson(response),
+        data: NotificationResponse.fromJson(
+          response is Map ? Map<String, dynamic>.from(response) : {},
+        ),
       );
     } catch (e) {
       debugPrint('==> get notification failure: $e');
@@ -84,9 +86,14 @@ class NotificationRepositoryImpl extends NotificationRepositoryFacade {
       final response = await _gateway.tenant(
         'api.notification.get_notification_count',
       );
+      // Backend answers api_response(data={"count": n}): the unread
+      // notification count. There is no separate transaction counter.
+      final body = response is Map ? response['data'] : null;
+      final count = body is Map ? body['count'] : null;
       return ApiResult.success(
-        data: CountNotificationModel.fromJson(
-          response is Map ? (response['message'] ?? response) : response,
+        data: CountNotificationModel(
+          notification: count is num ? count.toInt() : 0,
+          transaction: 0,
         ),
       );
     } catch (e) {

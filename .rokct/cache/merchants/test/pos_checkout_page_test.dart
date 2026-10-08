@@ -12,10 +12,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-
 // CheckoutPage (the POS checkout template) pumped DIRECTLY from
 // templates/ (no ${package} imports by design — these tests are the
-// template's compile gate; run with --dart-define=IS_DEMO=true).
+// template's compile gate; runs over the demo till, support/demo_till.dart).
 //
 // Covers the approved flows (strip frames 11c–11f): the Cash | QR method
 // toggle with the QR card and online phase gate; the OFFLINE INVERSION
@@ -30,9 +29,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider.dart';
-import 'package:merchants_sdk/src/manager/di/manager_merchants_di.dart';
 import 'package:merchants_sdk/src/manager/presentation/pos/receipt_preview_page.dart';
 import 'package:merchants_sdk/src/manager/presentation/pos/receipt_slip.dart';
 import 'package:merchants_sdk/src/manager/utils/pos_connectivity.dart';
@@ -42,12 +39,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../templates/pages/manager/billing/checkout_page.dart';
 
+import 'support/demo_till.dart';
+
 Widget _host(Widget child) => ProviderScope(
-      child: ScreenUtilInit(
-        designSize: const Size(390, 844),
-        builder: (context, _) => MaterialApp(home: child),
-      ),
-    );
+  child: ScreenUtilInit(
+    designSize: const Size(390, 844),
+    builder: (context, _) => MaterialApp(home: child),
+  ),
+);
 
 Future<ProviderContainer> _pumpWithCart(WidgetTester tester) async {
   // The render harness's geometry: 390 logical at 3x dpr, on the tall
@@ -76,7 +75,7 @@ void main() {
     await LocalStorage.setSelectedCurrency(
       CurrencyData(id: 'ZAR', symbol: 'R', position: 'before', rate: 1),
     );
-    ManagerMerchantsDependencies.register(GetIt.instance);
+    await registerDemoTill();
   });
 
   tearDown(() {
@@ -84,8 +83,7 @@ void main() {
     PosReceiptPrinter.handler = null;
   });
 
-  testWidgets(
-      'online: the Cash | QR toggle drives the QR card and the '
+  testWidgets('online: the Cash | QR toggle drives the QR card and the '
       '"I\'ve Scanned" phase gate', (tester) async {
     PosConnectivity.debugConnectivityOverride = true;
     await _pumpWithCart(tester);
@@ -115,10 +113,10 @@ void main() {
     expect(find.textContaining('Confirm by Code'), findsOneWidget);
   });
 
-  testWidgets(
-      'OFFLINE INVERSION: banner + straight-to-code entry (no phase '
-      'gate), the QR stays, and the 6-digit code verifies locally',
-      (tester) async {
+  testWidgets('OFFLINE INVERSION: banner + straight-to-code entry (no phase '
+      'gate), the QR stays, and the 6-digit code verifies locally', (
+    tester,
+  ) async {
     PosConnectivity.debugConnectivityOverride = false;
     final container = await _pumpWithCart(tester);
 
@@ -133,8 +131,7 @@ void main() {
     // the page shows — verifies with zero server contact.
     final state = container.read(posCartProvider);
     final shopId = (LocalStorage.getShopJson()?['id'])?.toString() ?? '';
-    final secret =
-        (LocalStorage.getShopJson()?['uuid'])?.toString() ?? shopId;
+    final secret = (LocalStorage.getShopJson()?['uuid'])?.toString() ?? shopId;
     final good = PosPayVerification.code(
       orderId: state.orderId,
       amount: state.total,
@@ -155,84 +152,88 @@ void main() {
   });
 
   testWidgets(
-      'dual finish (11k): "Print Receipt & Finish" lands on the receipt '
-      'preview first — printing from there is atomic, a dead printer '
-      'leaves the sale open on the preview; "Finish without Receipt" on '
-      'the checkout completes it straight away', (tester) async {
-    PosConnectivity.debugConnectivityOverride = true;
-    final container = await _pumpWithCart(tester);
-    expect(container.read(posCartProvider).lines, hasLength(1));
-    // The phone column carries no live slip — 11k is the phone's receipt.
-    expect(find.byType(ReceiptSlip), findsNothing);
+    'dual finish (11k): "Print Receipt & Finish" lands on the receipt '
+    'preview first — printing from there is atomic, a dead printer '
+    'leaves the sale open on the preview; "Finish without Receipt" on '
+    'the checkout completes it straight away',
+    (tester) async {
+      PosConnectivity.debugConnectivityOverride = true;
+      final container = await _pumpWithCart(tester);
+      expect(container.read(posCartProvider).lines, hasLength(1));
+      // The phone column carries no live slip — 11k is the phone's receipt.
+      expect(find.byType(ReceiptSlip), findsNothing);
 
-    // 293 on the checkout prints NOTHING yet: it lands on the preview —
-    // the paper slip with the same lines and total, the "Receipt" title,
-    // and the dual finish beneath the paper.
-    var printCalls = 0;
-    PosReceiptPrinter.handler = (orderId, lines, total) async {
-      printCalls++;
-    };
-    await tester.tap(find.text('Print Receipt & Finish'));
-    await tester.pumpAndSettle();
-    expect(printCalls, 0, reason: '11k: printing never fires blind');
-    expect(find.byType(ReceiptPreviewPage), findsOneWidget);
-    expect(find.byType(ReceiptSlip), findsOneWidget);
-    expect(find.text('Receipt'), findsOneWidget);
-    expect(find.text('Flame-grilled beef burger'), findsOneWidget);
-    expect(find.text('QTY 1'), findsOneWidget);
-    expect(find.text('TOTAL'), findsOneWidget);
-    expect(find.text('R150.00'), findsWidgets);
-    expect(container.read(posCartProvider).lines, hasLength(1));
+      // 293 on the checkout prints NOTHING yet: it lands on the preview —
+      // the paper slip with the same lines and total, the "Receipt" title,
+      // and the dual finish beneath the paper.
+      var printCalls = 0;
+      PosReceiptPrinter.handler = (orderId, lines, total) async {
+        printCalls++;
+      };
+      await tester.tap(find.text('Print Receipt & Finish'));
+      await tester.pumpAndSettle();
+      expect(printCalls, 0, reason: '11k: printing never fires blind');
+      expect(find.byType(ReceiptPreviewPage), findsOneWidget);
+      expect(find.byType(ReceiptSlip), findsOneWidget);
+      expect(find.text('Receipt'), findsOneWidget);
+      expect(find.text('Flame-grilled beef burger'), findsOneWidget);
+      expect(find.text('QTY 1'), findsOneWidget);
+      expect(find.text('TOTAL'), findsOneWidget);
+      expect(find.text('R150.00'), findsWidgets);
+      expect(container.read(posCartProvider).lines, hasLength(1));
 
-    // A throwing printer: the sale must NOT be recorded (the retired
-    // Spazafy checkout recorded first and silently ate the receipt) —
-    // and the preview stays up for another try.
-    PosReceiptPrinter.handler = (orderId, lines, total) async {
-      throw StateError('printer offline');
-    };
-    await tester.tap(find.byKey(const Key('posReceiptPrintFinish')));
-    await tester.pumpAndSettle();
-    expect(container.read(posCartProvider).lines, hasLength(1),
-        reason: 'atomic print+finish: failed print leaves the sale open');
-    expect(find.byType(ReceiptPreviewPage), findsOneWidget);
+      // A throwing printer: the sale must NOT be recorded (the retired
+      // Spazafy checkout recorded first and silently ate the receipt) —
+      // and the preview stays up for another try.
+      PosReceiptPrinter.handler = (orderId, lines, total) async {
+        throw StateError('printer offline');
+      };
+      await tester.tap(find.byKey(const Key('posReceiptPrintFinish')));
+      await tester.pumpAndSettle();
+      expect(
+        container.read(posCartProvider).lines,
+        hasLength(1),
+        reason: 'atomic print+finish: failed print leaves the sale open',
+      );
+      expect(find.byType(ReceiptPreviewPage), findsOneWidget);
 
-    // A working printer receives the order and THEN the sale records;
-    // the preview pops and the checkout leaves with it.
-    String? printedOrder;
-    double? printedTotal;
-    int? printedLineCount;
-    PosReceiptPrinter.handler = (orderId, lines, total) async {
-      printedOrder = orderId;
-      printedTotal = total;
-      printedLineCount = lines.length;
-    };
-    final orderId = container.read(posCartProvider).orderId;
-    await tester.tap(find.byKey(const Key('posReceiptPrintFinish')));
-    await tester.pumpAndSettle();
-    expect(printedOrder, orderId);
-    expect(printedTotal, 150);
-    expect(printedLineCount, 1);
-    expect(container.read(posCartProvider).lines, isEmpty);
-    expect(container.read(posCartProvider).total, 0);
-    expect(find.byType(ReceiptPreviewPage), findsNothing);
+      // A working printer receives the order and THEN the sale records;
+      // the preview pops and the checkout leaves with it.
+      String? printedOrder;
+      double? printedTotal;
+      int? printedLineCount;
+      PosReceiptPrinter.handler = (orderId, lines, total) async {
+        printedOrder = orderId;
+        printedTotal = total;
+        printedLineCount = lines.length;
+      };
+      final orderId = container.read(posCartProvider).orderId;
+      await tester.tap(find.byKey(const Key('posReceiptPrintFinish')));
+      await tester.pumpAndSettle();
+      expect(printedOrder, orderId);
+      expect(printedTotal, 150);
+      expect(printedLineCount, 1);
+      expect(container.read(posCartProvider).lines, isEmpty);
+      expect(container.read(posCartProvider).total, 0);
+      expect(find.byType(ReceiptPreviewPage), findsNothing);
 
-    // Finish without Receipt on the checkout: no printing, no preview,
-    // straight to done — the shipped behaviour stays reachable.
-    printCalls = 0;
-    PosReceiptPrinter.handler = (orderId, lines, total) async {
-      printCalls++;
-    };
-    await container.read(posCartProvider.notifier).addByBarcode('600777');
-    await tester.pump();
-    await tester.tap(find.text('Finish without Receipt'));
-    await tester.pumpAndSettle();
-    expect(printCalls, 0);
-    expect(find.byType(ReceiptPreviewPage), findsNothing);
-    expect(container.read(posCartProvider).lines, isEmpty);
-  });
+      // Finish without Receipt on the checkout: no printing, no preview,
+      // straight to done — the shipped behaviour stays reachable.
+      printCalls = 0;
+      PosReceiptPrinter.handler = (orderId, lines, total) async {
+        printCalls++;
+      };
+      await container.read(posCartProvider.notifier).addByBarcode('600777');
+      await tester.pump();
+      await tester.tap(find.text('Finish without Receipt'));
+      await tester.pumpAndSettle();
+      expect(printCalls, 0);
+      expect(find.byType(ReceiptPreviewPage), findsNothing);
+      expect(container.read(posCartProvider).lines, isEmpty);
+    },
+  );
 
-  testWidgets(
-      'the preview\'s "Finish without Receipt" (294) records without '
+  testWidgets('the preview\'s "Finish without Receipt" (294) records without '
       'printing and pops back', (tester) async {
     PosConnectivity.debugConnectivityOverride = true;
     final container = await _pumpWithCart(tester);

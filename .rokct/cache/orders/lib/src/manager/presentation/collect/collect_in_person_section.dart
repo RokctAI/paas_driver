@@ -223,7 +223,7 @@ class _CollectInPersonSectionState
   Widget _outcomeBanner(CollectConversion result) {
     final bool queued = result.deferred;
     final Color accent = queued
-        ? AppStyle.textDarkSecondary
+        ? AppStyle.secondaryInkFor(Theme.of(context).brightness)
         : (result.feeOutcome == CollectFeeOutcome.kept
               ? AppStyle.rate
               : AppStyle.green);

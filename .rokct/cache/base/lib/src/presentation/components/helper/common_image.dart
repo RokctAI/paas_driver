@@ -152,7 +152,7 @@ class CommonImage extends StatelessWidget {
                         placeholderBuilder: (_) => Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(radius.r),
-                            color: AppStyle.white,
+                            color: AppStyle.cardFor(Theme.of(context).brightness),
                           ),
                         ),
                       )
@@ -181,7 +181,7 @@ class CommonImage extends StatelessWidget {
                         errorWidget: (_, __, ___) => Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(errorRadius.r),
-                            color: errorBackground ?? AppStyle.bgGrey,
+                            color: errorBackground ?? AppStyle.surfaceFor(Theme.of(context).brightness),
                           ),
                           alignment: Alignment.center,
                           child: title?.isNotEmpty ?? false

@@ -32,6 +32,13 @@ class CustomTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The unselected label ink comes from the inherited theme rather than
+    // AppStyle's app-wide isDark static: TabBar restyles itself on a theme
+    // change, but the colour handed to it here is decided in THIS build,
+    // which a static never reschedules - so the unselected labels kept the
+    // previous mode's ink. The selected indicator (AppStyle.black) and label
+    // (AppStyle.white) are polarity-pinned and stay put.
+    final Brightness brightness = Theme.of(context).brightness;
     return Container(
       padding: EdgeInsets.all(6.r),
       height: 50.h,
@@ -48,7 +55,7 @@ class CustomTabBar extends StatelessWidget {
           color: AppStyle.black,
         ),
         labelColor: AppStyle.white,
-        unselectedLabelColor: AppStyle.textPrimary,
+        unselectedLabelColor: AppStyle.inkFor(brightness),
         unselectedLabelStyle: AppStyle.interRegular(size: 14.sp),
         labelStyle: AppStyle.interSemi(size: 14.sp),
         tabs: tabs,

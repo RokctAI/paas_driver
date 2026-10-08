@@ -36,7 +36,7 @@ class WProductExtras extends ConsumerWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color:
-            state.typedExtras.isEmpty ? AppStyle.transparent : AppStyle.cardDark,
+            state.typedExtras.isEmpty ? AppStyle.transparent : AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(10.r),
       ),
       padding: REdgeInsets.all(18),
@@ -53,7 +53,7 @@ class WProductExtras extends ConsumerWidget {
               return Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10.r),
-                  color: AppStyle.cardDark,
+                  color: AppStyle.cardFor(Theme.of(context).brightness),
                 ),
                 padding: REdgeInsets.symmetric(horizontal: 12, vertical: 14),
                 margin: REdgeInsets.only(bottom: 14),
@@ -65,7 +65,7 @@ class WProductExtras extends ConsumerWidget {
                       typedExtra.title,
                       style: AppStyle.interNoSemi(
                         size: 16,
-                        color: AppStyle.textPrimary,
+                        color: AppStyle.inkFor(Theme.of(context).brightness),
                         letterSpacing: -0.4,
                       ),
                     ),

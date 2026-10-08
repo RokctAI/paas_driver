@@ -28,6 +28,8 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:revenue_sdk/src/common/domain/interface/driver_payout.dart';
 import 'package:revenue_sdk/src/common/infrastructure/wallet_balance_cache.dart';
 import 'package:revenue_sdk/src/common/application/withdraw/withdraw_state.dart';
+import 'package:revenue_sdk/src/common/application/manager_wallet/manager_wallet_notifier.dart'
+    show ConnectivityCheck;
 
 /// The driver's withdraw call.
 ///
@@ -46,9 +48,17 @@ import 'package:revenue_sdk/src/common/application/withdraw/withdraw_state.dart'
 /// The unconditional technical branch is the only one that honours the
 /// rule on this surface.
 class WithdrawNotifier extends StateNotifier<WithdrawState> {
-  WithdrawNotifier(this._repository) : super(const WithdrawState());
+  WithdrawNotifier(
+    this._repository, {
+    ConnectivityCheck? isOnline,
+  })  : _isOnline = isOnline ?? AppConnectivity.connectivity,
+        super(const WithdrawState());
 
   final DriverPayoutRepositoryFacade _repository;
+
+  /// The connectivity round trip, injectable so a test can hold it open and
+  /// tap twice inside it - the window the double-payout guard has to close.
+  final ConnectivityCheck _isOnline;
 
   /// Telemetry bucket for everything that goes wrong on this surface.
   static const String errorType = 'driver_payout_request';
@@ -68,13 +78,18 @@ class WithdrawNotifier extends StateNotifier<WithdrawState> {
     void Function(num? newBalance)? onSuccess,
   }) async {
     if (state.isSubmitting) return;
+    // Claimed BEFORE the first await, so two taps in the same frame cannot
+    // both pass the guard and fire two holds - the connectivity check below
+    // is a round trip, and the sheet's button only disables once this flag
+    // is set. ManagerWalletNotifier.requestPayout already does this.
+    state = state.copyWith(isSubmitting: true);
 
-    if (!await AppConnectivity.connectivity()) {
+    if (!await _isOnline()) {
+      state = state.copyWith(isSubmitting: false);
       if (context.mounted) AppHelpers.showNoConnectionSnackBar(context);
       return;
     }
 
-    state = state.copyWith(isSubmitting: true);
     final response = await _repository.requestPayout(
       amount: amount,
       bankAccount: bankAccount,

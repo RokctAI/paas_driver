@@ -80,7 +80,7 @@ class PayoutStatusTrail extends StatelessWidget {
             key: const Key('payoutStatusTrailDebitNotice'),
             style: AppStyle.interRegular(
               size: 11,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
           16.verticalSpace,

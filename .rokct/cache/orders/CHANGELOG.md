@@ -1,3 +1,246 @@
+## 1.29.2
+
+* fix(theme): widgets read their surface, card, stroke and ink colours from Theme.of(context) at build time (AppStyle.surfaceFor/cardFor/cardAltFor/strokeFor/subtleStrokeFor/inkFor/secondaryInkFor/faintFor) instead of the AppStyle.isDark-resolved statics, so a live dark/light switch restyles open pages instead of leaving the old mode's colours (Ray, 2026-10-04).
+
+## 1.29.1
+
+* fix(icons): every icon is Remixicon (`package:remixicon`, `Remix.*`), the
+  fleet's one icon set. Material `Icons.*`, `CupertinoIcons.*` and
+  `flutter_remix` uses are replaced with their Remixicon equivalents;
+  `flutter_remix` is dropped and `remixicon: ^1.4.1` is required. Icons only.
+
+## 1.29.0
+
+* feat(checkout): the price breakdown shows "You saved X with your
+  subscription" when the quote carries `subscription_savings` (customer
+  subscription free delivery, delivery discount or service fee waiver).
+  Needs base_sdk 1.82.0.
+
+## 1.28.0
+
+* feat(orders): Braintree as a native payment method for order and parcel
+  checkout on Android and iOS. With a `braintree` gateway tag,
+  `OrdersRepository.process` and `ParcelRepository.process` create the
+  order as before, then pay it in Braintree's drop-in through payments_sdk's
+  `payments.braintree_native_checkout` seam (payments_sdk >= 1.3.0). The
+  server charges the amount on the document. On success they answer
+  `native-paid://braintree`, and the checkout screens treat the order as paid
+  with no WebView.
+* On web or Windows, without payments_sdk, or when the drop-in cannot run,
+  the existing path runs unchanged. No WebView gateway changes.
+* Needs the pay PR adding `braintree_client_token` / `braintree_checkout`
+  (merge pay first). Tests: `test/braintree_native_test.dart`.
+
+## 1.27.1
+
+* fix(orders): parcel lists send the Parcel Order status labels ("On a way")
+  and page with limit/offset, so paging and the on-the-way filter work.
+
+## 1.27.0
+
+* feat(orders): PayPal order and parcel checkout use the wallet's PayPal
+  REST Orders v2 cmds. `OrdersRepository.process` and
+  `ParcelRepository.process` with PayPal call
+  `api.payment.create_paypal_rest_order {target_type: order|parcel,
+  target_id}` and answer its `approve_url`. `WebViewPage` sees the
+  `paypal_rest_return` redirect, captures with
+  `api.payment.capture_paypal_rest_order {order_id}` and treats the order as
+  paid only when the capture succeeded. A parcel paid in an external
+  browser is captured by the server's return endpoint.
+* The hosted `api.payment.initiate_paypal_payment` and
+  `initiate_paypal_parcel_payment` cmds are retired in pay in the same
+  wave; merge together with that pay PR.
+* Tests: `test/gateway_cmd_test.dart`, `test/paypal_rest_return_test.dart`.
+
+## 1.26.0
+
+* feat(orders): `ActiveOrderTracker`, an app-wide poller behind the order live
+  activity (`activeOrderTrackerProvider`). Before this change only
+  `OrderProgressPage` polled, so the entry started only once that screen
+  was open and stopped updating when it closed. The tracker polls each
+  active delivery order every 15s while it is on the way (with the driver
+  location) and every 120s otherwise. It never polls in the background and
+  stops at delivered, cancelled, paid or failed. It starts at app start
+  (new customer `di_hooks` entry), after checkout, on resume, when the home
+  glance card loads active orders, and on an `order_status` push
+  (base_sdk >= 1.79.0 `PushMessages`, fed by comms_sdk >= 1.21.0).
+* `OrderProgressPage` reuses the tracker instead of running its own poll. It
+  reloads its view only when a poll saw a new status or driver.
+* fix(orders): `getActiveOrders` asks for
+  `accepted,processing,ready,on_a_way`. It asked for `accepted` alone, so
+  the home glance card never showed an order that was processing, ready or
+  on its way. The orders backend now resolves a comma-separated status list
+  and the `on_a_way` (Shipped) and `processing` (Cooking) aliases.
+* fix(orders): the live activity reads the backend's own status spellings
+  (`Shipped`, `Cancelled`) and treats `Pickup` like `pickup`.
+* feat(orders backend): the customer gets an `order_status` push on every
+  real status transition, with the new status and the order id in `data`.
+* Requires base_sdk >= 1.79.0.
+* Tests: `test/active_order_tracker_test.dart`, `test/gateway_cmd_test.dart`,
+  `frappe/tests/test_order_status_push.py`,
+  `frappe/tests/test_list_orders_params.py`.
+
+## 1.25.0
+
+* feat(orders): customer order tracking live activity (design section 2).
+  `OrderLiveActivity` maps the polled order and the driver location onto
+  base_sdk's `LiveActivities`. The entry has five segments with a car
+  tracker, and moves through Placed, Preparing, Picked up, On the way,
+  Arriving now and Delivered, or Order cancelled.
+* `OrderProgressPage` polls every 15s while the order is on its way. It
+  keeps 120s otherwise and does not poll in the background. It also calls
+  the previously unused `getDriverLocation`, silently, to move the car.
+* There is no ETA field yet, so "Arrives about" shows the delivery time
+  chosen at checkout.
+* Pickup orders get no entry.
+* Requires base_sdk >= 1.76.0 (comms_sdk >= 1.19.0 draws it).
+* Tests: `test/order_live_activity_test.dart`.
+
+## 1.24.1
+
+* fix(manifest): install the `assets/demo/orders` fixtures from the top-level
+  `installs` instead of one `app_type` block, so every compose that
+  registers the `assets/demo/orders/` pubspec entry also has the directory
+  behind it (flutter failed with "unable to find directory entry").
+
+## 1.24.0
+
+* feat(demo): demo runs the real repositories through base_sdk's
+  `DemoGatewayInterceptor` (requires base_sdk >= 1.73.0). The DI hooks
+  register only the real repositories and register the
+  `assets/demo/orders` fixture directory; every platform cmd a demo session
+  sends is answered from `templates/assets/demo/orders/<cmd>.json`, and an
+  unknown cmd fails loudly with `DemoFixtureMissing`.
+* Removed: `MockCartRepository`, `MockOrdersRepository`,
+  `DemoSellerOrdersRepository`, and the demo-session swap code that chose
+  them.
+
+## 1.23.1
+
+* fix(theme): surfaces, cards, ink and strokes now follow the app's light/dark
+  mode instead of hardcoded light colours or static theme reads.
+
+## 1.23.0
+
+* feat(drivers): the shop side of Ray's own-drivers ruling — a shop may keep
+  its OWN drivers instead of drawing from the platform pool for every load,
+  and the roster that records them is what the load side reads.
+  * **`/load/drivers`** — the roster (`ShopDriversBody`) in the standard
+    list language, because it is the same shop reading the same kind of
+    list one screen over from `/load`. Each row is a driver with one way
+    off the roster; removing is confirmed and the confirmation says what
+    stops working, since it is a decision about future loads rather than a
+    tidy-up. The header states out loud what the roster DOES — a shop with
+    its own drivers can only load those drivers — because that is the whole
+    consequence of the button.
+  * **The add flow** searches the platform driver list the issue-a-load
+    picker already draws (`api.order.load.list_shop_deliverymen`), minus
+    whoever is on the roster already, and one tap sends
+    `api.shop_drivers.add_shop_driver`. Every write is re-read rather than
+    guessed at: an add or a remove refetches the roster, so a backend
+    refusal leaves the list exactly as it was.
+  * **"Manage drivers" on `/load/issue`** — the picker offers what the
+    roster allows, so the way to change the offer sits beside it. The body
+    refetches its drivers when the roster pops, so a driver added there
+    shows up in the picker without leaving the screen.
+  * The three roster endpoints are ZONES' (`api.shop_drivers.*`, all scoped
+    to the caller's own shop), reached through the universal gateway like
+    every other call in this slice. Nothing is faked: on a tenant without
+    them each call fails through `ApiResult.failure` and the roster shows
+    its could-not-read line. No demo twin, for the same reason the loads
+    facade has none — who a shop hires is not seeded shift data.
+
+## 1.22.0
+
+* feat(loads): the manager side of driver consignment LOADS, against the
+  backend that merged as commerce#135
+  (`frappe/src/tenant/api/order/load.py`). A load is an Order the shop
+  issues to a driver: the shelf is decremented ONCE when it goes out, the
+  driver sells from the van stop by stop and brings the leftovers back,
+  and closing the load charges him the variance — issued minus sold minus
+  returned, at the load's own unit prices — against his wallet.
+  * **`/load`** — the shop's loads in the standard list language
+    (`LoadsList`): the two real statuses as filter tabs, each fed by its
+    own `api.order.load.get_shop_loads(status)` call so both counts are
+    real and switching tabs costs no round trip. A card carries the four
+    facts the shop reads a load by — the driver, when it went out, how
+    many lines, and how much of what was issued is still on the van.
+  * **The load detail** — the line table (issued / sold / returned /
+    remaining, the unit price, and each line's variance value once the
+    load is closed) plus the ONE action an open load has, Close. It is a
+    pushed PANE of the section-38 list flow at plane widths and the
+    bottom sheet on a phone, the same shape `/order-history` reaches an
+    order detail in; no per-load route, no id through the router.
+  * **Closing names the money first.** `close_load` is what debits the
+    driver, so the confirm dialog states the variance amount that will be
+    charged before the shop commits, and says plainly when there is
+    nothing to charge. The shop may close without the driver; the backend
+    is idempotent, so his own Close afterwards charges nothing twice. A
+    closed load shows what it cost and offers no action.
+  * **`/load/issue`** — pick the driver from
+    `api.order.load.list_shop_deliverymen`, pick the shelf rows off the
+    create-order flow's OWN picker (the same `orderProductsProvider` /
+    `productCategoriesProvider` pair behind the same search field,
+    category chips and `ProductsBody` rows the walk-in till uses — not a
+    second picker), review the draft with its value at shelf prices, and
+    send one `api.order.load.create_load`. Quantities are clamped to what
+    the shelf holds, because issuing is what takes the goods off it. On
+    success the page pops with the load and the shop lands on its detail.
+  * Entry point: the orders workspace header's new loads utility, beside
+    the board's bell and date chip — where the manager order screens hang
+    their entries. It is drawn only when the host wired it, so a compose
+    without the loads pages is unchanged.
+  * `ShopLoadsRepositoryFacade` / `ShopLoadsRepository` are orders' own
+    (like the seller-orders facade, not an ADR-005 seam) and reach the
+    four cmds through the universal platform gateway, the same way the
+    walk-in customer create reaches `api.order.create_walk_in_customer`.
+    Registered by `ManagerOrdersDependencies.register`; no demo twin — a
+    load is stock leaving a real shelf, so a demo build shows the empty
+    list rather than inventing vans.
+  * Disclosed: `_serialize_load` carries no `closed_at`, so a closed load
+    read from the LIST has no closing time and the surface says nothing
+    about one; the `close_load` answer does carry it, so the load the
+    shop just closed shows it. Covered by `test/load_manager_test.dart`
+    (draft arithmetic, variance, list filtering, the model) and
+    `test/gateway_cmd_test.dart` (the four cmd names and payloads).
+
+## 1.21.1
+
+* fix(pos): the walk-in customer, both halves. The manager create-order
+  flow's "new customer" step had NO server method behind it
+  (`orders_adapters.dart` posted a dead
+  `/api/method/paas.api.user.user.create_walk_in_customer` under a TODO,
+  fixplan M19), and a sale with no customer entered at all had no answer
+  for `Order.user`, which is a required link.
+  * **No details entered -> the seller's own account is the customer**
+    (Ray 2026-09-18: "in paas_pos i think if seller was making order for
+    walkin customer and not input details it then used seller account as
+    customer"). `resolveWalkInOrderCustomer`
+    (`lib/src/manager/domain/walk_in_customer.dart`) is the rule as a pure
+    function; `SellerOrdersRepository.createOrder` asks it for the
+    `user_id`/`phone` it puts on the wire. A picked or just-created
+    customer always wins. With neither a pick nor a cached seller profile
+    the two keys stay ABSENT exactly as before — nothing invents an
+    identity.
+  * **Details entered -> a real server method creates the customer.**
+    `PosCustomersFacade.createUser` now calls
+    `api.order.create_walk_in_customer` through the platform gateway,
+    served by orders' own `frappe/src/tenant/api/order/walk_in.py`:
+    seller-only (`_get_seller_shop`, the same ownership rule every other
+    seller endpoint uses), creating a login-less `User` (a Website User
+    with no password and no welcome mail — never users' `register_user`,
+    which is OTP self-signup and would mint an account for someone at a
+    till), idempotent on the shop + phone via a derived `.invalid`
+    identity or on a real email. It writes no `User Shop` membership, so a
+    walk-in customer is not in the customer picker's later shop listing —
+    `User Shop.role` is a required Link to `Role` and this fork ships no
+    customer-shaped Role fixture to point it at.
+  * `_is_pos_order` and the create-order contract are untouched.
+  * Requires the orders backend module from this version for the create
+    lane; the no-details lane is client-only. Covered by
+    `test/walk_in_customer_test.dart` and
+    `frappe/tests/test_create_walk_in_customer.py`.
+
 ## 1.21.0
 
 * feat(demo): demo repositories follow the runtime demo session. base_sdk

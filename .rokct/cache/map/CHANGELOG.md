@@ -1,3 +1,65 @@
+## 1.5.0
+
+* Demo runs the REAL `CustomerPoiRepository` through base_sdk 1.73.0's
+  `DemoGatewayInterceptor`: `MapSdkDependencies` registers
+  `assets/demo/map`, whose `api.poi.get_customer_pois.json` answers an
+  empty list (an offline map still stands no unapproved place on itself).
+  Deleted `DemoCustomerPoiRepository`. Requires base_sdk 1.73.0.
+
+## 1.4.1
+
+* The map page and map modal now follow the app's light or dark mode: their white cards and black ink use AppStyle.cardFor and inkFor.
+
+## 1.4.0
+
+* The customer map draws the points of interest an administrator stored and
+  approved. `poiDataProvider` was created holding an empty list and nothing
+  in the fleet ever called its `updatePOIData`, so every one of the page's
+  point-of-interest features - the radius filter, the nearest-point label,
+  the markers themselves - ran over a list that was empty for the life of
+  the app. The map's only pins were the ones the shopper dropped.
+  * `CustomerPoiRepository` reads them through base_sdk's universal platform
+    gateway on `api.poi.get_customer_pois`, as a guest (the def is
+    `allow_guest`), asking for the map's current centre and a radius twice
+    the one the page draws within. `ViewMapPage` reads once for the centre
+    it opens on and again only when the camera has carried the centre clear
+    of the disc already in hand, so a pan costs no call; a read that fails
+    leaves the points on screen alone rather than blanking the map.
+  * What a shopper may see of a stored point is its name, its type and its
+    position. A point also holds contact details, an internal note, the shop
+    it belongs to and its creator; none of those is read, mapped or
+    reachable from `POIData`, and the mapping is pinned against a row that
+    carries them all. A point typed `other` is labelled `label ·
+    custom_type`, because "other" on its own names nothing; a point with no
+    label falls back to that free text and then to the record id.
+  * `DemoCustomerPoiRepository` is the offline twin and serves no points.
+    Standing places on an offline map would put somewhere on screen that
+    nobody approved and that is not there, which is worse than an empty map
+    - a shopper would walk to it. `MapSdkDependencies.register` picks the
+    twin from `DemoSession.demoActive`, idempotently, beside the two
+    facades it already registered.
+  * Marker drawing moves out of the page into `buildPoiMarkers` /
+    `poiMarkerIcon`, unchanged except that a pin image which cannot be
+    loaded now falls back to the platform's own map pin instead of throwing
+    and taking every other marker in the same `Future.wait` down with it.
+    That fallback is the live path: no pin ships under `assets/images/poi/`
+    in this SDK or in base_sdk, so `CustomerPoiRepository.pinAsset` names
+    none rather than guessing a filename that is not in the bundle. A pin
+    dropped into `templates/assets/images/poi/` later is named there and
+    needs no page change.
+  * The page's marker pass now falls back to the camera target the map
+    opened on, so points arriving from that first read draw without waiting
+    for the shopper to move the map.
+  * Tests: the request shape and the guest flag, the label and free-text
+    rules, the pin default, coordinates sent as strings, rows dropped for
+    want of a position, the envelope forms, the withheld fields, the
+    provider's replace-not-append contract, the read window's
+    first-build-and-beyond-the-radius decision, and the marker set built
+    from a list of points.
+  * Depends on `api.poi.get_customer_pois`, which lands with the zone's
+    points-of-interest backend; until then the call answers nothing and the
+    map draws no stored points, exactly as it does today.
+
 ## 1.3.2
 
 * The Google Places API key is sent as an `X-Goog-Api-Key` header instead

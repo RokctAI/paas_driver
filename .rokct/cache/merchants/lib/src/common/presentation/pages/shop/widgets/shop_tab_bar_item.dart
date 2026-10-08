@@ -46,7 +46,9 @@ class ShopTabBarItem extends StatelessWidget {
           height: 46.r,
           duration: const Duration(milliseconds: 300),
           decoration: BoxDecoration(
-            color: isActive ? AppStyle.primary : AppStyle.cardDark,
+            color: isActive
+                ? AppStyle.primary
+                : AppStyle.cardFor(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(10.r),
             boxShadow: [
               BoxShadow(
@@ -75,7 +77,9 @@ class ShopTabBarItem extends StatelessWidget {
                 category?.translation?.title ?? title,
                 style: AppStyle.interNormal(
                   size: 13,
-                  color: isActive ? AppStyle.black : AppStyle.textPrimary,
+                  color: isActive
+                      ? AppStyle.inkFor(Theme.of(context).brightness)
+                      : AppStyle.inkFor(Theme.of(context).brightness),
                 ),
               ),
             ],

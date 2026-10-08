@@ -14,11 +14,11 @@
 
 
 // Every demo amount must print in rand. The wallet history in the guided
-// tour read "42.50USD" / "1,500.00USD": nothing in a demo build selected a
+// tour read "42.50USD" / "1,500.00USD": nothing in a demo run selected a
 // currency, so AppHelpers.numberFormat fell through to intl's locale default.
 // The kernel now seeds ZAR at boot and falls back to it while the store is
-// empty; a real build is untouched. "Demo" is DemoSession.demoActive: the
-// build flag OR the runtime session, so a demo account signing in after
+// empty; a real session is untouched. "Demo" is DemoSession.demoActive: the
+// tour build OR the runtime session, so a demo account signing in after
 // boot is seeded on the flip, and a session ending wipes nothing.
 
 import 'package:flutter_test/flutter_test.dart';
@@ -39,12 +39,10 @@ void main() {
   });
 
   tearDown(() async {
-    // The overrides and the listener are app-global; never let one test
-    // leak into the next.
+    // The session and the listener are app-global; never let one test leak
+    // into the next.
     DemoCurrency.stopFollowingDemoSession();
     await DemoSession.instance.clear();
-    DemoCurrency.isDemoOverride = null;
-    DemoSession.isDemoOverride = null;
   });
 
   test('the demo currency is South African rand, symbol before the amount',
@@ -55,8 +53,8 @@ void main() {
     expect(DemoCurrency.rand.rate, 1);
   });
 
-  test('seed stores rand in a demo build with nothing selected', () async {
-    DemoCurrency.isDemoOverride = true;
+  test('seed stores rand in a demo session with nothing selected', () async {
+    await DemoSession.instance.activate();
     expect(LocalStorage.getSelectedCurrency(), isNull);
 
     DemoCurrency.seed();
@@ -67,7 +65,7 @@ void main() {
   });
 
   test('seed never overwrites a currency that is already selected', () async {
-    DemoCurrency.isDemoOverride = true;
+    await DemoSession.instance.activate();
     await LocalStorage.setSelectedCurrency(
       CurrencyData(id: 'EUR', symbol: '€', position: 'before', rate: 1),
     );
@@ -77,8 +75,8 @@ void main() {
     expect(LocalStorage.getSelectedCurrency()?.id, 'EUR');
   });
 
-  test('seed is a no-op outside a demo build', () {
-    DemoCurrency.isDemoOverride = false;
+  test('seed is a no-op outside a demo session', () {
+    expect(DemoSession.demoActive, isFalse);
 
     DemoCurrency.seed();
 
@@ -87,8 +85,8 @@ void main() {
   });
 
   test('numberFormat prints the wallet ledger amounts in rand once seeded',
-      () {
-    DemoCurrency.isDemoOverride = true;
+      () async {
+    await DemoSession.instance.activate();
     DemoCurrency.seed();
 
     expect(AppHelpers.numberFormat(number: 1500), 'R1,500.00');
@@ -97,9 +95,9 @@ void main() {
     expect(AppHelpers.numberFormat(number: 0), 'R0.00');
   });
 
-  test('numberFormat prints rand in a demo build even with an empty store',
-      () {
-    DemoCurrency.isDemoOverride = true;
+  test('numberFormat prints rand in a demo session even with an empty store',
+      () async {
+    await DemoSession.instance.activate();
     expect(LocalStorage.getSelectedCurrency(), isNull);
 
     final rendered = AppHelpers.numberFormat(number: 1500);
@@ -108,8 +106,9 @@ void main() {
     expect(rendered, isNot(contains('USD')));
   });
 
-  test('an explicit order symbol still wins over the demo currency', () {
-    DemoCurrency.isDemoOverride = true;
+  test('an explicit order symbol still wins over the demo currency',
+      () async {
+    await DemoSession.instance.activate();
     DemoCurrency.seed();
 
     expect(
@@ -118,8 +117,8 @@ void main() {
     );
   });
 
-  test('a real build with nothing selected keeps intl\'s own default', () {
-    DemoCurrency.isDemoOverride = false;
+  test('a real session with nothing selected keeps intl\'s own default', () {
+    expect(DemoSession.demoActive, isFalse);
 
     final rendered = AppHelpers.numberFormat(number: 1500);
 
@@ -127,12 +126,7 @@ void main() {
   });
 
   group('runtime demo session', () {
-    setUp(() {
-      // A real build: only the session can make it demo.
-      DemoSession.isDemoOverride = false;
-    });
-
-    test('fallback follows the session, not the build flag alone', () async {
+    test('fallback follows the session, the only switch there is', () async {
       expect(DemoCurrency.fallback, isNull);
 
       await DemoSession.instance.activate();
@@ -144,7 +138,7 @@ void main() {
 
     test('followDemoSession seeds rand when the session flips on', () async {
       DemoCurrency.followDemoSession();
-      // Session off on a real build: the boot-time seed is a no-op.
+      // Session off outside a tour build: the boot-time seed is a no-op.
       expect(LocalStorage.getSelectedCurrency(), isNull);
 
       await DemoSession.instance.activate();

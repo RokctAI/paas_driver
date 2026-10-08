@@ -1,0 +1,23 @@
+[
+  {
+    "id": "DEMO-DEP-2",
+    "amount": 900,
+    "status": "Approved",
+    "method": "Bank Deposit",
+    "reference": "TM-0830-0847",
+    "submitted_at": "$now_iso",
+    "resolved_at": "$now_iso",
+    "credited": 1
+  },
+  {
+    "id": "DEMO-DEP-1",
+    "amount": 600,
+    "status": "Rejected",
+    "method": "Bank Deposit",
+    "reference": "TM-0829-0812",
+    "rejection_reason": "Slip says R 600.00, the bank received R 300.00.",
+    "submitted_at": "$now_iso",
+    "resolved_at": "$now_iso",
+    "credited": 0
+  }
+]

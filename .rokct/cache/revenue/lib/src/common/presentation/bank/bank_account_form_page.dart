@@ -135,7 +135,7 @@ class _BankAccountFormPageState extends ConsumerState<BankAccountFormPage> {
   Widget build(BuildContext context) {
     final saving = ref.watch(bankAccountsProvider).isSaving;
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: SafeArea(
         child: Stack(
           children: [
@@ -156,7 +156,7 @@ class _BankAccountFormPageState extends ConsumerState<BankAccountFormPage> {
                       ),
                       style: AppStyle.interRegular(
                         size: 12,
-                        color: AppStyle.textDarkSecondary,
+                        color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                       ),
                     ),
                     22.verticalSpace,
@@ -233,10 +233,10 @@ class _BankAccountFormPageState extends ConsumerState<BankAccountFormPage> {
                       key: const Key('bankSaveButton'),
                       title: AppHelpers.getTranslation('save_account'),
                       background:
-                          _canSave ? AppStyle.primary : AppStyle.strokeDark,
+                          _canSave ? AppStyle.primary : AppStyle.strokeFor(Theme.of(context).brightness),
                       textColor: _canSave
                           ? AppStyle.blackColor
-                          : AppStyle.textDarkFaint,
+                          : AppStyle.faintFor(Theme.of(context).brightness),
                       isLoading: saving,
                       onPressed: _canSave && !saving ? _save : () {},
                     ),
@@ -303,17 +303,17 @@ class _BankAccountFormPageState extends ConsumerState<BankAccountFormPage> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 9.h),
         decoration: BoxDecoration(
-          color: selected ? AppStyle.primary : AppStyle.cardDark,
+          color: selected ? AppStyle.primary : AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(30.r),
           border: Border.all(
-            color: selected ? AppStyle.primary : AppStyle.strokeDark,
+            color: selected ? AppStyle.primary : AppStyle.strokeFor(Theme.of(context).brightness),
           ),
         ),
         child: Text(
           label,
           style: AppStyle.interNoSemi(
             size: 12,
-            color: selected ? AppStyle.blackColor : AppStyle.textPrimary,
+            color: selected ? AppStyle.blackColor : AppStyle.inkFor(Theme.of(context).brightness),
           ),
         ),
       ),
@@ -330,7 +330,7 @@ class _BankAccountFormPageState extends ConsumerState<BankAccountFormPage> {
       key: const Key('bankDefaultSwitch'),
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Column(
@@ -365,7 +365,7 @@ class _BankAccountFormPageState extends ConsumerState<BankAccountFormPage> {
               key: const Key('bankFirstAccountRule'),
               style: AppStyle.interRegular(
                 size: 11,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ],
@@ -388,7 +388,7 @@ class _BankAccountFormPageState extends ConsumerState<BankAccountFormPage> {
       textAlign: TextAlign.center,
       style: AppStyle.interRegular(
         size: 11,
-        color: AppStyle.textDarkSecondary,
+        color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
       ),
     );
   }
@@ -400,7 +400,7 @@ class _BankAccountFormPageState extends ConsumerState<BankAccountFormPage> {
             style: AppStyle.interSemi(
               size: 10.5,
               letterSpacing: 1.2,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
           8.horizontalSpace,
@@ -408,7 +408,7 @@ class _BankAccountFormPageState extends ConsumerState<BankAccountFormPage> {
             AppHelpers.getTranslation(isRequired ? 'required' : 'optional'),
             style: AppStyle.interRegular(
               size: 10,
-              color: AppStyle.textDarkFaint,
+              color: AppStyle.faintFor(Theme.of(context).brightness),
             ),
           ),
         ],

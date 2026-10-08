@@ -58,11 +58,14 @@ class _LanguagePageState extends ConsumerState<LanguageScreen> {
             // AppHelpers.showCustomModalBottomSheet paints the sheet route
             // transparent and expects the sheet to bring its own surface,
             // so the isDarkMode flag the caller passes never reaches this
-            // paint. Resolve the surface against AppStyle's mode flag the
-            // way base_sdk's EditProfileScreen does (dark: the theme's dark
-            // surface; light: the soft page grey) instead of the light-only
-            // bgGrey this shipped with.
-            color: (AppStyle.isDark ? AppStyle.surfaceDark : AppStyle.bgGrey)
+            // paint. Resolve the surface from the inherited theme at build
+            // time (dark: the theme's dark surface; light: the soft page
+            // grey), not from AppStyle's app-wide isDark static: a static
+            // registers no dependency, so a live mode flip left the open
+            // sheet in the old mode's colours.
+            color: (Theme.of(context).brightness == Brightness.dark
+                    ? AppStyle.surfaceFor(Brightness.dark)
+                    : AppStyle.bgGrey)
                 .withValues(alpha: 0.96),
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(16.r),
@@ -100,7 +103,7 @@ class _LanguagePageState extends ConsumerState<LanguageScreen> {
                         24.verticalSpace,
                         TitleAndIcon(
                           title: AppHelpers.getTranslation(TrKeys.language),
-                          titleColor: AppStyle.textPrimary,
+                          titleColor: AppStyle.inkFor(Theme.of(context).brightness),
                           paddingHorizontalSize: 0,
                           titleSize: 18,
                         ),
@@ -124,7 +127,7 @@ class _LanguagePageState extends ConsumerState<LanguageScreen> {
                           onPressed: () {
                             ref
                                 .read(languageProvider.notifier)
-                                .makeSelectedLang(context);
+                                .makeSelectedLang(context, userInitiated: true);
                             widget.onSave();
                           },
                         ),

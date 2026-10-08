@@ -101,7 +101,7 @@ abstract class CourierHelpers {
                 width: double.infinity,
                 padding: EdgeInsets.all(24.w),
                 decoration: BoxDecoration(
-                  color: AppStyle.cardDark,
+                  color: AppStyle.cardFor(Theme.of(context).brightness),
                   borderRadius: BorderRadius.circular(16.r),
                 ),
                 child: Column(

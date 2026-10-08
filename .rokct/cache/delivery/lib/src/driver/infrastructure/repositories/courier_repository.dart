@@ -26,6 +26,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_delivery_seed.dart';
 import 'package:base_sdk/src/models/response/driver_show_response.dart';
 import 'package:base_sdk/src/models/response/profile_response.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -139,6 +141,15 @@ class CourierRepository implements CourierRepositoryFacade {
 
   @override
   Future<ApiResult<List<DeliveryVehicleType>>> getDeliveryVehicleTypes() async {
+    // Legacy REST, not a platform cmd, so the demo interceptor cannot
+    // answer it: a demo session reads the kept seed instead.
+    if (DemoSession.demoActive) {
+      return ApiResult.success(
+        data: DemoDeliverySeed.vehicleTypes()
+            .map(DeliveryVehicleType.fromJson)
+            .toList(),
+      );
+    }
     try {
       final client = dioHttp.client(requireAuth: true);
       final response = await client.get('/api/v1/rest/delivery-vehicle-types');

@@ -46,7 +46,7 @@ class CatalogEditRail extends StatelessWidget {
       children: [
         Text(
           AppHelpers.getTranslation('products'),
-          style: AppStyle.interBold(size: 20, color: AppStyle.textPrimary),
+          style: AppStyle.interBold(size: 20, color: AppStyle.inkFor(Theme.of(context).brightness)),
         ),
         const SizedBox(height: 12),
         Expanded(
@@ -63,10 +63,10 @@ class CatalogEditRail extends StatelessWidget {
               return Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppStyle.cardDark,
+                  color: AppStyle.cardFor(Theme.of(context).brightness),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: edited ? AppStyle.primary : AppStyle.strokeDarkSubtle,
+                    color: edited ? AppStyle.primary : AppStyle.subtleStrokeFor(Theme.of(context).brightness),
                     width: edited ? 1.4 : 1,
                   ),
                 ),
@@ -94,7 +94,7 @@ class CatalogEditRail extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: AppStyle.interSemi(
                               size: 13,
-                              color: AppStyle.textPrimary,
+                              color: AppStyle.inkFor(Theme.of(context).brightness),
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -110,7 +110,7 @@ class CatalogEditRail extends StatelessWidget {
                               size: 12,
                               color: out
                                   ? AppStyle.red
-                                  : AppStyle.textDarkSecondary,
+                                  : AppStyle.secondaryInkFor(Theme.of(context).brightness),
                             ),
                           ),
                         ],

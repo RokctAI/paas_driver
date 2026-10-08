@@ -47,6 +47,13 @@ class RegisterConfirmationPage extends ConsumerStatefulWidget {
   /// sendOtp/verifyPhone pair even when AppConstants.isPhoneFirebase.
   final bool isDeferredOtp;
 
+  /// Email sign-up mode: the details form already created the account
+  /// (register_user sent this code), so on verify success the sheet
+  /// finishes the sign-up — stores the session token verify_email_code
+  /// returns and runs the registration steps — instead of opening the
+  /// details form. Resends go through the existing-account resend.
+  final bool isEmailSignUp;
+
   const RegisterConfirmationPage({
     super.key,
     required this.userModel,
@@ -54,6 +61,7 @@ class RegisterConfirmationPage extends ConsumerStatefulWidget {
     required this.verificationId,
     this.editPhone = false,
     this.isDeferredOtp = false,
+    this.isEmailSignUp = false,
   });
 
   @override
@@ -84,6 +92,25 @@ class _RegisterConfirmationPageState
     final state = ref.watch(registerConfirmationProvider);
     final bool isDarkMode = LocalStorage.getAppThemeMode();
     final bool isLtr = LocalStorage.getLangLtr();
+    // A BuildContext lookup for the mode, not the app-wide AppStyle.isDark
+    // static behind AppStyle.surfaceDark/textDarkSecondary/cardDark (Ray,
+    // 2026-09-19: "glance doesnt change test immediately untill you come back
+    // if you switched theme mode" — the same defect, found here by the fleet
+    // audit that followed).
+    //
+    // This sheet resolved nothing from the context that a theme-mode flip
+    // touches: its surface, its "we sent a code to" copy and the confirm
+    // button's idle fill all came from AppStyle's statics, and its only other
+    // context reads are MediaQuery's view insets and safe-area padding,
+    // neither of which changes with the mode. A mutable static is not an
+    // inherited widget, so the flip scheduled no rebuild of this element and
+    // the sheet kept the previous mode's colours while it stayed open — and
+    // it stays open for the whole 30-second resend window. The
+    // registerConfirmationProvider it watches is a feature notifier that a
+    // theme-mode change never notifies, so that is no rebuild trigger
+    // either. Reading the inherited theme here makes this element a
+    // dependent, so the mode change itself restyles the sheet in place.
+    final Brightness brightness = Theme.of(context).brightness;
     ref.listen(registerConfirmationProvider, (previous, next) {
       if (previous!.isSuccess != next.isSuccess && next.isSuccess) {
         if (widget.isDeferredOtp) {
@@ -92,6 +119,10 @@ class _RegisterConfirmationPageState
           // carry on where they were. (Verify success already cleared the
           // pending_otp_verification flag, so the gate won't re-prompt.)
           Navigator.pop(context);
+          return;
+        }
+        if (widget.isEmailSignUp) {
+          // Handled by confirmCode's onVerified (finishEmailSignUp).
           return;
         }
         Navigator.pop(context);
@@ -121,7 +152,7 @@ class _RegisterConfirmationPageState
             child: Container(
               margin: MediaQuery.of(context).viewInsets,
               decoration: BoxDecoration(
-                color: AppStyle.surfaceDark,
+                color: AppStyle.surfaceFor(brightness),
                 borderRadius: BorderRadius.all(Radius.circular(40.r)),
               ),
               width: double.infinity,
@@ -141,14 +172,14 @@ class _RegisterConfirmationPageState
                             AppHelpers.getTranslation(TrKeys.sendOtp),
                             style: AppStyle.interRegular(
                               size: 14,
-                              color: AppStyle.textDarkSecondary,
+                              color: AppStyle.secondaryInkFor(brightness),
                             ),
                           ),
                           Text(
                             widget.userModel.email ?? "",
                             style: AppStyle.interRegular(
                               size: 14,
-                              color: AppStyle.textDarkSecondary,
+                              color: AppStyle.secondaryInkFor(brightness),
                             ),
                           ),
                           40.verticalSpace,
@@ -233,7 +264,8 @@ class _RegisterConfirmationPageState
                                             isResetPassword:
                                                 widget.isResetPassword,
                                             isDeferredOtp:
-                                                widget.isDeferredOtp,
+                                                widget.isDeferredOtp ||
+                                                widget.isEmailSignUp,
                                           )
                                         : notifier.sendCodeToNumber(
                                             context,
@@ -278,6 +310,19 @@ class _RegisterConfirmationPageState
                                             ref,
                                             isDeferredOtp:
                                                 widget.isDeferredOtp,
+                                            email:
+                                                widget.userModel.email ?? '',
+                                            onVerified: widget.isEmailSignUp
+                                                ? (data) => ref
+                                                      .read(
+                                                        registerProvider
+                                                            .notifier,
+                                                      )
+                                                      .finishEmailSignUp(
+                                                        context,
+                                                        data,
+                                                      )
+                                                : null,
                                           ) // Pass ref here
                                         : notifier.confirmCodeWithPhone(
                                             context: context,
@@ -319,9 +364,16 @@ class _RegisterConfirmationPageState
                                   }
                                 }
                               },
+                              // AppStyle.cardDark stays a static read: the
+                              // raised-card role has no brightness-taking
+                              // helper on base_sdk's AppStyle yet, and adding
+                              // one is core's call, not this package's. It
+                              // resolves correctly all the same now that this
+                              // element depends on the inherited theme — the
+                              // flip rebuilds the build that reads it.
                               background: state.isConfirm
                                   ? AppStyle.primary
-                                  : AppStyle.cardDark,
+                                  : AppStyle.cardFor(Theme.of(context).brightness),
                               textColor: state.isConfirm
                                   ? AppStyle.black
                                   : AppStyle.textGrey,

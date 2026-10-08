@@ -13,59 +13,50 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:get_it/get_it.dart';
+import 'package:base_sdk/base_sdk.dart' show DemoFixtures;
 import 'package:base_sdk/src/domain/interface/brands.dart';
 import 'package:base_sdk/src/domain/interface/categories.dart';
 import 'package:base_sdk/src/domain/interface/gallery.dart';
 import 'package:base_sdk/src/domain/interface/products.dart';
-import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:products_sdk/src/common/infrastructure/repositories/products_repository.dart';
-import 'package:products_sdk/src/common/infrastructure/repositories/mock_products_repository.dart';
 import 'package:products_sdk/src/common/infrastructure/repositories/categories_repository.dart';
-import 'package:products_sdk/src/common/infrastructure/repositories/mock_categories_repository.dart';
 import 'package:products_sdk/src/common/infrastructure/repositories/brands_repository.dart';
-import 'package:products_sdk/src/common/infrastructure/repositories/mock_brands_repository.dart';
 import 'package:products_sdk/src/common/infrastructure/repositories/gallery_repository.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:products_sdk/src/common/domain/interface/seller_products.dart';
 import 'package:products_sdk/src/common/domain/interface/seller_catalog.dart';
-import 'package:products_sdk/src/manager/infrastructure/repositories/demo_seller_catalog_repository.dart';
-import 'package:products_sdk/src/manager/infrastructure/repositories/demo_seller_products_repository.dart';
 import 'package:products_sdk/src/manager/infrastructure/repositories/seller_catalog_repository.dart';
 import 'package:products_sdk/src/manager/infrastructure/repositories/seller_products_repository.dart';
 import 'package:products_sdk/src/manager/infrastructure/services/product_create_sync_handler.dart';
+
+/// Host asset directory holding products_sdk's demo platform fixtures
+/// (`<cmd>.json`), installed from `templates/assets/demo/products`.
+const String productsDemoFixtureDirectory = 'assets/demo/products';
 
 /// Installer-convention DI hook: the composed app's generated `main.dart`
 /// calls `ProductsSdkDependencies.register(GetIt.instance)` for every
 /// installed SDK. Registers this SDK's repositories against their base_sdk
 /// facades (idempotently, so hand-wired hosts can call it too).
 ///
-/// The demo twins follow the RUNTIME demo switch, base_sdk's
-/// [DemoSession.demoActive] (a demo build OR a demo session): the
-/// facades are chosen by that read at registration, and the one listener
-/// this hook adds to [DemoSession.instance] swaps them again when the
-/// switch flips - after a demo account's login, before routing, and back
-/// on sign-out. Only registrations this hook made are ever swapped; a
-/// facade a host registered itself is left alone.
+/// Demo runs the REAL repositories: base_sdk's DemoGatewayInterceptor
+/// answers every platform cmd they send from the `<cmd>.json` fixtures in
+/// [productsDemoFixtureDirectory] while DemoSession.demoActive (read per
+/// request, so a demo account signing in later is honoured), and an
+/// unknown cmd fails loudly with DemoFixtureMissing. The fixtures carry the
+/// customer catalog (products, categories, brands) and the seller menu
+/// (products, add-ons, extras groups, categories, units).
 class ProductsSdkDependencies {
-  /// The container the last [register] call wired; the listener re-wires
-  /// the same one. Null until the first call, so a flip that lands before
-  /// any registration is a no-op and the registration then reads the
-  /// switch itself.
-  static GetIt? _container;
-
-  /// Guards the listener against being added twice.
-  static bool _listening = false;
-
-  /// The instances this hook registered (weak), so a flip replaces exactly
-  /// those and never a host's own registration.
-  static final Expando<bool> _ours = Expando<bool>();
-
   static void register(GetIt getIt) {
-    _container = getIt;
-    _registerDemoTwins(getIt, replace: false);
-    if (!getIt.isRegistered<GalleryRepositoryFacade>()) {
-      getIt.registerSingleton<GalleryRepositoryFacade>(GalleryRepository());
-    }
+    DemoFixtures.registerAssetDirectory(productsDemoFixtureDirectory);
+    _put<ProductsRepositoryFacade>(getIt, ProductsRepository.new);
+    _put<CategoriesRepositoryFacade>(getIt, CategoriesRepository.new);
+    _put<BrandsRepositoryFacade>(getIt, BrandsRepository.new);
+    // The seller/manager product authoring seams, registered for every app
+    // that composes products_sdk (a non-manager app simply never resolves
+    // them).
+    _put<SellerProductsRepositoryFacade>(getIt, SellerProductsRepository.new);
+    _put<SellerCatalogRepositoryFacade>(getIt, SellerCatalogRepository.new);
+    _put<GalleryRepositoryFacade>(getIt, GalleryRepository.new);
     // Attach the product.create push handler so offline product creates
     // drain to the backend (auth_di's AuthSyncHandler pattern).
     // BaseSdkDependencies.register puts the engine in get_it before feature
@@ -80,68 +71,10 @@ class ProductsSdkDependencies {
       ProductCreateSyncHandler.opType,
       ProductCreateSyncHandler(),
     );
-    if (!_listening) {
-      _listening = true;
-      DemoSession.instance.addListener(_onDemoSessionChanged);
-    }
   }
 
-  /// The facades that have a demo twin. The customer-facing catalog
-  /// (products, categories, brands) and the seller/manager product
-  /// authoring seams - the latter registered for every app that composes
-  /// products_sdk (a non-manager app simply never resolves them): a demo
-  /// build or a demo session serves a seeded fictional menu from memory so
-  /// the manager foods tab and its category/unit pickers render stocked
-  /// with zero backend contact. The production path is untouched.
-  /// `replace` is false at boot (an existing registration wins, as before)
-  /// and true on a flip. Nothing here can throw: unregister runs only
-  /// behind `isRegistered`, and a fresh registration never collides.
-  static void _registerDemoTwins(GetIt getIt, {required bool replace}) {
-    final bool demo = DemoSession.demoActive;
-    _put<ProductsRepositoryFacade>(
-      getIt,
-      () => demo ? MockProductsRepository() : ProductsRepository(),
-      replace: replace,
-    );
-    _put<CategoriesRepositoryFacade>(
-      getIt,
-      () => demo ? MockCategoriesRepository() : CategoriesRepository(),
-      replace: replace,
-    );
-    _put<BrandsRepositoryFacade>(
-      getIt,
-      () => demo ? MockBrandsRepository() : BrandsRepository(),
-      replace: replace,
-    );
-    _put<SellerProductsRepositoryFacade>(
-      getIt,
-      () => demo ? DemoSellerProductsRepository() : SellerProductsRepository(),
-      replace: replace,
-    );
-    _put<SellerCatalogRepositoryFacade>(
-      getIt,
-      () => demo ? DemoSellerCatalogRepository() : SellerCatalogRepository(),
-      replace: replace,
-    );
-  }
-
-  static void _put<T extends Object>(
-    GetIt getIt,
-    T Function() build, {
-    required bool replace,
-  }) {
-    if (getIt.isRegistered<T>()) {
-      if (!replace || _ours[getIt<T>()] != true) return;
-      getIt.unregister<T>();
-    }
-    final T instance = build();
-    _ours[instance] = true;
-    getIt.registerSingleton<T>(instance);
-  }
-
-  static void _onDemoSessionChanged() {
-    final GetIt? getIt = _container;
-    if (getIt == null) return;
-    _registerDemoTwins(getIt, replace: true);
+  /// An existing registration (a host's own) wins.
+  static void _put<T extends Object>(GetIt getIt, T Function() build) {
+    if (!getIt.isRegistered<T>()) getIt.registerSingleton<T>(build());
   }
 }

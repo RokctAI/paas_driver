@@ -24,6 +24,7 @@
 
 import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/http_service.dart';
+import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:dio/dio.dart';
 
 /// One request the code under test issued.
@@ -54,6 +55,29 @@ class RecordedRequest {
 }
 
 typedef Responder = dynamic Function(RecordedRequest request);
+
+/// A server error a responder can answer with, carrying the body the live
+/// stack would hand a repository.
+///
+/// A responder THROWS one of these and the double rejects the request with
+/// it, which is how a `frappe.throw` reaches the code under test: an
+/// exception whose response data is the server's error envelope. Returning a
+/// body is the success path; throwing this is the failure path.
+DioException gatewayError(
+  Map<String, dynamic> body, {
+  int statusCode = 417,
+}) {
+  final options = RequestOptions(path: kPlatformGatewayPath);
+  return DioException(
+    requestOptions: options,
+    type: DioExceptionType.badResponse,
+    response: Response(
+      requestOptions: options,
+      statusCode: statusCode,
+      data: body,
+    ),
+  );
+}
 
 class RecordingHttpService extends HttpService {
   final Responder responder;
@@ -93,11 +117,30 @@ class RecordingHttpService extends HttpService {
             requireAuth: requireAuth,
           );
           requests.add(recorded);
+          dynamic body;
+          try {
+            body = responder(recorded);
+          } on DioException catch (thrown) {
+            // A rejection, re-wired onto THIS request so the code under
+            // test sees the same shape the live stack hands it.
+            handler.reject(
+              DioException(
+                requestOptions: options,
+                type: DioExceptionType.badResponse,
+                response: Response(
+                  requestOptions: options,
+                  statusCode: thrown.response?.statusCode ?? 417,
+                  data: thrown.response?.data,
+                ),
+              ),
+            );
+            return;
+          }
           handler.resolve(
             Response(
               requestOptions: options,
               statusCode: 200,
-              data: responder(recorded),
+              data: body,
             ),
           );
         },

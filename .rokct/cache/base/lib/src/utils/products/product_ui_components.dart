@@ -41,7 +41,7 @@ class ProductUIComponents {
     if (cartQuantity > 0) {
       return Container(
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
@@ -79,10 +79,10 @@ class ProductUIComponents {
               child: Container(
                 padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
-                  color: AppStyle.cardDark,
+                  color: AppStyle.cardFor(Theme.of(context).brightness),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.remove, size: 20.r, color: AppStyle.textPrimary),
+                child: Icon(Remix.subtract_line, size: 20.r, color: AppStyle.inkFor(Theme.of(context).brightness)),
               ),
             ),
 
@@ -91,7 +91,7 @@ class ProductUIComponents {
               margin: EdgeInsets.symmetric(horizontal: 8.r),
               child: Text(
                 cartQuantity.toString(),
-                style: AppStyle.interNoSemi(size: 16, color: AppStyle.textPrimary),
+                style: AppStyle.interNoSemi(size: 16, color: AppStyle.inkFor(Theme.of(context).brightness)),
               ),
             ),
 
@@ -121,10 +121,10 @@ class ProductUIComponents {
               child: Container(
                 padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
-                  color: AppStyle.cardDark,
+                  color: AppStyle.cardFor(Theme.of(context).brightness),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.add, size: 20.r, color: AppStyle.textPrimary),
+                child: Icon(Remix.add_line, size: 20.r, color: AppStyle.inkFor(Theme.of(context).brightness)),
               ),
             ),
           ],

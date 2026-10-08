@@ -35,6 +35,13 @@ class SelectAddressItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The mode comes from the inherited theme, not from AppStyle's app-wide
+    // isDark static. MediaQuery.sizeOf below is NOT a defence: the window
+    // size does not change when the theme mode does, so nothing rescheduled
+    // this row and it kept the previous mode's fill and ink. Read once,
+    // outside every inner builder. The active dot's AppStyle.primary and the
+    // secondary address line's AppStyle.textGrey are polarity-pinned.
+    final Brightness brightness = Theme.of(context).brightness;
     return Padding(
       padding: EdgeInsets.only(bottom: 8.h),
       child: GestureDetector(
@@ -42,7 +49,7 @@ class SelectAddressItem extends StatelessWidget {
         child: Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppStyle.cardDark,
+            color: AppStyle.cardFor(brightness),
             borderRadius: BorderRadius.circular(10.r),
           ),
           child: Padding(
@@ -74,7 +81,7 @@ class SelectAddressItem extends StatelessWidget {
                           address?.title ?? address?.address?.address ?? "",
                           style: AppStyle.interNormal(
                             size: 16,
-                            color: AppStyle.textPrimary,
+                            color: AppStyle.inkFor(brightness),
                           ),
                         ),
                       ),

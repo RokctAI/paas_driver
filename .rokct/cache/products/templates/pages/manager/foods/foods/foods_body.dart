@@ -147,7 +147,7 @@ class FoodsBody extends ConsumerWidget {
           AppHelpers.getTranslation('no_products'),
           style: AppStyle.interNormal(
             size: 12,
-            color: AppStyle.textDarkFaint,
+            color: AppStyle.faintFor(Theme.of(context).brightness),
           ),
         ),
       );

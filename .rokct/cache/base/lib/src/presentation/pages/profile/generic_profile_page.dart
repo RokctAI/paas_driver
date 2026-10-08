@@ -27,8 +27,8 @@ import 'package:base_sdk/src/application/profile/profile_host_capabilities.dart'
 import 'package:base_sdk/src/application/profile/profile_provider.dart';
 import 'package:base_sdk/src/models/data/profile_data.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
-import 'package:base_sdk/src/presentation/components/custom_network_image.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
+import 'package:base_sdk/src/presentation/components/user_avatar.dart';
 import 'package:base_sdk/src/presentation/adaptive/planes.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_host_scope.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section.dart';
@@ -98,14 +98,23 @@ class GenericProfilePage extends ConsumerStatefulWidget {
       _GenericProfilePageState();
 }
 
+/// The profile's scroll padding: 16 on every side, plus room at the
+/// bottom for the shell's floating nav pill (60 tall, parked 18 above the
+/// edge) so the last rows — the footer's app-name meta row on a long page —
+/// scroll clear of it instead of ending underneath (Ray, 2026-09-23).
+EdgeInsets get _pagePadding =>
+    EdgeInsets.fromLTRB(16.r, 16.r, 16.r, 16.r + 96.r);
+
 class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
   /// Resolved async visibility gates, keyed by section id. A gated section
   /// stays hidden until its gate resolves true.
-  final Map<String, bool> _gateResults = {};
+  final Map<String, bool> _gateResults = {...ProfileSectionRegistry.I.lastGateResults};
 
   /// Resolved header-slot gates, keyed by slot. A gated slot stays empty
   /// until its gate resolves true — the same contract as section gates.
-  final Map<ProfileHeaderSlot, bool> _headerSlotGateResults = {};
+  final Map<ProfileHeaderSlot, bool> _headerSlotGateResults = {
+    ...ProfileSectionRegistry.I.lastHeaderSlotGateResults,
+  };
 
   /// Whether the header card currently shows its plan back face (the
   /// in-place flip triggered from the plan row while the planBack slot is
@@ -128,7 +137,9 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
     ProfileSectionRegistry.I.ensureDefaultSections();
     _resolveVisibilityGates();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(profileProvider.notifier).fetchUser(context);
+      ref
+          .read(profileProvider.notifier)
+          .fetchUser(context, quietWhenOffline: true);
     });
   }
 
@@ -164,6 +175,7 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
       } catch (_) {
         visible = false;
       }
+      ProfileSectionRegistry.I.lastGateResults[section.id] = visible;
       if (!mounted) return;
       setState(() => _gateResults[section.id] = visible);
     }
@@ -179,6 +191,7 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
       } catch (_) {
         visible = false;
       }
+      ProfileSectionRegistry.I.lastHeaderSlotGateResults[slot] = visible;
       if (!mounted) return;
       setState(() => _headerSlotGateResults[slot] = visible);
     }
@@ -319,7 +332,7 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
         // Mode-resolving page surface: dark surface in dark mode, the soft
         // light-grey page in light mode — same token every themed page
         // uses. In anonymous mode this brand ground is the whole backdrop.
-        backgroundColor: AppStyle.surfaceDark,
+        backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
         body: hydrating
             ? const Loading()
             : SafeArea(
@@ -334,7 +347,7 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
                         sections: sections,
                       )
                     : ListView(
-                        padding: EdgeInsets.all(16.r),
+                        padding: _pagePadding,
                         children: [
                           topRow,
                           12.verticalSpace,
@@ -378,7 +391,9 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
             },
           ),
           12.verticalSpace,
-          CustomButton(
+          // Builder: the ink is read from the dialog's own theme at build
+          // time, so a live mode flip with the dialog open restyles it.
+          Builder(builder: (inner) => CustomButton(
             title: AppHelpers.getTranslation(TrKeys.cancel),
             background: AppStyle.transparent,
             // Mode-resolving ink, NOT the pinned AppStyle.black: this dialog
@@ -386,10 +401,10 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
             // theme's dark dialog surface (#2B2930) — against which #232B2F
             // is 1.00:1. The outlined Cancel button was invisible: no label,
             // no border, on the sign-out confirmation of every dark host.
-            borderColor: AppStyle.textPrimary,
-            textColor: AppStyle.textPrimary,
+            borderColor: AppStyle.inkFor(Theme.of(inner).brightness),
+            textColor: AppStyle.inkFor(Theme.of(inner).brightness),
             onPressed: () => Navigator.of(context).pop(),
-          ),
+          )),
         ],
       ),
     );
@@ -450,7 +465,7 @@ class _SpreadBody extends StatelessWidget {
     }
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.r),
+      padding: _pagePadding,
       child: Column(
         children: [
           topRow,
@@ -524,7 +539,7 @@ class _IdentityHeader extends StatelessWidget {
                             : name,
                         style: AppStyle.interSemi(
                           size: 18.sp,
-                          color: AppStyle.textPrimary,
+                          color: AppStyle.inkFor(Theme.of(context).brightness),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -542,7 +557,7 @@ class _IdentityHeader extends StatelessWidget {
                     contact,
                     style: AppStyle.interNormal(
                       size: 13.sp,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -554,7 +569,7 @@ class _IdentityHeader extends StatelessWidget {
                     role,
                     style: AppStyle.interNormal(
                       size: 12.sp,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                     ),
                   ),
                 ],
@@ -567,7 +582,7 @@ class _IdentityHeader extends StatelessWidget {
               icon: Icon(
                 Remix.pencil_line,
                 size: 20.sp,
-                color: AppStyle.textPrimary,
+                color: AppStyle.inkFor(Theme.of(context).brightness),
               ),
             ),
         ],
@@ -583,7 +598,7 @@ class _IdentityHeader extends StatelessWidget {
     final card = Container(
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: Column(
@@ -597,7 +612,7 @@ class _IdentityHeader extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    color: AppStyle.strokeDark,
+                    color: AppStyle.strokeFor(Theme.of(context).brightness),
                     width: 0.5,
                   ),
                 ),
@@ -635,7 +650,9 @@ Widget _planRow({
   required VoidCallback? onPlanTap,
   bool divided = true,
 }) {
-  Widget row = Container(
+  // Builder: the hairline reads the inherited theme at build time, not
+  // the app-wide AppStyle.isDark static, so a live mode flip restyles it.
+  Widget row = Builder(builder: (context) => Container(
     width: double.infinity,
     margin: divided ? EdgeInsets.only(top: 12.r) : null,
     padding: divided ? EdgeInsets.only(top: 12.r) : null,
@@ -643,7 +660,7 @@ Widget _planRow({
         ? BoxDecoration(
             border: Border(
               top: BorderSide(
-                color: AppStyle.strokeDark,
+                color: AppStyle.strokeFor(Theme.of(context).brightness),
                 width: 0.5,
               ),
             ),
@@ -660,7 +677,7 @@ Widget _planRow({
         Expanded(child: plan),
       ],
     ),
-  );
+  ));
   if (onPlanTap != null) {
     row = GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -692,7 +709,7 @@ class _AnonymousHeader extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: _planRow(plan: plan, onPlanTap: onPlanTap, divided: false),
@@ -723,7 +740,7 @@ class _TopRow extends StatelessWidget {
             title,
             style: AppStyle.interSemi(
               size: 18.sp,
-              color: AppStyle.textPrimary,
+              color: AppStyle.inkFor(Theme.of(context).brightness),
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -793,18 +810,36 @@ class _FlipCard extends StatelessWidget {
       builder: (context, t, _) {
         final angle = t * math.pi;
         final pastMidpoint = angle > math.pi / 2;
+        // The FRONT always sizes the card (Ray, 2026-09-23: "should
+        // maintain height at all times even when flipped it should take
+        // height of the front so ui doesnt jump around"): it stays laid
+        // out — invisible and untappable while the back shows — and the
+        // back fills exactly that box, scrolling inside it if its content
+        // runs taller.
         return Transform(
           alignment: Alignment.center,
           transform: Matrix4.identity()
             ..setEntry(3, 2, 0.0015)
             ..rotateY(angle),
-          child: pastMidpoint
-              ? Transform(
-                  alignment: Alignment.center,
-                  transform: Matrix4.identity()..rotateY(math.pi),
-                  child: back,
-                )
-              : front,
+          child: Stack(
+            children: [
+              Visibility(
+                visible: !pastMidpoint,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: front,
+              ),
+              if (pastMidpoint)
+                Positioned.fill(
+                  child: Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.identity()..rotateY(math.pi),
+                    child: back,
+                  ),
+                ),
+            ],
+          ),
         );
       },
     );
@@ -828,31 +863,41 @@ class _PlanBackCard extends StatelessWidget {
         width: double.infinity,
         padding: EdgeInsets.all(16.r),
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(16.r),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            child,
-            12.verticalSpace,
-            Center(
-              child: Text(
-                AppHelpers.getTranslation(TrKeys.tapAnywhereToFlipBack),
-                style: AppStyle.interNormal(
-                  size: 10.sp,
-                  color: AppStyle.textDarkFaint,
+        // The flip card sizes this face to the front's height; content
+        // taller than that scrolls inside the card instead of growing it.
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              child,
+              12.verticalSpace,
+              Center(
+                child: Text(
+                  AppHelpers.getTranslation(TrKeys.tapAnywhereToFlipBack),
+                  style: AppStyle.interNormal(
+                    size: 10.sp,
+                    color: AppStyle.faintFor(Theme.of(context).brightness),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
+/// The header card's avatar: [UserAvatar] at this page's size.
+///
+/// The picture / initials / neutral-glyph ladder lives in [UserAvatar] so the
+/// profile header and the launcher's account control cannot disagree about
+/// it. This used to be a local copy that fell through to a literal "?" when
+/// a signed-in user had neither a picture nor a name — see [UserAvatar].
 class _Avatar extends StatelessWidget {
   final ProfileData? user;
 
@@ -860,31 +905,10 @@ class _Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final img = user?.img ?? '';
-    if (img.isNotEmpty) {
-      return CustomNetworkImage(
-        url: img,
-        width: 56.r,
-        height: 56.r,
-        radius: 28.r,
-        profile: true,
-      );
-    }
-    final source =
-        '${user?.firstname ?? ''}${user?.lastname ?? ''}${user?.email ?? ''}';
-    final initial = source.isEmpty ? '?' : source[0].toUpperCase();
-    return Container(
-      width: 56.r,
-      height: 56.r,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: AppStyle.primary,
-        shape: BoxShape.circle,
-      ),
-      child: Text(
-        initial,
-        style: AppStyle.interSemi(size: 22.sp, color: AppStyle.white),
-      ),
+    return UserAvatar(
+      user: user,
+      size: 56.r,
+      fontSize: 22.sp,
     );
   }
 }
@@ -894,6 +918,16 @@ class _EmptySections extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The mode comes from the inherited theme, not from the app-wide
+    // AppStyle.isDark static (Ray, 2026-09-19: "glance doesnt change test
+    // immediately untill you come back if you switched theme mode" - the
+    // same defect, found here by the fleet audit that followed). A static
+    // is not an inherited widget, so a mode flip scheduled no rebuild of
+    // this placeholder and it kept the previous mode's secondary ink; and
+    // it is mounted `const`, so the flip provably cannot reach it through
+    // a parent rebuild either.
+    final Brightness brightness = Theme.of(context).brightness;
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 64.r),
       child: Column(
@@ -901,14 +935,14 @@ class _EmptySections extends StatelessWidget {
           Icon(
             Remix.list_settings_line,
             size: 56.sp,
-            color: AppStyle.textDarkSecondary,
+            color: AppStyle.secondaryInkFor(brightness),
           ),
           16.verticalSpace,
           Text(
             AppHelpers.getTranslation(TrKeys.noData),
             style: AppStyle.interNormal(
               size: 14.sp,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(brightness),
             ),
             textAlign: TextAlign.center,
           ),

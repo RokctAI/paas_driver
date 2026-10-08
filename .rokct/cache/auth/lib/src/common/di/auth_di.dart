@@ -13,11 +13,11 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:get_it/get_it.dart';
-import 'package:base_sdk/src/constants/app_constants.dart';
+import 'package:base_sdk/base_sdk.dart' show DemoFixtures;
 import 'package:base_sdk/src/domain/interface/auth.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
+import 'package:auth_sdk/src/common/di/auth_demo_fixtures.dart';
 import 'package:auth_sdk/src/common/infrastructure/repositories/auth_repository.dart';
-import 'package:auth_sdk/src/common/infrastructure/repositories/mock_auth_repository.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/auth_sync_handler.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/demo_hold_sync_handler.dart';
 
@@ -25,12 +25,21 @@ import 'package:auth_sdk/src/common/infrastructure/services/demo_hold_sync_handl
 /// calls `AuthSdkDependencies.register(GetIt.instance)` for every
 /// installed SDK. Registers this SDK's repositories against their base_sdk
 /// facades (idempotently, so hand-wired hosts can call it too).
+///
+/// Every build, the guided tour included, registers the REAL
+/// [AuthRepository]. In a demo session (DemoSession.demoActive: the tour
+/// build, or a server-marked demo account's session) base_sdk's
+/// DemoGatewayInterceptor answers its platform cmds from the `<cmd>.json`
+/// fixtures in [authDemoFixtureDirectory]; `api.user.login` picks the demo
+/// account by the typed address (driver@, manager@, partner@, admin@ and
+/// customer@demo.rokct.ai; any other address signs in the student account).
+/// Outside the tour a demo account signs in against the real backend,
+/// which asserts the demo marker.
 class AuthSdkDependencies {
   static void register(GetIt getIt) {
+    DemoFixtures.registerAssetDirectory(authDemoFixtureDirectory);
     if (!getIt.isRegistered<AuthRepositoryFacade>()) {
-      getIt.registerSingleton<AuthRepositoryFacade>(
-        AppConstants.isDemo ? MockAuthRepository() : AuthRepository(),
-      );
+      getIt.registerSingleton<AuthRepositoryFacade>(AuthRepository());
     }
     // Attach the auth.register push handler so offline registrations drain
     // to the backend. BaseSdkDependencies.register puts the engine in
@@ -40,9 +49,7 @@ class AuthSdkDependencies {
     // base_sdk >= 1.5.0 (SyncEngine/SyncHandler). DemoHoldSyncHandler
     // holds the ops back while the runtime demo switch is on (it reads
     // DemoSession per push, base_sdk >= 1.61.0), so registering once is
-    // enough; the repository above stays on the compile-time constant on
-    // purpose - a demo session signs in through the real backend, and the
-    // mock twin must never be selected at runtime.
+    // enough.
     final engine =
         getIt.isRegistered<SyncEngine>() ? getIt<SyncEngine>() : SyncEngine();
     engine.registerHandler(

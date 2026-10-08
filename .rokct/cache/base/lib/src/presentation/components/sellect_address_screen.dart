@@ -140,7 +140,7 @@ class _SelectAddressScreenState extends ConsumerState<SelectAddressScreen> {
                   ),
                   16.verticalSpace,
                   CustomButton(
-                    background: AppStyle.white,
+                    background: AppStyle.cardFor(Theme.of(context).brightness),
                     title: AppHelpers.getTranslation(TrKeys.addAddress),
                     onPressed: () {
                       widget.addAddress.call();

@@ -37,8 +37,9 @@ import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:delivery_sdk/src/driver/domain/interface/orders.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_paginate_response.dart';
-import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_courier_orders_repository.dart';
-import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_delivery_seed.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/repositories/orders_repository.dart';
+
+import 'support/demo_fixtures_harness.dart';
 import 'package:delivery_sdk/src/driver/presentation/launcher/driver_launch_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -265,26 +266,28 @@ void main() {
   });
 
   group('DriverLaunchWindowLoader - the driver home\'s own facade', () {
-    setUp(DemoDeliverySeed.reset);
-    tearDown(DemoDeliverySeed.reset);
+    setUp(startDemoFixtures);
+    tearDown(stopDemoFixtures);
 
-    test('the demo seed: the current order first, in hand', () async {
+    test('the demo fixtures: the current order first, in hand', () async {
       final job = await DriverLaunchWindowLoader.load(
-        repository: DemoCourierOrdersRepository(),
+        repository: CourierOrdersRepository(),
       );
       expect(job, isNotNull);
       expect(job!.inHand, isTrue);
-      expect(job.id, DemoDeliverySeed.currentOrderId);
+      expect(job.id, '900001');
       expect(job.shopName, isNotEmpty);
       // A suburb, not the seed's street line.
       expect(job.dropSuburb, isNot(contains(',')));
       expect(job.dropSuburb, isNot(matches(RegExp(r'\d'))));
     });
 
-    test('the demo seed with nothing in hand: the first job waiting', () async {
-      DemoDeliverySeed.currentOrderId = null;
+    test('the demo fixtures with nothing in hand: the first job waiting',
+        () async {
+      demoFixtureOverrides['api.driver_order.get_driver_orders_paginate'] =
+          '{"data": [], "meta": {"total": 0}}';
       final job = await DriverLaunchWindowLoader.load(
-        repository: DemoCourierOrdersRepository(),
+        repository: CourierOrdersRepository(),
       );
       expect(job, isNotNull);
       expect(job!.inHand, isFalse);

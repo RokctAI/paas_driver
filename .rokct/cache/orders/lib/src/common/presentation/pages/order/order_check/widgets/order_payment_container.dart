@@ -49,7 +49,7 @@ class OrderPaymentContainer extends ConsumerWidget {
         width: (MediaQuery.sizeOf(context).width - 42) / 2,
         height: 120.h,
         decoration: BoxDecoration(
-          color: AppStyle.bgGrey,
+          color: AppStyle.surfaceFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.all(Radius.circular(10.r)),
         ),
         padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -58,7 +58,9 @@ class OrderPaymentContainer extends ConsumerWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: isActive ? AppStyle.black : AppStyle.white,
+                color: isActive
+                    ? AppStyle.black
+                    : AppStyle.cardFor(Theme.of(context).brightness),
                 borderRadius: BorderRadius.all(Radius.circular(8.r)),
               ),
               padding: EdgeInsets.all(8.r),
@@ -67,7 +69,10 @@ class OrderPaymentContainer extends ConsumerWidget {
             8.verticalSpace,
             Text(
               AppHelpers.getTranslation(title),
-              style: AppStyle.interSemi(size: 13, color: AppStyle.black),
+              style: AppStyle.interSemi(
+                size: 13,
+                color: AppStyle.inkFor(Theme.of(context).brightness),
+              ),
               textAlign: TextAlign.center,
             ),
           ],

@@ -302,8 +302,22 @@ class ProfileSectionRegistry {
     return list;
   }
 
+  /// Last-known visibility-gate answers across mounts of the profile page,
+  /// keyed by section id. A re-mounted profile (back from a pushed route,
+  /// a tab swipe) starts from what the gates said last time instead of
+  /// from "hidden", so gated rows do not pop in a frame later and shift
+  /// the menu (Ray, 2026-09-23). The page still asks every gate again on
+  /// each mount and a changed answer lands as before; the first mount in a
+  /// process has no memory and keeps the fail-closed start.
+  final Map<String, bool> lastGateResults = {};
+
+  /// The header-slot counterpart of [lastGateResults].
+  final Map<ProfileHeaderSlot, bool> lastHeaderSlotGateResults = {};
+
   @visibleForTesting
   void reset() {
+    lastGateResults.clear();
+    lastHeaderSlotGateResults.clear();
     _sections.clear();
     _headerSlots.clear();
     _topRowActions.clear();

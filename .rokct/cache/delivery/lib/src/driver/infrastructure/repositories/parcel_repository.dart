@@ -20,6 +20,8 @@ import 'package:base_sdk/src/models/response/parcel_paginate_response.dart';
 
 import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_delivery_seed.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 
@@ -136,6 +138,17 @@ class CourierParcelRepository implements CourierParcelRepositoryFacade {
 
   @override
   Future<ApiResult<List<ParcelOrder>>> getAvailableOrders(int page) async {
+    // Legacy REST, not a platform cmd, so the demo interceptor cannot
+    // answer it: a demo session reads the kept seed instead.
+    if (DemoSession.demoActive) {
+      return ApiResult.success(
+        data: page > 1
+            ? const <ParcelOrder>[]
+            : DemoDeliverySeed.availableParcels()
+                .map(ParcelOrder.fromJson)
+                .toList(),
+      );
+    }
     // Deliberately NOT repointed in the 2026-09-02 gateway wave. The only
     // driver parcel list on the server, get_deliveryman_parcel_orders,
     // filters `deliveryman == session user`, so it can never answer this
@@ -175,6 +188,13 @@ class CourierParcelRepository implements CourierParcelRepositoryFacade {
 
   @override
   Future<ApiResult<ParcelOrder>> showParcel(String id) async {
+    // Legacy REST (see getAvailableOrders): demo reads the kept seed.
+    if (DemoSession.demoActive) {
+      final parcel = DemoDeliverySeed.parcelById(id);
+      return parcel == null
+          ? const ApiResult.failure(error: 'Parcel not found', statusCode: 404)
+          : ApiResult.success(data: ParcelOrder.fromJson(parcel));
+    }
     final data = {
       'currency_id': LocalStorage.getSelectedCurrency()?.id,
       'lang': LocalStorage.getLanguage()?.locale ?? 'en',

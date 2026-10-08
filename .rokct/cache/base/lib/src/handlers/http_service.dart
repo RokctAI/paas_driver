@@ -17,6 +17,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 
+import 'package:base_sdk/src/handlers/demo_gateway_interceptor.dart';
 import 'package:base_sdk/src/handlers/log_redaction.dart';
 import 'package:base_sdk/src/handlers/token_interceptor.dart';
 import 'package:base_sdk/src/handlers/token_refresh_service.dart';
@@ -37,6 +38,10 @@ class HttpService {
         },
       ),
     )
+      // First, so a demo session's platform calls resolve from fixtures
+      // before any token, timing or network work (per-call demo switch;
+      // pass-through otherwise).
+      ..interceptors.add(const DemoGatewayInterceptor())
       ..interceptors.add(TimingInterceptor())
       ..interceptors.add(TokenInterceptor(requireAuth: requireAuth))
       // 401 -> single-flight token rotation -> one retry (see

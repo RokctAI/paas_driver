@@ -46,7 +46,7 @@ class ProductFilter extends ConsumerWidget {
           LocalStorage.getLangLtr() ? TextDirection.ltr : TextDirection.rtl,
       child: Container(
         decoration: BoxDecoration(
-          color: AppStyle.bgGrey,
+          color: AppStyle.surfaceFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(12.r),
             topRight: Radius.circular(12.r),
@@ -81,7 +81,7 @@ class ProductFilter extends ConsumerWidget {
               24.verticalSpace,
               Text(
                 AppHelpers.getTranslation(TrKeys.sortBy),
-                style: AppStyle.interNoSemi(size: 16.sp, color: AppStyle.textPrimary),
+                style: AppStyle.interNoSemi(size: 16.sp, color: AppStyle.inkFor(Theme.of(context).brightness)),
               ),
               18.verticalSpace,
               Wrap(
@@ -102,7 +102,7 @@ class ProductFilter extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(10.r),
                             color: state.sortIndex == sort.indexOf(e)
                                 ? AppStyle.primary
-                                : AppStyle.cardDark,
+                                : AppStyle.cardFor(Theme.of(context).brightness),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -118,7 +118,7 @@ class ProductFilter extends ConsumerWidget {
                                             state.sortIndex == sort.indexOf(e)
                                                 ? 4.r
                                                 : 2.r,
-                                        color: AppStyle.textPrimary,
+                                        color: AppStyle.inkFor(Theme.of(context).brightness),
                                       ),
                                       color: AppStyle.transparent,
                                       shape: BoxShape.circle,
@@ -131,7 +131,7 @@ class ProductFilter extends ConsumerWidget {
                                 AppHelpers.getTranslation(e),
                                 style: AppStyle.interNormal(
                                   size: 14,
-                                  color: AppStyle.textPrimary,
+                                  color: AppStyle.inkFor(Theme.of(context).brightness),
                                 ),
                               ),
                             ],
@@ -144,7 +144,7 @@ class ProductFilter extends ConsumerWidget {
               24.verticalSpace,
               Text(
                 AppHelpers.getTranslation(TrKeys.brands),
-                style: AppStyle.interNoSemi(size: 16.sp, color: AppStyle.textPrimary),
+                style: AppStyle.interNoSemi(size: 16.sp, color: AppStyle.inkFor(Theme.of(context).brightness)),
               ),
               18.verticalSpace,
               Wrap(
@@ -167,13 +167,13 @@ class ProductFilter extends ConsumerWidget {
                                 ),
                                 color: state.brandIds.contains(e.id.toString())
                                     ? AppStyle.primary
-                                    : AppStyle.cardDark,
+                                    : AppStyle.cardFor(Theme.of(context).brightness),
                               ),
                               child: Text(
                                 e.title ?? "",
                                 style: AppStyle.interNormal(
                                   size: 14,
-                                  color: AppStyle.textPrimary,
+                                  color: AppStyle.inkFor(Theme.of(context).brightness),
                                 ),
                               ),
                             ),

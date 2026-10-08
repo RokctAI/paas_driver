@@ -27,13 +27,14 @@ import 'package:base_sdk/src/models/data/translation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:merchants_sdk/src/manager/application/quick_flow/quick_flow_notifier.dart';
 import 'package:merchants_sdk/src/manager/domain/interface/quick_flow.dart';
-import 'package:merchants_sdk/src/manager/infrastructure/repositories/mock_quick_flow_repository.dart';
+
+import 'support/demo_till.dart';
 
 ProductData _product(String id, String title, num price) => ProductData(
-      id: id,
-      translation: Translation(title: title, locale: 'en'),
-      stocks: [Stocks(id: id, price: price)],
-    );
+  id: id,
+  translation: Translation(title: title, locale: 'en'),
+  stocks: [Stocks(id: id, price: price)],
+);
 
 /// A repository that refuses every write — the revert case.
 class _RefusingRepository implements QuickFlowRepositoryFacade {
@@ -146,8 +147,8 @@ void main() {
     });
 
     test('an unset digit is inert, not an error', () {
-      expect(MockQuickFlowRepository.seed.presetFor(9), isNull);
-      expect(MockQuickFlowRepository.seed.presetFor(3), isNotNull);
+      expect(InMemoryQuickFlowRepository.seed.presetFor(9), isNull);
+      expect(InMemoryQuickFlowRepository.seed.presetFor(3), isNotNull);
     });
 
     test('autodial needs BOTH the switch and at least one preset', () {
@@ -166,15 +167,17 @@ void main() {
     });
 
     test('a preset serializes back as digit + product id', () {
-      final preset =
-          QuickFlowPreset(digit: 7, product: _product('42', 'Ice', 28));
+      final preset = QuickFlowPreset(
+        digit: 7,
+        product: _product('42', 'Ice', 28),
+      );
       expect(preset.toJson(), {'digit': '7', 'product': '42'});
     });
   });
 
   group('QuickFlowNotifier', () {
     test('load fills the surface and marks it read', () async {
-      final notifier = QuickFlowNotifier(MockQuickFlowRepository());
+      final notifier = QuickFlowNotifier(InMemoryQuickFlowRepository());
       expect(notifier.state.loaded, isFalse);
       await notifier.load();
       expect(notifier.state.loaded, isTrue);
@@ -209,27 +212,33 @@ void main() {
       notifier.dispose();
     });
 
-    test('setting a preset replaces that digit and keeps the map sorted',
-        () async {
-      final notifier = QuickFlowNotifier(MockQuickFlowRepository());
-      await notifier.load();
-      await notifier.setPreset(
-        QuickFlowPreset(digit: 3, product: _product('99', 'Ice block', 30)),
-      );
-      expect(notifier.state.settings.presetFor(3)!.title, 'Ice block');
-      expect(notifier.state.settings.presetCount, 5);
-      await notifier.setPreset(
-        QuickFlowPreset(digit: 8, product: _product('8', 'Bottle cap', 2)),
-      );
-      expect(
-        notifier.state.settings.presets.map((p) => p.digit),
-        [1, 2, 3, 4, 5, 8],
-      );
-      notifier.dispose();
-    });
+    test(
+      'setting a preset replaces that digit and keeps the map sorted',
+      () async {
+        final notifier = QuickFlowNotifier(InMemoryQuickFlowRepository());
+        await notifier.load();
+        await notifier.setPreset(
+          QuickFlowPreset(digit: 3, product: _product('99', 'Ice block', 30)),
+        );
+        expect(notifier.state.settings.presetFor(3)!.title, 'Ice block');
+        expect(notifier.state.settings.presetCount, 5);
+        await notifier.setPreset(
+          QuickFlowPreset(digit: 8, product: _product('8', 'Bottle cap', 2)),
+        );
+        expect(notifier.state.settings.presets.map((p) => p.digit), [
+          1,
+          2,
+          3,
+          4,
+          5,
+          8,
+        ]);
+        notifier.dispose();
+      },
+    );
 
     test('clearing a preset returns the key to inert', () async {
-      final notifier = QuickFlowNotifier(MockQuickFlowRepository());
+      final notifier = QuickFlowNotifier(InMemoryQuickFlowRepository());
       await notifier.load();
       await notifier.clearPreset(3);
       expect(notifier.state.settings.presetFor(3), isNull);

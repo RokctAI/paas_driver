@@ -62,7 +62,7 @@ class NoBankAccountSheet extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16.r),
           topRight: Radius.circular(16.r),
@@ -84,7 +84,7 @@ class NoBankAccountSheet extends StatelessWidget {
                 width: 100.w,
                 height: 4.h,
                 decoration: BoxDecoration(
-                  color: AppStyle.strokeDark,
+                  color: AppStyle.strokeFor(Theme.of(context).brightness),
                   borderRadius: BorderRadius.circular(40.r),
                 ),
               ),
@@ -112,7 +112,7 @@ class NoBankAccountSheet extends StatelessWidget {
               ),
               style: AppStyle.interRegular(
                 size: 12,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
             20.verticalSpace,
@@ -134,7 +134,7 @@ class NoBankAccountSheet extends StatelessWidget {
               key: const Key('noBankAccountUntouchedBalance'),
               padding: EdgeInsets.all(14.r),
               decoration: BoxDecoration(
-                color: AppStyle.cardDarkAlt,
+                color: AppStyle.cardAltFor(Theme.of(context).brightness),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Column(
@@ -151,7 +151,7 @@ class NoBankAccountSheet extends StatelessWidget {
                     '${AppHelpers.getTranslation('we_check_before_we_ask_so_no_request_was_sent_and_nothing_was_held')}',
                     style: AppStyle.interRegular(
                       size: 11,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                     ),
                   ),
                 ],
@@ -166,7 +166,7 @@ class NoBankAccountSheet extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: AppStyle.interNoSemi(
                   size: 13,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                 ),
               ),
             ),

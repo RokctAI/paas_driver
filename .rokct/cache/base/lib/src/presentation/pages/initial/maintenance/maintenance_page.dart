@@ -55,13 +55,22 @@ class _MaintenancePageState extends State<MaintenancePage> {
 
   @override
   Widget build(BuildContext context) {
+    // The mode comes from the inherited theme, not from the app-wide
+    // AppStyle.isDark static (Ray, 2026-09-19: "glance doesnt change test
+    // immediately untill you come back if you switched theme mode" - the
+    // same defect, found here by the fleet audit that followed). A static
+    // is not an inherited widget, so a mode flip while the retry probe was
+    // in flight left this page on the previous mode's ground with the other
+    // mode's system chrome around it.
+    final Brightness brightness = Theme.of(context).brightness;
+
     return Scaffold(
       // Was the polarity-PINNED AppStyle.white: a page ground that never
       // flips, under a title styled with AppStyle.interSemi and no `color:`
       // - resolving ink that goes white in dark mode, so the title vanished
       // on its own background. surfaceDark is the mode-resolving page ground
       // the other full-page surfaces use (generic_profile_page).
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(brightness),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 32.w),
@@ -72,7 +81,13 @@ class _MaintenancePageState extends State<MaintenancePage> {
               24.verticalSpace,
               Text(
                 AppHelpers.getTranslation(TrKeys.maintenanceTitle),
-                style: AppStyle.interSemi(size: 20.sp),
+                // Named explicitly: AppStyle.interSemi's colour default
+                // resolves through the app-wide textPrimary static, which
+                // is the very thing this page must stop reading.
+                style: AppStyle.interSemi(
+                  size: 20.sp,
+                  color: AppStyle.inkFor(brightness),
+                ),
                 textAlign: TextAlign.center,
               ),
               12.verticalSpace,

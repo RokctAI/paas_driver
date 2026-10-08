@@ -17,7 +17,8 @@
 // its navigation bar, and the taskbar otherwise burns into every tablet
 // still); every shipped build and every phone keeps edge-to-edge, exactly
 // as before. The flag that decides it (`AppConstants.isTour`) is read in
-// one file only, so a shipped build can never grow a second tour seam.
+// the two seams that own it and nowhere else, so a shipped build can never
+// grow a third tour seam.
 
 import 'dart:io';
 
@@ -27,9 +28,17 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:base_sdk/src/presentation/adaptive/tour_system_ui.dart';
 
-/// The one file that may read the tour flag, relative to the repo root.
-const String _theOnlyReader =
-    'base/dart/lib/src/presentation/adaptive/tour_system_ui.dart';
+/// The only files that may read the tour flag, relative to the repo root.
+///
+/// * `tour_system_ui.dart` turns it into a post-splash system UI mode.
+/// * `demo_session.dart` is the demo switch: the tour build is the one
+///   build with no backend and no sign-in to assert a demo-account marker
+///   with, so `DemoSession.demoActive` is `isTour || instance.active`. It
+///   took that half over from the deleted `AppConstants.isDemo`.
+const Set<String> _deliberateReaders = {
+  'base/dart/lib/src/presentation/adaptive/tour_system_ui.dart',
+  'base/dart/lib/src/services/demo_session.dart',
+};
 
 final RegExp _read = RegExp(r'\bAppConstants\.isTour\b');
 
@@ -199,7 +208,7 @@ void main() {
   });
 
   group('source contract', () {
-    test('AppConstants.isTour is read in tour_system_ui.dart only', () {
+    test('AppConstants.isTour is read in its two own seams only', () {
       final root = _repoRoot();
       final readers = <String>{};
       for (final file in _sources(root)) {
@@ -208,10 +217,12 @@ void main() {
       }
       expect(
         readers,
-        equals({_theOnlyReader}),
+        equals(_deliberateReaders),
         reason:
-            'the tour flag stays confined to the one seam that turns '
-            'it into a system UI mode; ask postSplashSystemUiMode instead',
+            'the tour flag stays confined to the seam that turns it into a '
+            'system UI mode and the demo switch that ORs it with the '
+            'runtime session; ask postSplashSystemUiMode or '
+            'DemoSession.demoActive instead',
       );
     });
   });

@@ -15,7 +15,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -81,7 +81,7 @@ class InfoPage extends StatelessWidget {
                 context.maybePop();
               },
               icon: Icon(
-                FlutterRemix.close_line,
+                Remix.close_line,
                 color: AppStyle.white,
                 size: 32.r,
               ),

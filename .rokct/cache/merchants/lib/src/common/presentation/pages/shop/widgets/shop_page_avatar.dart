@@ -114,15 +114,15 @@ class ShopPageAvatar extends StatelessWidget {
                       child: Container(
                         width: MediaQuery.sizeOf(context).width - 32,
                         decoration: BoxDecoration(
-                          color: AppStyle.bgGrey,
+                          color: AppStyle.surfaceFor(Theme.of(context).brightness),
                           borderRadius: BorderRadius.circular(10.r),
                         ),
                         padding: const EdgeInsets.all(6),
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Remix.time_fill,
-                              color: AppStyle.black,
+                              color: AppStyle.inkFor(Theme.of(context).brightness),
                             ),
                             8.horizontalSpace,
                             Expanded(
@@ -132,7 +132,7 @@ class ShopPageAvatar extends StatelessWidget {
                                 ),
                                 style: AppStyle.interNormal(
                                   size: 14,
-                                  color: AppStyle.black,
+                                  color: AppStyle.inkFor(Theme.of(context).brightness),
                                 ),
                                 textAlign: TextAlign.start,
                                 maxLines: 2,
@@ -220,7 +220,7 @@ class ShopPageAvatar extends StatelessWidget {
             AppHelpers.showCustomModalBottomSheet(
               context: context,
               modal: GroupOrderScreen(shop: shop, cartId: cartId),
-              isDarkMode: false,
+              isDarkMode: Theme.of(context).brightness == Brightness.dark,
               isDrag: true,
               radius: 12,
             );
@@ -236,14 +236,14 @@ class ShopPageAvatar extends StatelessWidget {
             isStartOrder
                 ? Remix.list_settings_line
                 : Remix.group_2_line,
-            color: isStartOrder ? AppStyle.black : AppStyle.white,
+            color: isStartOrder ? AppStyle.inkFor(Theme.of(context).brightness) : AppStyle.white,
           ),
           title: isStartOrder
               ? AppHelpers.getTranslation(TrKeys.manageOrder)
               : AppHelpers.getTranslation(TrKeys.startGroupOrder),
           background:
               isStartOrder ? AppStyle.primary : AppStyle.orderButtonColor,
-          textColor: isStartOrder ? AppStyle.black : AppStyle.white,
+          textColor: isStartOrder ? AppStyle.inkFor(Theme.of(context).brightness) : AppStyle.white,
           radius: 10,
           onPressed: () {
             if (LocalStorage.getToken().isNotEmpty) {
@@ -255,7 +255,7 @@ class ShopPageAvatar extends StatelessWidget {
                       paddingTop: MediaQuery.paddingOf(context).top + 160.h,
                       context: context,
                       modal: GroupOrderScreen(shop: shop, cartId: cartId),
-                      isDarkMode: false,
+                      isDarkMode: Theme.of(context).brightness == Brightness.dark,
                       isDrag: true,
                       radius: 12,
                     );
@@ -274,7 +274,7 @@ class ShopPageAvatar extends StatelessWidget {
         Container(
           height: 180.h + MediaQuery.paddingOf(context).top,
           width: double.infinity,
-          color: AppStyle.mainBack,
+          color: AppStyle.surfaceFor(Theme.of(context).brightness),
           child: CustomNetworkImage(
             url: shop.backgroundImg ?? "",
             height: 180.h + MediaQuery.paddingOf(context).top,
@@ -431,7 +431,7 @@ class ShopPageAvatar extends StatelessWidget {
             paddingTop: MediaQuery.paddingOf(context).top,
             context: context,
             modal: BonusScreen(bonus: bonus),
-            isDarkMode: false,
+            isDarkMode: Theme.of(context).brightness == Brightness.dark,
             isDrag: true,
             radius: 12,
           );
@@ -440,7 +440,7 @@ class ShopPageAvatar extends StatelessWidget {
           margin: EdgeInsets.only(top: 8.h),
           width: MediaQuery.sizeOf(context).width - 32,
           decoration: BoxDecoration(
-            color: AppStyle.bgGrey,
+            color: AppStyle.surfaceFor(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(10.r),
           ),
           padding: const EdgeInsets.all(6),
@@ -467,7 +467,7 @@ class ShopPageAvatar extends StatelessWidget {
                           ? "${AppHelpers.getTranslation(TrKeys.under)} ${AppHelpers.numberFormat(number: bonus?.value)} + ${bonus?.bonusStock?.product?.translation?.title ?? ""}"
                           : "${AppHelpers.getTranslation(TrKeys.under)} ${bonus?.value ?? 0} + ${bonus?.bonusStock?.product?.translation?.title ?? ""}"
                       : "",
-                  style: AppStyle.interNormal(size: 14, color: AppStyle.black),
+                  style: AppStyle.interNormal(size: 14, color: AppStyle.inkFor(Theme.of(context).brightness)),
                   textAlign: TextAlign.start,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

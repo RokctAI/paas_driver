@@ -122,6 +122,8 @@ const Map<String, String> kBaseAfTranslations = {
   'continue_with_google': 'Gaan voort met Google',
   'copied': 'Gekopieer na knipbord!',
   'copy_code': 'Kopieer kode',
+  'could_not_reach_server':
+      'Ons kon nie die bediener bereik nie. Probeer asseblief weer.',
   'count': 'Aantal',
   'country': 'land',
   'coupon': 'Koepon',
@@ -269,7 +271,6 @@ const Map<String, String> kBaseAfTranslations = {
   'item_value': 'itemwaarde',
   'join': 'Sluit aan',
   'join_order': 'Sluit by bestelling aan',
-  'juvo': 'Juvo',
   'juvo_benefit': 'Juvo-voordeel',
   'keep_me_logged_in': 'Hou my aangemeld',
   'kg': 'kg',
@@ -313,7 +314,6 @@ const Map<String, String> kBaseAfTranslations = {
   'mostRecentOrder': 'Volg jou bestelling',
   'most_sold_products': 'Meesverkoopte produkte',
   'motorbike': 'Motorfiets',
-  'motto': 'Een klik weg.',
   'my_order': 'My bestelling',
   'my_order_history': 'My bestelgeskiedenis',
   'need_select_product': 'Kies eers \'n produk',
@@ -474,6 +474,8 @@ const Map<String, String> kBaseAfTranslations = {
   'send_new': 'Stuur weer',
   'send_now': 'Stuur nou',
   'sender': 'Sender',
+  'server_took_too_long':
+      'Die bediener het te lank geneem om te antwoord. Probeer asseblief weer.',
   'service_fee': 'diensfooi',
   'set_as_a_business_day': 'Stel as \'n werksdag',
   'set_up_delivery': 'stel aflewering op',

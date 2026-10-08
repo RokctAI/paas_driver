@@ -14,6 +14,7 @@
 
 import 'dart:async';
 import 'package:base_sdk/src/navigation/embedded_widgets.dart';
+import 'package:orders_sdk/src/common/application/live/active_order_tracker.dart';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ import 'package:base_sdk/src/application/order/order_provider.dart';
 import 'package:base_sdk/src/application/payment_methods/payment_provider.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/enums.dart';
+import 'package:base_sdk/src/models/data/order_active_model.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/presentation/components/app_bars/common_app_bar.dart';
@@ -59,28 +61,48 @@ class _OrderProgressPageState extends ConsumerState<OrderProgressPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   late OrderNotifier event;
   late bool isLtr;
-  Timer? timer;
+
+  /// The app-wide tracker polls this order (15s on the way, 120s
+  /// otherwise, never in the background) and feeds the live activity;
+  /// this screen only refreshes its own view when a poll saw a change.
+  late final ActiveOrderTracker _tracker;
+  StreamSubscription<OrderActiveModel>? _updates;
+
+  String get _orderId => widget.orderId ?? "";
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(orderProvider.notifier)
-          .showOrder(context, widget.orderId ?? "", false);
-      ref.read(paymentProvider.notifier).fetchPayments(context);
-    });
-    timer = Timer.periodic(const Duration(seconds: 120), (Timer t) {
-      ref
-          .read(orderProvider.notifier)
-          .showOrder(context, widget.orderId ?? "", true);
-    });
     super.initState();
+    _tracker = ref.read(activeOrderTrackerProvider);
+    _updates = _tracker.updates
+        .where((o) => o.id == _orderId)
+        .listen(_onTrackerUpdate);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(orderProvider.notifier).showOrder(context, _orderId, false);
+      ref.read(paymentProvider.notifier).fetchPayments(context);
+      _tracker.track(_orderId, pin: true);
+    });
+  }
+
+  /// Reload the screen's order only when the tracker's poll differs from
+  /// what is shown (status or driver), so there is no second poll.
+  void _onTrackerUpdate(OrderActiveModel polled) {
+    if (!mounted) return;
+    final shown = ref.read(orderProvider).orderData;
+    if (shown == null) return;
+    final statusChanged = AppHelpers.getOrderStatus(shown.status) !=
+        AppHelpers.getOrderStatus(polled.status);
+    final driverChanged = shown.deliveryMan?.id != polled.deliveryMan?.id;
+    if (statusChanged || driverChanged) {
+      ref.read(orderProvider.notifier).showOrder(context, _orderId, true);
+    }
   }
 
   @override
   void dispose() {
+    _updates?.cancel();
+    _tracker.release(_orderId);
     refreshController.dispose();
-    timer?.cancel();
     super.dispose();
   }
 
@@ -97,7 +119,7 @@ class _OrderProgressPageState extends ConsumerState<OrderProgressPage> {
         AppHelpers.showCustomModalBottomSheet(
           context: context,
           modal: RatingPage(totalPrice: next.orderData?.totalPrice),
-          isDarkMode: false,
+          isDarkMode: Theme.of(context).brightness == Brightness.dark,
         );
       }
     });
@@ -108,7 +130,7 @@ class _OrderProgressPageState extends ConsumerState<OrderProgressPage> {
         child: Scaffold(
           key: _scaffoldKey,
           resizeToAvoidBottomInset: false,
-          backgroundColor: AppStyle.bgGrey,
+          backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
           body: state.isLoading
               ? const Loading()
               : Column(
@@ -145,6 +167,7 @@ class _OrderProgressPageState extends ConsumerState<OrderProgressPage> {
         controller: refreshController,
         onRefresh: () {
           event.showOrder(context, state.orderData?.id ?? "", true);
+          unawaited(_tracker.refresh(_orderId));
           refreshController.refreshCompleted();
         },
         child: SingleChildScrollView(
@@ -240,7 +263,7 @@ class _OrderProgressPageState extends ConsumerState<OrderProgressPage> {
                       state.orderData?.shop?.translation?.title ?? "",
                       style: AppStyle.interSemi(
                         size: 16,
-                        color: AppStyle.black,
+                        color: AppStyle.inkFor(Theme.of(context).brightness),
                       ),
                       maxLines: 1,
                     ),
@@ -248,7 +271,7 @@ class _OrderProgressPageState extends ConsumerState<OrderProgressPage> {
                       state.orderData?.shop?.translation?.description ?? "",
                       style: AppStyle.interNormal(
                         size: 12,
-                        color: AppStyle.black,
+                        color: AppStyle.inkFor(Theme.of(context).brightness),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

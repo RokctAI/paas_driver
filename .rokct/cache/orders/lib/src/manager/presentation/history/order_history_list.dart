@@ -56,6 +56,7 @@ import 'package:orders_sdk/src/manager/infrastructure/models/models.dart';
 
 import '../board/board_card.dart';
 import '../board/board_status.dart';
+import 'package:remixicon/remixicon.dart';
 
 /// The two statuses history shows, in the legacy order the shipped
 /// history call intended (`statuses[delivered, canceled]`).
@@ -205,7 +206,7 @@ class OrderHistoryListState extends ConsumerState<OrderHistoryList> {
           ),
           actions: [
             ListRoundAction(
-              icon: Icons.calendar_today_outlined,
+              icon: Remix.calendar_line,
               active: _from != null,
               tooltip: _from == null || _to == null
                   ? AppHelpers.getTranslation('start_end')
@@ -244,7 +245,9 @@ class OrderHistoryListState extends ConsumerState<OrderHistoryList> {
                     AppHelpers.getTranslation('no_orders'),
                     style: AppStyle.interNormal(
                       size: 12,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(
+                        Theme.of(context).brightness,
+                      ),
                     ),
                   ),
                 )

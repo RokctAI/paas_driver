@@ -13,13 +13,12 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
-import 'package:auto_route/auto_route.dart';
-import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:base_sdk/src/domain/interface/settings.dart';
 import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
+import 'package:base_sdk/src/services/load_silence.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/bundled_translations.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
@@ -42,6 +41,7 @@ class LanguageNotifier extends StateNotifier<LanguageState> {
   Future<void> getLanguages(
     BuildContext context, {
     bool autoSelectIfSingle = false,
+    bool userInitiated = false,
   }) async {
     final connect = await AppConnectivity.connectivity();
     if (connect) {
@@ -59,7 +59,7 @@ class LanguageNotifier extends StateNotifier<LanguageState> {
             LocalStorage.setLanguageSelected(true);
             LocalStorage.setLanguageData(languages[0]);
             LocalStorage.setLangLtr(languages[0].backward);
-            getTranslations(context);
+            getTranslations(context, userInitiated: userInitiated);
             state = state.copyWith(
               isLoading: false,
               list: languages,
@@ -92,13 +92,23 @@ class LanguageNotifier extends StateNotifier<LanguageState> {
           // successful backend response above stays authoritative.
           if (!_applyBundledLanguageFallback()) {
             state = state.copyWith(isLoading: false);
+            // The picker loads its list when it opens — often opened by
+            // the login page itself, not by the person — so a failure here
+            // is load-time: debug only unless the person asked for it.
+            if (!shouldSurfaceLoadError(userInitiated: userInitiated) ||
+                !context.mounted) {
+              logSilencedLoadError('LanguageNotifier.getLanguages', failure);
+              return;
+            }
             AppHelpers.showCheckTopSnackBar(context, failure);
           }
         },
       );
     } else {
-      if (!_applyBundledLanguageFallback() && context.mounted) {
-        AppHelpers.showNoConnectionSnackBar(context);
+      // Offline is never an error: the bundled fallback (or an empty
+      // picker) is all there is to show, and no toast is added to it.
+      if (!_applyBundledLanguageFallback()) {
+        logSilencedLoadError('LanguageNotifier.getLanguages', 'offline');
       }
     }
   }
@@ -122,14 +132,23 @@ class LanguageNotifier extends StateNotifier<LanguageState> {
     return true;
   }
 
-  Future<void> makeSelectedLang(BuildContext context) async {
+  /// [userInitiated]: true only from the picker's Save button. The login
+  /// page also calls this by itself when there is a single language; that
+  /// path stays silent.
+  Future<void> makeSelectedLang(
+    BuildContext context, {
+    bool userInitiated = false,
+  }) async {
     LocalStorage.setLanguageSelected(true);
     LocalStorage.setLanguageData(state.list[state.index]);
     LocalStorage.setLangLtr(state.list[state.index].backward);
-    await getTranslations(context);
+    await getTranslations(context, userInitiated: userInitiated);
   }
 
-  Future<void> getTranslations(BuildContext context) async {
+  Future<void> getTranslations(
+    BuildContext context, {
+    bool userInitiated = false,
+  }) async {
     final connect = await AppConnectivity.connectivity();
     if (connect) {
       state = state.copyWith(isLoading: true, isSuccess: false);
@@ -144,13 +163,18 @@ class LanguageNotifier extends StateNotifier<LanguageState> {
         },
         failure: (failure, status) {
           state = state.copyWith(isLoading: false);
+          if (!shouldSurfaceLoadError(userInitiated: userInitiated) ||
+              !context.mounted) {
+            logSilencedLoadError('LanguageNotifier.getTranslations', failure);
+            return;
+          }
           AppHelpers.showCheckTopSnackBar(context, failure);
         },
       );
     } else {
-      if (context.mounted) {
-        AppRoutes.I.replaceNoConnectionRoute(context);
-      }
+      // Offline is never an error: the stored/bundled translations stay in
+      // use. This used to replace the screen with the no-connection page.
+      logSilencedLoadError('LanguageNotifier.getTranslations', 'offline');
     }
   }
 }

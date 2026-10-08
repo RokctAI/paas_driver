@@ -30,15 +30,35 @@ enum BackendStatus { up, maintenance, down }
 abstract class AppConnectivity {
   AppConnectivity._();
 
-  static Future<bool> connectivity() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult.contains(ConnectivityResult.mobile) ||
-        connectivityResult.contains(ConnectivityResult.ethernet) ||
-        connectivityResult.contains(ConnectivityResult.wifi)) {
-      return true;
-    }
-    return false;
-  }
+  /// Whether one `connectivity_plus` answer describes a device with a
+  /// network — the ONE definition of "online" in the fleet; every surface
+  /// that asks the radio asks here.
+  ///
+  /// The plugin reports [ConnectivityResult.none] exactly when the active
+  /// network carries no `NET_CAPABILITY_INTERNET` (see the Android plugin's
+  /// `Connectivity.getCapabilitiesList`), so EVERY other answer is a
+  /// network the OS believes can carry traffic:
+  ///
+  ///  * [ConnectivityResult.vpn] — the active network on a phone with a VPN
+  ///    up, which is what `getActiveNetwork()` hands the plugin there;
+  ///  * [ConnectivityResult.other] — an internet-capable transport the
+  ///    plugin has no name for (the Windows/Linux catch-all, tethering);
+  ///  * [ConnectivityResult.bluetooth] — a tethered Bluetooth network.
+  ///
+  /// Admitting only mobile/ethernet/wifi called all three offline. Ray,
+  /// 2026-09-19: "going to profile i get offline toast" — on a phone that
+  /// was online. The profile's fetch gate (`ProfileNotifier.fetchUser`)
+  /// asks this question, and on false shows the no-connection snackbar
+  /// WITHOUT attempting the fetch, so a device whose active network the
+  /// plugin names anything but those three got the offline toast and no
+  /// profile.
+  ///
+  /// An empty list is offline: no answer is not an answer of "online".
+  static bool isOnline(List<ConnectivityResult> results) =>
+      results.any((result) => result != ConnectivityResult.none);
+
+  static Future<bool> connectivity() async =>
+      isOnline(await Connectivity().checkConnectivity());
 
   // True backend reachability: unlike connectivity() (radio-only, which a
   // Wi-Fi network without internet false-passes), this probes the tenant
@@ -82,11 +102,7 @@ abstract class AppConnectivity {
 
   // New method that automatically shows dialog when no connection
   static Future<bool> connectivityWithDialog(BuildContext context) async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    bool hasConnection =
-        connectivityResult.contains(ConnectivityResult.mobile) ||
-            connectivityResult.contains(ConnectivityResult.ethernet) ||
-            connectivityResult.contains(ConnectivityResult.wifi);
+    final bool hasConnection = await connectivity();
 
     if (!hasConnection) {
       // Automatically show dialog when no connection
@@ -98,11 +114,7 @@ abstract class AppConnectivity {
 
   // Alternative: Replace the existing method to always show dialog
   static Future<bool> connectivityAndShowDialog(BuildContext context) async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    bool hasConnection =
-        connectivityResult.contains(ConnectivityResult.mobile) ||
-            connectivityResult.contains(ConnectivityResult.ethernet) ||
-            connectivityResult.contains(ConnectivityResult.wifi);
+    final bool hasConnection = await connectivity();
 
     if (!hasConnection) {
       if (context.mounted) AppHelpers.showNoConnectionDialog(context);

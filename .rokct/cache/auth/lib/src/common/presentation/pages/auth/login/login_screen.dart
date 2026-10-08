@@ -73,7 +73,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: Container(
           margin: MediaQuery.of(context).viewInsets,
           decoration: BoxDecoration(
-            color: AppStyle.surfaceDark,
+            color: AppStyle.surfaceFor(Theme.of(context).brightness),
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(16.r),
               topRight: Radius.circular(16.r),
@@ -133,9 +133,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 ? TextDirection.ltr
                                 : TextDirection.rtl,
                             child: IntlPhoneField(
-                              style: TextStyle(color: AppStyle.textPrimary),
+                              style: TextStyle(color: AppStyle.inkFor(Theme.of(context).brightness)),
                               dropdownTextStyle: TextStyle(
-                                color: AppStyle.textPrimary,
+                                color: AppStyle.inkFor(Theme.of(context).brightness),
                               ),
                               onChanged: (phoneNum) {
                                 event.setEmail(phoneNum.completeNumber);
@@ -259,7 +259,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               state.showPassword
                                   ? Remix.eye_line
                                   : Remix.eye_close_line,
-                              color: AppStyle.textDarkSecondary,
+                              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                               size: 20.r,
                             ),
                             onPressed: () =>
@@ -285,7 +285,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   width: 20.w,
                                   child: Checkbox(
                                     side: BorderSide(
-                                      color: AppStyle.textDarkSecondary,
+                                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                                       width: 2.r,
                                     ),
                                     activeColor: AppStyle.primary,
@@ -300,7 +300,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   AppHelpers.getTranslation(TrKeys.keepLogged),
                                   style: AppStyle.interNormal(
                                     size: 12.sp,
-                                    color: AppStyle.textPrimary,
+                                    color: AppStyle.inkFor(Theme.of(context).brightness),
                                   ),
                                 ),
                               ],
@@ -342,7 +342,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         children: <Widget>[
                           Expanded(
                             child: Divider(
-                              color: AppStyle.strokeDark.withOpacity(0.18),
+                              color: AppStyle.strokeFor(Theme.of(context).brightness).withOpacity(0.18),
                             ),
                           ),
                           Padding(
@@ -357,7 +357,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                           Expanded(
                             child: Divider(
-                              color: AppStyle.strokeDark.withOpacity(0.18),
+                              color: AppStyle.strokeFor(Theme.of(context).brightness).withOpacity(0.18),
                             ),
                           ),
                         ],

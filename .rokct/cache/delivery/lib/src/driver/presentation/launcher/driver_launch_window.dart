@@ -51,7 +51,9 @@ import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:delivery_sdk/src/driver/domain/interface/orders.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.dart';
-import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_courier_orders_repository.dart';
+import 'package:base_sdk/src/handlers/demo_gateway_interceptor.dart';
+import 'package:delivery_sdk/src/driver/di/driver_delivery_di.dart' show deliveryDemoFixtureDirectory;
+import 'package:delivery_sdk/src/driver/infrastructure/repositories/orders_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -163,10 +165,10 @@ class DriverLaunchJob {
 
 /// Reads the next job through the same facade the driver home reads - the
 /// `CourierOrdersRepositoryFacade` the driver DI hook registers, which in
-/// demo builds is the seeded `DemoCourierOrdersRepository`. A composition
+/// a demo session answers from base_sdk's demo fixtures. A composition
 /// that never registered the facade (the launcher composes no driver DI)
-/// gets the demo repository when the build is a demo build and nothing
-/// otherwise; a failing call is a null job, never an exception - the
+/// gets the real repository over the demo fixtures in a demo session and
+/// nothing otherwise; a failing call is a null job, never an exception - the
 /// launcher canvas must not crash because a backend is away.
 abstract final class DriverLaunchWindowLoader {
   static Future<DriverLaunchJob?> load({
@@ -219,7 +221,9 @@ abstract final class DriverLaunchWindowLoader {
     if (getIt.isRegistered<CourierOrdersRepositoryFacade>()) {
       return getIt.get<CourierOrdersRepositoryFacade>();
     }
-    return DemoSession.demoActive ? DemoCourierOrdersRepository() : null;
+    if (!DemoSession.demoActive) return null;
+    DemoFixtures.registerAssetDirectory(deliveryDemoFixtureDirectory);
+    return CourierOrdersRepository();
   }
 }
 
@@ -368,7 +372,7 @@ class _Headline extends StatelessWidget {
       text,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: AppStyle.interSemi(size: 14, color: AppStyle.textPrimary),
+      style: AppStyle.interSemi(size: 14, color: AppStyle.inkFor(Theme.of(context).brightness)),
     );
   }
 }
@@ -393,7 +397,7 @@ class _Leg extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: AppStyle.interNormal(
               size: 12,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
         ),
@@ -402,7 +406,7 @@ class _Leg extends StatelessWidget {
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppStyle.interNormal(size: 13, color: AppStyle.textPrimary),
+            style: AppStyle.interNormal(size: 13, color: AppStyle.inkFor(Theme.of(context).brightness)),
           ),
         ),
         if (km != null) ...<Widget>[
@@ -412,7 +416,7 @@ class _Leg extends StatelessWidget {
             '${AppHelpers.getTranslation(TrKeys.km).toLowerCase()}',
             style: AppStyle.interNormal(
               size: 12,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
         ],

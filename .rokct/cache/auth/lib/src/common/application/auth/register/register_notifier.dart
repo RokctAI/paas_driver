@@ -46,7 +46,9 @@ import 'package:auth_sdk/src/common/services/auth_error_presenter.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service.dart';
 import 'package:auth_sdk/src/common/services/restore_credential_service.dart';
 import 'package:auth_sdk/src/common/presentation/pages/auth/registration/registration_steps_page.dart';
+import 'package:auth_sdk/src/common/presentation/pages/auth/confirmation/register_confirmation_page.dart';
 import 'package:auth_sdk/src/common/services/platform_support.dart';
+import 'package:auth_sdk/src/common/services/session_profile.dart';
 
 /// TrKeys-style key for the offline sign-up hand-off (same convention as
 /// [trPhoneVerificationNotAvailableOnDesktop]): backend translations can
@@ -112,6 +114,15 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
     return AppValidators.isValidEmail(state.email);
   }
 
+  /// Email step of the email sign-up: validates the address and moves on to
+  /// the details form. No network call here — the backend creates the
+  /// account and emails the verification code only when the details form
+  /// submits (`api.user.register_user` needs password and names), so the
+  /// code is asked for after [register], not before it. Works the same
+  /// online and offline: [register] is local-first either way.
+  ///
+  /// [onOffline] is accepted for source compatibility with callers wired
+  /// for the older code-first flow; it is no longer used.
   Future<void> sendCode(
     BuildContext context,
     VoidCallback onSuccess, {
@@ -121,72 +132,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
       state = state.copyWith(isEmailInvalid: true);
       return;
     }
-    final connected = await AppConnectivity.connectivity();
-    if (!connected) {
-      // Transport says offline: skip the emailed-code round-trip and hand
-      // the user straight to the local-first flow (Ray's flow).
-      _continueSignUpOffline(context, onOffline);
-      return;
-    }
-    state = state.copyWith(isLoading: true, isSuccess: false);
-    final response = await _authRepository.sigUp(email: state.email);
-    response.when(
-      success: (data) async {
-        state = state.copyWith(isLoading: false, isSuccess: true);
-        onSuccess();
-      },
-      failure: (failure, status) {
-        state = state.copyWith(isLoading: false, isSuccess: false);
-        if (!_isDefinitiveRejection(status)) {
-          // The transport-level connectivity guard false-passes on
-          // Wi-Fi-without-internet/captive networks, so the sigUp call is
-          // the real reachability test — same classification as [register]:
-          // connection errors and timeouts surface as 500/408, only a
-          // concrete 4xx is a definitive backend rejection.
-          _continueSignUpOffline(context, onOffline);
-          return;
-        }
-        if (status == 400) {
-          AppHelpers.showCheckTopSnackBar(
-            context,
-            AppHelpers.getTranslation(
-              AppHelpers.getTranslation(TrKeys.emailAlreadyExists),
-            ),
-          );
-        } else {
-          AuthErrorPresenter.show(
-            context,
-            type: 'auth_signup_code_send_failed',
-            failure: failure,
-            statusCode: status,
-          );
-        }
-      },
-    );
-  }
-
-  /// Offline entry into the local-first registration: instead of a dead-end
-  /// error, the user goes forward to the details form in deferred-
-  /// verification mode — [onOffline] performs the exact navigation the OTP
-  /// sheet's verify-success takes (see RegisterPage / the
-  /// RegisterConfirmationPage isSuccess listener). The details form's
-  /// [register] then writes the local account row, queues `auth.register`
-  /// on the SyncEngine (idempotency-keyed, so a later online retry can't
-  /// double-register), and PendingOtpGate routes the synced registration
-  /// into email OTP verification once connectivity returns.
-  void _continueSignUpOffline(BuildContext context, VoidCallback? onOffline) {
-    state = state.copyWith(isLoading: false, isSuccess: false);
-    if (!context.mounted) return;
-    if (onOffline == null) {
-      // Callers not wired for the deferred flow keep the old behavior.
-      AppHelpers.showNoConnectionSnackBar(context);
-      return;
-    }
-    AppHelpers.showCheckTopSnackBarInfo(
-      context,
-      AppHelpers.getTranslation(trOfflineSignUpDeferred),
-    );
-    onOffline();
+    onSuccess();
   }
 
   Future<void> sendCodeToNumber(
@@ -280,7 +226,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
     }
   }
 
-  /// Phone twin of [_continueSignUpOffline]. One extra job: the sign-up
+  /// Offline entry into the local-first phone registration. One extra job: the sign-up
   /// form's single identifier field stores the phone number in the EMAIL
   /// slot of the state (see RegisterPage's IntlPhoneField -> setEmail and
   /// the [sendCodeToNumber]/[registerWithPhone] convention), so before the
@@ -376,7 +322,16 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
               backendToken: data.token,
             );
           }
+          if ((data.token ?? '').isEmpty && state.email.isNotEmpty) {
+            // Email sign-up: register_user created the account and emailed
+            // the 6-digit code, but mints no session token — that comes
+            // from verify_email_code. Ask for the code now; the sheet's
+            // verify success runs [finishEmailSignUp].
+            if (context.mounted) _askForEmailCode(context);
+            return;
+          }
           LocalStorage.setToken(data.token);
+          await storeSessionProfile(data.user, _userRepositoryFacade);
           LocalStorage.setAddressSelected(
             AddressData(
               title:
@@ -426,7 +381,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           // steps (school/grade capture, ...), then land on the same
           // destination as before — see RegistrationFlow.
           RegistrationFlow.completeRegistration(context, user: data.user);
-          await syncFcmToken(_userRepositoryFacade);
+          await completeSessionStart(_userRepositoryFacade);
           // Registration just minted a session: give the account an
           // Android restore key so a device move keeps them signed in.
           await RestoreCredentialService().ensureRestoreKey();
@@ -457,7 +412,14 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
             await _offlineAuth.discardLocal(local.localUserId!);
           }
           state = state.copyWith(isLoading: false);
-          if (status == 400) {
+          if (status == 409) {
+            // register_user: "Email address already registered." — this
+            // check used to run at the email step, before the details form.
+            AppHelpers.showCheckTopSnackBar(
+              context,
+              AppHelpers.getTranslation(TrKeys.emailAlreadyExists),
+            );
+          } else if (status == 400) {
             AppHelpers.showCheckTopSnackBar(
               context,
               AppHelpers.getTranslation(
@@ -481,6 +443,45 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
       // OfflineAuthService and AuthSyncHandler.
       await _completeOffline(context, local);
     }
+  }
+
+  /// Shows the email-code sheet for an account [register] just created
+  /// online. The sheet replaces the details form.
+  void _askForEmailCode(BuildContext context) {
+    final isDarkMode = LocalStorage.getAppThemeMode();
+    Navigator.pop(context);
+    AppHelpers.showCustomModalBottomSheet(
+      context: context,
+      modal: RegisterConfirmationPage(
+        verificationId: '',
+        isEmailSignUp: true,
+        userModel: UserModel(
+          firstname: state.firstName,
+          lastname: state.lastName,
+          email: state.email,
+        ),
+      ),
+      isDarkMode: isDarkMode,
+    );
+  }
+
+  /// Last step of the email sign-up, after the emailed code verified:
+  /// verify_email_code returned the account's first session token, so store
+  /// it and land exactly where a token-returning registration lands.
+  Future<void> finishEmailSignUp(
+    BuildContext context,
+    VerifyData? data,
+  ) async {
+    final token = data?.token;
+    if (token != null && token.isNotEmpty) {
+      await LocalStorage.setToken(token);
+      await storeSessionProfile(data?.user, _userRepositoryFacade);
+    }
+    if (context.mounted) {
+      RegistrationFlow.completeRegistration(context, user: data?.user);
+    }
+    await completeSessionStart(_userRepositoryFacade);
+    await RestoreCredentialService().ensureRestoreKey();
   }
 
   /// Offline outcome shared by register/registerWithPhone: keep the local
@@ -558,6 +559,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
         success: (data) async {
           state = state.copyWith(isLoading: false);
           LocalStorage.setToken(data.token);
+          await storeSessionProfile(data.user, _userRepositoryFacade);
           LocalStorage.setAddressSelected(
             AddressData(
               title:
@@ -607,7 +609,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           // steps (school/grade capture, ...), then land on the same
           // destination as before — see RegistrationFlow.
           RegistrationFlow.completeRegistration(context, user: data.user);
-          await syncFcmToken(_userRepositoryFacade);
+          await completeSessionStart(_userRepositoryFacade);
           // Registration just minted a session: give the account an
           // Android restore key so a device move keeps them signed in.
           await RestoreCredentialService().ensureRestoreKey();
@@ -701,7 +703,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           // steps (school/grade capture, ...), then land on the same
           // destination as before — see RegistrationFlow.
           RegistrationFlow.completeRegistration(context, user: data.data);
-          await syncFcmToken(_userRepositoryFacade);
+          await completeSessionStart(_userRepositoryFacade);
           // Registration just minted a session: give the account an
           // Android restore key so a device move keeps them signed in.
           await RestoreCredentialService().ensureRestoreKey();
@@ -792,6 +794,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
         success: (data) async {
           state = state.copyWith(isLoading: false);
           LocalStorage.setToken(data.data?.accessToken ?? '');
+          await storeSessionProfile(data.data?.user, _userRepositoryFacade);
           LocalStorage.setAddressSelected(
             AddressData(
               title:
@@ -839,7 +842,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           );
           context.router.popUntilRoot();
           AppHelpers.goHome(context);
-          await syncFcmToken(_userRepositoryFacade);
+          await completeSessionStart(_userRepositoryFacade);
           // Registration just minted a session: give the account an
           // Android restore key so a device move keeps them signed in.
           await RestoreCredentialService().ensureRestoreKey();
@@ -914,6 +917,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
             success: (data) async {
               state = state.copyWith(isLoading: false);
               LocalStorage.setToken(data.data?.accessToken ?? '');
+              await storeSessionProfile(data.data?.user, _userRepositoryFacade);
               LocalStorage.setAddressSelected(
                 AddressData(
                   title:
@@ -961,7 +965,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
               );
               context.router.popUntilRoot();
               AppHelpers.goHome(context);
-              await syncFcmToken(_userRepositoryFacade);
+              await completeSessionStart(_userRepositoryFacade);
               // Registration just minted a session: give the account an
               // Android restore key so a device move keeps them signed in.
               await RestoreCredentialService().ensureRestoreKey();
@@ -1030,6 +1034,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           success: (data) async {
             state = state.copyWith(isLoading: false);
             LocalStorage.setToken(data.data?.accessToken ?? '');
+            await storeSessionProfile(data.data?.user, _userRepositoryFacade);
             LocalStorage.setAddressSelected(
               AddressData(
                 title:
@@ -1077,7 +1082,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
             );
             context.router.popUntilRoot();
             AppHelpers.goHome(context);
-            await syncFcmToken(_userRepositoryFacade);
+            await completeSessionStart(_userRepositoryFacade);
             // Registration just minted a session: give the account an
             // Android restore key so a device move keeps them signed in.
             await RestoreCredentialService().ensureRestoreKey();

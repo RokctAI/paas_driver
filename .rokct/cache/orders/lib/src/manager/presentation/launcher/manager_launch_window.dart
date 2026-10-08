@@ -39,6 +39,7 @@
 //     renders the action and no count, so the window is "useful and
 //     tappable without data" (53g) by construction.
 
+import 'package:base_sdk/base_sdk.dart' show DemoFixtures;
 import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -46,8 +47,10 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:orders_sdk/src/common/di/orders_di.dart'
+    show ordersDemoFixtureDirectory;
 import 'package:orders_sdk/src/manager/domain/interface/seller_orders.dart';
-import 'package:orders_sdk/src/manager/infrastructure/repositories/demo_seller_orders_repository.dart';
+import 'package:orders_sdk/src/manager/infrastructure/repositories/seller_orders_repository.dart';
 
 /// Translation wire keys owned by this window. Referenced by string, not
 /// through composer-injected `TrKeys` constants, because lib/ analyzes and
@@ -73,10 +76,11 @@ class ManagerLaunchQueue {
 
 /// Reads the queue through the same facade the manager order board reads
 /// - the `SellerOrdersRepositoryFacade` the manager DI hook registers,
-/// which in a demo build or a demo session is the seeded
-/// `DemoSellerOrdersRepository`. A composition that never registered the
-/// facade (the launcher composes no manager DI) gets the demo repository
-/// when base_sdk's `DemoSession.demoActive` says so (read per call, so a
+/// which a demo session runs against the seeded fixtures in
+/// assets/demo/orders. A composition that never registered the facade (the
+/// launcher composes no manager DI) gets the real `SellerOrdersRepository`
+/// (answered from those fixtures) when base_sdk's `DemoSession.demoActive`
+/// says so (read per call, so a
 /// session that flips later is honoured) and nothing otherwise; a failing call is a null queue, never an exception -
 /// the launcher canvas must not crash because a backend is away.
 abstract final class ManagerLaunchWindowLoader {
@@ -88,12 +92,13 @@ abstract final class ManagerLaunchWindowLoader {
     try {
       return switch (await repo.getOrders(status: OrderStatus.open, page: 1)) {
         Success(:final data) => ManagerLaunchQueue(
-            // The statistic block is the board's own counter; a bare list
-            // (today's gateway envelope) counts the page instead.
-            waiting: data.data?.statistic?.newOrdersCount ??
-                data.data?.orders?.length ??
-                0,
-          ),
+          // The statistic block is the board's own counter; a bare list
+          // (today's gateway envelope) counts the page instead.
+          waiting:
+              data.data?.statistic?.newOrdersCount ??
+              data.data?.orders?.length ??
+              0,
+        ),
         Failure() => null,
       };
     } catch (_) {
@@ -106,7 +111,9 @@ abstract final class ManagerLaunchWindowLoader {
     if (getIt.isRegistered<SellerOrdersRepositoryFacade>()) {
       return getIt.get<SellerOrdersRepositoryFacade>();
     }
-    return DemoSession.demoActive ? DemoSellerOrdersRepository() : null;
+    if (!DemoSession.demoActive) return null;
+    DemoFixtures.registerAssetDirectory(ordersDemoFixtureDirectory);
+    return SellerOrdersRepository();
   }
 }
 
@@ -132,9 +139,9 @@ class ManagerLaunchWindow extends StatefulWidget {
 
   /// The window without data, for a mode that is not the active one.
   const ManagerLaunchWindow.dataless({super.key, required this.onOpen})
-      : showData = false,
-        queue = null,
-        load = null;
+    : showData = false,
+      queue = null,
+      load = null;
 
   /// Opens the manager app - the launcher's own way of starting it.
   final VoidCallback onOpen;
@@ -174,8 +181,9 @@ class _ManagerLaunchWindowState extends State<ManagerLaunchWindow> {
 
   @override
   Widget build(BuildContext context) {
-    final String openOrders =
-        AppHelpers.getTranslation(ManagerLaunchWindowKeys.openOrders);
+    final String openOrders = AppHelpers.getTranslation(
+      ManagerLaunchWindowKeys.openOrders,
+    );
     if (!widget.showData) {
       return Align(
         alignment: Alignment.centerLeft,
@@ -196,7 +204,10 @@ class _ManagerLaunchWindowState extends State<ManagerLaunchWindow> {
           AppHelpers.getTranslation(ManagerLaunchWindowKeys.ordersToAccept),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: AppStyle.interSemi(size: 14, color: AppStyle.textPrimary),
+          style: AppStyle.interSemi(
+            size: 14,
+            color: AppStyle.inkFor(Theme.of(context).brightness),
+          ),
         ),
         // The count is the only figure on the window. When the read
         // failed there is no number to show and the row is simply not
@@ -215,7 +226,9 @@ class _ManagerLaunchWindowState extends State<ManagerLaunchWindow> {
                   overflow: TextOverflow.ellipsis,
                   style: AppStyle.interNormal(
                     size: 12,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(
+                      Theme.of(context).brightness,
+                    ),
                   ),
                 ),
               ),
@@ -224,7 +237,7 @@ class _ManagerLaunchWindowState extends State<ManagerLaunchWindow> {
                 key: ManagerLaunchWindow.countKey,
                 style: AppStyle.interSemi(
                   size: 28,
-                  color: AppStyle.textPrimary,
+                  color: AppStyle.inkFor(Theme.of(context).brightness),
                 ),
               ),
             ],

@@ -102,7 +102,7 @@ class _CustomScaffoldState extends ConsumerState<CustomScaffold>
               child: Scaffold(
                 resizeToAvoidBottomInset: false,
                 appBar: widget.appBar,
-                backgroundColor: widget.backgroundColor ?? AppStyle.bgGrey,
+                backgroundColor: widget.backgroundColor ?? AppStyle.surfaceFor(Theme.of(context).brightness),
                 body: widget.body,
                 drawer: widget.drawer,
                 floatingActionButton: widget.floatingActionButton,

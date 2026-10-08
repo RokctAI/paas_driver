@@ -31,6 +31,7 @@ import 'package:base_sdk/src/application/shop_order/shop_order_provider.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tpying_delay.dart';
+import 'package:remixicon/remixicon.dart';
 
 class PromoCodeScreen extends ConsumerStatefulWidget {
   const PromoCodeScreen({super.key});
@@ -132,7 +133,7 @@ class _PromoCodeState extends ConsumerState<PromoCodeScreen> {
                               color: AppStyle.primary,
                             ),
                             child: Icon(
-                              Icons.done_all,
+                              Remix.check_double_line,
                               color: AppStyle.black,
                               size: 16.r,
                             ),
@@ -150,7 +151,7 @@ class _PromoCodeState extends ConsumerState<PromoCodeScreen> {
                           ? AppStyle.primary
                           : AppStyle.borderColor,
                       textColor:
-                          state.isActive ? AppStyle.black : AppStyle.textGrey,
+                          state.isActive ? AppStyle.inkFor(Theme.of(context).brightness) : AppStyle.textGrey,
                       title: AppHelpers.getTranslation(TrKeys.save),
                       onPressed: () {
                         if (state.isActive) {

@@ -12,11 +12,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/// Imagery for the demo (`--dart-define=IS_DEMO=true`) seed data.
+/// Imagery for the demo seed data (anything `DemoSession.demoActive` serves).
 ///
 /// Every mock repository across the SDKs used to point its image fields at a
-/// public placeholder host. That host is a network dependency the demo build
-/// does not otherwise have — a demo build talks to no backend at all — so the
+/// public placeholder host. That host is a network dependency the guided-tour
+/// build does not otherwise have — it talks to no backend at all — so the
 /// image widgets fell through to their error state and every seeded shop,
 /// product, category, brand and banner rendered as a broken-image glyph. The
 /// guided tour captures that verbatim, which is how the placeholders reached

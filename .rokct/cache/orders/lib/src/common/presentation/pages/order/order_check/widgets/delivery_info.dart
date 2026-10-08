@@ -35,7 +35,7 @@ class DeliveryInfo extends StatelessWidget {
                   16.verticalSpace,
                   Container(
                     decoration: BoxDecoration(
-                      color: AppStyle.bgGrey,
+                      color: AppStyle.surfaceFor(Theme.of(context).brightness),
                       borderRadius: BorderRadius.circular(10.r),
                     ),
                     margin: EdgeInsets.symmetric(horizontal: 16.w),
@@ -67,14 +67,14 @@ class DeliveryInfo extends StatelessWidget {
                               "${ref.watch(orderProvider).orderData?.deliveryMan?.firstname ?? ""} ${ref.watch(orderProvider).orderData?.deliveryMan?.lastname ?? ""}",
                               style: AppStyle.interSemi(
                                 size: 16,
-                                color: AppStyle.black,
+                                color: AppStyle.inkFor(Theme.of(context).brightness),
                               ),
                             ),
                             Text(
                               AppHelpers.getTranslation(TrKeys.driver),
                               style: AppStyle.interRegular(
                                 size: 12.sp,
-                                color: AppStyle.black,
+                                color: AppStyle.inkFor(Theme.of(context).brightness),
                               ),
                             ),
                           ],

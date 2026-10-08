@@ -13,7 +13,6 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
-import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -35,10 +34,9 @@ import 'package:products_sdk/src/common/infrastructure/models/response/single_se
 /// gateway. Payloads follow the server signatures (`product_name` +
 /// `product_data`, `group_name` + `group_data`, `value_name` + `value_data`).
 ///
-/// Two calls have NO whitelisted server method yet and stay on the dead
-/// per-method path so they fail visibly (fixplan M20): [updateStocks] and
-/// [updateExtras] — see the TODOs on them.
-const _base = '/api/method/paas.api.seller_product.seller_product';
+/// [updateStocks] and [updateExtras] reach the products module's
+/// `stock.update_product_stocks` / `product_extra.update_product_extras`
+/// (fixplan M20), also through the gateway.
 
 class SellerProductsRepository implements SellerProductsRepositoryFacade {
   /// Universal platform gateway (fleet rule 2026-08-15): cmds mirror the
@@ -177,12 +175,10 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
     List<String> deletedStockIds = const [],
     bool isAddon = false,
   }) =>
-      // TODO(fix-wave 2026-09-02): no server method — seller_product.py's
-      // update_product_stocks is an un-aliased placeholder returning
-      // {"status": true} without touching stock, so aliasing it would make a
-      // stock update look successful. Left on the dead path so it fails
-      // visibly; needs an owner decision (fixplan M20).
-      _postProductLegacy('$_base.update_product_stocks', {
+      // products stock.update_product_stocks(uuid, stocks, delete_ids,
+      // addon): updates rows with a stock_id, creates the rest, deletes
+      // delete_ids — all scoped to the caller's own product.
+      _postProduct('api.stock.update_product_stocks', {
         'uuid': uuid,
         'stocks': stocks,
         if (deletedStockIds.isNotEmpty) 'delete_ids': deletedStockIds,
@@ -194,10 +190,9 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
     required String productUuid,
     required List<Map<String, dynamic>> extras,
   }) =>
-      // TODO(fix-wave 2026-09-02): no server method — same placeholder
-      // situation as updateStocks (seller_product.update_product_extras);
-      // left on the dead path, needs an owner decision (fixplan M20).
-      _postProductLegacy('$_base.update_product_extras', {
+      // products product_extra.update_product_extras(uuid, extras): replaces
+      // the product's linked extra groups.
+      _postProduct('api.product_extra.update_product_extras', {
         'uuid': productUuid,
         'extras': extras,
       });
@@ -329,25 +324,6 @@ class SellerProductsRepository implements SellerProductsRepositoryFacade {
       );
     } catch (e) {
       debugPrint('==> $cmd failure: $e');
-      return _fail(e);
-    }
-  }
-
-  /// The pre-gateway per-method POST, kept ONLY for the two calls that have
-  /// no whitelisted server method yet ([updateStocks], [updateExtras]) so
-  /// they keep failing visibly instead of being faked.
-  Future<ApiResult<SingleSellerProductResponse>> _postProductLegacy(
-    String path,
-    Map<String, dynamic> body,
-  ) async {
-    try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.post(path, data: body);
-      return ApiResult.success(
-        data: SingleSellerProductResponse.fromJson(response.data),
-      );
-    } catch (e) {
-      debugPrint('==> $path failure: $e');
       return _fail(e);
     }
   }

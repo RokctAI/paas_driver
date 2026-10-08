@@ -117,11 +117,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         AppHelpers.goHome(context);
       }
     }).onError((error) {
-      debugPrint(error.message);
+      debugPrint('==> LoginPage: dynamic link stream failed: $error');
     });
 
-    final PendingDynamicLinkData? data =
-        await FirebaseDynamicLinks.instance.getInitialLink();
+    // Load-time work (Ray, 2026-10-05: no error before he does anything):
+    // the initial-link lookup is a platform/network call that can throw
+    // offline or with Dynamic Links unconfigured. It used to escape as an
+    // uncaught async error out of initState; now it is debug output only.
+    final PendingDynamicLinkData? data;
+    try {
+      data = await dynamicLinks.getInitialLink();
+    } catch (e) {
+      debugPrint('==> LoginPage: initial dynamic link lookup failed: $e');
+      return;
+    }
+    if (!mounted) return;
     final Uri? deepLink = data?.link;
 
     if (deepLink.toString().contains("product") ||
@@ -144,7 +154,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       isDrag: false,
       context: context,
       modal: languageScreen,
-      isDarkMode: false,
+      isDarkMode: Theme.of(context).brightness == Brightness.dark,
     );
   }
 
@@ -192,7 +202,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       }
     });
 
-    final bool isDarkMode = LocalStorage.getAppThemeMode();
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final bool isLtr = LocalStorage.getLangLtr();
     final bool isWideWindow = windowSizeOf(context).isAtLeastMedium;
     return Directionality(

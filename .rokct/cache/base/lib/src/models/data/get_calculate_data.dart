@@ -32,6 +32,7 @@ class GetCalculateModel {
     this.deliveryFee,
     this.serviceFee,
     this.couponPrice,
+    this.subscriptionSavings,
     this.containsAdultItems = false,
     this.requiresBirthDate = false,
   });
@@ -45,6 +46,10 @@ class GetCalculateModel {
   num? deliveryFee;
   num? serviceFee;
   num? couponPrice;
+
+  /// What the customer's subscription (free delivery, delivery discount,
+  /// service fee waiver) took off this quote; 0 or null without one.
+  num? subscriptionSavings;
 
   /// Whether the order contains age-restricted (18+) items.
   bool containsAdultItems;
@@ -63,6 +68,7 @@ class GetCalculateModel {
         deliveryFee: json["delivery_fee"],
         serviceFee: json["service_fee"],
         couponPrice: json["coupon_price"],
+        subscriptionSavings: json["subscription_savings"],
         containsAdultItems: json["contains_adult_items"] == true ||
             json["contains_adult_items"] == 1 ||
             json["contains_adult_items"] == '1',
@@ -81,6 +87,7 @@ class GetCalculateModel {
         "delivery_fee": deliveryFee,
         "rate": serviceFee,
         "coupon_price": couponPrice,
+        "subscription_savings": subscriptionSavings,
         "contains_adult_items": containsAdultItems,
         "requires_birth_date": requiresBirthDate,
       };

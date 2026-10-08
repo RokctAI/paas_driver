@@ -90,7 +90,9 @@ class UserRepository implements UserRepositoryFacade {
     try {
       await _gateway.tenant(
         'api.user.add_user_address',
-        address?.toJson(),
+        // add_user_address(address_data) takes the address as one
+        // argument, same as AddressRepository.saveAddress.
+        {'address_data': address?.toJson()},
       );
       return const ApiResult.success(data: null);
     } catch (e) {
@@ -144,13 +146,36 @@ class UserRepository implements UserRepositoryFacade {
       // key survived would be signed back in by their next device.
       await SessionEndHooks.run();
       await _gateway.tenant('api.user.logout');
-      LocalStorage.logout();
       return const ApiResult.success(data: null);
     } catch (e) {
       return ApiResult.failure(
         error: AppHelpers.errorHandler(e),
         statusCode: NetworkExceptions.getDioStatus(e),
       );
+    } finally {
+      // THE LOCAL SESSION ENDS ON BOTH PATHS, AND THAT IS THE WHOLE POINT
+      // OF THE `finally`.
+      //
+      // Revoking the token server-side is a courtesy; forgetting it on the
+      // device is the sign-out. This used to sit on the success path only,
+      // so a revoke that threw -- no network, a 401 on an already-dead
+      // token, a backend that is down -- returned failure and left the
+      // user signed in with everything the session had put on the device.
+      //
+      // The case that made it certain rather than unlucky: an offline /
+      // temp-local account's token is `offline:<local user id>`
+      // (auth_sdk's OfflineAuthService), which no backend has ever issued,
+      // so `api.user.logout` can NEVER succeed for one of those users.
+      // Sign-out was therefore a guaranteed no-op for exactly the users
+      // who only ever have local data -- Ray, 2026-09-19: "if on temp
+      // local user you logout all your tasks still show".
+      //
+      // The returned result still reports what the revoke did, so a caller
+      // that wants to tell the user "we could not reach the server" keeps
+      // its failure; it just no longer decides whether the device forgets
+      // the session. SessionEndHooks above has already run by this point,
+      // on both paths, for the same reason.
+      LocalStorage.logout();
     }
   }
 
@@ -178,7 +203,9 @@ class UserRepository implements UserRepositoryFacade {
   Future<ApiResult<WalletHistoriesResponse>> getWalletHistories(
     int page,
   ) async {
-    final data = {'limit_start': (page - 1) * 10, 'limit_page_length': 10};
+    // get_wallet_history(start, limit): the Frappe list-style keys were
+    // silently dropped, so every page returned the first 20 rows.
+    final data = {'start': (page - 1) * 10, 'limit': 10};
     try {
       final response = await _gateway.tenant(
         'api.user.get_wallet_history',
@@ -268,13 +295,22 @@ class UserRepository implements UserRepositoryFacade {
       // not leave a restore key behind that a new device could replay.
       await SessionEndHooks.run();
       await _gateway.tenant('api.user.delete_account');
-      LocalStorage.logout();
       return const ApiResult.success(data: null);
     } catch (e) {
       return ApiResult.failure(
         error: AppHelpers.errorHandler(e),
         statusCode: NetworkExceptions.getDioStatus(e),
       );
+    } finally {
+      // Unconditional for the same reason as [logoutAccount], and it has to
+      // move with it: [SessionEndHooks.run] above has already torn down the
+      // session-scoped state (the restore key, and now each SDK's on-device
+      // user data) before the request goes out. Leaving a live local
+      // session behind a delete that failed would mean a signed-in user
+      // whose session-scoped state is already gone -- strictly worse than
+      // being signed out and asked to try again. The returned result still
+      // carries the failure, so the caller still reports it.
+      LocalStorage.logout();
     }
   }
 

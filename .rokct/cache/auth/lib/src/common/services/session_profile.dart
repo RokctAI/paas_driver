@@ -12,7 +12,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:base_sdk/src/handlers/api_result.dart';
+import 'package:base_sdk/src/domain/interface/user.dart';
 import 'package:base_sdk/src/models/models.dart';
+import 'package:base_sdk/src/services/local_storage.dart';
 
 /// The account a credential exchange came back with, in the shape
 /// `LocalStorage.setUser` persists.
@@ -45,4 +48,34 @@ ProfileData sessionProfileOf(UserModel user) {
     addresses: user.addresses,
     isDemoAccount: user.isDemoAccount,
   );
+}
+
+/// Stores the signed-in account the way login does, for the register and
+/// confirmation paths: [user] (a login-shaped [UserModel] or a full
+/// [ProfileData]) when the response carried one, otherwise the
+/// profile fetched from [users] right away. Seeds and scopes that read
+/// `LocalStorage.getUser()` (productivity's MaintenanceSeed, OwnerScope)
+/// then see the new account straight after sign-up. Never throws.
+Future<void> storeSessionProfile(
+  Object? user,
+  UserRepositoryFacade users,
+) async {
+  if (user is UserModel) {
+    await LocalStorage.setUser(sessionProfileOf(user));
+    return;
+  }
+  if (user is ProfileData) {
+    await LocalStorage.setUser(user);
+    return;
+  }
+  try {
+    final result = await users.getProfileDetails();
+    final profile = result.when(
+      success: (data) => data.data,
+      failure: (_, __) => null,
+    );
+    if (profile != null) await LocalStorage.setUser(profile);
+  } catch (_) {
+    // The token is stored; profileProvider.fetchUser retries later.
+  }
 }

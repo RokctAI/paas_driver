@@ -15,7 +15,7 @@
 // The till's approved plane layout (design strip section 11, frames 11m
 // approved 2026-08-29 13:53Z and 11n approved 13:06Z, on base_sdk's
 // PlaneHost), pumped DIRECTLY from templates/ like the other POS tests
-// (run with --dart-define=IS_DEMO=true):
+// (over the demo till, support/demo_till.dart):
 //
 //   * 1280 (three planes): the till declares ALL — scan | Add Items pane
 //     | cart, no Add Items lane (277 removed, 11m); Continue pushes the
@@ -42,9 +42,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider.dart';
-import 'package:merchants_sdk/src/manager/di/manager_merchants_di.dart';
 import 'package:merchants_sdk/src/manager/presentation/pos/receipt_preview_page.dart';
 import 'package:merchants_sdk/src/manager/presentation/pos/receipt_slip.dart';
 import 'package:merchants_sdk/src/manager/utils/pos_connectivity.dart';
@@ -54,6 +52,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../templates/pages/manager/billing/billing_page.dart';
 import '../templates/pages/manager/billing/checkout_page.dart';
 
+import 'support/demo_till.dart';
+
 const _tillKey = ValueKey('plane-page-pos-till');
 const _checkoutKey = ValueKey('plane-page-pos-checkout');
 const _receiptKey = ValueKey('plane-page-pos-receipt');
@@ -62,13 +62,13 @@ const _paneKey = Key('posAddItemsPane');
 const _stageKey = Key('posScanStage');
 
 Widget _host(Size size) => ProviderScope(
-      child: ScreenUtilInit(
-        // The app's own rule (base app_widget.dart): tablet-mode windows
-        // use their logical size as the design size — scale 1.
-        designSize: size,
-        builder: (context, _) => const MaterialApp(home: BillingPage()),
-      ),
-    );
+  child: ScreenUtilInit(
+    // The app's own rule (base app_widget.dart): tablet-mode windows
+    // use their logical size as the design size — scale 1.
+    designSize: size,
+    builder: (context, _) => const MaterialApp(home: BillingPage()),
+  ),
+);
 
 Future<ProviderContainer> _pump(WidgetTester tester, Size size) async {
   tester.view.physicalSize = size;
@@ -96,7 +96,7 @@ void main() {
     await LocalStorage.setSelectedCurrency(
       CurrencyData(id: 'ZAR', symbol: 'R', position: 'before', rate: 1),
     );
-    ManagerMerchantsDependencies.register(GetIt.instance);
+    await registerDemoTill();
   });
 
   setUp(() => PosConnectivity.debugConnectivityOverride = true);
@@ -105,8 +105,7 @@ void main() {
     PosReceiptPrinter.handler = null;
   });
 
-  testWidgets(
-      '393 (phone): one plane, the shipped column — lane present, no '
+  testWidgets('393 (phone): one plane, the shipped column — lane present, no '
       'pane, no pill, no in-plane checkout', (tester) async {
     await _pump(tester, const Size(393, 852));
 
@@ -121,8 +120,7 @@ void main() {
     expect(find.byType(FloatingBackPill), findsNothing);
   });
 
-  testWidgets(
-      '800 (two planes): scan | cart with the lane; Continue takes the '
+  testWidgets('800 (two planes): scan | cart with the lane; Continue takes the '
       'fold for the checkout, the END pill pops it back', (tester) async {
     const size = Size(800, 1280);
     final container = await _pump(tester, size);
@@ -180,11 +178,11 @@ void main() {
     expect(find.text('R150.00 × 1'), findsOneWidget);
   });
 
-  testWidgets(
-      '1280 (three planes): scan | Add Items pane | cart, no lane; the '
+  testWidgets('1280 (three planes): scan | Add Items pane | cart, no lane; the '
       'pane adds without closing; Continue — till yields to the scan '
-      'plane with the lane, checkout spreads over planes 2–3, END pill',
-      (tester) async {
+      'plane with the lane, checkout spreads over planes 2–3, END pill', (
+    tester,
+  ) async {
     const size = Size(1280, 800);
     await _pump(tester, size);
 
@@ -252,8 +250,7 @@ void main() {
     expect(find.text('R150.00 × 1'), findsOneWidget);
   });
 
-  testWidgets(
-      '1280, frame 11r: "Print Receipt & Finish" pops the checkout and '
+  testWidgets('1280, frame 11r: "Print Receipt & Finish" pops the checkout and '
       'the receipt takes ONE plane at the END; the till returns beneath '
       'on two (scan | cart); END pill pops it; finishing from the plane '
       'prints, records, and the till gets all three back', (tester) async {

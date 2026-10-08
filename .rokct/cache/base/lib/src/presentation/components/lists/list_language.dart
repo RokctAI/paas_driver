@@ -39,6 +39,18 @@ import 'package:flutter/material.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 
+// EVERY element below takes its mode from the inherited theme
+// (`Theme.of(context).brightness`), never from AppStyle's app-wide isDark
+// static (Ray, 2026-09-19: "glance doesnt change test immediately untill
+// you come back if you switched theme mode"). A static is not an inherited
+// widget, so a theme-mode flip scheduled no rebuild of a chip, pill,
+// header or foot that named its colours from one, and a list already on
+// screen kept the previous mode's fills and strokes until it was built
+// again from scratch. Reading the theme makes each element a dependent of
+// it, so the flip itself restyles them in place; the colours come from
+// AppStyle's explicit-brightness seams, which name the same two values
+// their mode-resolving getters resolve between.
+
 /// One tab of the standard list language's filter row (chip 362).
 ///
 /// [count] renders in the tab's own count pill; a null count draws the
@@ -120,6 +132,8 @@ class _ListFilterTabChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Brightness brightness = Theme.of(context).brightness;
+
     return Padding(
       padding: const EdgeInsetsDirectional.only(end: 8),
       child: InkWell(
@@ -132,10 +146,10 @@ class _ListFilterTabChip extends StatelessWidget {
             // a matching border; the rest sit on the card surface.
             color: isActive
                 ? tab.color.withValues(alpha: 0.16)
-                : AppStyle.cardDark,
+                : AppStyle.cardFor(brightness),
             borderRadius: BorderRadius.circular(100),
             border: Border.all(
-              color: isActive ? tab.color : AppStyle.strokeDark,
+              color: isActive ? tab.color : AppStyle.strokeFor(brightness),
             ),
           ),
           child: Row(
@@ -144,10 +158,10 @@ class _ListFilterTabChip extends StatelessWidget {
               Text(
                 tab.label,
                 style: isActive
-                    ? AppStyle.interSemi(size: 12, color: AppStyle.textPrimary)
+                    ? AppStyle.interSemi(size: 12, color: AppStyle.inkFor(brightness))
                     : AppStyle.interNormal(
                         size: 12,
-                        color: AppStyle.textDarkSecondary,
+                        color: AppStyle.secondaryInkFor(brightness),
                       ),
               ),
               if (tab.count != null) ...[
@@ -214,17 +228,19 @@ class ListCountPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Brightness brightness = Theme.of(context).brightness;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: color ?? AppStyle.strokeDark),
+        border: Border.all(color: color ?? AppStyle.strokeFor(brightness)),
       ),
       child: Text(
         label,
         style: AppStyle.interNormal(
           size: 11,
-          color: color ?? AppStyle.textDarkSecondary,
+          color: color ?? AppStyle.secondaryInkFor(brightness),
         ),
       ),
     );
@@ -254,6 +270,8 @@ class ListRoundAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Brightness brightness = Theme.of(context).brightness;
+
     final button = InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(100),
@@ -261,13 +279,13 @@ class ListRoundAction extends StatelessWidget {
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(brightness),
           shape: BoxShape.circle,
           border: Border.all(
-            color: active ? AppStyle.primary : AppStyle.strokeDark,
+            color: active ? AppStyle.primary : AppStyle.strokeFor(brightness),
           ),
         ),
-        child: Icon(icon, size: 17, color: AppStyle.textDarkSecondary),
+        child: Icon(icon, size: 17, color: AppStyle.secondaryInkFor(brightness)),
       ),
     );
     if (tooltip == null) return button;
@@ -303,6 +321,8 @@ class ListScreenHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Brightness brightness = Theme.of(context).brightness;
+
     final double sidePadding = compact ? 16 : 20;
     return Padding(
       padding: EdgeInsets.fromLTRB(sidePadding, 14, sidePadding, 10),
@@ -315,7 +335,7 @@ class ListScreenHeader extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: AppStyle.interBold(
                 size: compact ? 20 : 23,
-                color: AppStyle.textPrimary,
+                color: AppStyle.inkFor(brightness),
               ),
             ),
           ),
@@ -330,7 +350,7 @@ class ListScreenHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppStyle.interNormal(
                   size: 11,
-                  color: AppStyle.textDarkFaint,
+                  color: AppStyle.faintFor(brightness),
                 ),
               ),
             ),
@@ -365,6 +385,8 @@ class ListViewMore extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (moreCount <= 0) return const SizedBox.shrink();
+    final Brightness brightness = Theme.of(context).brightness;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(100),
@@ -373,14 +395,14 @@ class ListViewMore extends StatelessWidget {
         margin: margin,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(100),
-          border: Border.all(color: AppStyle.strokeDark),
+          border: Border.all(color: AppStyle.strokeFor(brightness)),
         ),
         child: Center(
           child: Text(
             '$label  ·  +$moreCount',
             style: AppStyle.interSemi(
               size: 11.5,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(brightness),
             ),
           ),
         ),

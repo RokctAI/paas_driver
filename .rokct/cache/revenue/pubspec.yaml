@@ -1,6 +1,6 @@
 name: revenue_sdk
 description: "revenue_sdk - seller revenue/statistics, extracted from paas_manager (refork 2026-07-31)."
-version: 1.0.0
+version: 1.14.1
 publish_to: 'none'
 
 environment:

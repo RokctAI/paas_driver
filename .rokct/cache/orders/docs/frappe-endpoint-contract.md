@@ -41,7 +41,7 @@ only Laravel-specific part was the URL.
 | `PosSectionsTablesFacade.getSections` | merchants_sdk (S-11) | `seller_operations.get_seller_sections` | **No — gap** (seller_operations has menus/kitchens/receipts only). |
 | `PosSectionsTablesFacade.getTables` | merchants_sdk (S-11) | `seller_operations.get_seller_tables` | **No — gap.** |
 | `PosCustomersFacade.searchUsers` | merchants_sdk | `api.seller_shop_settings.get_shop_users` (platform gateway cmd) | **Yes** — shop-scoped to the calling seller (pre-fork behavior); merchants/frappe registers the cmd and the endpoint takes `search`/`role`/`limit_start`/`limit_page_length`. |
-| `PosCustomersFacade.createUser` | users_sdk | `paas.api.user.user.create_walk_in_customer` | **No — the fork's recorded gap**: `register_user` is self-signup; no seller-creates-walk-in-customer endpoint. |
+| `PosCustomersFacade.createUser` | orders (this SDK's own frappe half) | `api.order.create_walk_in_customer` (platform gateway cmd) | **Yes** — closes the fork's recorded gap (M19). Seller-only (`_get_seller_shop`), creates a login-less `User` (`Order.user` is a required Link to `User`, so that IS the record the flow needs), idempotent on the shop + phone (or on a real email, which Frappe keys `User` by). It writes no `User Shop` membership, so a walk-in customer is not in the picker's later shop listing — `User Shop.role` is a required Link to `Role` and this fork ships no customer-shaped Role fixture. |
 
 ## Legacy `TableInterface` calls NOT carried over
 

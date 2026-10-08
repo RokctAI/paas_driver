@@ -13,7 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -50,7 +50,7 @@ class CollectLedgerRow extends StatelessWidget {
       decoration: BoxDecoration(
         border: last
             ? null
-            : Border(bottom: BorderSide(color: AppStyle.strokeDark)),
+            : Border(bottom: BorderSide(color: AppStyle.strokeFor(Theme.of(context).brightness))),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,7 +71,7 @@ class CollectLedgerRow extends StatelessWidget {
               label,
               style: AppStyle.interNormal(
                 size: 12.5,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ),
@@ -81,7 +81,7 @@ class CollectLedgerRow extends StatelessWidget {
               text: TextSpan(
                 style: AppStyle.interNormal(
                   size: 12.5,
-                  color: AppStyle.textPrimary,
+                  color: AppStyle.inkFor(Theme.of(context).brightness),
                 ),
                 children: [
                   TextSpan(
@@ -151,7 +151,7 @@ class CollectConfirmSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color feeAccent = driverAssigned ? AppStyle.rate : AppStyle.green;
     return Dialog(
-      backgroundColor: AppStyle.cardDark,
+      backgroundColor: AppStyle.cardFor(Theme.of(context).brightness),
       insetPadding: const EdgeInsets.all(24),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
@@ -169,9 +169,9 @@ class CollectConfirmSheet extends StatelessWidget {
                 const SizedBox(height: 20),
                 Container(
                   decoration: BoxDecoration(
-                    color: AppStyle.cardDarkAlt,
+                    color: AppStyle.cardAltFor(Theme.of(context).brightness),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppStyle.strokeDark),
+                    border: Border.all(color: AppStyle.strokeFor(Theme.of(context).brightness)),
                   ),
                   child: Column(children: _ledger(feeAccent)),
                 ),
@@ -189,7 +189,7 @@ class CollectConfirmSheet extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: AppStyle.interNormal(
                       size: 11,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                     ),
                   ),
                 ),
@@ -212,7 +212,7 @@ class CollectConfirmSheet extends StatelessWidget {
           color: AppStyle.primary.withValues(alpha: 0.18),
         ),
         child: Icon(
-          FlutterRemix.shopping_bag_3_line,
+          Remix.shopping_bag_3_line,
           size: 20,
           color: AppStyle.primary,
         ),
@@ -247,7 +247,7 @@ class CollectConfirmSheet extends StatelessWidget {
 
   List<Widget> _ledger(Color feeAccent) => [
     CollectLedgerRow(
-      glyph: FlutterRemix.check_line,
+      glyph: Remix.check_line,
       accent: AppStyle.green,
       label: AppHelpers.getTranslation(CollectKeys.goods),
       strong: AppHelpers.getTranslation(CollectKeys.handedToTheCustomerNow),
@@ -256,7 +256,7 @@ class CollectConfirmSheet extends StatelessWidget {
       ),
     ),
     CollectLedgerRow(
-      glyph: FlutterRemix.shopping_bag_3_line,
+      glyph: Remix.shopping_bag_3_line,
       accent: AppStyle.primary,
       label: AppHelpers.getTranslation(CollectKeys.deliveryTypeRow),
       strong:
@@ -265,7 +265,7 @@ class CollectConfirmSheet extends StatelessWidget {
       plain: AppHelpers.getTranslation(CollectKeys.onThisOrder),
     ),
     CollectLedgerRow(
-      glyph: FlutterRemix.bank_card_line,
+      glyph: Remix.bank_card_line,
       accent: feeAccent,
       label:
           '${AppHelpers.getTranslation(CollectKeys.deliveryFeeRow)}\n$feeText',
@@ -281,7 +281,7 @@ class CollectConfirmSheet extends StatelessWidget {
       ),
     ),
     CollectLedgerRow(
-      glyph: FlutterRemix.truck_line,
+      glyph: Remix.truck_line,
       accent: BoardStatus.onWay.color,
       label: AppHelpers.getTranslation(CollectKeys.driverTaskRow),
       strong: driverAssigned
@@ -309,7 +309,7 @@ class CollectConfirmSheet extends StatelessWidget {
           child: OutlinedButton(
             onPressed: () => Navigator.of(context).pop(false),
             style: OutlinedButton.styleFrom(
-              side: BorderSide(color: AppStyle.strokeDark),
+              side: BorderSide(color: AppStyle.strokeFor(Theme.of(context).brightness)),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(100),
               ),
@@ -318,7 +318,7 @@ class CollectConfirmSheet extends StatelessWidget {
               AppHelpers.getTranslation(TrKeys.cancel),
               style: AppStyle.interSemi(
                 size: 14,
-                color: AppStyle.textPrimary,
+                color: AppStyle.inkFor(Theme.of(context).brightness),
               ),
             ),
           ),
@@ -345,7 +345,7 @@ class CollectConfirmSheet extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(
-                  FlutterRemix.check_line,
+                  Remix.check_line,
                   size: 18,
                   color: AppStyle.white,
                 ),

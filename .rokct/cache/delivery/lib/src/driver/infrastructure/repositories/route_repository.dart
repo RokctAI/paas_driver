@@ -26,8 +26,8 @@ import 'package:delivery_sdk/src/driver/infrastructure/models/data/route_stop.da
 ///
 /// Calls go through the universal platform gateway ([PlatformGateway]);
 /// the prefix-free cmds mirror the owning modules' `manifest.json`
-/// whitelisted-method keys (map's `api.driver_order.get_driver_route`,
-/// delivery's `api.dispatch_route.*`). FrappeResponseInterceptor already
+/// whitelisted-method keys (map's `api.driver_order.get_driver_route` and
+/// `api.poi.get_poi_route`, delivery's `api.dispatch_route.*`). FrappeResponseInterceptor already
 /// unwraps the top-level `message` key, so each gateway answer is the
 /// endpoint's payload itself (a JSON list for get_driver_route, an
 /// envelope map for the dispatch route).
@@ -38,19 +38,24 @@ class CourierRouteRepository implements CourierRouteRepositoryFacade {
   Future<ApiResult<List<RouteStopData>>> getDriverRoute({
     double? latitude,
     double? longitude,
+    DriverRouteSource source = DriverRouteSource.work,
   }) async {
     final data = {
       if (latitude != null) 'latitude': latitude,
       if (longitude != null) 'longitude': longitude,
     };
+    // Two cmds, one parse: both defs answer the SAME stop shape because
+    // both hand their stops to the same optimiser server-side.
+    final cmd = source == DriverRouteSource.pois
+        ? 'api.poi.get_poi_route'
+        : 'api.driver_order.get_driver_route';
     try {
-      final response =
-          await _gateway.tenant('api.driver_order.get_driver_route', data);
+      final response = await _gateway.tenant(cmd, data);
       return ApiResult.success(
         data: RouteStopData.listFromJson(response),
       );
     } catch (e) {
-      debugPrint('==> get driver route failure: $e');
+      debugPrint('==> get driver route failure ($cmd): $e');
       return ApiResult.failure(
           error: AppHelpers.errorHandler(e),
           statusCode: NetworkExceptions.getDioStatus(e));

@@ -59,7 +59,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
 
   @override
   void didChangeDependencies() {
-    isDarkMode = LocalStorage.getAppThemeMode();
+    isDarkMode = Theme.of(context).brightness == Brightness.dark;
     isLtr = LocalStorage.getLangLtr();
     super.didChangeDependencies();
   }
@@ -85,7 +85,7 @@ class _SettingPageState extends ConsumerState<SettingPage>
                   CommonAppBar(
                     child: Text(
                       AppHelpers.getTranslation(TrKeys.notification),
-                      style: AppStyle.interNoSemi(size: 18, color: AppStyle.black),
+                      style: AppStyle.interNoSemi(size: 18, color: AppStyle.inkFor(Theme.of(context).brightness)),
                     ),
                   ),
                   16.verticalSpace,

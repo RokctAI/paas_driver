@@ -1,3 +1,9 @@
+## 1.6.2
+
+* fix(icons): the forecast dialog close button and the extended-forecast
+  expand toggle draw Remixicon instead of Material `Icons.*`.
+  `remixicon` floor raised to ^1.4.1.
+
 ## 1.5.0
 
 * Offline caching for the severe-weather feed (disaster-management wave;

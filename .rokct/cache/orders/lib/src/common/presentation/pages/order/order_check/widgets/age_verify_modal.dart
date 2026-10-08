@@ -21,6 +21,7 @@ import 'package:base_sdk/src/presentation/theme/theme.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:remixicon/remixicon.dart';
 
 /// Just-in-time date-of-birth prompt for 18+ (adults only) checkout.
 ///
@@ -158,7 +159,7 @@ class _AgeVerifyModalState extends State<AgeVerifyModal> {
                   decoration: BoxDecoration(
                     border: Border.all(color: AppStyle.borderColor),
                     borderRadius: BorderRadius.circular(10.r),
-                    color: AppStyle.white,
+                    color: AppStyle.cardFor(Theme.of(context).brightness),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -175,7 +176,7 @@ class _AgeVerifyModalState extends State<AgeVerifyModal> {
                         ),
                       ),
                       Icon(
-                        Icons.calendar_today_outlined,
+                        Remix.calendar_line,
                         size: 18.r,
                         color: AppStyle.textGrey,
                       ),

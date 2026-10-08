@@ -12,7 +12,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
+import 'dart:async';
 import 'dart:io';
 
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
@@ -31,6 +33,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/app_validators.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/secure_storage.dart';
+import 'package:base_sdk/src/services/session_start_hooks.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 // [refork] removed host router import
 import 'package:permission_handler/permission_handler.dart';
@@ -42,8 +45,11 @@ import 'package:auth_sdk/src/common/domain/interface/auth_session_policy.dart';
 import 'package:auth_sdk/src/common/infrastructure/services/offline_auth_service.dart';
 import 'package:auth_sdk/src/common/services/auth_error_presenter.dart';
 import 'package:auth_sdk/src/common/services/demo_account_session.dart';
+import 'package:auth_sdk/src/common/services/offline_login_decision.dart';
+import 'package:auth_sdk/src/common/services/login_load_silencer.dart';
 import 'package:auth_sdk/src/common/services/platform_support.dart';
 import 'package:auth_sdk/src/common/services/restore_credential_service.dart';
+import 'package:auth_sdk/src/common/services/demo_sign_in.dart';
 import 'package:auth_sdk/src/common/services/session_profile.dart';
 
 class LoginNotifier extends StateNotifier<LoginState> {
@@ -84,7 +90,13 @@ class LoginNotifier extends StateNotifier<LoginState> {
     state = state.copyWith(isKeepLogin: keep);
   }
 
-  Future<void> checkLanguage(BuildContext context) async {
+  /// [userInitiated] is false for the page's own load-time probe: its
+  /// failures stay silent (see [shouldSurfaceLoginError]).
+  Future<void> checkLanguage(
+    BuildContext context, {
+    bool userInitiated = false,
+  }) async {
+    final bool loud = shouldSurfaceLoginError(userInitiated: userInitiated);
     final lang = LocalStorage.getLanguage();
     if (lang == null) {
       // No language selected yet, check available languages
@@ -105,7 +117,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
               LocalStorage.setLanguageSelected(true);
 
               // Get translations for this language
-              _getTranslations(context, languages[0]);
+              _getTranslations(context, languages[0], loud: loud);
 
               // Update state to skip language selection screen
               state = state.copyWith(isSelectLanguage: true);
@@ -118,6 +130,10 @@ class LoginNotifier extends StateNotifier<LoginState> {
             state = state.copyWith(isSelectLanguage: false);
             // Settings fetch: never user-actionable — friendly line only,
             // real cause to telemetry (entry-56 rule).
+            if (!loud) {
+              debugPrint('==> LoginNotifier: silent load-time probe failed: $failure');
+              return;
+            }
             AuthErrorPresenter.showTechnical(
               context,
               type: 'auth_languages_load_failed',
@@ -127,7 +143,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
           },
         );
       } else {
-        if (context.mounted) {
+        if (loud && context.mounted) {
           AppHelpers.showNoConnectionSnackBar(context);
         }
       }
@@ -150,6 +166,10 @@ class LoginNotifier extends StateNotifier<LoginState> {
           },
           failure: (failure, status) {
             state = state.copyWith(isSelectLanguage: false);
+            if (!loud) {
+              debugPrint('==> LoginNotifier: silent load-time probe failed: $failure');
+              return;
+            }
             AuthErrorPresenter.showTechnical(
               context,
               type: 'auth_languages_load_failed',
@@ -159,7 +179,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
           },
         );
       } else {
-        if (context.mounted) {
+        if (loud && context.mounted) {
           AppHelpers.showNoConnectionSnackBar(context);
         }
       }
@@ -169,8 +189,9 @@ class LoginNotifier extends StateNotifier<LoginState> {
   // Helper method to get translations
   Future<void> _getTranslations(
     BuildContext context,
-    LanguageData language,
-  ) async {
+    LanguageData language, {
+    bool loud = false,
+  }) async {
     final connect = await AppConnectivity.connectivity();
     if (connect) {
       final response = await _settingsRepository.getMobileTranslations();
@@ -179,6 +200,10 @@ class LoginNotifier extends StateNotifier<LoginState> {
           LocalStorage.setTranslations(data.data);
         },
         failure: (failure, status) {
+          if (!loud) {
+            debugPrint('==> LoginNotifier: silent load-time probe failed: $failure');
+            return;
+          }
           AuthErrorPresenter.showTechnical(
             context,
             type: 'auth_translations_load_failed',
@@ -188,7 +213,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
         },
       );
     } else {
-      if (context.mounted) {
+      if (loud && context.mounted) {
         AppHelpers.showNoConnectionSnackBar(context);
       }
     }
@@ -260,14 +285,15 @@ class LoginNotifier extends StateNotifier<LoginState> {
     // the real backend just accepted either carries its `is_demo_account`
     // marker (a real, per-role demo account -> the session is served from
     // the in-app fixtures once phase 2 wires the SDKs) or it does not (any
-    // demo session left behind is ended here). Never keyed on the typed
-    // address or the password; nothing on screen changes.
+    // demo session left behind is ended here). Never keyed on the password;
+    // only the listed demo addresses (see [beginDemoSignInIfListed]) start
+    // a demo session before sign-in, and nothing on screen changes.
     await applyDemoAccountSession(user);
     if (popUntilRoot) {
       context.router.popUntilRoot();
     }
     AuthSessionPolicy.I.onAuthenticated(context, role: role);
-    await syncFcmToken(_userRepositoryFacade);
+    await completeSessionStart(_userRepositoryFacade);
     // Register an Android restore key for the account that just signed in,
     // so a move to a new device lands them signed in instead of here
     // again. No-ops on every other platform, and on Android once this
@@ -277,20 +303,31 @@ class LoginNotifier extends StateNotifier<LoginState> {
   }
 
   Future<void> login(BuildContext context) async {
-    final connected = await AppConnectivity.connectivity();
-    if (!mounted) return;
-    if (connected) {
-      if (checkEmail()) {
-        if (!AppValidators.isValidEmail(state.email)) {
-          state = state.copyWith(isEmailNotValid: true);
-          return;
-        }
-      }
-
-      if (!AppValidators.isValidPassword(state.password)) {
-        state = state.copyWith(isPasswordNotValid: true);
+    if (checkEmail()) {
+      if (!AppValidators.isValidEmail(state.email)) {
+        state = state.copyWith(isEmailNotValid: true);
         return;
       }
+    }
+
+    if (!AppValidators.isValidPassword(state.password)) {
+      state = state.copyWith(isPasswordNotValid: true);
+      return;
+    }
+
+    // Demo accounts sign in like any other: through the real
+    // AuthRepository (the backend asserts the demo marker; in the tour
+    // build base_sdk's demo interceptor answers from auth_sdk's fixtures,
+    // which needs no network, so a demo session skips the radio check).
+    //
+    // The listed demo addresses (1.13.0's list) switch the session to demo
+    // first, so they sign in whatever the network, as they did before
+    // 1.14.0 (Ray, 2026-10-03).
+    await beginDemoSignInIfListed(state.email);
+    final connected =
+        DemoSession.demoActive || await AppConnectivity.connectivity();
+    if (!mounted) return;
+    if (connected) {
       state = state.copyWith(isLoading: true);
       final response = await _authRepository.login(
         email: state.email,
@@ -306,8 +343,23 @@ class LoginNotifier extends StateNotifier<LoginState> {
           if (!mounted) return;
           state = state.copyWith(isLoading: false);
         },
-        failure: (failure, status) {
+        failure: (failure, status) async {
+          // "Using the app offline can't be taken as an error" (Ray,
+          // 2026-10-03). A backend that never answered (base_sdk's
+          // authored couldNotReachServer / serverTookTooLong lines) is
+          // the app being used offline: take the same offline path as a
+          // dead radio instead of toasting. Anything the server actually
+          // answered (wrong credentials, a 5xx) is still shown below.
+          if (loginFailureMeansOffline(failure.toString())) {
+            await _loginOffline(context);
+            return;
+          }
           state = state.copyWith(isLoading: false, isLoginError: true);
+          // A listed demo address that did not sign in leaves no demo
+          // session behind.
+          if (isDemoSignInAddress(state.email)) {
+            DemoSession.instance.clear();
+          }
           // Refusal split: a definitive 4xx carries the backend's own
           // user-actionable copy (wrong credentials) and stays verbatim;
           // anything else shows a friendly line and the raw detail goes
@@ -321,40 +373,50 @@ class LoginNotifier extends StateNotifier<LoginState> {
         },
       );
     } else {
-      // No connection — try a local account created via offline
-      // registration on this device before giving up. A real backend
-      // account that's never been registered offline here simply won't be
-      // found; that's a distinct, clearer error than a generic
-      // "no connection" snackbar.
-      if (!AppValidators.isValidPassword(state.password)) {
-        state = state.copyWith(isPasswordNotValid: true);
-        return;
+      await _loginOffline(context);
+    }
+  }
+
+  /// The no-connection sign-in: a local account created via offline
+  /// registration on this device. Taken when the radio is down and when
+  /// the backend could not be reached.
+  Future<void> _loginOffline(BuildContext context) async {
+    // No connection — try a local account created via offline
+    // registration on this device before giving up. A real backend
+    // account that's never been registered offline here simply won't be
+    // found; that's a distinct, clearer error than a generic
+    // "no connection" snackbar.
+    if (!AppValidators.isValidPassword(state.password)) {
+      state = state.copyWith(isPasswordNotValid: true);
+      return;
+    }
+    state = state.copyWith(isLoading: true);
+    final result = await _offlineAuth.loginOffline(
+      phone: state.email,
+      email: state.email,
+      password: state.password,
+    );
+    if (!mounted) return;
+    state = state.copyWith(isLoading: false);
+    if (result.success) {
+      // The role of an offline account can't be verified against the
+      // backend, so a declared role-gated policy rejects offline sessions
+      // outright (its onRejected also removes the offline token
+      // loginOffline just stored). The default policy allows them and
+      // lands exactly where this branch always landed.
+      if (!AuthSessionPolicy.I.allows(null)) {
+        LocalStorage.deleteToken();
+        if (context.mounted) AuthSessionPolicy.I.onRejected(context);
+      } else if (context.mounted) {
+        AuthSessionPolicy.I.onAuthenticated(context);
+        // An offline sign-in is still a sign-in: run the session-start
+        // hooks (there is no FCM token to push without a connection).
+        unawaited(SessionStartHooks.run());
       }
-      state = state.copyWith(isLoading: true);
-      final result = await _offlineAuth.loginOffline(
-        phone: state.email,
-        email: state.email,
-        password: state.password,
-      );
-      if (!mounted) return;
-      state = state.copyWith(isLoading: false);
-      if (result.success) {
-        // The role of an offline account can't be verified against the
-        // backend, so a declared role-gated policy rejects offline sessions
-        // outright (its onRejected also removes the offline token
-        // loginOffline just stored). The default policy allows them and
-        // lands exactly where this branch always landed.
-        if (!AuthSessionPolicy.I.allows(null)) {
-          LocalStorage.deleteToken();
-          if (context.mounted) AuthSessionPolicy.I.onRejected(context);
-        } else if (context.mounted) {
-          AuthSessionPolicy.I.onAuthenticated(context);
-        }
-      } else {
-        state = state.copyWith(isLoginError: true);
-        if (context.mounted) {
-          AppHelpers.showCheckTopSnackBar(context, result.error ?? '');
-        }
+    } else {
+      state = state.copyWith(isLoginError: true);
+      if (context.mounted) {
+        AppHelpers.showCheckTopSnackBar(context, result.error ?? '');
       }
     }
   }

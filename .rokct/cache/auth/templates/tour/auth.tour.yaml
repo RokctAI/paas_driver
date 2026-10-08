@@ -3,10 +3,11 @@
 # Brand-neutral by rule: app names, taglines and any per-app wording live in
 # the app shell's tour/app.tour.yaml ({app_name}/{app_tagline} placeholders
 # are substituted at merge time). This fragment only knows what auth_sdk
-# owns: the auth screens and the demo sign-in. In demo builds
-# (--dart-define=IS_DEMO=true) the DI swaps in MockAuthRepository, which
-# accepts any credentials, so the tour signs in programmatically through the
-# real login flow (LoginNotifier -> establish session -> demo landing).
+# owns: the auth screens and the demo sign-in. The tour build runs the REAL
+# AuthRepository; base_sdk's demo interceptor answers api.user.login from
+# templates/assets/demo/auth (any password), so the tour signs in
+# programmatically through the real login flow (LoginNotifier -> establish
+# session -> demo landing).
 #
 # Why the screenshot steps TAP instead of routing: /login renders auth_sdk's
 # LoginPage, which is the WELCOME screen (hero art + Login/Register
@@ -128,12 +129,12 @@ steps:
         final login = container.read(loginProvider.notifier);
         login.setEmail('{demo_email}');
         login.setPassword('demo-learners-2026');
-        // MockAuthRepository accepts any password, but the ADDRESS decides the
-        // role it hands back (MockAuthRepository._demoRolesByEmail), and the
+        // The api.user.login fixture accepts any password, but the ADDRESS
+        // decides the account it hands back (its $demo_select on usr), and the
         // role decides whether this app's session_policy admits the session at
         // all. So each shell picks its own account with setup.demo_email in its
-        // tour/app.tour.yaml; shells that leave it unset get the 'customer'
-        // default. The timeout guards the post-session FCM sync, which can
+        // tour/app.tour.yaml; shells that leave it unset get the 'student'
+        // account (customer@demo.rokct.ai signs in the 'customer' role). The timeout guards the post-session FCM sync, which can
         // stall on an emulator - navigation to the demo landing happens before
         // it, so a timeout is harmless.
         await login

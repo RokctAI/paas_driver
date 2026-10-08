@@ -27,6 +27,7 @@ import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
 import 'package:base_sdk/src/presentation/adaptive/tour_system_ui.dart';
+import 'package:base_sdk/src/presentation/pages/initial/splash/folding_brand_name.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -103,36 +104,26 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         // No internet - check if we have offline data to continue
         final hasOfflineData = _hasRequiredOfflineData();
 
-        if (hasOfflineData) {
-          // We have enough offline data, proceed offline
-          await _proceedOffline();
-        } else {
-          // No offline data and no internet - show no connection page
-          if (!mounted) return;
-          _leaveSplash('no_connection', () {
-            AppRoutes.I.replaceNoConnectionRoute(context);
-          });
-          return;
+        // Offline is never an error (Ray, 2026-10-05: an error showed on
+        // load before he did anything). With or without cached data the
+        // app starts from what it has — the login screen renders from the
+        // bundled translations and handles offline sign-in itself — instead
+        // of opening on the no-connection page. Which case it was rides
+        // debug output only.
+        if (!hasOfflineData) {
+          debugPrint('==> SplashPage: offline with no cached data; '
+              'starting from bundled data');
         }
+        await _proceedOffline();
       } else {
-        // Has internet - proceed with normal flow. The backend probe above
-        // already answered, so the online path knows whether the backend is
-        // actually reachable (radio alone false-passes on networks without
-        // internet, or when only the tenant backend is down).
+        // Has internet - proceed with normal flow. Pass true if backend is up so online sync/translations fire.
+        // If backend is down/unavailable, _proceedOnline won't fail; it gracefully falls back to local data/routing.
         await _proceedOnline(backendUp: backendStatus == BackendStatus.up);
       }
     } catch (e) {
-      // Error occurred - check if we can proceed offline
+      // Error occurred - check if we can proceed offline or go to login if token exists or local route
       _report('splash_bootstrap_failed', e);
-      final hasOfflineData = _hasRequiredOfflineData();
-      if (hasOfflineData) {
-        await _proceedOffline();
-      } else {
-        if (!mounted) return;
-        _leaveSplash('no_connection', () {
-          AppRoutes.I.replaceNoConnectionRoute(context);
-        });
-      }
+      await _proceedOffline();
     } finally {
       _booting = false;
     }
@@ -217,12 +208,15 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     return 'Check your network connection.';
   }
 
+  /// The boot-time radio check. Asks [AppConnectivity.isOnline] — the one
+  /// online definition — instead of re-spelling it: a third copy of the
+  /// mobile/ethernet/wifi whitelist is what booted a VPN-connected phone
+  /// down the offline path while it had a perfectly good network.
   Future<bool> _checkConnectivity() async {
     try {
-      var connectivityResult = await Connectivity().checkConnectivity();
-      return connectivityResult.contains(ConnectivityResult.mobile) ||
-          connectivityResult.contains(ConnectivityResult.ethernet) ||
-          connectivityResult.contains(ConnectivityResult.wifi);
+      return AppConnectivity.isOnline(
+        await Connectivity().checkConnectivity(),
+      );
     } catch (e) {
       return false;
     }
@@ -271,15 +265,15 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       // stayed on this page.
       await ref.read(splashProvider.notifier).getToken(
         context,
+        backendUp: backendUp,
         goMain: () => _leaveSplash('main', () {
           AppHelpers.goHome(context);
         }),
         goLogin: () => _leaveSplash('login', () {
           AppRoutes.I.replaceLoginRoute(context);
         }),
-        goNoInternet: () => _leaveSplash('no_connection', () {
-          AppRoutes.I.replaceNoConnectionRoute(context);
-        }),
+        // The radio dropped between the two checks: offline, not an error.
+        goNoInternet: () => unawaited(_proceedOffline()),
       );
     } catch (e) {
       // If online flow fails, try offline
@@ -318,7 +312,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     final fallbackLine = _fallbackLine;
     if (fallbackLine != null) {
       return Scaffold(
-        backgroundColor: AppStyle.white,
+        backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
         body: SafeArea(
           child: Center(
             child: Padding(
@@ -326,13 +320,13 @@ class _SplashPageState extends ConsumerState<SplashPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    AppHelpers.getAppName() ?? AppConstants.appTitle,
+                  FoldingBrandName(
+                    name: AppHelpers.getAppName() ?? AppConstants.appTitle,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.inter(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: AppStyle.black,
+                      color: AppStyle.inkFor(Theme.of(context).brightness),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -341,7 +335,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                     textAlign: TextAlign.center,
                     style: GoogleFonts.inter(
                       fontSize: 15,
-                      color: AppStyle.black,
+                      color: AppStyle.inkFor(Theme.of(context).brightness),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -371,8 +365,8 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     // paas_pos's LoadingAnimation splash — so the desktop boot screen is
     // branded without any artwork or a bare spinner.
     if (!windowSizeOf(context).isCompact) {
-      return const Scaffold(
-        backgroundColor: AppStyle.white,
+      return Scaffold(
+        backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
         body: Center(child: _BreathingBrandName()),
       );
     }
@@ -395,7 +389,9 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 /// resolved the way the rest of base_sdk does it (server 'title' setting via
 /// [AppHelpers.getAppName], falling back to the composed app's
 /// [AppConstants.appTitle]) and sized off the window width (20%, clamped
-/// 40-80) exactly like the reference.
+/// 40-80) exactly like the reference. The name itself is a
+/// [FoldingBrandName]: a dotted name shows in full, then its suffix slides
+/// into the stem; a plain name is unchanged.
 class _BreathingBrandName extends StatefulWidget {
   const _BreathingBrandName();
 
@@ -439,13 +435,13 @@ class _BreathingBrandNameState extends State<_BreathingBrandName>
           ),
         );
       },
-      child: Text(
-        AppHelpers.getAppName() ?? AppConstants.appTitle,
+      child: FoldingBrandName(
+        name: AppHelpers.getAppName() ?? AppConstants.appTitle,
         textAlign: TextAlign.center,
         style: GoogleFonts.inter(
           fontSize: fontSize,
           fontWeight: FontWeight.bold,
-          color: AppStyle.black,
+          color: AppStyle.inkFor(Theme.of(context).brightness),
         ),
       ),
     );

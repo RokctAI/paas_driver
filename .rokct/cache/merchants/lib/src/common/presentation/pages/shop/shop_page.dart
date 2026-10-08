@@ -166,7 +166,7 @@ class _ShopPageState extends ConsumerState<ShopPage>
           context: context,
           modal: (c) =>
               EmbeddedWidgets.I.productScreen(productId: widget.productId, controller: c),
-          isDarkMode: false,
+          isDarkMode: Theme.of(context).brightness == Brightness.dark,
           isDrag: true,
           radius: 16,
         );
@@ -247,14 +247,14 @@ class _ShopPageState extends ConsumerState<ShopPage>
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor: AppStyle.bgGrey,
+        backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
         body: state.isLoading
             ? const Loading()
             : CustomScrollView(
                 controller: scrollController,
                 slivers: [
                   SliverAppBar(
-                    backgroundColor: AppStyle.white,
+                    backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
                     toolbarHeight: calculateAppBarHeight(state),
                     elevation: 0.0,
                     leading: const SizedBox.shrink(),
@@ -333,7 +333,7 @@ class _ShopPageState extends ConsumerState<ShopPage>
                   cartId: widget.cartId,
                   shopId: widget.shopId,
                 ),
-                isDarkMode: false,
+                isDarkMode: Theme.of(context).brightness == Brightness.dark,
                 isDrag: true,
                 radius: 12,
               );
@@ -455,7 +455,7 @@ class _ShopPageState extends ConsumerState<ShopPage>
                           if (_tabController.length > 0) {
                             showModalBottomSheet(
                               context: context,
-                              backgroundColor: AppStyle.cardDark,
+                              backgroundColor: AppStyle.cardFor(Theme.of(context).brightness),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.vertical(
                                   top: Radius.circular(12.r),
@@ -474,7 +474,7 @@ class _ShopPageState extends ConsumerState<ShopPage>
                                             "",
                                         style: AppStyle.interNoSemi(
                                           size: 14,
-                                          color: AppStyle.textPrimary,
+                                          color: AppStyle.inkFor(Theme.of(context).brightness),
                                         ),
                                       ),
                                       onTap: () {
@@ -573,7 +573,7 @@ class _ShopPageState extends ConsumerState<ShopPage>
                       cartId: widget.cartId,
                       shopId: widget.shopId,
                     ),
-                    isDarkMode: false,
+                    isDarkMode: Theme.of(context).brightness == Brightness.dark,
                     isDrag: true,
                     radius: 12,
                   );

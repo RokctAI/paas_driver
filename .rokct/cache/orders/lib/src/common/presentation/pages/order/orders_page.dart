@@ -83,7 +83,7 @@ class _OrderPageState extends ConsumerState<OrdersListPage>
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkMode = LocalStorage.getAppThemeMode();
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final bool isLtr = LocalStorage.getLangLtr();
     final state = ref.watch(ordersListProvider);
     return Directionality(
@@ -95,7 +95,10 @@ class _OrderPageState extends ConsumerState<OrdersListPage>
             CommonAppBar(
               child: Text(
                 AppHelpers.getTranslation(TrKeys.order),
-                style: AppStyle.interNoSemi(size: 18, color: AppStyle.black),
+                style: AppStyle.interNoSemi(
+                  size: 18,
+                  color: AppStyle.inkFor(Theme.of(context).brightness),
+                ),
               ),
             ),
             16.verticalSpace,

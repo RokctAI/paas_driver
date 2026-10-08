@@ -50,7 +50,7 @@ class StockBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: AppStyle.surfaceDark.withValues(alpha: 0.72),
+        color: AppStyle.surfaceFor(Theme.of(context).brightness).withValues(alpha: 0.72),
         borderRadius: BorderRadius.circular(100),
         border: Border.all(color: color),
       ),

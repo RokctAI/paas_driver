@@ -14,33 +14,24 @@
 
 import 'package:base_sdk/src/constants/app_constants.dart';
 
-/// Shared seed data for the delivery demo repositories
-/// (`--dart-define=IS_DEMO=true` builds only — DemoLmsRepository precedent).
+/// What is left of the driver demo seed after demo moved onto the REAL
+/// repositories and base_sdk's DemoGatewayInterceptor (every platform cmd
+/// is answered from `templates/assets/demo/delivery/<cmd>.json`).
 ///
-/// Everything here is fictional but reads like real data (Ray's rule: no
-/// "Demo" / "Sample" / "Placeholder" wording in anything the screens render):
-/// invented South African shops, customers and street addresses, `@rokct.ai`
-/// mailboxes, `+27 10 000 xxxx` phone numbers and coordinates derived from
-/// the app's configured demo anchor (`AppConstants.demoLatitude` /
-/// `demoLongitude`, the same fallback the courier home map already centres
-/// on) — never a real person or a real person's location.
-///
-/// Payload maps deliberately mirror the shapes the HTTP repositories parse
-/// (`OrderDetailData.fromJson`, `ParcelOrder.fromJson`,
-/// `RouteStopData.fromJson`, `DeliveryResponse.fromJson`), so the demo path
-/// exercises the exact same model code as production.
-///
-/// A tiny in-memory status overlay makes the demo interactive: accepting,
-/// delivering or cancelling an order/parcel updates the overlay, so the
-/// lists re-sort themselves the way the real backend would for the rest of
-/// the session. Never persisted; resets on every launch.
+/// Only the calls that are NOT platform-gateway cmds stay here, because the
+/// interceptor answers `POST /api/v1/method/rokct.platform.api` only:
+/// the legacy REST vehicle-type list (`GET /api/v1/rest/delivery-vehicle-types`)
+/// and the legacy parcel marketplace (`GET /api/v1/dashboard/deliveryman/
+/// parcel-orders/paginate` and `.../parcel-orders<id>`). The real
+/// repositories answer those from here while `DemoSession.demoActive`.
+/// Also the demo map anchor, which the pinned demo location reads.
 class DemoDeliverySeed {
   DemoDeliverySeed._();
 
   /// Demo map anchor. Falls back to a generic Johannesburg city-centre
-  /// coordinate when the host build did not define DEMO_LATITUDE /
-  /// DEMO_LONGITUDE (AppConstants parses those defines eagerly and throws
-  /// on absence).
+  /// coordinate when the build did not define DEMO_LATITUDE / DEMO_LONGITUDE
+  /// (AppConstants parses those defines eagerly and throws on absence). The
+  /// gateway fixtures are laid out around that fallback.
   static double get anchorLatitude {
     try {
       return AppConstants.demoLatitude;
@@ -57,778 +48,215 @@ class DemoDeliverySeed {
     }
   }
 
-  // ---------------------------------------------------------------------
-  // Session-local status overlays (order id -> status). Seed statuses live
-  // in _orders/_parcels below; demo actions mutate these maps only.
-  // ---------------------------------------------------------------------
-  static final Map<String, String> orderStatusOverlay = {};
-  static final Map<String, String> parcelStatusOverlay = {};
+  static String _now() => DateTime.now().toUtc().toIso8601String();
 
-  /// The order the driver is currently working (home-map bottom sheet).
-  /// Ids are strings, like real Frappe Order docnames.
-  static String? currentOrderId = '900001';
-  static String? currentParcelId;
+  /// `GET /api/v1/rest/delivery-vehicle-types` rows.
+  static List<Map<String, dynamic>> vehicleTypes() => [
+    {
+      "id": 1,
+      "key": "bicycle",
+      "name": "Bicycle",
+      "max_weight_kg": 8,
+      "base_rate": 15,
+      "description": "Light and quick around the block.",
+      "active": true,
+      "sort_order": 1,
+    },
+    {
+      "id": 2,
+      "key": "motorbike",
+      "name": "Motorbike",
+      "max_weight_kg": 20,
+      "base_rate": 25,
+      "description": "The everyday courier workhorse.",
+      "active": true,
+      "sort_order": 2,
+    },
+    {
+      "id": 3,
+      "key": "car",
+      "name": "Car",
+      "max_weight_kg": 80,
+      "base_rate": 40,
+      "description": "Bigger loads and longer trips.",
+      "active": true,
+      "sort_order": 3,
+    },
+  ];
 
-  static void reset() {
-    orderStatusOverlay.clear();
-    parcelStatusOverlay.clear();
-    currentOrderId = '900001';
-    currentParcelId = null;
-  }
-
-  static String _iso(Duration ago) =>
-      DateTime.now().subtract(ago).toIso8601String();
-
-  static String _date(Duration ago) {
-    final d = DateTime.now().subtract(ago);
-    return '${d.year.toString().padLeft(4, '0')}-'
-        '${d.month.toString().padLeft(2, '0')}-'
-        '${d.day.toString().padLeft(2, '0')}';
-  }
-
-  // ---------------------------------------------------------------------
-  // Building blocks
-  // ---------------------------------------------------------------------
-
-  static Map<String, dynamic> currency() => {
-        'id': 1,
-        'symbol': 'R',
-        'title': 'ZAR',
-        'rate': 1,
-        'active': true,
-      };
-
-  static Map<String, dynamic> _location(double dLat, double dLng) => {
-        'latitude': '${anchorLatitude + dLat}',
-        'longitude': '${anchorLongitude + dLng}',
-      };
-
-  static Map<String, dynamic> _shop({
-    required int id,
-    required String title,
-    required String address,
-    required String description,
-    required double dLat,
-    required double dLng,
-  }) =>
-      {
-        'id': id,
-        'uuid': 'demo-shop-$id',
-        'user_id': 9000,
-        'price': 25,
-        'price_per_km': 6,
-        'tax': 15,
-        'phone': '+27 10 000 0400',
-        'visibility': true,
-        'background_img': null,
-        'logo_img': null,
-        'min_amount': 50,
-        'status': 'approved',
-        'type': 'shop',
-        'delivery_time': {'from': '15', 'to': '45', 'type': 'minute'},
-        'location': _location(dLat, dLng),
-        'translation': {
-          'id': id,
-          'locale': 'en',
-          'title': title,
-          'description': description,
-          'address': address,
-        },
-        'locales': ['en'],
-      };
-
-  static Map<String, dynamic> shopCornerKitchen() => _shop(
-        id: 9101,
-        title: 'Corner Kitchen',
-        address: '42 Marula Avenue, Sandton',
-        description: 'Flame-grilled favourites, ready in minutes',
-        dLat: 0.0042,
-        dLng: -0.0031,
-      );
-
-  static Map<String, dynamic> shopMamaThembisSpaza() => _shop(
-        id: 9102,
-        title: "Mama Thembi's Spaza",
-        address: '7 Vilakazi Street, Orlando West, Soweto',
-        description: 'Bread, airtime and the essentials, open till late',
-        dLat: -0.0058,
-        dLng: 0.0049,
-      );
-
-  static Map<String, dynamic> _customer({
-    required int id,
-    required String firstname,
-    required String lastname,
-    required String phoneSuffix,
-  }) =>
-      {
-        'id': id,
-        'uuid': 'demo-user-$id',
-        'firstname': firstname,
-        'lastname': lastname,
-        'email':
-            '${firstname.toLowerCase()}.${lastname.toLowerCase()}@rokct.ai',
-        'phone': '+27 10 000 $phoneSuffix',
-        'active': true,
-        'img': null,
-        'role': 'user',
-      };
-
-  static Map<String, dynamic> customerThandi() => _customer(
-      id: 8101, firstname: 'Thandi', lastname: 'Nkosi', phoneSuffix: '0101');
-
-  static Map<String, dynamic> customerSipho() => _customer(
-      id: 8102, firstname: 'Sipho', lastname: 'Dlamini', phoneSuffix: '0102');
-
-  static Map<String, dynamic> customerLerato() => _customer(
-      id: 8103, firstname: 'Lerato', lastname: 'Mahlangu', phoneSuffix: '0103');
-
-  static Map<String, dynamic> _detail({
-    required int id,
-    required int orderId,
-    required String product,
-    required num price,
-    required int quantity,
-  }) =>
-      {
-        'id': id,
-        // Order docnames are strings on the wire.
-        'order_id': '$orderId',
-        'stock_id': id,
-        'origin_price': price,
-        'total_price': price * quantity,
-        'tax': 0,
-        'discount': 0,
-        'quantity': quantity,
-        'bonus': false,
-        'stock': {
-          'id': id,
-          'countable_id': id,
-          'price': price,
-          'quantity': quantity,
-          'tax': 0,
-          'total_price': price * quantity,
-          'product': {
-            'id': id,
-            'uuid': 'demo-product-$id',
-            'shop_id': 9101,
-            'active': true,
-            'img': null,
-            'translation': {
-              'id': id,
-              'locale': 'en',
-              'title': product,
-            },
-            'locales': ['en'],
+  /// The legacy parcel marketplace: ready parcels with no courier yet.
+  static List<Map<String, dynamic>> availableParcels() => [
+        {
+          "id": "77101",
+          "user_id": "8103",
+          "total_price": 60,
+          "status": "ready",
+          "note": "Birthday gift, handle with care.",
+          "phone_from": "+27 10 000 0103",
+          "username_from": "Lerato Mahlangu",
+          "phone_to": "+27 10 000 0101",
+          "username_to": "Thandi Nkosi",
+          "address_from": {
+            "address": "56 Rivonia Road, Sandton",
+            "latitude": -26.1975,
+            "longitude": 28.0371,
           },
-        },
-      };
-
-  static Map<String, dynamic> _transaction({
-    required int orderId,
-    required num price,
-    required String tag,
-    required String status,
-  }) =>
-      {
-        'id': orderId + 50000,
-        'payable_id': orderId,
-        'price': price,
-        'note': 'Order payment',
-        'status': status,
-        'created_at': _iso(const Duration(hours: 1)),
-        'payment_system': {'id': tag == 'cash' ? 1 : 2, 'tag': tag, 'active': true},
-      };
-
-  // ---------------------------------------------------------------------
-  // Orders
-  // ---------------------------------------------------------------------
-
-  /// Base order seeds. `status` here is the seed value; the overlay (demo
-  /// accept/deliver/cancel actions) wins when present.
-  static List<Map<String, dynamic>> _orders() => [
-        // The driver's current job: collected from Corner Kitchen, cash on
-        // delivery so the COD confirmation flow has something to show.
-        {
-          'id': '900001',
-          'user_id': 8101,
-          'total_price': 189.90,
-          'origin_price': 164.90,
-          'service_fee': 0,
-          'tax': 10,
-          'delivery_fee': 15,
-          'commission_fee': 0,
-          'status': 'accepted',
-          'current': true,
-          'km': 3.2,
-          'otp': 4321,
-          'note': 'Gate code 1234, call on arrival.',
-          'location': _location(0.0121, 0.0084),
-          'address': {
-            'address': '12 Cradock Avenue, Rosebank',
-            'house': '12',
-            'office': null,
-            'floor': null,
+          "address_to": {
+            "address": "12 Cradock Avenue, Rosebank",
+            "latitude": -26.192,
+            "longitude": 28.0557,
           },
-          'delivery_type': 'delivery',
-          'delivery_date': _date(Duration.zero),
-          'delivery_time': '13:30',
-          'created_at': _iso(const Duration(minutes: 42)),
-          'updated_at': _iso(const Duration(minutes: 12)),
-          'shop': shopCornerKitchen(),
-          'currency': currency(),
-          'user': customerThandi(),
-          'details': [
-            _detail(
-                id: 700011,
-                orderId: 900001,
-                product: 'Family Feast Combo',
-                price: 74.95,
-                quantity: 2),
-            _detail(
-                id: 700012,
-                orderId: 900001,
-                product: 'Sparkling Lemonade 500 ml',
-                price: 15.00,
-                quantity: 1),
-          ],
-          'transaction': _transaction(
-              orderId: 900001, price: 189.90, tag: 'cash', status: 'progress'),
-        },
-        {
-          'id': '900002',
-          'user_id': 8102,
-          'total_price': 74.50,
-          'origin_price': 59.50,
-          'service_fee': 0,
-          'tax': 5,
-          'delivery_fee': 10,
-          'commission_fee': 0,
-          'status': 'ready',
-          'current': false,
-          'km': 1.8,
-          'otp': 8765,
-          'location': _location(-0.0093, 0.0117),
-          'address': {
-            'address': '34 Jan Smuts Avenue, Rosebank',
-            'house': '34',
-            'office': null,
-            'floor': null,
+          "type_id": "1",
+          "delivery_fee": 60,
+          "delivery_date": _now(),
+          "delivery_time": "17:30",
+          "current": false,
+          "created_at": _now(),
+          "updated_at": _now(),
+          "km": 3.4,
+          "currency": {
+            "id": 1,
+            "symbol": "R",
+            "title": "ZAR",
+            "rate": 1,
+            "active": true,
           },
-          'delivery_type': 'delivery',
-          'delivery_date': _date(Duration.zero),
-          'delivery_time': '14:15',
-          'created_at': _iso(const Duration(minutes: 25)),
-          'updated_at': _iso(const Duration(minutes: 8)),
-          'shop': shopMamaThembisSpaza(),
-          'currency': currency(),
-          'user': customerSipho(),
-          'details': [
-            _detail(
-                id: 700021,
-                orderId: 900002,
-                product: 'Chicken Mayo Sandwich',
-                price: 49.50,
-                quantity: 1),
-            _detail(
-                id: 700022,
-                orderId: 900002,
-                product: 'Orange Juice 1 L',
-                price: 10.00,
-                quantity: 1),
-          ],
-          'transaction': _transaction(
-              orderId: 900002, price: 74.50, tag: 'wallet', status: 'paid'),
-        },
-        // Available: ready, no deliveryman assigned yet.
-        {
-          'id': '900101',
-          'user_id': 8103,
-          'total_price': 129.00,
-          'origin_price': 109.00,
-          'service_fee': 0,
-          'tax': 8,
-          'delivery_fee': 12,
-          'status': 'ready',
-          'current': false,
-          'km': 2.4,
-          'deliveryman': null,
-          'location': _location(0.0066, -0.0102),
-          'address': {
-            'address': '56 Rivonia Road, Sandton',
-            'house': '56',
-            'office': '2B',
-            'floor': '2',
+          "user": {
+            "id": 8103,
+            "uuid": "demo-user-8103",
+            "firstname": "Lerato",
+            "lastname": "Mahlangu",
+            "email": "lerato.mahlangu@rokct.ai",
+            "phone": "+27 10 000 0103",
+            "active": true,
+            "img": null,
+            "role": "user",
           },
-          'delivery_type': 'delivery',
-          'delivery_date': _date(Duration.zero),
-          'delivery_time': '15:00',
-          'created_at': _iso(const Duration(minutes: 9)),
-          'updated_at': _iso(const Duration(minutes: 9)),
-          'shop': shopCornerKitchen(),
-          'currency': currency(),
-          'user': customerLerato(),
-          'details': [
-            _detail(
-                id: 701011,
-                orderId: 900101,
-                product: 'Margherita Pizza (Large)',
-                price: 109.00,
-                quantity: 1),
-          ],
-          'transaction': _transaction(
-              orderId: 900101, price: 129.00, tag: 'cash', status: 'progress'),
-        },
-        {
-          'id': '900102',
-          'user_id': 8101,
-          'total_price': 245.40,
-          'origin_price': 215.40,
-          'service_fee': 0,
-          'tax': 12,
-          'delivery_fee': 18,
-          'status': 'ready',
-          'current': false,
-          'km': 4.7,
-          'deliveryman': null,
-          'location': _location(-0.0138, -0.0059),
-          'address': {
-            'address': '78 Grayston Drive, Sandton',
-            'house': '78',
-            'office': null,
-            'floor': null,
+          "type": {
+            "id": "1",
+            "type": "Documents",
+            "img": null,
+            "price": 30,
+            "price_per_km": 5,
           },
-          'delivery_type': 'delivery',
-          'delivery_date': _date(Duration.zero),
-          'delivery_time': '15:30',
-          'created_at': _iso(const Duration(minutes: 4)),
-          'updated_at': _iso(const Duration(minutes: 4)),
-          'shop': shopMamaThembisSpaza(),
-          'currency': currency(),
-          'user': customerThandi(),
-          'details': [
-            _detail(
-                id: 701021,
-                orderId: 900102,
-                product: 'Weekly Groceries Box',
-                price: 215.40,
-                quantity: 1),
-          ],
-          'transaction': _transaction(
-              orderId: 900102, price: 245.40, tag: 'wallet', status: 'paid'),
-        },
-        // History: delivered earlier this week.
-        {
-          'id': '899901',
-          'user_id': 8102,
-          'total_price': 96.00,
-          'origin_price': 84.00,
-          'tax': 4,
-          'delivery_fee': 8,
-          'status': 'delivered',
-          'current': false,
-          'km': 2.1,
-          'location': _location(0.0035, 0.0022),
-          'delivery_type': 'delivery',
-          'delivery_date': _date(const Duration(days: 1)),
-          'delivery_time': '12:10',
-          'created_at': _iso(const Duration(days: 1, hours: 3)),
-          'updated_at': _iso(const Duration(days: 1, hours: 2)),
-          'shop': shopCornerKitchen(),
-          'currency': currency(),
-          'user': customerSipho(),
-          'details': [
-            _detail(
-                id: 699011,
-                orderId: 899901,
-                product: 'Breakfast Basket',
-                price: 84.00,
-                quantity: 1),
-          ],
-          'transaction': _transaction(
-              orderId: 899901, price: 96.00, tag: 'cash', status: 'paid'),
-        },
-        {
-          'id': '899902',
-          'user_id': 8103,
-          'total_price': 158.75,
-          'origin_price': 138.75,
-          'tax': 8,
-          'delivery_fee': 12,
-          'status': 'delivered',
-          'current': false,
-          'km': 3.9,
-          'location': _location(-0.0044, 0.0091),
-          'delivery_type': 'delivery',
-          'delivery_date': _date(const Duration(days: 2)),
-          'delivery_time': '17:45',
-          'created_at': _iso(const Duration(days: 2, hours: 5)),
-          'updated_at': _iso(const Duration(days: 2, hours: 4)),
-          'shop': shopMamaThembisSpaza(),
-          'currency': currency(),
-          'user': customerLerato(),
-          'details': [
-            _detail(
-                id: 699021,
-                orderId: 899902,
-                product: 'Dinner for Two',
-                price: 138.75,
-                quantity: 1),
-          ],
-          'transaction': _transaction(
-              orderId: 899902, price: 158.75, tag: 'wallet', status: 'paid'),
         },
       ];
 
-  /// All order maps with the session overlay applied.
-  static List<Map<String, dynamic>> orders() => _orders().map((o) {
-        final id = o['id'] as String;
-        final overlay = orderStatusOverlay[id];
-        if (overlay != null) o['status'] = overlay;
-        o['current'] = id == currentOrderId;
-        return o;
-      }).toList();
-
-  static Map<String, dynamic>? orderById(String id) {
-    for (final o in orders()) {
-      if (o['id'] == id) return o;
-    }
-    return null;
-  }
-
-  // ---------------------------------------------------------------------
-  // Parcels
-  // ---------------------------------------------------------------------
-
-  static Map<String, dynamic> _parcelType() => {
-        'id': '1',
-        'type': 'Documents',
-        'img': null,
-        'price': 30,
-        'price_per_km': 5,
-      };
-
-  static List<Map<String, dynamic>> _parcels() => [
-        {
-          'id': '77001',
-          'user_id': '8101',
-          'total_price': 45,
-          'status': 'accepted',
-          'note': 'Signed contracts, keep flat.',
-          'phone_from': '+27 10 000 0101',
-          'username_from': 'Thandi Nkosi',
-          'phone_to': '+27 10 000 0102',
-          'username_to': 'Sipho Dlamini',
-          'address_from': {
-            'address': '42 Marula Avenue, Sandton',
-            'latitude': anchorLatitude + 0.0042,
-            'longitude': anchorLongitude - 0.0031,
-          },
-          'address_to': {
-            'address': '34 Jan Smuts Avenue, Rosebank',
-            'latitude': anchorLatitude - 0.0093,
-            'longitude': anchorLongitude + 0.0117,
-          },
-          'type_id': '1',
-          'delivery_fee': 45,
-          'delivery_date': _date(Duration.zero),
-          'delivery_time': '16:00',
-          'current': false,
-          'created_at': _iso(const Duration(minutes: 55)),
-          'updated_at': _iso(const Duration(minutes: 20)),
-          'km': 2.6,
-          'currency': currency(),
-          'user': customerThandi(),
-          'type': _parcelType(),
-        },
-        {
-          'id': '77101',
-          'user_id': '8103',
-          'total_price': 60,
-          'status': 'ready',
-          'note': 'Birthday gift, handle with care.',
-          'phone_from': '+27 10 000 0103',
-          'username_from': 'Lerato Mahlangu',
-          'phone_to': '+27 10 000 0101',
-          'username_to': 'Thandi Nkosi',
-          'address_from': {
-            'address': '56 Rivonia Road, Sandton',
-            'latitude': anchorLatitude + 0.0066,
-            'longitude': anchorLongitude - 0.0102,
-          },
-          'address_to': {
-            'address': '12 Cradock Avenue, Rosebank',
-            'latitude': anchorLatitude + 0.0121,
-            'longitude': anchorLongitude + 0.0084,
-          },
-          'type_id': '1',
-          'delivery_fee': 60,
-          'delivery_date': _date(Duration.zero),
-          'delivery_time': '17:30',
-          'current': false,
-          'created_at': _iso(const Duration(minutes: 15)),
-          'updated_at': _iso(const Duration(minutes: 15)),
-          'km': 3.4,
-          'currency': currency(),
-          'user': customerLerato(),
-          'type': _parcelType(),
-        },
-        {
-          'id': '76901',
-          'user_id': '8102',
-          'total_price': 38,
-          'status': 'delivered',
-          'phone_from': '+27 10 000 0102',
-          'username_from': 'Sipho Dlamini',
-          'phone_to': '+27 10 000 0103',
-          'username_to': 'Lerato Mahlangu',
-          'address_from': {
-            'address': '34 Jan Smuts Avenue, Rosebank',
-            'latitude': anchorLatitude - 0.0093,
-            'longitude': anchorLongitude + 0.0117,
-          },
-          'address_to': {
-            'address': '56 Rivonia Road, Sandton',
-            'latitude': anchorLatitude + 0.0066,
-            'longitude': anchorLongitude - 0.0102,
-          },
-          'type_id': '1',
-          'delivery_fee': 38,
-          'delivery_date': _date(const Duration(days: 1)),
-          'delivery_time': '11:20',
-          'current': false,
-          'created_at': _iso(const Duration(days: 1, hours: 6)),
-          'updated_at': _iso(const Duration(days: 1, hours: 5)),
-          'km': 1.9,
-          'currency': currency(),
-          'user': customerSipho(),
-          'type': _parcelType(),
-        },
-      ];
-
-  static List<Map<String, dynamic>> parcels() => _parcels().map((p) {
-        final id = p['id'] as String;
-        final overlay = parcelStatusOverlay[id];
-        if (overlay != null) p['status'] = overlay;
-        p['current'] = id == currentParcelId;
-        return p;
-      }).toList();
-
+  /// A parcel by id, across the marketplace and the courier's own parcels.
   static Map<String, dynamic>? parcelById(String id) {
-    for (final p in parcels()) {
+    for (final p in [...availableParcels(), ..._ownParcels()]) {
       if (p['id'] == id) return p;
     }
     return null;
   }
 
-  // ---------------------------------------------------------------------
-  // Route (dispatch)
-  // ---------------------------------------------------------------------
-
-  static Map<String, dynamic> _stop({
-    required int sequence,
-    required String stopType,
-    required String refDoctype,
-    required String refName,
-    required String label,
-    required double dLat,
-    required double dLng,
-    num? quantity,
-    String? unit,
-    String status = 'Pending',
-    double? distanceKm,
-    Map<String, dynamic> meta = const {},
-  }) =>
-      {
-        'sequence': sequence,
-        'stop_type': stopType,
-        'ref_doctype': refDoctype,
-        'ref_name': refName,
-        'label': label,
-        'latitude': anchorLatitude + dLat,
-        'longitude': anchorLongitude + dLng,
-        'quantity': quantity,
-        'unit': unit,
-        'status': status,
-        'missing_coordinates': false,
-        'distance_from_previous_km': distanceKm,
-        'meta': meta,
-      };
-
-  static List<Map<String, dynamic>> routeStops() => [
-        _stop(
-          sequence: 1,
-          stopType: 'Pickup',
-          refDoctype: 'Dispatch Route Stop',
-          refName: 'DRS-0001',
-          label: 'Corner Kitchen — collect 2 orders',
-          dLat: 0.0042,
-          dLng: -0.0031,
-          quantity: 2,
-          unit: 'orders',
-          distanceKm: 1.2,
-          meta: {'route_id': 'DR-0001'},
-        ),
-        _stop(
-          sequence: 2,
-          stopType: 'Delivery',
-          refDoctype: 'Order',
-          refName: '900001',
-          label: 'Thandi Nkosi — 12 Cradock Avenue',
-          dLat: 0.0121,
-          dLng: 0.0084,
-          quantity: 1,
-          unit: 'order',
-          distanceKm: 2.4,
-          meta: {
-            'route_id': 'DR-0001',
-            'payment_tag': 'cash',
-            'total_price': 189.90,
-          },
-        ),
-        _stop(
-          sequence: 3,
-          stopType: 'Delivery',
-          refDoctype: 'Order',
-          refName: '900002',
-          label: 'Sipho Dlamini — 34 Jan Smuts Avenue',
-          dLat: -0.0093,
-          dLng: 0.0117,
-          quantity: 1,
-          unit: 'order',
-          distanceKm: 3.1,
-          meta: {'route_id': 'DR-0001', 'payment_tag': 'wallet'},
-        ),
-        _stop(
-          sequence: 4,
-          stopType: 'Delivery',
-          refDoctype: 'Parcel Order',
-          refName: '77001',
-          label: 'Parcel — Sipho Dlamini, 34 Jan Smuts Avenue',
-          dLat: -0.0090,
-          dLng: 0.0119,
-          quantity: 1,
-          unit: 'parcel',
-          distanceKm: 0.3,
-          meta: {'route_id': 'DR-0001'},
-        ),
-      ];
-
-  static Map<String, dynamic> dispatchRoute() => {
-        'route': {
-          'name': 'DR-0001',
-          'mode': 'Delivery',
-          'status': 'In Progress',
-          'notes': 'Morning dispatch route, four stops',
-          'total_stops': 4,
-          'pending_stops': 4,
-        },
-        'stops': routeStops(),
-      };
-
-  // ---------------------------------------------------------------------
-  // Courier profile / vehicle
-  // ---------------------------------------------------------------------
-
-  static Map<String, dynamic> driverDetails() => {
-        'timestamp': _iso(Duration.zero),
-        'status': true,
-        'message': 'OK',
-        'data': {
-          'id': 7001,
-          'user_id': 8001,
-          'type_of_technique': 'motorbike',
-          'brand': 'Honda',
-          'model': 'Ace 125',
-          'number': 'KLM 482 GP',
-          'color': 'Green',
-          'width': '60',
-          'height': '110',
-          'kg': '12',
-          'length': '190',
-          // base_sdk's Data.fromJson declares price / price_per_km as
-          // String? and assigns them straight through (no toString()
-          // normalisation, unlike width/height/kg/length above), so an int
-          // here throws "type 'int' is not a subtype of type 'String?'" the
-          // moment the driver home fetches its details. Quoted to match the
-          // shape the model actually parses.
-          'price': '25',
-          'price_per_km': '6',
-          'online': true,
-          'location': _location(0, 0),
-          'created_at': _iso(const Duration(days: 180)),
-          'updated_at': _iso(const Duration(hours: 2)),
-          'deliveryMan': {
-            'id': 8001,
-            'uuid': 'demo-driver-8001',
-            'firstname': 'Dumi',
-            'lastname': 'Khumalo',
-            'email': 'dumi.khumalo@rokct.ai',
-            'phone': '+27 10 000 0200',
-            'active': true,
-            'img': null,
-            'role': 'deliveryman',
-          },
-          'galleries': [],
-        },
-      };
-
-  static List<Map<String, dynamic>> vehicleTypes() => [
-        {
-          'id': 1,
-          'key': 'bicycle',
-          'name': 'Bicycle',
-          'max_weight_kg': 8,
-          'base_rate': 15,
-          'description': 'Light and quick around the block.',
-          'active': true,
-          'sort_order': 1,
-        },
-        {
-          'id': 2,
-          'key': 'motorbike',
-          'name': 'Motorbike',
-          'max_weight_kg': 20,
-          'base_rate': 25,
-          'description': 'The everyday courier workhorse.',
-          'active': true,
-          'sort_order': 2,
-        },
-        {
-          'id': 3,
-          'key': 'car',
-          'name': 'Car',
-          'max_weight_kg': 80,
-          'base_rate': 40,
-          'description': 'Bigger loads and longer trips.',
-          'active': true,
-          'sort_order': 3,
-        },
-      ];
-
-  static Map<String, dynamic> deliverymanSettings() => {
-        'can_convert_cod_to_credit': 1,
-      };
-
-  static Map<String, dynamic> profileData() => {
-        'id': 8001,
-        'uuid': 'demo-driver-8001',
-        'firstname': 'Dumi',
-        'lastname': 'Khumalo',
-        'email': 'dumi.khumalo@rokct.ai',
-        'phone': '+27 10 000 0200',
-        'active': true,
-        'img': null,
-        'role': 'deliveryman',
-      };
-
-  /// A tight fictional polygon around the demo anchor — the courier's zone
-  /// on the home map.
-  static List<List<double>> deliveryZone() => [
-        [anchorLatitude + 0.030, anchorLongitude - 0.030],
-        [anchorLatitude + 0.030, anchorLongitude + 0.030],
-        [anchorLatitude - 0.030, anchorLongitude + 0.030],
-        [anchorLatitude - 0.030, anchorLongitude - 0.030],
-        [anchorLatitude + 0.030, anchorLongitude - 0.030],
-      ];
+  static List<Map<String, dynamic>> _ownParcels() => [
+    {
+      "id": "77001",
+      "user_id": "8101",
+      "total_price": 45,
+      "status": "accepted",
+      "note": "Signed contracts, keep flat.",
+      "phone_from": "+27 10 000 0101",
+      "username_from": "Thandi Nkosi",
+      "phone_to": "+27 10 000 0102",
+      "username_to": "Sipho Dlamini",
+      "address_from": {
+        "address": "42 Marula Avenue, Sandton",
+        "latitude": -26.1999,
+        "longitude": 28.0442,
+      },
+      "address_to": {
+        "address": "34 Jan Smuts Avenue, Rosebank",
+        "latitude": -26.2134,
+        "longitude": 28.059,
+      },
+      "type_id": "1",
+      "delivery_fee": 45,
+      "delivery_date": _now(),
+      "delivery_time": "16:00",
+      "current": false,
+      "created_at": _now(),
+      "updated_at": _now(),
+      "km": 2.6,
+      "currency": {
+        "id": 1,
+        "symbol": "R",
+        "title": "ZAR",
+        "rate": 1,
+        "active": true,
+      },
+      "user": {
+        "id": 8101,
+        "uuid": "demo-user-8101",
+        "firstname": "Thandi",
+        "lastname": "Nkosi",
+        "email": "thandi.nkosi@rokct.ai",
+        "phone": "+27 10 000 0101",
+        "active": true,
+        "img": null,
+        "role": "user",
+      },
+      "type": {
+        "id": "1",
+        "type": "Documents",
+        "img": null,
+        "price": 30,
+        "price_per_km": 5,
+      },
+    },
+    {
+      "id": "76901",
+      "user_id": "8102",
+      "total_price": 38,
+      "status": "delivered",
+      "phone_from": "+27 10 000 0102",
+      "username_from": "Sipho Dlamini",
+      "phone_to": "+27 10 000 0103",
+      "username_to": "Lerato Mahlangu",
+      "address_from": {
+        "address": "34 Jan Smuts Avenue, Rosebank",
+        "latitude": -26.2134,
+        "longitude": 28.059,
+      },
+      "address_to": {
+        "address": "56 Rivonia Road, Sandton",
+        "latitude": -26.1975,
+        "longitude": 28.0371,
+      },
+      "type_id": "1",
+      "delivery_fee": 38,
+      "delivery_date": _now(),
+      "delivery_time": "11:20",
+      "current": false,
+      "created_at": _now(),
+      "updated_at": _now(),
+      "km": 1.9,
+      "currency": {
+        "id": 1,
+        "symbol": "R",
+        "title": "ZAR",
+        "rate": 1,
+        "active": true,
+      },
+      "user": {
+        "id": 8102,
+        "uuid": "demo-user-8102",
+        "firstname": "Sipho",
+        "lastname": "Dlamini",
+        "email": "sipho.dlamini@rokct.ai",
+        "phone": "+27 10 000 0102",
+        "active": true,
+        "img": null,
+        "role": "user",
+      },
+      "type": {
+        "id": "1",
+        "type": "Documents",
+        "img": null,
+        "price": 30,
+        "price_per_km": 5,
+      },
+    },
+  ];
 }

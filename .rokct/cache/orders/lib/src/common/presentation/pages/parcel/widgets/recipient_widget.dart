@@ -15,7 +15,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:orders_sdk/src/common/application/parcel/parcel_notifier.dart';
 import 'package:orders_sdk/src/common/application/parcel/parcel_state.dart';
@@ -88,13 +88,13 @@ class RecipientWidget extends StatelessWidget {
           child: AnimationButtonEffect(
             child: Container(
               decoration: BoxDecoration(
-                color: AppStyle.bgGrey,
+                color: AppStyle.surfaceFor(Theme.of(context).brightness),
                 borderRadius: BorderRadius.circular(10.r),
               ),
               padding: EdgeInsets.symmetric(horizontal: 20.r, vertical: 16.r),
               child: Row(
                 children: [
-                  const Icon(FlutterRemix.map_pin_range_line),
+                  const Icon(Remix.map_pin_range_line),
                   12.horizontalSpace,
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,7 +117,7 @@ class RecipientWidget extends StatelessWidget {
                     ],
                   ),
                   const Spacer(),
-                  const Icon(FlutterRemix.arrow_right_s_line),
+                  const Icon(Remix.arrow_right_s_line),
                 ],
               ),
             ),
@@ -176,7 +176,7 @@ class RecipientWidget extends StatelessWidget {
                 autocorrect: true,
                 controller: description,
                 decoration: InputDecoration(
-                  fillColor: AppStyle.bgGrey,
+                  fillColor: AppStyle.surfaceFor(Theme.of(context).brightness),
                   filled: true,
                   hintText: AppHelpers.getTranslation(TrKeys.whatAreYouSending),
                   enabledBorder: OutlineInputBorder(
@@ -260,7 +260,7 @@ class RecipientWidget extends StatelessWidget {
                                 vertical: 10.r,
                               ),
                               decoration: BoxDecoration(
-                                color: AppStyle.bgGrey,
+                                color: AppStyle.surfaceFor(Theme.of(context).brightness),
                                 borderRadius: BorderRadius.circular(10.r),
                               ),
                               child: Text(
@@ -280,7 +280,7 @@ class RecipientWidget extends StatelessWidget {
                 autocorrect: true,
                 controller: value,
                 decoration: InputDecoration(
-                  fillColor: AppStyle.bgGrey,
+                  fillColor: AppStyle.surfaceFor(Theme.of(context).brightness),
                   filled: true,
                   hintText: AppHelpers.getTranslation(TrKeys.itemValue),
                   enabledBorder: OutlineInputBorder(

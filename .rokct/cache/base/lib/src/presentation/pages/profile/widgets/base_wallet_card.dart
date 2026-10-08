@@ -82,6 +82,16 @@ class BaseWalletCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // The card's ink comes from the inherited theme, not from AppStyle's
+    // app-wide isDark static. Being a ConsumerWidget is no defence (the
+    // ProductCard lesson): with a `wallet` snapshot supplied nothing is
+    // watched at all, and profileProvider does not fire when the theme mode
+    // changes - so a flip rescheduled nothing and the card kept the previous
+    // mode's ink. Read once, outside every inner builder. The balance's
+    // AppStyle.green / AppStyle.red, the primary tint and the caller's
+    // `actions` are all left exactly as they were.
+    final Brightness brightness = Theme.of(context).brightness;
+
     // `wallet ??` short-circuits: with a snapshot supplied the live
     // provider is never built (keeps the widget testable without DI).
     final Wallet? effectiveWallet = wallet ??
@@ -112,7 +122,7 @@ class BaseWalletCard extends ConsumerWidget {
                 onTap: onHistory,
                 child: Icon(
                   Remix.arrow_right_up_line,
-                  color: AppStyle.textPrimary,
+                  color: AppStyle.inkFor(brightness),
                 ),
               ),
             ),
@@ -127,7 +137,10 @@ class BaseWalletCard extends ConsumerWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(Remix.wallet_3_line, color: AppStyle.textPrimary),
+                    Icon(
+                      Remix.wallet_3_line,
+                      color: AppStyle.inkFor(brightness),
+                    ),
                     16.horizontalSpace,
                     Text(
                       showBalance
@@ -135,7 +148,7 @@ class BaseWalletCard extends ConsumerWidget {
                           : AppHelpers.getTranslation(TrKeys.wallet),
                       style: AppStyle.interNoSemi(
                         size: 16,
-                        color: AppStyle.textPrimary,
+                        color: AppStyle.inkFor(brightness),
                       ),
                     ),
                     if (showBalance)

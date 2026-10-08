@@ -33,7 +33,7 @@ class ShopProductItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(10.r),
       ),
       child: Padding(
@@ -64,7 +64,7 @@ class ShopProductItem extends StatelessWidget {
                     product.translation?.title ?? "",
                     style: AppStyle.interNoSemi(
                       size: 14,
-                      color: AppStyle.textPrimary,
+                      color: AppStyle.inkFor(Theme.of(context).brightness),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -168,7 +168,7 @@ class ShopProductItem extends StatelessWidget {
                                     modal: BonusScreen(
                                       bonus: product.stock?.bonus,
                                     ),
-                                    isDarkMode: false,
+                                    isDarkMode: Theme.of(context).brightness == Brightness.dark,
                                     isDrag: true,
                                     radius: 12,
                                   );

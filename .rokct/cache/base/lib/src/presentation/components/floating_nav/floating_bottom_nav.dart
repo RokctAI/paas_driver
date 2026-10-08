@@ -14,6 +14,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -416,8 +417,8 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
                 : null,
             action: FloatingNavAction(
               icon: _reactionsOpen
-                  ? Icons.emoji_emotions
-                  : Icons.emoji_emotions_outlined,
+                  ? Remix.emotion_happy_fill
+                  : Remix.emotion_happy_line,
               label: mode.reactionsLabel,
               active: _reactionsOpen,
               onTap: !mode.reactionsEnabled
@@ -823,7 +824,7 @@ class _ComposerBlockState extends State<_ComposerBlock> {
                           Padding(
                             padding: EdgeInsets.only(right: 8.r),
                             child: Icon(
-                              Icons.lock_outline,
+                              Remix.lock_line,
                               size: 17.r,
                               color: AppStyle.white.withOpacity(0.42),
                             ),
@@ -878,7 +879,7 @@ class _ComposerBlockState extends State<_ComposerBlock> {
                           _NavActionButton(
                             compact: true,
                             action: FloatingNavAction(
-                              icon: Icons.arrow_upward_rounded,
+                              icon: Remix.arrow_up_line,
                               label: input.placeholder,
                               active: true,
                               onTap: _submit,
@@ -933,7 +934,7 @@ class _TargetChip extends StatelessWidget {
                 if (target.onTap != null) ...[
                   SizedBox(width: 3.r),
                   Icon(
-                    Icons.keyboard_arrow_down,
+                    Remix.arrow_down_s_line,
                     size: 15.r,
                     color: AppStyle.white.withOpacity(0.6),
                   ),
@@ -958,6 +959,10 @@ class _NavActionButton extends StatelessWidget {
   /// reactions button wearing whatever was last sent.
   final String? emoji;
 
+  /// The bar's OWN long press for this control, which wins over the
+  /// action's [FloatingNavAction.onLongPress]: the reactions button uses it
+  /// to reopen the emoji picker, and that is the bar's behaviour rather than
+  /// the caller's.
   final VoidCallback? onLongPress;
 
   /// Overrides [compact]'s default leading-edge gap. The tablet-mode
@@ -998,7 +1003,7 @@ class _NavActionButton extends StatelessWidget {
       child: InkWell(
         customBorder: const CircleBorder(),
         onTap: enabled ? action.onTap : null,
-        onLongPress: enabled ? onLongPress : null,
+        onLongPress: enabled ? (onLongPress ?? action.onLongPress) : null,
         child: Padding(
           padding: EdgeInsets.all(9.r),
           child: Stack(
@@ -1034,7 +1039,7 @@ class _NavActionButton extends StatelessWidget {
                       color: AppStyle.bottomNavigationBarColor,
                     ),
                     child: Icon(
-                      Icons.lock,
+                      Remix.lock_fill,
                       size: 10.r,
                       color: AppStyle.white.withOpacity(0.7),
                     ),

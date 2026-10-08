@@ -18,9 +18,10 @@
 # the app shell's tour/app.tour.yaml ({app_name}/{app_tagline} placeholders
 # are substituted at merge time). This fragment owns only the UI comms_sdk
 # owns AND its demo data reaches: the language sheet, whose list is fed by
-# languageProvider -> SettingsRepositoryFacade.getLanguages(), which demo
-# builds (--dart-define=IS_DEMO=true) satisfy with this SDK's own
-# MockSettingsRepository.
+# languageProvider -> SettingsRepositoryFacade.getLanguages(), which the
+# tour/demo session answers through the real SettingsRepository from this
+# SDK's own demo fixtures (assets/demo/comms, via base_sdk's
+# DemoGatewayInterceptor).
 #
 # Why dart actions instead of routes: comms_sdk declares no top-level
 # routes (its manifest routes are app_type-scoped notification lists), and
@@ -32,8 +33,8 @@
 # still shows the sheet exactly as users get it.
 #
 # NOT toured (no comms-owned, universally reachable screen backing them):
-# the FAQ/policy/terms/notification-list payloads MockSettingsRepository
-# also seeds render on screens owned by other SDKs (marketplace's help
+# the FAQ/policy/terms/notification-list payloads the demo fixtures
+# also carry render on screens owned by other SDKs (marketplace's help
 # page) or only in app_type-specific installs (/list-notification for
 # manager/driver shells) - those belong to the owning SDK's fragment or to
 # app-shell steps.
@@ -56,7 +57,7 @@ steps:
       // AppHelpers.showCustomModalBottomSheet call auth's login page and
       // marketplace's profile use for EmbeddedWidgets.I.languageScreen.
       // LanguageScreen is comms_sdk's own widget; in demo builds its list
-      // comes from MockSettingsRepository.getLanguages(). The sheet follows
+      // comes from the api.language.get_languages demo fixture. The sheet follows
       // the theme the tour is running in (the shells set it in setup), so
       // the still never captures a light sheet inside a dark tour.
       final BuildContext sheetContext =

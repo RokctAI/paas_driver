@@ -14,6 +14,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 
@@ -129,7 +130,7 @@ class TitleAndIcon extends StatelessWidget {
                         SizedBox(width: 5.w),
                       if (isIcon)
                         Icon(
-                          isLtr ? Icons.arrow_forward : Icons.arrow_back,
+                          isLtr ? Remix.arrow_right_line : Remix.arrow_left_line,
                           color: iconColor,
                           size: 20.r,
                         ),

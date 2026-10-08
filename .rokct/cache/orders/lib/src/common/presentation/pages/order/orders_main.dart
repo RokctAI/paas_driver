@@ -63,7 +63,7 @@ class _MainPageState extends ConsumerState<OrdersMainPage>
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkMode = LocalStorage.getAppThemeMode();
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final bool isLtr = LocalStorage.getLangLtr();
     return Directionality(
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
@@ -173,7 +173,7 @@ class _OrderPageState extends ConsumerState<OrdersList>
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkMode = LocalStorage.getAppThemeMode();
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final bool isLtr = LocalStorage.getLangLtr();
     final state = ref.watch(ordersListProvider);
     return Directionality(
@@ -349,7 +349,7 @@ class _ParcelListTabState extends ConsumerState<ParcelListTab>
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkMode = LocalStorage.getAppThemeMode();
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final bool isLtr = LocalStorage.getLangLtr();
     final state = ref.watch(parcelListProvider);
     return Directionality(

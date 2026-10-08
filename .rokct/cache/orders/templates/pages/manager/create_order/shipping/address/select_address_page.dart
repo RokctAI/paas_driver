@@ -91,7 +91,7 @@ class _SelectAddressPageState extends State<SelectAddressPage>
     final bool hosted = planes != null && planes.count > 1;
     return KeyboardDismisser(
       child: Scaffold(
-        backgroundColor: AppStyle.surfaceDark,
+        backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
         resizeToAvoidBottomInset: false,
         body: Consumer(
           builder: (context, ref, child) {

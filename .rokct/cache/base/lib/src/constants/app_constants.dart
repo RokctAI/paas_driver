@@ -23,19 +23,13 @@ import 'package:base_sdk/src/presentation/components/floating_nav/floating_nav_m
 abstract class AppConstants {
   AppConstants._();
 
-  /// The compile-time demo switch (`--dart-define=IS_DEMO=true`): the tour,
-  /// render-strip and screenshot builds. A production build that signs in
-  /// a server-marked demo account flips the RUNTIME switch instead; ask
-  /// `DemoSession.demoActive` (`isDemo || DemoSession.instance.active`)
-  /// wherever a seam must honour both.
-  static const bool isDemo = bool.fromEnvironment('IS_DEMO');
   /// Set only by the Guided Tour build and test args in the shared workflow
   /// (`--dart-define=TOUR_MODE=true`); never in a shipped build.
   static const bool isTour = bool.fromEnvironment('TOUR_MODE');
   static const bool isPhoneFirebase = true;
   static const int scheduleInterval = 60;
   /// Defaults to phone when SIGN_UP_TYPE isn't passed via --dart-define
-  /// (e.g. a dev build that only sets IS_DEMO) — .byName('') on an empty
+  /// (e.g. a dev build that only sets TOUR_MODE) — .byName('') on an empty
   /// env value throws "No enum value with that name" and crashes the
   /// login/register flow entirely, which is worse than a sensible default.
   static SignUpType get signUpType {

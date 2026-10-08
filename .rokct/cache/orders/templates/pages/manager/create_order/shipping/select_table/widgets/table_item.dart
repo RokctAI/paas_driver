@@ -17,6 +17,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/models.dart';
+import 'package:remixicon/remixicon.dart';
 
 class TableItem extends StatelessWidget {
   final TableData? table;
@@ -61,7 +62,7 @@ class TableItem extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  Icons.chair_alt,
+                  Remix.armchair_line,
                   size: 21.r,
                 ),
                 Text(

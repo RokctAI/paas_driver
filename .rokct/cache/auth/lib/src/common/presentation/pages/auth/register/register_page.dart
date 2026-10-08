@@ -178,7 +178,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         child: Container(
           margin: MediaQuery.of(context).viewInsets,
           decoration: BoxDecoration(
-            color: AppStyle.surfaceDark,
+            color: AppStyle.surfaceFor(Theme.of(context).brightness),
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(16.r),
               topRight: Radius.circular(16.r),
@@ -235,9 +235,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                 ? TextDirection.ltr
                                 : TextDirection.rtl,
                             child: IntlPhoneField(
-                              style: TextStyle(color: AppStyle.textPrimary),
+                              style: TextStyle(color: AppStyle.inkFor(Theme.of(context).brightness)),
                               dropdownTextStyle: TextStyle(
-                                color: AppStyle.textPrimary,
+                                color: AppStyle.inkFor(Theme.of(context).brightness),
                               ),
                               onChanged: (phoneNum) {
                                 event.setEmail(phoneNum.completeNumber);
@@ -466,7 +466,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                             _birthDate!,
                                           ),
                                     style: TextStyle(
-                                      color: AppStyle.textPrimary,
+                                      color: AppStyle.inkFor(Theme.of(context).brightness),
                                     ),
                                   ),
                                 ),
@@ -484,31 +484,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       onPressed: () {
                         if (widget.isOnlyEmail) {
                           if (event.checkEmail()) {
+                            // Email sign-up: email -> details form ->
+                            // register_user creates the account and emails
+                            // the code -> code sheet (see
+                            // RegisterNotifier.register). The code can only
+                            // be asked for once the account exists.
                             event.sendCode(context, () {
-                              Navigator.pop(context);
-                              AppHelpers.showCustomModalBottomSheet(
-                                context: context,
-                                modal: RegisterConfirmationPage(
-                                  verificationId: "",
-                                  userModel: UserModel(
-                                    firstname: state.firstName,
-                                    lastname: state.lastName,
-                                    phone: state.phone,
-                                    email: state.email,
-                                    password: state.password,
-                                    confirmPassword: state.confirmPassword,
-                                  ),
-                                ),
-                                isDarkMode: isDarkMode,
-                              );
-                            }, onOffline: () {
-                              // Offline: skip the emailed-code step and go
-                              // straight to the details form — the same
-                              // navigation RegisterConfirmationPage takes on
-                              // verify success. The email lives on in the
-                              // shared registerProvider state; register()
-                              // finishes locally and syncs (then OTP-
-                              // verifies via PendingOtpGate) once online.
                               Navigator.pop(context);
                               AppHelpers.showCustomModalBottomSheet(
                                 context: context,
@@ -589,7 +570,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               children: <Widget>[
                                 Expanded(
                                   child: Divider(
-                                    color: AppStyle.strokeDark.withOpacity(
+                                    color: AppStyle.strokeFor(Theme.of(context).brightness).withOpacity(
                                       0.18,
                                     ),
                                   ),
@@ -611,7 +592,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                 ),
                                 Expanded(
                                   child: Divider(
-                                    color: AppStyle.strokeDark.withOpacity(
+                                    color: AppStyle.strokeFor(Theme.of(context).brightness).withOpacity(
                                       0.18,
                                     ),
                                   ),

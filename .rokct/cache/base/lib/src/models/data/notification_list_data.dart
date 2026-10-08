@@ -28,11 +28,15 @@ class NotificationsListModel {
 
   factory NotificationsListModel.fromJson(Map<String, dynamic> json) =>
       NotificationsListModel(
-        data: json["data"] == null
-            ? []
-            : List<NotificationData>.from(
-                json["data"]!.map((x) => NotificationData.fromJson(x)),
-              ),
+        data: json["data"] is List
+            ? List<NotificationData>.from(
+                (json["data"] as List).map(
+                  (x) => NotificationData.fromJson(
+                    Map<String, dynamic>.from(x as Map),
+                  ),
+                ),
+              )
+            : [],
       );
 
   Map<String, dynamic> toJson() => {
@@ -63,14 +67,18 @@ class NotificationData {
       NotificationData(
         id: (json["id"] ?? json["name"])?.toString(),
         type: json["type"],
-        createdAt: DateTime.tryParse(json["created_at"])?.toLocal(),
-        updatedAt: DateTime.tryParse(json["updated_at"])?.toLocal(),
-        active: false,
-        payload: json["payload"] == null
-            ? []
-            : json["payload"] == null
-                ? []
-                : List<String?>.from(json["payload"]!.map((x) => x)),
+        createdAt: json["created_at"] == null
+            ? null
+            : DateTime.tryParse(json["created_at"].toString())?.toLocal(),
+        updatedAt: json["updated_at"] == null
+            ? null
+            : DateTime.tryParse(json["updated_at"].toString())?.toLocal(),
+        active: json["active"] == true || json["active"] == 1,
+        payload: json["payload"] is List
+            ? List<String?>.from(
+                (json["payload"] as List).map((x) => x?.toString()),
+              )
+            : [],
       );
 
   Map<String, dynamic> toJson() => {

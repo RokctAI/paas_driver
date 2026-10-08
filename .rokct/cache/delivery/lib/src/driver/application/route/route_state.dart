@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:delivery_sdk/src/driver/domain/interface/route.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/route_stop.dart';
 
 /// Plain immutable state (no freezed: keeps the slice analyzable without
@@ -22,12 +23,20 @@ class RouteState {
   final List<RouteStopData> stops;
   final DispatchRouteInfo? dispatchRoute;
 
+  /// Which stops [stops] are: the day's work, or the round's points of
+  /// interest. Held so the list can say which of the two it is showing
+  /// without a second page existing to say it.
+  final DriverRouteSource source;
+
   const RouteState({
     this.isLoading = false,
     this.isCompleting = false,
     this.stops = const [],
     this.dispatchRoute,
+    this.source = DriverRouteSource.work,
   });
+
+  bool get isPoiRoute => source == DriverRouteSource.pois;
 
   /// Index of the stop the driver should head to next: the first
   /// pending stop (order/parcel stops are always pending while listed).
@@ -44,6 +53,7 @@ class RouteState {
     List<RouteStopData>? stops,
     DispatchRouteInfo? dispatchRoute,
     bool clearDispatchRoute = false,
+    DriverRouteSource? source,
   }) {
     return RouteState(
       isLoading: isLoading ?? this.isLoading,
@@ -52,6 +62,7 @@ class RouteState {
       dispatchRoute: clearDispatchRoute
           ? null
           : (dispatchRoute ?? this.dispatchRoute),
+      source: source ?? this.source,
     );
   }
 }

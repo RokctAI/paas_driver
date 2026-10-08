@@ -16,7 +16,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:base_sdk/src/navigation/embedded_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -117,7 +117,7 @@ class _OrderDeliveryState extends State<OrderDelivery> {
                           widget.getLocation();
                         },
                       ),
-                      isDarkMode: false,
+                      isDarkMode: Theme.of(context).brightness == Brightness.dark,
                     );
                   },
                   icon: Padding(
@@ -142,12 +142,12 @@ class _OrderDeliveryState extends State<OrderDelivery> {
                       paddingTop: MediaQuery.paddingOf(context).top + 150.h,
                       context: context,
                       modal: const TimeDelivery(),
-                      isDarkMode: false,
+                      isDarkMode: Theme.of(context).brightness == Brightness.dark,
                       isDrag: true,
                       radius: 12,
                     );
                   },
-                  icon: Icon(FlutterRemix.calendar_check_line, size: 24.r),
+                  icon: Icon(Remix.calendar_check_line, size: 24.r),
                   title: AppHelpers.getTranslation(TrKeys.timeDelivery),
                   description: ref.watch(orderProvider).selectDate == null
                       ? AppHelpers.getTranslation(
@@ -192,7 +192,7 @@ class _OrderDeliveryState extends State<OrderDelivery> {
                     AppHelpers.showCustomModalBottomSheet(
                       context: context,
                       modal: EmbeddedWidgets.I.phoneVerify(),
-                      isDarkMode: false,
+                      isDarkMode: Theme.of(context).brightness == Brightness.dark,
                       paddingTop: MediaQuery.paddingOf(context).top,
                     );
                   },

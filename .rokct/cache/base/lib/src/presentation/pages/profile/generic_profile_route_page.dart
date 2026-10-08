@@ -70,6 +70,17 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 /// the detail itself may leave through [ProfileSectionNavigator.close]
 /// (a saved form), which is the pill's first step without the tap.
 ///
+/// When there is NO detail to seed — no
+/// [ProfileSectionRegistry.defaultSectionId], or no section registered at
+/// all — the ruling still holds, so the profile is the whole flow and
+/// presents on its OWN planes ([PlanePage.allowNeighbors] false). The host
+/// then clamps the window to the two planes the profile's claim holds and
+/// those two share the full width: the universal cap is kept exactly (two
+/// planes, two columns) and no stage is left bare. The flag is read only
+/// for the ACTIVE step, so it does nothing at all while a detail is open —
+/// the profile then yields the last plane and spreads over the two before
+/// it, precisely as before.
+///
 /// On a phone (one plane) the page is [GenericProfilePage] exactly as
 /// before — no host, no pill, no seam; the platform back is the phone's
 /// back and every card pushes the route it always did.
@@ -135,9 +146,9 @@ class _GenericProfileRoutePageState
     setState(() => _opened = section);
   }
 
-  /// Back to the landing state: the default on three planes, the bare
-  /// stage on two. The pill's first step, and an embedded detail's own
-  /// way out ([ProfileSectionNavigator.close]).
+  /// Back to the landing state: the default where the registry has one,
+  /// else the profile alone across the window. The pill's first step, and
+  /// an embedded detail's own way out ([ProfileSectionNavigator.close]).
   void _close() {
     if (_opened == null) return;
     setState(() => _opened = null);
@@ -164,9 +175,10 @@ class _GenericProfileRoutePageState
         final detail = opened ?? seeded;
         final canPop = Navigator.maybeOf(context)?.canPop() ?? false;
         return ColoredBox(
-          // The bare stage beyond the profile's planes is the page
-          // surface, not the route's canvas.
-          color: AppStyle.surfaceDark,
+          // What shows between and beyond the planes — the seam, and any
+          // stage a claim does not reach — is the page surface, not the
+          // route's canvas.
+          color: AppStyle.surfaceFor(Theme.of(context).brightness),
           child: Stack(
             children: [
               Positioned.fill(
@@ -179,6 +191,17 @@ class _GenericProfileRoutePageState
                       PlanePage(
                         name: GenericProfileRoutePage.planePageName,
                         span: PlaneSpan.two,
+                        // The profile is the flow's root, so it never
+                        // has earlier pages beside it; what this flag
+                        // buys is the landing state on a THREE-plane
+                        // window with nothing to seed. Refusing
+                        // neighbours clamps the visible planes to the
+                        // claim, so the profile's two planes share the
+                        // full width instead of leaving the third an
+                        // empty stage — Ray, 2026-09-07. Read only for
+                        // the ACTIVE step: inert whenever a detail is
+                        // open.
+                        allowNeighbors: false,
                         builder: (context) => const GenericProfilePage(),
                       ),
                       if (detail != null)

@@ -79,7 +79,7 @@ class _ParcelListPageState extends ConsumerState<ParcelListPage>
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkMode = LocalStorage.getAppThemeMode();
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final bool isLtr = LocalStorage.getLangLtr();
     final state = ref.watch(parcelListProvider);
     return Directionality(
@@ -91,7 +91,10 @@ class _ParcelListPageState extends ConsumerState<ParcelListPage>
             CommonAppBar(
               child: Text(
                 AppHelpers.getTranslation(TrKeys.parcels),
-                style: AppStyle.interNoSemi(size: 18, color: AppStyle.black),
+                style: AppStyle.interNoSemi(
+                  size: 18,
+                  color: AppStyle.inkFor(Theme.of(context).brightness),
+                ),
               ),
             ),
             16.verticalSpace,

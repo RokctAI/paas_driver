@@ -81,11 +81,12 @@ void main() {
     expect(railRect.left, closeTo(16, 0.5));
     expect(railRect.center.dy, closeTo(640, 1));
 
-    // Every visible row starts right of the rail's footprint (16 + 60 +
-    // 16 = 92) — no overlap at the leading edge.
+    // Every visible row starts right at the rail's footprint (16 + 60 =
+    // 76) — no overlap, and no second margin: the page's own gutter is
+    // the gap, as it is beside the screen edge with the bottom pill.
     final first = tester.getRect(find.byKey(const ValueKey('item0')));
-    expect(first.left, greaterThanOrEqualTo(railRect.right + 16 - 0.5));
-    expect(first.left, closeTo(92, 0.5));
+    expect(first.left, greaterThanOrEqualTo(railRect.right - 0.5));
+    expect(first.left, closeTo(76, 0.5));
     expect(first.overlaps(railRect), isFalse);
     expect(first.right, closeTo(800, 0.5));
 
@@ -100,12 +101,12 @@ void main() {
     final last = tester.getRect(find.byKey(const ValueKey('item${itemCount - 1}')));
     expect(last.top, greaterThanOrEqualTo(0));
     expect(last.bottom, lessThanOrEqualTo(1280));
-    expect(last.left, closeTo(92, 0.5));
+    expect(last.left, closeTo(76, 0.5));
     expect(last.overlaps(railRect), isFalse);
   });
 
   testWidgets('the page beside the rail counts its planes on its own '
-      'width: 800 - 92 = 708 is still two planes', (tester) async {
+      'width: 800 - 76 = 724 is still two planes', (tester) async {
     Planes? planes;
     double? hostWidth;
     await pumpAt(
@@ -128,7 +129,7 @@ void main() {
         },
       ),
     );
-    expect(hostWidth, closeTo(708, 0.5));
+    expect(hostWidth, closeTo(724, 0.5));
     expect(planes!.count, 2);
     expect(planes!.span, 2);
   });
@@ -140,7 +141,7 @@ void main() {
     expect(railRect.right, closeTo(800 - 16, 0.5));
     final first = tester.getRect(find.byKey(const ValueKey('item0')));
     expect(first.left, closeTo(0, 0.5));
-    expect(first.right, closeTo(800 - 92, 0.5));
+    expect(first.right, closeTo(800 - 76, 0.5));
     expect(first.overlaps(railRect), isFalse);
   });
 
@@ -150,7 +151,7 @@ void main() {
     final railRect = tester.getRect(find.byKey(railKey));
     expect(railRect.right, closeTo(800 - 16, 0.5));
     final first = tester.getRect(find.byKey(const ValueKey('item0')));
-    expect(first.right, closeTo(800 - 92, 0.5));
+    expect(first.right, closeTo(800 - 76, 0.5));
     expect(first.overlaps(railRect), isFalse);
   });
 }

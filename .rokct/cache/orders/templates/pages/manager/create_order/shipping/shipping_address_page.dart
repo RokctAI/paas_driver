@@ -129,7 +129,7 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
     return KeyboardDismisser(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor: AppStyle.surfaceDark,
+        backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
         body: SafeArea(
           child: Stack(
             children: [
@@ -145,7 +145,7 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
                       overflow: TextOverflow.ellipsis,
                       style: AppStyle.interSemi(
                         size: 24,
-                        color: AppStyle.textPrimary,
+                        color: AppStyle.inkFor(Theme.of(context).brightness),
                       ),
                     ),
                   ),
@@ -251,7 +251,7 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
                           ),
                           8.verticalSpace,
                           DeliveryTypeItem(
-                            iconData: Icons.table_restaurant,
+                            iconData: Remix.restaurant_2_fill,
                             title: AppHelpers.getTranslation(TrKeys.dineIn),
                             desc:
                                 '${AppHelpers.getTranslation(TrKeys.approximateTime)} 25 - 30 min',

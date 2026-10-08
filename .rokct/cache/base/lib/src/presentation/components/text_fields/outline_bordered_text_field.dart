@@ -62,6 +62,13 @@ class OutlinedBorderTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The mode comes from the inherited theme, not from AppStyle's app-wide
+    // isDark static: a static registers no dependency, so a theme-mode flip
+    // schedules no rebuild and the label, the text being typed and the
+    // description keep the previous mode's ink. Read once, outside every
+    // inner builder. AppStyle.red / AppStyle.primary on the description are
+    // polarity-pinned status colours and stay put.
+    final Brightness brightness = Theme.of(context).brightness;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,7 +80,10 @@ class OutlinedBorderTextField extends StatelessWidget {
             children: [
               Text(
                 label!,
-                style: AppStyle.interNormal(size: 9, color: AppStyle.textPrimary),
+                style: AppStyle.interNormal(
+                  size: 9,
+                  color: AppStyle.inkFor(brightness),
+                ),
               ),
             ],
           ),
@@ -87,7 +97,10 @@ class OutlinedBorderTextField extends StatelessWidget {
           obscuringCharacter: '*',
           controller: textController,
           validator: validation,
-          style: AppStyle.interNormal(size: 15.sp, color: AppStyle.textPrimary),
+          style: AppStyle.interNormal(
+            size: 15.sp,
+            color: AppStyle.inkFor(brightness),
+          ),
           cursorWidth: 1,
           cursorColor: AppStyle.primary,
           keyboardType: inputType,
@@ -149,7 +162,7 @@ class OutlinedBorderTextField extends StatelessWidget {
                       ? AppStyle.red
                       : isSuccess
                           ? AppStyle.primary
-                          : AppStyle.textPrimary,
+                          : AppStyle.inkFor(brightness),
                 ),
               ),
             ],

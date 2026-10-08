@@ -20,6 +20,7 @@ import 'package:intl/intl.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 
 import 'board_status.dart';
+import 'package:remixicon/remixicon.dart';
 
 /// The per-card elapsed clock (POS `drag_item.dart` OrderTimerNotifier,
 /// Timer.periodic 1s) as pure functions plus one small ticking widget.
@@ -135,11 +136,18 @@ class _OrderClockRowState extends State<OrderClockRow> {
     final end = _frozen ?? (widget.clock ?? DateTime.now)();
     return Row(
       children: [
-        Icon(Icons.timer_outlined, size: 13, color: AppStyle.textPrimary),
+        Icon(
+          Remix.timer_line,
+          size: 13,
+          color: AppStyle.inkFor(Theme.of(context).brightness),
+        ),
         const SizedBox(width: 4),
         Text(
           OrderClock.elapsed(end.difference(start)),
-          style: AppStyle.interBold(size: 11.5, color: AppStyle.textPrimary),
+          style: AppStyle.interBold(
+            size: 11.5,
+            color: AppStyle.inkFor(Theme.of(context).brightness),
+          ),
         ),
         const SizedBox(width: 8),
         // The range takes what the elapsed figure leaves and ellipsises
@@ -154,7 +162,7 @@ class _OrderClockRowState extends State<OrderClockRow> {
               overflow: TextOverflow.ellipsis,
               style: AppStyle.interNormal(
                 size: 10,
-                color: AppStyle.textDarkFaint,
+                color: AppStyle.faintFor(Theme.of(context).brightness),
               ),
             ),
           ),

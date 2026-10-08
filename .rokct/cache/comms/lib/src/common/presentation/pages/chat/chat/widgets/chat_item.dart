@@ -47,7 +47,7 @@ class ChatItem extends StatelessWidget {
             ),
             color: chatData.messageOwner == MessageOwner.you
                 ? AppStyle.primary
-                : AppStyle.bgGrey,
+                : AppStyle.surfaceFor(Theme.of(context).brightness),
           ),
           constraints: BoxConstraints(maxWidth: 256.r),
           padding: REdgeInsets.symmetric(horizontal: 20, vertical: 15),

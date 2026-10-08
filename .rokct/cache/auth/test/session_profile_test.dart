@@ -24,13 +24,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:base_sdk/src/constants/demo_images.dart';
-import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/models/data/address_information.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 
-import 'package:auth_sdk/src/common/infrastructure/repositories/mock_auth_repository.dart';
 import 'package:auth_sdk/src/common/services/session_profile.dart';
+
+import 'support/auth_demo_fixtures.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -95,11 +95,9 @@ void main() {
   test(
       'the demo sign-in round-trips through LocalStorage with a name, '
       'avatar and role on hand for the first paint', () async {
-    final result = await MockAuthRepository().login(
-      email: 'manager@demo.rokct.ai',
-      password: 'demo-learners-2026',
-    );
-    final user = (result as Success<LoginResponse>).data.data!.user!;
+    await startAuthDemoSession();
+    final user = await signInDemo('manager@demo.rokct.ai');
+    await endAuthDemoSession();
     expect(LocalStorage.getUser(), isNull);
 
     await LocalStorage.setUser(sessionProfileOf(user));
@@ -110,7 +108,7 @@ void main() {
     expect(stored.lastname, 'Mokoena');
     // The identity's email, not the typed sign-in address: this stored
     // user is what the profile header renders until the profile fetch
-    // lands, and what users_sdk's MockUserRepository adopts when it does.
+    // lands, and the account users_sdk's profile fetch then answers for.
     expect(stored.email, 'thandi.mokoena@outlook.com');
     expect(stored.role, 'seller');
     expect(stored.img, DemoImages.avatar);
@@ -124,18 +122,16 @@ void main() {
     // The tour's {demo_email} default. Echoing it back as the account's
     // email is how "demo.student@example.com" / "customer" reached the
     // published profile still under Thandi Mokoena's name.
-    final result = await MockAuthRepository().login(
-      email: 'demo.student@example.com',
-      password: 'demo-learners-2026',
-    );
-    final user = (result as Success<LoginResponse>).data.data!.user!;
+    await startAuthDemoSession();
+    final user = await signInDemo('demo.student@example.com');
+    await endAuthDemoSession();
     await LocalStorage.setUser(sessionProfileOf(user));
 
     final stored = LocalStorage.getUser()!;
     expect(stored.firstname, 'Thandi');
     expect(stored.lastname, 'Mokoena');
     expect(stored.email, 'thandi.mokoena@outlook.com');
-    expect(stored.role, 'customer');
+    expect(stored.role, 'student');
     // A non-empty img is what makes the header paint the avatar image
     // rather than its initials fallback; it must be the kernel's avatar.
     expect(stored.img, DemoImages.avatar);

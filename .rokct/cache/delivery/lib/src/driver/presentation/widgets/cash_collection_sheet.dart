@@ -144,7 +144,7 @@ class _CashCollectionSheetState extends State<CashCollectionSheet> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16.r),
           topRight: Radius.circular(16.r),
@@ -166,7 +166,7 @@ class _CashCollectionSheetState extends State<CashCollectionSheet> {
                 width: 100.w,
                 height: 4.h,
                 decoration: BoxDecoration(
-                  color: AppStyle.strokeDark,
+                  color: AppStyle.strokeFor(Theme.of(context).brightness),
                   borderRadius: BorderRadius.circular(40.r),
                 ),
               ),
@@ -205,8 +205,8 @@ class _CashCollectionSheetState extends State<CashCollectionSheet> {
               CustomButton(
                 title: AppHelpers.getTranslation(TrKeys.recordAsCredit),
                 background: AppStyle.transparent,
-                borderColor: AppStyle.strokeDark,
-                textColor: AppStyle.textPrimary,
+                borderColor: AppStyle.strokeFor(Theme.of(context).brightness),
+                textColor: AppStyle.inkFor(Theme.of(context).brightness),
                 onPressed: widget.onRecordAsCredit,
               ),
             ],
@@ -236,7 +236,7 @@ class _CashCollectionSheetState extends State<CashCollectionSheet> {
                   name,
                   style: AppStyle.interRegular(
                     size: 13,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
                 ),
               ],
@@ -254,7 +254,7 @@ class _CashCollectionSheetState extends State<CashCollectionSheet> {
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDarkAlt,
+        color: AppStyle.cardAltFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: AppStyle.primary),
       ),
@@ -284,8 +284,8 @@ class _CashCollectionSheetState extends State<CashCollectionSheet> {
               style: AppStyle.interSemi(
                 size: 30,
                 color: _entry.isEmpty
-                    ? AppStyle.textDarkFaint
-                    : AppStyle.textPrimary,
+                    ? AppStyle.faintFor(Theme.of(context).brightness)
+                    : AppStyle.inkFor(Theme.of(context).brightness),
               ),
             ),
           ),

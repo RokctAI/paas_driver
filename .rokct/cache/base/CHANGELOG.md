@@ -1,5 +1,952 @@
 # Changelog
 
+## 1.83.5
+
+* fix(base): nothing the app does by itself on load shows an error any more
+  (Ray, 2026-10-05: an auth/backend error still showed on load, before he
+  did anything, after auth_sdk 1.16.4). New `shouldSurfaceLoadError` /
+  `logSilencedLoadError` (load_silence.dart): load-time failures go to debug
+  output only, an error shows only for something the person did, and
+  offline is never an error.
+  * `LanguageNotifier.getLanguages` / `getTranslations` / `makeSelectedLang`
+    gain `userInitiated` (default false). The language list fetched when
+    the picker opens (the login page opens it by itself) and the
+    translations fetched when the login page auto-selects a single
+    language no longer toast; offline no longer toasts "No internet
+    connection" or replaces the screen with the no-connection page.
+  * `ProfileNotifier.fetchUser` gains `userInitiated` (default false): the
+    profile page's initState fetch and the refresh after an address edit
+    or shop save are silent on failure; offline never toasts.
+    `quietWhenOffline` is kept and now implied. A 401 still returns to login.
+  * `SplashPage`: starting offline with no cached data now proceeds to
+    login/home from bundled data instead of opening on the no-connection
+    page, and a radio drop between checks does the same. The no-connection
+    page remains the fallback for a composition that declares no route.
+
+## 1.83.4
+
+* fix(profile): the profile page surface, cards, hairlines, ink and the
+  sign-out Cancel button read Theme.of(context) at build time instead of the
+  AppStyle.surfaceDark/cardDark/strokeDark/textPrimary statics, so a live
+  dark/light switch restyles the open page (Ray, 2026-10-04: "profile did not
+  do everything I asked").
+
+## 1.83.3
+
+* feat(trkeys): five keys for lms_sdk's subject help (Ray, 2026-10-01): the
+  hardest-subject question, the "Need a hand with" suggestion line, the
+  partner's school-report marks title and hint, and the APS label. Named after their copy, so
+  no bundled English row is needed.
+
+## 1.83.2
+
+* fix(profile): using the app offline is not an error on the profile page
+  (Ray, 2026-10-03). `GenericProfilePage` calls `fetchUser` with the new
+  `quietWhenOffline: true`: with no radio, or a backend that does not
+  answer (the `couldNotReachServer` / `serverTookTooLong` lines), the page
+  keeps rendering the cached user and its Online/Offline label is the only
+  signal. A failure the server actually answered still toasts. Other
+  `fetchUser` callers (the address picker) are unchanged.
+* fix(profile): a demo session loads the profile with no network.
+  `fetchUser` no longer gates on the radio while `DemoSession.demoActive`:
+  the demo interceptor answers from fixtures, so the offline demo sign-in
+  (auth_sdk 1.16.3) reaches a loaded profile page with no connection toast.
+
+## 1.83.1
+
+* fix(icons): the last Material `Icons.*` glyphs (quantity stepper, theme
+  toggle, glance card, floating nav, bottom-sheet app bar, title icon, user
+  avatar fallback) move to Remixicon (`Remix.*`). `remixicon` constraint
+  raised to `^1.4.1`. Icons only.
+
+## 1.83.0
+
+* feat(lms): TrKeys gains the 14 keys lms_sdk 1.34.0 declares in its manifest
+  `tr_keys` (same values): the child-mode forgot-PIN reset (`forgotParentPin`,
+  `resetParentPin`, `resetParentPinHint`, `parentPasswordWrong`,
+  `parentPasswordCheckFailed`), the optional fingerprint/face unlock
+  (`useBiometricsToLeave`, `useBiometrics`, `biometricLeaveReason`) and the
+  child's claim-code screen (`haveClaimCode`, `claimProfile`,
+  `claimProfileExplainer`, `claimCode`, `claimProfileButton`,
+  `couldNotClaimProfile`). A standalone lms_sdk checkout compiles against
+  base_sdk directly, so it needs them declared here. No bundled en/af rows,
+  no cmd, payload or route changed.
+
+## 1.82.1
+
+* fix(backend): `upload_file` reads the multipart file from
+  `frappe.request.files["file"]` and accepts only images and common documents
+  up to 10 MB. `get_remote_config` stops serving `chatGpt`. No Dart change.
+
+## 1.82.0
+
+* feat(subscriptions): TrKeys gains the customer-subscription keys loyalty_sdk
+  1.1.0 declares (`subscriptionPlans`, `youSavedWithSubscription`,
+  `subscriptionPastDue`, `subscriptionPaymentFailed`, `changePaymentMethod`,
+  `renewsWith`, `offDelivery`, `noServiceFee`, `onOrdersOver`, `quarter`,
+  `subscriptionPending`), with bundled en copy for the two sentences.
+  `GetCalculateModel.subscriptionSavings` reads the quote's
+  `subscription_savings` so checkout can show "You saved X with your
+  subscription".
+
+## 1.81.1
+
+* fix(wallet): `WalletData.fromJson` reads the Wallet History keys the backend sends (transaction_type, amount, description, creation, name), keeping the legacy keys as fallbacks. Every wallet history row rendered blank.
+
+## 1.81.0
+
+* fix(base): TrKeys gains the 33 keys that lms_sdk 1.32.0 (agent/lms/dart,
+  child profiles on the parent's phone) declares in its manifest's
+  `tr_keys`, for example `whoIsLearning`, `addAChild`, `enterParentPin`
+  and `leaveChildMode`, plus the R-3 default praise keys
+  (`r3PraiseYes`, `r3PraiseGreat`, `r3PraiseClever`, `r3PraiseRight`),
+  `r3StartingPath`, `r3LessonsComingSoon` and `onlyGradeRLessonsSoFar`. The values match the SDK manifest. The composer
+  injects SDK tr_keys at compose time, but a standalone SDK checkout
+  compiles against base_sdk directly, so lms_sdk's child profile pages
+  and tests did not compile without the local injection tool. At compose
+  time the composer's collision check keeps base's identical declaration.
+  No bundled en or af rows are added, because lms_sdk owns that copy.
+
+## 1.80.0
+
+* fix(base): `NotificationsListModel` reads `data` as a list, `NotificationData`
+  tolerates null `created_at`/`updated_at` and reads `active` from the row
+  (it was always false).
+
+## 1.79.0
+
+* feat(base): `PushMessages`, an app-wide registry of push-message handlers
+  keyed by `data['type']`. comms_sdk 1.21.0 dispatches received FCM
+  messages into it, and a feature SDK handles its own type without
+  importing comms_sdk. orders_sdk 1.26.0 registers `order_status`.
+* fix(base): `AppHelpers.getOrderStatus` reads the Order doctype's own
+  spellings case-insensitively. `Shipped` is on the way, `Cancelled` is
+  cancelled, `New` is open, and `Cooking` or `processing` is accepted. The
+  backend returns statuses as stored, so a `Shipped` order used to read as
+  accepted. Unknown values still read as accepted.
+* The active-order glance card colours `Cooking` and `Shipped` like
+  `processing` and `on_a_way`.
+* Tests: `test/push_messages_test.dart`.
+
+## 1.78.0
+
+* feat(base): `LiveActivitySnapshot.showProgress` (default true). When it is
+  false, no progress bar is drawn. This is for the driver's ongoing "Online,
+  waiting for orders" entry (design 3a). It was the second commit of #272 and
+  did not land with it. comms_sdk 1.20.0 passes it to the device.
+
+## 1.77.0
+
+* fix(base): TrKeys gains the 431 keys that lms_sdk (agent/lms/dart) and
+  delivery_sdk (zones/delivery/dart, driver) declare in their manifests'
+  `tr_keys`, for example `knowledgeBite`, `renewalsDue`, `renewalsAlignOn`
+  and `goOnDuty`. The values match the SDK manifests. The composer injects
+  SDK tr_keys at compose time, but a standalone SDK checkout compiles
+  against base_sdk directly, so lms_sdk's renewal_status_test and
+  schedule_notifier_test and delivery's driver home tests did not compile.
+  At compose time the composer's collision check keeps base's identical
+  declaration. No bundled en or af rows are added, because the SDKs own
+  that copy.
+
+## 1.76.0
+
+* feat(base): live notifications component (design approved 2026-09-26,
+  sections 1 and 6). `LiveActivitySnapshot` is the immutable snapshot (key,
+  kind, title, subtitle, progress, segments, trackerIcon, endsAt, deepLink,
+  actions, state). `LiveActivityTokens` holds the colour tokens from 6c.
+  `LiveActivities.instance` is the controller every adopter publishes to:
+  - The same key always maps to the same id (`idFor`, FNV-1a, the same
+    function the hosts already use for local-notification ids).
+  - It alerts only on the first post and on a terminal state.
+  - It posts at most once per key every 15s. The latest snapshot wins, and
+    terminal states skip the throttle.
+  - After 10 min without an update it re-posts with "Updating paused, open
+    to refresh".
+  - An ended entry clears after 15 min, and an error entry after 60 min.
+  - A key the user swiped away is not re-posted until `reset`.
+  It is inert until a `LiveActivitySink` is registered. comms_sdk 1.19.0
+  registers the device sink.
+* Tests: `test/live_activities_test.dart` (`fake_async` added as a dev
+  dependency).
+
+## 1.75.0
+
+* feat(base): `SessionStartHooks`, the sign-in counterpart of users_sdk's
+  `SessionEndHooks`. An in-memory registry, idempotent by id: auth_sdk runs
+  it once a session is established, and any SDK subscribes from its own
+  boot hook, so neither depends on the other. One throwing hook is logged
+  and the rest still run. Inert with nothing registered. First subscriber:
+  comms_sdk 1.18.0's one-time notification permission prompt.
+
+## 1.74.0
+
+* feat(base): relative-time demo fixture tokens. `$now_iso`, `$now_ms` and the
+  new `$today` (UTC `yyyy-MM-dd`) accept one signed offset
+  `<+|-><n><m|h|d|w>`: `"$now_iso-30d"`, `"$now_ms+2h"`, `"$today-7d"`.
+  Non-matching strings are left as-is.
+
+## 1.73.0
+
+* feat(base): one demo seam in the HTTP layer. `DemoGatewayInterceptor`, first
+  on every `HttpService` client, answers platform-gateway POSTs
+  (`/api/v1/method/rokct.platform.api`) from `<cmd>.json` fixture files while
+  `DemoSession.demoActive` (read per request), so a demo session runs the real
+  repository code and only the network hop is replaced. SDKs register fixture
+  directories with `DemoFixtures.registerAssetDirectory`. An unknown cmd in
+  demo fails with `DemoFixtureMissing`, never a silent pass. Fixtures support
+  `$now_iso` / `$now_ms` tokens and `$demo_select` (by payload field or role).
+  Outside demo, and for non-gateway paths, it is a pass-through.
+
+## 1.72.3
+
+* Dark mode: hardcoded light fills and dark ink now follow the active theme
+  through AppStyle.surfaceFor/cardFor/inkFor/secondaryInkFor/strokeFor(Theme.of(
+  context).brightness), and builds read the theme from Theme.of(context) instead
+  of static AppStyle reads. Brand fills, white-on-primary and textGrey are
+  unchanged.
+
+## 1.72.2
+
+* fix(profile): the plan flip card keeps the front's height when flipped;
+  the back face scrolls inside that box.
+* fix(profile): visibility-gate answers are remembered across page mounts,
+  so gated rows no longer pop in and shift the menu on return.
+* fix(profile): bottom scroll padding clears the floating nav.
+
+## 1.72.1
+
+* fix(base): the Android template sets `applicationId "com.app.demo"` as a
+  literal, like `namespace`. The release and build lanes replace that literal
+  with the `<APP_TYPE>_ANDROID_PACKAGE_NAME` value picked by `app-type`; the old
+  `dartDefines.CUSTOMER_ANDROID_PACKAGE_NAME` expression hid it from them, so
+  every composed shell got the customer package.
+
+## 1.72.0
+
+* fix(base): release builds silence `debugPrint`. `templates/main.dart` swaps
+  it for a no-op under `kReleaseMode` before boot hooks and `runApp`; the calls
+  stay for debug and profile. The uncaught-error handlers keep the original
+  printer, so crashes are still logged.
+
+## 1.71.0
+
+* fix(base): the Android launcher label is the home SDK's. The
+  `resValue "string", "app_name", dartDefines.CUSTOMER_APP_NAME` line is gone
+  from the Android template; the composer writes the home SDK's manifest
+  `app_name` into `res/values/strings.xml` instead. Without one, the neutral
+  default stays.
+
+## 1.70.0
+
+* fix(base): the app's own name and motto are no longer translation keys.
+  `TrKeys.appName` and `TrKeys.appMotto` are removed, with the two bundled
+  Afrikaans rows that served them. They belong to `AppConstants.appTitle` and
+  `AppConstants.appMotto`, which a home SDK re-points through
+  `constants.overrides`; as translation keys they hid that override, so the
+  onboarding welcome card showed the raw key instead of the app's motto.
+  Needs onboarding_sdk 1.2.2, which reads `AppConstants.appMotto` instead.
+
+## 1.69.0
+
+* feat(base): the host names one more optional Kotlin bridge, `AppChangesBridge`,
+  so a launcher shell can be told when the device's installed apps change. The
+  bridge is launch_sdk's and ships in its templates; base_sdk only registers it
+  reflectively and keeps it from being stripped, the same way `DefaultHomeBridge`
+  is handled. A compose without launch_sdk has no such class and registers
+  nothing. No Dart change.
+
+## 1.68.0
+
+* fix(base): sign-out no longer deletes the account's own records. `LocalStorage.logout()`
+  was wiping the wallet cache, saved shops, search history, the selected address and its
+  details, so a temp-local account that logged out came back to an empty app. It now ends
+  the session only - demo session, stored profile, token, token expiry, refresh token and
+  the onboarding board.
+* feat(base): those five records are keyed per account. A record written while someone is
+  signed in lives under `<key>::<owner>`, the same identity the drift tables scope by, so
+  the next account to sign in on a shared device reads its own. A read falls back to the
+  bare legacy key when the account has never written one, which is what carries an existing
+  install's data across the upgrade.
+
+## 1.67.0
+
+* feat(base): the two device-global tables holding user-owned data gain an
+  `owner`, and every read filters by it. `KeyValueTable` was `{box, id, data}`
+  keyed on `{box, id}` and `OutboxTable` was keyed on `id` alone, in one
+  `rokct_app.sqlite` behind one process-wide `AppDatabase` - so everything two
+  accounts stored under the same box and key was the same row, and a user who
+  signed out with ops still queued had them pushed under the next user's
+  session, into the next user's account.
+* Visibility scoping, NEVER deletion. The product ruling is that a sign-out
+  must not delete user data: a temp local account that does real work, signs
+  out and comes back has to find its own work. So rows gain an owner, reads
+  filter on it, and nothing is destroyed at sign-out.
+* An existing row with no owner counts as the CURRENT user's -
+  `owner = '' OR owner = <me>`, not `owner = <me>`. Every row on every device
+  in the field has no owner, so a strict match would hide everybody's data,
+  which is the outcome the ruling forbids. Legacy rows stay as visible as they
+  are today and leave the unowned set as they are next written (`putItem`
+  claims the unowned row for the key it writes), with no migration guessing an
+  owner for anything.
+* `owner` is NOT NULL with a `''` default rather than nullable, because it
+  joins the PRIMARY KEY of both tables and SQLite - unlike the SQL standard -
+  permits NULLs inside an ordinary rowid table's composite primary key. A
+  nullable version would compare NULL != NULL in the backing index, so
+  `insertOnConflictUpdate` on an unowned row would append a second row instead
+  of updating the first and the next single-row read would have two rows to
+  choose from. `''` is a value, so the key stays total.
+* `owner` is IN the primary key on both tables - `{box, id, owner}` and
+  `{id, owner}` - so two accounts can hold the same key side by side. For the
+  outbox that is not hypothetical: `enqueueOrReplace` mints the deterministic
+  id `<opType>:<dedupeKey>`, so two accounts coalescing `cart.sync:<shop id>`
+  on one device produce the same string, and with `id` alone the second
+  replaced the first and every by-id write (`retryOp`, `deleteOp`, the status
+  writes) reached across accounts.
+* New `OwnerScope` resolves the owner in one place, behind a swappable
+  resolver, and never appears in the table definitions. It reads
+  `LocalStorage.getUser()?.id` first, and the `offline:<local user id>` token
+  second - not as a convenience but because a TEMP-LOCAL account, the exact
+  account the ruling is about, stores no user at all (auth_sdk's
+  `OfflineAuthService.registerOffline` / `loginOffline` call `setToken` and
+  nothing else), leaving that token as the only thing on the device that names
+  it. It also remembers the last account it saw, so a write during sign-out
+  teardown - after `LocalStorage.logout()` has already cleared both the stored
+  user and the token, which is when every session-end hook runs - is
+  attributed to the account on its way out instead of landing as an unowned
+  row the next user would then see.
+* New `AppDatabase.adoptOwner` hands one owner's rows to another, called from
+  the sync engine as each temp id resolves: a temp-local account starts being
+  called by its backend user id the moment it syncs, and without this it would
+  come back from its first sync unable to see its own work.
+* Schema version 19, claimed in `base/dart/manifest.json` - base_sdk's first
+  `database.migration` - after reading every composed manifest reachable from
+  this workspace: radio 18, productivity 17, auth 16, agent/replay/
+  subscriptions 15, polaris 13, fav 12. The composer substitutes the
+  `schemaVersion` getter from the maximum any manifest declares and only
+  raises that maximum for a manifest declaring BOTH a version and a step, so a
+  base-owned number written only in Dart would have been erased and a device
+  already at the running maximum would have run no migration at all. The
+  migration rebuilds each table the long way round (rename aside, create from
+  the current definition, copy the shared columns, drop) because SQLite cannot
+  alter a primary key in place; `beforeOpen` calls the same idempotent
+  `ensureOwnerScopeColumns()` on every open as a floor under the numbering,
+  exactly as the table floor above it already does.
+* Not in this change: the other SDKs' own tables and their own KV boxes, and
+  `IdMappingsTable`, whose rows are globally unique `offline:<uuid>` keys
+  carrying no user-owned data.
+
+## 1.66.10
+
+* `FloatingNavAction` gains an optional `onLongPress` - a SECOND gesture on
+  a bar control, for the shortcut a feature SDK hangs off its primary button.
+  Ray, 2026-09-20: "i think productivity plus should be in the floating nav
+  when you in its page. floating nav already accept modes and buttons", and
+  the button moving onto the bar already carries a long press ("plus opens
+  new but i think hlding it should give me option like tasks notes").
+* NOTHING NEW WAS BUILT for it. `_NavActionButton` has passed an
+  `onLongPress` to its `InkWell` since controls mode shipped - the reactions
+  button uses it to reopen the emoji picker - so this only offers the gesture
+  the bar already had to the caller who supplies the action. The bar's own
+  long press still wins where it has one (`onLongPress ?? action.onLongPress`),
+  which keeps the reactions button behaving exactly as before.
+* Null is the default, so every existing bar in the fleet renders and
+  responds identically. `locked` and a null `onTap` suppress the long press
+  too: an unpressable control is unpressable by either gesture, which is the
+  rule `enabled` already stated for the tap.
+## 1.66.9
+
+* fix(base): `ProfileNotifier.logOut` awaits the sign-out and then clears the
+  local session. It called `_userRepository?.logoutAccount(fcm: fcm)` WITHOUT
+  awaiting it and cleared nothing locally, so a profile screen's Log out
+  button returned while the revoke - and users_sdk's `SessionEndHooks`, which
+  each SDK hangs its own on-device user data off - were still in flight, and
+  nothing on this path ended the session on the device at all. An offline /
+  temp-local account's token is `offline:<local user id>`, which no backend
+  ever issued, so the revoke can never succeed for one of those users and the
+  sign-out was a guaranteed no-op for exactly the users who only have local
+  data. Ray, 2026-09-19: "if on temp local user you logout all your tasks
+  still show".
+* `LocalStorage.logout()` is unconditional here, as it already is in
+  launch_sdk's `LauncherAuthControl.logOut` and now in users_sdk 1.4.1's
+  `UserRepository.logoutAccount`. It is idempotent, so the overlap costs
+  nothing, and it is also what signs a user out in a compose that registered
+  no `UserRepositoryFacade` at all - where the repository call is skipped.
+* Tests: `test/profile_notifier_logout_test.dart` - the revoke has completed
+  by the time `logOut` returns; the token and the persisted profile are gone
+  after a successful revoke, after a rejected one, and in a compose with no
+  users_sdk.
+* manifest.json 1.66.7 -> 1.66.9 (1.66.8 is claimed by another open PR).
+## 1.66.8
+
+* Fixed: the launcher's entry screen said "Something went wrong with the
+  server" for an unreachable backend, after #243 had already authored the
+  honest line for exactly that failure. Ray, 2026-09-20: "something went
+  wrong with server is stll showing in splash/ login screen". Two separate
+  defects were between #243's copy and that screen, and neither was the
+  wording.
+* **The presenter overwrote the line.** `AppHelpers.errorHandler` returns
+  student-facing copy naming the SERVER for a response-less failure, and
+  repositories put that string into `ApiResult.failure(error:)`. Surfaces
+  that hand `failure` straight to the snackbar - the base profile page -
+  showed it. Surfaces that go through `ErrorPresenter`, which is every auth
+  screen including login, did not: the unconditional technical branch
+  discarded `detail` and painted the generic
+  `something_went_wrong_with_the_server` fallback, whose humanized form is
+  Ray's sentence verbatim. `ErrorPresenter.resolve` and
+  `ErrorPresenter.showTechnical` now keep `detail` when it is already one of
+  the two connection-failure lines `errorHandler` authors, recognised by the
+  new `AppHelpers.isAuthoredConnectionMessage` - an exact match against the
+  same values that helper can return (the translated row for either key, or
+  the named `kCouldNotReachServerLine` / `kServerTookTooLongLine` literals),
+  so no server or exception text can pass as student copy. The telemetry
+  still fires, so the call site's event type - which fetch failed - is not
+  lost; only the sentence on screen changes. An explicit `friendly:` still
+  wins, a definitive 4xx still shows the server its own words, and raw
+  technical detail still never reaches a screen.
+* **The copy was unreachable on the only two screens it was written for.**
+  `getTranslation` consulted the bundled per-locale maps by
+  `LocalStorage.getLanguage()?.locale`, and `BundledTranslations.lookup`
+  returns null for a null locale. Splash and login both run before any
+  language has been chosen - and the login screen's own `checkLanguage`
+  cannot store one while the backend it would fetch the catalogue from is
+  unreachable - so those two screens humanized straight past
+  `kBaseEnTranslations` and got the clipped "Could not reach server" instead
+  of "We couldn't reach the server. Please try again.". That map exists
+  precisely because those keys NAME a string rather than spelling it.
+  `getTranslation` now falls back to the new
+  `BundledTranslations.baseLocale` ('en', already the `isDefault` row of
+  `fallbackLanguages` and the first of `bundledLocales`) while no language
+  is stored. A chosen language behaves exactly as before, and a key with no
+  bundled row - `something_went_wrong_with_the_server` among them - still
+  humanizes.
+* #243's copy, its `NetworkExceptions.getDioException` switch (still
+  exhaustive, still with no `default`) and `getDioStatus` are all untouched:
+  this change carries that copy to the screen rather than replacing it. No
+  reachability probe was added before any call - it doubles round trips and
+  still races, the same reason #243 rejected one.
+* `error_handler_test.dart`'s "the two connection lines are the bundled
+  English copy" previously pinned the clipped `'Could not reach server'` for
+  a device with no language chosen, noting that `getTranslation` consults
+  the bundled map by the active locale. That was the real behaviour and it
+  is the gap Ray reported; the assertion now expects the bundled copy it
+  asserts one line above, and a matching one was added for the timeout line.
+  The test is neither skipped nor removed.
+* New: `error_presenter_unreachable_line_test.dart` - 14 tests over the real
+  funnel (`AppHelpers.errorHandler` on a response-less `DioException`, status
+  from `NetworkExceptions.getDioStatus`), covering both fixes, the
+  first-run/no-language state, the snackbar branch, and the four things that
+  must NOT change.
+
+## 1.66.7
+
+* The same rule, second sweep: **a shared component takes its theme mode
+  from the theme, never from a global static.** #247 fixed the 22 the #244
+  audit had left; this pass walks the components that read a mode-resolving
+  static with no `Theme.of` anywhere in their file, and separates the ones
+  that are genuinely blind from the ones a parent or a notifier already
+  rebuilds.
+* The bug class is unchanged from #242/#244/#247. A widget is theme-blind
+  when its `build` decides a colour from a mutable static that changes with
+  the mode AND that same `build` registers no inherited-widget dependency a
+  flip reschedules. `MediaQuery.sizeOf`, `MediaQuery.paddingOf` and
+  `MediaQuery.of(...).viewInsets` are not defences: a window size, a
+  status-bar inset and a keyboard inset do not move when the mode does.
+* 10 components fixed, each now reading `Theme.of(context).brightness` in
+  `build` - outside every inner builder - and naming its colours from
+  `AppStyle`'s explicit-brightness seams: `SearchTextField`,
+  `OutlinedBorderTextField`, `UnderlineDropDown`, `MoneyKeypad`,
+  `SelectItem`, `SelectAddressItem`, `CustomTabBar`, `CommonAppBar`,
+  `BaseWalletCard` and the `EditProfileScreen` sheet.
+* NO new `AppStyle` seam was needed: `inkFor`, `cardFor`, `cardAltFor`,
+  `subtleStrokeFor` and `surfaceFor` already name every role this sweep
+  touches, and no colour changes in either mode. `MoneyKeypad` and
+  `UnderlineDropDown` also stop leaning on the type scale's mode-resolving
+  `textPrimary` DEFAULT for their digit and selected-value ink, which is the
+  same defect arriving through `AppStyle.interSemi()`/`interNormal()`
+  rather than through a named token.
+* The reachability pass rejected five of the candidates, and rejecting them
+  matters as much as fixing the rest - a widget a parent already rebuilds
+  needs no change:
+  * `ForgotTextButton` watches the whole `appProvider` state, which
+    `AppNotifier.changeTheme` writes, so the flip rebuilds it.
+  * `ProfileThemeToggle` - the control that performs the flip - watches
+    `appProvider.select((s) => s.isDarkMode)`, i.e. exactly the value the
+    flip changes; it is the one widget guaranteed to be rescheduled (its
+    own sun/moon glyph would otherwise be stuck too).
+  * `GenericProfileRoutePage` watches the same `isDarkMode` selector,
+    deliberately, for its `surfaceDark` scaffold.
+  * `CustomToggle` has two real mount sites inside base_sdk -
+    `ProfileSwitchTile` and `ButtonItem` - and #247 gave both a
+    `Theme.of(context).brightness` read; each instantiates it non-`const`
+    inside that same `build`, so the flip rebuilds the toggle through its
+    parent.
+  * `CustomTimePicker` is not a widget at all: a static helper with no
+    `build`, no element and no mount site, whose Cupertino popup picks its
+    fill at the moment the user opens it.
+* A re-scan of the package turned up one shape the audit list did not name,
+  `ProductUIComponents.buildQuantityControl`, and the same filter rejects
+  it: its only mount site is `ProductCard.build`, which #247 gave a
+  `Theme.of(context).brightness` read and which calls the helper non-`const`
+  from that build. The four private classes inside `generic_profile_page`
+  (`_IdentityHeader`, `_AnonymousHeader`, `_TopRow`, `_PlanBackCard`) are
+  rejected the same way: `_GenericProfilePageState.build` watches
+  `isDarkMode` and builds all four non-`const`.
+* 10 real widget tests, one per fixed component, each mounting its subject
+  behind the shared `ThemeFlipHost`'s `const` child boundary a flip cannot
+  cross, flipping `AppStyle.setBrightness` plus `themeMode` the way
+  `AppNotifier.changeTheme` does and pumping WITHOUT remounting. All 10 were
+  verified failing on the pre-change source. No component needed a
+  source-level guard instead.
+* Three further tests pin a CALLER's own colour against the flip - a search
+  field's `bgColor`, the keypad's `AppStyle.primary` OK key and a positive
+  wallet balance's `AppStyle.green` - and `theme_flip_host` grows the
+  `expectPinnedOnFlip` mirror of `expectRestylesOnFlip` for them. These pass
+  on both sides of the change by design: they exist so a later sweep cannot
+  start resolving a colour its caller chose.
+
+## 1.66.6
+
+* One rule across base_sdk's shared components: **a shared component takes
+  its theme mode from the theme, never from a global static.** Ray,
+  2026-09-19, on the widgets the #244 audit found and left: "i might forget
+  if you leave them so decide", then "the theme stuff".
+* The bug class, restated from #242 and #244. A widget is theme-blind when
+  its `build` decides a colour from a mutable static that changes with the
+  theme mode AND that same `build` has no other inherited-widget dependency.
+  `AppStyle.isDark` and the nine getters that resolve against it are not an
+  inherited widget, so a theme-mode flip schedules no rebuild of such a
+  widget at all: the user flips light or dark and the old colour stays until
+  they leave the screen and come back. `MediaQuery.of`, `MediaQuery.sizeOf`
+  and `Directionality.of` do not save a widget from this - none of them
+  changes when the mode does, which `MarketItem` demonstrates: it reads
+  `MediaQuery.sizeOf(context).width` for its own width and was still blind.
+* 22 components fixed, each now reading `Theme.of(context).brightness` in
+  `build` - outside any inner builder - and naming its colours from
+  `AppStyle`'s explicit-brightness seams: `MarketItem`, `TabBarItem`,
+  `SizeItem`, `ComingSoonDialog`, `LoadingGrid`, `CustomAppBar`,
+  `AppBarBottomSheet`, the five elements of the standard list language
+  (`_ListFilterTabChip`, `ListCountPill`, `ListRoundAction`,
+  `ListScreenHeader`, `ListViewMore`), `ButtonItem`, `SocialButton`, the
+  generic profile host's empty-sections placeholder, `ProfileSwitchTile`,
+  `ProfileNavTile`, `ProfileSectionCard`, `_ActionTile`, `_ActionRow`,
+  `MaintenancePage` and `ProductCard`.
+* Four new `AppStyle` colour-role seams for the surfaces these components
+  draw, each the same shape as #242's `inkFor` and #244's `secondaryInkFor`:
+  `cardFor`, `cardAltFor`, `strokeFor`, `subtleStrokeFor`. No new colour
+  values - each names the same two values its mode-resolving getter
+  (`cardDark`, `cardDarkAlt`, `strokeDark`, `strokeDarkSubtle`) already
+  resolves between, chosen by an explicit `Brightness` rather than by the
+  app-wide `isDark` static. No hex literal was added to any widget.
+* `ProductCard` shows that being a `ConsumerWidget` is no defence: its brand
+  and shop lookups are `ref.read`s, and nothing it watches fires on a mode
+  flip. `LoadingGrid` shows the sharpest shape - its fill was read inside an
+  `itemBuilder`, which runs only when the grid decides to build a tile, so a
+  placeholder screen could sit in the wrong mode's grey indefinitely. It now
+  reads the brightness in `build` and the builder closes over it.
+* The polarity-pinned values are deliberately untouched: `surfaceLightRaw`
+  and `surfaceDarkRaw` exist to build the host MaterialApp's paired
+  `ThemeData` and must never resolve, and the flat constants (`white`,
+  `primary`, `red`, `transparent`, `bottomNavigationBarColor`) are identical
+  in both modes. A caller's OWN colour is also left alone throughout - an
+  active list tab keeps its tab colour, a `ProfileActionItem.accent` keeps
+  its accent - and both are pinned by tests.
+* Every one of the 22 got a real widget test that flips the theme mode and
+  pumps WITHOUT remounting, each mounting its subject behind the `const`
+  child boundary a flip cannot cross - which is how these are mounted in the
+  product, none of them having a mount site inside base_sdk at all. No
+  component needed a source-level guard instead.
+
+## 1.66.5
+
+* A floor under migration numbering, in `AppDatabase.beforeOpen`. Ray,
+  2026-09-19: "migration numbering do it".
+* The hazard: every composed SDK manifest declares
+  `database.migration.version` into ONE shared namespace, and the composer
+  takes the MAXIMUM across all manifests as the app's `schemaVersion` while
+  concatenating each SDK's migration `step` into the single `onUpgrade` it
+  injects into the cached copy of `app_database.dart`. Two SDKs that pick the
+  same number - or tables registered with no matching step - leave an
+  upgrading device whose stored `user_version` ALREADY equals that maximum,
+  so drift runs no migration at all: not `onCreate`, because the file exists,
+  and not `onUpgrade`, because the versions match. A table that is in the
+  schema is never created and the first query against it throws. Fresh
+  installs are fine throughout, because `onCreate` calls `createAll`, which
+  is what makes this so easy to ship: the crash only reaches devices that
+  upgraded.
+* `beforeOpen` now walks `allTables` and creates any table missing from the
+  file, rather than naming `outbox_table` and `id_mappings_table` one by one
+  as it did before - so whatever the composer injects between the
+  `@sdk-database-tables` markers is covered on the same terms as base's own
+  tables. Drift's `createTable` emits `CREATE TABLE IF NOT EXISTS` (verified
+  against the pinned drift 2.28.2), so it neither drops nor rewrites an
+  existing table and leaves its rows alone.
+* It runs on EVERY open, not only after an upgrade. The collision case is
+  precisely the one where `versionBefore == versionNow`, so drift reports
+  `hadUpgrade == false` and a gate on an upgrade would skip the very failure
+  the net exists for. Cost is held down instead: one `sqlite_master` read
+  per open tells the loop which tables are already there, so the steady
+  state issues no DDL at all.
+* This is a floor, NOT a substitute for correct numbering. The `onUpgrade`
+  path, the base-owned `from < 2` step and all four composer injection
+  markers are untouched, and nothing is renumbered. A duplicate migration
+  number is still a bug to fix at the manifest; it just no longer takes a
+  table down with it.
+* New `test/database_migration_floor_test.dart`: a file at the current
+  schema version with a registered table absent - the numbering slip in
+  miniature, driven with base's own `key_value_table`, which no `onUpgrade`
+  step recreates - comes up with that table queryable, covers every table in
+  `allTables` rather than a hand-listed few, leaves existing rows in place
+  across repeated opens, and still brings a fresh file up through `onCreate`.
+
+## 1.66.4
+
+* The fleet audit #242 asked for. Ray, 2026-09-19: "might be worth checking
+  in all sdks if this is there not just in glance" - every Dart package in
+  core and in the SDKs the launcher composes, hunting the same shape: a
+  widget that names a colour from a static that changes with theme mode
+  while resolving nothing from its `BuildContext`, so nothing reschedules it
+  when the mode flips.
+* `ActiveOrderGlanceCard`: the severe-weather notice #242 deliberately left
+  alone. The shell honours a row that names its own colour, and this row
+  named `AppStyle.textDarkSecondary` - the app-wide static - from inside two
+  `ValueListenableBuilder`s, which rebuild only when their notifier fires.
+  A mode change reached neither, so the notice kept the previous mode's
+  muted ink until an order refresh or an ETA tick happened along. The card
+  now reads `Theme.of(context).brightness` in its own `build`, outside both
+  builders, and names the notice's ink for that mode.
+* `ProfileMetaRow`: the profile footer's app-name/version/status line
+  resolved nothing from the context either, and it is mounted `const` by
+  `BaseProfileFooter`, so the flip provably could not reach it through a
+  parent rebuild - the same const-child boundary the glance card sat behind,
+  on the very page the theme toggle lives on. It now reads the inherited
+  theme and names its ink from `AppStyle.inkFor`.
+* New `AppStyle.secondaryInkFor(Brightness)`, `AppStyle.faintFor(Brightness)`
+  and `AppStyle.surfaceFor(Brightness)`: `textDarkSecondary`'s,
+  `textDarkFaint`'s and `surfaceDark`'s two values resolved against an
+  explicit brightness, the counterparts of #242's `inkFor` for those three
+  colour roles. No new colour values. `faintFor` and `surfaceFor` have no
+  caller in this repository yet: they are the seam the audit's remaining
+  cases need, exposed here so a later fix does not have to bump base_sdk
+  again just to reach it. `surfaceFor` is a mode-RESOLVING seam and is not
+  to be confused with the polarity-pinned `surfaceDarkRaw`/`surfaceLightRaw`
+  pair, which exists for building the host's paired `ThemeData`.
+* New `test/theme_mode_statics_test.dart`: a mode change with each widget
+  mounted behind a boundary the flip does not cross on its own account.
+* Audit result, for the record: 48 build methods across core read a
+  mode-resolving `AppStyle` static with no inherited-theme dependency of
+  their own, and 22 of those are not reached by any parent rebuild that the
+  flip does schedule. The two above are the cases where staleness is
+  provable from the code in this repository. The remaining 20 are shared
+  kernel components with no mount site inside core, so whether anything
+  reschedules them is the host's business, not theirs - they are reported
+  rather than changed here.
+
+## 1.66.3
+
+* An unreachable backend now says the server could not be reached instead of
+  telling the reader to check a connection that is working. Ray, 2026-09-19,
+  correcting the wording he was shown: "not check your connection but check
+  your network connection", and then naming the cause himself: "im thinking it
+  could be that the backend is unreachable rather than the phone being
+  offline". He was right on both counts, and this is a SECOND defect, distinct
+  from the radio-whitelist fix in 1.66.1: that one was about the guard toast
+  ("No internet connection") firing BEFORE any request; this one is about the
+  toast that fires AFTER a request was attempted and got no answer.
+* `NetworkExceptions.getDioException` had a `switch` in which every single arm
+  was a bare `break`, so control always fell through to one
+  `noInternetConnection()` return. A refused connection, a dead host, a
+  rejected certificate, a cancelled request, a timeout and every HTTP status
+  from 400 to 503 all came back as "the reader has no internet"; fourteen of
+  the union's variants were unreachable. Each arm now returns the variant it
+  names, `badResponse` is classified by its status, and the response-bearing
+  case no longer reaches `error.response!` on a null response. Only a
+  transport that never got an answer still answers `noInternetConnection`.
+* `AppHelpers.errorHandler`'s connection-failure line is now chosen from the
+  failure, not fixed. The argument that decides the default: this code runs
+  ONLY for a request that was attempted, and every network path in the fleet
+  sits behind an `AppConnectivity.connectivity()` guard that shows its own
+  offline snackbar and returns without calling anything. Past that guard the
+  device had a network moments ago, so a response-less failure is the server
+  not answering. Two lines, because they carry different instructions: a
+  server that never answered (`connectionError`, `badCertificate`, a DNS
+  failure arriving as `unknown`, a cancelled request) reads
+  `TrKeys.couldNotReachServer`; a server that answered too slowly
+  (`connectionTimeout`, `sendTimeout`, `receiveTimeout`, `transformTimeout`)
+  reads `TrKeys.serverTookTooLong`. No new freezed union member, so nothing is
+  code-generated.
+* `_isConnectionFailure` now also admits `RequestCancelled`. A cancelled
+  request has no response either, so leaving it out sent it down the
+  extraction chain, which has nothing to extract and ends at `e.toString()` -
+  raw "DioException [request cancelled]" text on a student's screen. A
+  judgement call, and the alternative is worse.
+* Added: `TrKeys.couldNotReachServer` / `could_not_reach_server` and
+  `TrKeys.serverTookTooLong` / `server_took_too_long`, with English copy in
+  `bundled_en_translations.dart` and Afrikaans in
+  `bundled_af_translations.dart`. Both keys NAME a string rather than spelling
+  it, which is exactly what the bundled English map exists for; humanizing
+  them would give the clipped "Could not reach server". `TranslationSeeder`
+  offers the backend these same English values, so app and backend agree. The
+  wording is a stated default and a one-line change.
+* Unchanged on purpose: `AppHelpers.showNoConnectionSnackBar`'s literal "No
+  internet connection", which belongs to the pre-request guard and is the
+  right thing to say when the radio really does report none;
+  `NetworkExceptions.getDioStatus`, so every `ApiResult.statusCode` and every
+  `ErrorPresenter.isDefinitiveRejection` decision reads exactly as before; and
+  the `badResponse` extraction path, so a server-authored message still
+  arrives verbatim.
+* Tests: `test/error_handler_test.dart` splits its old
+  one-line-for-everything expectation into an unreachable case and a timeout
+  case, asserts the bundled English copy, and asserts that a response-bearing
+  failure is classified by its status rather than as "no internet"; new
+  `test/profile_server_unreachable_toast_test.dart` drives the real
+  `GenericProfilePage` with an online radio and a facade that maps its
+  exception through `AppHelpers.errorHandler` the way every repository does,
+  and asserts the toast names the server, is not the check-your-network line,
+  and is not the guard's "No internet connection" either.
+* Follow-up, not in this change: `showNoConnectionSnackBar` hard-codes its
+  English literal while `TrKeys.noInternetConnection` and an Afrikaans value
+  for it both exist, so that toast is the one offline surface that never
+  translates.
+
+## 1.66.2
+
+* The shared glance card restyles itself the moment the theme mode changes.
+  Ray, 2026-09-19: "glance doesnt change test immediately untill you come back
+  if you switched theme mode" - on the launcher home, where the glance kept the
+  previous mode's text until the page was built again from scratch.
+* `GlanceCard.build` resolved nothing from its `BuildContext`: its chrome came
+  from `AppStyle`'s statics and its rows' ink was left to whatever ambient
+  `DefaultTextStyle` a host happened to provide. Neither is a dependency, so a
+  theme-mode change (an `AppStyle.setBrightness` flip plus a new `themeMode` on
+  the host `MaterialApp`) scheduled no rebuild of the card's own element - it
+  restyled only when something else rebuilt it, i.e. on the way back into the
+  launcher.
+* It now reads `Theme.of(context).brightness` and names its rows' and title's
+  ink from `AppStyle.inkFor` for that mode, so the mode change itself rebuilds
+  the card wherever it is mounted. A row that names its own colour (the
+  active-order card's muted weather line) still keeps it.
+* New `AppStyle.inkFor(Brightness)`: `textPrimary`'s two values, resolved
+  against an explicit brightness instead of the app-wide `isDark` static, for
+  widgets that take their mode from the inherited theme. Same spirit as the
+  polarity-pinned `surfaceLightRaw`/`surfaceDarkRaw` pair.
+* New `test/glance_card_theme_mode_test.dart`: a mode change with the card's
+  page still mounted, in a subtree the flip does not rebuild on its own
+  account, and the caller-named-colour case.
+
+## 1.66.1
+
+* The radio check no longer calls an online phone offline. Ray, 2026-09-19:
+  "going  to profile i get offline toast" - on the launcher build that had just
+  grown a Profile item, on a phone with a working network.
+* `AppConnectivity.connectivity()` admitted exactly three `connectivity_plus`
+  answers as online - mobile, ethernet, wifi - and called everything else
+  offline. The plugin reports `ConnectivityResult.none` EXACTLY when the active
+  network carries no `NET_CAPABILITY_INTERNET`, so every other answer is a
+  network the OS believes can carry traffic: `vpn` (the active network on a
+  phone with a VPN up, which is what Android's `getActiveNetwork()` hands the
+  plugin), `other` (the Windows/Linux catch-all for an internet-capable
+  transport with no name, and tethering), `bluetooth`. All three were read as
+  "no internet".
+* That is the whole path to Ray's toast. `ProfileNotifier.fetchUser` gates the
+  profile fetch on this check and, on false, shows
+  `AppHelpers.showNoConnectionSnackBar` ("No internet connection") without
+  attempting anything - so opening the profile on such a device produced the
+  offline toast and no profile, while the rest of the app carried on.
+* The definition now lives in one place, `AppConnectivity.isOnline(results)`:
+  online is "the plugin did not say none" (an empty answer is still offline).
+  `connectivity()`, `connectivityWithDialog` and `connectivityAndShowDialog`
+  read it, `ConnectivityService._isOnline` delegates to it instead of keeping
+  its own copy, and the splash's own copy
+  (`splash_page.dart`'s `_checkConnectivity`) goes the same way - a boot that
+  silently took the offline path on a VPN-connected phone now takes the online
+  one. Three copies of one predicate is how they came to disagree.
+* New `test/profile_offline_toast_test.dart`: the online definition across
+  every result the plugin can report, and the page itself - a signed-in phone
+  whose radio says `vpn` opens the generic profile, fetches, and shows no
+  offline toast; a radio that really says `none` still shows it and still does
+  not fetch.
+
+## 1.66.0
+
+* The composed app's `main()` now installs two uncaught-error handlers before
+  it does anything else (`templates/main.dart`), so a crash leaves a readable
+  record in the platform log instead of a process that simply went away. Ray,
+  2026-09-18: "it crashes when you go back to the launcher" - the phone had
+  nothing to show for it.
+* `FlutterError.onError` logs the exception and its stack through `debugPrint`
+  and then calls `FlutterError.presentError`, which is the default handler, so
+  debug still gets the red screen and release still gets the console dump -
+  the logging is added in front of the existing behaviour, not instead of it.
+* `platformDispatcher.onError` covers everything the framework never sees: a
+  throw from a platform message handler, a failed unawaited Future in a boot
+  hook, anything raised on the root zone. It logs and returns `true`.
+* No `runZonedGuarded`, and no new dependency. The platform-dispatcher hook is
+  already the whole-app net, and a zone around `runApp` would be wrong here:
+  the bindings are initialized at the top of `main()` in the root zone, and
+  running `runApp` in a different zone is the "Zone mismatch" assertion.
+
+## 1.65.3
+
+* New `UserAvatar` (`src/presentation/components/user_avatar.dart`), the one
+  avatar every screen draws a person with, and it never draws a "?" (Ray,
+  2026-09-18: "profile image is ? no image or letters why"). Three states in
+  order: the stored picture through `CustomNetworkImage` when `ProfileData.img`
+  is set, else the person's initials on the brand colour, else
+  `Icons.person_outline` - a neutral person glyph.
+* The question mark was real and reachable. The generic profile header's
+  private `_Avatar` ended on `source.isEmpty ? '?' : source[0].toUpperCase()`,
+  so a signed-in session whose cached `ProfileData` carried no picture AND no
+  name or email - what a restored session looks like before the profile fetch
+  lands - drew a literal "?". launch_sdk's account control carried its own copy
+  of the same fall-through. Both now render `UserAvatar`, so there is one
+  ladder and the two cannot disagree again.
+* Initials are the first letter of each of the first two words of the name,
+  falling back to the email's local part when there is no name at all. "Letter"
+  is a whole user-perceived character - the leading code point plus its
+  combining marks - so an accent survives and an astral-plane code point is not
+  sliced into a lone surrogate. Casing is `String.toUpperCase`, Unicode's
+  locale-independent default mapping, so caseless scripts pass through
+  unchanged rather than being mangled.
+* Sizing stays with the caller (`size`, optional `fontSize`/`glyphSize`): base's
+  own pages pass screenutil values, launch_sdk - which does not depend on
+  flutter_screenutil - passes logical pixels. Both call sites keep the exact
+  metrics they had, so nothing moves on screen.
+* New `RoutePresence` (`src/navigation/route_presence.dart`): asks the host's
+  own generated auto_route router whether a route NAME is registered, so an SDK
+  can offer an optional destination and offer nothing at all where the compose
+  has none. `AppRoutes`' host implementation throws out of `noSuchMethod` for a
+  method no installed SDK declared, which is right for a navigation the app
+  cannot do without and wrong for "and here is your profile". Carries
+  `genericProfileRouteName` - `GenericProfileRoute`, the name this manifest
+  already mounts `/generic-profile` under, not marketplace_sdk's `ProfileRoute`.
+* New `test/user_avatar_test.dart` (10 tests): the picture state, the initials
+  state including two words, one word, the email fallback and the Unicode
+  cases, the glyph state for an empty profile and for no profile at all, and
+  that no state anywhere renders a "?". New `test/route_presence_test.dart` (4
+  tests): no router, a router carrying the route, a router carrying other
+  routes, and the route name pinned against this manifest's own `routes` and
+  `app_routes` entries.
+
+## 1.65.2
+
+* Fixed: `templates/android/.../MainActivity.kt` now registers optional
+  platform bridges, so a package SDK that ships Kotlin glue is no longer a
+  no-op in the composed app. `configureFlutterEngine` keeps its two direct
+  registrations and adds `registerOptionalBridges`, which for each simple
+  class name in `OPTIONAL_BRIDGES` resolves `<this activity's package>.<name>`
+  reflectively and invokes `register(BinaryMessenger, Activity)`. A missing
+  class (`ClassNotFoundException`) is the expected case for an app composed
+  without that SDK and is ignored, so this template still compiles and runs
+  in every app that does not have the SDK. First entry is launch_sdk's
+  `DefaultHomeBridge` (channel `rokct.launch_sdk/default_home`), whose Dart
+  half - `DefaultHomeService`/`DefaultHomePrompt`, the once-per-install ask to
+  become the device's home app - could never fire because nothing called it.
+* Reflection reads the package from the activity's own class instead of a
+  literal `com.app.demo.*`: the release lane rewrites every Kotlin source's
+  `package` declaration to the customer application package before it
+  compiles, so a hard-coded name would resolve to nothing in a shipped build.
+  Both shapes of a Kotlin `object` are accepted (`@JvmStatic` static method or
+  the `INSTANCE` singleton), so no SDK has to change its bridge to be picked
+  up.
+* `templates/android/app/proguard-rules.pro` keeps `**.DefaultHomeBridge`
+  (name intact, bodies still optimizable). A reflectively-resolved class has
+  no reference for R8 to follow, so the release build - `minifyEnabled true`,
+  `shrinkResources true` - would otherwise shrink it away and the ask would
+  work in debug and silently do nothing in the shipped app.
+
+## 1.65.1
+
+* Fixed: the splash no longer spends a dio timeout on a backend it already
+  knows is unreachable. The 1.64.2 fix skipped the translations fetch when
+  the `api_status` probe answered "down", but `SplashNotifier.getToken` was
+  still gated on `AppConnectivity.connectivity()` alone — radio-only, which
+  a Wi-Fi network with no route to the tenant backend false-passes — so it
+  awaited `getGlobalSettings()` BEFORE reaching any routing decision and the
+  person sat on the splash artwork for the full timeout anyway. `getToken`
+  now takes `backendUp` the same way `getTranslations` does: with the backend
+  known down it routes straight off the stored token (`Main` when there is
+  one, `LoginPage` when there is not) and touches no network at all. The
+  radio-off branch still hands control to `goNoInternet`.
+* Fixed: `manifest.json` said `1.64.1` while `pubspec.yaml` and this file
+  said `1.64.2`; all three now agree.
+
+## 1.65.0
+
+* Removed: `AppConstants.isDemo` (`--dart-define=IS_DEMO=true`) and
+  `DemoSession.isDemoOverride`. The compile-time demo flag is dead (Ray:
+  "AppConstants.isDemo is dead") - no shipped build passed the define, and
+  a seam that read the constant instead of the switch served a
+  server-marked demo account the real repositories, silently.
+  `DemoSession.demoActive` is now the only demo switch in the fleet:
+  `static bool get demoActive => AppConstants.isTour || instance.active;` -
+  the guided-tour build (`--dart-define=TOUR_MODE=true`, the one build that
+  runs with no backend and no sign-in to assert a marker with) keeps its
+  in-app fixtures through `AppConstants.isTour`, and everything else is the
+  runtime session auth_sdk activates from the server-asserted
+  demo-account marker. `AppConstants.isTour` is untouched.
+* Removed: the two parallel test seams that existed only because a
+  compile-time constant cannot be flipped by a test -
+  `DemoCurrency.isDemoOverride` and `ProfileMetaRow.isDemoOverride`. Both
+  read `DemoSession.demoActive` directly now, and their tests drive the
+  real runtime API (`DemoSession.instance.activate()` / `clear()` over
+  `SharedPreferences.setMockInitialValues`) instead of a stand-in.
+* `test/demo_switch_contract_test.dart` is inverted rather than dropped: the
+  source contract is now that NO Dart source under any `<sdk>/dart/lib` or
+  `<sdk>/dart/templates` reads `AppConstants.isDemo`, that
+  `app_constants.dart` no longer declares it (while it still declares
+  `TOUR_MODE`), and that `demoActive` is the tour build OR the session and
+  carries no test-only override.
+* MERGE ORDER: this must land AFTER the three agent-repo PRs that re-point
+  the remaining `AppConstants.isDemo` readers in their own SDKs
+  (RokctAI/agent: lms #314, plus the radio and subscriptions PRs). Their
+  SDKs still read the constant until then, so removing it here first breaks
+  their compilation.
+
+## 1.64.2
+
+* Fixed: startup no longer blocks or surfaces error UI when device has internet but backend is unavailable.
+  `SplashPage._initializeApp` now allows startup to proceed when backend is unreachable, falling back to local
+  translations and stored credentials to reach `LoginPage` (or `Main` for authenticated users). Removed unwanted
+  `AppConnectivity.connectivityWithDialog` calls during startup flow so modal error dialogs do not interrupt splash screen.
+
+## 1.64.1
+
+* Fixed: a tablet profile no longer leaves the third plane empty (Ray,
+  2026-09-07: "on a tablet the generic profile host must not leave the
+  third plane empty"). `GenericProfileRoutePage` only ever filled the last
+  plane by SEEDING a detail into it, and a detail is only seeded when the
+  registry carries a `ProfileSectionRegistry.defaultSectionId` - which no
+  composed SDK sets, so every real tablet profile rendered profile |
+  profile | bare. The host's profile page now declares
+  `PlanePage.allowNeighbors` false: with no detail beside it the profile is
+  the whole flow, so `PlaneHost` clamps the visible planes to the two the
+  claim holds and those two share the full width. The universal cap is
+  untouched - still two planes and two columns, never a stretched phone
+  layout - and the flag is read only for the ACTIVE step, so it does
+  nothing at all once a card (or the seeded default) opens a detail: the
+  profile yields the last plane and spreads over the two before it exactly
+  as before. Two-plane windows and phones are unchanged.
+* `test/generic_profile_route_page_test.dart` now asserts the landing state
+  at 1066 dp fills the window in two columns instead of stopping short of a
+  bare third plane.
+
+## 1.64.0
+
+* Added: a dotted app name folds to its stem on the splash. When the
+  display name (server 'title' setting, else the composed app's
+  `AppConstants.appTitle`) contains a dot with something in front of it,
+  the wide-window boot wordmark and the boot-fallback screen show the full
+  name first, then after 1.5 s the dot and everything after it slide into
+  the stem (the suffix's clipped box collapses toward the stem with the
+  floating bar's `easeOutCubic` / `AppConstants.animationDuration`; one
+  step when the platform disables animations). A name with no dot renders
+  exactly as before. New `AppHelpers.appNameStem`, `appNameFolds`,
+  `appNameSuffix` and `getAppNameStem` decide on the value alone - no
+  brand is named anywhere; new
+  `src/presentation/pages/initial/splash/folding_brand_name.dart`
+  (`FoldingBrandName`) carries the motion. The profile footer keeps the
+  full name.
+
 ## 1.63.1
 
 * Fixed: Tour builds hide the system bars on large screens so the launcher

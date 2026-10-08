@@ -160,7 +160,7 @@ class ManagerWalletPane extends ConsumerWidget {
                   Icon(
                     Remix.arrow_right_s_line,
                     size: 16.r,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
                 ],
               ),
@@ -316,8 +316,8 @@ class _ManagerWithdrawActionState extends ConsumerState<ManagerWithdrawAction> {
     return CustomButton(
       key: const Key('managerWithdrawAction'),
       title: AppHelpers.getTranslation(TrKeys.withdraw),
-      background: can ? AppStyle.primary : AppStyle.strokeDark,
-      textColor: can ? AppStyle.blackColor : AppStyle.textDarkFaint,
+      background: can ? AppStyle.primary : AppStyle.strokeFor(Theme.of(context).brightness),
+      textColor: can ? AppStyle.blackColor : AppStyle.faintFor(Theme.of(context).brightness),
       onPressed: can ? () => _openWithdraw() : () {},
     );
   }

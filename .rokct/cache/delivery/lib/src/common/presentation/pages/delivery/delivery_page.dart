@@ -42,7 +42,7 @@ class _DeliveryPageState extends ConsumerState<DeliveryPage> {
     final deliveryState = ref.watch(deliveryProvider);
 
     return Scaffold(
-      backgroundColor: AppStyle.bgGrey,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: Stack(children: [
         deliveryState.isLoading
           ? const Loading()
@@ -103,7 +103,7 @@ class _DeliveryPageState extends ConsumerState<DeliveryPage> {
                                 padding: EdgeInsets.all(16.r),
                                 width: double.infinity,
                                 decoration: BoxDecoration(
-                                  color: AppStyle.white,
+                                  color: AppStyle.cardFor(Theme.of(context).brightness),
                                   borderRadius: BorderRadius.circular(10.r),
                                 ),
                                 child: Html(

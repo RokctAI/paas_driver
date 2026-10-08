@@ -84,9 +84,9 @@ class ConnectivityService {
     _wasOnline = false;
   }
 
-  // Same online definition as AppConnectivity.connectivity().
+  // The one online definition, asked of AppConnectivity rather than
+  // re-spelled here: a second copy is how this listener and
+  // AppConnectivity.connectivity() came to disagree about a VPN.
   bool _isOnline(List<ConnectivityResult> results) =>
-      results.contains(ConnectivityResult.mobile) ||
-      results.contains(ConnectivityResult.ethernet) ||
-      results.contains(ConnectivityResult.wifi);
+      AppConnectivity.isOnline(results);
 }

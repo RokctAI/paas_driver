@@ -75,7 +75,7 @@ class _DriverPayoutsPageState extends ConsumerState<DriverPayoutsPage> {
     final live = liveRequest(state.requests);
     final outstanding = outstandingPayoutTotal(state.requests);
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: SafeArea(
         child: Stack(
           children: [
@@ -101,7 +101,7 @@ class _DriverPayoutsPageState extends ConsumerState<DriverPayoutsPage> {
                       style: AppStyle.interSemi(
                         size: 10.5,
                         letterSpacing: 1.2,
-                        color: AppStyle.textDarkSecondary,
+                        color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                       ),
                     ),
                     12.verticalSpace,
@@ -144,7 +144,7 @@ class _DriverPayoutsPageState extends ConsumerState<DriverPayoutsPage> {
       key: const Key('payoutAvailableCard'),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14.r),
       ),
       padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
@@ -156,7 +156,7 @@ class _DriverPayoutsPageState extends ConsumerState<DriverPayoutsPage> {
             style: AppStyle.interSemi(
               size: 10.5,
               letterSpacing: 1.2,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
           14.verticalSpace,
@@ -164,7 +164,7 @@ class _DriverPayoutsPageState extends ConsumerState<DriverPayoutsPage> {
             AppHelpers.numberFormat(number: balance),
             style: AppStyle.interSemi(
               size: 24,
-              color: balance < 0 ? AppStyle.red : AppStyle.textPrimary,
+              color: balance < 0 ? AppStyle.red : AppStyle.inkFor(Theme.of(context).brightness),
             ),
           ),
           if (outstanding > 0) ...[
@@ -175,7 +175,7 @@ class _DriverPayoutsPageState extends ConsumerState<DriverPayoutsPage> {
               key: const Key('payoutOutstandingLine'),
               style: AppStyle.interRegular(
                 size: 11,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ],
@@ -191,7 +191,7 @@ class _DriverPayoutsPageState extends ConsumerState<DriverPayoutsPage> {
         key: const Key('payoutGuaranteeCard'),
         width: double.infinity,
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(12.r),
         ),
         padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
@@ -212,7 +212,7 @@ class _DriverPayoutsPageState extends ConsumerState<DriverPayoutsPage> {
               ),
               style: AppStyle.interRegular(
                 size: 10.5,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ],

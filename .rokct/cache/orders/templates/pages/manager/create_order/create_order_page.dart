@@ -131,7 +131,7 @@ class _CreateOrderPageState extends ConsumerState<CreateOrderPage> {
       child: KeyboardDismisser(
         child: Scaffold(
           resizeToAvoidBottomInset: false,
-          backgroundColor: AppStyle.surfaceDark,
+          backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
           body: SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -303,7 +303,7 @@ class _CreateOrderPageState extends ConsumerState<CreateOrderPage> {
             AppHelpers.getTranslation(TrKeys.walkInOrder),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppStyle.interSemi(size: 24, color: AppStyle.textPrimary),
+            style: AppStyle.interSemi(size: 24, color: AppStyle.inkFor(Theme.of(context).brightness)),
           ),
         ),
         16.verticalSpace,
@@ -330,7 +330,7 @@ class _CreateOrderPageState extends ConsumerState<CreateOrderPage> {
                 ),
                 suffixIcon: Icon(
                   Remix.equalizer_fill,
-                  color: AppStyle.textPrimary,
+                  color: AppStyle.inkFor(Theme.of(context).brightness),
                   size: 20.r,
                 ),
               );
@@ -446,7 +446,7 @@ class _FoodDetailsPaneState extends State<_FoodDetailsPane> {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: AppStyle.surfaceDark,
+      color: AppStyle.surfaceFor(Theme.of(context).brightness),
       child: Padding(
         padding: EdgeInsets.only(top: 24.h),
         child: FoodDetailsModal(controller: _controller, product: widget.product),

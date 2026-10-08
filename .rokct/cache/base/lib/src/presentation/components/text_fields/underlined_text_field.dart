@@ -19,7 +19,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
-import 'package:base_sdk/src/services/local_storage.dart';
 
 class UnderlinedTextField extends StatelessWidget {
   final String label;
@@ -63,7 +62,7 @@ class UnderlinedTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkMode = LocalStorage.getAppThemeMode();
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,7 +103,7 @@ class UnderlinedTextField extends StatelessWidget {
             labelText: label.toUpperCase(),
             labelStyle: AppStyle.interNormal(
               size: 14.sp,
-              color: AppStyle.blackColor,
+              color: AppStyle.inkFor(Theme.of(context).brightness),
             ),
             contentPadding: REdgeInsets.symmetric(horizontal: 0, vertical: 8),
             floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -140,7 +139,7 @@ class UnderlinedTextField extends StatelessWidget {
                       ? AppStyle.red
                       : isSuccess
                           ? AppStyle.textGrey
-                          : AppStyle.blackColor,
+                          : AppStyle.inkFor(Theme.of(context).brightness),
                 ),
               ),
             ],

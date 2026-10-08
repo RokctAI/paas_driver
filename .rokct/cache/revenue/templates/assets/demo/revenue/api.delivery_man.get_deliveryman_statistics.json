@@ -1,0 +1,14 @@
+{
+  "status": true,
+  "data": {
+    "progress_orders_count": 2,
+    "delivered_orders_count": 128,
+    "cancel_orders_count": 3,
+    "new_orders_count": 1,
+    "accepted_orders_count": 2,
+    "ready_orders_count": 1,
+    "on_a_way_orders_count": 1,
+    "orders_count": 133,
+    "last_delivered_fee": 480
+  }
+}

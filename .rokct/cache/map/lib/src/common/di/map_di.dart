@@ -13,8 +13,18 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:get_it/get_it.dart';
+import 'package:map_sdk/src/common/domain/interface/customer_poi.dart';
 import 'package:map_sdk/src/common/infrastructure/services/places/places_service.dart';
 
 /// [MapSdkDependencies.register] registers a [GooglePlacesService] during
 /// bootstrap; map_sdk resolves it lazily here.
 GooglePlacesService get googlePlaces => GetIt.I.get<GooglePlacesService>();
+
+/// The customer map's points-of-interest read, registered by the same
+/// bootstrap hook. Null rather than a throw when nothing is registered: a
+/// host that composes map_sdk without calling the hook still gets a working
+/// map, just one with no stored points drawn on it.
+CustomerPoiRepositoryFacade? get customerPoisOrNull =>
+    GetIt.I.isRegistered<CustomerPoiRepositoryFacade>()
+        ? GetIt.I.get<CustomerPoiRepositoryFacade>()
+        : null;

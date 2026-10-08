@@ -49,7 +49,10 @@ class ShopOrderDescription extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: AppStyle.interNormal(size: 16, color: AppStyle.black),
+                style: AppStyle.interNormal(
+                  size: 16,
+                  color: AppStyle.inkFor(Theme.of(context).brightness),
+                ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -69,7 +72,9 @@ class ShopOrderDescription extends StatelessWidget {
               : AppHelpers.numberFormat(number: price),
           style: AppStyle.interSemi(
             size: 16.sp,
-            color: discount ? AppStyle.red : AppStyle.black,
+            color: discount
+                ? AppStyle.red
+                : AppStyle.inkFor(Theme.of(context).brightness),
           ),
         ),
       ],

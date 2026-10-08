@@ -149,7 +149,7 @@ class _BankDepositSheetState extends State<BankDepositSheet> {
       key: const Key('bankDepositSheet'),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16.r),
           topRight: Radius.circular(16.r),
@@ -171,7 +171,7 @@ class _BankDepositSheetState extends State<BankDepositSheet> {
                 width: 100.w,
                 height: 4.h,
                 decoration: BoxDecoration(
-                  color: AppStyle.strokeDark,
+                  color: AppStyle.strokeFor(Theme.of(context).brightness),
                   borderRadius: BorderRadius.circular(40.r),
                 ),
               ),
@@ -190,7 +190,7 @@ class _BankDepositSheetState extends State<BankDepositSheet> {
               key: const Key('bankDepositNothingMovesLine'),
               style: AppStyle.interRegular(
                 size: 12,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
             14.verticalSpace,
@@ -219,9 +219,9 @@ class _BankDepositSheetState extends State<BankDepositSheet> {
             CustomButton(
               key: const Key('bankDepositSubmit'),
               title: AppHelpers.getTranslation('send_for_approval'),
-              background: _canSubmit ? AppStyle.primary : AppStyle.strokeDark,
+              background: _canSubmit ? AppStyle.primary : AppStyle.strokeFor(Theme.of(context).brightness),
               textColor:
-                  _canSubmit ? AppStyle.blackColor : AppStyle.textDarkFaint,
+                  _canSubmit ? AppStyle.blackColor : AppStyle.faintFor(Theme.of(context).brightness),
               isLoading: widget.submitting,
               onPressed: _canSubmit
                   ? () => widget.onSubmit(_amount, widget.reference, _slipPath!)
@@ -239,7 +239,7 @@ class _BankDepositSheetState extends State<BankDepositSheet> {
               textAlign: TextAlign.center,
               style: AppStyle.interRegular(
                 size: 11,
-                color: AppStyle.textDarkFaint,
+                color: AppStyle.faintFor(Theme.of(context).brightness),
               ),
             ),
             6.verticalSpace,
@@ -251,7 +251,7 @@ class _BankDepositSheetState extends State<BankDepositSheet> {
                 AppHelpers.getTranslation(TrKeys.cancel),
                 style: AppStyle.interSemi(
                   size: 13,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                 ),
               ),
             ),
@@ -266,7 +266,7 @@ class _BankDepositSheetState extends State<BankDepositSheet> {
         style: AppStyle.interSemi(
           size: 10.5,
           letterSpacing: 1.2,
-          color: AppStyle.textDarkSecondary,
+          color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
         ),
       );
 
@@ -278,7 +278,7 @@ class _BankDepositSheetState extends State<BankDepositSheet> {
       width: double.infinity,
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDarkAlt,
+        color: AppStyle.cardAltFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Row(
@@ -306,7 +306,7 @@ class _BankDepositSheetState extends State<BankDepositSheet> {
                     '${AppHelpers.getTranslation('branch')} ${d.branchCode}',
                     style: AppStyle.interRegular(
                       size: 11.5,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                     ),
                   ),
                 ],
@@ -316,7 +316,7 @@ class _BankDepositSheetState extends State<BankDepositSheet> {
                     d.instructions!,
                     style: AppStyle.interRegular(
                       size: 11,
-                      color: AppStyle.textDarkFaint,
+                      color: AppStyle.faintFor(Theme.of(context).brightness),
                     ),
                   ),
                 ],
@@ -350,7 +350,7 @@ class _BankDepositSheetState extends State<BankDepositSheet> {
         overflow: TextOverflow.ellipsis,
         style: AppStyle.interSemi(
           size: 30,
-          color: _entry.isEmpty ? AppStyle.textDarkFaint : AppStyle.textPrimary,
+          color: _entry.isEmpty ? AppStyle.faintFor(Theme.of(context).brightness) : AppStyle.inkFor(Theme.of(context).brightness),
         ),
       ),
     );
@@ -363,9 +363,9 @@ class _BankDepositSheetState extends State<BankDepositSheet> {
       width: double.infinity,
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDarkAlt,
+        color: AppStyle.cardAltFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppStyle.strokeDark),
+        border: Border.all(color: AppStyle.strokeFor(Theme.of(context).brightness)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -378,7 +378,7 @@ class _BankDepositSheetState extends State<BankDepositSheet> {
             ),
             style: AppStyle.interRegular(
               size: 11,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
         ],
@@ -396,10 +396,10 @@ class _BankDepositSheetState extends State<BankDepositSheet> {
       width: double.infinity,
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDarkAlt,
+        color: AppStyle.cardAltFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: path == null ? AppStyle.strokeDark : AppStyle.primary,
+          color: path == null ? AppStyle.strokeFor(Theme.of(context).brightness) : AppStyle.primary,
         ),
       ),
       child: path == null
@@ -485,7 +485,7 @@ class _BankDepositSheetState extends State<BankDepositSheet> {
           padding: EdgeInsets.symmetric(vertical: 12.h),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10.r),
-            border: Border.all(color: AppStyle.strokeDark),
+            border: Border.all(color: AppStyle.strokeFor(Theme.of(context).brightness)),
           ),
           child: Column(
             children: [

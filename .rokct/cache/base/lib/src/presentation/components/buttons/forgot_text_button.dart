@@ -63,7 +63,7 @@ class ForgotTextButton extends ConsumerWidget {
           // under the 4.5:1 WCAG floor for body text, i.e. invisible. The
           // sheet title beside it already resolves through textPrimary
           // (19.03:1); this label now does the same.
-          color: fontColor ?? AppStyle.textPrimary,
+          color: fontColor ?? AppStyle.inkFor(Theme.of(context).brightness),
         ),
       ),
     );

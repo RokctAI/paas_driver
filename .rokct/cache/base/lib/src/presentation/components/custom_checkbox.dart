@@ -40,7 +40,7 @@ class CustomCheckbox extends StatelessWidget {
         ),
         duration: const Duration(milliseconds: 500),
         child: isActive
-            ? Icon(Remix.check_fill, color: AppStyle.black, size: 18.r)
+            ? Icon(Remix.check_fill, color: AppStyle.inkFor(Theme.of(context).brightness), size: 18.r)
             : const SizedBox.shrink(),
       ),
     );

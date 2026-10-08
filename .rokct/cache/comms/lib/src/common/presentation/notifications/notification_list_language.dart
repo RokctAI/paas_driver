@@ -118,8 +118,8 @@ class NotificationRow extends StatelessWidget {
     final String? image =
         notification.client?.img ?? notification.blogData?.img;
     final Color ink = _isUnread
-        ? AppStyle.textPrimary
-        : AppStyle.textDarkSecondary;
+        ? AppStyle.inkFor(Theme.of(context).brightness)
+        : AppStyle.secondaryInkFor(Theme.of(context).brightness);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
@@ -127,10 +127,10 @@ class NotificationRow extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(6, 0, 6, 8),
         padding: const EdgeInsets.all(11),
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: selected ? AppStyle.primary : AppStyle.strokeDarkSubtle,
+            color: selected ? AppStyle.primary : AppStyle.subtleStrokeFor(Theme.of(context).brightness),
             width: selected ? 1.3 : 1,
           ),
         ),
@@ -175,7 +175,7 @@ class NotificationRow extends StatelessWidget {
                     ).fromNow(),
                     style: AppStyle.interNormal(
                       size: 10.5,
-                      color: AppStyle.textDarkFaint,
+                      color: AppStyle.faintFor(Theme.of(context).brightness),
                     ),
                   ),
                 ],
@@ -220,9 +220,9 @@ class NotificationReadAllAction extends StatelessWidget {
         height: 38,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(100),
-          border: Border.all(color: AppStyle.strokeDark),
+          border: Border.all(color: AppStyle.strokeFor(Theme.of(context).brightness)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -231,8 +231,8 @@ class NotificationReadAllAction extends StatelessWidget {
               Remix.check_double_line,
               size: 16,
               color: enabled
-                  ? AppStyle.textPrimary
-                  : AppStyle.textDarkFaint,
+                  ? AppStyle.inkFor(Theme.of(context).brightness)
+                  : AppStyle.faintFor(Theme.of(context).brightness),
             ),
             const SizedBox(width: 7),
             Text(
@@ -240,8 +240,8 @@ class NotificationReadAllAction extends StatelessWidget {
               style: AppStyle.interSemi(
                 size: 12,
                 color: enabled
-                    ? AppStyle.textPrimary
-                    : AppStyle.textDarkFaint,
+                    ? AppStyle.inkFor(Theme.of(context).brightness)
+                    : AppStyle.faintFor(Theme.of(context).brightness),
               ),
             ),
           ],

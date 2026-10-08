@@ -29,7 +29,7 @@ import 'package:base_sdk/src/presentation/components/title_icon.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
-import 'package:comms_sdk/src/common/infrastructure/repositories/mock_settings_repository.dart';
+import 'package:comms_sdk/src/common/infrastructure/repositories/settings_repository.dart';
 import 'package:comms_sdk/src/common/presentation/pages/setting/language_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,7 +40,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Serves the picker its list without the connectivity probe and the
 /// repository round-trip the real notifier makes.
 class _StubLanguageNotifier extends LanguageNotifier {
-  _StubLanguageNotifier() : super(MockSettingsRepository());
+  _StubLanguageNotifier() : super(SettingsRepository());
 
   @override
   Future<void> getLanguages(
@@ -57,13 +57,16 @@ class _StubLanguageNotifier extends LanguageNotifier {
   }
 }
 
-Widget _harness(Widget child) => ProviderScope(
+Widget _harness(Widget child, [Brightness brightness = Brightness.dark]) => ProviderScope(
       overrides: [
         languageProvider.overrideWith((ref) => _StubLanguageNotifier()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(390, 844),
-        builder: (_, __) => MaterialApp(home: child),
+        builder: (_, __) => MaterialApp(
+          theme: ThemeData(brightness: brightness),
+          home: child,
+        ),
       ),
     );
 
@@ -112,12 +115,37 @@ void main() {
     testWidgets('light: the soft page grey', (tester) async {
       AppStyle.setBrightness(Brightness.light);
       await tester.pumpWidget(
-        _harness(Scaffold(body: LanguageScreen(onSave: () {}))),
+        _harness(
+          Scaffold(body: LanguageScreen(onSave: () {})),
+          Brightness.light,
+        ),
       );
       await tester.pump();
 
       expect(_surfaceOf(tester), AppStyle.bgGrey.withValues(alpha: 0.96));
     });
+  });
+
+  testWidgets('a live theme flip restyles the open sheet (static unchanged)',
+      (tester) async {
+    AppStyle.setBrightness(Brightness.dark);
+    await tester.pumpWidget(
+      _harness(Scaffold(body: LanguageScreen(onSave: () {}))),
+    );
+    await tester.pump();
+    expect(_surfaceOf(tester), AppStyle.surfaceDark.withValues(alpha: 0.96));
+
+    // Only the inherited theme flips; the AppStyle static stays dark.
+    await tester.pumpWidget(
+      _harness(
+        Scaffold(body: LanguageScreen(onSave: () {})),
+        Brightness.light,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(_surfaceOf(tester), AppStyle.bgGrey.withValues(alpha: 0.96));
+    final title = tester.widget<TitleAndIcon>(find.byType(TitleAndIcon));
+    expect(title.titleColor, AppStyle.inkFor(Brightness.light));
   });
 
   group('opened through the helper on a wide window', () {

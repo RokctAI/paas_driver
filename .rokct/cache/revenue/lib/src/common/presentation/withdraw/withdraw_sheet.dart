@@ -148,7 +148,7 @@ class _WithdrawSheetState extends State<WithdrawSheet> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16.r),
           topRight: Radius.circular(16.r),
@@ -170,7 +170,7 @@ class _WithdrawSheetState extends State<WithdrawSheet> {
                 width: 100.w,
                 height: 4.h,
                 decoration: BoxDecoration(
-                  color: AppStyle.strokeDark,
+                  color: AppStyle.strokeFor(Theme.of(context).brightness),
                   borderRadius: BorderRadius.circular(40.r),
                 ),
               ),
@@ -208,9 +208,9 @@ class _WithdrawSheetState extends State<WithdrawSheet> {
             CustomButton(
               key: const Key('withdrawSubmit'),
               title: AppHelpers.getTranslation(TrKeys.withdraw),
-              background: _canSubmit ? AppStyle.primary : AppStyle.strokeDark,
+              background: _canSubmit ? AppStyle.primary : AppStyle.strokeFor(Theme.of(context).brightness),
               textColor:
-                  _canSubmit ? AppStyle.blackColor : AppStyle.textDarkFaint,
+                  _canSubmit ? AppStyle.blackColor : AppStyle.faintFor(Theme.of(context).brightness),
               isLoading: widget.submitting,
               onPressed: _canSubmit ? () => widget.onSubmit(_amount) : () {},
             ),
@@ -227,10 +227,10 @@ class _WithdrawSheetState extends State<WithdrawSheet> {
       width: double.infinity,
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDarkAlt,
+        color: AppStyle.cardAltFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: _nothingToWithdraw ? AppStyle.strokeDark : AppStyle.primary,
+          color: _nothingToWithdraw ? AppStyle.strokeFor(Theme.of(context).brightness) : AppStyle.primary,
         ),
       ),
       child: Text(
@@ -239,7 +239,7 @@ class _WithdrawSheetState extends State<WithdrawSheet> {
         textAlign: TextAlign.center,
         style: AppStyle.interBold(
           size: 16,
-          color: _nothingToWithdraw ? AppStyle.textDarkSecondary : AppStyle.primary,
+          color: _nothingToWithdraw ? AppStyle.secondaryInkFor(Theme.of(context).brightness) : AppStyle.primary,
         ),
       ),
     );
@@ -262,7 +262,7 @@ class _WithdrawSheetState extends State<WithdrawSheet> {
       width: double.infinity,
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDarkAlt,
+        color: AppStyle.cardAltFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Column(
@@ -273,7 +273,7 @@ class _WithdrawSheetState extends State<WithdrawSheet> {
             style: AppStyle.interSemi(
               size: 10,
               letterSpacing: 1.2,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
           8.verticalSpace,
@@ -300,12 +300,12 @@ class _WithdrawSheetState extends State<WithdrawSheet> {
                       decoration: BoxDecoration(
                         color: account.id == selected.id
                             ? AppStyle.primary
-                            : AppStyle.cardDark,
+                            : AppStyle.cardFor(Theme.of(context).brightness),
                         borderRadius: BorderRadius.circular(30.r),
                         border: Border.all(
                           color: account.id == selected.id
                               ? AppStyle.primary
-                              : AppStyle.strokeDark,
+                              : AppStyle.strokeFor(Theme.of(context).brightness),
                         ),
                       ),
                       child: Text(
@@ -314,7 +314,7 @@ class _WithdrawSheetState extends State<WithdrawSheet> {
                           size: 11,
                           color: account.id == selected.id
                               ? AppStyle.blackColor
-                              : AppStyle.textPrimary,
+                              : AppStyle.inkFor(Theme.of(context).brightness),
                         ),
                       ),
                     ),
@@ -336,7 +336,7 @@ class _WithdrawSheetState extends State<WithdrawSheet> {
             key: const Key('withdrawDebitNotice'),
             style: AppStyle.interRegular(
               size: 10.5,
-              color: AppStyle.textDarkFaint,
+              color: AppStyle.faintFor(Theme.of(context).brightness),
             ),
           ),
         ],
@@ -356,7 +356,7 @@ class _WithdrawSheetState extends State<WithdrawSheet> {
         overflow: TextOverflow.ellipsis,
         style: AppStyle.interSemi(
           size: 30,
-          color: _entry.isEmpty ? AppStyle.textDarkFaint : AppStyle.textPrimary,
+          color: _entry.isEmpty ? AppStyle.faintFor(Theme.of(context).brightness) : AppStyle.inkFor(Theme.of(context).brightness),
         ),
       ),
     );

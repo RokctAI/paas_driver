@@ -26,7 +26,9 @@ import 'package:base_sdk/src/domain/interface/user.dart';
 import 'package:base_sdk/src/models/data/address_old_data.dart';
 import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
+import 'package:base_sdk/src/services/load_silence.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/services/enums.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 // [refork] removed host router import
@@ -198,13 +200,33 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     BuildContext context, {
     RefreshController? refreshController,
     VoidCallback? onSuccess,
+    bool quietWhenOffline = false,
+    bool userInitiated = false,
   }) async {
+    // [userInitiated] (Ray, 2026-10-05: errors on load before he did
+    // anything): a fetch the app started by itself — a page's initState,
+    // a refresh after a save or a map edit — fails silently (debug only).
+    // Only a caller passing true (the person explicitly asked for this
+    // fetch) may show a failure the server answered.
+    // Offline is never an error: no connection toast in either case.
+    // [quietWhenOffline] is kept for existing callers; it is now implied.
+    final bool loud = userInitiated;
+    // [quietWhenOffline]: the profile page passes true. "Using the app
+    // offline can't be taken as an error" (Ray, 2026-10-03): with no
+    // radio, or a backend that cannot be reached, the page keeps rendering
+    // the cached user and its footer's Online/Offline label is the only
+    // signal, so neither connection toast fires. Any other failure (a
+    // 4xx/5xx the server actually answered) still shows. Other callers
+    // keep the toasts.
     // Anonymous host (no UserRepositoryFacade registered): nothing to
     // fetch and no account to fetch it for — see [capabilities].
     final userRepository = _userRepository;
     if (userRepository == null) return;
     if (LocalStorage.getToken().isNotEmpty) {
-      final connected = await AppConnectivity.connectivity();
+      // A demo session is answered by the demo interceptor, which needs no
+      // network, so the offline demo sign-in reaches a loaded profile.
+      final connected =
+          DemoSession.demoActive || await AppConnectivity.connectivity();
       if (connected) {
         if (refreshController == null) {
           state = state.copyWith(isLoading: true);
@@ -272,13 +294,18 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
               context.router.popUntilRoot();
               AppRoutes.I.replaceLoginRoute(context);
             }
+            final bool offline =
+                AppHelpers.isAuthoredConnectionMessage(failure.toString());
+            if (!shouldSurfaceLoadError(userInitiated: loud, offline: offline) ||
+                !context.mounted) {
+              logSilencedLoadError('ProfileNotifier.fetchUser', failure);
+              return;
+            }
             AppHelpers.showCheckTopSnackBar(context, failure);
           },
         );
       } else {
-        if (context.mounted) {
-          AppHelpers.showNoConnectionSnackBar(context);
-        }
+        logSilencedLoadError('ProfileNotifier.fetchUser', 'offline');
       }
     }
   }
@@ -340,7 +367,26 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
         debugPrint('==> logout fcm token skipped: $e');
       }
     }
-    _userRepository?.logoutAccount(fcm: fcm);
+    // AWAITED, and followed by a local clear that does not depend on it.
+    //
+    // Unawaited, this returned the moment the request was sent: the caller
+    // (a profile screen's Log out button) navigated away while the revoke
+    // was still in flight, and users_sdk's session-end hooks -- the thing
+    // each SDK hangs its own on-device user data off -- were still running
+    // against a session the UI had already declared over. Nothing then
+    // cleared the session locally on this path at all, so a compose whose
+    // Log out button lands here left the user signed in.
+    //
+    // The clear is unconditional for the same reason it is in
+    // `UserRepository.logoutAccount` and in launch_sdk's
+    // `LauncherAuthControl.logOut`: forgetting the session on the device IS
+    // the sign-out, and an offline / temp-local account's `offline:<id>`
+    // token means the server revoke can never succeed. Calling it here as
+    // well as there is deliberate and harmless -- it is idempotent, and a
+    // host that registered a repository this notifier cannot reach (or none
+    // at all) still gets a real sign-out.
+    await _userRepository?.logoutAccount(fcm: fcm);
+    LocalStorage.logout();
   }
 
   Future<void> deleteAccount(BuildContext context) async {

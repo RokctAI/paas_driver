@@ -24,6 +24,7 @@ import 'package:base_sdk/src/services/enums.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:orders_sdk/src/manager/domain/interface/seller_orders.dart';
+import 'package:orders_sdk/src/manager/domain/walk_in_customer.dart';
 import 'package:orders_sdk/src/manager/infrastructure/services/manager_orders_local_store.dart';
 import 'package:orders_sdk/src/manager/infrastructure/services/collect_conversion_sync_handler.dart';
 import 'package:orders_sdk/src/manager/infrastructure/services/order_create_sync_handler.dart';
@@ -260,22 +261,41 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
           'quantity': addon.quantity ?? 1,
         });
       }
+      // order_items[].product is a Product docname; the stock row carries it
+      // on its product (countable for a countable-only row).
+      final String? productId =
+          (stock.product?.id ?? stock.countable?.id)?.toString();
       products.add({
         'stock_id': stock.id,
+        if (productId != null) 'product_id': productId,
         'quantity': stock.quantity ?? 1,
         if (addons.isNotEmpty) 'addons': addons,
         if (stock.bonus ?? false) 'bonus': true,
         if (stock.shopBonus ?? false) 'bonus_shop': true,
       });
     }
+    // WALK-IN WITH NO DETAILS ENTERED: the seller's own account stands in
+    // as the customer (Ray 2026-09-18, the pre-fork paas_pos behavior).
+    // `Order.user` is a required link, so "no customer picked" needs an
+    // answer, and this is the one the till always gave. A picked or
+    // just-created customer wins; with neither a pick nor a cached seller
+    // profile the keys stay absent exactly as before.
+    final seller = LocalStorage.getUser();
+    final customer = resolveWalkInOrderCustomer(
+      selectedUserId: user?.id,
+      selectedPhone: user?.phone,
+      sellerUserId: seller?.id,
+      sellerPhone: seller?.phone,
+    );
     final order = {
       'lang': LocalStorage.getLanguage()?.locale,
       'currency_id': LocalStorage.getSelectedCurrency()?.id,
       'rate': LocalStorage.getSelectedCurrency()?.rate,
       'shop_id': LocalStorage.getShopJson()?['id'],
-      if (user?.phone != null) 'phone': user?.phone?.replaceAll('+', ''),
+      if (customer.phone != null)
+        'phone': customer.phone?.replaceAll('+', ''),
       'delivery_type': deliveryType,
-      if (user?.id != null) 'user_id': user?.id,
+      if (customer.userId != null) 'user_id': customer.userId,
       'products': products,
       if (tableId != null) 'table_id': tableId,
       'delivery_date': deliveryTime,
@@ -303,7 +323,7 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
     try {
       final response = await _gateway.tenant(
         'api.order.create_order',
-        {'order_data': order},
+        {'order_data': OrderCreateSyncHandler.canonicalOrderData(order)},
       );
       // Backend reachable and accepted: it is authoritative from here on
       // (the order queues refetch supplies the row), so the write-through

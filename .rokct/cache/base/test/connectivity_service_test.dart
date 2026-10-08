@@ -70,10 +70,31 @@ void main() {
     expect(drainCalls, 2);
   });
 
-  test('offline results never probe or kick', () async {
+  test('a none result never probes or kicks', () async {
     await service.handleConnectivityChange([ConnectivityResult.none]);
-    await service.handleConnectivityChange([ConnectivityResult.bluetooth]);
     expect(probeCalls, 0);
     expect(drainCalls, 0);
+  });
+
+  test('a transport the old whitelist omitted is a regain like any other',
+      () async {
+    // This case used to sit in the test above, asserting that bluetooth was
+    // offline. It is not: connectivity_plus names a transport at all only for
+    // a network that HAS internet capability - `none` is its answer for one
+    // that does not - so bluetooth tethering, a VPN and the unnamed `other`
+    // are every bit as online as wifi (AppConnectivity.isOnline). The drain
+    // must not wait for a wifi/mobile/ethernet answer that a VPN-connected
+    // phone never gives.
+    await service.handleConnectivityChange([ConnectivityResult.bluetooth]);
+    expect(probeCalls, 1);
+    expect(drainCalls, 1);
+  });
+
+  test('vpn and other are regains too', () async {
+    await service.handleConnectivityChange([ConnectivityResult.vpn]);
+    expect(drainCalls, 1);
+    await service.handleConnectivityChange([ConnectivityResult.none]);
+    await service.handleConnectivityChange([ConnectivityResult.other]);
+    expect(drainCalls, 2);
   });
 }

@@ -55,7 +55,7 @@ class StatisticsScreen extends StatelessWidget {
         // AppStyle.black, unreadable on surfaceDark.
         TitleAndIcon(
           title: AppHelpers.getTranslation(TrKeys.statistics),
-          titleColor: AppStyle.textPrimary,
+          titleColor: AppStyle.inkFor(Theme.of(context).brightness),
         ),
         16.verticalSpace,
         // The tiles take their width from THIS row's constraints, not the
@@ -74,7 +74,7 @@ class StatisticsScreen extends StatelessWidget {
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.r),
-                      color: AppStyle.cardDark,
+                      color: AppStyle.cardFor(Theme.of(context).brightness),
                     ),
                     padding: EdgeInsets.all(12.r),
                     child: Column(
@@ -84,7 +84,7 @@ class StatisticsScreen extends StatelessWidget {
                           AppHelpers.getTranslation(TrKeys.totalOrders),
                           style: AppStyle.interNormal(
                               size: 12,
-                              color: AppStyle.textPrimary,
+                              color: AppStyle.inkFor(Theme.of(context).brightness),
                               letterSpacing: -0.3),
                         ),
                         const Spacer(),
@@ -92,7 +92,7 @@ class StatisticsScreen extends StatelessWidget {
                           totalOrders,
                           style: AppStyle.interSemi(
                               size: 34,
-                              color: AppStyle.textPrimary,
+                              color: AppStyle.inkFor(Theme.of(context).brightness),
                               letterSpacing: -1),
                         ),
                         RichText(
@@ -100,14 +100,14 @@ class StatisticsScreen extends StatelessWidget {
                               text: AppHelpers.getTranslation(TrKeys.today),
                               style: AppStyle.interNormal(
                                   size: 12,
-                                  color: AppStyle.textPrimary,
+                                  color: AppStyle.inkFor(Theme.of(context).brightness),
                                   letterSpacing: -0.3),
                               children: [
                                 TextSpan(
                                   text: " $todayOrders",
                                   style: AppStyle.interSemi(
                                       size: 12,
-                                      color: AppStyle.textPrimary,
+                                      color: AppStyle.inkFor(Theme.of(context).brightness),
                                       letterSpacing: -0.3),
                                 )
                               ]),
@@ -152,8 +152,8 @@ class StatisticsScreen extends StatelessWidget {
                               title: AppHelpers.getTranslation(TrKeys.doneOrders),
                               count: doneOrders,
                               percentage: donePer == "NaN%" ? "0%" : donePer,
-                              bgColor: AppStyle.cardDark,
-                              textColor: AppStyle.textPrimary,
+                              bgColor: AppStyle.cardFor(Theme.of(context).brightness),
+                              textColor: AppStyle.inkFor(Theme.of(context).brightness),
                               iconColor: AppStyle.icons),
                           8.horizontalSpace,
                           StatisticsItem(
@@ -161,8 +161,8 @@ class StatisticsScreen extends StatelessWidget {
                             title: AppHelpers.getTranslation(TrKeys.newOrders),
                             count: canceledOrders,
                             percentage: canceledPer == "NaN%" ? "0%" : canceledPer,
-                            bgColor: AppStyle.cardDark,
-                            textColor: AppStyle.textPrimary,
+                            bgColor: AppStyle.cardFor(Theme.of(context).brightness),
+                            textColor: AppStyle.inkFor(Theme.of(context).brightness),
                             iconColor: AppStyle.icons,
                           ),
                         ],

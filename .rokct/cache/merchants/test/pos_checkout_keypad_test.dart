@@ -20,7 +20,7 @@
 // present), keypad editing end to end into the submitted draft
 // (digits / 00 / decimal / ⌫ / OK-normalize, calculator-entry
 // replacement of the fresh prefill), and the quick chips resetting
-// freshness. Run with --dart-define=IS_DEMO=true.
+// freshness. Runs over the demo till (support/demo_till.dart).
 
 import 'package:base_sdk/src/models/data/currency_data.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
@@ -30,20 +30,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider.dart';
-import 'package:merchants_sdk/src/manager/di/manager_merchants_di.dart';
 import 'package:merchants_sdk/src/manager/domain/interface/pos_orders.dart';
-import 'package:merchants_sdk/src/manager/infrastructure/repositories/mock_pos_orders_repository.dart';
+
+import 'support/demo_till.dart';
+
 import 'package:merchants_sdk/src/manager/utils/pos_connectivity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../templates/pages/manager/billing/checkout_page.dart';
 
 Widget _host(Widget child) => ProviderScope(
-      child: ScreenUtilInit(
-        designSize: const Size(390, 844),
-        builder: (context, _) => MaterialApp(home: child),
-      ),
-    );
+  child: ScreenUtilInit(
+    designSize: const Size(390, 844),
+    builder: (context, _) => MaterialApp(home: child),
+  ),
+);
 
 Future<void> _pumpWithCart(WidgetTester tester) async {
   tester.view.physicalSize = const Size(1170, 12600);
@@ -58,8 +59,7 @@ Future<void> _pumpWithCart(WidgetTester tester) async {
   await tester.pump();
 }
 
-MockPosOrdersRepository get _mock =>
-    GetIt.I<PosOrdersFacade>() as MockPosOrdersRepository;
+DemoTillOrders get _mock => GetIt.I<PosOrdersFacade>() as DemoTillOrders;
 
 Future<void> _attachDemoCustomer(WidgetTester tester) async {
   await tester.tap(find.text('Add customer'));
@@ -90,14 +90,14 @@ void main() {
     await LocalStorage.setSelectedCurrency(
       CurrencyData(id: 'ZAR', symbol: 'R', position: 'before', rate: 1),
     );
-    ManagerMerchantsDependencies.register(GetIt.instance);
+    await registerDemoTill();
   });
 
   setUp(() async {
     if (GetIt.I.isRegistered<PosOrdersFacade>()) {
       await GetIt.I.unregister<PosOrdersFacade>();
     }
-    GetIt.I.registerSingleton<PosOrdersFacade>(MockPosOrdersRepository());
+    GetIt.I.registerSingleton<PosOrdersFacade>(DemoTillOrders());
     PosConnectivity.debugConnectivityOverride = true;
   });
 
@@ -106,37 +106,37 @@ void main() {
   });
 
   testWidgets(
-      'the 11y gate: the amount display never summons the OS keyboard — '
-      'no focusable entry in the amount card, OUR keypad does the entry',
-      (tester) async {
-    await _pumpWithCart(tester);
-    await _attachDemoCustomer(tester);
+    'the 11y gate: the amount display never summons the OS keyboard — '
+    'no focusable entry in the amount card, OUR keypad does the entry',
+    (tester) async {
+      await _pumpWithCart(tester);
+      await _attachDemoCustomer(tester);
 
-    // The amount card is a read-out, not a field: no EditableText (and
-    // so no OS-keyboard focus target) anywhere inside it.
-    final card = find.byKey(const Key('posPaidNowField'));
-    expect(card, findsOneWidget);
-    expect(
-      find.descendant(of: card, matching: find.byType(EditableText)),
-      findsNothing,
-    );
-    expect(
-      find.descendant(of: card, matching: find.byType(TextField)),
-      findsNothing,
-    );
+      // The amount card is a read-out, not a field: no EditableText (and
+      // so no OS-keyboard focus target) anywhere inside it.
+      final card = find.byKey(const Key('posPaidNowField'));
+      expect(card, findsOneWidget);
+      expect(
+        find.descendant(of: card, matching: find.byType(EditableText)),
+        findsNothing,
+      );
+      expect(
+        find.descendant(of: card, matching: find.byType(TextField)),
+        findsNothing,
+      );
 
-    // The key pad (390) is on the page: digits grid with the 00 money
-    // key and ⌫, plus the . | OK confirm row.
-    for (final id in [
-      'moneyKey1', 'moneyKey5', 'moneyKey9', 'moneyKey00', 'moneyKey0', //
-      'moneyKeyBackspace', 'moneyKeyDecimal', 'moneyKeyOk',
-    ]) {
-      expect(find.byKey(Key(id)), findsOneWidget, reason: '$id missing');
-    }
-  });
+      // The key pad (390) is on the page: digits grid with the 00 money
+      // key and ⌫, plus the . | OK confirm row.
+      for (final id in [
+        'moneyKey1', 'moneyKey5', 'moneyKey9', 'moneyKey00', 'moneyKey0', //
+        'moneyKeyBackspace', 'moneyKeyDecimal', 'moneyKeyOk',
+      ]) {
+        expect(find.byKey(Key(id)), findsOneWidget, reason: '$id missing');
+      }
+    },
+  );
 
-  testWidgets(
-      'keypad editing end to end: fresh prefill replaced by the first '
+  testWidgets('keypad editing end to end: fresh prefill replaced by the first '
       'digit, 00 and decimal keys, ⌫ edits, OK normalizes, and the '
       'submitted draft carries the keypad amount', (tester) async {
     await _pumpWithCart(tester);
@@ -176,8 +176,7 @@ void main() {
     expect(draft.onCredit, isTrue);
   });
 
-  testWidgets(
-      'quick chips re-arm freshness: Full then a digit starts a new '
+  testWidgets('quick chips re-arm freshness: Full then a digit starts a new '
       'entry instead of appending', (tester) async {
     await _pumpWithCart(tester);
     await _attachDemoCustomer(tester);

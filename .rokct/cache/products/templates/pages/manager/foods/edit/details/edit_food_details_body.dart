@@ -90,7 +90,7 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
 
   Icon get _chevron => Icon(
         Remix.arrow_down_s_line,
-        color: AppStyle.textPrimary,
+        color: AppStyle.inkFor(Theme.of(context).brightness),
         size: 18.r,
       );
 
@@ -307,7 +307,7 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
                               style: AppStyle.interNormal(
                                 size: 14.sp,
                                 letterSpacing: -0.3,
-                                color: AppStyle.textPrimary,
+                                color: AppStyle.inkFor(Theme.of(context).brightness),
                               ),
                             ),
                             CustomToggle(
@@ -325,7 +325,7 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
                               style: AppStyle.interNormal(
                                 size: 14.sp,
                                 letterSpacing: -0.3,
-                                color: AppStyle.textPrimary,
+                                color: AppStyle.inkFor(Theme.of(context).brightness),
                               ),
                             ),
                             CustomToggle(

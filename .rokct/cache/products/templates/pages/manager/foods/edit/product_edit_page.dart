@@ -129,7 +129,7 @@ class _ProductEditPageState extends ConsumerState<ProductEditPage> {
         ref.watch(createFoodDetailsProvider).createdProduct == null;
     return KeyboardDismisser(
       child: Scaffold(
-        backgroundColor: AppStyle.surfaceDark,
+        backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
         resizeToAvoidBottomInset: true,
         body: SafeArea(
           child: Padding(
@@ -201,7 +201,7 @@ class _ProductEditPageState extends ConsumerState<ProductEditPage> {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppStyle.interBold(size: 20, color: AppStyle.textPrimary),
+              style: AppStyle.interBold(size: 20, color: AppStyle.inkFor(Theme.of(context).brightness)),
             ),
           ),
         ],
@@ -216,7 +216,7 @@ class _ProductEditPageState extends ConsumerState<ProductEditPage> {
       '$count ${AppHelpers.getTranslation('variants')}',
       style: AppStyle.interNormal(
         size: 12,
-        color: AppStyle.textDarkSecondary,
+        color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
       ),
     );
   }

@@ -13,7 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -40,10 +40,17 @@ import 'board_sound.dart';
 class OrdersBoardHeader extends ConsumerStatefulWidget {
   final bool compact;
 
+  /// Opens the shop's consignment LOADS (/load). The workspace header is
+  /// where the manager order screens hang their own entries, and a load
+  /// is an order queue of its own — the driver's van. Null on a host that
+  /// did not compose the loads pages, and the utility is then not drawn
+  /// at all rather than drawn dead.
+  final VoidCallback? onOpenLoads;
+
   /// Hidden on phones when the board mode makes no sense? No — the toggle
   /// ships on both per the approved frames; the phone simply defaults to
   /// list.
-  const OrdersBoardHeader({super.key, this.compact = false});
+  const OrdersBoardHeader({super.key, this.compact = false, this.onOpenLoads});
 
   @override
   ConsumerState<OrdersBoardHeader> createState() => _OrdersBoardHeaderState();
@@ -107,7 +114,7 @@ class _OrdersBoardHeaderState extends ConsumerState<OrdersBoardHeader> {
             AppHelpers.getTranslation(TrKeys.orders),
             style: AppStyle.interBold(
               size: widget.compact ? 20 : 23,
-              color: AppStyle.textPrimary,
+              color: AppStyle.inkFor(Theme.of(context).brightness),
             ),
           ),
           const SizedBox(width: 10),
@@ -115,23 +122,57 @@ class _OrdersBoardHeaderState extends ConsumerState<OrdersBoardHeader> {
             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(100),
-              border: Border.all(color: AppStyle.strokeDark),
+              border: Border.all(
+                color: AppStyle.strokeFor(Theme.of(context).brightness),
+              ),
             ),
             child: Text(
               '$openCount ${AppHelpers.getTranslation(TrKeys.open).toLowerCase()}',
               style: AppStyle.interNormal(
                 size: 11,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ),
           const Spacer(),
+          if (widget.onOpenLoads != null) ...[
+            _loads(),
+            const SizedBox(width: 8),
+          ],
           _bell(prefs),
           const SizedBox(width: 8),
           _dateChip(prefs),
           const SizedBox(width: 8),
           _viewToggle(prefs),
         ],
+      ),
+    );
+  }
+
+  /// The loads utility: the same round chrome the bell and the date chip
+  /// wear, so the header stays one control strip.
+  Widget _loads() {
+    return Tooltip(
+      message: AppHelpers.getTranslation('loads'),
+      child: InkWell(
+        onTap: widget.onOpenLoads,
+        borderRadius: BorderRadius.circular(100),
+        child: Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: AppStyle.cardFor(Theme.of(context).brightness),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: AppStyle.strokeFor(Theme.of(context).brightness),
+            ),
+          ),
+          child: Icon(
+            Remix.truck_line,
+            size: 17,
+            color: AppStyle.inkFor(Theme.of(context).brightness),
+          ),
+        ),
       ),
     );
   }
@@ -144,19 +185,21 @@ class _OrdersBoardHeaderState extends ConsumerState<OrdersBoardHeader> {
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           shape: BoxShape.circle,
-          border: Border.all(color: AppStyle.strokeDark),
+          border: Border.all(
+            color: AppStyle.strokeFor(Theme.of(context).brightness),
+          ),
         ),
         child: Stack(
           children: [
             Center(
               child: Icon(
                 prefs.soundEnabled
-                    ? FlutterRemix.notification_2_line
-                    : FlutterRemix.notification_off_line,
+                    ? Remix.notification_2_line
+                    : Remix.notification_off_line,
                 size: 17,
-                color: AppStyle.textPrimary,
+                color: AppStyle.inkFor(Theme.of(context).brightness),
               ),
             ),
             if (prefs.hasActivity)
@@ -187,18 +230,18 @@ class _OrdersBoardHeaderState extends ConsumerState<OrdersBoardHeader> {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: AppStyle.cardDark,
+            color: AppStyle.cardFor(Theme.of(context).brightness),
             shape: BoxShape.circle,
             border: Border.all(
               color: prefs.from != null
                   ? AppStyle.primary
-                  : AppStyle.strokeDark,
+                  : AppStyle.strokeFor(Theme.of(context).brightness),
             ),
           ),
           child: Icon(
-            FlutterRemix.calendar_line,
+            Remix.calendar_line,
             size: 16,
-            color: AppStyle.textDarkSecondary,
+            color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
           ),
         ),
       );
@@ -214,31 +257,33 @@ class _OrdersBoardHeaderState extends ConsumerState<OrdersBoardHeader> {
         height: 38,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(100),
-          border: Border.all(color: AppStyle.strokeDark),
+          border: Border.all(
+            color: AppStyle.strokeFor(Theme.of(context).brightness),
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              FlutterRemix.calendar_line,
+              Remix.calendar_line,
               size: 15,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
             const SizedBox(width: 7),
             Text(
               label,
               style: AppStyle.interNormal(
                 size: 12,
-                color: AppStyle.textPrimary,
+                color: AppStyle.inkFor(Theme.of(context).brightness),
               ),
             ),
             const SizedBox(width: 5),
             Icon(
-              Icons.keyboard_arrow_down,
+              Remix.arrow_down_s_line,
               size: 15,
-              color: AppStyle.textDarkFaint,
+              color: AppStyle.faintFor(Theme.of(context).brightness),
             ),
           ],
         ),
@@ -264,7 +309,9 @@ class _OrdersBoardHeaderState extends ConsumerState<OrdersBoardHeader> {
         child: Icon(
           icon,
           size: 16,
-          color: active ? const Color(0xFFFFFFFF) : AppStyle.textDarkSecondary,
+          color: active
+              ? const Color(0xFFFFFFFF)
+              : AppStyle.secondaryInkFor(Theme.of(context).brightness),
         ),
       ),
     );
@@ -274,20 +321,22 @@ class _OrdersBoardHeaderState extends ConsumerState<OrdersBoardHeader> {
       height: 38,
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: AppStyle.strokeDark),
+        border: Border.all(
+          color: AppStyle.strokeFor(Theme.of(context).brightness),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           seg(
-            icon: FlutterRemix.layout_column_line,
+            icon: Remix.layout_column_line,
             active: !listActive,
             onTap: () => notifier.setListView(false),
           ),
           seg(
-            icon: FlutterRemix.list_check_2,
+            icon: Remix.list_check_2,
             active: listActive,
             onTap: () => notifier.setListView(true),
           ),

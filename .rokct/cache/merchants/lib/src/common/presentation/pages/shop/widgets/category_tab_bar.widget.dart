@@ -106,7 +106,9 @@ class _CategoryTabBarState extends State<CategoryTabBar> {
                               item.translation?.title ?? '',
                               style: AppStyle.interNormal(
                                 size: 13,
-                                color: AppStyle.black,
+                                color: AppStyle.inkFor(
+                                  Theme.of(context).brightness,
+                                ),
                               ),
                             ),
                           );

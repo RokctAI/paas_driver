@@ -71,16 +71,21 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 
 import 'package:delivery_sdk/src/driver/application/home/driver_home_notifier.dart';
 import 'package:delivery_sdk/src/driver/application/home/driver_home_provider.dart';
+import 'package:delivery_sdk/src/driver/application/load/load_provider.dart';
 import 'package:delivery_sdk/src/driver/application/order/order_provider.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/services/courier_storage.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/add_place_card.dart';
 import 'package:delivery_sdk/src/driver/presentation/home/available_work_queue.dart';
 import 'package:delivery_sdk/src/driver/presentation/home/cash_on_hand_card.dart';
 import 'package:delivery_sdk/src/driver/presentation/home/driver_day_strip.dart';
 import 'package:delivery_sdk/src/driver/presentation/home/driver_root_nav.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/my_load_card.dart';
 import 'package:delivery_sdk/src/driver/presentation/home/off_duty_cards.dart';
 import 'package:delivery_sdk/src/driver/presentation/home/shift_stamp.dart';
 import 'package:delivery_sdk/src/driver/presentation/home/work_paused_gate.dart';
+import 'package:delivery_sdk/src/driver/presentation/load/driver_load_plane.dart';
+import 'package:delivery_sdk/src/driver/presentation/poi/add_poi_sheet.dart';
 
 import 'package:delivery_sdk/src/driver/application/home/home_provider.dart';
 
@@ -114,6 +119,11 @@ class _BottomSheetScreenState extends ConsumerState<BottomSheetScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       ref.read(driverHomeProvider.notifier).refresh();
+      // Van sales: the load tile below the cash card is drawn from this
+      // read, and a driver carrying nothing simply gets an empty list and
+      // no tile. Read on duty and off - going off duty does not empty the
+      // van, so the tile must survive the off-duty frame.
+      ref.read(driverLoadProvider.notifier).load(context: context);
       if (CourierStorage.getOnline()) {
         ref.read(orderProvider.notifier).fetchAvailableOrders(context);
       } else {
@@ -185,6 +195,7 @@ class _BottomSheetScreenState extends ConsumerState<BottomSheetScreen> {
   Widget _sheetBody(BuildContext context) {
     final onDuty = CourierStorage.getOnline();
     final home = ref.watch(driverHomeProvider);
+    final loadState = ref.watch(driverLoadProvider);
 
     return Container(
       width: MediaQuery.sizeOf(context).width,
@@ -264,6 +275,33 @@ class _BottomSheetScreenState extends ConsumerState<BottomSheetScreen> {
                     ),
                     10.verticalSpace,
                   ],
+                  // "MY LOAD" — van sales. Next to chip 932 because it is
+                  // the same kind of fact (the shop's stock on his van,
+                  // as cash on hand is the shop's money in his pocket),
+                  // and gated the same way the card above it is: shown
+                  // only when the server says he is carrying a load. It
+                  // survives into the off-duty frame for chip 932's
+                  // reason - going off duty does not empty the van.
+                  if (loadState.hasOpenLoad) ...[
+                    MyLoadCard(
+                      remainingUnits: loadState.openRemainingQty,
+                      remainingValue: loadState.openRemainingTotal,
+                      loadCount: loadState.openLoads.length,
+                      onOpen: () => DriverLoadPlane.push(context),
+                    ),
+                    10.verticalSpace,
+                  ],
+                  // "ADD A PLACE" — and NOT gated on a load, unlike the
+                  // card above it. Every other way into the sheet hangs
+                  // off a load, so a driver running orders or driving
+                  // back empty had nowhere to file the corner he just
+                  // passed. It survives into the off-duty frame for the
+                  // same reason the two cards above do: going off duty
+                  // does not unlearn the round.
+                  AddPlaceCard(
+                    onAddPlace: () => AddPoiSheet.open(context),
+                  ),
+                  10.verticalSpace,
                   if (!onDuty) ..._offDuty(home) else ..._onDuty(home),
                 ],
               ),

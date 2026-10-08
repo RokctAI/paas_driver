@@ -13,6 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -142,14 +143,14 @@ class _VehicleDetailsSlideState extends State<VehicleDetailsSlide> {
 
   InputDecoration _decoration(String hint) => InputDecoration(
         filled: true,
-        fillColor: AppStyle.cardDarkAlt,
+        fillColor: AppStyle.cardAltFor(Theme.of(context).brightness),
         hintText: hint,
-        hintStyle: TextStyle(fontSize: 15, color: AppStyle.textDarkSecondary),
+        hintStyle: TextStyle(fontSize: 15, color: AppStyle.secondaryInkFor(Theme.of(context).brightness)),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppStyle.strokeDark, width: 0.5),
+          borderSide: BorderSide(color: AppStyle.strokeFor(Theme.of(context).brightness), width: 0.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -157,7 +158,7 @@ class _VehicleDetailsSlideState extends State<VehicleDetailsSlide> {
         ),
         disabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppStyle.strokeDark, width: 0.5),
+          borderSide: BorderSide(color: AppStyle.strokeFor(Theme.of(context).brightness), width: 0.5),
         ),
       );
 
@@ -170,7 +171,7 @@ class _VehicleDetailsSlideState extends State<VehicleDetailsSlide> {
         enabled: !_submitting,
         keyboardType: keyboard,
         textInputAction: TextInputAction.next,
-        style: TextStyle(fontSize: 15, color: AppStyle.textPrimary),
+        style: TextStyle(fontSize: 15, color: AppStyle.inkFor(Theme.of(context).brightness)),
         decoration: _decoration(AppHelpers.getTranslation(trKey)),
       ),
     );
@@ -181,9 +182,9 @@ class _VehicleDetailsSlideState extends State<VehicleDetailsSlide> {
     return Container(
       padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppStyle.strokeDark, width: 0.5),
+        border: Border.all(color: AppStyle.strokeFor(Theme.of(context).brightness), width: 0.5),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -192,7 +193,7 @@ class _VehicleDetailsSlideState extends State<VehicleDetailsSlide> {
           Text(
             AppHelpers.getTranslation(TrKeys.becomeDriver),
             textAlign: TextAlign.center,
-            style: AppStyle.interBold(size: 22, color: AppStyle.textPrimary),
+            style: AppStyle.interBold(size: 22, color: AppStyle.inkFor(Theme.of(context).brightness)),
           ),
           const SizedBox(height: 22),
           Padding(
@@ -201,8 +202,8 @@ class _VehicleDetailsSlideState extends State<VehicleDetailsSlide> {
               initialValue: _type,
               decoration:
                   _decoration(AppHelpers.getTranslation(TrKeys.typeTechnique)),
-              dropdownColor: AppStyle.cardDark,
-              style: TextStyle(fontSize: 15, color: AppStyle.textPrimary),
+              dropdownColor: AppStyle.cardFor(Theme.of(context).brightness),
+              style: TextStyle(fontSize: 15, color: AppStyle.inkFor(Theme.of(context).brightness)),
               items: [
                 for (final key in _typeKeys)
                   DropdownMenuItem(
@@ -243,8 +244,8 @@ class _VehicleDetailsSlideState extends State<VehicleDetailsSlide> {
           ),
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppStyle.textPrimary,
-              side: BorderSide(color: AppStyle.strokeDark, width: 0.5),
+              foregroundColor: AppStyle.inkFor(Theme.of(context).brightness),
+              side: BorderSide(color: AppStyle.strokeFor(Theme.of(context).brightness), width: 0.5),
               padding: const EdgeInsets.symmetric(vertical: 13),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14)),
@@ -256,7 +257,7 @@ class _VehicleDetailsSlideState extends State<VehicleDetailsSlide> {
                       onSuccess: (path) =>
                           setState(() => _imagePath = path.isEmpty ? null : path),
                     ),
-            icon: const Icon(Icons.photo_camera_outlined, size: 18),
+            icon: const Icon(Remix.camera_line, size: 18),
             label: Text(
               _imagePath == null
                   ? AppHelpers.getTranslation(TrKeys.carPicture)

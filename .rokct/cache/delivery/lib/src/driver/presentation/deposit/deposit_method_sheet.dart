@@ -66,7 +66,7 @@ class DepositMethodSheet extends StatelessWidget {
       key: const Key('depositMethodSheet'),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16.r),
           topRight: Radius.circular(16.r),
@@ -87,7 +87,7 @@ class DepositMethodSheet extends StatelessWidget {
               width: 100.w,
               height: 4.h,
               decoration: BoxDecoration(
-                color: AppStyle.strokeDark,
+                color: AppStyle.strokeFor(Theme.of(context).brightness),
                 borderRadius: BorderRadius.circular(40.r),
               ),
             ),
@@ -104,7 +104,7 @@ class DepositMethodSheet extends StatelessWidget {
                 : AppHelpers.getTranslation('add_money_to_your_wallet'),
             style: AppStyle.interRegular(
               size: 12,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
           16.verticalSpace,
@@ -139,7 +139,7 @@ class DepositMethodSheet extends StatelessWidget {
             onPressed: () => Navigator.of(context).maybePop(),
             child: Text(
               AppHelpers.getTranslation(TrKeys.cancel),
-              style: AppStyle.interSemi(size: 13, color: AppStyle.textDarkSecondary),
+              style: AppStyle.interSemi(size: 13, color: AppStyle.secondaryInkFor(Theme.of(context).brightness)),
             ),
           ),
         ],

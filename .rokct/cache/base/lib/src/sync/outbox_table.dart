@@ -15,6 +15,8 @@
 
 import 'package:drift/drift.dart';
 
+import 'package:base_sdk/src/database/owner_scope.dart' show kUnownedOwner;
+
 /// Lifecycle of a queued offline operation.
 ///
 /// Stored as the enum name in [OutboxTable.status] (plain text column so the
@@ -79,6 +81,26 @@ class OutboxTable extends Table {
 
   DateTimeColumn get updatedAt => dateTime()();
 
+  /// Account whose mutation this is, or [kUnownedOwner] for a row queued
+  /// before scoping existed (or by an app nobody has signed into).
+  ///
+  /// Without it the outbox is one queue for the whole device: user A signs
+  /// out with ops still pending, user B signs in, the next drain pushes A's
+  /// mutations under B's session, and they land in B's account. The drain and
+  /// every other read now filter on the owner instead.
+  ///
+  /// NOT NULL with a default rather than nullable, for the primary-key reason
+  /// documented on [kUnownedOwner].
+  TextColumn get owner => text().withDefault(const Constant(kUnownedOwner))();
+
+  /// [id] alone was the key. It is a UUID v4 on the [SyncEngine.enqueue]
+  /// path, where a collision is not a real prospect - but
+  /// [SyncEngine.enqueueOrReplace] mints the DETERMINISTIC id
+  /// `<opType>:<dedupeKey>`, and two accounts coalescing the same logical op
+  /// on one device (`cart.sync:<shop id>`) produce the same string. With
+  /// [id] alone the second account's snapshot replaced the first's queued op,
+  /// and every by-id write (`retryOp`, `deleteOp`, the status writes) reached
+  /// across accounts.
   @override
-  Set<Column> get primaryKey => {id};
+  Set<Column> get primaryKey => {id, owner};
 }

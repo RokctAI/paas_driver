@@ -129,17 +129,35 @@ class _RegistrationStepsPageState extends State<RegistrationStepsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // A BuildContext lookup for the mode, not the app-wide AppStyle.isDark
+    // static behind AppStyle.surfaceDark/textDarkSecondary (Ray, 2026-09-19:
+    // "glance doesnt change test immediately untill you come back if you
+    // switched theme mode" — the same defect, found here by the fleet audit
+    // that followed).
+    //
+    // This page resolved nothing from the context: its surface, its brand
+    // glow and its progress label all came from AppStyle's statics, which are
+    // not an inherited widget, so a theme-mode change scheduled no rebuild of
+    // this element and the previous mode's colours stayed on screen until the
+    // page was built again from scratch. RegistrationStepsPage reads nothing
+    // from the context either, so the flip provably cannot reach this state
+    // through a parent rebuild. Reading the inherited theme here makes this
+    // element a dependent, so the mode change itself restyles the pipeline
+    // while a freshly registered user is still working through it.
+    final Brightness brightness = Theme.of(context).brightness;
+    final Color surface = AppStyle.surfaceFor(brightness);
+
     if (_steps.isEmpty) {
       // One frame while the post-frame callback lands.
       return Scaffold(
-        backgroundColor: AppStyle.surfaceDark,
+        backgroundColor: surface,
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     final step = _steps[_index];
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: surface,
       body: Stack(
         children: [
           // Brand glow — same treatment as the onboarding scaffold, so the
@@ -152,7 +170,7 @@ class _RegistrationStepsPageState extends State<RegistrationStepsPage> {
                   end: Alignment.center,
                   colors: [
                     AppStyle.primary.withOpacity(0.14),
-                    AppStyle.surfaceDark.withOpacity(0),
+                    surface.withOpacity(0),
                   ],
                 ),
               ),
@@ -172,7 +190,7 @@ class _RegistrationStepsPageState extends State<RegistrationStepsPage> {
                             '${_index + 1}/${_steps.length}',
                             style: AppStyle.interNormal(
                               size: 12,
-                              color: AppStyle.textDarkSecondary,
+                              color: AppStyle.secondaryInkFor(brightness),
                             ),
                           ),
                         ),

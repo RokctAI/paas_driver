@@ -148,7 +148,7 @@ class _DriverWalletPageState extends ConsumerState<DriverWalletPage> {
     final balance = _balance;
     final blockedKey = withdrawBlockedKey(balance);
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: SafeArea(
         child: Stack(
           children: [
@@ -174,10 +174,10 @@ class _DriverWalletPageState extends ConsumerState<DriverWalletPage> {
                       title: AppHelpers.getTranslation(TrKeys.withdrawMoney),
                       background: canWithdraw(balance)
                           ? AppStyle.primary
-                          : AppStyle.strokeDark,
+                          : AppStyle.strokeFor(Theme.of(context).brightness),
                       textColor: canWithdraw(balance)
                           ? AppStyle.blackColor
-                          : AppStyle.textDarkFaint,
+                          : AppStyle.faintFor(Theme.of(context).brightness),
                       onPressed: canWithdraw(balance)
                           ? () => _openWithdraw(balance)
                           : () {},
@@ -190,7 +190,7 @@ class _DriverWalletPageState extends ConsumerState<DriverWalletPage> {
                         textAlign: TextAlign.center,
                         style: AppStyle.interRegular(
                           size: 11,
-                          color: AppStyle.textDarkFaint,
+                          color: AppStyle.faintFor(Theme.of(context).brightness),
                         ),
                       ),
                     ],
@@ -200,8 +200,8 @@ class _DriverWalletPageState extends ConsumerState<DriverWalletPage> {
                     CustomButton(
                       key: const Key('walletTopUpAction'),
                       title: AppHelpers.getTranslation('top_up'),
-                      background: AppStyle.cardDarkAlt,
-                      textColor: AppStyle.textPrimary,
+                      background: AppStyle.cardAltFor(Theme.of(context).brightness),
+                      textColor: AppStyle.inkFor(Theme.of(context).brightness),
                       onPressed: _openTopUp,
                     ),
                     16.verticalSpace,
@@ -225,7 +225,7 @@ class _DriverWalletPageState extends ConsumerState<DriverWalletPage> {
                       style: AppStyle.interSemi(
                         size: 10.5,
                         letterSpacing: 1.2,
-                        color: AppStyle.textDarkSecondary,
+                        color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                       ),
                     ),
                     12.verticalSpace,

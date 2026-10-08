@@ -14,6 +14,11 @@
 
 import 'package:get_it/get_it.dart';
 
+/// Host asset directory holding revenue_sdk's demo platform fixtures
+/// (`<cmd>.json`), installed from `templates/assets/demo/revenue`. Both
+/// role hooks register it with base_sdk's DemoFixtures.
+const String revenueDemoFixtureDirectory = 'assets/demo/revenue';
+
 /// Installer-convention DI hook: the composed app's generated `main.dart`
 /// calls `RevenueSdkDependencies.register(GetIt.instance)` for every installed
 /// SDK, importing it through the barrel — so this file must compile in every

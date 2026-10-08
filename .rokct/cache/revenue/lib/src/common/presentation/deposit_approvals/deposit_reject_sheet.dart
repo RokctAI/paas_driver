@@ -67,7 +67,7 @@ class _DepositRejectSheetState extends State<DepositRejectSheet> {
       key: const Key('depositRejectSheet'),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16.r),
           topRight: Radius.circular(16.r),
@@ -90,7 +90,7 @@ class _DepositRejectSheetState extends State<DepositRejectSheet> {
               width: 100.w,
               height: 4.h,
               decoration: BoxDecoration(
-                color: AppStyle.strokeDark,
+                color: AppStyle.strokeFor(Theme.of(context).brightness),
                 borderRadius: BorderRadius.circular(40.r),
               ),
             ),
@@ -106,7 +106,7 @@ class _DepositRejectSheetState extends State<DepositRejectSheet> {
             key: const Key('depositRejectSubject'),
             style: AppStyle.interRegular(
               size: 12,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
           16.verticalSpace,
@@ -115,7 +115,7 @@ class _DepositRejectSheetState extends State<DepositRejectSheet> {
             style: AppStyle.interSemi(
               size: 10.5,
               letterSpacing: 1.2,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
           8.verticalSpace,
@@ -126,7 +126,7 @@ class _DepositRejectSheetState extends State<DepositRejectSheet> {
             maxLines: 3,
             maxLength: 140,
             textCapitalization: TextCapitalization.sentences,
-            style: AppStyle.interRegular(size: 13, color: AppStyle.textPrimary),
+            style: AppStyle.interRegular(size: 13, color: AppStyle.inkFor(Theme.of(context).brightness)),
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
               hintText: AppHelpers.getTranslation(
@@ -134,21 +134,21 @@ class _DepositRejectSheetState extends State<DepositRejectSheet> {
               ),
               hintStyle: AppStyle.interRegular(
                 size: 12,
-                color: AppStyle.textDarkFaint,
+                color: AppStyle.faintFor(Theme.of(context).brightness),
               ),
               counterStyle: AppStyle.interRegular(
                 size: 10,
-                color: AppStyle.textDarkFaint,
+                color: AppStyle.faintFor(Theme.of(context).brightness),
               ),
               filled: true,
-              fillColor: AppStyle.cardDarkAlt,
+              fillColor: AppStyle.cardAltFor(Theme.of(context).brightness),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(color: AppStyle.strokeDark),
+                borderSide: BorderSide(color: AppStyle.strokeFor(Theme.of(context).brightness)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(color: AppStyle.strokeDark),
+                borderSide: BorderSide(color: AppStyle.strokeFor(Theme.of(context).brightness)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
@@ -160,8 +160,8 @@ class _DepositRejectSheetState extends State<DepositRejectSheet> {
           CustomButton(
             key: const Key('depositRejectConfirm'),
             title: AppHelpers.getTranslation('reject_deposit'),
-            background: _canSubmit ? AppStyle.red : AppStyle.strokeDark,
-            textColor: _canSubmit ? AppStyle.white : AppStyle.textDarkFaint,
+            background: _canSubmit ? AppStyle.red : AppStyle.strokeFor(Theme.of(context).brightness),
+            textColor: _canSubmit ? AppStyle.white : AppStyle.faintFor(Theme.of(context).brightness),
             isLoading: widget.submitting,
             onPressed: _canSubmit
                 ? () => widget.onSubmit(_controller.text.trim())
@@ -177,7 +177,7 @@ class _DepositRejectSheetState extends State<DepositRejectSheet> {
               AppHelpers.getTranslation(TrKeys.cancel),
               style: AppStyle.interSemi(
                 size: 13,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ),

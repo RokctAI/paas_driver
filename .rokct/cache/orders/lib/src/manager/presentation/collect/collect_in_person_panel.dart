@@ -15,7 +15,7 @@
 import 'dart:ui' show PathMetric;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -42,9 +42,9 @@ class CollectTypeChip extends StatelessWidget {
       (order.deliveryType ?? '').trim().toLowerCase() == BoardRules.dineType;
 
   IconData get _glyph {
-    if (_isDelivery) return FlutterRemix.e_bike_2_fill;
-    if (_isDineIn) return FlutterRemix.restaurant_line;
-    return FlutterRemix.shopping_bag_3_line;
+    if (_isDelivery) return Remix.e_bike_2_fill;
+    if (_isDineIn) return Remix.restaurant_line;
+    return Remix.shopping_bag_3_line;
   }
 
   String get _address =>
@@ -62,11 +62,11 @@ class CollectTypeChip extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(_glyph, size: 16, color: AppStyle.textPrimary),
+          Icon(_glyph, size: 16, color: AppStyle.inkFor(Theme.of(context).brightness)),
           const SizedBox(width: 8),
           Text(
             AppHelpers.getTranslation(order.deliveryType ?? ''),
-            style: AppStyle.interSemi(size: 12.5, color: AppStyle.textPrimary),
+            style: AppStyle.interSemi(size: 12.5, color: AppStyle.inkFor(Theme.of(context).brightness)),
           ),
           const Spacer(),
           if (_address.isNotEmpty)
@@ -78,7 +78,7 @@ class CollectTypeChip extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppStyle.interNormal(
                   size: 12,
-                  color: AppStyle.textPrimary,
+                  color: AppStyle.inkFor(Theme.of(context).brightness),
                 ),
               ),
             ),
@@ -106,21 +106,21 @@ class CollectDriverRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppStyle.cardDarkAlt,
+        color: AppStyle.cardAltFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(12),
         // Assigned: a solid hairline. Empty: nothing here, because the
         // dashed stroke below IS the border - two would double-draw.
-        border: _assigned ? Border.all(color: AppStyle.strokeDark) : null,
+        border: _assigned ? Border.all(color: AppStyle.strokeFor(Theme.of(context).brightness)) : null,
       ),
       foregroundDecoration: _assigned
           ? null
-          : _DashedBorder(color: AppStyle.strokeDark, radius: 12),
+          : _DashedBorder(color: AppStyle.strokeFor(Theme.of(context).brightness), radius: 12),
       child: Row(
         children: [
           Icon(
-            FlutterRemix.truck_line,
+            Remix.truck_line,
             size: 20,
-            color: _assigned ? accent : AppStyle.textDarkSecondary,
+            color: _assigned ? accent : AppStyle.secondaryInkFor(Theme.of(context).brightness),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -138,8 +138,8 @@ class CollectDriverRow extends StatelessWidget {
                   style: AppStyle.interSemi(
                     size: 13,
                     color: _assigned
-                        ? AppStyle.textPrimary
-                        : AppStyle.textDarkSecondary,
+                        ? AppStyle.inkFor(Theme.of(context).brightness)
+                        : AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -154,7 +154,7 @@ class CollectDriverRow extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AppStyle.interNormal(
                     size: 11.5,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
                 ),
               ],
@@ -200,7 +200,7 @@ class CollectOutcomeLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool? assigned = driverAssigned;
     final Color accent = assigned == null
-        ? AppStyle.textDarkSecondary
+        ? AppStyle.secondaryInkFor(Theme.of(context).brightness)
         : (assigned ? AppStyle.rate : AppStyle.green);
     final double washAlpha = assigned == true ? 0.07 : 0.08;
     final double borderAlpha = assigned == true ? 0.22 : 0.26;
@@ -208,12 +208,12 @@ class CollectOutcomeLine extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: assigned == null
-            ? AppStyle.cardDarkAlt
+            ? AppStyle.cardAltFor(Theme.of(context).brightness)
             : accent.withValues(alpha: washAlpha),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: assigned == null
-              ? AppStyle.strokeDark
+              ? AppStyle.strokeFor(Theme.of(context).brightness)
               : accent.withValues(alpha: borderAlpha),
         ),
       ),
@@ -222,8 +222,8 @@ class CollectOutcomeLine extends StatelessWidget {
         children: [
           Icon(
             assigned == null
-                ? FlutterRemix.time_line
-                : FlutterRemix.bank_card_line,
+                ? Remix.time_line
+                : Remix.bank_card_line,
             size: 18,
             color: accent,
           ),
@@ -343,7 +343,7 @@ class CollectActionLane extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(
-                    FlutterRemix.shopping_bag_3_line,
+                    Remix.shopping_bag_3_line,
                     size: 18,
                     color: AppStyle.white,
                   ),
@@ -388,7 +388,7 @@ class CollectTillLine extends StatelessWidget {
     return Text(
       resolved,
       textAlign: TextAlign.center,
-      style: AppStyle.interNormal(size: 11, color: AppStyle.textDarkSecondary),
+      style: AppStyle.interNormal(size: 11, color: AppStyle.secondaryInkFor(Theme.of(context).brightness)),
     );
   }
 }

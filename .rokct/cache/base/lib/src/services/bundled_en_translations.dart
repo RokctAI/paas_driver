@@ -31,7 +31,18 @@
 // belong here; a key whose humanized form already reads as its copy gains
 // nothing from a row. Locale 'en' is left-to-right.
 const Map<String, String> kBaseEnTranslations = {
+  // Both of these NAME a string rather than spelling it: humanizing them
+  // gives the clipped "Could not reach server" / "Server took too long"
+  // instead of copy, which is exactly what this map is for.
+  'could_not_reach_server':
+      "We couldn't reach the server. Please try again.",
+  'server_took_too_long':
+      'The server took too long to respond. Please try again.',
   'maintenance_title': 'Under maintenance',
   'maintenance_brief':
       'We are doing some maintenance. Please try again shortly.',
+  // Customer subscriptions (loyalty_sdk).
+  'payment_overdue_benefits_are_paused':
+      'Payment overdue. Your benefits are paused until it goes through.',
+  'the_payment_did_not_go_through': "The payment didn't go through.",
 };

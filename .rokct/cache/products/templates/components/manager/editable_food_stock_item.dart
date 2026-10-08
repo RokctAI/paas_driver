@@ -67,9 +67,9 @@ class EditableFoodStockItem extends StatelessWidget {
     final String? label = _variantLabel;
     return Container(
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppStyle.strokeDarkSubtle),
+        border: Border.all(color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
       ),
       padding: REdgeInsets.symmetric(horizontal: 16, vertical: 12),
       margin: REdgeInsets.only(bottom: 8),
@@ -86,7 +86,7 @@ class EditableFoodStockItem extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppStyle.interSemi(
                       size: 13.sp,
-                      color: AppStyle.textPrimary,
+                      color: AppStyle.inkFor(Theme.of(context).brightness),
                       letterSpacing: 0.2,
                     ),
                   ),
@@ -100,14 +100,14 @@ class EditableFoodStockItem extends StatelessWidget {
                         height: 32.r,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8.r),
-                          color: AppStyle.cardDarkAlt,
-                          border: Border.all(color: AppStyle.strokeDark),
+                          color: AppStyle.cardAltFor(Theme.of(context).brightness),
+                          border: Border.all(color: AppStyle.strokeFor(Theme.of(context).brightness)),
                         ),
                         alignment: Alignment.center,
                         child: Icon(
                           Remix.delete_bin_line,
                           size: 16.r,
-                          color: AppStyle.textDarkSecondary,
+                          color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                         ),
                       ),
                     ),

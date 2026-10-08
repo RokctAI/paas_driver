@@ -192,9 +192,11 @@ class _AvailableJobCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: AppStyle.strokeDarkSubtle),
+        border: Border.all(
+          color: AppStyle.subtleStrokeFor(Theme.of(context).brightness),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,12 +207,17 @@ class _AvailableJobCard extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppStyle.cardDarkAlt,
-              border: Border.all(color: AppStyle.strokeDarkSubtle),
+              color: AppStyle.cardAltFor(Theme.of(context).brightness),
+              border: Border.all(
+                color: AppStyle.subtleStrokeFor(Theme.of(context).brightness),
+              ),
             ),
             child: Text(
               job.initials,
-              style: AppStyle.interSemi(size: 12, color: AppStyle.textPrimary),
+              style: AppStyle.interSemi(
+                size: 12,
+                color: AppStyle.inkFor(Theme.of(context).brightness),
+              ),
             ),
           ),
           10.horizontalSpace,
@@ -225,7 +232,7 @@ class _AvailableJobCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AppStyle.interSemi(
                     size: 14,
-                    color: AppStyle.textPrimary,
+                    color: AppStyle.inkFor(Theme.of(context).brightness),
                   ),
                 ),
                 if (_leg != null) ...[
@@ -236,7 +243,9 @@ class _AvailableJobCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppStyle.interNormal(
                       size: 12,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(
+                        Theme.of(context).brightness,
+                      ),
                     ),
                   ),
                 ],
@@ -251,7 +260,7 @@ class _AvailableJobCard extends StatelessWidget {
                         AppHelpers.numberFormat(number: job.fee),
                         style: AppStyle.interSemi(
                           size: 14,
-                          color: AppStyle.textPrimary,
+                          color: AppStyle.inkFor(Theme.of(context).brightness),
                         ),
                       ),
                     if (job.distanceKm != null)
@@ -259,7 +268,9 @@ class _AvailableJobCard extends StatelessWidget {
                         _distanceLine!,
                         style: AppStyle.interNormal(
                           size: 12,
-                          color: AppStyle.textDarkSecondary,
+                          color: AppStyle.secondaryInkFor(
+                            Theme.of(context).brightness,
+                          ),
                         ),
                       ),
                     _paymentTag(),

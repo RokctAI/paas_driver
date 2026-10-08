@@ -21,6 +21,7 @@ import 'package:base_sdk/src/models/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:base_sdk/src/models/response/driver_show_response.dart';
 import 'package:base_sdk/src/presentation/theme/app_theme.dart';
+import 'package:base_sdk/src/database/owner_scope.dart';
 import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/services/secure_storage.dart';
 import 'package:base_sdk/src/services/storage_keys.dart';
@@ -108,41 +109,76 @@ abstract class LocalStorage {
 
   static void _deleteUser() => _preferences?.remove(StorageKeys.keyUser);
 
+  /// The storage key a per-account record lives under.
+  ///
+  /// Records that belong to a signed-in user are parked under
+  /// `<key>::<owner>`, the same identity the drift tables scope by
+  /// ([[OwnerScope]]), so the next account to sign in on a shared device
+  /// reads its own record rather than the previous one's. Sign-out then has
+  /// nothing to delete: the record stops being *visible*, it does not stop
+  /// existing. An unowned session (nobody signed in yet) keeps the bare key,
+  /// which is also where every pre-existing install's data already sits.
+  static String _ownedKey(String key) {
+    final String owner = OwnerScope.instance.current;
+    return owner == kUnownedOwner ? key : '$key::$owner';
+  }
+
+  /// Reads the current account's record, falling back to the legacy bare key
+  /// when this account has never written one. That fallback is what makes an
+  /// existing install keep its data on upgrade; an unowned row counting as
+  /// yours is the same rule `ownerVisible` applies in the database.
+  static String? _getOwnedString(String key) {
+    final String owned = _ownedKey(key);
+    final String? value = _preferences?.getString(owned);
+    if (value != null || owned == key) return value;
+    return _preferences?.getString(key);
+  }
+
+  static List<String>? _getOwnedStringList(String key) {
+    final String owned = _ownedKey(key);
+    final List<String>? value = _preferences?.getStringList(owned);
+    if (value != null || owned == key) return value;
+    return _preferences?.getStringList(key);
+  }
+
   static Future<void> setSearchHistory(List<String> list) async {
     final List<String> idsStrings = list.map((e) => e.toString()).toList();
-    await _preferences?.setStringList(StorageKeys.keySearchStores, idsStrings);
+    await _preferences?.setStringList(
+      _ownedKey(StorageKeys.keySearchStores),
+      idsStrings,
+    );
   }
 
   static List<String> getSearchList() {
-    final List<String> strings =
-        _preferences?.getStringList(StorageKeys.keySearchStores) ?? [];
-    return strings;
+    return _getOwnedStringList(StorageKeys.keySearchStores) ?? <String>[];
   }
 
   static void deleteSearchList() =>
-      _preferences?.remove(StorageKeys.keySearchStores);
+      _preferences?.remove(_ownedKey(StorageKeys.keySearchStores));
 
   static Future<void> setSavedShopsList(List<String> ids) async {
-    await _preferences?.setStringList(StorageKeys.keySavedStores, ids);
+    await _preferences?.setStringList(
+      _ownedKey(StorageKeys.keySavedStores),
+      ids,
+    );
   }
 
   static List<String> getSavedShopsList() {
-    return _preferences?.getStringList(StorageKeys.keySavedStores) ?? [];
+    return _getOwnedStringList(StorageKeys.keySavedStores) ?? <String>[];
   }
 
   static void deleteSavedShopsList() =>
-      _preferences?.remove(StorageKeys.keySavedStores);
+      _preferences?.remove(_ownedKey(StorageKeys.keySavedStores));
 
   static Future<void> setAddressSelected(AddressData data) async {
     await _preferences?.setString(
-      StorageKeys.keyAddressSelected,
+      _ownedKey(StorageKeys.keyAddressSelected),
       jsonEncode(data.toJson()),
     );
   }
 
   static AddressData? getAddressSelected() {
-    String dataString =
-        _preferences?.getString(StorageKeys.keyAddressSelected) ?? "";
+    String dataString = _getOwnedString(StorageKeys.keyAddressSelected) ?? "";
     if (dataString.isNotEmpty) {
       AddressData data = AddressData.fromJson(jsonDecode(dataString));
       // Check if the address ends with a number
@@ -176,18 +212,18 @@ abstract class LocalStorage {
   }
 
   static void deleteAddressSelected() =>
-      _preferences?.remove(StorageKeys.keyAddressSelected);
+      _preferences?.remove(_ownedKey(StorageKeys.keyAddressSelected));
 
   static Future<void> setAddressInformation(AddressInformation data) async {
     await _preferences?.setString(
-      StorageKeys.keyAddressInformation,
+      _ownedKey(StorageKeys.keyAddressInformation),
       jsonEncode(data.toJson()),
     );
   }
 
   static AddressInformation? getAddressInformation() {
     String dataString =
-        _preferences?.getString(StorageKeys.keyAddressInformation) ?? "";
+        _getOwnedString(StorageKeys.keyAddressInformation) ?? "";
     if (dataString.isNotEmpty) {
       AddressInformation data = AddressInformation.fromJson(
         jsonDecode(dataString),
@@ -199,7 +235,7 @@ abstract class LocalStorage {
   }
 
   static void deleteAddressInformation() =>
-      _preferences?.remove(StorageKeys.keyAddressInformation);
+      _preferences?.remove(_ownedKey(StorageKeys.keyAddressInformation));
 
   static Future<void> setLanguageSelected(bool selected) async {
     await _preferences?.setBool(StorageKeys.keyLangSelected, selected);
@@ -235,7 +271,10 @@ abstract class LocalStorage {
 
   static Future<void> setWalletData(Wallet? wallet) async {
     final String walletString = jsonEncode(wallet?.toJson());
-    await _preferences?.setString(StorageKeys.keyWalletData, walletString);
+    await _preferences?.setString(
+      _ownedKey(StorageKeys.keyWalletData),
+      walletString,
+    );
   }
 
   /// RETENTION POLICY (refork 2026-07-11 audit): wallet balance is
@@ -243,7 +282,7 @@ abstract class LocalStorage {
   /// treat this as fetch-live-then-cache — refresh from the API first and
   /// use this value only as an offline fallback, never as the primary read.
   static Wallet? getWalletData() {
-    final wallet = _preferences?.getString(StorageKeys.keyWalletData);
+    final wallet = _getOwnedString(StorageKeys.keyWalletData);
     if (wallet == null) {
       return null;
     }
@@ -255,7 +294,7 @@ abstract class LocalStorage {
   }
 
   static void deleteWalletData() =>
-      _preferences?.remove(StorageKeys.keyWalletData);
+      _preferences?.remove(_ownedKey(StorageKeys.keyWalletData));
 
   /// Raw JSON of the signed-in merchant's own shop (manager persona).
   ///
@@ -500,16 +539,19 @@ abstract class LocalStorage {
     // A demo session is scoped to the sign-in that opened it: every
     // sign-out path (users_sdk logout / delete-account, the 401
     // auto-logout) ends here, so this is the one place that ends it.
+    //
+    // Sign-out ends the SESSION and nothing else. The account's own records
+    // - wallet cache, saved shops, search history, the selected address and
+    // its details - stay on the device under their owner's key, so a user
+    // who signs back in finds their work where they left it, and the next
+    // account to sign in reads its own keys rather than this one's. Hide,
+    // never wipe: deleting them is what left a temp-local account staring at
+    // an empty app after a single Log out.
     unawaited(DemoSession.instance.clear());
-    deleteWalletData();
-    deleteSavedShopsList();
-    deleteSearchList();
     _deleteUser();
     deleteToken();
     deleteTokenExpiry();
     SecureStorage.deleteRefreshToken();
-    deleteAddressSelected();
-    deleteAddressInformation();
     deleteBoard();
   }
 }

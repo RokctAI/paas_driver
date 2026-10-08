@@ -49,30 +49,31 @@
 //    unavoidable in a widget test and says nothing about the device. The
 //    checks below name the two errors that DO mean a column collapsed.
 
-import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:revenue_sdk/src/common/domain/interface/seller_statistics.dart';
-import 'package:revenue_sdk/src/manager/infrastructure/repositories/demo_seller_statistics_repository.dart';
+import 'package:revenue_sdk/src/manager/infrastructure/repositories/seller_statistics_repository.dart';
 import 'package:revenue_sdk/src/manager/presentation/revenue/kpi_tiles.dart';
 import 'package:revenue_sdk/src/manager/presentation/revenue/revenue_workspace.dart';
 import 'package:revenue_sdk/src/manager/presentation/revenue/trend_chart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import 'support/demo_fixtures_harness.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
-    SharedPreferences.setMockInitialValues({});
-    await LocalStorage.init();
+    // A demo session: the real repository's platform calls are answered
+    // from templates/assets/demo/revenue by base_sdk's demo interceptor.
+    await startRevenueDemoSession();
     // profitDashboardProvider resolves the facade out of GetIt, exactly as
     // ManagerRevenueDependencies.register() wires it in a composed app.
     if (!GetIt.instance.isRegistered<SellerStatisticsRepositoryFacade>()) {
       GetIt.instance.registerLazySingleton<SellerStatisticsRepositoryFacade>(
-        DemoSellerStatisticsRepository.new,
+        SellerStatisticsRepository.new,
       );
     }
   });

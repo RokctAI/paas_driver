@@ -129,7 +129,7 @@
 //                                       0),
 //                               sort: sorts,
 //                             ),
-//                             isDarkMode: false);
+//                             isDarkMode: Theme.of(context).brightness == Brightness.dark);
 //                       },
 //                       child: Padding(
 //                         padding: EdgeInsets.only(right: 16.r),
@@ -243,7 +243,7 @@
 //                               cartId: widget.cartId,
 //                               shopId: widget.shopId,
 //                             ),
-//                             isDarkMode: false,
+//                             isDarkMode: Theme.of(context).brightness == Brightness.dark,
 //                             isDrag: true,
 //                             radius: 12,
 //                           );

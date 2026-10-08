@@ -41,7 +41,7 @@ class OrderStatusItem extends StatelessWidget {
       duration: const Duration(milliseconds: 500),
       padding: EdgeInsets.all(4.r),
       decoration: BoxDecoration(
-        color: isActive ? (bgColor ?? AppStyle.primary) : AppStyle.white,
+        color: isActive ? (bgColor ?? AppStyle.primary) : AppStyle.cardFor(Theme.of(context).brightness),
         shape: BoxShape.circle,
       ),
       child: Stack(

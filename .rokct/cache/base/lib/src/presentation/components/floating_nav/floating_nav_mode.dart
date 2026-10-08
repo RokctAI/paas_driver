@@ -249,6 +249,23 @@ class FloatingNavAction {
   /// Null — or [locked] — renders the control unpressable.
   final VoidCallback? onTap;
 
+  /// A SECOND, optional gesture on the same control — the shortcut a
+  /// feature SDK hangs off its primary button.
+  ///
+  /// The motivating case is the one already shipped on a page: productivity's
+  /// new-item button, where "plus opens new but i think hlding it should give
+  /// me option like tasks notes" (Ray). That button was a
+  /// `FloatingActionButton` wrapped in a `GestureDetector` precisely because
+  /// the FAB has no long press of its own; the bar's controls DO have one —
+  /// the reactions button has used it since this mode shipped — so a control
+  /// that moves onto the bar can bring its shortcut with it rather than lose
+  /// it.
+  ///
+  /// Null — the default — is exactly the control that shipped before, so
+  /// every existing bar is untouched. [locked] and a null [onTap] suppress
+  /// this too: an unpressable control is unpressable by either gesture.
+  final VoidCallback? onLongPress;
+
   const FloatingNavAction({
     required this.icon,
     required this.label,
@@ -257,6 +274,7 @@ class FloatingNavAction {
     this.danger = false,
     this.badgeCount = 0,
     this.onTap,
+    this.onLongPress,
   });
 
   bool get enabled => onTap != null && !locked;

@@ -26,10 +26,8 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:base_sdk/src/constants/demo_images.dart';
-import 'package:base_sdk/src/handlers/api_result.dart';
-import 'package:base_sdk/src/models/models.dart';
 
-import 'package:auth_sdk/src/common/infrastructure/repositories/mock_auth_repository.dart';
+import 'support/auth_demo_fixtures.dart';
 
 const List<String> _fixtureWords = ['demo', 'example', 'placeholder', 'sample'];
 
@@ -48,29 +46,47 @@ Iterable<String> _stringLiteralsOf(String source) sync* {
 String _withoutLineComments(String source) =>
     source.replaceAll(RegExp(r'//[^\n]*'), '');
 
-Future<UserModel> _signIn(String email) async {
-  final result = await MockAuthRepository().login(
-    email: email,
-    password: 'demo-learners-2026',
-  );
-  expect(result, isA<Success<LoginResponse>>());
-  return (result as Success<LoginResponse>).data.data!.user!;
-}
+const _signIn = signInDemo;
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(startAuthDemoSession);
+  tearDown(endAuthDemoSession);
+
   test('the sign-in address still decides the role', () async {
     expect((await _signIn('manager@demo.rokct.ai')).role, 'seller');
     expect((await _signIn('driver@demo.rokct.ai')).role, 'deliveryman');
     expect((await _signIn('partner@demo.rokct.ai')).role, 'partner');
     expect((await _signIn('admin@demo.rokct.ai')).role, 'admin');
-    expect((await _signIn('demo.student@example.com')).role, 'customer');
+    expect((await _signIn('customer@demo.rokct.ai')).role, 'customer');
+    // Any other address signs in the student account.
+    expect((await _signIn('student@demo.rokct.ai')).role, 'student');
+    expect((await _signIn('demo.student@example.com')).role, 'student');
+  });
+
+  test('each demo role signs in to its own account, so its own owner scope',
+      () async {
+    // base_sdk scopes local data to the signed-in user's id; the student,
+    // partner and admin demo accounts used to share Thandi's id "1" and so
+    // read one merged data set (Ray, 2026-09-23).
+    final student = await _signIn('customer@demo.rokct.ai');
+    final partner = await _signIn('partner@demo.rokct.ai');
+    final admin = await _signIn('admin@demo.rokct.ai');
+    expect(student.id, '1');
+    expect(student.firstname, 'Thandi');
+    expect({student.id, partner.id, admin.id}, hasLength(3));
+    expect(partner.firstname, isNot('Thandi'));
+    expect(admin.firstname, isNot('Thandi'));
+    expect(partner.isDemoAccount, isTrue);
+    expect(admin.isDemoAccount, isTrue);
   });
 
   test('login hands back the demo identity email, never the typed address',
       () async {
     // The typed address is a credential and a role selector; the account
     // it signs in - and the email every profile surface renders - is the
-    // one demo identity, the same one users_sdk's MockUserRepository
+    // one demo identity, the same one users_sdk's profile fixture
     // serves.
     expect(
       (await _signIn('demo.student@example.com')).email,
@@ -122,7 +138,7 @@ void main() {
     expect(user.lastname, 'Mokoena');
     expect(user.phone, '+27 82 456 7890');
     expect(user.img, startsWith('data:image/svg+xml'));
-    // The kernel-owned avatar, shared with users_sdk's MockUserRepository.
+    // The kernel-owned avatar, shared with users_sdk's profile fixture.
     expect(user.img, DemoImages.avatar);
     expect(user.addresses?.first.address?.address, contains('Sandton'));
 
@@ -166,26 +182,28 @@ void main() {
     expect(code, isNot(contains('DemoSession')));
   });
 
-  // The switch is the backend's marker alone: the mock repository (any
-  // password, role from the typed address) exists only in a demo BUILD,
-  // behind the compile-time constant, and a release build tree-shakes it
-  // out. The runtime session must never register it.
-  test('MockAuthRepository stays compile-time gated', () {
+  // Demo accounts sign in through the REAL AuthRepository in every build,
+  // the tour included (Ray, 2026-09-25: the tour must not use mock repos
+  // either); the demo interceptor answers the tour's sign-in.
+  test('no mock repository: demo sign-ins go through AuthRepository', () {
     final di = _withoutLineComments(
       File('lib/src/common/di/auth_di.dart').readAsStringSync(),
     );
-    final uses = RegExp(r'MockAuthRepository\(\)').allMatches(di).toList();
-    expect(uses, hasLength(1));
-    final lineStart = di.lastIndexOf('\n', uses.single.start) + 1;
-    final line = di.substring(lineStart).split('\n').first;
-    expect(line, contains('AppConstants.isDemo'));
-    expect(di, isNot(contains('DemoSession')));
+    expect(di, contains('AuthRepository()'));
+    expect(di, contains('DemoFixtures.registerAssetDirectory'));
+    expect(di, isNot(contains('Mock')));
+    expect(di, isNot(contains('isTour')));
 
-    final notifier = File(
+    final notifier = _withoutLineComments(File(
       'lib/src/common/application/auth/login/login_notifier.dart',
-    ).readAsStringSync();
-    expect(notifier, isNot(contains('MockAuthRepository')));
+    ).readAsStringSync());
+    expect(notifier, isNot(contains('Mock')));
     expect(notifier, isNot(contains('demoUserLogin')));
     expect(notifier, isNot(contains('demoUserPassword')));
+    expect(
+      Directory('lib').listSync(recursive: true).whereType<File>().where(
+          (f) => f.path.split('/').last.startsWith('mock_')),
+      isEmpty,
+    );
   });
 }

@@ -78,7 +78,7 @@ class _EditFoodStocksBodyState extends ConsumerState<EditFoodStocksBody> {
                 AppHelpers.getTranslation('extras_groups_make_one_stock_row_per_combination'),
                 style: AppStyle.interNormal(
                   size: 12.sp,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                 ),
               ),
               Row(

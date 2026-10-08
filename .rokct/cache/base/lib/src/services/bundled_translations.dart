@@ -44,6 +44,20 @@ class BundledTranslations {
     'af': 'Afrikaans',
   };
 
+  /// The locale whose bundled map stands in when no language has been
+  /// chosen yet.
+  ///
+  /// English is already the fleet's base locale everywhere else: it is the
+  /// `isDefault` row of [fallbackLanguages] and the first entry of
+  /// [bundledLocales]. Naming it here lets `AppHelpers.getTranslation`
+  /// consult this map on the screens that run BEFORE a language exists -
+  /// splash and login - instead of humanizing straight past it. Those are
+  /// exactly the screens the entries in [kBaseEnTranslations] were written
+  /// for: a key that NAMES a string rather than spelling it humanizes to a
+  /// clipped fragment ("Could not reach server"), which is why the map
+  /// exists at all.
+  static const String baseLocale = 'en';
+
   static final Map<String, Map<String, String>> _byLocale = {
     'en': Map<String, String>.of(kBaseEnTranslations),
     'af': Map<String, String>.of(kBaseAfTranslations),

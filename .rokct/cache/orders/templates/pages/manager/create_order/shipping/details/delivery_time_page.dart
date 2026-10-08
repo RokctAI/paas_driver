@@ -91,7 +91,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
     return KeyboardDismisser(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor: AppStyle.surfaceDark,
+        backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
         body: SafeArea(
           child: Stack(
             children: [
@@ -107,7 +107,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                       overflow: TextOverflow.ellipsis,
                       style: AppStyle.interSemi(
                         size: 24,
-                        color: AppStyle.textPrimary,
+                        color: AppStyle.inkFor(Theme.of(context).brightness),
                       ),
                     ),
                   ),
@@ -504,7 +504,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
             Icon(
               Remix.wifi_off_line,
               size: 14.r,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
             6.horizontalSpace,
             Expanded(
@@ -514,7 +514,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                 overflow: TextOverflow.ellipsis,
                 style: AppStyle.interRegular(
                   size: 12.sp,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                 ),
               ),
             ),

@@ -153,7 +153,7 @@ class _IncomePageState extends ConsumerState<ManagerIncomePage> {
     return Directionality(
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: AppStyle.surfaceDark,
+        backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
         body: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {

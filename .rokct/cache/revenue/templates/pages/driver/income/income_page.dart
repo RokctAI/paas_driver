@@ -282,7 +282,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
     // this bool is the one switch.
     final isWide = windowSizeOf(context).isAtLeastMedium;
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       // The withdraw bar rides in the Scaffold's bottom slot and the
       // Scaffold RESERVES that slot: no extendBody. The body's viewport
       // ends where the bar begins and the bar keeps its own bottom safe
@@ -362,10 +362,10 @@ class _IncomePageState extends ConsumerState<IncomePage>
                     // under it says why, in plain words.
                     background: _canWithdraw
                         ? AppStyle.primary
-                        : AppStyle.strokeDark,
+                        : AppStyle.strokeFor(Theme.of(context).brightness),
                     textColor: _canWithdraw
                         ? AppStyle.blackColor
-                        : AppStyle.textDarkFaint,
+                        : AppStyle.faintFor(Theme.of(context).brightness),
                     onPressed: _canWithdraw ? () => _openWithdraw() : () {},
                   ),
                 ),
@@ -381,7 +381,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
                 textAlign: TextAlign.center,
                 style: AppStyle.interRegular(
                   size: 12,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                 ),
               ),
             ),
@@ -434,10 +434,10 @@ class _IncomePageState extends ConsumerState<IncomePage>
       TitleAndIcon(
         title: AppHelpers.getTranslation(
             TrKeys.deliverymanTransactions),
-        titleColor: AppStyle.textPrimary,
+        titleColor: AppStyle.inkFor(Theme.of(context).brightness),
         rightTitle:
             AppHelpers.getTranslation('your_payouts'),
-        rightTitleColor: AppStyle.textPrimary,
+        rightTitleColor: AppStyle.inkFor(Theme.of(context).brightness),
         // Design strip frame 49k, plane 2 of income: the
         // Requested -> Paid | Rejected trail. The balance
         // drops the moment he taps Withdraw, so this is
@@ -655,14 +655,14 @@ class _IncomePageState extends ConsumerState<IncomePage>
         // AppStyle.black, unreadable on surfaceDark.
         TitleAndIcon(
           title: AppHelpers.getTranslation(TrKeys.earningsChart),
-          titleColor: AppStyle.textPrimary,
+          titleColor: AppStyle.inkFor(Theme.of(context).brightness),
         ),
         16.verticalSpace,
         Container(
             width: double.infinity,
             height: 300.h,
             decoration: BoxDecoration(
-              color: AppStyle.cardDark,
+              color: AppStyle.cardFor(Theme.of(context).brightness),
               borderRadius: BorderRadius.circular(10.r),
             ),
             padding: EdgeInsets.all(16.r),
@@ -702,7 +702,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(10.r),
       ),
       padding: EdgeInsets.all(16.r),
@@ -713,7 +713,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
             AppHelpers.getTranslation(TrKeys.orderPrice),
             style: AppStyle.interNormal(
                 size: 14,
-                color: AppStyle.textPrimary,
+                color: AppStyle.inkFor(Theme.of(context).brightness),
                 letterSpacing: -0.3),
           ),
           16.verticalSpace,
@@ -722,7 +722,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
                 number: state.countData?.data?.lastOrderTotalPrice ?? 0),
             style: AppStyle.interSemi(
                 size: 32,
-                color: AppStyle.textPrimary,
+                color: AppStyle.inkFor(Theme.of(context).brightness),
                 letterSpacing: -0.3),
           ),
           4.verticalSpace,
@@ -731,7 +731,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
                   text: AppHelpers.getTranslation(TrKeys.lastIncome),
                   style: AppStyle.interNormal(
                       size: 12,
-                      color: AppStyle.textPrimary,
+                      color: AppStyle.inkFor(Theme.of(context).brightness),
                       letterSpacing: -0.3),
                   children: [
                 TextSpan(
@@ -744,7 +744,7 @@ class _IncomePageState extends ConsumerState<IncomePage>
                       ' ${AppHelpers.numberFormat(number: state.countData?.data?.lastOrderIncome ?? 0)}',
                   style: AppStyle.interSemi(
                       size: 12,
-                      color: AppStyle.textPrimary,
+                      color: AppStyle.inkFor(Theme.of(context).brightness),
                       letterSpacing: -0.3),
                 )
               ])),

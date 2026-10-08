@@ -43,12 +43,22 @@ class MarketItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The card takes its mode from the inherited theme, not from the
+    // app-wide AppStyle.isDark static (Ray, 2026-09-19: "glance doesnt
+    // change test immediately untill you come back if you switched theme
+    // mode" - the same defect, found here by the fleet audit that
+    // followed). A static is not an inherited widget, so a mode flip
+    // scheduled no rebuild of this card and it kept the previous mode's
+    // fill and ink until the list was built again from scratch. The
+    // MediaQuery.sizeOf in [_shopItem] is no help: the window size does not
+    // change when the mode does.
+    final Brightness brightness = Theme.of(context).brightness;
     return GestureDetector(
       onTap: () {
         AppRoutes.I.pushShopRoute(context, shopId: (shop.id ?? ""), shop: shop);
       },
       child: isShop
-          ? _shopItem(context)
+          ? _shopItem(context, brightness)
           : Container(
               margin: isSimpleShop
                   ? EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h)
@@ -56,7 +66,7 @@ class MarketItem extends StatelessWidget {
               width: 268.w,
               height: 260.h,
               decoration: BoxDecoration(
-                color: AppStyle.cardDark,
+                color: AppStyle.cardFor(brightness),
                 borderRadius: BorderRadius.circular(10.r),
               ),
               child: Stack(
@@ -93,7 +103,7 @@ class MarketItem extends StatelessWidget {
                                       : shop.translation?.title ?? "",
                                   style: AppStyle.interSemi(
                                     size: 15,
-                                    color: AppStyle.textPrimary,
+                                    color: AppStyle.inkFor(brightness),
                                   ),
                                 ),
                                 if (shop.verify ?? false)
@@ -114,13 +124,13 @@ class MarketItem extends StatelessWidget {
                                   : shop.translation?.description ?? "",
                               style: AppStyle.interNormal(
                                 size: 12,
-                                color: AppStyle.textPrimary,
+                                color: AppStyle.inkFor(brightness),
                               ),
                               maxLines: 2,
                             ),
                           ),
                           8.verticalSpace,
-                          Divider(color: AppStyle.textPrimary.withOpacity(0.3)),
+                          Divider(color: AppStyle.inkFor(brightness).withOpacity(0.3)),
                           Padding(
                             padding: EdgeInsets.only(
                               top: 8.h,
@@ -137,7 +147,7 @@ class MarketItem extends StatelessWidget {
                                   "${shop.deliveryTime?.from ?? 0} - ${shop.deliveryTime?.to ?? 0} ${shop.deliveryTime?.type ?? "min"}",
                                   style: AppStyle.interNormal(
                                     size: 14,
-                                    color: AppStyle.textPrimary,
+                                    color: AppStyle.inkFor(brightness),
                                   ),
                                 ),
                                 10.horizontalSpace,
@@ -156,7 +166,7 @@ class MarketItem extends StatelessWidget {
                                   (shop.avgRate ?? ""),
                                   style: AppStyle.interNormal(
                                     size: 14,
-                                    color: AppStyle.textPrimary,
+                                    color: AppStyle.inkFor(brightness),
                                   ),
                                 ),
                               ],
@@ -201,14 +211,14 @@ class MarketItem extends StatelessWidget {
     );
   }
 
-  Widget _shopItem(BuildContext context) {
+  Widget _shopItem(BuildContext context, Brightness brightness) {
     return Container(
       margin: EdgeInsets.all(4.r),
       width: MediaQuery.sizeOf(context).width / 2 - 32,
       height: 140.r,
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(brightness),
         borderRadius: BorderRadius.circular(10.r),
         border: Border.all(color: AppStyle.borderColor),
       ),
@@ -232,7 +242,7 @@ class MarketItem extends StatelessWidget {
                   (shop.translation?.title?.length ?? 0) > 12
                       ? "${shop.translation?.title?.substring(0, 12) ?? " "}.."
                       : shop.translation?.title ?? "",
-                  style: AppStyle.interSemi(size: 15, color: AppStyle.textPrimary),
+                  style: AppStyle.interSemi(size: 15, color: AppStyle.inkFor(brightness)),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -251,7 +261,7 @@ class MarketItem extends StatelessWidget {
                     ? "${AppHelpers.getTranslation(TrKeys.under)} ${AppHelpers.numberFormat(number: shop.bonus?.value)} + ${shop.bonus?.bonusStock?.product?.translation?.title ?? ""}"
                     : "${AppHelpers.getTranslation(TrKeys.under)} ${shop.bonus?.value ?? 0} + ${shop.bonus?.bonusStock?.product?.translation?.title ?? ""}"
                 : shop.translation?.description ?? "",
-            style: AppStyle.interNormal(size: 12, color: AppStyle.textPrimary),
+            style: AppStyle.interNormal(size: 12, color: AppStyle.inkFor(brightness)),
             maxLines: 1,
           ),
         ],

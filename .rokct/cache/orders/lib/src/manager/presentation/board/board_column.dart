@@ -13,7 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -115,10 +115,14 @@ class BoardOrderColumn extends StatelessWidget {
       width: BoardOrderColumn.width,
       margin: const EdgeInsetsDirectional.only(end: 12),
       decoration: BoxDecoration(
-        color: AppStyle.cardDarkAlt.withValues(alpha: 0.55),
+        color: AppStyle.cardAltFor(
+          Theme.of(context).brightness,
+        ).withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: dimmed ? AppStyle.strokeDark : AppStyle.strokeDarkSubtle,
+          color: dimmed
+              ? AppStyle.strokeFor(Theme.of(context).brightness)
+              : AppStyle.subtleStrokeFor(Theme.of(context).brightness),
         ),
       ),
       child: Opacity(
@@ -199,7 +203,7 @@ class BoardOrderColumn extends StatelessWidget {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : Icon(
-                      FlutterRemix.refresh_line,
+                      Remix.refresh_line,
                       size: 16,
                       color: AppStyle.textDarkSecondary,
                     ),

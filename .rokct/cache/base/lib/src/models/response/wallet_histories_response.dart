@@ -102,14 +102,18 @@ class WalletData {
 
   WalletData.fromJson(dynamic json) {
     _id = json['id'];
-    _uuid = json['uuid'];
+    _uuid = json['uuid'] ?? json['name'];
     _walletUuid = json['wallet_uuid'];
     _transactionId = json['transaction_id'];
-    _type = json['type'];
-    _price = json['price'];
-    _note = json['note'];
+    // get_wallet_history returns Wallet History rows: transaction_type,
+    // amount, description and creation. The legacy type/price/note/
+    // created_at keys are kept as fallbacks for older payloads.
+    _type = json['transaction_type'] ?? json['type'];
+    final amount = json['amount'] ?? json['price'];
+    _price = amount is num ? amount : num.tryParse('${amount ?? ''}');
+    _note = json['description'] ?? json['note'];
     _status = json['status'];
-    _createdAt = json['created_at'];
+    _createdAt = (json['creation'] ?? json['created_at'])?.toString();
     _updatedAt = json['updated_at'];
     _author =
         json['author'] != null ? UserModel.fromJson(json['author']) : null;

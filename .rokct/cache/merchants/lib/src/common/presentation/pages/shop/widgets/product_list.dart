@@ -190,7 +190,7 @@ class _ProductsListState extends ConsumerState<ProductsList> {
                                     ),
                                     controller: c,
                                   ),
-                                  isDarkMode: false,
+                                  isDarkMode: Theme.of(context).brightness == Brightness.dark,
                                   isDrag: true,
                                   radius: 16,
                                 );
@@ -210,7 +210,7 @@ class _ProductsListState extends ConsumerState<ProductsList> {
                                       ),
                                       controller: c,
                                     ),
-                                    isDarkMode: false,
+                                    isDarkMode: Theme.of(context).brightness == Brightness.dark,
                                     isDrag: true,
                                     radius: 16,
                                   );

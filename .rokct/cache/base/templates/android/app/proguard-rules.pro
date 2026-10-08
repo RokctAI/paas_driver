@@ -28,3 +28,14 @@
 -dontwarn com.huawei.hianalytics.**
 -dontwarn com.huawei.libcore.io.**
 -dontwarn org.bouncycastle.**
+
+# Optional platform bridges, resolved by name in MainActivity's
+# registerOptionalBridges. R8 sees no reference to them at all, so without a
+# keep they are shrunk out of the release build and the lookup throws
+# ClassNotFoundException - which the caller correctly reads as "this app was
+# composed without that SDK" and silently does nothing, in release only.
+# The class name must also survive obfuscation (no allowobfuscation), and
+# `public *` covers both callable shapes: the INSTANCE singleton of a Kotlin
+# `object` and a @JvmStatic register.
+-keep,allowoptimization class **.DefaultHomeBridge { public *; }
+-keep,allowoptimization class **.AppChangesBridge { public *; }

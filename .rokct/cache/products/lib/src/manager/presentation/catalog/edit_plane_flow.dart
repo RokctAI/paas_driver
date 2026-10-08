@@ -215,7 +215,7 @@ class _ProductFormSplitState extends State<ProductFormSplit> {
                 Icon(
                   Remix.lock_line,
                   size: 14,
-                  color: AppStyle.textDarkSecondary,
+                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                 ),
                 const SizedBox(width: 6),
                 Expanded(
@@ -223,7 +223,7 @@ class _ProductFormSplitState extends State<ProductFormSplit> {
                     widget.stocksLockedHint!,
                     style: AppStyle.interNormal(
                       size: 12,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                     ),
                   ),
                 ),
@@ -250,7 +250,7 @@ class _ProductFormSplitState extends State<ProductFormSplit> {
             children: [
               Text(
                 title.toUpperCase(),
-                style: AppStyle.interSemi(size: 12, color: AppStyle.textDarkSecondary),
+                style: AppStyle.interSemi(size: 12, color: AppStyle.secondaryInkFor(Theme.of(context).brightness)),
               ),
               const Spacer(),
               if (trailing != null) trailing,
@@ -266,7 +266,7 @@ class _ProductFormSplitState extends State<ProductFormSplit> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(100),
       ),
       child: Row(
@@ -293,18 +293,18 @@ class _ProductFormSplitState extends State<ProductFormSplit> {
           decoration: BoxDecoration(
             // The 35d segmented pill: the active segment is the inverse
             // chip — ink-colored fill, surface-colored label.
-            color: active ? AppStyle.textPrimary : null,
+            color: active ? AppStyle.inkFor(Theme.of(context).brightness) : null,
             borderRadius: BorderRadius.circular(100),
           ),
           child: Text(
             title,
             style: active
-                ? AppStyle.interSemi(size: 14, color: AppStyle.surfaceDark)
+                ? AppStyle.interSemi(size: 14, color: AppStyle.surfaceFor(Theme.of(context).brightness))
                 : AppStyle.interNormal(
                     size: 14,
                     color: locked
-                        ? AppStyle.textDarkFaint
-                        : AppStyle.textDarkSecondary,
+                        ? AppStyle.faintFor(Theme.of(context).brightness)
+                        : AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
           ),
         ),

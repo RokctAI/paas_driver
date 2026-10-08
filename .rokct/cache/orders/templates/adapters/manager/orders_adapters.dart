@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -59,7 +58,8 @@ import 'package:orders_sdk/src/manager/infrastructure/models/response/users_pagi
 /// endpoints directly, because neither owner exposes a Dart facade yet:
 /// merchants_sdk has no sections/tables repository (S-11 in the fork plan) and
 /// users_sdk is repositories-only with no seller-scoped search/create
-/// (S-2 + a recorded backend gap for walk-in customer creation, see
+/// (S-2; the walk-in customer create's backend half now exists as orders'
+/// own `api.order.create_walk_in_customer` — see
 /// orders_sdk/docs/frappe-endpoint-contract.md). When those land, each
 /// adapter body collapses to a delegation onto the owner SDK's facade — the
 /// method shapes below were chosen to make that a mechanical swap.
@@ -167,27 +167,25 @@ class ManagerPosCustomersAdapter implements PosCustomersFacade {
     required String phone,
     required String email,
   }) async {
-    // TODO(fix-wave 2026-09-02): no server method — nothing whitelists a
-    // walk-in customer create (users' register_user is OTP self-signup and
-    // would mint a login). Needs an owner decision on an
-    // `api.seller_order.create_walk_in_customer` in the orders/merchants
-    // frappe half (fixplan M19); until then the dead path below fails visibly.
+    // orders' seller-scoped walk-in customer create (fixplan M19 closed):
+    // `api.order.create_walk_in_customer` through the universal platform
+    // gateway, whitelisted in orders/frappe/manifest.json. It creates a
+    // login-less customer record — NOT users' `register_user`, which is OTP
+    // self-signup and would mint an account for a person at a till — and is
+    // idempotent, so re-entering the same phone at the same shop returns the
+    // customer already on file instead of a duplicate.
     try {
-      final client = dioHttp.client(requireAuth: true);
-      final response = await client.post(
-        // Recorded backend gap: register_user is self-signup; a seller-scoped
-        // walk-in-customer create does not exist yet. This call fails visibly
-        // (ApiResult.failure) until it lands.
-        '/api/method/paas.api.user.user.create_walk_in_customer',
-        data: {
+      final response = await const PlatformGateway().tenant(
+        'api.order.create_walk_in_customer',
+        {
           'firstname': firstname,
-          'lastname': lastname,
-          'phone': phone,
-          'email': email,
+          if (lastname.isNotEmpty) 'lastname': lastname,
+          if (phone.isNotEmpty) 'phone': phone,
+          if (email.isNotEmpty) 'email': email,
         },
       );
       return ApiResult.success(
-        data: SingleUserResponse.fromJson(response.data),
+        data: SingleUserResponse.fromJson(response),
       );
     } catch (e) {
       return ApiResult.failure(

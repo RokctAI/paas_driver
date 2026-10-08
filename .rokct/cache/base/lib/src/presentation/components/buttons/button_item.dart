@@ -44,13 +44,24 @@ class ButtonItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The mode comes from the inherited theme, not from the app-wide
+    // AppStyle.isDark static (Ray, 2026-09-19: "glance doesnt change test
+    // immediately untill you come back if you switched theme mode" - the
+    // same defect, found here by the fleet audit that followed). A static
+    // is not an inherited widget, so a mode flip scheduled no rebuild of
+    // this widget and it kept the previous mode's colours until something
+    // else happened to rebuild it. The colours come from AppStyle's
+    // explicit-brightness seams, which name the same two values their
+    // mode-resolving getters resolve between.
+    final Brightness brightness = Theme.of(context).brightness;
+
     return ButtonEffectAnimation(
       disabled: value == null,
       onTap: value == null ? onTap : null,
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16.r, vertical: 4.r),
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(brightness),
           borderRadius: BorderRadius.circular(16.r),
         ),
         padding: EdgeInsets.all(20.r),
@@ -58,13 +69,13 @@ class ButtonItem extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: AppStyle.textPrimary,
+              color: AppStyle.inkFor(brightness),
             ),
             SizedBox(width: 12.r), // Replace 12.horizontalSpace with SizedBox
             Text(
               title,
               style: AppStyle.interNormal(
-                color: AppStyle.textPrimary,
+                color: AppStyle.inkFor(brightness),
                 size: 16,
               ),
             ),
@@ -72,14 +83,14 @@ class ButtonItem extends StatelessWidget {
             Text(
               selectValue ?? "",
               style: AppStyle.interNormal(
-                color: AppStyle.textPrimary,
+                color: AppStyle.inkFor(brightness),
                 size: 12,
               ),
             ),
             if (value == null)
               Icon(
                 isLtr ? Remix.arrow_right_line : Remix.arrow_left_line,
-                color: AppStyle.textPrimary,
+                color: AppStyle.inkFor(brightness),
               ),
             if (value != null)
               CustomToggle(

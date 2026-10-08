@@ -92,6 +92,15 @@ class MoneyKeypad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The key fill, hairline and digit ink come from the inherited theme
+    // rather than AppStyle's app-wide isDark static: a static is not an
+    // inherited widget, so a theme-mode flip schedules no rebuild of the pad
+    // and it keeps the previous mode's greys while the user is still typing
+    // an amount into it. Read ONCE here and closed over by the key builders
+    // below - the same shape LoadingGrid needed, whose fill was read inside
+    // an itemBuilder. The OK key's AppStyle.primary fill, its AppStyle.
+    // blackColor label and the backspace's AppStyle.red are polarity-pinned.
+    final Brightness brightness = Theme.of(context).brightness;
     final double h = keyHeight ?? 52.r;
     final double g = gap ?? 8.r;
     final bool confirmRow = onDecimal != null || onOk != null;
@@ -107,7 +116,9 @@ class MoneyKeypad extends StatelessWidget {
               children: [
                 for (var col = 0; col < 3; col++) ...[
                   if (col > 0) SizedBox(width: g),
-                  Expanded(child: _gridKey(_grid[row * 3 + col])),
+                  Expanded(
+                    child: _gridKey(_grid[row * 3 + col], brightness),
+                  ),
                 ],
               ],
             ),
@@ -124,8 +135,9 @@ class MoneyKeypad extends StatelessWidget {
                       ? const SizedBox.shrink()
                       : _key(
                           keyId: 'moneyKeyDecimal',
+                          brightness: brightness,
                           onTap: onDecimal!,
-                          child: _label('.'),
+                          child: _label('.', brightness),
                         ),
                 ),
                 SizedBox(width: g),
@@ -135,6 +147,7 @@ class MoneyKeypad extends StatelessWidget {
                       ? const SizedBox.shrink()
                       : _key(
                           keyId: 'moneyKeyOk',
+                          brightness: brightness,
                           onTap: onOk!,
                           fill: AppStyle.primary,
                           border: Colors.transparent,
@@ -142,7 +155,7 @@ class MoneyKeypad extends StatelessWidget {
                             okLabel,
                             style: AppStyle.interSemi(
                               size: 17,
-                              color: AppStyle.blackColor,
+                              color: AppStyle.inkFor(Theme.of(context).brightness),
                             ),
                           ),
                         ),
@@ -155,26 +168,31 @@ class MoneyKeypad extends StatelessWidget {
     );
   }
 
-  Widget _gridKey(String label) {
+  Widget _gridKey(String label, Brightness brightness) {
     if (label == '⌫') {
       return _key(
         keyId: 'moneyKeyBackspace',
+        brightness: brightness,
         onTap: onBackspace,
         child: Icon(Remix.delete_back_2_line, size: 20.r, color: AppStyle.red),
       );
     }
     return _key(
       keyId: 'moneyKey$label',
+      brightness: brightness,
       onTap: () => onDigit(label),
-      child: _label(label),
+      child: _label(label, brightness),
     );
   }
 
-  Widget _label(String text) =>
-      Text(text, style: AppStyle.interSemi(size: 19));
+  Widget _label(String text, Brightness brightness) => Text(
+        text,
+        style: AppStyle.interSemi(size: 19, color: AppStyle.inkFor(brightness)),
+      );
 
   Widget _key({
     required String keyId,
+    required Brightness brightness,
     required VoidCallback onTap,
     required Widget child,
     Color? fill,
@@ -189,10 +207,10 @@ class MoneyKeypad extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: fill ?? AppStyle.cardDarkAlt,
+          color: fill ?? AppStyle.cardAltFor(brightness),
           borderRadius: BorderRadius.circular(10.r),
           border: Border.all(
-            color: border ?? AppStyle.strokeDarkSubtle,
+            color: border ?? AppStyle.subtleStrokeFor(brightness),
             width: 1.r,
           ),
         ),

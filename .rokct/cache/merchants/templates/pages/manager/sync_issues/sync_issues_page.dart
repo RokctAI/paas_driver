@@ -167,7 +167,7 @@ class _SyncIssuesPageState extends ConsumerState<SyncIssuesPage> {
     // the actions resolve in place (Try again) or behind a dialog
     // (Discard), so the flow never leaves this page.
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: SafeArea(
         child: Stack(
           children: [
@@ -287,14 +287,14 @@ class _SyncIssuesPageState extends ConsumerState<SyncIssuesPage> {
           Icon(
             Remix.checkbox_circle_line,
             size: 48.r,
-            color: AppStyle.textDarkSecondary,
+            color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
           ),
           12.verticalSpace,
           Text(
             AppHelpers.getTranslation(TrKeys.noData),
             style: AppStyle.interNormal(
               size: 14.sp,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
         ],

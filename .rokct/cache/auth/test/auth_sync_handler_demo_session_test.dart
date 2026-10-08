@@ -19,8 +19,7 @@
 // hold answers retryable without handing the op to the inner handler; the
 // moment the session clears the same registration pushes again. The auth
 // repository itself is NOT part of the switch: a demo account signs in
-// through the real backend, and MockAuthRepository stays behind the
-// compile-time constant (demo_account_test.dart pins that).
+// through the real AuthRepository (demo_account_test.dart pins that).
 //
 // The hold is exercised through a fake inner handler: AuthSyncHandler
 // reaches drift's generated offline_users table, which this package does
@@ -61,6 +60,7 @@ OutboxEntry _registerOp() {
     id: 'op-1',
     opType: 'auth.register',
     sdk: 'auth_sdk',
+    owner: '',
     payload: '{"localUserId":"local-1"}',
     tempIds: '[]',
     dependsOn: '[]',
@@ -89,14 +89,12 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await LocalStorage.init();
-    DemoSession.isDemoOverride = false;
     inner = _RecordingHandler();
     handler = DemoHoldSyncHandler(inner);
   });
 
   tearDown(() async {
     await DemoSession.instance.clear();
-    DemoSession.isDemoOverride = null;
   });
 
   test('a real session pushes as before', () async {
@@ -137,13 +135,6 @@ void main() {
     expect(inner.pushes, 1);
   });
 
-  test('a demo build holds the op too', () async {
-    DemoSession.isDemoOverride = true;
-
-    expect(await handler.push(_registerOp()), isA<SyncRetryable>());
-    expect(inner.pushes, 0);
-  });
-
   test('onSynced passes straight through', () async {
     await handler.onSynced(_registerOp(), const {});
     expect(inner.synced, 1);
@@ -154,9 +145,10 @@ void main() {
       File('lib/src/common/di/auth_di.dart').readAsStringSync(),
     );
     expect(di, contains('DemoHoldSyncHandler(AuthSyncHandler())'));
-    // The repository is not on the switch: one MockAuthRepository(), on
-    // the compile-time constant (demo_account_test.dart pins the line).
-    expect(RegExp(r'MockAuthRepository\(\)').allMatches(di), hasLength(1));
+    // The repository is not on the switch: the real AuthRepository in
+    // every build (demo_account_test.dart pins it).
+    expect(di, contains('AuthRepository()'));
+    expect(di, isNot(contains('Mock')));
     expect(di, isNot(contains('DemoSession')));
   });
 

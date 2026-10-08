@@ -38,6 +38,13 @@
 // the composer installs into the host's generated `lib/`; this particular
 // file carries no composer placeholders, so it is the same source the
 // host compiles.
+//
+// The second group pins the sheet's CARD GATES, which are two INDEPENDENT
+// conditions over one Column — `cashOrderCount > 0` for chip 932 and
+// `hasOpenLoad` for the van-sales tile. Nesting one inside the other, or
+// letting either borrow the other's predicate, would hide the load from a
+// driver who was just handed one and has sold nothing yet: the exact
+// moment the tile matters most.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -46,9 +53,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:base_sdk/src/handlers/handlers.dart';
+
+import 'package:delivery_sdk/src/driver/application/home/driver_home_notifier.dart';
+import 'package:delivery_sdk/src/driver/application/home/driver_home_provider.dart';
+import 'package:delivery_sdk/src/driver/application/load/load_notifier.dart';
+import 'package:delivery_sdk/src/driver/application/load/load_provider.dart';
+import 'package:delivery_sdk/src/driver/domain/interface/load.dart';
 import 'package:delivery_sdk/src/driver/domain/interface/orders.dart';
-import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_courier_orders_repository.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/models/data/driver_day_report.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/models/data/driver_load.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/repositories/load_repository.dart';
+import 'package:delivery_sdk/src/driver/infrastructure/repositories/orders_repository.dart';
+
+import 'support/demo_fixtures_harness.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/services/courier_storage.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/cash_on_hand_card.dart';
 
 import '../templates/pages/driver/home/bottom_sheet_screen.dart';
 
@@ -83,18 +103,138 @@ Future<void> _pumpSheet(WidgetTester tester, {bool isScrolling = false}) async {
   await tester.pump();
 }
 
+/// A day report the test dictates, so the cash card's gate is set by the
+/// test rather than by whatever the demo fixtures happen to hold.
+class _ReportingOrders extends CourierOrdersRepository {
+  _ReportingOrders(this.report);
+
+  final DriverDayReport report;
+
+  @override
+  Future<ApiResult<DriverDayReport>> getDayReport({
+    required DateTime from,
+    required DateTime to,
+  }) async =>
+      ApiResult.success(data: report);
+}
+
+/// A load repository that serves exactly the loads the test names.
+class _StaticLoads implements DriverLoadRepositoryFacade {
+  _StaticLoads(this.loads);
+
+  final List<DriverLoad> loads;
+
+  @override
+  Future<ApiResult<List<DriverLoad>>> getMyLoad() async =>
+      ApiResult.success(data: loads);
+
+  @override
+  Future<ApiResult<DriverLoadSale>> createLoadSale({
+    required String loadOrder,
+    required List<DriverLoadMovement> items,
+    String? customer,
+    String? note,
+    String? poi,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<ApiResult<DriverLoad>> returnLoad({
+    required String loadOrder,
+    required List<DriverLoadMovement> items,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<ApiResult<DriverLoad>> closeLoad({required String loadOrder}) =>
+      throw UnimplementedError();
+}
+
+DriverLoad _openLoad() => DriverLoad.fromJson(const {
+      'id': 'LOAD-4',
+      'shop': {'id': 'SHOP-1', 'title': 'Depot North'},
+      'load_status': 'Open',
+      'lines': [
+        {
+          'stock_id': 'STK-1',
+          'unit_price': 45,
+          'issued_qty': 10,
+          'sold_qty': 0,
+          'returned_qty': 0,
+          'remaining_qty': 10,
+          'product': {
+            'translation': {'title': 'Still water 5L'},
+          },
+        },
+      ],
+    });
+
+/// The sheet with both gates driven from the test: a day report, and a
+/// load list.
+Future<void> _pumpGated(
+  WidgetTester tester, {
+  required DriverDayReport report,
+  required List<DriverLoad> loads,
+}) async {
+  tester.view.physicalSize = _phone;
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+  final loadNotifier = DriverLoadNotifier(
+    _StaticLoads(loads),
+    // Never reach the connectivity plugin from a widget test.
+    isOnline: () async => true,
+  );
+  await loadNotifier.load();
+  final homeNotifier = DriverHomeNotifier(_ReportingOrders(report));
+  await homeNotifier.refresh();
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        driverLoadProvider.overrideWith((ref) => loadNotifier),
+        driverHomeProvider.overrideWith((ref) => homeNotifier),
+      ],
+      child: ScreenUtilInit(
+        designSize: _phone,
+        builder: (context, _) => MaterialApp(
+          home: Scaffold(
+            body: Stack(
+              children: [
+                const SizedBox.expand(),
+                const BottomSheetScreen(isScrolling: false),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.pump();
+  await tester.pump();
+}
+
 void main() {
-  setUp(() {
-    SharedPreferences.setMockInitialValues(<String, Object>{});
+  setUp(() async {
+    // The real repositories in a demo session, answered from the demo
+    // fixtures by base_sdk's DemoGatewayInterceptor.
+    await startDemoFixtures();
     final GetIt getIt = GetIt.instance;
     if (!getIt.isRegistered<CourierOrdersRepositoryFacade>()) {
       getIt.registerSingleton<CourierOrdersRepositoryFacade>(
-        DemoCourierOrdersRepository(),
+        CourierOrdersRepository(),
+      );
+    }
+    // The sheet reads the driver's consignment load for its "My load"
+    // tile; the demo fixture serves no load, so the tile is absent and
+    // this file keeps testing the layout it was written for.
+    if (!getIt.isRegistered<DriverLoadRepositoryFacade>()) {
+      getIt.registerSingleton<DriverLoadRepositoryFacade>(
+        DriverLoadRepository(),
       );
     }
   });
 
   tearDown(() async {
+    await stopDemoFixtures();
     await GetIt.instance.reset();
   });
 
@@ -132,6 +272,70 @@ void main() {
       // Both horizontal edges pinned: the column is as wide as the phone,
       // never unbounded and never intrinsically sized.
       expect(tester.getSize(column).width, _phone.width);
+    });
+  });
+
+  group('the sheet card gates are independent', () {
+    testWidgets('an open load with no cash orders still shows My load', (
+      tester,
+    ) async {
+      // The moment the tile matters most: the shop has just handed him a
+      // load and he has sold nothing, so there is no cash on hand at all.
+      await _pumpGated(
+        tester,
+        report: const DriverDayReport(cashOnHand: 0, cashOrderCount: 0),
+        loads: [_openLoad()],
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(const Key('driverHomeMyLoadCard')), findsOneWidget);
+      expect(find.byType(CashOnHandCard), findsNothing);
+    });
+
+    testWidgets('cash orders with no load show only the cash card', (
+      tester,
+    ) async {
+      await _pumpGated(
+        tester,
+        report: const DriverDayReport(cashOnHand: 470, cashOrderCount: 1),
+        loads: const [],
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(CashOnHandCard), findsOneWidget);
+      expect(find.byKey(const Key('driverHomeMyLoadCard')), findsNothing);
+    });
+
+    testWidgets('carrying both, both cards are drawn', (tester) async {
+      await _pumpGated(
+        tester,
+        report: const DriverDayReport(cashOnHand: 470, cashOrderCount: 1),
+        loads: [_openLoad()],
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(CashOnHandCard), findsOneWidget);
+      expect(find.byKey(const Key('driverHomeMyLoadCard')), findsOneWidget);
+    });
+
+    testWidgets('a closed load is not an open one, so no tile', (
+      tester,
+    ) async {
+      final closed = DriverLoad.fromJson(const {
+        'id': 'LOAD-4',
+        'load_status': 'Closed',
+        'lines': [
+          {'stock_id': 'STK-1', 'unit_price': 45, 'remaining_qty': 10},
+        ],
+      });
+      await _pumpGated(
+        tester,
+        report: const DriverDayReport(cashOnHand: 0, cashOrderCount: 0),
+        loads: [closed],
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(const Key('driverHomeMyLoadCard')), findsNothing);
     });
   });
 }

@@ -64,9 +64,11 @@ class OffDutyRestCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: AppStyle.strokeDarkSubtle),
+        border: Border.all(
+          color: AppStyle.subtleStrokeFor(Theme.of(context).brightness),
+        ),
       ),
       child: Row(
         children: [
@@ -79,7 +81,7 @@ class OffDutyRestCard extends StatelessWidget {
                   AppHelpers.getTranslation(TrKeys.youAreOffDuty),
                   style: AppStyle.interSemi(
                     size: 15,
-                    color: AppStyle.textPrimary,
+                    color: AppStyle.inkFor(Theme.of(context).brightness),
                   ),
                 ),
                 4.verticalSpace,
@@ -87,7 +89,9 @@ class OffDutyRestCard extends StatelessWidget {
                   AppHelpers.getTranslation(TrKeys.noJobsOfferedLocationOff),
                   style: AppStyle.interNormal(
                     size: 12,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(
+                      Theme.of(context).brightness,
+                    ),
                   ),
                 ),
                 if (openJobsInZone > 0) ...[
@@ -99,14 +103,18 @@ class OffDutyRestCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20.r),
-                      border: Border.all(color: AppStyle.strokeDark),
+                      border: Border.all(
+                        color: AppStyle.strokeFor(Theme.of(context).brightness),
+                      ),
                     ),
                     child: Text(
                       '$openJobsInZone '
                       '${AppHelpers.getTranslation(TrKeys.jobsOpenInYourZone)}',
                       style: AppStyle.interNormal(
                         size: 11,
-                        color: AppStyle.textDarkSecondary,
+                        color: AppStyle.secondaryInkFor(
+                          Theme.of(context).brightness,
+                        ),
                       ),
                     ),
                   ),
@@ -181,9 +189,11 @@ class WalletPositionCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
       decoration: BoxDecoration(
-        color: AppStyle.cardDarkAlt,
+        color: AppStyle.cardAltFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: AppStyle.strokeDarkSubtle),
+        border: Border.all(
+          color: AppStyle.subtleStrokeFor(Theme.of(context).brightness),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,7 +203,7 @@ class WalletPositionCard extends StatelessWidget {
             AppHelpers.getTranslation(TrKeys.yourWallet).toUpperCase(),
             style: AppStyle.interNormal(
               size: 11,
-              color: AppStyle.textDarkFaint,
+              color: AppStyle.faintFor(Theme.of(context).brightness),
               letterSpacing: 0.8,
             ),
           ),
@@ -203,7 +213,10 @@ class WalletPositionCard extends StatelessWidget {
                 ? '${AppHelpers.getTranslation(TrKeys.youOwe)} '
                       '${AppHelpers.numberFormat(number: owing)}'
                 : AppHelpers.getTranslation(TrKeys.yourWalletIsClear),
-            style: AppStyle.interSemi(size: 20, color: AppStyle.textPrimary),
+            style: AppStyle.interSemi(
+              size: 20,
+              color: AppStyle.inkFor(Theme.of(context).brightness),
+            ),
           ),
           if (_behind) ...[
             6.verticalSpace,
@@ -211,7 +224,7 @@ class WalletPositionCard extends StatelessWidget {
               AppHelpers.getTranslation(TrKeys.cashIsDockedAtDelivered),
               style: AppStyle.interNormal(
                 size: 12,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ],
@@ -245,7 +258,9 @@ class WalletPositionCard extends StatelessWidget {
                   style: TextButton.styleFrom(
                     backgroundColor: AppStyle.transparent,
                     minimumSize: Size(0, 40.h),
-                    side: BorderSide(color: AppStyle.strokeDark),
+                    side: BorderSide(
+                      color: AppStyle.strokeFor(Theme.of(context).brightness),
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.r),
                     ),
@@ -254,7 +269,7 @@ class WalletPositionCard extends StatelessWidget {
                     AppHelpers.getTranslation(TrKeys.openWallet),
                     style: AppStyle.interSemi(
                       size: 13,
-                      color: AppStyle.textPrimary,
+                      color: AppStyle.inkFor(Theme.of(context).brightness),
                     ),
                   ),
                 ),

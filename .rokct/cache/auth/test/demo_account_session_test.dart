@@ -62,12 +62,10 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await LocalStorage.init();
     SecureStorage.store = _MemorySecureStore();
-    DemoSession.isDemoOverride = false;
   });
 
   tearDown(() async {
     await DemoSession.instance.clear();
-    DemoSession.isDemoOverride = null;
   });
 
   test('a backend-marked account flips the session, one per role', () async {

@@ -16,8 +16,8 @@
 // templates/ — the page carries no ${package} import precisely so this
 // harness can compile it standalone (the analyzer excludes templates/, so
 // this test IS the template's compile gate). RUN WITH
-// `flutter test --dart-define=IS_DEMO=true`: demo mode serves the
-// section-42 seed shop from MockQuickFlowRepository via the DI gate.
+// the demo till (support/demo_till.dart): its Quick flow store holds the
+// section-42 seed shop.
 //
 // Covers the three switches and what each one says about itself (the LIVE
 // badge on the one real field, the hand-over warning on the one that
@@ -31,19 +31,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:merchants_sdk/src/manager/application/quick_flow/quick_flow_provider.dart';
-import 'package:merchants_sdk/src/manager/di/manager_merchants_di.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../templates/pages/manager/quick_flow/quick_flow_page.dart';
 
+import 'support/demo_till.dart';
+
 Widget _host(Widget child, Size designSize) => ProviderScope(
-      child: ScreenUtilInit(
-        designSize: designSize,
-        builder: (context, _) => MaterialApp(home: child),
-      ),
-    );
+  child: ScreenUtilInit(
+    designSize: designSize,
+    builder: (context, _) => MaterialApp(home: child),
+  ),
+);
 
 /// Pumps the page at a real logical size. The design size tracks the
 /// viewport so ScreenUtil scales 1:1 — these tests are about WHICH
@@ -66,12 +66,13 @@ void main() {
     await LocalStorage.setSelectedCurrency(
       CurrencyData(id: 'ZAR', symbol: 'R', position: 'before', rate: 1),
     );
-    ManagerMerchantsDependencies.register(GetIt.instance);
+    await registerDemoTill();
   });
 
   group('QuickFlowPage — the three switches', () {
-    testWidgets('names all three and badges the one that is already live',
-        (tester) async {
+    testWidgets('names all three and badges the one that is already live', (
+      tester,
+    ) async {
       await _pump(tester, size: const Size(1280, 3200));
       expect(find.text('Quick flow'), findsWidgets);
       expect(find.text('Auto-accept incoming orders'), findsOneWidget);
@@ -91,10 +92,7 @@ void main() {
 
     testWidgets('the platform gate line is a WIDE read only', (tester) async {
       await _pump(tester, size: const Size(1280, 3200));
-      expect(
-        find.textContaining('Auto Approve All Orders'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('Auto Approve All Orders'), findsOneWidget);
       await _pump(tester, size: const Size(412, 3200));
       expect(find.textContaining('Auto Approve All Orders'), findsNothing);
     });
@@ -119,8 +117,7 @@ void main() {
   });
 
   group('QuickFlowPage — the digit-preset grid', () {
-    testWidgets('counts what is set and draws all nine slots',
-        (tester) async {
+    testWidgets('counts what is set and draws all nine slots', (tester) async {
       await _pump(tester, size: const Size(1280, 3200));
       expect(find.text('5 of 9 set'), findsOneWidget);
       for (var digit = 1; digit <= 9; digit++) {
@@ -129,18 +126,18 @@ void main() {
       // Five filled (clearable), four inert.
       expect(
         find.byWidgetPredicate(
-          (w) => w.key is ValueKey<String> &&
+          (w) =>
+              w.key is ValueKey<String> &&
               (w.key as ValueKey<String>).value.startsWith(
-                    'quickFlowPresetClear',
-                  ),
+                'quickFlowPresetClear',
+              ),
         ),
         findsNWidgets(5),
       );
       expect(find.text('Add item'), findsNWidgets(4));
     });
 
-    testWidgets('a filled slot shows its item over its price',
-        (tester) async {
+    testWidgets('a filled slot shows its item over its price', (tester) async {
       await _pump(tester, size: const Size(1280, 3200));
       expect(find.text('20 L refill'), findsOneWidget);
       expect(find.text('R35.00'), findsOneWidget);
@@ -165,8 +162,9 @@ void main() {
   });
 
   group('QuickFlowPage — the fold', () {
-    testWidgets('the flow strip is a wide read and drops on the phone',
-        (tester) async {
+    testWidgets('the flow strip is a wide read and drops on the phone', (
+      tester,
+    ) async {
       await _pump(tester, size: const Size(1280, 3200));
       expect(find.text('Money in'), findsOneWidget);
       expect(find.text('No per-order taps'), findsOneWidget);
@@ -174,8 +172,9 @@ void main() {
       expect(find.text('Money in'), findsNothing);
     });
 
-    testWidgets('the sections rail is granted at plane widths only',
-        (tester) async {
+    testWidgets('the sections rail is granted at plane widths only', (
+      tester,
+    ) async {
       await _pump(tester, size: const Size(1280, 3200));
       expect(find.text('Sections'), findsOneWidget);
       // Quick flow reads twice on the rail-plus-detail layout: the lit

@@ -43,6 +43,16 @@ class LoadingGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Read OUTSIDE the itemBuilder, so it is this widget's own element
+    // that depends on the inherited theme rather than each tile's: a mode
+    // flip then rebuilds the grid, and the builder's closure is handed the
+    // new mode's fill. The app-wide AppStyle.isDark static this used is not
+    // an inherited widget, so nothing rescheduled a placeholder grid at all
+    // and it sat in the previous mode's grey (Ray, 2026-09-19: "glance
+    // doesnt change test immediately untill you come back if you switched
+    // theme mode" - the same defect, found here by the fleet audit).
+    final Brightness brightness = Theme.of(context).brightness;
+
     return AnimationLimiter(
       child: GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -69,7 +79,7 @@ class LoadingGrid extends StatelessWidget {
                 child: Container(
                   height: itemHeight.h,
                   decoration: BoxDecoration(
-                    color: AppStyle.cardDark,
+                    color: AppStyle.cardFor(brightness),
                     borderRadius: BorderRadius.circular(itemBorderRadius.r),
                   ),
                 ),

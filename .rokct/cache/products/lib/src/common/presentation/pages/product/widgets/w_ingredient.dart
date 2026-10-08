@@ -43,7 +43,9 @@ class WIngredientScreen extends StatelessWidget {
         : Container(
             width: double.infinity,
             decoration: BoxDecoration(
-              color: list.isEmpty ? AppStyle.transparent : AppStyle.cardDark,
+              color: list.isEmpty
+                  ? AppStyle.transparent
+                  : AppStyle.cardFor(Theme.of(context).brightness),
               borderRadius: BorderRadius.circular(10.r),
             ),
             padding: REdgeInsets.all(18),

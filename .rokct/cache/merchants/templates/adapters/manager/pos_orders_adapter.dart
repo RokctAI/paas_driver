@@ -38,8 +38,8 @@ import 'package:orders_sdk/src/manager/infrastructure/services/pos_sale_queue.da
 ///       () => ManagerPosOrdersAdapter());
 ///
 /// Without this registration the checkout renders no customer / credit
-/// surface and a finished sale completes locally only (demo builds
-/// register merchants_sdk's MockPosOrdersRepository instead).
+/// surface and a finished sale completes locally only. A demo session runs
+/// this adapter too: its cmds are answered from the demo fixtures.
 class ManagerPosOrdersAdapter implements PosOrdersFacade {
   /// Mirrors the backend's `limit_page_length` default.
   static const int _pageSize = 20;

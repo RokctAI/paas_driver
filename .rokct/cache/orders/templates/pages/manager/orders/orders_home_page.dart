@@ -12,8 +12,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:${package}/presentation/routes/app_router.dart';
 
 import 'package:${package}/presentation/pages/orders/details/order_details_modal.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -92,6 +95,13 @@ class _OrdersHomePageState extends ConsumerState<OrdersHomePage> {
     });
   }
 
+  /// The workspace's own entry to the shop's consignment LOADS (/load) —
+  /// the driver-van queue, hung on the orders header beside the board's
+  /// other utilities. From there the shop issues one (/load/issue).
+  void _openLoads(BuildContext context) {
+    context.pushRoute(const ManagerLoadsRoute());
+  }
+
   void _openDetailModal(OrderData order, BoardStatus status) {
     AppHelpers.showCustomModalBottomSheet(
       paddingTop: MediaQuery.paddingOf(context).top + 60,
@@ -118,12 +128,12 @@ class _OrdersHomePageState extends ConsumerState<OrdersHomePage> {
   /// reachable via the toggle (it scrolls sideways).
   Widget _buildCompact(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const OrdersBoardHeader(compact: true),
+            OrdersBoardHeader(compact: true, onOpenLoads: () => _openLoads(context)),
             Expanded(
               child: Consumer(
                 builder: (context, ref, _) {
@@ -147,13 +157,13 @@ class _OrdersHomePageState extends ConsumerState<OrdersHomePage> {
   /// Two planes or more: the plane-hosted workspace (33a + 33d).
   Widget _buildExpanded(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: SafeArea(
         child: OrdersBoardPlaneFlow(
           boardBuilder: (context, flow) => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const OrdersBoardHeader(),
+              OrdersBoardHeader(onOpenLoads: () => _openLoads(context)),
               Expanded(
                 child: Consumer(
                   builder: (context, ref, _) {
@@ -207,18 +217,18 @@ class _OrderDetailPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: AppStyle.surfaceDark,
+      color: AppStyle.surfaceFor(Theme.of(context).brightness),
       child: ClipRect(
         child: Navigator(
           observers: [_PopToSentinelObserver(onClosed)],
           onGenerateInitialRoutes: (navigator, initialRoute) => [
             MaterialPageRoute(
               settings: const RouteSettings(name: _sentinelName),
-              builder: (_) => ColoredBox(color: AppStyle.surfaceDark),
+              builder: (_) => ColoredBox(color: AppStyle.surfaceFor(Theme.of(context).brightness)),
             ),
             MaterialPageRoute(
               builder: (_) => Scaffold(
-                backgroundColor: AppStyle.surfaceDark,
+                backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
                 body: SafeArea(
                   child: OrderDetailsModal(
                     order: order,
@@ -230,7 +240,7 @@ class _OrderDetailPane extends StatelessWidget {
           ],
           onGenerateRoute: (settings) => MaterialPageRoute(
             settings: settings,
-            builder: (_) => ColoredBox(color: AppStyle.surfaceDark),
+            builder: (_) => ColoredBox(color: AppStyle.surfaceFor(Theme.of(context).brightness)),
           ),
         ),
       ),

@@ -94,22 +94,23 @@ class CalcKey extends StatelessWidget {
   /// Row share; the `0` key takes 2 (the shipped last row).
   final int flex;
 
-  Color get _fill =>
-      kind == CalcKeyKind.operator ? AppStyle.primary : AppStyle.cardDarkAlt;
+  Color _fill(Brightness b) =>
+      kind == CalcKeyKind.operator ? AppStyle.primary : AppStyle.cardAltFor(b);
 
-  Color get _border => kind == CalcKeyKind.operator
+  Color _border(Brightness b) => kind == CalcKeyKind.operator
       ? Colors.transparent
-      : AppStyle.strokeDarkSubtle;
+      : AppStyle.subtleStrokeFor(b);
 
-  Color get _ink => switch (kind) {
-        CalcKeyKind.digit => AppStyle.textPrimary,
-        CalcKeyKind.memory => AppStyle.primary,
-        CalcKeyKind.function => AppStyle.green,
-        CalcKeyKind.operator => AppStyle.blackColor,
-      };
+  Color _ink(Brightness b) => switch (kind) {
+    CalcKeyKind.digit => AppStyle.inkFor(b),
+    CalcKeyKind.memory => AppStyle.primary,
+    CalcKeyKind.function => AppStyle.green,
+    CalcKeyKind.operator => AppStyle.blackColor,
+  };
 
   @override
   Widget build(BuildContext context) {
+    final Brightness b = Theme.of(context).brightness;
     return Expanded(
       flex: flex,
       child: GestureDetector(
@@ -127,14 +128,14 @@ class CalcKey extends StatelessWidget {
               },
         child: Container(
           decoration: BoxDecoration(
-            color: _fill,
+            color: _fill(b),
             borderRadius: BorderRadius.circular(10.r),
-            border: Border.all(color: _border, width: 1.r),
+            border: Border.all(color: _border(b), width: 1.r),
           ),
           alignment: Alignment.center,
           child: Text(
             label,
-            style: AppStyle.interSemi(size: 19, color: _ink),
+            style: AppStyle.interSemi(size: 19, color: _ink(b)),
           ),
         ),
       ),

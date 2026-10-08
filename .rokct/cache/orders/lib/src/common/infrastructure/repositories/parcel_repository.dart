@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:base_sdk/src/domain/interface/parcel.dart';
@@ -21,6 +23,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
+import 'package:orders_sdk/src/common/infrastructure/repositories/orders_repository.dart';
 
 class ParcelRepository implements ParcelRepositoryFacade {
   /// Universal platform gateway (fleet rule 2026-08-15): parcel cmds are the
@@ -29,8 +32,8 @@ class ParcelRepository implements ParcelRepositoryFacade {
   /// for the hosted-checkout and transaction calls.
   static const _gateway = PlatformGateway();
 
-  /// The parcel-flavoured hosted-checkout initiators the wallet frappe half
-  /// whitelists (`api.payment.initiate_{flutterwave|paypal|paystack}_parcel_payment`).
+  /// The parcel hosted checkouts: `api.payment.initiate_{flutterwave|paystack}_parcel_payment`,
+  /// and PayPal through REST `api.payment.create_paypal_rest_order`.
   static const Set<String> hostedCheckoutProviders = {
     'flutterwave',
     'paypal',
@@ -190,29 +193,17 @@ class ParcelRepository implements ParcelRepositoryFacade {
 
   @override
   Future<ApiResult<ParcelPaginateResponse>> getActiveParcel(int page) async {
-    final data = {
+    // delivery's parcel.get_parcel_orders(limit, offset, status) matches the
+    // Parcel Order Select labels exactly ("On a way", not on_a_way) and
+    // pages by limit/offset (page/perPage were dropped server-side).
+    final data = <String, dynamic>{
       if (LocalStorage.getSelectedCurrency() != null)
         'currency_id': LocalStorage.getSelectedCurrency()?.id,
       'lang': LocalStorage.getLanguage()?.locale,
-      'page': page,
-      'statuses[0]': "new",
-      "statuses[1]": "accepted",
-      "statuses[2]": "ready",
-      "statuses[3]": "on_a_way",
-      "order_statuses": true,
-      "perPage": 10,
+      ..._parcelPage(page),
+      'status': jsonEncode(const ['New', 'Accepted', 'Ready', 'On a way']),
     };
     try {
-      // Status filtering logic as implemented in previous session
-      if (data['statuses[0]'] != null) {
-        data['status'] = [
-          data['statuses[0]'],
-          data['statuses[1]'],
-          data['statuses[2]'],
-          data['statuses[3]'],
-        ];
-        data.removeWhere((key, value) => key.startsWith('statuses'));
-      }
       final response = await _gateway.tenant('api.parcel.get_parcel_orders', data);
       return ApiResult.success(
         data: ParcelPaginateResponse.fromJson(response),
@@ -228,21 +219,14 @@ class ParcelRepository implements ParcelRepositoryFacade {
 
   @override
   Future<ApiResult<ParcelPaginateResponse>> getHistoryParcel(int page) async {
-    final data = {
+    final data = <String, dynamic>{
       if (LocalStorage.getSelectedCurrency() != null)
         'currency_id': LocalStorage.getSelectedCurrency()?.id,
       'lang': LocalStorage.getLanguage()?.locale,
-      'statuses[0]': "delivered",
-      "statuses[1]": "canceled",
-      "order_statuses": true,
-      "perPage": 10,
-      "page": page,
+      ..._parcelPage(page),
+      'status': jsonEncode(const ['Delivered', 'Canceled']),
     };
     try {
-      if (data['statuses[0]'] != null) {
-        data['status'] = [data['statuses[0]'], data['statuses[1]']];
-        data.removeWhere((key, value) => key.startsWith('statuses'));
-      }
       final response = await _gateway.tenant('api.parcel.get_parcel_orders', data);
       return ApiResult.success(
         data: ParcelPaginateResponse.fromJson(response),
@@ -283,6 +267,13 @@ class ParcelRepository implements ParcelRepositoryFacade {
   @override
   Future<ApiResult<String>> process(String orderId, String name) async {
     final String provider = name.toLowerCase();
+    if (OrdersRepository.isBraintree(provider)) {
+      // Native Braintree drop-in on Android/iOS; answers
+      // OrdersRepository.braintreeNativePaid when paid. Null means it
+      // cannot run here and the existing path below is used unchanged.
+      final native = await OrdersRepository.braintreeNative('parcel', orderId);
+      if (native != null) return native;
+    }
     if (!hostedCheckoutProviders.contains(provider)) {
       return ApiResult.failure(
         error: 'No hosted checkout is available for "$name" on this backend',
@@ -290,6 +281,13 @@ class ParcelRepository implements ParcelRepositoryFacade {
       );
     }
     try {
+      if (provider == 'paypal') {
+        // PayPal REST Orders v2 (the hosted initiate_paypal_parcel_payment
+        // is retired): answers the approval link.
+        return ApiResult.success(
+          data: await OrdersRepository.createPaypalRestOrder('parcel', orderId),
+        );
+      }
       // wallet's payment.initiate_<provider>_parcel_payment(order_id) — the
       // kwarg is named order_id even for a Parcel Order docname; it answers
       // the same {redirect_url} envelope as the order variant.
@@ -333,4 +331,11 @@ class ParcelRepository implements ParcelRepositoryFacade {
       );
     }
   }
+
+  static const int _parcelPageSize = 10;
+
+  static Map<String, dynamic> _parcelPage(int page) => {
+        'limit': _parcelPageSize,
+        'offset': (page < 1 ? 0 : page - 1) * _parcelPageSize,
+      };
 }

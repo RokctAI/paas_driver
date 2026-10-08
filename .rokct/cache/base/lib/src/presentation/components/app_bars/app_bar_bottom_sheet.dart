@@ -14,6 +14,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/presentation/theme/theme.dart';
 
@@ -23,6 +24,15 @@ class AppBarBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The mode comes from the inherited theme, not from the app-wide
+    // AppStyle.isDark static (Ray, 2026-09-19: "glance doesnt change test
+    // immediately untill you come back if you switched theme mode" - the
+    // same defect, found here by the fleet audit that followed). A static
+    // is not an inherited widget, so a mode flip scheduled no rebuild of
+    // this widget and it kept the previous mode's colours until something
+    // else happened to rebuild it.
+    final Brightness brightness = Theme.of(context).brightness;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -36,13 +46,13 @@ class AppBarBottomSheet extends StatelessWidget {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: Icon(Icons.arrow_back, color: AppStyle.textPrimary),
+          icon: Icon(Remix.arrow_left_line, color: AppStyle.inkFor(brightness)),
         ),
         Text(
           title,
           style: AppStyle.interNoSemi(
             size: 20,
-            color: AppStyle.textPrimary,
+            color: AppStyle.inkFor(brightness),
             letterSpacing: -0.01,
           ),
         ),

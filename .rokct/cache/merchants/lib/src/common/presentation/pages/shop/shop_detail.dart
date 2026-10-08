@@ -71,7 +71,7 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
     return Directionality(
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: AppStyle.bgGrey,
+        backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
         body: SingleChildScrollView(
           padding: EdgeInsets.symmetric(vertical: 32.r),
           child: Column(
@@ -143,7 +143,7 @@ class _ShopDetailPageState extends ConsumerState<ShopDetailPage> {
                   },
                   child: Row(
                     children: [
-                      const Icon(Icons.place_rounded),
+                      const Icon(Remix.map_pin_fill),
                       24.horizontalSpace,
                       Expanded(
                         child: Text(widget.shop.translation?.address ?? ""),

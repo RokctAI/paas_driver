@@ -13,7 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/application/payment_methods/payment_provider.dart';
@@ -131,12 +131,12 @@ class OrderButton extends ConsumerWidget {
                             AppHelpers.getTranslation(TrKeys.orderImage),
                             style: AppStyle.interNormal(
                               size: 14.sp,
-                              color: AppStyle.black,
+                              color: AppStyle.inkFor(Theme.of(context).brightness),
                               letterSpacing: -0.3,
                             ),
                           ),
                           12.horizontalSpace,
-                          const Icon(FlutterRemix.gallery_fill),
+                          const Icon(Remix.gallery_fill),
                         ],
                       ),
                     ),
@@ -146,7 +146,7 @@ class OrderButton extends ConsumerWidget {
                   isLoading: isAutoLoading,
                   background: AppStyle.transparent,
                   borderColor: AppStyle.black,
-                  textColor: AppStyle.black,
+                  textColor: AppStyle.inkFor(Theme.of(context).brightness),
                   title: AppHelpers.getTranslation(TrKeys.autoOrder),
                   onPressed: autoOrder,
                 ),
@@ -155,7 +155,7 @@ class OrderButton extends ConsumerWidget {
                   isLoading: isRepeatLoading,
                   background: AppStyle.transparent,
                   borderColor: AppStyle.black,
-                  textColor: AppStyle.black,
+                  textColor: AppStyle.inkFor(Theme.of(context).brightness),
                   title: AppHelpers.getTranslation(TrKeys.repeatOrder),
                   onPressed: repeatOrder,
                 ),
@@ -169,7 +169,7 @@ class OrderButton extends ConsumerWidget {
                     AppHelpers.showCustomModalBottomSheet(
                       context: context,
                       modal: const RefundScreen(),
-                      isDarkMode: false,
+                      isDarkMode: Theme.of(context).brightness == Brightness.dark,
                     );
                   },
                 ),
@@ -211,8 +211,8 @@ class OrderButton extends ConsumerWidget {
 
           return CustomButton(
             isLoading: isLoading,
-            background: isActive ? AppStyle.primary : AppStyle.bgGrey,
-            textColor: isActive ? AppStyle.black : AppStyle.textGrey,
+            background: isActive ? AppStyle.primary : AppStyle.surfaceFor(Theme.of(context).brightness),
+            textColor: isActive ? AppStyle.inkFor(Theme.of(context).brightness) : AppStyle.textGrey,
             title:
                 "${AppHelpers.getTranslation(TrKeys.continueToPayment)} — ${AppHelpers.numberFormat(number: totalPrice)}",
             onPressed: isActive ? createOrder : null,

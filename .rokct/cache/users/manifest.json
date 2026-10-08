@@ -1,8 +1,14 @@
 {
   "name": "users_sdk",
-  "version": "1.4.0",
-  "_comment_requires": "users_sdk >= 1.4.0 requires base_sdk >= 1.61.0 (DemoSession, the runtime demo switch the repositories follow; the DI hook re-registers them on DemoSession.instance.addListener). users_sdk >= 1.3.6 requires base_sdk >= 1.60.4 (DemoImages.avatar, the kernel-owned demo avatar MockUserRepository reads; 1.3.5 needed >= 1.60.3 for DemoCurrency, the kernel's demo-build currency fixture the demo profile's wallet carries); the composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
-  "installs": [],
+  "version": "1.5.1",
+  "_comment_version_1_5_0": "1.4.2 -> 1.5.0: demo runs the REAL UserRepository and AddressRepository (Ray, 2026-09-25: touch all SDK demos, remove unused files; the tour must not use mock repos either). MockUserRepository, MockAddressRepository and the DI hook's DemoSession listener that swapped them in and out are deleted. UsersSdkDependencies registers the real repositories always and DemoFixtures.registerAssetDirectory('assets/demo/users'); base_sdk 1.73.0's DemoGatewayInterceptor answers every api.user.* cmd from templates/assets/demo/users/<cmd>.json (installed to assets/demo/users) while DemoSession.demoActive, the tour included. api.user.get_user_profile answers per signed-in role (partner Nomvula, admin Ayanda, every other role Thandi with the R793.00 wallet). Edits are acknowledged but no longer stick for the session. Needs base_sdk 1.73.0.",
+  "_comment_requires": "users_sdk >= 1.5.0 requires base_sdk >= 1.73.0 (DemoFixtures / DemoGatewayInterceptor, which answer the demo session's api.user.* cmds). users_sdk >= 1.4.0 requires base_sdk >= 1.61.0 (DemoSession, the runtime demo switch the repositories follow; the DI hook re-registers them on DemoSession.instance.addListener). users_sdk >= 1.3.6 requires base_sdk >= 1.60.4 (DemoImages.avatar, the kernel-owned demo avatar MockUserRepository reads; 1.3.5 needed >= 1.60.3 for DemoCurrency, the kernel's demo-build currency fixture the demo profile's wallet carries); the composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
+  "installs": [
+    {
+      "from": "templates/assets/demo/users",
+      "to": "assets/demo/users"
+    }
+  ],
   "routes": [],
   "integrations": [],
   "app_type": {
@@ -15,5 +21,8 @@
       ]
     }
   },
-  "_comment_app_type": "manager: the host profile application slice (profileProvider) becomes users_sdk-owned, installed to the EXACT path the composed consumers already import - merchants_sdk's manager logout_modal.dart reads 'package:${package}/application/profile/profile_provider.dart' for its delete-account action, so installing at lib/application/profile/ swaps the implementation under that import with zero commerce-side rewrites (fork plan S-2, manager migration bucket b). Ported from paas_manager's lib/application/profile/ trimmed to the composed surface (fetchUser + deleteAccount over base_sdk's UserRepositoryFacade; the retired become-seller createShop flow is owned by merchants_sdk's shop-setup registration step). While paas_manager still tracks its own copies the installer's hash guard warn-skips these installs (designed mid-flight behavior); they take effect the moment the manager repo deletes its host copies (migration stage M2). profile_state.freezed.dart regenerates via the host's own build_runner pass, which every compose already runs. Version bumped 1.0.0 -> 1.1.0 so version-aware cache reconciliation re-extracts composed copies."
+  "_comment_app_type": "manager: the host profile application slice (profileProvider) becomes users_sdk-owned, installed to the EXACT path the composed consumers already import - merchants_sdk's manager logout_modal.dart reads 'package:${package}/application/profile/profile_provider.dart' for its delete-account action, so installing at lib/application/profile/ swaps the implementation under that import with zero commerce-side rewrites (fork plan S-2, manager migration bucket b). Ported from paas_manager's lib/application/profile/ trimmed to the composed surface (fetchUser + deleteAccount over base_sdk's UserRepositoryFacade; the retired become-seller createShop flow is owned by merchants_sdk's shop-setup registration step). While paas_manager still tracks its own copies the installer's hash guard warn-skips these installs (designed mid-flight behavior); they take effect the moment the manager repo deletes its host copies (migration stage M2). profile_state.freezed.dart regenerates via the host's own build_runner pass, which every compose already runs. Version bumped 1.0.0 -> 1.1.0 so version-aware cache reconciliation re-extracts composed copies.",
+  "app_assets": [
+    "assets/demo/users/"
+  ]
 }

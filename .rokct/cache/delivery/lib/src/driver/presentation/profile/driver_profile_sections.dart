@@ -233,7 +233,7 @@ class DriverProfileStatsRow extends StatelessWidget {
               value: AppHelpers.numberFormat(number: balance ?? 0),
             ),
           ),
-          VerticalDivider(width: 1, color: AppStyle.strokeDark),
+          VerticalDivider(width: 1, color: AppStyle.strokeFor(Theme.of(context).brightness)),
           Expanded(
             child: _Stat(
               label: AppHelpers.getTranslation(TrKeys.lastProfit),
@@ -241,7 +241,7 @@ class DriverProfileStatsRow extends StatelessWidget {
               valueColor: AppStyle.primary,
             ),
           ),
-          VerticalDivider(width: 1, color: AppStyle.strokeDark),
+          VerticalDivider(width: 1, color: AppStyle.strokeFor(Theme.of(context).brightness)),
           Expanded(
             child: _Stat(
               label: AppHelpers.getTranslation(TrKeys.deliveredOrder),
@@ -273,7 +273,7 @@ class _Stat extends StatelessWidget {
             label,
             style: AppStyle.interNormal(
               size: 12.sp,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -283,7 +283,7 @@ class _Stat extends StatelessWidget {
             value,
             style: AppStyle.interSemi(
               size: 14.sp,
-              color: valueColor ?? AppStyle.textPrimary,
+              color: valueColor ?? AppStyle.inkFor(Theme.of(context).brightness),
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

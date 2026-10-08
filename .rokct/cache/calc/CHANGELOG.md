@@ -1,3 +1,11 @@
+## 1.1.3
+
+* fix(theme): live theme flips. The "Calculator" title, tape card text and keypad tiles take their ink and fills from Theme.of(context).brightness at build instead of AppStyle's static default, so they restyle when the mode changes.
+
+## 1.1.2
+
+* fix(theme): dark-mode sweep. Hardcoded light fills and dark ink now follow the active brightness via AppStyle.*For(Theme.of(context).brightness); static theme reads in builds replaced. Brand fills and white-on-primary left fixed.
+
 ## 1.1.0
 
 * **Design strip section 45 — the calculator surface** (frames 45a, 45e

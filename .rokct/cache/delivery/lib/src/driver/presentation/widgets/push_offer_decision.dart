@@ -84,7 +84,7 @@ class PushOfferCountdown extends StatelessWidget {
       key: const Key('pushOfferCountdown'),
       padding: EdgeInsets.all(4.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         shape: BoxShape.circle,
       ),
       child: CircularPercentIndicator(
@@ -96,7 +96,7 @@ class PushOfferCountdown extends StatelessWidget {
           style: AppStyle.interSemi(size: 18),
         ),
         fillColor: AppStyle.transparent,
-        backgroundColor: AppStyle.strokeDark,
+        backgroundColor: AppStyle.strokeFor(Theme.of(context).brightness),
         progressColor: AppStyle.primary,
         circularStrokeCap: CircularStrokeCap.round,
       ),
@@ -122,7 +122,7 @@ class PushOfferTimerNote extends StatelessWidget {
         Icon(
           Remix.information_line,
           size: 14.r,
-          color: AppStyle.textDarkFaint,
+          color: AppStyle.faintFor(Theme.of(context).brightness),
         ),
         8.horizontalSpace,
         Expanded(
@@ -130,7 +130,7 @@ class PushOfferTimerNote extends StatelessWidget {
             AppHelpers.getTranslation(TrKeys.offerCountdownNotAHold),
             style: AppStyle.interNormal(
               size: 11,
-              color: AppStyle.textDarkFaint,
+              color: AppStyle.faintFor(Theme.of(context).brightness),
               letterSpacing: -0.2,
             ),
           ),

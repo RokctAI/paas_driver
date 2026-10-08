@@ -15,7 +15,7 @@
 // ignore_for_file: unused_result
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
@@ -83,7 +83,7 @@ class _ParcelPageState extends ConsumerState<ParcelPage> {
             CommonAppBar(
               child: Text(
                 AppHelpers.getTranslation(TrKeys.doorToDoor),
-                style: AppStyle.interNoSemi(size: 18, color: AppStyle.black),
+                style: AppStyle.interNoSemi(size: 18, color: AppStyle.inkFor(Theme.of(context).brightness)),
               ),
             ),
             AppHelpers.getParcel()
@@ -93,7 +93,7 @@ class _ParcelPageState extends ConsumerState<ParcelPage> {
                       shrinkWrap: true,
                       children: [
                         Container(
-                          color: AppStyle.white,
+                          color: AppStyle.cardFor(Theme.of(context).brightness),
                           padding: EdgeInsets.all(16.r),
                           child: Form(
                             key: formKey,
@@ -139,7 +139,7 @@ class _ParcelPageState extends ConsumerState<ParcelPage> {
                                         child: const Padding(
                                           padding: EdgeInsets.all(8.0),
                                           child: Icon(
-                                            FlutterRemix.arrow_up_down_line,
+                                            Remix.arrow_up_down_line,
                                           ),
                                         ),
                                       ),
@@ -148,11 +148,11 @@ class _ParcelPageState extends ConsumerState<ParcelPage> {
                                 10.verticalSpace,
                                 if (state.expand)
                                   CustomButton(
-                                    icon: const Icon(
-                                      FlutterRemix.wallet_2_line,
-                                      color: AppStyle.black,
+                                    icon: Icon(
+                                      Remix.wallet_2_line,
+                                      color: AppStyle.inkFor(Theme.of(context).brightness),
                                     ),
-                                    background: AppStyle.bgGrey,
+                                    background: AppStyle.surfaceFor(Theme.of(context).brightness),
                                     isLoading: state.isButtonLoading,
                                     title: AppHelpers.getTranslation(
                                       state.selectPayment?.tag ??
@@ -169,7 +169,7 @@ class _ParcelPageState extends ConsumerState<ParcelPage> {
                                             event.setPayment(payment);
                                           },
                                         ),
-                                        isDarkMode: false,
+                                        isDarkMode: Theme.of(context).brightness == Brightness.dark,
                                         isDrag: true,
                                         radius: 12,
                                       );
@@ -225,9 +225,9 @@ class _ParcelPageState extends ConsumerState<ParcelPage> {
                     borderColor:
                         !state.error ? AppStyle.transparent : AppStyle.textGrey,
                     background:
-                        !state.error ? AppStyle.primary : AppStyle.white,
+                        !state.error ? AppStyle.primary : AppStyle.cardFor(Theme.of(context).brightness),
                     textColor:
-                        !state.error ? AppStyle.black : AppStyle.textGrey,
+                        !state.error ? AppStyle.inkFor(Theme.of(context).brightness) : AppStyle.textGrey,
                     title:
                         "${state.expand ? AppHelpers.getTranslation(TrKeys.order) : AppHelpers.getTranslation(TrKeys.continueText)} ${AppHelpers.numberFormat(number: state.calculate?.data?.price ?? 0)}",
                     onPressed: () {

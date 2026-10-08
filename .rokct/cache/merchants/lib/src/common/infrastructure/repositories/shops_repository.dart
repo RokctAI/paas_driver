@@ -13,7 +13,6 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
-import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/domain/interface/shops.dart';
 import 'package:base_sdk/src/models/data/address_old_data.dart';
 import 'package:base_sdk/src/models/models.dart';
@@ -142,8 +141,7 @@ class ShopsRepository implements ShopsRepositoryFacade {
     }
   }
 
-  // NOTE: `getShopBranch` has no customer-facing server method yet (see the
-  // TODO on it); `joinOrder` reaches a server-side placeholder. Everything
+  // NOTE: `joinOrder` reaches a server-side placeholder. Everything
   // else below is served by the gateway cmds named at each call.
 
   @override
@@ -174,18 +172,15 @@ class ShopsRepository implements ShopsRepositoryFacade {
   Future<ApiResult<BranchResponse>> getShopBranch({
     required String uuid,
   }) async {
-    // TODO(fix-wave 2026-09-02): no customer-facing server method — the only
-    // branch read is `api.seller_shop_settings.get_seller_branches`, which is
-    // seller-session scoped. Candidate: `get_shop_branches(shop_id)` in
-    // merchants/frappe/src/tenant/api/shop/shop.py + alias (fixplan M23).
-    // Left on the dead path so the failure stays visible.
     try {
-      final client = dioHttp.client(requireAuth: false);
-      final response = await client.get(
-        '/api/method/paas.api.shop.shop.get_shop_branch',
-        queryParameters: {'shop_id': uuid},
+      // merchants' shop.get_shop_branches(shop_id), guest-allowed (fixplan
+      // M23); accepts the shop uuid or docname.
+      final response = await _gateway.call(
+        'api.shop.get_shop_branches',
+        payload: {'shop_id': uuid},
+        requireAuth: false,
       );
-      return ApiResult.success(data: BranchResponse.fromJson(response.data));
+      return ApiResult.success(data: BranchResponse.fromJson(response));
     } catch (e) {
       debugPrint('==> get shop branch failure: $e');
       return ApiResult.failure(
@@ -378,7 +373,14 @@ class ShopsRepository implements ShopsRepositoryFacade {
         requireAuth: false,
       );
       return ApiResult.success(
-        data: storyModelFromJson(response['message']),
+        // story.get_story returns a bare list of story groups; the gateway
+        // already stripped Frappe's envelope, so `message` is not re-read
+        // (a still-wrapped map is tolerated, as in shop_loads_repository).
+        data: storyModelFromJson(
+          response is Map && response.containsKey('message')
+              ? response['message']
+              : response,
+        ),
       );
     } catch (e) {
       debugPrint('==> get story failure: $e');
@@ -420,7 +422,15 @@ class ShopsRepository implements ShopsRepositoryFacade {
         requireAuth: false,
       );
       return ApiResult.success(
-        data: PriceModel.fromJson(response['message']),
+        // product.get_suggest_price returns the full {timestamp, status,
+        // message, data} map itself; its `message` is a human string, so it
+        // must not be unwrapped again after the gateway strip.
+        data: PriceModel.fromJson(
+          (response is Map && response['data'] is Map
+                  ? response
+                  : (response as Map)['message'] as Map)
+              .cast<String, dynamic>(),
+        ),
       );
     } catch (e) {
       debugPrint('==> get suggest price failure: $e');

@@ -160,7 +160,7 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
 
   Widget _buildCompact(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: SafeArea(
         child: Stack(
           children: [
@@ -190,7 +190,7 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
 
   Widget _buildPlanes(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: SafeArea(
         child: ListDetailFlow<NotificationModel>(
           backIcon: Remix.arrow_left_wide_fill,
@@ -268,7 +268,7 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
                     AppHelpers.getTranslation(TrKeys.noData),
                     style: AppStyle.interNormal(
                       size: 12,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                     ),
                   ),
                 )
@@ -318,18 +318,20 @@ class _OrderPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: AppStyle.surfaceDark,
+      color: AppStyle.surfaceFor(Theme.of(context).brightness),
       child: ClipRect(
         child: Navigator(
           observers: [_PopToSentinelObserver(onClosed)],
           onGenerateInitialRoutes: (navigator, initialRoute) => [
             MaterialPageRoute(
               settings: const RouteSettings(name: _sentinelName),
-              builder: (_) => ColoredBox(color: AppStyle.surfaceDark),
+              builder: (ctx) => ColoredBox(
+              color: AppStyle.surfaceFor(Theme.of(ctx).brightness),
+            ),
             ),
             MaterialPageRoute(
-              builder: (_) => Scaffold(
-                backgroundColor: AppStyle.surfaceDark,
+              builder: (ctx) => Scaffold(
+                backgroundColor: AppStyle.surfaceFor(Theme.of(ctx).brightness),
                 body: SafeArea(
                   child: OrderDetailsModal(order: sdk.OrderData(id: orderId)),
                 ),
@@ -338,7 +340,9 @@ class _OrderPane extends StatelessWidget {
           ],
           onGenerateRoute: (settings) => MaterialPageRoute(
             settings: settings,
-            builder: (_) => ColoredBox(color: AppStyle.surfaceDark),
+            builder: (ctx) => ColoredBox(
+              color: AppStyle.surfaceFor(Theme.of(ctx).brightness),
+            ),
           ),
         ),
       ),

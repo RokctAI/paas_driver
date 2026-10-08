@@ -92,8 +92,8 @@ import 'checkout_page.dart';
 // Demo (--dart-define=IS_DEMO=true): the camera never mounts — the stage
 // renders its camera-less stand-in (the strip's render harness did the
 // same; the stage, frame and controls are the real widgets) and barcode
-// lookups route to MockProductsRepository via the DI demo gate, so
-// headless tours and the standalone test harness exercise the real page.
+// lookups run the real catalog seam against products_sdk's demo fixtures,
+// so headless tours exercise the real page.
 //
 // TABLET MODE — the approved plane layout (design strip section 11,
 // frames 11m/11n, approved by Ray 2026-08-29 13:53Z / 13:06Z, built here
@@ -166,8 +166,9 @@ class _BillingPageState extends ConsumerState<BillingPage>
   /// (offline-first pending-sync indicator). Null hides the chip.
   int? _pendingSyncCount;
 
-  PosOrdersFacade? get _posOrders =>
-      GetIt.I.isRegistered<PosOrdersFacade>() ? GetIt.I<PosOrdersFacade>() : null;
+  PosOrdersFacade? get _posOrders => GetIt.I.isRegistered<PosOrdersFacade>()
+      ? GetIt.I<PosOrdersFacade>()
+      : null;
 
   @override
   void initState() {
@@ -237,8 +238,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
     if (raw == null || raw.isEmpty) return;
     // The notifier owns the 2s dedupe window — a held frame-stream can
     // never re-add the same physical scan.
-    final added =
-        await ref.read(posCartProvider.notifier).addByBarcode(raw);
+    final added = await ref.read(posCartProvider.notifier).addByBarcode(raw);
     if (added) {
       unawaited(HapticFeedback.mediumImpact());
       _armIdleTimer();
@@ -255,7 +255,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: LayoutBuilder(
         builder: (context, constraints) {
           // A phone-width window never hosts the checkout in a plane —
@@ -348,10 +348,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
         seam,
         // 11m plane 3: the cart — 278–280, 286/287.
         Expanded(
-          child: SafeArea(
-            bottom: false,
-            child: _cartColumn(context, state),
-          ),
+          child: SafeArea(bottom: false, child: _cartColumn(context, state)),
         ),
       ],
     );
@@ -377,10 +374,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _scannerStage(context),
-        if (lane) ...[
-          16.verticalSpace,
-          _lanes(context),
-        ],
+        if (lane) ...[16.verticalSpace, _lanes(context)],
       ],
     );
   }
@@ -400,7 +394,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
                     AppHelpers.getTranslation(TrKeys.cartIsEmpty),
                     style: AppStyle.interRegular(
                       size: 14,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                     ),
                   ),
                 )
@@ -492,10 +486,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
         children: [
           if (cameraLive)
             Positioned.fill(
-              child: MobileScanner(
-                controller: controller,
-                onDetect: _onDetect,
-              ),
+              child: MobileScanner(controller: controller, onDetect: _onDetect),
             ),
           // Icon dedup per Ray 2026-08-28: the stand-in's ghost
           // scan_2_line watermark is REMOVED (it duplicated the Scan
@@ -555,18 +546,11 @@ class _BillingPageState extends ConsumerState<BillingPage>
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Remix.scan_2_line,
-              size: 22.r,
-              color: AppStyle.blackColor,
-            ),
+            Icon(Remix.scan_2_line, size: 22.r, color: AppStyle.blackColor),
             10.horizontalSpace,
             Text(
               AppHelpers.getTranslation(TrKeys.scan),
-              style: AppStyle.interSemi(
-                size: 17,
-                color: AppStyle.blackColor,
-              ),
+              style: AppStyle.interSemi(size: 17, color: AppStyle.blackColor),
             ),
             10.horizontalSpace,
             Icon(
@@ -627,19 +611,16 @@ class _BillingPageState extends ConsumerState<BillingPage>
         height: 44.r,
         padding: EdgeInsets.symmetric(horizontal: 18.w),
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(100.r),
-          border: Border.all(color: AppStyle.strokeDark, width: 1.r),
+          border: Border.all(color: AppStyle.strokeFor(Theme.of(context).brightness), width: 1.r),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 18.r, color: AppStyle.textPrimary),
+            Icon(icon, size: 18.r, color: AppStyle.inkFor(Theme.of(context).brightness)),
             8.horizontalSpace,
-            Text(
-              label,
-              style: AppStyle.interSemi(size: 15),
-            ),
+            Text(label, style: AppStyle.interSemi(size: 15)),
           ],
         ),
       ),
@@ -683,11 +664,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Remix.refresh_line,
-                    size: 14.r,
-                    color: AppStyle.primary,
-                  ),
+                  Icon(Remix.refresh_line, size: 14.r, color: AppStyle.primary),
                   4.horizontalSpace,
                   Text(
                     '$_pendingSyncCount ${AppHelpers.getTranslation(TrKeys.pendingSync)}',
@@ -726,7 +703,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
     return Container(
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: Row(
@@ -757,7 +734,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
                   '${AppHelpers.numberFormat(number: line.unitPrice)} × ${_trimQty(line.quantity)}',
                   style: AppStyle.interRegular(
                     size: 13,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
                 ),
                 10.verticalSpace,
@@ -818,11 +795,11 @@ class _BillingPageState extends ConsumerState<BillingPage>
         width: 36.r,
         height: 36.r,
         decoration: BoxDecoration(
-          color: AppStyle.cardDarkAlt,
+          color: AppStyle.cardAltFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(color: AppStyle.strokeDarkSubtle, width: 1.r),
+          border: Border.all(color: AppStyle.subtleStrokeFor(Theme.of(context).brightness), width: 1.r),
         ),
-        child: Icon(icon, size: 18.r, color: AppStyle.textPrimary),
+        child: Icon(icon, size: 18.r, color: AppStyle.inkFor(Theme.of(context).brightness)),
       ),
     );
   }
@@ -843,7 +820,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
               width: double.infinity,
               padding: EdgeInsets.all(16.r),
               decoration: BoxDecoration(
-                color: AppStyle.cardDark,
+                color: AppStyle.cardFor(Theme.of(context).brightness),
                 borderRadius: BorderRadius.circular(16.r),
               ),
               child: Column(
@@ -855,7 +832,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
                         AppHelpers.getTranslation(TrKeys.items),
                         style: AppStyle.interRegular(
                           size: 14,
-                          color: AppStyle.textDarkSecondary,
+                          color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                         ),
                       ),
                       const Spacer(),
@@ -866,7 +843,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
                     ],
                   ),
                   10.verticalSpace,
-                  Divider(height: 1.h, color: AppStyle.strokeDarkSubtle),
+                  Divider(height: 1.h, color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
                   10.verticalSpace,
                   Row(
                     children: [
@@ -943,12 +920,11 @@ class _BillingPageState extends ConsumerState<BillingPage>
     int index,
     PosCartLine line,
   ) async {
-    final controller =
-        TextEditingController(text: _trimQty(line.quantity));
+    final controller = TextEditingController(text: _trimQty(line.quantity));
     final entered = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppStyle.cardDark,
+        backgroundColor: AppStyle.cardFor(Theme.of(context).brightness),
         title: Text(
           AppHelpers.getTranslation(TrKeys.editQuantity),
           style: AppStyle.interSemi(size: 18),
@@ -962,7 +938,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
             hintText: AppHelpers.getTranslation(TrKeys.typeHere),
             hintStyle: AppStyle.interRegular(
               size: 16,
-              color: AppStyle.textDarkFaint,
+              color: AppStyle.faintFor(Theme.of(context).brightness),
             ),
           ),
         ),
@@ -973,13 +949,12 @@ class _BillingPageState extends ConsumerState<BillingPage>
               AppHelpers.getTranslation(TrKeys.cancel),
               style: AppStyle.interSemi(
                 size: 14,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ),
           TextButton(
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(controller.text),
+            onPressed: () => Navigator.of(dialogContext).pop(controller.text),
             child: Text(
               AppHelpers.getTranslation(TrKeys.done),
               style: AppStyle.interSemi(size: 14, color: AppStyle.blue),
@@ -1102,15 +1077,15 @@ class _AddItemsSearchState extends ConsumerState<_AddItemsSearch> {
               prefixIcon: Icon(
                 Remix.search_line,
                 size: 20.r,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
               hintText: AppHelpers.getTranslation(TrKeys.searchProducts),
               hintStyle: AppStyle.interRegular(
                 size: 15,
-                color: AppStyle.textDarkFaint,
+                color: AppStyle.faintFor(Theme.of(context).brightness),
               ),
               filled: true,
-              fillColor: AppStyle.cardDark,
+              fillColor: AppStyle.cardFor(Theme.of(context).brightness),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14.r),
                 borderSide: BorderSide.none,
@@ -1147,8 +1122,7 @@ class _AddItemsSearchState extends ConsumerState<_AddItemsSearch> {
                       ? product.stocks!.first.price
                       : null;
                   return ListTile(
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 8.w),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8.w),
                     leading: CommonImage(
                       url: product.img,
                       width: 44.r,
@@ -1165,7 +1139,7 @@ class _AddItemsSearchState extends ConsumerState<_AddItemsSearch> {
                             AppHelpers.numberFormat(number: price),
                             style: AppStyle.interRegular(
                               size: 13,
-                              color: AppStyle.textDarkSecondary,
+                              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                             ),
                           ),
                     trailing: Icon(
@@ -1174,9 +1148,7 @@ class _AddItemsSearchState extends ConsumerState<_AddItemsSearch> {
                       color: AppStyle.blue,
                     ),
                     onTap: () {
-                      ref
-                          .read(posCartProvider.notifier)
-                          .addProduct(product);
+                      ref.read(posCartProvider.notifier).addProduct(product);
                       // The sheet closes on an add; the pane stays up.
                       if (!asPane) Navigator.of(context).pop();
                     },
@@ -1216,7 +1188,7 @@ class _AddItemsSearchState extends ConsumerState<_AddItemsSearch> {
     }
     return Container(
       decoration: BoxDecoration(
-        color: AppStyle.surfaceDark,
+        color: AppStyle.surfaceFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(24.r),
           topRight: Radius.circular(24.r),

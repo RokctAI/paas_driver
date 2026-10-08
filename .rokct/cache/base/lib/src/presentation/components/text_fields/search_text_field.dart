@@ -48,25 +48,38 @@ class SearchTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The mode comes from the inherited theme, not from AppStyle's app-wide
+    // isDark static: a static is not an inherited widget, so a theme-mode
+    // flip schedules no rebuild of a field that reads one, and the field
+    // keeps the previous mode's ink while the user types into it. Read once
+    // here, outside every inner builder. `bgColor` is the CALLER's colour
+    // and stays exactly as passed.
+    final Brightness brightness = Theme.of(context).brightness;
     return TextFormField(
       readOnly: isRead,
       autocorrect: true,
       autofocus: autofocus,
       onTap: onTap,
-      style: AppStyle.interRegular(size: 16, color: AppStyle.textPrimary),
+      style: AppStyle.interRegular(
+        size: 16,
+        color: AppStyle.inkFor(brightness),
+      ),
       onChanged: onChanged,
       controller: textEditingController,
-      cursorColor: AppStyle.textPrimary,
+      cursorColor: AppStyle.inkFor(brightness),
       cursorWidth: 1,
       decoration: InputDecoration(
-        hintStyle: AppStyle.interNormal(size: 13, color: AppStyle.textPrimary),
+        hintStyle: AppStyle.interNormal(
+          size: 13,
+          color: AppStyle.inkFor(brightness),
+        ),
         hintText: hintText ?? AppHelpers.getTranslation(TrKeys.searchApp),
         contentPadding: REdgeInsets.symmetric(horizontal: 15, vertical: 14),
         prefixIcon: isSearchIcon
             ? Icon(
                 Remix.search_eye_line,
                 size: 20.r,
-                color: AppStyle.textPrimary,
+                color: AppStyle.inkFor(brightness),
               )
             : null,
         suffixIcon: suffixIcon,

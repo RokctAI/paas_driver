@@ -1,6 +1,6 @@
 name: orders_sdk
 description: "orders_sdk - extracted from paas_customer (refork 2026-07-11)."
-version: 1.4.1
+version: 1.29.2
 publish_to: 'none'
 environment:
   sdk: '>=3.10.0 <4.0.0'
@@ -16,7 +16,7 @@ dependencies:
   # header via dio's Options (same version rail as base_sdk).
   dio: ^5.7.0
   flutter_rating_bar: ^4.0.1
-  flutter_remix: ^0.0.3
+  remixicon: ^1.4.1
   # manager templates (food_stock_item.dart, create_order/order/widgets/
   # order_pane.dart) import flutter_slidable. Must match the manager host's
   # pin (paas_manager pubspec: ^4.0.3) or the host's version solving fails;
@@ -42,6 +42,14 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # Demo-fixture tests seed LocalStorage (shared_preferences mock).
+  shared_preferences: ^2.2.0
+  # End-to-end push test (test/order_status_push_e2e_test.dart): comms'
+  # PushMessageDispatcher and DeviceLiveActivitySink drive the tracker.
+  comms_sdk:
+    path: ../../../core/comms/dart
+  firebase_messaging: ^15.1.0
+  flutter_local_notifications: ^19.5.0
   build_runner: ^2.10.4
   freezed: ^3.2.3
   json_serializable: ^6.8.0

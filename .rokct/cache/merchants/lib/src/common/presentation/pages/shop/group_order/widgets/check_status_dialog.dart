@@ -34,10 +34,12 @@ class CheckStatusDialog extends StatelessWidget {
     return Container(
       width: (MediaQuery.sizeOf(context).width - 60.w),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark.withOpacity(0.96),
+        color: AppStyle.cardFor(Theme.of(context).brightness).withOpacity(0.96),
         boxShadow: [
           BoxShadow(
-            color: AppStyle.cardDark.withOpacity(0.65),
+            color: AppStyle.cardFor(
+              Theme.of(context).brightness,
+            ).withOpacity(0.65),
             spreadRadius: 0,
             blurRadius: 60,
             offset: const Offset(0, 20), // changes position of shadow
@@ -50,7 +52,10 @@ class CheckStatusDialog extends StatelessWidget {
           15.verticalSpace,
           Text(
             AppHelpers.getTranslation(TrKeys.groupOrderProgress),
-            style: AppStyle.interNormal(size: 14, color: AppStyle.textPrimary),
+            style: AppStyle.interNormal(
+              size: 14,
+              color: AppStyle.inkFor(Theme.of(context).brightness),
+            ),
             textAlign: TextAlign.center,
           ),
           36.verticalSpace,
@@ -62,7 +67,7 @@ class CheckStatusDialog extends StatelessWidget {
                   title: AppHelpers.getTranslation(TrKeys.cancel),
                   onPressed: cancel,
                   background: AppStyle.transparent,
-                  textColor: AppStyle.textPrimary,
+                  textColor: AppStyle.inkFor(Theme.of(context).brightness),
                   borderColor: AppStyle.borderColor,
                 ),
               ),

@@ -14,7 +14,6 @@
 
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -24,6 +23,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 
 import 'package:merchants_sdk/src/common/presentation/pages/shop/widgets/category_tab_bar.widget.dart';
+import 'package:remixicon/remixicon.dart';
 
 class TabSearch extends StatelessWidget {
   final TextEditingController? controller;
@@ -87,7 +87,7 @@ class TabSearch extends StatelessWidget {
                             ref.read(shopProvider.notifier).enableSearch();
                           },
                           child: const Icon(
-                            CupertinoIcons.xmark_circle,
+                            Remix.close_circle_line,
                             color: Colors.black,
                           ),
                         )
@@ -105,7 +105,7 @@ class TabSearch extends StatelessWidget {
                               shape: BoxShape.circle,
                               color: Colors.grey.shade300,
                             ),
-                      child: const Icon(Icons.search, color: Colors.black),
+                      child: const Icon(Remix.search_line, color: Colors.black),
                     ),
                   ),
                   border: !ref.watch(shopProvider).isSearchEnabled

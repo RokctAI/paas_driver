@@ -49,7 +49,7 @@ class _OrderPickUpState extends ConsumerState<OrderPickUp> {
                       context: context,
                       modal: Container(
                         decoration: BoxDecoration(
-                          color: AppStyle.white,
+                          color: AppStyle.cardFor(Theme.of(context).brightness),
                           borderRadius: BorderRadius.only(
                             topRight: Radius.circular(24.r),
                             topLeft: Radius.circular(24.r),
@@ -104,7 +104,7 @@ class _OrderPickUpState extends ConsumerState<OrderPickUp> {
                           ],
                         ),
                       ),
-                      isDarkMode: false,
+                      isDarkMode: Theme.of(context).brightness == Brightness.dark,
                     );
                   }
                 },

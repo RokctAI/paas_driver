@@ -12,17 +12,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-
-// The POS cart (posCartProvider's notifier) — RUN WITH
-// `flutter test --dart-define=IS_DEMO=true`: the demo gate in
-// ManagerMerchantsDependencies routes the product lookup to this SDK's
-// MockProductsRepository, the exact path a headless tour takes.
+// The POS cart (posCartProvider's notifier), over the demo till
+// (support/demo_till.dart): the demo shop's catalog behind the lookup.
 //
 // Pins the held build's found-bug fixes: money cents-rounded at the state
 // boundary (never exponential), the 2s scan dedupe, a derived (never
 // stale) total, and the stable per-order id.
 
-import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/models/data/currency_data.dart';
 import 'package:base_sdk/src/models/data/product_data.dart';
 import 'package:base_sdk/src/models/data/translation.dart';
@@ -31,23 +27,22 @@ import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_notifier.dart';
-import 'package:merchants_sdk/src/manager/di/manager_merchants_di.dart';
 import 'package:merchants_sdk/src/manager/domain/interface/pos_catalog.dart';
-import 'package:merchants_sdk/src/manager/infrastructure/repositories/mock_products_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'support/demo_till.dart';
 
 ProductData _product({
   required String id,
   required String title,
   required num price,
-}) =>
-    ProductData(
-      id: id,
-      shopId: '1',
-      active: true,
-      translation: Translation(title: title, locale: 'en'),
-      stocks: [Stocks(id: 's$id', price: price, quantity: 100)],
-    );
+}) => ProductData(
+  id: id,
+  shopId: '1',
+  active: true,
+  translation: Translation(title: title, locale: 'en'),
+  stocks: [Stocks(id: 's$id', price: price, quantity: 100)],
+);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -58,20 +53,14 @@ void main() {
     await LocalStorage.setSelectedCurrency(
       CurrencyData(id: 'ZAR', symbol: 'R', position: 'before', rate: 1),
     );
-    ManagerMerchantsDependencies.register(GetIt.instance);
+    await registerDemoTill();
   });
 
   PosCartNotifier notifier() =>
       PosCartNotifier(GetIt.instance<PosCatalogRepositoryFacade>());
 
-  test('IS_DEMO routes the barcode lane to MockProductsRepository: '
+  test('the barcode lane resolves through the registered catalog: '
       'a scan lands Flame-grilled beef burger at R150.00 × 1', () async {
-    expect(AppConstants.isDemo, isTrue,
-        reason: 'run this suite with --dart-define=IS_DEMO=true');
-    expect(GetIt.instance<PosCatalogRepositoryFacade>(),
-        isA<MockProductsRepository>(),
-        reason: 'the DI demo gate must serve the mock catalog');
-
     final cart = notifier();
     final added = await cart.addByBarcode('6001067890123');
 
@@ -92,7 +81,9 @@ void main() {
     cart.addProduct(bread);
     cart.addProduct(bread);
     cart.addProduct(bread); // qty 3
-    cart.addProduct(_product(id: 'p2', title: 'Loose Tomatoes (kg)', price: 150));
+    cart.addProduct(
+      _product(id: 'p2', title: 'Loose Tomatoes (kg)', price: 150),
+    );
     cart.setQuantity(1, 0.75);
 
     // The raw float sum is 169.47000000000003; the state boundary rounds.

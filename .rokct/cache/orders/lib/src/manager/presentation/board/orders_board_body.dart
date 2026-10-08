@@ -15,7 +15,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -212,7 +212,7 @@ class _OrdersBoardBodyState extends ConsumerState<OrdersBoardBody> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
           decoration: BoxDecoration(
-            color: AppStyle.cardDark,
+            color: AppStyle.cardFor(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: AppStyle.primary.withValues(alpha: 0.6)),
           ),
@@ -220,7 +220,7 @@ class _OrdersBoardBodyState extends ConsumerState<OrdersBoardBody> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                FlutterRemix.share_forward_line,
+                Remix.share_forward_line,
                 size: 15,
                 color: AppStyle.primary,
               ),
@@ -232,7 +232,7 @@ class _OrdersBoardBodyState extends ConsumerState<OrdersBoardBody> {
                   overflow: TextOverflow.ellipsis,
                   style: AppStyle.interSemi(
                     size: 12,
-                    color: AppStyle.textPrimary,
+                    color: AppStyle.inkFor(Theme.of(context).brightness),
                   ),
                 ),
               ),

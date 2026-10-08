@@ -1332,7 +1332,7 @@ class WeatherForecastDialog extends ConsumerWidget {
               ),
             ),
             _buildIconButton(
-              icon: isDetailView ? Remix.arrow_left_line : Icons.close,
+              icon: isDetailView ? Remix.arrow_left_line : Remix.close_line,
               onTap: isDetailView ? onBack : () => Navigator.of(context).pop(),
             ),
           ],

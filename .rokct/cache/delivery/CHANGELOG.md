@@ -1,3 +1,324 @@
+## 1.28.1
+
+* fix(icons): the vehicle details camera button and the status rail tick
+  draw Remixicon instead of Material `Icons.*`. Declares
+  `remixicon: ^1.4.1` (it was only reached through base_sdk).
+
+## 1.28.0
+
+* feat(driver): active delivery live activity (design section 3a).
+  `DriverLiveActivity` follows `HomeNotifier`'s state under one key
+  (`driver:active`), so the driver never sees two entries.
+  - During a delivery it reads "Go to restaurant" or "Go to customer ·
+    order #id". It has three segments and a scooter tracker, and the
+    subtitle carries the address and any cash to collect.
+  - It shows "Due HH:mm", never a red timer.
+  - Its actions are Navigate and Delivered. Delivered opens the
+    proof-of-delivery step and never completes the order.
+  - Between deliveries it reads "Online · waiting for orders", with no bar.
+  - It cannot be swiped away while the driver is online, and it is removed
+    when the driver goes offline.
+* Requires base_sdk >= 1.76.0 (comms_sdk >= 1.19.0 draws it).
+* Tests: `test/driver_live_activity_test.dart`.
+
+## 1.27.0
+
+* Demo runs the REAL courier repositories through base_sdk 1.73.0's
+  `DemoGatewayInterceptor`. `DriverDeliveryDependencies` always registers
+  the real orders, parcel, courier, route, deposit, load and POI
+  repositories and registers `assets/demo/delivery`, whose `<cmd>.json`
+  fixtures (shipped from `templates/assets/demo/delivery`) carry the data
+  the demo twins served. Deleted the seven `Demo*Repository` classes and
+  the hook's demo-session listener. A trimmed `DemoDeliverySeed` stays for
+  the three legacy REST calls the interceptor cannot answer (vehicle types,
+  parcel marketplace, parcel detail) and for the demo map anchor. Demo
+  writes are acknowledged but reads no longer change after them. Requires
+  base_sdk 1.73.0.
+
+## 1.26.1
+
+* Driver screens (deposit, load, home, POI, profile and status sheets) now follow the app's light or dark mode: hardcoded light fills and dark ink use the theme-aware AppStyle colours, and static theme reads now come from Theme.of(context).
+
+## 1.26.0
+
+* A PLACE HAS AN OWNER, AND THE OWNER IS A PERSON WITH A PHONE. A driver
+  standing at a spaza now asks who runs it and types a first name, a last
+  name and a number; the number is the part that matters.
+  * `Point Of Interest` grows `owner_name`, `owner_phone` and `owner_user`
+    (Link -> User, read_only). The driver cannot set the third for the same
+    reason he cannot set `created_by_deliveryman`: naming an owner is his to
+    do, deciding which ACCOUNT that owner is, is not.
+  * `create_poi` takes `owner_first_name`, `owner_last_name`, `owner_phone`
+    and `owner_confirmed_user`, and LOOKS THE NUMBER UP BEFORE IT WRITES
+    ANYTHING - the number as typed, then with a leading `+`, then by its
+    last nine digits, so "0000000001", "+27000000001" and "27000000001" all
+    land on the same person. An account that holds it is LINKED; only a
+    number nobody holds gets a fresh Website User, keyed by a sha1 of the
+    digits (`owner-<digest>@place-owner.invalid`), with no password and no
+    welcome email. One person running four spazas is one account with four
+    places, not four accounts.
+  * A DRIVER DOES NOT GET TO RENAME SOMEBODY. A number on file under another
+    first name raises the new `PoiOwnerMismatch` - its own exception class -
+    NAMING the first name on file, and writes nothing at all. The Add a
+    place sheet turns that into "is this the same person?" and re-sends with
+    `owner_confirmed_user` only on a yes.
+  * THE FIRST NAME IS REQUIRED for the kinds of place that ARE a business
+    (`spaza shop`, `stockist`, `other`) and optional for a landmark or a
+    gate, which are nobody's. The sheet mirrors that rule so the commit
+    stays inert rather than posting a call it knows will be refused.
+  * New whitelisted `api.poi.lookup_poi_owner` answering
+    `{"found", "first_name", "last_name", "places_count"}`, gated exactly as
+    the rest of the POI surface is. The sheet calls it as the driver LEAVES
+    the number field - not on every digit - and fills the name in, saying
+    how many places that person already runs.
+  * NONE OF IT IS PUBLIC. `CUSTOMER_POI_FIELDS` carries no owner column, so
+    no customer read can answer with a person's name, number or account.
+* SELLING AT A PLACE NOW ASKS WHETHER HE IS AT IT. A sale attributed to a
+  point is what teaches the round "this corner buys", so a sale booked at a
+  point two streets away teaches it something false.
+  * New `PoiProximity.confirmMetres` (50 m, twice the server's own 25 m
+    duplicate radius) and a `metresBetween` on the same great-circle maths
+    `route_utils.haversine` measures with. Past it the sell screen names the
+    distance and the place and asks.
+  * IT ASKS, IT NEVER BLOCKS. A van day has too many honest reasons to be
+    further off than a fix likes, and an UNKNOWN distance asks nothing at
+    all: a phone that would not give a fix is not evidence that he is
+    somewhere else, and a refused location permission must not become a
+    dialog on every sale.
+
+## 1.25.0
+
+* POI SHOP SCOPE NOW FOLLOWS THE SHOPS A DRIVER DELIVERS FOR. Ray,
+  2026-09-18: "driver doesnt own a shop, he either deliver for every shop in
+  the platform or specific ones if choosen". 1.24.0's resolver fell back to
+  the shops the driver OWNS (`Shop.user`) once his loads and orders ran out,
+  which could only ever place a driver who happened to own the shop he
+  drives for - the one shape that does not exist. That fallback is gone from
+  the driver path entirely.
+  * THE NEW ORDER, which `create_poi`, `get_nearby_pois`, `get_poi_route`
+    and `get_poi_sales` all read: the shop of an OPEN LOAD first (two open
+    loads and no shop named still asks which); then the shops he DELIVERS
+    FOR - every shop on the platform when nothing restricts him, the
+    restricted set when something does. One candidate is used without
+    asking; two or more and `create_poi` raises an ask that NAMES the
+    candidates, while the reads scope to all of them.
+  * WHERE THE RESTRICTION LIVES, because the platform holds no positive
+    per-driver shop list: `Shop Deliveryman Settings` is per shop and has no
+    driver column, and an admin assigning work picks any User with no shop
+    test at all. The one per-driver shop row that exists is `Shop Ban` - the
+    rows `get_banned_shops` already reads - so an unbanned driver delivers
+    for every shop and a banned one delivers for the rest.
+  * `is_platform_wide` still comes ONLY from the admin-set Deliveryman
+    Profile flag, and a platform-wide driver is no longer stopped by an
+    ambiguity his point does not depend on: the shop is resolved only when
+    the answer is going to be used.
+  * New whitelisted `api.poi.get_my_poi_shops` answering
+    `{"shops": [{"name", "shop_name"}], "unrestricted": 0|1}` - what the Add
+    a place sheet's picker reads. It takes no argument, so a driver cannot
+    read another driver's shops.
+* ADD A PLACE NO LONGER NEEDS A LOAD. Both 1.24.0 entry points hung off one
+  (the load card's fourth action, the sell screen's place row), so a driver
+  running orders or driving back empty had nowhere to file the corner he had
+  just passed.
+  * A new `AddPlaceCard` on the driver home sheet, deliberately NOT gated on
+    `hasOpenLoad` the way `MyLoadCard` beside it is, and an "Add a place"
+    action on the route page beside the route-source chips.
+  * `AddPoiSheet` takes a `shop`, and the load card and the sell screen's
+    place row both pass the load's own shop into it. A driver carrying two
+    open loads used to reach the server's "which shop" ask through a screen
+    that hid the sentence behind one friendly line and gave him no way to
+    answer; the card he taps now answers it before the sheet opens.
+  * Off a load the sheet reads `get_my_poi_shops`: one shop is filled in
+    silently, several are offered as a list, and the commit stays inert
+    until he has said which - the server will not guess which round a place
+    belongs to, and guessing would file the round's knowledge against the
+    wrong shop.
+
+## 1.24.0
+
+* POINTS OF INTEREST, the driver's half: shared local knowledge, filed while
+  passing. A point is a PLACE - the spaza shop on the corner, the stockist
+  two streets down, the landmark a new driver would otherwise miss, the gate
+  a truck has to use - and the driver adds one as he goes past, with or
+  without a sale at it. Until now everything a driver learned on a round
+  left with him.
+  * SCOPE IS THE MODEL. A point defaults to the shop of the load he is
+    working, so what he learns stays with the shop whose round produced it.
+    A new admin-set Deliveryman Profile flag
+    (`contributions_are_platform_wide`, beside `can_convert_cod_to_credit`)
+    makes everything he files platform-wide instead. THE DRIVER CANNOT SET
+    IT: `update_deliveryman_settings` drops the key like it drops the COD
+    conversion grant, and `create_poi` has no argument for the flag or for
+    the author at all - both come off the session and that profile.
+  * New `Point Of Interest` doctype in `map/frappe` (label, type, optional
+    free-text `custom_type`, coordinates at 8dp, address, note, shop,
+    platform-wide flag, authoring driver, active), System-Manager-only like
+    every fleet doctype, with the driver-facing writes going through
+    `@frappe.whitelist()` defs that assert on `frappe.session.user` and
+    write with `ignore_permissions` - the same authorisation shape the rest
+    of the driver surface uses.
+  * TYPES REUSE CORE'S admin-extendable `Location Type` doctype rather than
+    a Select, so a tenant adds its own kinds of place from its own admin
+    with no release. `get_poi_types` seeds `spaza shop`, `stockist`,
+    `landmark`, `gate` and `other` on first ask, insert-if-missing and
+    idempotent, and never edits core's doctype. A competitor is NOT one of
+    them: a competitor belongs to a shop or a business, not to a place on a
+    map.
+  * `other` is the one type that takes the driver's own words
+    (`custom_type`, required for it and ignored for every other type). That
+    text is deliberately never promoted into a Location Type row by the
+    API - driver free text would fill the option list with typos and near
+    duplicates - so an admin promotes a recurring one, which re-types the
+    points that used it in the same call.
+  * ONE CORNER, ONE POINT: an active point of the same type within 25 m is
+    handed back with `duplicate_of` instead of a second pin being filed, and
+    the app treats that answer as a SELECTION rather than a failure. The
+    guard deliberately ignores shop scope - two drivers on different rounds
+    must not each plant a point on the same corner.
+  * THE ROUTE COMES FROM POINTS, NOT FROM SALES. `get_poi_route` maps the
+    visible points onto the same stop dicts `get_driver_route` builds and
+    hands them to the SAME optimiser (`route_utils.order_stops`); nothing
+    re-sorts its answer. In the app it is a `source` argument on
+    `CourierRouteRepositoryFacade` and a toggle at the top of the existing
+    route list, not a second page - the driver is reading a numbered list of
+    places to drive to either way.
+  * WHAT THE CUSTOMER SEES is a separate, admin-held decision on this
+    module's own `Location Type Visibility` doctype (one row per type, one
+    check). `spaza shop` ships approved because everybody already knows
+    where it is; any other kind of business waits for an admin, and a type
+    with no row is not visible. `get_customer_pois` is the one guest-readable
+    def on the surface (a customer looks before signing in, as
+    `get_nearest_delivery_points` does) and answers the public half only -
+    name, kind, coordinates, street address. Never the note the driver left,
+    never the shop the point is scoped to, never who filed it. The customer
+    map page itself is not wired here.
+  * THE ADMIN IS NOT THE FRAPPE DESK, so the vocabulary is maintained over
+    whitelisted defs guarded by the roles predicate:
+    `admin_list_location_types`, `admin_create_location_type`,
+    `admin_set_type_visibility`, `admin_list_custom_types` and
+    `admin_promote_custom_type`.
+  * A LOAD SALE CAN NAME THE PLACE IT WAS MADE AT. "At this place" on
+    `/load/sell`, seeded from the driver's own one-shot fix, passes `poi`
+    through `createLoadSale` - and only when he named one, because a sale at
+    no particular corner must not send an empty key. Optional and staying
+    optional: the round learns which corners buy from the ones he names, and
+    the commit never waits for one.
+  * "Add POI" is a fourth action on the load card - the only one that costs
+    him nothing, so it is enabled even on a load he can no longer sell
+    from - and the same sheet is the way out of the sell screen when nothing
+    around him is the place he is standing at. A modal sheet, not a route:
+    he opens it while passing and lands back where he was.
+  * POI pins on the driver home map, with the kind of place beside the name
+    in the info window; tapping one opens the PLACE - what was filed and
+    what has been sold there (`get_poi_sales`, with the count, the total and
+    the last visit) - rather than navigating.
+  * `DriverPoiRepositoryFacade` on map's `api.poi.*` defs through base_sdk's
+    universal platform gateway, registered by `DriverDeliveryDependencies`
+    as the seventh courier facade with an offline twin that knows NO points:
+    filing one puts a place on every other driver's map and, for an approved
+    kind, on the customer map, so an offline session standing in front of
+    nothing must not add to what the round believes.
+* The `poi` link on Order that `get_poi_sales` and `create_load_sale` read is
+  commerce's half of this seam and lands in parallel. The column is checked
+  by name first, so a site that does not carry it yet answers an EMPTY sales
+  history rather than an error - the point still opens, it just has no
+  history on it yet.
+
+## 1.23.0
+
+* VAN SALES, the driver's half: the shop issues a LOAD to the driver (a
+  consignment order), he SELLS from it at each stop, RETURNS what he did
+  not sell, and the load is CLOSED - with anything neither sold nor
+  returned charged to his wallet at the load's unit price. Until now the
+  driver app had no surface for any of it; the stock on his van was
+  invisible to him and to the phone.
+  * New routes in `app_type.driver`: `/load` ("My load"), `/load/sell` and
+    `/load/return`, each an installed `@RoutePage` shell over an SDK plane
+    (the deposits-page precedent - SDK `lib/` pages never get a generated
+    route class).
+  * `/load` lists every OPEN load: the shop that issued it, each line's
+    issued / sold / returned / remaining with the product title and its
+    unit, and the value still on the van struck at the load prices. Three
+    actions in the order a day goes - Sell, Return, Close load. No load is
+    one plain sentence and no call to action: a driver cannot issue
+    himself a load, only the shop can.
+  * `/load/sell` steps each line up to the server's own `remaining_qty` -
+    the plus goes inert AT the cap rather than letting him dial past a
+    figure the server would refuse - with a live total at each line's
+    `unit_price`, an optional note, and a confirm that answers with the
+    order id and the cash to collect. The customer field names the one
+    case this version can book, the walk-in on the driver's own account
+    (no customer on the wire); a picker lands when commerce grows a
+    walk-in customer create for this seam.
+  * `/load/return` is the same steppers and the same cap with no money
+    figure - a return is not a refund - and says plainly what happens to
+    what he does not return.
+  * "Close load" states the charge BEFORE the button that causes it, with
+    what it would come to right now, and the summary that follows reads
+    the per-line variance and the total off `close_load`'s own answer
+    rather than computing a figure that could disagree with the charge the
+    ledger took.
+  * A "My load" tile on the driver home, beside the cash-on-hand card and
+    gated the same way that card is (`if (home.report.cashOrderCount > 0)`
+    -> `if (loadState.hasOpenLoad)`): cash on hand is the shop's money in
+    his pocket, this is the shop's stock on his van. Most drivers never
+    see it, which is correct.
+  * `DriverLoadRepositoryFacade` on commerce's `api.order.load.*` defs
+    through base_sdk's universal platform gateway (`get_my_load`,
+    `create_load_sale`, `return_load`, `close_load`), registered by
+    `DriverDeliveryDependencies` as the sixth courier facade with an
+    offline twin that serves NO load: a load is stock a real shop handed a
+    real driver and the three writes move money, so an offline session
+    must not practise a settlement that can never happen.
+  * Every write re-reads its load from the SERVER'S answer instead of
+    decrementing anything client-side - a client doing its own subtraction
+    would drift from the figure the next sale is validated against.
+* Two fixes on the serializer path 1.22.3 opened:
+  * `map`'s `fetch_current_order` answered a raw `doc.as_dict()` while
+    every list endpoint answered `serialize_deliveryman_order`, so THE ONE
+    ORDER THE DRIVER IS ACTUALLY ON arrived with no nested shop
+    coordinates, no payment tag and no `details` - the "Order information"
+    sheet opened empty on it. It now goes through the same serializer,
+    selecting the columns that serializer reads.
+  * `details[].stock.product` carried no `unit`, so `product_item.dart`'s
+    "Amount - N <unit>" drew the number and then nothing. The product
+    sub-dict now carries `unit: {id, translation: {title}}`, fetched in
+    ONE more batched query for the whole page; a Product doctype without
+    the link degrades to no unit rather than losing the titles with it.
+
+## 1.22.3
+
+* The driver app's "Order information" sheet renders the order's products
+  again. `foods_page.dart` has always listed `order.details` and
+  `product_item.dart` has always read
+  `details[].stock.product.translation.title`, `details[].quantity` and
+  `details[].total_price` - but the deliveryman serializer
+  (`delivery/frappe/.../delivery_man.py`, `serialize_deliveryman_order`)
+  built its row out of scalar Order columns only and never emitted
+  `details`, so the list was empty for every order and the sheet's
+  empty-details fallback re-fetched the same detail-less order.
+  * The serializer now attaches `details`, grouped from the Order
+    doctype's `order_items` child table ("Order Item": product, quantity,
+    price, discount), shaped exactly for the driver SDK's
+    `Details`/`Stock`/`Product` models: `id`, `order_id`, `quantity`,
+    `total_price` (price x quantity), `discount` and
+    `stock: {id, price, quantity, product: {id, uuid, translation:
+    {title}, img}}`. The payload stays lean - no product description (the
+    sheet renders a side-dish block whenever `translation.description` is
+    non-null), no gallery, no extras.
+  * The fetch is batched: `_fetch_order_details` runs one child-table
+    query and one Product query for a whole page regardless of how many
+    orders it holds, so `get_deliveryman_orders`, `get_available_orders`
+    and the map SDK's `get_driver_orders_paginate` (which delegates to
+    the first) pay two queries per page rather than two per order.
+    `get_deliveryman_order_details` fetches its single order's items
+    itself.
+  * A deleted product falls back to its docname as the title rather than
+    dropping the line, and shells whose orders module has no Order Item
+    table degrade to `details: []` - the state the app already handles.
+* No Dart change: this release carries the backend fix the installed
+  driver templates were already written against.
+
 ## 1.22.2
 
 * The standalone harness can finally load this SDK's whole test suite.

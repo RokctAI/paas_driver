@@ -1,9 +1,13 @@
 {
   "name": "comms_sdk",
-  "version": "1.16.0",
+  "version": "1.22.2",
+  "_comment_version_1_22_0": "1.21.0 -> 1.22.0: NotificationRepository: get_notification_count is read from data.count into CountNotificationModel.notification (badge, DesktopNotificationPoller); get_user_notifications sends start/limit and reads the api_response-wrapped rows. SettingsRepository: Help/FAQ uses the public api.faq.get_faqs instead of the admin-only get_admin_faqs; Terms/Privacy send get_page's route param and read its translation. Requires the matching comms/base frappe changes in the same release.",
+  "_comment_version_1_21_0": "1.20.0 -> 1.21.0: PushMessageDispatcher feeds received FCM messages into base_sdk 1.79.0's PushMessages by data['type'] (new boot hook comms-push-message-dispatch, order 15, android/iOS/macOS only, fail-open). Foreground messages and taps that open the app dispatch at once. A message that arrives while the app is suspended or closed reaches firebaseMessagingBackgroundHandler in a background isolate where no feature SDK is registered, so its data is queued in SharedPreferences (newest 20) and replayed at start and on every resume. Adds shared_preferences as a direct dependency (base_sdk's pin). Requires base_sdk >= 1.79.0.",
+  "_comment_version_1_20_0": "1.19.0 -> 1.20.0: DeviceLiveActivitySink passes LiveActivitySnapshot.showProgress (base_sdk 1.78.0) to the device, and the Android LiveUpdatesChannel draws no progress bar when it is false. No manifest key, cmd, payload or route changed.",
+  "_comment_version_1_19_0": "1.16.1 -> 1.19.0 (1.17.0 and 1.18.0 only bumped pubspec): DeviceLiveActivitySink, the platform half of base_sdk 1.76.0's LiveActivities. Android: tries the host's rokct/live_updates channel for an Android 16 promoted ProgressStyle (scaffold in templates/native/android, not installed), else an ongoing flutter_local_notifications entry on the new 'Live updates' channel (default importance) with progress, onlyAlertOnce, chronometer countdown and timeoutAfter. iOS: ActivityKit through live_activities (held at 2.4.3: 2.4.4+ needs permission_handler ^12, which paas_driver and supacharge cannot resolve), drawn by the SwiftUI widget scaffolded in templates/native/ios (needs Xcode; skipped until LIVE_ACTIVITY_APP_GROUP is defined). New boot hook comms-live-activity-sink. Requires base_sdk >= 1.76.0.",
   "_comment_version_1_16_0": "Demo repositories follow the runtime demo session. CommsSdkDependencies.register picks MockSettingsRepository or SettingsRepository from base_sdk's DemoSession.demoActive (demo build OR demo session) instead of the compile-time constant alone, and re-registers the SettingsRepositoryFacade singleton when DemoSession.instance flips (a server-marked demo account signing in after boot, a sign-out ending its session). One listener per container; a facade a host registered before this hook is never replaced. Requires base_sdk >= 1.62.0 (DemoSession, added 1.61.0; DemoCurrency.followDemoSession 1.62.0). No manifest key, cmd, payload or route changed.",
   "_comment_version_1_15_3": "LanguageScreen resolves its sheet surface against AppStyle.isDark (dark: surfaceDark, light: bgGrey - the pair base_sdk's EditProfileScreen uses) and draws its title in AppStyle.textPrimary. The isDarkMode flag passed to AppHelpers.showCustomModalBottomSheet never reaches the sheet paint (the helper paints the route transparent and the modal brings its own surface), so 1.15.2's tour-side isDarkMode change alone still captured a light sheet over a dark page (guided tour run 34112448075, 16-comms_language.png). Also drops the sheet's own 30%-of-window height cap, which clipped the Save button below the fold on the tablet leg where the sheet is END-anchored; the helper's own window-height constraint still bounds it and the list still scrolls.",
-  "_comment_requires": "comms_sdk >= 1.14.0 requires base_sdk >= 1.54.0 (SettingsRepository.getLanguages now calls api.language.get_languages, whose bare frappe get_list response and int-valued Check fields only parse under base_sdk 1.54.0's LanguagesResponse/LanguageData). comms_sdk >= 1.13.0 requires base_sdk >= 1.46.0 (the STANDARD LIST LANGUAGE - ListFilterTabBar/ListCountPill/ListScreenHeader and ListDetailFlow/ListPlaneColumns from approved design strip section 38, which the manager notification list is drawn in). The composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
+  "_comment_requires": "comms_sdk >= 1.17.0 requires base_sdk >= 1.73.0 (DemoFixtures / DemoGatewayInterceptor serve its demo). comms_sdk >= 1.14.0 requires base_sdk >= 1.54.0 (SettingsRepository.getLanguages now calls api.language.get_languages, whose bare frappe get_list response and int-valued Check fields only parse under base_sdk 1.54.0's LanguagesResponse/LanguageData). comms_sdk >= 1.13.0 requires base_sdk >= 1.46.0 (the STANDARD LIST LANGUAGE - ListFilterTabBar/ListCountPill/ListScreenHeader and ListDetailFlow/ListPlaneColumns from approved design strip section 38, which the manager notification list is drawn in). The composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
   "_comment_push_permission_service": "1.15.0 adds src/common/services/push_permission_service.dart (exported as PushPermissionService) - the single guarded entry point for the OS notification-permission prompt. comms_sdk owns push, so the guard around FirebaseMessaging.requestPermission belongs here rather than re-typed at each shell call site. It carries both halves of the fleet guard idiom from the comms-firebase-fcm-boot hook below (platform allowlist android/iOS/macOS + never web, and a fail-open try/catch that debugPrints instead of propagating) and adds in-flight de-duplication: the platform channel throws [firebase_messaging/unknown] \"A request for permissions is already running\" when asked twice at once, which is what a second sign-in in one process does (guided tour run 33476454451, both paas_manager legs). A concurrent caller JOINS the pending request; the FIRST request is never suppressed, so a single sign-in on a real device behaves exactly as before. Pending state is cleared in a finally so a denied or failed request cannot latch the guard. PURELY ADDITIVE - no manifest key, cmd, payload or existing Dart API changed, so every consumer keeps compiling untouched; shells adopt it by swapping their raw FirebaseMessaging.instance.requestPermission call for PushPermissionService.request().",
   "_comment_platform_permissions": "comms_sdk owns push: POST_NOTIFICATIONS is required on Android 13+ before any FCM notification can render, and VIBRATE backs the notification channels it creates. Injected into the host AndroidManifest.xml marker block by update_platform_permissions(); hosts that already declare either outside the block keep their own copy.",
   "platform_permissions": {
@@ -12,7 +16,15 @@
       "android.permission.VIBRATE"
     ]
   },
-  "installs": [],
+  "installs": [
+    {
+      "from": "templates/assets/demo/comms",
+      "to": "assets/demo/comms"
+    }
+  ],
+  "app_assets": [
+    "assets/demo/comms/"
+  ],
   "routes": [],
   "integrations": [],
   "embedded_widgets": [
@@ -26,6 +38,18 @@
     }
   ],
   "boot_hooks": [
+    {
+      "id": "comms-live-activity-sink",
+      "order": 40,
+      "body": "LiveActivities.instance.sink ??= DeviceLiveActivitySink();",
+      "_comment": "Live notifications (design approved 2026-09-26). Registers the device sink into base_sdk's LiveActivities (base_sdk >= 1.76.0), so orders, delivery and lms publish snapshots without importing comms_sdk. Registration only: nothing is drawn until an adopter publishes. No 'imports' entry: main.dart already imports base_sdk and comms_sdk (which exports DeviceLiveActivitySink)."
+    },
+    {
+      "id": "comms-push-permission-on-sign-in",
+      "order": 30,
+      "body": "SessionStartHooks.register(PushPermissionPrompt.hookId, PushPermissionPrompt.onSessionStart);",
+      "_comment": "Ray, 2026-09-25: ask for notification permission after a successful sign-in, in every app that composes comms_sdk (before 1.18.0 only merchants' manager shell and delivery's driver home asked; supacharge, paas_customer and the rest never did). Subscribes PushPermissionPrompt to base_sdk's SessionStartHooks (base_sdk >= 1.75.0), which auth_sdk >= 1.15.0 runs once a session is established; neither SDK depends on the other. PushPermissionPrompt skips demo sessions (DemoSession.demoActive), asks at most once per install (a LocalStorage JSON flag set only once the OS was actually asked), and goes through PushPermissionService, so platform guard, fail-open catch and in-flight de-duplication all still apply. Registration only: nothing runs at boot. No 'imports' entry: every composed main.dart already imports package:base_sdk/base_sdk.dart and package:comms_sdk/comms_sdk.dart (which exports PushPermissionPrompt) in its @generated-sdk-imports block."
+    },
     {
       "id": "comms-firebase-fcm-boot",
       "order": 10,
@@ -46,6 +70,15 @@
         "import 'package:comms_sdk/src/common/services/desktop_notification_poller.dart';"
       ],
       "_comment": "Windows notification delivery, POS parity (1.6.0): firebase_messaging has no Windows implementation, so the FCM hook above deliberately excludes Windows and composed Windows exes shipped with NO notification path at all. This hook starts comms' DesktopNotificationPoller (10s REST count polling + looping POS notification.wav + ValueNotifier badge feed - see the service's doc comment) on Windows only. The start is deferred to addPostFrameCallback because boot-hook bodies run BEFORE LocalStorage.init() and the sdk-di block in the generated main.dart: by first frame both are done, and runApp is never delayed by a poll. Fail-open try/catch like the FCM hook - a boot failure debugPrints instead of blanking the app. WidgetsBinding resolves via main.dart's static material import; foundation dedupes with the FCM hook's wiring import. Toast layer (still 1.6.0, same unmerged PR): poller.start() also initializes LocalNotifications fail-open (flutter_local_notifications 19.x WindowsInitializationSettings - stable hardcoded GUID, APP_NAME/WINDOWS_AUMID dart-defines for branding, works unpackaged; MSIX identity optional host-side) and each count increase raises a native toast via LocalNotifications.show() alongside the sound - no hook body change needed, the toast path lives entirely inside the service."
+    },
+    {
+      "id": "comms-push-message-dispatch",
+      "order": 15,
+      "body": "if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS)) {\n  try {\n    PushMessageDispatcher.instance.start();\n  } catch (e) {\n    debugPrint('Push message dispatch skipped: $e');\n  }\n}",
+      "imports": [
+        "import 'package:flutter/foundation.dart';"
+      ],
+      "_comment": "Feeds received FCM messages into base_sdk's PushMessages (base_sdk >= 1.79.0) by data['type'], so a feature SDK handles its own pushes without importing comms_sdk (orders_sdk registers 'order_status' for its ActiveOrderTracker). Foreground messages and taps that open the app dispatch at once; a message that arrives while the app is suspended or closed is queued by firebaseMessagingBackgroundHandler and replayed at start and on resume. Runs after comms-firebase-fcm-boot (order 10). comms_sdk exports PushMessageDispatcher, so no package import is needed."
     }
   ],
   "_comment_boot_hooks": "The Firebase/FCM boot every composed app needs before anything touches messaging - the follow-up _comment_app_type promised once The-Rokct-Protocol#160 landed (absorbed from paas_manager's retired hand-written main.dart, manager migration M5). Top level deliberately: comms_sdk is the push owner in every composition and the host android/ios templates already wire google-services. Firebase.apps.isEmpty-guarded so a host whose tracked main.dart still initializes Firebase by hand (paas_driver today) double-boots safely during its own migration window. firebaseMessagingBackgroundHandler is comms package code (src/common/services/firebase_background_handler.dart, vm:entry-point) because the background isolate cannot reach a host-private handler from an injected body. Version 1.1.0 -> 1.2.0 for cache reconciliation. 1.5.0: body is platform-guarded to android/iOS/macOS (firebase_messaging has no Windows/Linux implementation, and the unconditional await killed composed Windows exes before runApp so the runner never showed a window) and wrapped fail-open - a boot failure debugPrints instead of blanking the app.",

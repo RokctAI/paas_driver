@@ -38,13 +38,18 @@ class UnderlineDropDown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The mode comes from the inherited theme rather than AppStyle's
+    // app-wide isDark static: a static is not an inherited widget, so a
+    // theme-mode flip reschedules nothing here and the dropdown keeps the
+    // previous mode's ink and menu fill. Read once, outside every builder.
+    final Brightness brightness = Theme.of(context).brightness;
     return DropdownButtonFormField(
       padding: EdgeInsets.zero,
       hint: Text(
         AppHelpers.getTranslation(hint ?? ''),
         style: AppStyle.interNormal(
           size: 14,
-          color: AppStyle.textPrimary.withOpacity(0.7),
+          color: AppStyle.inkFor(brightness).withOpacity(0.7),
         ),
       ),
       value: value,
@@ -57,17 +62,17 @@ class UnderlineDropDown extends StatelessWidget {
       }).toList(),
       onChanged: (s) => onChanged.call(s.toString()),
       elevation: 0,
-      dropdownColor: AppStyle.cardDark,
-      iconEnabledColor: AppStyle.textPrimary,
+      dropdownColor: AppStyle.cardFor(brightness),
+      iconEnabledColor: AppStyle.inkFor(brightness),
       borderRadius: BorderRadius.circular(8.r),
-      style: AppStyle.interNormal(),
+      style: AppStyle.interNormal(color: AppStyle.inkFor(brightness)),
       decoration: InputDecoration(
         contentPadding: REdgeInsets.symmetric(horizontal: 2),
         labelText:
             label != null ? "${AppHelpers.getTranslation(label!)}*" : null,
         labelStyle: AppStyle.interNormal(
           size: 14,
-          color: AppStyle.textPrimary.withOpacity(0.9),
+          color: AppStyle.inkFor(brightness).withOpacity(0.9),
         ),
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide.merge(

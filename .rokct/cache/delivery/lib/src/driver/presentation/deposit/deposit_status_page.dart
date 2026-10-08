@@ -105,7 +105,7 @@ class _DriverDepositStatusPlaneState
     final state = ref.watch(depositProvider);
     final live = state.liveDeposit;
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: SafeArea(
         child: Stack(
           children: [
@@ -150,7 +150,7 @@ class _DriverDepositStatusPlaneState
                       style: AppStyle.interSemi(
                         size: 10.5,
                         letterSpacing: 1.2,
-                        color: AppStyle.textDarkSecondary,
+                        color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                       ),
                     ),
                     12.verticalSpace,
@@ -197,9 +197,9 @@ class _BalanceHead extends StatelessWidget {
       key: const Key('depositBalanceHead'),
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppStyle.strokeDark),
+        border: Border.all(color: AppStyle.strokeFor(Theme.of(context).brightness)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +211,7 @@ class _BalanceHead extends StatelessWidget {
                   : AppHelpers.getTranslation('reading_your_wallet'),
               style: AppStyle.interRegular(
                 size: 13,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             )
           else ...[
@@ -219,7 +219,7 @@ class _BalanceHead extends StatelessWidget {
               AppHelpers.getTranslation(balanceLeadKey(toneFor(value))),
               style: AppStyle.interRegular(
                 size: 13,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
             4.verticalSpace,
@@ -238,7 +238,7 @@ class _BalanceHead extends StatelessWidget {
               key: const Key('depositBalanceUnchangedLine'),
               style: AppStyle.interRegular(
                 size: 11.5,
-                color: AppStyle.textDarkFaint,
+                color: AppStyle.faintFor(Theme.of(context).brightness),
               ),
             ),
           ],
@@ -262,9 +262,9 @@ class _PendingCard extends StatelessWidget {
       key: const Key('depositPendingCard'),
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDarkAlt,
+        color: AppStyle.cardAltFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppStyle.strokeDarkSubtle),
+        border: Border.all(color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,7 +288,7 @@ class _PendingCard extends StatelessWidget {
               key: const Key('depositPendingReference'),
               style: AppStyle.interRegular(
                 size: 12,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ],
@@ -299,7 +299,7 @@ class _PendingCard extends StatelessWidget {
               '${describeWhen(record.submittedAt!, now)}',
               style: AppStyle.interRegular(
                 size: 12,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ],
@@ -343,7 +343,7 @@ class _StatusTrail extends StatelessWidget {
             Expanded(
               child: Container(
                 height: 2.r,
-                color: i <= reached ? AppStyle.primary : AppStyle.strokeDark,
+                color: i <= reached ? AppStyle.primary : AppStyle.strokeFor(Theme.of(context).brightness),
               ),
             ),
           _TrailStep(
@@ -373,7 +373,7 @@ class _TrailStep extends StatelessWidget {
     final color = switch (state) {
       _StepState.done => AppStyle.primary,
       _StepState.current => AppStyle.rate,
-      _StepState.ahead => AppStyle.textDarkFaint,
+      _StepState.ahead => AppStyle.faintFor(Theme.of(context).brightness),
     };
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -427,9 +427,9 @@ class _ExplainerCard extends StatelessWidget {
       key: const Key('depositExplainer'),
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: AppStyle.strokeDarkSubtle),
+        border: Border.all(color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -451,7 +451,7 @@ class _ExplainerCard extends StatelessWidget {
                   ),
                   style: AppStyle.interRegular(
                     size: 12,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
                 ),
               ],
@@ -493,7 +493,7 @@ class _History extends StatelessWidget {
         key: const Key('depositHistoryFailed'),
         style: AppStyle.interRegular(
           size: 12.5,
-          color: AppStyle.textDarkSecondary,
+          color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
         ),
       );
     }
@@ -503,7 +503,7 @@ class _History extends StatelessWidget {
         key: const Key('depositHistoryEmpty'),
         style: AppStyle.interRegular(
           size: 12.5,
-          color: AppStyle.textDarkSecondary,
+          color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
         ),
       );
     }
@@ -532,9 +532,9 @@ class _HistoryRow extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 8.h),
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: AppStyle.strokeDarkSubtle),
+        border: Border.all(color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -555,7 +555,7 @@ class _HistoryRow extends StatelessWidget {
                         describeWhen(when, now),
                         style: AppStyle.interRegular(
                           size: 11.5,
-                          color: AppStyle.textDarkSecondary,
+                          color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                         ),
                       ),
                     ],

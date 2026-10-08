@@ -127,8 +127,30 @@ class SettingsRepository implements SettingsRepositoryFacade {
   @override
   Future<ApiResult<HelpModel>> getFaq() async {
     try {
-      final data = await _gateway.tenant('api.admin_content.get_admin_faqs');
-      return ApiResult.success(data: HelpModel.fromJson(data));
+      // Public FAQ list (api.faq.get_faqs, allow_guest). It answers bare
+      // rows {name, question, answer, type}; shape them into HelpModel.
+      final data = await _gateway.call(
+        'api.faq.get_faqs',
+        requireAuth: false,
+      );
+      final rows = data is List
+          ? data
+          : (data is Map && data['data'] is List ? data['data'] as List : []);
+      return ApiResult.success(
+        data: HelpModel(
+          data: rows.whereType<Map>().map((r) {
+            return Datum(
+              uuid: r['name']?.toString(),
+              type: r['type']?.toString(),
+              active: true,
+              translation: HelpTranslation(
+                question: r['question']?.toString(),
+                answer: r['answer']?.toString(),
+              ),
+            );
+          }).toList(),
+        ),
+      );
     } catch (e) {
       debugPrint('==> get faq failure: $e');
       return ApiResult.failure(
@@ -143,12 +165,10 @@ class SettingsRepository implements SettingsRepositoryFacade {
     try {
       final data = await _gateway.call(
         'api.page.get_page',
-        payload: {'slug': 'term'},
+        payload: {'route': 'term'},
         requireAuth: false,
       );
-      // Response structure adaptation needed. Assuming get_page returns the page doc.
-      // Translation.fromJson expects map.
-      return ApiResult.success(data: Translation.fromJson(data));
+      return ApiResult.success(data: _pageTranslation(data));
     } catch (e) {
       debugPrint('==> get term failure: $e');
       return ApiResult.failure(
@@ -163,10 +183,10 @@ class SettingsRepository implements SettingsRepositoryFacade {
     try {
       final data = await _gateway.call(
         'api.page.get_page',
-        payload: {'slug': 'policy'},
+        payload: {'route': 'policy'},
         requireAuth: false,
       );
-      return ApiResult.success(data: Translation.fromJson(data));
+      return ApiResult.success(data: _pageTranslation(data));
     } catch (e) {
       debugPrint('==> get policy failure: $e');
       return ApiResult.failure(
@@ -219,5 +239,18 @@ class SettingsRepository implements SettingsRepositoryFacade {
         statusCode: NetworkExceptions.getDioStatus(e),
       );
     }
+  }
+
+  /// get_page answers {id: <Web Page name>, ..., translation: {title,
+  /// description}}; the text lives under `translation` (as about_provider
+  /// reads it) and `id` is a string docname, so it is not passed to
+  /// Translation's int id.
+  static Translation _pageTranslation(dynamic data) {
+    final page = data is Map ? data : const {};
+    final t = page['translation'];
+    return Translation(
+      title: t is Map ? t['title']?.toString() : null,
+      description: t is Map ? t['description']?.toString() : null,
+    );
   }
 }

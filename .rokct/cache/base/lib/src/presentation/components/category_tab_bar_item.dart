@@ -40,7 +40,7 @@ class CategoryTabBarItem extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           height: 36.r,
           decoration: BoxDecoration(
-            color: isActive ? AppStyle.primary : AppStyle.white,
+            color: isActive ? AppStyle.primary : AppStyle.cardFor(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(10.r),
             boxShadow: [
               BoxShadow(
@@ -60,7 +60,7 @@ class CategoryTabBarItem extends StatelessWidget {
                 '$title',
                 style: AppStyle.interNormal(
                   size: 13.sp,
-                  color: AppStyle.blackColor,
+                  color: AppStyle.inkFor(Theme.of(context).brightness),
                 ),
               ),
             ],

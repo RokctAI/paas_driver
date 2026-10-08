@@ -30,10 +30,11 @@
 
 import 'package:base_sdk/src/presentation/components/keypad/money_keypad.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
+import 'package:base_sdk/src/handlers/handlers.dart';
+import 'package:delivery_sdk/src/driver/domain/interface/deposit.dart';
 import 'package:delivery_sdk/src/driver/application/deposit/deposit_notifier.dart';
 import 'package:delivery_sdk/src/driver/application/deposit/deposit_provider.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/deposit_request.dart';
-import 'package:delivery_sdk/src/driver/infrastructure/repositories/demo_deposit_repository.dart';
 import 'package:delivery_sdk/src/driver/presentation/deposit/bank_deposit_sheet.dart';
 import 'package:delivery_sdk/src/driver/presentation/deposit/deposit_method_sheet.dart';
 import 'package:delivery_sdk/src/driver/presentation/deposit/deposit_status_page.dart';
@@ -224,11 +225,11 @@ void main() {
   });
 
   group('49i - the status plane', () {
-    late DemoDriverDepositRepository repository;
+    late _FakeDeposits repository;
     late DepositNotifier notifier;
 
     setUp(() {
-      repository = DemoDriverDepositRepository(
+      repository = _FakeDeposits(
         now: () => DateTime(2026, 9, 3, 16, 42),
       );
       notifier = DepositNotifier(repository, isOnline: () async => true);
@@ -321,4 +322,94 @@ void main() {
       expect(find.byKey(const Key('bankDepositSheet')), findsOneWidget);
     });
   });
+}
+
+/// A stateful in-memory deposit repository (the former offline twin's
+/// behaviour, kept as a test fake): a send adds a Pending row and moves
+/// nothing.
+class _FakeDeposits implements DriverDepositRepositoryFacade {
+  _FakeDeposits({DateTime Function()? now})
+      : _now = now ?? DateTime.now;
+
+  final DateTime Function() _now;
+  num _balance = -1240;
+  final List<DepositRecord> _rows = [];
+  int _counter = 0;
+
+  List<DepositRecord> _seed() {
+    final now = _now();
+    return [
+      DepositRecord(
+        id: 'DEMO-DEP-2',
+        amount: 900,
+        status: DepositStatus.approved,
+        method: DepositMethod.bankDeposit,
+        reference: 'TM-0830-0847',
+        submittedAt: now.subtract(const Duration(days: 1)),
+        resolvedAt: now.subtract(const Duration(hours: 20)),
+        credited: true,
+      ),
+      DepositRecord(
+        id: 'DEMO-DEP-1',
+        amount: 600,
+        status: DepositStatus.rejected,
+        method: DepositMethod.bankDeposit,
+        reference: 'TM-0829-0812',
+        rejectionReason: 'Slip says R 600.00, the bank received R 300.00.',
+        submittedAt: now.subtract(const Duration(days: 2)),
+        resolvedAt: now.subtract(const Duration(days: 2, hours: -2)),
+      ),
+    ];
+  }
+
+  @override
+  Future<ApiResult<DepositDestination>> getDestination() async =>
+      const ApiResult.success(
+        data: DepositDestination(
+          accepting: true,
+          accountHolderName: 'Rokct Operations',
+          bankName: 'Standard Bank',
+          accountNumber: '0000004417',
+          branchCode: '000000',
+          accountType: 'Cheque',
+          instructions: 'Write your reference on the slip.',
+        ),
+      );
+
+  @override
+  Future<ApiResult<num>> getWalletBalance() async =>
+      ApiResult.success(data: _balance);
+
+  @override
+  Future<ApiResult<DepositSubmitResponse>> submitDeposit({
+    required double amount,
+    required String slipPath,
+    String method = DepositMethod.bankDeposit,
+    String? reference,
+    String? note,
+  }) async {
+    _counter++;
+    final now = _now();
+    final ref = (reference ?? '').trim().isEmpty
+        ? 'TM-${now.month.toString().padLeft(2, '0')}'
+            '${now.day.toString().padLeft(2, '0')}-'
+            '${now.hour.toString().padLeft(2, '0')}'
+            '${now.minute.toString().padLeft(2, '0')}'
+        : reference!.trim();
+    final response = DepositSubmitResponse(
+      success: true,
+      requestId: 'DEMO-DEP-NEW-$_counter',
+      reference: ref,
+      amount: amount,
+      submittedAt: now,
+      // Nothing moves: the balance on the wire is still the debt.
+      balance: _balance,
+    );
+    _rows.insert(0, response.toRecord(method: method));
+    return ApiResult.success(data: response);
+  }
+
+  @override
+  Future<ApiResult<List<DepositRecord>>> listMyDeposits() async =>
+      ApiResult.success(data: [..._rows, ..._seed()]);
 }

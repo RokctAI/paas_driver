@@ -35,18 +35,27 @@ class TabBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The mode comes from the inherited theme, not from the app-wide
+    // AppStyle.isDark static (Ray, 2026-09-19: "glance doesnt change test
+    // immediately untill you come back if you switched theme mode" - the
+    // same defect, found here by the fleet audit that followed). A static
+    // is not an inherited widget, so a mode flip scheduled no rebuild of
+    // this widget and it kept the previous mode's colours until something
+    // else happened to rebuild it.
+    final Brightness brightness = Theme.of(context).brightness;
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         decoration: BoxDecoration(
           color: isShopTabBar
-              ? (currentIndex == index ? AppStyle.primary : AppStyle.cardDark)
-              : AppStyle.cardDark,
+              ? (currentIndex == index ? AppStyle.primary : AppStyle.cardFor(brightness))
+              : AppStyle.cardFor(brightness),
           borderRadius: BorderRadius.circular(10.r),
           boxShadow: [
             BoxShadow(
-              color: AppStyle.cardDark.withOpacity(0.07),
+              color: AppStyle.cardFor(brightness).withOpacity(0.07),
               spreadRadius: 0,
               blurRadius: 2,
               offset: const Offset(0, 1), // changes position of shadow
@@ -62,7 +71,7 @@ class TabBarItem extends StatelessWidget {
               size: 13,
               color: isShopTabBar && currentIndex == index
                   ? AppStyle.black
-                  : AppStyle.textPrimary,
+                  : AppStyle.inkFor(brightness),
             ),
           ),
         ),

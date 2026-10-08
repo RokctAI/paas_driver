@@ -45,7 +45,7 @@ class CardWidget extends StatelessWidget {
           image: AssetImage("assets/images/cardBg.png"),
           fit: BoxFit.contain,
         ),
-        color: AppStyle.white,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.all(Radius.circular(10.r)),
         boxShadow: [
           BoxShadow(
@@ -63,19 +63,19 @@ class CardWidget extends StatelessWidget {
           24.verticalSpace,
           Text(
             number,
-            style: AppStyle.interBold(size: 18, color: AppStyle.black),
+            style: AppStyle.interBold(size: 18, color: AppStyle.inkFor(Theme.of(context).brightness)),
           ),
           12.verticalSpace,
           Row(
             children: [
               Text(
                 startDate,
-                style: AppStyle.interNormal(size: 12, color: AppStyle.black),
+                style: AppStyle.interNormal(size: 12, color: AppStyle.inkFor(Theme.of(context).brightness)),
               ),
               10.horizontalSpace,
               Text(
                 "Cheese",
-                style: AppStyle.interNormal(size: 12, color: AppStyle.black),
+                style: AppStyle.interNormal(size: 12, color: AppStyle.inkFor(Theme.of(context).brightness)),
               ),
             ],
           ),
@@ -84,7 +84,7 @@ class CardWidget extends StatelessWidget {
             children: [
               Text(
                 name,
-                style: AppStyle.interNormal(size: 12, color: AppStyle.black),
+                style: AppStyle.interNormal(size: 12, color: AppStyle.inkFor(Theme.of(context).brightness)),
               ),
               Image.asset("assets/images/visa.png", height: 36.h),
             ],

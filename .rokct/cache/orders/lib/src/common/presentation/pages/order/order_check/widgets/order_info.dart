@@ -35,7 +35,10 @@ class OrderInfo extends StatelessWidget {
             children: [
               Text(
                 AppHelpers.getTranslation(TrKeys.order),
-                style: AppStyle.interNoSemi(size: 16, color: AppStyle.black),
+                style: AppStyle.interNoSemi(
+                  size: 16,
+                  color: AppStyle.inkFor(Theme.of(context).brightness),
+                ),
               ),
               8.verticalSpace,
               Row(
@@ -87,7 +90,7 @@ class OrderInfo extends StatelessWidget {
                           "",
                       style: AppStyle.interNoSemi(
                         size: 16,
-                        color: AppStyle.black,
+                        color: AppStyle.inkFor(Theme.of(context).brightness),
                       ),
                     ),
                   ],
@@ -109,7 +112,7 @@ class OrderInfo extends StatelessWidget {
                     "${ref.watch(orderProvider).orderData?.otp}",
                     style: AppStyle.interNoSemi(
                       size: 16,
-                      color: AppStyle.black,
+                      color: AppStyle.inkFor(Theme.of(context).brightness),
                     ),
                   ),
                 ],

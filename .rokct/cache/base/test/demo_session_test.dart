@@ -12,16 +12,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// The runtime demo switch. A real account the production backend marks
-// as demo signs in through the real backend; the login flow then calls
-// activate() and the app serves that session from the in-app fixtures.
+// The demo switch. A real account the production backend marks as demo
+// signs in through the real backend; the login flow then calls activate()
+// and the app serves that session from the in-app fixtures.
 // Session-scoped: persisted so a relaunch keeps it, cleared by clear()
-// and by every sign-out (LocalStorage.logout). The compile-time
-// AppConstants.isDemo stays the tour's switch; demoActive is the OR.
+// and by every sign-out (LocalStorage.logout). The guided-tour build keeps
+// its fixtures through AppConstants.isTour; demoActive is the OR of the
+// two, and the only demo switch the fleet has.
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/secure_storage.dart';
@@ -48,17 +50,15 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await LocalStorage.init();
     SecureStorage.store = _MemorySecureStore();
-    DemoSession.isDemoOverride = false;
   });
 
   tearDown(() async {
+    // The session is app-global; never let one test leak into the next.
     await DemoSession.instance.clear();
-    // The override is app-global; never let one test leak into the next.
-    DemoSession.isDemoOverride = null;
   });
 
   group('DemoSession', () {
-    test('is off by default, in a real build', () {
+    test('is off by default, outside a tour build', () {
       expect(DemoSession.instance.active, isFalse);
       expect(DemoSession.demoActive, isFalse);
     });
@@ -125,16 +125,21 @@ void main() {
       expect(DemoSession.demoActive, isFalse);
     });
 
-    test('demoActive is true in a demo build whatever the session says',
+    test('outside a tour build demoActive is the session and nothing else',
         () async {
-      DemoSession.isDemoOverride = true;
-      expect(DemoSession.instance.active, isFalse);
-      expect(DemoSession.demoActive, isTrue);
+      // The tour build is the only other source, and it is a compile-time
+      // constant no test run sets (no --dart-define=TOUR_MODE here), so
+      // here the OR reduces to the session exactly.
+      expect(AppConstants.isTour, isFalse);
+      expect(DemoSession.demoActive, DemoSession.instance.active);
 
       await DemoSession.instance.activate();
       expect(DemoSession.demoActive, isTrue);
+      expect(DemoSession.demoActive, DemoSession.instance.active);
+
       await DemoSession.instance.clear();
-      expect(DemoSession.demoActive, isTrue);
+      expect(DemoSession.demoActive, isFalse);
+      expect(DemoSession.demoActive, DemoSession.instance.active);
     });
 
     test('reads false, not a cached stale value, before storage is ready',

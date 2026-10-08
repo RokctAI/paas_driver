@@ -109,13 +109,13 @@ class _ShopOrderState extends ConsumerState<CartOrderPage> {
             decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
-                  color: AppStyle.cardDark.withOpacity(0.25),
+                  color: AppStyle.cardFor(Theme.of(context).brightness).withOpacity(0.25),
                   spreadRadius: 0,
                   blurRadius: 40,
                   offset: const Offset(0, -2), // changes position of shadow
                 ),
               ],
-              color: AppStyle.cardDark.withOpacity(0.9),
+              color: AppStyle.cardFor(Theme.of(context).brightness).withOpacity(0.9),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(12.r),
                 topRight: Radius.circular(12.r),
@@ -286,7 +286,7 @@ class _ShopOrderState extends ConsumerState<CartOrderPage> {
     ShopOrderNotifier event,
   ) {
     return Container(
-      color: AppStyle.cardDark,
+      color: AppStyle.cardFor(Theme.of(context).brightness),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -447,7 +447,7 @@ class _ShopOrderState extends ConsumerState<CartOrderPage> {
       child: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(color: AppStyle.cardDark.withOpacity(0.5)),
+        decoration: BoxDecoration(color: AppStyle.cardFor(Theme.of(context).brightness).withOpacity(0.5)),
         child: Container(
           width: 80,
           height: 80,

@@ -25,6 +25,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/handlers/http_service.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/models/data/address_old_data.dart';
@@ -178,6 +179,32 @@ void main() {
       await repo.getPickupShops();
       expect(http.last.cmd, 'api.shop.get_shops');
       expect(http.last.payload, {'takeaway': 1});
+    });
+
+    test('shop branches use the guest api.shop.get_shop_branches cmd (M23)',
+        () async {
+      http.reply = {
+        'data': [
+          {
+            'address': {'address': '1 Main Rd'},
+            'location': {'latitude': -26.2, 'longitude': 28.0},
+            'translation': {'title': 'Main', 'address': '1 Main Rd'},
+          },
+        ],
+      };
+      final res = await ShopsRepository().getShopBranch(uuid: 'UUID-1');
+      expect(http.last.path, kPlatformGatewayPath);
+      expect(http.last.cmd, 'api.shop.get_shop_branches');
+      expect(http.last.payload, {'shop_id': 'UUID-1'});
+      expect(http.last.requireAuth, isFalse);
+      res.when(
+        success: (data) {
+          expect(data.data, hasLength(1));
+          expect(data.data!.first.translation?.title, 'Main');
+          expect(data.data!.first.location?.latitude, -26.2);
+        },
+        failure: (e, s) => fail('branches failed: $e'),
+      );
     });
   });
 

@@ -39,32 +39,43 @@ import 'package:base_sdk/src/services/demo_session.dart';
 class ProfileMetaRow extends StatelessWidget {
   const ProfileMetaRow({super.key});
 
-  /// Stands in for [DemoSession.demoActive]. Null means "ask the session"
-  /// (which answers the compile-time constant OR the runtime switch).
-  @visibleForTesting
-  static bool? isDemoOverride;
-
-  static bool get _isDemo => isDemoOverride ?? DemoSession.demoActive;
-
   /// The answer the Online/Offline dot draws.
   ///
-  /// A demo build (`--dart-define=IS_DEMO=true`) has no backend by design,
-  /// so the api_status probe behind [AppConnectivity.backendAvailability]
-  /// can only ever fail there, and the dot drew a red Offline on every demo
-  /// build - a connection-failure state on a build that has no connection
-  /// to fail, captured verbatim by the guided tour. A demo build, or a demo
-  /// session ([DemoSession.demoActive]) served from the same fixtures,
-  /// reads as connected without probing; a real session still asks the
-  /// backend. The probe itself stays honest: the splash boot and
-  /// `ConnectivityService` read it to gate the outbox drain and the
-  /// translation fetch, and must keep seeing the backend as it is. Same
-  /// gate the other SDKs put in front of their network paths.
-  static Future<bool> _online() => _isDemo
+  /// The guided-tour build (`--dart-define=TOUR_MODE=true`) has no backend
+  /// by design, so the api_status probe behind
+  /// [AppConnectivity.backendAvailability] can only ever fail there, and
+  /// the dot drew a red Offline on every tour still - a connection-failure
+  /// state on a build that has no connection to fail, captured verbatim by
+  /// the guided tour. Anything [DemoSession.demoActive] covers - the tour
+  /// build, or a demo session served from the same fixtures - reads as
+  /// connected without probing; a real session still asks the backend. The
+  /// probe itself stays honest: the splash boot and `ConnectivityService`
+  /// read it to gate the outbox drain and the translation fetch, and must
+  /// keep seeing the backend as it is. Same gate the other SDKs put in
+  /// front of their network paths.
+  static Future<bool> _online() => DemoSession.demoActive
       ? Future<bool>.value(true)
       : AppConnectivity.backendAvailability();
 
   @override
   Widget build(BuildContext context) {
+    // A BuildContext lookup for the mode, not the app-wide AppStyle.isDark
+    // static (Ray, 2026-09-19: "glance doesnt change test immediately
+    // untill you come back if you switched theme mode" — the same defect,
+    // found here by the fleet audit that followed).
+    //
+    // This row resolved nothing from the context: its ink came from
+    // AppStyle's statics, which are not an inherited widget, so a
+    // theme-mode change scheduled no rebuild of it. And it is mounted
+    // `const` by BaseProfileFooter below, so the flip provably cannot
+    // reach it through a parent rebuild either — the same const-child
+    // boundary the glance card sat behind. The version line goes further
+    // still, being built inside a FutureBuilder. Reading the inherited
+    // theme here makes this element a dependent, so the mode change itself
+    // restyles the row while the profile is on screen, which is exactly
+    // where the theme toggle lives.
+    final Color ink = AppStyle.inkFor(Theme.of(context).brightness);
+
     // Wrap, not Row: on narrow screens (or a caller overriding the badge
     // back to both figures) the line can exceed the width; extra items
     // flow to a second centred line instead of overflowing.
@@ -82,7 +93,7 @@ class ProfileMetaRow extends StatelessWidget {
           Remix.checkbox_blank_circle_fill,
           size: 8,
           // Mode-resolving ink so the separator follows the theme.
-          color: AppStyle.textPrimary,
+          color: ink,
         ),
         FutureBuilder<PackageInfo>(
           future: PackageInfo.fromPlatform(),
@@ -103,7 +114,7 @@ class ProfileMetaRow extends StatelessWidget {
 
               return Text(
                 versionDisplay,
-                style: AppStyle.interNormal(color: AppStyle.textPrimary),
+                style: AppStyle.interNormal(color: ink),
               );
             } else {
               return const SizedBox.shrink();
@@ -121,7 +132,7 @@ class ProfileMetaRow extends StatelessWidget {
         ListenableBuilder(
           listenable: DemoSession.instance,
           builder: (context, _) => FutureBuilder<bool>(
-            key: ValueKey<bool>(_isDemo),
+            key: ValueKey<bool>(DemoSession.demoActive),
             future: _online(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {

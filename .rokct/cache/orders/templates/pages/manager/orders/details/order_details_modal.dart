@@ -159,7 +159,7 @@ class _OrderDetailsModalState extends ConsumerState<OrderDetailsModal> {
                         6.horizontalSpace,
                         Icon(
                           state.order?.deliveryType == TrKeys.dineIn
-                              ? Icons.table_restaurant_outlined
+                              ? Remix.restaurant_2_line
                               : Remix.bank_card_2_line,
                           size: 20.r,
                           color: AppStyle.blackColor,

@@ -10,12 +10,11 @@
 # screen (/order-history, manifest.json app_type.manager). Include it only
 # in manager-family app manifests.
 #
-# Demo grounding (--dart-define=IS_DEMO=true): orders_di.dart swaps in
-# MockOrdersRepository + MockCartRepository for the customer-facing
-# facades, and since 1.15.0 ManagerOrdersDependencies demo-gates the
-# manager-side SellerOrdersRepositoryFacade to this SDK's own
-# DemoSellerOrdersRepository - a seeded shift of seven fictional orders in
-# mixed states, priced in rand, served from memory. So both screens below
+# Demo grounding (a demo session): the REAL OrdersRepository,
+# CartRepository and SellerOrdersRepository run, and base_sdk's
+# DemoGatewayInterceptor answers their cmds from the fixtures in
+# assets/demo/orders - on the manager side a seeded shift of seven
+# fictional orders in mixed states, priced in rand. So both screens below
 # capture a stocked queue and a stocked history with zero backend contact.
 # The POS create-order flow (/order-products and its pickers) is still
 # deliberately NOT toured: its product grid comes from the un-gated

@@ -146,7 +146,7 @@ class _GroupOrderPageState extends ConsumerState<GroupOrderScreen> {
                         horizontal: 16.w,
                       ),
                       decoration: BoxDecoration(
-                        color: AppStyle.cardDark,
+                        color: AppStyle.cardFor(Theme.of(context).brightness),
                         borderRadius: BorderRadius.circular(10.r),
                         boxShadow: [
                           BoxShadow(
@@ -183,7 +183,7 @@ class _GroupOrderPageState extends ConsumerState<GroupOrderScreen> {
                         width: 46.w,
                         height: 46.h,
                         decoration: BoxDecoration(
-                          color: AppStyle.cardDark,
+                          color: AppStyle.cardFor(Theme.of(context).brightness),
                           borderRadius: BorderRadius.circular(10.r),
                           boxShadow: [
                             BoxShadow(
@@ -213,7 +213,7 @@ class _GroupOrderPageState extends ConsumerState<GroupOrderScreen> {
                         width: 46.w,
                         height: 46.h,
                         decoration: BoxDecoration(
-                          color: AppStyle.cardDark,
+                          color: AppStyle.cardFor(Theme.of(context).brightness),
                           borderRadius: BorderRadius.circular(10.r),
                           boxShadow: [
                             BoxShadow(

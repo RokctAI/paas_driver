@@ -200,6 +200,16 @@ flutter:
     - assets/audio/notification.wav
     - assets/audio/tap.wav
     - assets/audio/wrong.wav
+    - assets/demo/auth/
+    - assets/demo/comms/
+    - assets/demo/delivery/
+    - assets/demo/map/
+    - assets/demo/merchants/
+    - assets/demo/orders/
+    - assets/demo/products/
+    - assets/demo/revenue/
+    - assets/demo/users/
+    - assets/demo/zones/
     - assets/image/my_location.png
     - assets/images/app_logo.png
     - assets/images/card.png

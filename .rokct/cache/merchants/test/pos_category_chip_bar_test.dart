@@ -15,8 +15,8 @@
 // The Add Items pane's category chip bar - approved design strip frame
 // 11m, chip 349 ("a horizontal pill row (All / ...) in the dark till
 // tokens"), pumped DIRECTLY from templates/ like the other POS tests
-// (run with --dart-define=IS_DEMO=true; the demo catalog seeds Mains /
-// Sides / Drinks with the burger in Mains):
+// (over the demo till, support/demo_till.dart: the demo catalog seeds
+// Mains / Sides / Drinks with the burger in Mains):
 //
 //   * 1280 (three planes): the pane shows the bar under the search field
 //     - All first, active, then the demo shop's categories; a tapped
@@ -34,10 +34,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider.dart';
-import 'package:merchants_sdk/src/manager/di/manager_merchants_di.dart';
-import 'package:merchants_sdk/src/manager/infrastructure/repositories/mock_products_repository.dart';
+
+import 'support/demo_till.dart';
+
 import 'package:merchants_sdk/src/manager/presentation/pos/pos_category_chip_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -85,7 +85,7 @@ void main() {
     await LocalStorage.setSelectedCurrency(
       CurrencyData(id: 'ZAR', symbol: 'R', position: 'before', rate: 1),
     );
-    ManagerMerchantsDependencies.register(GetIt.instance);
+    await registerDemoTill();
   });
 
   testWidgets('1280 (three planes): the pane draws the bar - All first and '
@@ -165,10 +165,7 @@ void main() {
 
       final state = container.read(posCartProvider);
       expect(state.lines, isEmpty);
-      expect(
-        state.categories.length,
-        MockProductsRepository.demoCategories.length,
-      );
+      expect(state.categories.length, DemoTillCatalog.demoCategories.length);
       expect(state.categoryId, '3');
       expect(find.byKey(_barKey), findsOneWidget);
       expect(find.text('Drinks'), findsOneWidget);

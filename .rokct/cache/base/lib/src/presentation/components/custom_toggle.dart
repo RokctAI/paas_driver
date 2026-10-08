@@ -13,7 +13,6 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -52,7 +51,7 @@ class _CustomToggleState extends State<CustomToggle> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 18.w),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark.withOpacity(0.9),
+        color: AppStyle.cardFor(Theme.of(context).brightness).withOpacity(0.9),
         borderRadius: BorderRadius.circular(10.r),
       ),
       child: Row(
@@ -60,7 +59,7 @@ class _CustomToggleState extends State<CustomToggle> {
         children: [
           Text(
             widget.title,
-            style: AppStyle.interNoSemi(size: 16, color: AppStyle.textPrimary),
+            style: AppStyle.interNoSemi(size: 16, color: AppStyle.inkFor(Theme.of(context).brightness)),
           ),
           Row(
             children: [
@@ -78,7 +77,7 @@ class _CustomToggleState extends State<CustomToggle> {
                   margin: EdgeInsets.all(3.r),
                   padding: EdgeInsets.symmetric(vertical: 7.h, horizontal: 9.w),
                   decoration: BoxDecoration(
-                    color: AppStyle.white,
+                    color: AppStyle.cardFor(Theme.of(context).brightness),
                     borderRadius: BorderRadius.all(Radius.circular(7.r)),
                   ),
                   child: Container(

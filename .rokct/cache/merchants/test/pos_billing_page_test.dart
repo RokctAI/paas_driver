@@ -12,14 +12,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-
 // BillingPage (the POS till template) pumped DIRECTLY from templates/ —
 // the billing templates carry no ${package} imports precisely so this
 // harness can compile them standalone (analyzer excludes templates/, so
 // these tests ARE the templates' compile gate). RUN WITH
-// `flutter test --dart-define=IS_DEMO=true`: demo mode keeps the camera
-// unmounted (the stage renders its stand-in) and routes scans to
-// MockProductsRepository.
+// a demo session (support/demo_till.dart): the camera stays unmounted (the
+// stage renders its stand-in) and scans go to the demo till's catalog.
 
 import 'package:base_sdk/src/models/data/currency_data.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
@@ -27,19 +25,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider.dart';
-import 'package:merchants_sdk/src/manager/di/manager_merchants_di.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../templates/pages/manager/billing/billing_page.dart';
 
+import 'support/demo_till.dart';
+
 Widget _host(Widget child) => ProviderScope(
-      child: ScreenUtilInit(
-        designSize: const Size(390, 844),
-        builder: (context, _) => MaterialApp(home: child),
-      ),
-    );
+  child: ScreenUtilInit(
+    designSize: const Size(390, 844),
+    builder: (context, _) => MaterialApp(home: child),
+  ),
+);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -50,14 +48,12 @@ void main() {
     await LocalStorage.setSelectedCurrency(
       CurrencyData(id: 'ZAR', symbol: 'R', position: 'before', rate: 1),
     );
-    ManagerMerchantsDependencies.register(GetIt.instance);
+    await registerDemoTill();
   });
 
-  testWidgets(
-      'a demo scan lands Flame-grilled beef burger as a line card with '
+  testWidgets('a demo scan lands Flame-grilled beef burger as a line card with '
       'formatted money everywhere — and the Continue button carries the '
-      'total',
-      (tester) async {
+      'total', (tester) async {
     // The render harness's geometry: 390 logical at 3x dpr (the approved
     // frames') so the page lays out exactly as shipped, not in the test
     // binding's 800x600 default.

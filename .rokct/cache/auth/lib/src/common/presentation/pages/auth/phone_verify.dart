@@ -40,13 +40,30 @@ class PhoneVerify extends ConsumerWidget {
     final state = ref.watch(registerProvider);
     final bool isDarkMode = LocalStorage.getAppThemeMode();
     final bool isLtr = LocalStorage.getLangLtr();
+    // A BuildContext lookup for the mode, not the app-wide AppStyle.isDark
+    // static behind AppStyle.surfaceDark/textPrimary (Ray, 2026-09-19:
+    // "glance doesnt change test immediately untill you come back if you
+    // switched theme mode" — the same defect, found here by the fleet audit
+    // that followed).
+    //
+    // This sheet resolved nothing from the context that a theme-mode flip
+    // touches: its surface and the phone field's ink came from AppStyle's
+    // statics, and its only other context read is MediaQuery's view insets,
+    // which does not change with the mode. A mutable static is not an
+    // inherited widget, so the flip scheduled no rebuild of this element and
+    // the sheet kept the previous mode's colours while it stayed open. The
+    // registerProvider it watches is a feature notifier that a theme-mode
+    // change never notifies, so that is no rebuild trigger either. Reading
+    // the inherited theme here makes this element a dependent, so the mode
+    // change itself restyles the sheet in place.
+    final Brightness brightness = Theme.of(context).brightness;
     return Directionality(
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
       child: KeyboardDismisser(
         child: Container(
           margin: MediaQuery.of(context).viewInsets,
           decoration: BoxDecoration(
-            color: AppStyle.surfaceDark,
+            color: AppStyle.surfaceFor(brightness),
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(16.r),
               topRight: Radius.circular(16.r),
@@ -70,9 +87,12 @@ class PhoneVerify extends ConsumerWidget {
                           textDirection:
                               isLtr ? TextDirection.ltr : TextDirection.rtl,
                           child: IntlPhoneField(
-                            style: TextStyle(color: AppStyle.textPrimary),
-                            dropdownTextStyle:
-                                TextStyle(color: AppStyle.textPrimary),
+                            style: TextStyle(
+                              color: AppStyle.inkFor(brightness),
+                            ),
+                            dropdownTextStyle: TextStyle(
+                              color: AppStyle.inkFor(brightness),
+                            ),
                             onChanged: (phoneNum) {
                               event.setEmail(phoneNum.completeNumber);
                             },

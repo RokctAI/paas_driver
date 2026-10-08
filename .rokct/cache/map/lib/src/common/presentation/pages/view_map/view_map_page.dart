@@ -13,9 +13,6 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // ignore_for_file: prefer_interpolation_to_compose_strings, use_build_context_synchronously
-import 'dart:typed_data';
-import 'dart:ui' as ui;
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_remix/flutter_remix.dart';
@@ -43,7 +40,13 @@ import 'package:base_sdk/src/presentation/theme/theme.dart';
 import 'package:base_sdk/src/application/map/view_map_notifier.dart';
 import 'package:base_sdk/src/application/map/view_map_provider.dart';
 import 'package:map_sdk/src/common/application/poidata/poi_data_provider.dart';
+import 'package:map_sdk/src/common/presentation/pages/view_map/poi_markers.dart';
+import 'package:map_sdk/src/common/presentation/pages/view_map/poi_read_window.dart';
 import 'package:base_sdk/src/models/data/poi_data.dart';
+// Imported directly (not via handlers.dart) because ApiResult's `when` is an
+// EXTENSION declared in the generated `api_result.freezed.dart` part - it is
+// only in scope for a library that imports its defining library.
+import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:lottie/lottie.dart' as lottie;
 
 import 'package:base_sdk/src/constants/app_constants.dart';
@@ -89,6 +92,21 @@ class _ViewMapPageState extends ConsumerState<ViewMapPage>
   Set<Marker> markers = {};
   String _nearestPOIInfo = '';
 
+  /// How far from the map centre a stored point is still drawn, and how
+  /// wide a slice of them is read from the platform at a time.
+  ///
+  /// The read is deliberately wider than the draw: the loaded disc is
+  /// re-centred only once the map centre has travelled the draw radius, so
+  /// a read radius of twice that keeps every point the page could draw
+  /// already in hand and a pan inside the loaded area costs no call.
+  static const double _poiRadiusMeters = 1000;
+  static const double _poiReadRadiusKm = 2 * _poiRadiusMeters / 1000;
+
+  /// The centre the points currently in hand were read around, and whether
+  /// a read is in flight (camera moves arrive faster than a round trip).
+  LatLng? _poiReadCentre;
+  bool _poiReading = false;
+
   @override
   void dispose() {
     controller.dispose();
@@ -124,8 +142,7 @@ class _ViewMapPageState extends ConsumerState<ViewMapPage>
         poi.longitude,
       );
 
-      if (distance < minDistance && distance <= 1000) {
-        // 1000 meters = 1 km
+      if (distance < minDistance && distance <= _poiRadiusMeters) {
         minDistance = distance;
         nearestPOI = poi;
       }
@@ -134,108 +151,87 @@ class _ViewMapPageState extends ConsumerState<ViewMapPage>
     return nearestPOI;
   }
 
-  Future<Set<Marker>> _getMarkers(List<POIData> poiData) async {
-    List<Future<Marker>> markerFutures = poiData.map((poi) async {
-      // Load the PNG image
-      final ByteData data = await rootBundle.load(
-        'assets/images/poi/${poi.pin}',
-      );
-      final Uint8List bytes = data.buffer.asUint8List();
-
-      // Decode the PNG image
-      final ui.Codec codec = await ui.instantiateImageCodec(bytes);
-      final ui.FrameInfo fi = await codec.getNextFrame();
-      final ui.Image image = fi.image;
-
-      // Create a canvas to draw on
-      final pictureRecorder = ui.PictureRecorder();
-      final canvas = Canvas(pictureRecorder);
-      final paint = Paint();
-
-      // Draw the original image
-      canvas.drawImage(image, Offset.zero, paint);
-
-      // Apply color filter
-      paint.colorFilter = ColorFilter.mode(
-        poi.titleColor.withOpacity(0.5),
-        BlendMode.srcATop,
-      );
-      //canvas.drawRect(Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()), paint);
-
-      // Convert to image
-      final ui.Image coloredImage = await pictureRecorder
-          .endRecording()
-          .toImage(image.width, image.height);
-      final ByteData? byteData = await coloredImage.toByteData(
-        format: ui.ImageByteFormat.png,
-      );
-      final Uint8List coloredImageData = byteData!.buffer.asUint8List();
-
-      // Create BitmapDescriptor from the colored image
-      final BitmapDescriptor customMarkerIcon = BitmapDescriptor.fromBytes(
-        coloredImageData,
-      );
-
-      return Marker(
-        markerId: MarkerId(poi.name),
-        position: LatLng(poi.latitude, poi.longitude),
-        icon: customMarkerIcon,
-        infoWindow: InfoWindow(title: '${poi.name}✅'),
-        onTap: () {
-          googleMapController?.showMarkerInfoWindow(MarkerId(poi.name));
-        },
-      );
-    }).toList();
-
-    List<Marker> markers = await Future.wait(markerFutures);
-    return markers.toSet();
+  /// Reads the stored points of interest around [centre] and hands them to
+  /// [poiDataProvider], which is what the markers are drawn from.
+  ///
+  /// Called once for the centre the page opens on and again whenever the
+  /// camera has carried the centre clear of the disc the points in hand
+  /// cover; a pan inside that disc, and a move while a read is in flight,
+  /// cost nothing. A failed read leaves the points already on screen alone
+  /// - blanking a map because one call timed out tells the shopper the area
+  /// has no landmarks, which is a different and wrong statement.
+  Future<void> _loadPOIData(LatLng centre) async {
+    if (_poiReading) return;
+    if (!poiReadNeeded(
+      loadedCentre: _poiReadCentre,
+      centre: centre,
+      radiusMeters: _poiRadiusMeters,
+    )) {
+      return;
+    }
+    final repository = customerPoisOrNull;
+    if (repository == null) return;
+    _poiReading = true;
+    final response = await repository.getCustomerPois(
+      latitude: centre.latitude,
+      longitude: centre.longitude,
+      radiusKm: _poiReadRadiusKm,
+    );
+    _poiReading = false;
+    if (!mounted) return;
+    response.when(
+      success: (pois) {
+        _poiReadCentre = centre;
+        ref.read(poiDataProvider.notifier).updatePOIData(pois);
+        _createMarkers();
+      },
+      failure: (error, statusCode) {
+        debugPrint('===> read points of interest failed $statusCode $error');
+      },
+    );
   }
 
   Future<void> _createMarkers() async {
     final poiData = ref.read(poiDataProvider);
-    final cameraPosition = this.cameraPosition;
+    // Until the first camera move the centre is the target the map opened
+    // on; reading it from `latLng` rather than waiting for a gesture is what
+    // lets the points arriving from the first read draw straight away.
+    final LatLng centre = cameraPosition?.target ?? latLng;
 
-    if (cameraPosition != null) {
-      final filteredPoiData = poiData.where((poi) {
-        return _isPoiInRadius(
-          poi,
-          cameraPosition.target,
-          1000, // 1000 meters = 1 km
-        );
-      }).toList();
+    final filteredPoiData = poiData
+        .where((poi) => _isPoiInRadius(poi, centre, _poiRadiusMeters))
+        .toList();
 
-      final markers = await _getMarkers(filteredPoiData);
+    final markers = await buildPoiMarkers(
+      filteredPoiData,
+      onTap: (markerId) => googleMapController?.showMarkerInfoWindow(markerId),
+    );
 
-      // Find the nearest POI
-      final nearestPOI = _findNearestPOI(
-        cameraPosition.target,
-        filteredPoiData,
-      );
+    // Find the nearest POI
+    final nearestPOI = _findNearestPOI(centre, filteredPoiData);
 
-      setState(() {
-        this.markers = markers;
-        if (nearestPOI != null) {
-          final distance = GeolocatorPlatform.instance
-              .distanceBetween(
-                cameraPosition.target.latitude,
-                cameraPosition.target.longitude,
-                nearestPOI.latitude,
-                nearestPOI.longitude,
-              )
-              .round();
-          _nearestPOIInfo = 'Nearest POI: ${nearestPOI.name} (${distance}m)';
+    if (!mounted) return;
+    setState(() {
+      this.markers = markers;
+      if (nearestPOI != null) {
+        final distance = GeolocatorPlatform.instance
+            .distanceBetween(
+              centre.latitude,
+              centre.longitude,
+              nearestPOI.latitude,
+              nearestPOI.longitude,
+            )
+            .round();
+        _nearestPOIInfo = 'Nearest POI: ${nearestPOI.name} (${distance}m)';
 
-          // Open the info window of the nearest POI
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            googleMapController?.showMarkerInfoWindow(
-              MarkerId(nearestPOI.name),
-            );
-          });
-        } else {
-          _nearestPOIInfo = '';
-        }
-      });
-    }
+        // Open the info window of the nearest POI
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          googleMapController?.showMarkerInfoWindow(MarkerId(nearestPOI.name));
+        });
+      } else {
+        _nearestPOIInfo = '';
+      }
+    });
   }
 
   checkPermission() async {
@@ -280,6 +276,7 @@ class _ViewMapPageState extends ConsumerState<ViewMapPage>
     );
     checkPermission();
     _createMarkers();
+    _loadPOIData(latLng);
     super.initState();
   }
 
@@ -456,6 +453,7 @@ class _ViewMapPageState extends ConsumerState<ViewMapPage>
                     onCameraMove: (position) {
                       cameraPosition = position;
                       _createMarkers();
+                      _loadPOIData(position.target);
                     },
                     onMapCreated: (controller) {
                       googleMapController = controller;
@@ -492,7 +490,7 @@ class _ViewMapPageState extends ConsumerState<ViewMapPage>
                         children: [
                           10.horizontalSpace,
                           Container(
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               boxShadow: <BoxShadow>[
                                 BoxShadow(
                                   color: AppStyle.textGrey,
@@ -502,7 +500,7 @@ class _ViewMapPageState extends ConsumerState<ViewMapPage>
                                 ),
                               ],
                               shape: BoxShape.circle,
-                              color: AppStyle.white,
+                              color: AppStyle.cardFor(Theme.of(context).brightness),
                             ),
                             padding: EdgeInsets.all(10.r),
                             child: const Center(
@@ -526,7 +524,7 @@ class _ViewMapPageState extends ConsumerState<ViewMapPage>
                                   spreadRadius: 0,
                                 ),
                               ],
-                              color: AppStyle.white,
+                              color: AppStyle.cardFor(Theme.of(context).brightness),
                               borderRadius: BorderRadius.circular(16.r),
                             ),
                             child: Center(
@@ -554,7 +552,7 @@ class _ViewMapPageState extends ConsumerState<ViewMapPage>
                       width: 50.r,
                       height: 50.r,
                       decoration: BoxDecoration(
-                        color: AppStyle.white,
+                        color: AppStyle.cardFor(Theme.of(context).brightness),
                         borderRadius: BorderRadius.all(Radius.circular(10.r)),
                         boxShadow: [
                           BoxShadow(
@@ -622,7 +620,7 @@ class _ViewMapPageState extends ConsumerState<ViewMapPage>
                             _nearestPOIInfo,
                             style: AppStyle.interNormal(
                               size: 14,
-                              color: AppStyle.black,
+                              color: AppStyle.inkFor(Theme.of(context).brightness),
                             ),
                             textAlign: TextAlign.center,
                           ),

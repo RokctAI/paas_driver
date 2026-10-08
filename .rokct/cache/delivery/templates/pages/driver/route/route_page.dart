@@ -28,7 +28,12 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 
 import 'package:delivery_sdk/src/driver/application/route/route_provider.dart';
+import 'package:delivery_sdk/src/driver/domain/interface/route.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/route_stop.dart';
+
+import 'package:delivery_sdk/src/driver/infrastructure/models/data/driver_poi.dart';
+import 'package:delivery_sdk/src/driver/presentation/poi/add_poi_sheet.dart';
+import 'package:delivery_sdk/src/driver/presentation/poi/poi_sheet.dart';
 
 import 'package:${package}/presentation/component/maps_list.dart';
 
@@ -37,6 +42,12 @@ import 'package:${package}/presentation/component/maps_list.dart';
 /// Route. The driver just drives stop to stop — the backend decides the
 /// order (nearest-next, pickups before their drop-offs) and re-orders
 /// after every completion.
+///
+/// TWO SOURCES, ONE LIST. The toggle at the top switches between the day's
+/// work and the round's POINTS OF INTEREST, which the server orders with
+/// the same optimiser. It is a source argument on one repository rather
+/// than a second page precisely because the driver is doing the same thing
+/// with both: reading a numbered list of places and driving to them.
 @RoutePage()
 class DriverRoutePage extends ConsumerStatefulWidget {
   const DriverRoutePage({super.key});
@@ -52,6 +63,11 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
       ref.read(routeProvider.notifier).fetchRoute(context);
     });
     super.initState();
+  }
+
+  void _showSource(DriverRouteSource source) {
+    if (ref.read(routeProvider).source == source) return;
+    ref.read(routeProvider.notifier).fetchRoute(context, source: source);
   }
 
   @override
@@ -86,6 +102,41 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                           letterSpacing: -0.3,
                         ),
                       ),
+                    10.verticalSpace,
+                    Row(
+                      children: [
+                        _SourceChip(
+                          chipKey: 'routeSourceWork',
+                          label: AppHelpers.getTranslation(TrKeys.myRoute),
+                          selected: !state.isPoiRoute,
+                          onTap: () => _showSource(DriverRouteSource.work),
+                        ),
+                        8.horizontalSpace,
+                        _SourceChip(
+                          chipKey: 'routeSourcePois',
+                          label: AppHelpers.getTranslation('poi_route'),
+                          selected: state.isPoiRoute,
+                          onTap: () => _showSource(DriverRouteSource.pois),
+                        ),
+                        const Spacer(),
+                        // FILING A PLACE FROM THE ROUTE, with no load
+                        // needed. This page is where a driver looks at the
+                        // round he is on, so it is where he notices a
+                        // corner that is not on it yet — and the POI route
+                        // the chip beside it switches to is the very list
+                        // the new point joins. Off a load the sheet asks
+                        // which shop; on one it never gets the chance to,
+                        // because the load card answers first.
+                        //
+                        // Built to _SourceChip's own geometry rather than as
+                        // a TextButton: this Row lives in a CustomAppBar of
+                        // FIXED height, and a Material button's 48dp tap
+                        // target would grow it past that.
+                        _AddPlaceAction(
+                          onTap: () => AddPoiSheet.open(context),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -112,7 +163,7 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                         onRefresh: () =>
                             ref.read(routeProvider.notifier).fetchRoute(context),
                         child: state.stops.isEmpty
-                            ? _emptyRoute()
+                            ? _emptyRoute(state.isPoiRoute)
                             : ListView.builder(
                                 padding: EdgeInsets.only(
                                   left: 16.w,
@@ -162,14 +213,20 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
     );
   }
 
-  Widget _emptyRoute() {
+  Widget _emptyRoute(bool isPoiRoute) {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
         16.verticalSpace,
         Lottie.asset("assets/lottie/empty-box.json"),
         Text(
-          AppHelpers.getTranslation(TrKeys.noRouteStops),
+          isPoiRoute
+              // Nothing filed on this round yet is the normal first day,
+              // and it is one sentence: the driver fills it by passing
+              // places, not by being told to.
+              ? AppHelpers.getTranslation('no_places_on_this_round_yet')
+              : AppHelpers.getTranslation(TrKeys.noRouteStops),
+          key: const Key('routeEmpty'),
           style: AppStyle.interSemi(size: 18.sp),
           textAlign: TextAlign.center,
         ),
@@ -185,7 +242,7 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
   }) {
     final isDone = !stop.isPending;
     return GestureDetector(
-      onTap: () => _openInMaps(context, stop),
+      onTap: () => _openStop(context, stop),
       child: Container(
         margin: EdgeInsets.only(bottom: 10.h),
         decoration: BoxDecoration(
@@ -396,6 +453,33 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
         );
   }
 
+  /// A POI stop opens the PLACE — what was filed and what has been sold
+  /// there — because that is what the driver needs before he knocks. Every
+  /// other stop opens the maps chooser, which is what he needs to get to
+  /// it.
+  void _openStop(BuildContext context, RouteStopData stop) {
+    if (stop.refDoctype == 'Point Of Interest' && stop.refName != null) {
+      PoiSheet.open(context, _poiOf(stop));
+      return;
+    }
+    _openInMaps(context, stop);
+  }
+
+  /// The stop's own point, rebuilt from the row the route already carries,
+  /// so opening the sheet costs no extra read.
+  DriverPoi _poiOf(RouteStopData stop) => DriverPoi(
+        id: stop.refName ?? '',
+        label: stop.label,
+        type: stop.meta['type']?.toString(),
+        customType: stop.meta['custom_type']?.toString(),
+        typeLabel: stop.meta['type_label']?.toString(),
+        latitude: stop.latitude,
+        longitude: stop.longitude,
+        address: stop.meta['address']?.toString(),
+        note: stop.meta['note']?.toString(),
+        shopId: stop.meta['shop']?.toString(),
+      );
+
   void _openInMaps(BuildContext context, RouteStopData stop) {
     if (!stop.hasCoordinates) return;
     AppHelpers.showCustomModalBottomSheet(
@@ -410,6 +494,88 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
         ),
       ),
       isDarkMode: false,
+    );
+  }
+}
+
+/// One source chip in the route header.
+/// "ADD A PLACE" on the route header, in the source chips' own shape.
+class _AddPlaceAction extends StatelessWidget {
+  const _AddPlaceAction({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppStyle.cardDarkAlt,
+      borderRadius: BorderRadius.circular(8.r),
+      child: InkWell(
+        key: const Key('routeAddPlace'),
+        borderRadius: BorderRadius.circular(8.r),
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Remix.map_pin_line,
+                size: 14.r,
+                color: AppStyle.primary,
+              ),
+              6.horizontalSpace,
+              Text(
+                AppHelpers.getTranslation('add_a_place'),
+                style: AppStyle.interSemi(
+                  size: 12.sp,
+                  color: AppStyle.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SourceChip extends StatelessWidget {
+  const _SourceChip({
+    required this.chipKey,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String chipKey;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? AppStyle.primary : AppStyle.cardDarkAlt,
+      borderRadius: BorderRadius.circular(8.r),
+      child: InkWell(
+        key: Key(chipKey),
+        borderRadius: BorderRadius.circular(8.r),
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
+          child: Text(
+            label,
+            style: AppStyle.interSemi(
+              size: 12.sp,
+              // Black on the chip's own AppStyle.primary ground, the
+              // fleet's pairing; the unselected chip sits on the card and
+              // takes the resolved ink.
+              color: selected ? AppStyle.black : AppStyle.textPrimary,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

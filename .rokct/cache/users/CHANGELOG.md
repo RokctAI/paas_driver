@@ -1,3 +1,77 @@
+## 1.5.1
+
+* fix(users): `saveLocation` sends `{'address_data': ...}` to
+  `api.user.add_user_address`, matching its signature and
+  `AddressRepository.saveAddress`.
+* fix(users): `getWalletHistories` sends `start`/`limit`, the parameters
+  `get_wallet_history` takes; the old `limit_start`/`limit_page_length`
+  were dropped, so every page returned the first rows.
+* fix(users backend): `forgot_password_confirm` called with a valid code and
+  no password now mints a session token (api key/secret, session expiry
+  stamped, code spent) and returns `{token, user}`, the same shape phone
+  reset gets from `verify_phone_code`. Email reset previously got no token
+  and could never set the new password.
+
+## 1.5.0
+
+* **Demo runs the real repositories, the tour included.** Deleted
+  `MockUserRepository`, `MockAddressRepository` and the DI hook's
+  `DemoSession` listener that swapped them in and out (Ray, 2026-09-25).
+  `UsersSdkDependencies` always registers `UserRepository` and
+  `AddressRepository` and registers `assets/demo/users` with base_sdk's
+  `DemoFixtures`; the `DemoGatewayInterceptor` (base_sdk 1.73.0) answers
+  every `api.user.*` cmd from `templates/assets/demo/users/<cmd>.json`
+  while `DemoSession.demoActive`. `api.user.get_user_profile` answers per
+  signed-in role: partner Nomvula (id 2), admin Ayanda (id 3), every other
+  role Thandi (id 1) with the Home address and the R793.00 wallet. Profile
+  edits are acknowledged but no longer stick for the session.
+  `api.user.get_wallet_history` has no fixture here: wallet_sdk owns
+  that cmd's demo ledger.
+  `mock_user_repository_test`, `mock_user_repository_owner_test` and
+  `users_di_demo_session_test` went with the classes;
+  `demo_fixtures_real_repository_test` drives the real repositories
+  through the interceptor. Needs base_sdk 1.73.0.
+
+## 1.4.2
+
+* fix(users): `MockUserRepository` keeps one profile per demo account, keyed
+  by the signed-in account's id. It served Thandi's profile (id "1") to
+  every demo session, so even once auth_sdk 1.13.5 gives the partner and
+  admin demo accounts ids of their own, their profile fetch would write
+  Thandi's id back over the stored session and return them to her owner
+  scope. Thandi's account is unchanged; any other demo account is
+  seeded from the session auth_sdk stored at sign-in, and edits stick per
+  account.
+
+## 1.4.1
+
+* fix(users): the local session is cleared on sign-out whether or not the
+  server revoke succeeds. `UserRepository.logoutAccount` ran
+  `LocalStorage.logout()` INSIDE the `try`, after
+  `api.user.logout` - so a revoke that threw (no network, a 401 on a token
+  the backend never issued, a backend that is down) returned failure and
+  left the token, the persisted profile and every SDK's session-scoped
+  on-device data exactly where they were. The clear moves into a
+  `finally`; the returned `ApiResult` still reports what the revoke did, it
+  just no longer decides whether the device forgets the session.
+  `deleteAccount` moves with it, for the same reason and one more:
+  `SessionEndHooks.run()` has already torn the session-scoped state down by
+  that point, so a live local session behind a failed delete is strictly
+  worse than being signed out and asked to try again.
+* The case that made this certain rather than unlucky: an offline /
+  temp-local account's token is `offline:<local user id>` (auth_sdk's
+  `OfflineAuthService`), which no backend ever issued, so `api.user.logout`
+  can NEVER succeed for one of those users. Sign-out was a guaranteed
+  no-op for exactly the users who only have local data - Ray, 2026-09-19:
+  "if on temp local user you logout all your tasks still show".
+* Tests: `test/user_repository_logout_test.dart` - the revoke succeeding
+  clears the session; the revoke failing clears it too and still returns
+  the failure; the session-end hooks fire on the failing path; a failed
+  `deleteAccount` clears it as well. The gateway is exercised end to end
+  through a stubbed `HttpService`, so the failure is a real
+  `DioException` out of `PlatformGateway`.
+* manifest.json 1.4.0 -> 1.4.1; no new base_sdk requirement.
+
 ## 1.4.0
 
 * Demo login in production, phase 2: the demo repositories follow the

@@ -76,7 +76,7 @@ class _BankAccountsPageState extends ConsumerState<BankAccountsPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(bankAccountsProvider);
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: SafeArea(
         child: Stack(
           children: [
@@ -97,7 +97,7 @@ class _BankAccountsPageState extends ConsumerState<BankAccountsPage> {
                       ),
                       style: AppStyle.interRegular(
                         size: 12,
-                        color: AppStyle.textDarkSecondary,
+                        color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                       ),
                     ),
                     22.verticalSpace,
@@ -106,7 +106,7 @@ class _BankAccountsPageState extends ConsumerState<BankAccountsPage> {
                       style: AppStyle.interSemi(
                         size: 10.5,
                         letterSpacing: 1.2,
-                        color: AppStyle.textDarkSecondary,
+                        color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                       ),
                     ),
                     12.verticalSpace,
@@ -154,7 +154,7 @@ class _BankAccountsPageState extends ConsumerState<BankAccountsPage> {
         key: const Key('bankAccountsEmptyLine'),
         style: AppStyle.interRegular(
           size: 12,
-          color: AppStyle.textDarkFaint,
+          color: AppStyle.faintFor(Theme.of(context).brightness),
         ),
       );
     }
@@ -180,7 +180,7 @@ class _BankAccountsPageState extends ConsumerState<BankAccountsPage> {
       key: Key('bankAccountRow_${account.id}'),
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Column(
@@ -234,7 +234,7 @@ class _BankAccountsPageState extends ConsumerState<BankAccountsPage> {
             accountSummary(account),
             style: AppStyle.interRegular(
               size: 12,
-              color: AppStyle.textDarkSecondary,
+              color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
           ),
           4.verticalSpace,
@@ -246,11 +246,11 @@ class _BankAccountsPageState extends ConsumerState<BankAccountsPage> {
             ].join(' · '),
             style: AppStyle.interRegular(
               size: 12,
-              color: AppStyle.textDarkFaint,
+              color: AppStyle.faintFor(Theme.of(context).brightness),
             ),
           ),
           10.verticalSpace,
-          Divider(height: 1, color: AppStyle.strokeDarkSubtle),
+          Divider(height: 1, color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
           8.verticalSpace,
           GestureDetector(
             key: Key('bankRemove_${account.id}'),
@@ -263,7 +263,7 @@ class _BankAccountsPageState extends ConsumerState<BankAccountsPage> {
               AppHelpers.getTranslation('remove'),
               style: AppStyle.interNoSemi(
                 size: 12,
-                color: blocked ? AppStyle.textDarkFaint : AppStyle.red,
+                color: blocked ? AppStyle.faintFor(Theme.of(context).brightness) : AppStyle.red,
               ),
             ),
           ),
@@ -279,7 +279,7 @@ class _BankAccountsPageState extends ConsumerState<BankAccountsPage> {
               key: Key('bankRemoveBlocked_${account.id}'),
               style: AppStyle.interRegular(
                 size: 11,
-                color: AppStyle.textDarkFaint,
+                color: AppStyle.faintFor(Theme.of(context).brightness),
               ),
             ),
           ],
@@ -299,9 +299,9 @@ class _BankAccountsPageState extends ConsumerState<BankAccountsPage> {
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 14.h),
           decoration: BoxDecoration(
-            color: AppStyle.cardDarkAlt,
+            color: AppStyle.cardAltFor(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: AppStyle.strokeDark),
+            border: Border.all(color: AppStyle.strokeFor(Theme.of(context).brightness)),
           ),
           child: Text(
             AppHelpers.getTranslation('add_another_account'),
@@ -340,7 +340,7 @@ class _BankAccountsPageState extends ConsumerState<BankAccountsPage> {
         width: double.infinity,
         padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 14.h),
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(12.r),
         ),
         child: Column(
@@ -355,7 +355,7 @@ class _BankAccountsPageState extends ConsumerState<BankAccountsPage> {
               AppHelpers.getTranslation(body),
               style: AppStyle.interRegular(
                 size: 10.5,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ],

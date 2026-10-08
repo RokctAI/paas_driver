@@ -85,7 +85,7 @@ class _QuickStockViewState extends ConsumerState<QuickStockView> {
               width: 44,
               height: 4,
               decoration: BoxDecoration(
-                color: AppStyle.strokeDark,
+                color: AppStyle.strokeFor(Theme.of(context).brightness),
                 borderRadius: BorderRadius.circular(100),
               ),
             ),
@@ -98,14 +98,14 @@ class _QuickStockViewState extends ConsumerState<QuickStockView> {
             Expanded(
               child: Text(
                 AppHelpers.getTranslation('quick_stock_update'),
-                style: AppStyle.interBold(size: 20, color: AppStyle.textPrimary),
+                style: AppStyle.interBold(size: 20, color: AppStyle.inkFor(Theme.of(context).brightness)),
               ),
             ),
             Text(
               AppHelpers.getTranslation('counts_only'),
               style: AppStyle.interNormal(
                 size: 12,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ],
@@ -115,7 +115,7 @@ class _QuickStockViewState extends ConsumerState<QuickStockView> {
           AppHelpers.getTranslation('tap_to_adjust_counts_prices_and_variants_stay_in_the_product_form'),
           style: AppStyle.interNormal(
             size: 12,
-            color: AppStyle.textDarkSecondary,
+            color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
           ),
         ),
         const SizedBox(height: 12),
@@ -128,7 +128,7 @@ class _QuickStockViewState extends ConsumerState<QuickStockView> {
                     AppHelpers.getTranslation('nothing_to_count_here'),
                     style: AppStyle.interNormal(
                       size: 12,
-                      color: AppStyle.textDarkFaint,
+                      color: AppStyle.faintFor(Theme.of(context).brightness),
                     ),
                   ),
                 )
@@ -148,9 +148,9 @@ class _QuickStockViewState extends ConsumerState<QuickStockView> {
       return Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppStyle.cardDarkAlt,
+          color: AppStyle.cardAltFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppStyle.strokeDarkSubtle),
+          border: Border.all(color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
         ),
         child: body,
       );
@@ -158,7 +158,7 @@ class _QuickStockViewState extends ConsumerState<QuickStockView> {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       decoration: BoxDecoration(
-        color: AppStyle.cardDarkAlt,
+        color: AppStyle.cardAltFor(Theme.of(context).brightness),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(top: false, child: body),
@@ -186,7 +186,7 @@ class _QuickStockViewState extends ConsumerState<QuickStockView> {
                   ? AppStyle.primary
                   : AppStyle.transparent,
               border: Border.all(
-                color: active ? accent : AppStyle.strokeDark,
+                color: active ? accent : AppStyle.strokeFor(Theme.of(context).brightness),
               ),
             ),
             child: Row(
@@ -197,8 +197,8 @@ class _QuickStockViewState extends ConsumerState<QuickStockView> {
                   style: AppStyle.interSemi(
                     size: 13,
                     color: active
-                        ? (color == null ? AppStyle.textPrimary : accent)
-                        : AppStyle.textDarkSecondary,
+                        ? (color == null ? AppStyle.inkFor(Theme.of(context).brightness) : accent)
+                        : AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
                 ),
                 if (count != null) ...[
@@ -208,8 +208,8 @@ class _QuickStockViewState extends ConsumerState<QuickStockView> {
                     style: AppStyle.interSemi(
                       size: 13,
                       color: active
-                          ? (color == null ? AppStyle.textPrimary : accent)
-                          : AppStyle.textDarkFaint,
+                          ? (color == null ? AppStyle.inkFor(Theme.of(context).brightness) : accent)
+                          : AppStyle.faintFor(Theme.of(context).brightness),
                     ),
                   ),
                 ],
@@ -250,10 +250,10 @@ class _QuickStockViewState extends ConsumerState<QuickStockView> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: row.dirty ? AppStyle.primary : AppStyle.strokeDarkSubtle,
+          color: row.dirty ? AppStyle.primary : AppStyle.subtleStrokeFor(Theme.of(context).brightness),
           width: row.dirty ? 1.4 : 1,
         ),
       ),
@@ -279,7 +279,7 @@ class _QuickStockViewState extends ConsumerState<QuickStockView> {
                   row.product.translation?.title ?? '',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppStyle.interSemi(size: 14, color: AppStyle.textPrimary),
+                  style: AppStyle.interSemi(size: 14, color: AppStyle.inkFor(Theme.of(context).brightness)),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -289,7 +289,7 @@ class _QuickStockViewState extends ConsumerState<QuickStockView> {
                   overflow: TextOverflow.ellipsis,
                   style: AppStyle.interNormal(
                     size: 12,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                   ),
                 ),
               ],
@@ -306,7 +306,7 @@ class _QuickStockViewState extends ConsumerState<QuickStockView> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: AppStyle.strokeDark),
+        border: Border.all(color: AppStyle.strokeFor(Theme.of(context).brightness)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -342,7 +342,7 @@ class _QuickStockViewState extends ConsumerState<QuickStockView> {
       child: SizedBox(
         width: 40,
         height: 40,
-        child: Icon(icon, size: 18, color: AppStyle.textPrimary),
+        child: Icon(icon, size: 18, color: AppStyle.inkFor(Theme.of(context).brightness)),
       ),
     );
   }
@@ -387,7 +387,7 @@ class _QuickStockViewState extends ConsumerState<QuickStockView> {
                     ? AppHelpers.getTranslation(TrKeys.save)
                     : '${AppHelpers.getTranslation(TrKeys.save)} $dirty '
                         '${AppHelpers.getTranslation('changes')}',
-                style: AppStyle.interSemi(size: 15, color: AppStyle.textPrimary),
+                style: AppStyle.interSemi(size: 15, color: AppStyle.inkFor(Theme.of(context).brightness)),
               ),
       ),
     );

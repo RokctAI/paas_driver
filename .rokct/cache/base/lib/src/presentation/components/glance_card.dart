@@ -16,6 +16,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:base_sdk/src/application/orders_list/orders_list_provider.dart';
@@ -100,9 +101,34 @@ class GlanceCard extends StatelessWidget {
     this.borderRadius = 16,
   });
 
+  /// The row's text style with the current mode's [ink] filled in where the
+  /// caller left the colour open. Kept out of [build] so the "caller wins"
+  /// rule is stated once.
+  static TextStyle _rowStyle(GlanceCardItem item, Color ink) {
+    final TextStyle style = item.textStyle ?? const TextStyle(fontSize: 13);
+    return style.color == null ? style.copyWith(color: ink) : style;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) return const SizedBox.shrink();
+
+    // The shell's own styling lookup, and deliberately a BuildContext one
+    // (Ray, 2026-09-19: "glance doesnt change test immediately untill you
+    // come back if you switched theme mode").
+    //
+    // This card used to resolve nothing from the context: its chrome came
+    // from AppStyle's statics and its rows' ink was left to whatever
+    // ambient DefaultTextStyle a host happened to provide. Neither is a
+    // dependency, so a theme-mode change scheduled no rebuild of this
+    // element at all - the card kept the previous mode's styling until
+    // something else rebuilt it, i.e. until the page was built again from
+    // scratch on the way back into the launcher. Reading the inherited
+    // theme here is what fixes that: the element now depends on it, so the
+    // mode change itself rebuilds this card wherever it is mounted, and the
+    // ink is named from AppStyle's ink seam for the mode the theme reports
+    // rather than inherited by accident.
+    final Color ink = AppStyle.inkFor(Theme.of(context).brightness);
 
     final accent = iconColor ?? AppStyle.primary;
 
@@ -122,9 +148,10 @@ class GlanceCard extends StatelessWidget {
           if (title != null) ...[
             Text(
               title!,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
+                color: ink,
               ),
             ),
             const SizedBox(height: 8),
@@ -145,8 +172,11 @@ class GlanceCard extends StatelessWidget {
                           Expanded(
                             child: Text(
                               item.text,
-                              style: item.textStyle ??
-                                  const TextStyle(fontSize: 13),
+                              // A per-row style that names its own colour
+                              // (the active-order card's muted weather
+                              // line) keeps it; one that doesn't, and the
+                              // default 13px row, take the mode's ink.
+                              style: _rowStyle(item, ink),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -159,7 +189,7 @@ class GlanceCard extends StatelessWidget {
                       onTap: item.onDismiss,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 8),
-                        child: Icon(Icons.close, size: 16, color: accent),
+                        child: Icon(Remix.close_line, size: 16, color: accent),
                       ),
                     ),
                 ],
@@ -246,6 +276,20 @@ class _ActiveOrderGlanceCardState extends ConsumerState<ActiveOrderGlanceCard> {
 
   @override
   Widget build(BuildContext context) {
+    // The same BuildContext lookup the shell above now does, and for the
+    // same reason (Ray, 2026-09-19: "glance doesnt change test immediately
+    // untill you come back if you switched theme mode"). #242 fixed the
+    // shell, but this card's weather line names a colour of ITS own — which
+    // the shell deliberately leaves alone — and named it from AppStyle's
+    // app-wide isDark static. That is not a dependency, and the line is
+    // built inside two ValueListenableBuilders, which only rebuild when
+    // their notifier fires: a mode change reached neither, so the notice
+    // kept the previous mode's secondary ink until an order or ETA tick
+    // happened to rebuild it. Read here, OUTSIDE the builders, so this
+    // element depends on the inherited theme and the mode change itself
+    // rebuilds the card wherever it is mounted.
+    final Brightness brightness = Theme.of(context).brightness;
+
     return ValueListenableBuilder<OrderActiveModel?>(
       valueListenable: _currentOrderNotifier,
       builder: (context, currentOrder, child) {
@@ -275,7 +319,7 @@ class _ActiveOrderGlanceCardState extends ConsumerState<ActiveOrderGlanceCard> {
               iconColor: accent,
               items: [
                 GlanceCardItem(
-                  icon: Icons.local_shipping_outlined,
+                  icon: Remix.truck_line,
                   text:
                       'Order №${(currentOrder.id ?? '').toString()} is $statusLabel — ETA $etaText',
                   avatar: ShopAvatar(
@@ -294,11 +338,11 @@ class _ActiveOrderGlanceCardState extends ConsumerState<ActiveOrderGlanceCard> {
                   // One muted notice line (the lms_sdk schedule-glance
                   // style: small secondary text) under the order row.
                   GlanceCardItem(
-                    icon: Icons.cloud_outlined,
+                    icon: Remix.cloud_line,
                     text: weatherText,
                     textStyle: TextStyle(
                       fontSize: 12,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(brightness),
                     ),
                     onTap: () => AppRoutes.I.pushOrderProgressRoute(
                       context,
@@ -318,10 +362,12 @@ class _ActiveOrderGlanceCardState extends ConsumerState<ActiveOrderGlanceCard> {
       case 'accepted':
         return Colors.blue;
       case 'processing':
+      case 'cooking':
         return Colors.orange;
       case 'ready':
         return Colors.green;
       case 'on_a_way':
+      case 'shipped':
         return Colors.deepPurple;
       case 'delivered':
         return Colors.purple;

@@ -1,6 +1,6 @@
 name: merchants_sdk
 description: "merchants_sdk - extracted from paas_customer (refork 2026-07-11)."
-version: 1.5.0
+version: 1.33.3
 publish_to: 'none'
 environment:
   sdk: '>=3.10.0 <4.0.0'
@@ -34,7 +34,7 @@ dependencies:
   lottie: ^3.0.0
   mobile_scanner: ^6.0.4
   pretty_qr_code: ^3.3.0
-  remixicon: ^1.2.0
+  remixicon: ^1.4.1
   share_plus: ^10.1.1
   visibility_detector: ^0.4.0+2
 dev_dependencies:

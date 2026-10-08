@@ -40,7 +40,10 @@ class TitleAndPrice extends StatelessWidget {
         children: [
           Text(
             title,
-            style: AppStyle.interRegular(size: 16, color: AppStyle.black),
+            style: AppStyle.interRegular(
+              size: 16,
+              color: AppStyle.inkFor(Theme.of(context).brightness),
+            ),
           ),
           GestureDetector(
             onTap: onRightTap ?? () {},

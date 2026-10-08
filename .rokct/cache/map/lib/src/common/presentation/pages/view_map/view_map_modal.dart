@@ -81,7 +81,7 @@ class _ViewMapModalState extends ConsumerState<ViewMapModal> {
       margin: MediaQuery.viewInsetsOf(context),
       padding: EdgeInsets.symmetric(horizontal: 16.r),
       decoration: BoxDecoration(
-        color: AppStyle.white,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.only(
           topRight: Radius.circular(16.r),
           topLeft: Radius.circular(16.r),
@@ -169,7 +169,7 @@ class _ViewMapModalState extends ConsumerState<ViewMapModal> {
                   : AppStyle.primary,
               textColor: !widget.isShopLocation
                   ? (state.isActive ? AppStyle.black : AppStyle.textGrey)
-                  : AppStyle.black,
+                  : AppStyle.inkFor(Theme.of(context).brightness),
               title: !widget.isShopLocation
                   ? (state.isActive
                       ? AppHelpers.getTranslation(TrKeys.apply)

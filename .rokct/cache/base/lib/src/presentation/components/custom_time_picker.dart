@@ -88,7 +88,7 @@ class CustomTimePicker {
     showCupertinoModalPopup(
       context: context,
       builder: (_) => Container(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         child: Material(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -109,7 +109,7 @@ class CustomTimePicker {
                         AppHelpers.getTranslation(TrKeys.save),
                         style: AppStyle.interSemi(
                           size: 16,
-                          color: AppStyle.textPrimary,
+                          color: AppStyle.inkFor(Theme.of(context).brightness),
                         ),
                       ),
                     ),

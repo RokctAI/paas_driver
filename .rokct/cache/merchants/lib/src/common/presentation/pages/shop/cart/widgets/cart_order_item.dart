@@ -73,7 +73,7 @@ class CartOrderItem extends StatelessWidget {
         padding: EdgeInsets.all(16.r),
         width: double.infinity,
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.all(Radius.circular(10.r)),
         ),
         child: Row(
@@ -93,7 +93,7 @@ class CartOrderItem extends StatelessWidget {
                                 cart?.stock?.product?.translation?.title ?? "",
                             style: AppStyle.interNormal(
                               size: 16,
-                              color: AppStyle.textPrimary,
+                              color: AppStyle.inkFor(Theme.of(context).brightness),
                             ),
                             children: [
                               if (cart?.stock?.extras?.isNotEmpty ?? false)
@@ -116,7 +116,7 @@ class CartOrderItem extends StatelessWidget {
                                     "",
                                 style: AppStyle.interNormal(
                                   size: 16,
-                                  color: AppStyle.textPrimary,
+                                  color: AppStyle.inkFor(Theme.of(context).brightness),
                                 ),
                               ),
                             ),
@@ -158,7 +158,7 @@ class CartOrderItem extends StatelessWidget {
                       "${e.stocks?.product?.translation?.title ?? ""} ${AppHelpers.numberFormat(symbol: symbol, isOrder: symbol != null, number: (e.price ?? 0) / (e.quantity ?? 1))} x ${(e.quantity ?? 1)}",
                       style: AppStyle.interNormal(
                         size: 13.sp,
-                        color: AppStyle.textPrimary,
+                        color: AppStyle.inkFor(Theme.of(context).brightness),
                       ),
                     ),
                   8.verticalSpace,
@@ -184,8 +184,8 @@ class CartOrderItem extends StatelessWidget {
                                               horizontal: 10.w,
                                             ),
                                             child: Icon(
-                                              Icons.remove,
-                                              color: AppStyle.textPrimary,
+                                              Remix.subtract_line,
+                                              color: AppStyle.inkFor(Theme.of(context).brightness),
                                             ),
                                           ),
                                         ),
@@ -202,7 +202,7 @@ class CartOrderItem extends StatelessWidget {
                                             "${(cart?.quantity ?? 1) * (cart?.stock?.product?.interval ?? 1)}",
                                         style: AppStyle.interSemi(
                                           size: 14,
-                                          color: AppStyle.textPrimary,
+                                          color: AppStyle.inkFor(Theme.of(context).brightness),
                                         ),
                                         children: [
                                           TextSpan(
@@ -227,8 +227,8 @@ class CartOrderItem extends StatelessWidget {
                                               horizontal: 10.w,
                                             ),
                                             child: Icon(
-                                              Icons.add,
-                                              color: AppStyle.textPrimary,
+                                              Remix.add_line,
+                                              color: AppStyle.inkFor(Theme.of(context).brightness),
                                             ),
                                           ),
                                         ),
@@ -253,7 +253,7 @@ class CartOrderItem extends StatelessWidget {
                                           size: (cart?.discount ?? 0) != 0
                                               ? 12
                                               : 16,
-                                          color: AppStyle.textPrimary,
+                                          color: AppStyle.inkFor(Theme.of(context).brightness),
                                           decoration: (cart?.discount ?? 0) != 0
                                               ? TextDecoration.lineThrough
                                               : TextDecoration.none,
@@ -310,14 +310,14 @@ class CartOrderItem extends StatelessWidget {
                                       ),
                                       style: AppStyle.interSemi(
                                         size: 16,
-                                        color: AppStyle.textPrimary,
+                                        color: AppStyle.inkFor(Theme.of(context).brightness),
                                       ),
                                     ),
                                     Text(
                                       " X ${(cartTwo?.quantity ?? 1)}",
                                       style: AppStyle.interSemi(
                                         size: 16,
-                                        color: AppStyle.textPrimary,
+                                        color: AppStyle.inkFor(Theme.of(context).brightness),
                                       ),
                                     ),
                                     Text(
@@ -338,7 +338,7 @@ class CartOrderItem extends StatelessWidget {
                                   ),
                                   style: AppStyle.interSemi(
                                     size: 16,
-                                    color: AppStyle.textPrimary,
+                                    color: AppStyle.inkFor(Theme.of(context).brightness),
                                   ),
                                 ),
                                 8.horizontalSpace,
@@ -354,7 +354,7 @@ class CartOrderItem extends StatelessWidget {
                                   ),
                                   style: AppStyle.interSemi(
                                     size: 16,
-                                    color: AppStyle.textPrimary,
+                                    color: AppStyle.inkFor(Theme.of(context).brightness),
                                   ),
                                 ),
                                 Text(

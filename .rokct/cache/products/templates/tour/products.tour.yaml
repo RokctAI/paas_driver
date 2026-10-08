@@ -12,13 +12,10 @@
 # header, approved frames 35a/35c). Include it only in manager-family app
 # manifests, after `fragment: merchants` has landed the shell on /main.
 #
-# Demo grounding (--dart-define=IS_DEMO=true): products_di.dart swaps in
-# MockProducts/MockCategories/MockBrands for the customer-facing facades,
-# and since 1.7.0 it demo-gates the manager-side
-# SellerProductsRepositoryFacade / SellerCatalogRepositoryFacade to this
-# SDK's own DemoSellerProductsRepository / DemoSellerCatalogRepository -
-# a seeded fictional menu (six dishes over three categories, two add-ons,
-# two extras groups) served from memory. So the foods tab captures a
+# Demo grounding (a demo session): the REAL repositories run and base_sdk's
+# DemoGatewayInterceptor answers their cmds from the fixtures in
+# assets/demo/products - the customer catalog and a seeded fictional menu
+# (six dishes over three categories, two add-ons, two extras groups). So the foods tab captures a
 # stocked menu with zero backend contact. The create-product modal is a
 # static form (details tab + stocks tab) and renders fully either way.
 #

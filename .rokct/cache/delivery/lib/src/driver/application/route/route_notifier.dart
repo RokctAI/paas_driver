@@ -28,10 +28,18 @@ class RouteNotifier extends StateNotifier<RouteState> {
 
   RouteNotifier(this._routeRepository) : super(const RouteState());
 
-  /// Fetches the merged server-ordered route and the dispatch-route
-  /// header. The optimizer is seeded with the courier's last known map
-  /// position when one is stored.
-  Future<void> fetchRoute(BuildContext context) async {
+  /// Fetches the server-ordered route and, for the day's work, the
+  /// dispatch-route header. The optimizer is seeded with the courier's last
+  /// known map position when one is stored.
+  ///
+  /// [source] picks WHICH stops. A POI route has no dispatch route behind it
+  /// — points are places, not assigned work — so that second read is
+  /// skipped and any header from a previous work read is cleared, rather
+  /// than left over a list it does not describe.
+  Future<void> fetchRoute(
+    BuildContext context, {
+    DriverRouteSource source = DriverRouteSource.work,
+  }) async {
     final connected = await AppConnectivity.connectivity();
     if (!connected) {
       if (context.mounted) {
@@ -39,11 +47,12 @@ class RouteNotifier extends StateNotifier<RouteState> {
       }
       return;
     }
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(isLoading: true, source: source);
     final address = LocalStorage.getAddressSelected();
     final response = await _routeRepository.getDriverRoute(
       latitude: address?.latitude,
       longitude: address?.longitude,
+      source: source,
     );
     response.when(
       success: (stops) {
@@ -60,6 +69,11 @@ class RouteNotifier extends StateNotifier<RouteState> {
         debugPrint('==> get driver route failure: $failure');
       },
     );
+
+    if (source == DriverRouteSource.pois) {
+      state = state.copyWith(clearDispatchRoute: true);
+      return;
+    }
 
     final dispatch = await _routeRepository.getMyDispatchRoute();
     dispatch.when(
@@ -116,8 +130,9 @@ class RouteNotifier extends StateNotifier<RouteState> {
     if (completed) {
       onSuccess?.call();
       if (context.mounted) {
-        // Re-fetch so the server re-orders the remaining stops.
-        await fetchRoute(context);
+        // Re-fetch so the server re-orders the remaining stops — the same
+        // source the driver is looking at, never a silent switch back.
+        await fetchRoute(context, source: state.source);
       }
     }
   }

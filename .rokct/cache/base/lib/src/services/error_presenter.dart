@@ -77,8 +77,10 @@ abstract class ErrorPresenter {
   /// A definitive 4xx whose [detail] reads as server-authored user copy is
   /// returned verbatim (an expected user outcome — no telemetry); every
   /// other failure fires fire-and-forget telemetry carrying the verbatim
-  /// [detail] (+ status code) and returns only [friendly] (defaulting to
-  /// the translated "something went wrong" line).
+  /// [detail] (+ status code) and returns only [friendly] — defaulting to
+  /// [detail] itself when it is already one of the fleet's authored
+  /// connection-failure lines (see [_authoredConnectionLine]), and to the
+  /// translated "something went wrong" line otherwise.
   static String resolve({
     required String type,
     required String detail,
@@ -99,7 +101,7 @@ abstract class ErrorPresenter {
         },
       ),
     );
-    return friendly ?? _defaultFriendly();
+    return friendly ?? _authoredConnectionLine(detail) ?? _defaultFriendly();
   }
 
   /// Failure branch of an ApiResult: a definitive 4xx whose message reads
@@ -131,7 +133,9 @@ abstract class ErrorPresenter {
   /// Unconditional technical branch, for failures that are never student
   /// copy (thrown exceptions, third-party SDK error text): fire-and-forget
   /// telemetry carrying the verbatim [detail] (+ status code), then only a
-  /// friendly translated line on screen.
+  /// friendly line on screen — [detail] itself when it is already one of
+  /// the fleet's authored connection-failure lines (see
+  /// [_authoredConnectionLine]), else the translated fallback.
   static void showTechnical(
     BuildContext context, {
     required String type,
@@ -150,8 +154,33 @@ abstract class ErrorPresenter {
         },
       ),
     );
-    AppHelpers.showCheckTopSnackBar(context, friendly ?? _defaultFriendly());
+    AppHelpers.showCheckTopSnackBar(
+      context,
+      friendly ?? _authoredConnectionLine(detail) ?? _defaultFriendly(),
+    );
   }
+
+  /// [detail] when it is already one of the two connection-failure lines
+  /// `AppHelpers.errorHandler` authors for a response-less failure, else
+  /// null.
+  ///
+  /// The technical branch exists because a raw `detail` is never student
+  /// copy — but `errorHandler` has one arm where it is: a request that
+  /// never got a response comes back as the honest "we couldn't reach the
+  /// server" / "the server took too long" line, with the verbatim cause
+  /// already dispatched to telemetry (`network_unreachable`). Replacing
+  /// that with the generic `something_went_wrong_with_the_server` fallback
+  /// is what put "Something went wrong with the server" on the launcher's
+  /// login screen while the very same failure read "We couldn't reach the
+  /// server. Please try again." on the profile page, which renders
+  /// `failure` directly. The telemetry above still fires, so the call
+  /// site's event type (which fetch failed) is not lost — only the line on
+  /// screen changes, and it changes to the more honest of the two.
+  ///
+  /// Nothing else is admitted: the match is exact against the values that
+  /// helper can produce.
+  static String? _authoredConnectionLine(String detail) =>
+      AppHelpers.isAuthoredConnectionMessage(detail) ? detail.trim() : null;
 
   /// Translated friendly line, with a hard fallback for callers that run
   /// before LocalStorage is initialized (same guard as

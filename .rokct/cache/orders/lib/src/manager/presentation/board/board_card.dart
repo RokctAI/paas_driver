@@ -13,7 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_remix/flutter_remix.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:intl/intl.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -58,13 +58,13 @@ class BoardOrderCard extends StatelessWidget {
 
   IconData get _typeIcon {
     final type = order.deliveryType ?? '';
-    if (type == BoardRules.deliveryType) return FlutterRemix.e_bike_2_fill;
-    if (type == BoardRules.dineType) return FlutterRemix.restaurant_line;
+    if (type == BoardRules.deliveryType) return Remix.e_bike_2_fill;
+    if (type == BoardRules.dineType) return Remix.restaurant_line;
     // Pickup reads as a BAG, never a truck and never a walker (section
     // 43, frame 43d): it is the same glyph the convert action and the
     // confirm guard use, so a converted card and the action that made it
     // are recognisably the same thing.
-    return FlutterRemix.shopping_bag_3_line;
+    return Remix.shopping_bag_3_line;
   }
 
   String get _initials {
@@ -114,12 +114,12 @@ class BoardOrderCard extends StatelessWidget {
     final Color statusColor = status.color;
     final body = Container(
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: lifted
               ? AppStyle.primary.withValues(alpha: 0.75)
-              : (selected ? AppStyle.primary : AppStyle.strokeDarkSubtle),
+              : (selected ? AppStyle.primary : AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
           width: selected ? 1.3 : 1,
         ),
         boxShadow: lifted
@@ -164,7 +164,7 @@ class BoardOrderCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: AppStyle.interSemi(
                         size: 12.5,
-                        color: AppStyle.textPrimary,
+                        color: AppStyle.inkFor(Theme.of(context).brightness),
                       ),
                     ),
                     Text(
@@ -173,7 +173,7 @@ class BoardOrderCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: AppStyle.interNormal(
                         size: 11.5,
-                        color: AppStyle.textDarkSecondary,
+                        color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                       ),
                     ),
                   ],
@@ -186,25 +186,25 @@ class BoardOrderCard extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(4),
                     child: Icon(
-                      FlutterRemix.map_pin_2_line,
+                      Remix.map_pin_2_line,
                       size: 16,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                     ),
                   ),
                 ),
             ],
           ),
           const SizedBox(height: 8),
-          Container(height: 1, color: AppStyle.strokeDarkSubtle),
+          Container(height: 1, color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
           const SizedBox(height: 9),
           _infoRow(
-            FlutterRemix.calendar_2_line,
+            Remix.calendar_2_line,
             _createdAt == null
                 ? '--'
                 : DateFormat('d MMM yy').format(_createdAt!.toLocal()),
           ),
           _infoRow(
-            FlutterRemix.money_dollar_circle_line,
+            Remix.money_dollar_circle_line,
             _money(order.totalPrice),
             // 820: the total dropped by the returned fee, and says so.
             struckPrefix: _feeRefunded
@@ -213,7 +213,7 @@ class BoardOrderCard extends StatelessWidget {
           ),
           if ((order.deliveryFee ?? 0) > 0 || _feeRefunded)
             _infoRow(
-              FlutterRemix.e_bike_2_fill,
+              Remix.e_bike_2_fill,
               _feeRefunded ? '' : _money(order.deliveryFee),
               label: AppHelpers.getTranslation(CollectKeys.deliveryFeeRow),
               // 820: struck, because it is not on this order any more.
@@ -221,11 +221,11 @@ class BoardOrderCard extends StatelessWidget {
                   _feeRefunded ? _money(order.collectFeeRefunded) : null,
             ),
           _infoRow(
-            FlutterRemix.bank_card_line,
+            Remix.bank_card_line,
             order.transaction?.paymentSystem?.tag ?? '- -',
           ),
           if ((order.table?.name ?? '').isNotEmpty)
-            _infoRow(Icons.table_restaurant_outlined, order.table?.name ?? ''),
+            _infoRow(Remix.restaurant_2_line, order.table?.name ?? ''),
           const SizedBox(height: 4),
           _typeChip(statusColor),
           if (order.collectedInPerson) ...[

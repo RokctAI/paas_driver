@@ -97,6 +97,81 @@ abstract class AppStyle {
   static Color get textDarkFaint => isDark ? _textDarkFaint : _textLightFaint;
   static Color get textPrimary => isDark ? _inkDark : _inkLight;
 
+  /// [textPrimary] resolved against an EXPLICIT brightness instead of the
+  /// app-wide [isDark] flag — for widgets that take their mode from the
+  /// inherited theme (`Theme.of(context).brightness`).
+  ///
+  /// Reading [isDark] registers no dependency on anything, so a widget whose
+  /// only mode input is a static keeps the previous mode's ink until
+  /// something else happens to rebuild it. A widget that reads the theme
+  /// instead is rebuilt by the mode change itself and asks for its ink here.
+  /// Same two values as [textPrimary]; same spirit as the polarity-pinned
+  /// [surfaceLightRaw]/[surfaceDarkRaw] pair.
+  static Color inkFor(Brightness brightness) =>
+      brightness == Brightness.dark ? _inkDark : _inkLight;
+
+  /// [textDarkSecondary] resolved against an EXPLICIT brightness, for the
+  /// same reason [inkFor] exists: a widget whose only mode input is the
+  /// app-wide [isDark] static registers no dependency, so nothing
+  /// reschedules it when the mode flips and it keeps the previous mode's
+  /// secondary ink. A widget that reads the inherited theme instead is
+  /// rebuilt by the mode change itself and asks for its secondary ink here.
+  /// Same two values as [textDarkSecondary]; no new colour.
+  static Color secondaryInkFor(Brightness brightness) =>
+      brightness == Brightness.dark ? _textDarkSecondary : _textLightSecondary;
+
+  /// [textDarkFaint] resolved against an EXPLICIT brightness. Same reason as
+  /// [inkFor] and [secondaryInkFor]: the faintest ink role, for a widget
+  /// that takes its mode from the inherited theme rather than from the
+  /// app-wide [isDark] static. Same two values as [textDarkFaint].
+  static Color faintFor(Brightness brightness) =>
+      brightness == Brightness.dark ? _textDarkFaint : _textLightFaint;
+
+  /// [surfaceDark] resolved against an EXPLICIT brightness — the page
+  /// background role, for a widget that takes its mode from the inherited
+  /// theme. Same two values as [surfaceDark], and NOT to be confused with
+  /// the polarity-pinned [surfaceLightRaw]/[surfaceDarkRaw] pair, which
+  /// exists for building the host MaterialApp's paired ThemeData and must
+  /// never resolve at all. This one answers "what background does THIS
+  /// brightness want", which is the question a Scaffold in a themed
+  /// subtree is asking.
+  static Color surfaceFor(Brightness brightness) =>
+      brightness == Brightness.dark ? _surfaceDark : _surfaceLight;
+
+  /// [cardDark] resolved against an EXPLICIT brightness — the raised card
+  /// fill, the most-asked-for role in this family: almost every shared
+  /// component that draws a surface of its own draws this one. Same reason
+  /// as [inkFor]: a widget whose only mode input is the app-wide [isDark]
+  /// static registers no dependency on anything, so a theme-mode flip
+  /// schedules no rebuild of it and it keeps the previous mode's fill until
+  /// something else happens to rebuild it. A widget that reads the
+  /// inherited theme instead is rebuilt by the flip itself and asks for its
+  /// fill here. Same two values as [cardDark]; no new colour.
+  static Color cardFor(Brightness brightness) =>
+      brightness == Brightness.dark ? _cardDark : _cardLight;
+
+  /// [cardDarkAlt] resolved against an EXPLICIT brightness — the SECOND
+  /// card fill, a hair off [cardFor], for a panel that has to read as
+  /// distinct from the card it sits on (a social button's ground, a nested
+  /// well). Same reason as [cardFor]; same two values as [cardDarkAlt].
+  static Color cardAltFor(Brightness brightness) =>
+      brightness == Brightness.dark ? _cardDarkAlt : _cardLightAlt;
+
+  /// [strokeDark] resolved against an EXPLICIT brightness — the hairline
+  /// border role. Same reason as [cardFor]: a border named from the
+  /// app-wide static outlives the mode it was chosen for, which on a
+  /// stroke is the most visible way to get this wrong (a dark hairline
+  /// left on a light card reads as a mistake). Same two values as
+  /// [strokeDark].
+  static Color strokeFor(Brightness brightness) =>
+      brightness == Brightness.dark ? _strokeDark : _strokeLight;
+
+  /// [strokeDarkSubtle] resolved against an EXPLICIT brightness — the
+  /// quieter hairline, for a divider inside a card rather than around one.
+  /// Same reason as [strokeFor]; same two values as [strokeDarkSubtle].
+  static Color subtleStrokeFor(Brightness brightness) =>
+      brightness == Brightness.dark ? _strokeDarkSubtle : _strokeLightSubtle;
+
   // Polarity-PINNED page backgrounds (never mode-resolving): for building
   // the host MaterialApp's paired ThemeData — `theme:` must stay light and
   // `darkTheme:` dark regardless of the current [isDark] flag. They track

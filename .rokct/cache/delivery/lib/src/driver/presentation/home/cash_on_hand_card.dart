@@ -70,9 +70,11 @@ class CashOnHandCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
       decoration: BoxDecoration(
-        color: AppStyle.cardDarkAlt,
+        color: AppStyle.cardAltFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: AppStyle.strokeDarkSubtle),
+        border: Border.all(
+          color: AppStyle.subtleStrokeFor(Theme.of(context).brightness),
+        ),
       ),
       child: Row(
         children: [
@@ -85,7 +87,7 @@ class CashOnHandCard extends StatelessWidget {
                   AppHelpers.getTranslation(TrKeys.cashOnHand),
                   style: AppStyle.interSemi(
                     size: 15,
-                    color: AppStyle.textPrimary,
+                    color: AppStyle.inkFor(Theme.of(context).brightness),
                   ),
                 ),
                 4.verticalSpace,
@@ -93,7 +95,9 @@ class CashOnHandCard extends StatelessWidget {
                   _subLine(),
                   style: AppStyle.interNormal(
                     size: 12,
-                    color: AppStyle.textDarkSecondary,
+                    color: AppStyle.secondaryInkFor(
+                      Theme.of(context).brightness,
+                    ),
                   ),
                 ),
               ],
@@ -102,7 +106,10 @@ class CashOnHandCard extends StatelessWidget {
           12.horizontalSpace,
           Text(
             AppHelpers.numberFormat(number: amount),
-            style: AppStyle.interSemi(size: 20, color: AppStyle.textPrimary),
+            style: AppStyle.interSemi(
+              size: 20,
+              color: AppStyle.inkFor(Theme.of(context).brightness),
+            ),
           ),
         ],
       ),

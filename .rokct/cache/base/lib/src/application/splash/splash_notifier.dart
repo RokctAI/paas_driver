@@ -33,11 +33,27 @@ class SplashNotifier extends StateNotifier<SplashState> {
     VoidCallback? goMain,
     VoidCallback? goLogin,
     VoidCallback? goNoInternet,
+    bool backendUp = true,
   }) async {
-    // This will automatically show dialog if no connection
-    final connect = await AppConnectivity.connectivityWithDialog(context);
+    final connect = await AppConnectivity.connectivity();
 
     if (connect) {
+      // The radio being up says nothing about the tenant backend: a Wi-Fi
+      // network with no route to it false-passes connectivity(). When the
+      // splash's api_status probe already answered "down", every
+      // getGlobalSettings() below is a guaranteed dio timeout the person
+      // waits through BEFORE any routing happens — the splash sat there for
+      // the whole of it. Route on what is already stored and leave the
+      // settings refresh to the next start that finds a backend.
+      if (!backendUp) {
+        if (LocalStorage.getToken().isEmpty) {
+          goLogin?.call();
+        } else {
+          goMain?.call();
+        }
+        return;
+      }
+
       if (LocalStorage.getSettingsFetched()) {
         final response = await _settingsRepository.getGlobalSettings();
         response.when(
@@ -47,7 +63,6 @@ class SplashNotifier extends StateNotifier<SplashState> {
           },
           failure: (failure, status) {
             debugPrint('==> error with settings fetched');
-            // No need for manual dialog call - handled by connectivity check
           },
         );
       }
@@ -67,24 +82,16 @@ class SplashNotifier extends StateNotifier<SplashState> {
           },
           failure: (failure, status) {
             debugPrint('==> error with settings fetched');
-            // No need for manual dialog call
           },
         );
       }
     } else {
-      // connectivityWithDialog has put its dialog up, but a dialog is not a
-      // destination: without this branch the caller's goMain/goLogin/
-      // goNoInternet callbacks were never invoked at all, so a device that
-      // lost the network between the splash's own connectivity check and
-      // this one was left on the splash screen with no way forward. Hand
-      // control back so the boot path can route to the no-connection page.
       goNoInternet?.call();
     }
   }
 
   Future<void> getTranslations(BuildContext context) async {
-    // This will automatically show dialog if no connection
-    final connect = await AppConnectivity.connectivityWithDialog(context);
+    final connect = await AppConnectivity.connectivity();
 
     if (connect) {
       final response = await _settingsRepository.getMobileTranslations();
@@ -98,11 +105,8 @@ class SplashNotifier extends StateNotifier<SplashState> {
         },
         failure: (failure, status) {
           debugPrint('==> error with fetching translations $failure');
-          // Could show dialog here for API failures even with connection
-          // AppHelpers.showNoConnectionDialog(context);
         },
       );
     }
-    // No else block needed - dialog is automatically shown by connectivityWithDialog
   }
 }

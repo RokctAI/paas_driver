@@ -36,8 +36,18 @@ class $KeyValueTableTable extends KeyValueTable
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _ownerMeta = const VerificationMeta('owner');
   @override
-  List<GeneratedColumn> get $columns => [box, id, data];
+  late final GeneratedColumn<String> owner = GeneratedColumn<String>(
+    'owner',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(kUnownedOwner),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [box, id, data, owner];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -71,11 +81,17 @@ class $KeyValueTableTable extends KeyValueTable
     } else if (isInserting) {
       context.missing(_dataMeta);
     }
+    if (data.containsKey('owner')) {
+      context.handle(
+        _ownerMeta,
+        owner.isAcceptableOrUnknown(data['owner']!, _ownerMeta),
+      );
+    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {box, id};
+  Set<GeneratedColumn> get $primaryKey => {box, id, owner};
   @override
   KeyValueEntity map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -92,6 +108,10 @@ class $KeyValueTableTable extends KeyValueTable
         DriftSqlType.string,
         data['${effectivePrefix}data'],
       )!,
+      owner: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner'],
+      )!,
     );
   }
 
@@ -105,10 +125,20 @@ class KeyValueEntity extends DataClass implements Insertable<KeyValueEntity> {
   final String box;
   final String id;
   final String data;
+
+  /// Account this row belongs to, or [kUnownedOwner] for a row that belongs
+  /// to nobody in particular (every row written before scoping existed, and
+  /// every row written by an app nobody has signed into).
+  ///
+  /// NOT NULL with a default rather than nullable: see [kUnownedOwner] for
+  /// why SQLite's tolerance of NULLs inside a composite PRIMARY KEY makes a
+  /// nullable version of this column unsafe.
+  final String owner;
   const KeyValueEntity({
     required this.box,
     required this.id,
     required this.data,
+    required this.owner,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -116,6 +146,7 @@ class KeyValueEntity extends DataClass implements Insertable<KeyValueEntity> {
     map['box'] = Variable<String>(box);
     map['id'] = Variable<String>(id);
     map['data'] = Variable<String>(data);
+    map['owner'] = Variable<String>(owner);
     return map;
   }
 
@@ -124,6 +155,7 @@ class KeyValueEntity extends DataClass implements Insertable<KeyValueEntity> {
       box: Value(box),
       id: Value(id),
       data: Value(data),
+      owner: Value(owner),
     );
   }
 
@@ -136,6 +168,7 @@ class KeyValueEntity extends DataClass implements Insertable<KeyValueEntity> {
       box: serializer.fromJson<String>(json['box']),
       id: serializer.fromJson<String>(json['id']),
       data: serializer.fromJson<String>(json['data']),
+      owner: serializer.fromJson<String>(json['owner']),
     );
   }
   @override
@@ -145,20 +178,27 @@ class KeyValueEntity extends DataClass implements Insertable<KeyValueEntity> {
       'box': serializer.toJson<String>(box),
       'id': serializer.toJson<String>(id),
       'data': serializer.toJson<String>(data),
+      'owner': serializer.toJson<String>(owner),
     };
   }
 
-  KeyValueEntity copyWith({String? box, String? id, String? data}) =>
-      KeyValueEntity(
-        box: box ?? this.box,
-        id: id ?? this.id,
-        data: data ?? this.data,
-      );
+  KeyValueEntity copyWith({
+    String? box,
+    String? id,
+    String? data,
+    String? owner,
+  }) => KeyValueEntity(
+    box: box ?? this.box,
+    id: id ?? this.id,
+    data: data ?? this.data,
+    owner: owner ?? this.owner,
+  );
   KeyValueEntity copyWithCompanion(KeyValueTableCompanion data) {
     return KeyValueEntity(
       box: data.box.present ? data.box.value : this.box,
       id: data.id.present ? data.id.value : this.id,
       data: data.data.present ? data.data.value : this.data,
+      owner: data.owner.present ? data.owner.value : this.owner,
     );
   }
 
@@ -167,37 +207,42 @@ class KeyValueEntity extends DataClass implements Insertable<KeyValueEntity> {
     return (StringBuffer('KeyValueEntity(')
           ..write('box: $box, ')
           ..write('id: $id, ')
-          ..write('data: $data')
+          ..write('data: $data, ')
+          ..write('owner: $owner')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(box, id, data);
+  int get hashCode => Object.hash(box, id, data, owner);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is KeyValueEntity &&
           other.box == this.box &&
           other.id == this.id &&
-          other.data == this.data);
+          other.data == this.data &&
+          other.owner == this.owner);
 }
 
 class KeyValueTableCompanion extends UpdateCompanion<KeyValueEntity> {
   final Value<String> box;
   final Value<String> id;
   final Value<String> data;
+  final Value<String> owner;
   final Value<int> rowid;
   const KeyValueTableCompanion({
     this.box = const Value.absent(),
     this.id = const Value.absent(),
     this.data = const Value.absent(),
+    this.owner = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   KeyValueTableCompanion.insert({
     required String box,
     required String id,
     required String data,
+    this.owner = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : box = Value(box),
        id = Value(id),
@@ -206,12 +251,14 @@ class KeyValueTableCompanion extends UpdateCompanion<KeyValueEntity> {
     Expression<String>? box,
     Expression<String>? id,
     Expression<String>? data,
+    Expression<String>? owner,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (box != null) 'box': box,
       if (id != null) 'id': id,
       if (data != null) 'data': data,
+      if (owner != null) 'owner': owner,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -220,12 +267,14 @@ class KeyValueTableCompanion extends UpdateCompanion<KeyValueEntity> {
     Value<String>? box,
     Value<String>? id,
     Value<String>? data,
+    Value<String>? owner,
     Value<int>? rowid,
   }) {
     return KeyValueTableCompanion(
       box: box ?? this.box,
       id: id ?? this.id,
       data: data ?? this.data,
+      owner: owner ?? this.owner,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -242,6 +291,9 @@ class KeyValueTableCompanion extends UpdateCompanion<KeyValueEntity> {
     if (data.present) {
       map['data'] = Variable<String>(data.value);
     }
+    if (owner.present) {
+      map['owner'] = Variable<String>(owner.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -254,6 +306,7 @@ class KeyValueTableCompanion extends UpdateCompanion<KeyValueEntity> {
           ..write('box: $box, ')
           ..write('id: $id, ')
           ..write('data: $data, ')
+          ..write('owner: $owner, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -391,6 +444,16 @@ class $OutboxTableTable extends OutboxTable
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _ownerMeta = const VerificationMeta('owner');
+  @override
+  late final GeneratedColumn<String> owner = GeneratedColumn<String>(
+    'owner',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(kUnownedOwner),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -405,6 +468,7 @@ class $OutboxTableTable extends OutboxTable
     nextAttemptAt,
     createdAt,
     updatedAt,
+    owner,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -510,11 +574,17 @@ class $OutboxTableTable extends OutboxTable
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('owner')) {
+      context.handle(
+        _ownerMeta,
+        owner.isAcceptableOrUnknown(data['owner']!, _ownerMeta),
+      );
+    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {id, owner};
   @override
   OutboxEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -567,6 +637,10 @@ class $OutboxTableTable extends OutboxTable
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      owner: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner'],
+      )!,
     );
   }
 
@@ -610,6 +684,18 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
   final DateTime? nextAttemptAt;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// Account whose mutation this is, or [kUnownedOwner] for a row queued
+  /// before scoping existed (or by an app nobody has signed into).
+  ///
+  /// Without it the outbox is one queue for the whole device: user A signs
+  /// out with ops still pending, user B signs in, the next drain pushes A's
+  /// mutations under B's session, and they land in B's account. The drain and
+  /// every other read now filter on the owner instead.
+  ///
+  /// NOT NULL with a default rather than nullable, for the primary-key reason
+  /// documented on [kUnownedOwner].
+  final String owner;
   const OutboxEntry({
     required this.id,
     required this.opType,
@@ -623,6 +709,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
     this.nextAttemptAt,
     required this.createdAt,
     required this.updatedAt,
+    required this.owner,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -643,6 +730,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['owner'] = Variable<String>(owner);
     return map;
   }
 
@@ -664,6 +752,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
           : Value(nextAttemptAt),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      owner: Value(owner),
     );
   }
 
@@ -685,6 +774,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
       nextAttemptAt: serializer.fromJson<DateTime?>(json['nextAttemptAt']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      owner: serializer.fromJson<String>(json['owner']),
     );
   }
   @override
@@ -703,6 +793,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
       'nextAttemptAt': serializer.toJson<DateTime?>(nextAttemptAt),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'owner': serializer.toJson<String>(owner),
     };
   }
 
@@ -719,6 +810,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
     Value<DateTime?> nextAttemptAt = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? owner,
   }) => OutboxEntry(
     id: id ?? this.id,
     opType: opType ?? this.opType,
@@ -734,6 +826,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
         : this.nextAttemptAt,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    owner: owner ?? this.owner,
   );
   OutboxEntry copyWithCompanion(OutboxTableCompanion data) {
     return OutboxEntry(
@@ -751,6 +844,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
           : this.nextAttemptAt,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      owner: data.owner.present ? data.owner.value : this.owner,
     );
   }
 
@@ -768,7 +862,8 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
           ..write('lastError: $lastError, ')
           ..write('nextAttemptAt: $nextAttemptAt, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('owner: $owner')
           ..write(')'))
         .toString();
   }
@@ -787,6 +882,7 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
     nextAttemptAt,
     createdAt,
     updatedAt,
+    owner,
   );
   @override
   bool operator ==(Object other) =>
@@ -803,7 +899,8 @@ class OutboxEntry extends DataClass implements Insertable<OutboxEntry> {
           other.lastError == this.lastError &&
           other.nextAttemptAt == this.nextAttemptAt &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.owner == this.owner);
 }
 
 class OutboxTableCompanion extends UpdateCompanion<OutboxEntry> {
@@ -819,6 +916,7 @@ class OutboxTableCompanion extends UpdateCompanion<OutboxEntry> {
   final Value<DateTime?> nextAttemptAt;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<String> owner;
   final Value<int> rowid;
   const OutboxTableCompanion({
     this.id = const Value.absent(),
@@ -833,6 +931,7 @@ class OutboxTableCompanion extends UpdateCompanion<OutboxEntry> {
     this.nextAttemptAt = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.owner = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   OutboxTableCompanion.insert({
@@ -848,6 +947,7 @@ class OutboxTableCompanion extends UpdateCompanion<OutboxEntry> {
     this.nextAttemptAt = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
+    this.owner = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        opType = Value(opType),
@@ -872,6 +972,7 @@ class OutboxTableCompanion extends UpdateCompanion<OutboxEntry> {
     Expression<DateTime>? nextAttemptAt,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<String>? owner,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -887,6 +988,7 @@ class OutboxTableCompanion extends UpdateCompanion<OutboxEntry> {
       if (nextAttemptAt != null) 'next_attempt_at': nextAttemptAt,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (owner != null) 'owner': owner,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -904,6 +1006,7 @@ class OutboxTableCompanion extends UpdateCompanion<OutboxEntry> {
     Value<DateTime?>? nextAttemptAt,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<String>? owner,
     Value<int>? rowid,
   }) {
     return OutboxTableCompanion(
@@ -919,6 +1022,7 @@ class OutboxTableCompanion extends UpdateCompanion<OutboxEntry> {
       nextAttemptAt: nextAttemptAt ?? this.nextAttemptAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      owner: owner ?? this.owner,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -962,6 +1066,9 @@ class OutboxTableCompanion extends UpdateCompanion<OutboxEntry> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (owner.present) {
+      map['owner'] = Variable<String>(owner.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -983,6 +1090,7 @@ class OutboxTableCompanion extends UpdateCompanion<OutboxEntry> {
           ..write('nextAttemptAt: $nextAttemptAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('owner: $owner, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2013,6 +2121,7 @@ typedef $$KeyValueTableTableCreateCompanionBuilder =
       required String box,
       required String id,
       required String data,
+      Value<String> owner,
       Value<int> rowid,
     });
 typedef $$KeyValueTableTableUpdateCompanionBuilder =
@@ -2020,6 +2129,7 @@ typedef $$KeyValueTableTableUpdateCompanionBuilder =
       Value<String> box,
       Value<String> id,
       Value<String> data,
+      Value<String> owner,
       Value<int> rowid,
     });
 
@@ -2044,6 +2154,11 @@ class $$KeyValueTableTableFilterComposer
 
   ColumnFilters<String> get data => $composableBuilder(
     column: $table.data,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get owner => $composableBuilder(
+    column: $table.owner,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2071,6 +2186,11 @@ class $$KeyValueTableTableOrderingComposer
     column: $table.data,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get owner => $composableBuilder(
+    column: $table.owner,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$KeyValueTableTableAnnotationComposer
@@ -2090,6 +2210,9 @@ class $$KeyValueTableTableAnnotationComposer
 
   GeneratedColumn<String> get data =>
       $composableBuilder(column: $table.data, builder: (column) => column);
+
+  GeneratedColumn<String> get owner =>
+      $composableBuilder(column: $table.owner, builder: (column) => column);
 }
 
 class $$KeyValueTableTableTableManager
@@ -2126,11 +2249,13 @@ class $$KeyValueTableTableTableManager
                 Value<String> box = const Value.absent(),
                 Value<String> id = const Value.absent(),
                 Value<String> data = const Value.absent(),
+                Value<String> owner = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => KeyValueTableCompanion(
                 box: box,
                 id: id,
                 data: data,
+                owner: owner,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2138,11 +2263,13 @@ class $$KeyValueTableTableTableManager
                 required String box,
                 required String id,
                 required String data,
+                Value<String> owner = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => KeyValueTableCompanion.insert(
                 box: box,
                 id: id,
                 data: data,
+                owner: owner,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -2184,6 +2311,7 @@ typedef $$OutboxTableTableCreateCompanionBuilder =
       Value<DateTime?> nextAttemptAt,
       required DateTime createdAt,
       required DateTime updatedAt,
+      Value<String> owner,
       Value<int> rowid,
     });
 typedef $$OutboxTableTableUpdateCompanionBuilder =
@@ -2200,6 +2328,7 @@ typedef $$OutboxTableTableUpdateCompanionBuilder =
       Value<DateTime?> nextAttemptAt,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<String> owner,
       Value<int> rowid,
     });
 
@@ -2269,6 +2398,11 @@ class $$OutboxTableTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get owner => $composableBuilder(
+    column: $table.owner,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2341,6 +2475,11 @@ class $$OutboxTableTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get owner => $composableBuilder(
+    column: $table.owner,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$OutboxTableTableAnnotationComposer
@@ -2389,6 +2528,9 @@ class $$OutboxTableTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get owner =>
+      $composableBuilder(column: $table.owner, builder: (column) => column);
 }
 
 class $$OutboxTableTableTableManager
@@ -2434,6 +2576,7 @@ class $$OutboxTableTableTableManager
                 Value<DateTime?> nextAttemptAt = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<String> owner = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => OutboxTableCompanion(
                 id: id,
@@ -2448,6 +2591,7 @@ class $$OutboxTableTableTableManager
                 nextAttemptAt: nextAttemptAt,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                owner: owner,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2464,6 +2608,7 @@ class $$OutboxTableTableTableManager
                 Value<DateTime?> nextAttemptAt = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
+                Value<String> owner = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => OutboxTableCompanion.insert(
                 id: id,
@@ -2478,6 +2623,7 @@ class $$OutboxTableTableTableManager
                 nextAttemptAt: nextAttemptAt,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                owner: owner,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

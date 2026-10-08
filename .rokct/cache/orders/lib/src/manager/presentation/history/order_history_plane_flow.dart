@@ -164,25 +164,31 @@ class OrderHistoryDetailPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: AppStyle.surfaceDark,
+      color: AppStyle.surfaceFor(Theme.of(context).brightness),
       child: ClipRect(
         child: Navigator(
           observers: [_PopToSentinelObserver(onClosed)],
           onGenerateInitialRoutes: (navigator, initialRoute) => [
             MaterialPageRoute(
               settings: const RouteSettings(name: sentinelName),
-              builder: (_) => ColoredBox(color: AppStyle.surfaceDark),
+              builder: (_) => ColoredBox(
+                color: AppStyle.surfaceFor(Theme.of(context).brightness),
+              ),
             ),
             MaterialPageRoute(
               builder: (context) => Scaffold(
-                backgroundColor: AppStyle.surfaceDark,
+                backgroundColor: AppStyle.surfaceFor(
+                  Theme.of(context).brightness,
+                ),
                 body: SafeArea(child: detailBuilder(context, order)),
               ),
             ),
           ],
           onGenerateRoute: (settings) => MaterialPageRoute(
             settings: settings,
-            builder: (_) => ColoredBox(color: AppStyle.surfaceDark),
+            builder: (_) => ColoredBox(
+              color: AppStyle.surfaceFor(Theme.of(context).brightness),
+            ),
           ),
         ),
       ),

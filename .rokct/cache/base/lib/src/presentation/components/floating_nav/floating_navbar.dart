@@ -106,7 +106,7 @@ class _FloatingNavbarState extends State<FloatingNavbar> {
             child: Container(
               padding: REdgeInsets.symmetric(vertical: 6),
               decoration: BoxDecoration(
-                color: AppStyle.bgGrey,
+                color: AppStyle.surfaceFor(Theme.of(context).brightness),
                 borderRadius: BorderRadius.circular(32.r),
               ),
               child: Row(

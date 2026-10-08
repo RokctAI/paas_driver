@@ -15,6 +15,7 @@
 import 'dart:io';
 import 'package:base_sdk/src/navigation/embedded_widgets.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart' as intl;
@@ -55,7 +56,7 @@ import 'package:base_sdk/src/constants/app_constants.dart';
 ///
 /// The only promotion adaptations (per the approved 4d captions): the
 /// sheet chrome, light-only `bgGrey`@96% as shipped, now resolves the
-/// dark equivalent through `AppStyle.isDark`; and the icon set is
+/// dark equivalent from the inherited theme's brightness; and the icon set is
 /// base_sdk's `remixicon` (the glyph is unchanged: `Remix.pencil_line`).
 /// Present it with `AppHelpers.showCustomModalBottomDragSheet(...,
 /// modal: (c) => EditProfileScreen(controller: c))` — the same call the
@@ -107,6 +108,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // The sheet chrome takes its mode from the inherited theme, not from
+    // AppStyle's app-wide isDark static. Neither watch here helps: the
+    // profile and edit-profile providers do not fire when the theme mode
+    // changes, and MediaQuery.of below is read for viewInsets - the keyboard
+    // metric - which a mode flip never moves. So nothing rescheduled this
+    // sheet and it kept the previous mode's chrome. Read once, outside every
+    // inner builder. The light branch stays the shipped bgGrey (frame 4d).
+    final Brightness brightness = Theme.of(context).brightness;
     final bool isLtr = LocalStorage.getLangLtr();
     final event = ref.read(editProfileProvider.notifier);
     final user = ref.watch(profileProvider).userData;
@@ -127,7 +136,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             // Shipped chrome was light-only bgGrey@96%; promoted, the
             // sheet resolves the dark surface in dark mode (frame 4d,
             // chip 725).
-            color: (AppStyle.isDark ? AppStyle.surfaceDark : AppStyle.bgGrey)
+            color: (brightness == Brightness.dark
+                    ? AppStyle.surfaceFor(brightness)
+                    : AppStyle.bgGrey)
                 .withValues(alpha: 0.96),
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(16.r),
@@ -219,15 +230,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                         width: 38.w,
                                         height: 38.h,
                                         decoration: BoxDecoration(
-                                          color: AppStyle.white,
+                                          color: AppStyle.cardFor(Theme.of(context).brightness),
                                           shape: BoxShape.circle,
                                           border: Border.all(
                                             color: AppStyle.borderColor,
                                           ),
                                         ),
-                                        child: const Icon(
+                                        child: Icon(
                                           Remix.pencil_line,
-                                          color: AppStyle.black,
+                                          color: AppStyle.inkFor(Theme.of(context).brightness),
                                         ),
                                       ),
                                     ),
@@ -298,7 +309,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   AppHelpers.showCustomModalBottomSheet(
                                     context: context,
                                     modal: EmbeddedWidgets.I.phoneVerify(),
-                                    isDarkMode: false,
+                                    isDarkMode: Theme.of(context).brightness == Brightness.dark,
                                     paddingTop: MediaQuery.paddingOf(
                                       context,
                                     ).top,
@@ -342,7 +353,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                         ),
                                       ),
                                     ),
-                                    isDarkMode: false,
+                                    isDarkMode: Theme.of(context).brightness == Brightness.dark,
                                   );
                                 },
                                 readOnly: true,

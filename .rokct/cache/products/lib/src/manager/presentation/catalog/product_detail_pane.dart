@@ -51,9 +51,9 @@ class ProductDetailPane extends StatelessWidget {
     final int quantity = StockGrammar.productQuantity(product);
     return Container(
       decoration: BoxDecoration(
-        color: AppStyle.cardDarkAlt,
+        color: AppStyle.cardAltFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppStyle.strokeDarkSubtle),
+        border: Border.all(color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
       ),
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -94,7 +94,7 @@ class ProductDetailPane extends StatelessWidget {
                         product.translation?.title ?? '',
                         style: AppStyle.interBold(
                           size: 18,
-                          color: AppStyle.textPrimary,
+                          color: AppStyle.inkFor(Theme.of(context).brightness),
                         ),
                       ),
                     ),
@@ -108,7 +108,7 @@ class ProductDetailPane extends StatelessWidget {
                     product.translation!.description!,
                     style: AppStyle.interNormal(
                       size: 13,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
                     ),
                   ),
                 ],
@@ -119,7 +119,7 @@ class ProductDetailPane extends StatelessWidget {
                   AppHelpers.getTranslation('stock').toUpperCase(),
                   style: AppStyle.interSemi(
                     size: 11,
-                    color: AppStyle.textDarkFaint,
+                    color: AppStyle.faintFor(Theme.of(context).brightness),
                   ),
                 ),
                 const SizedBox(height: 6),

@@ -12,7 +12,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:async';
+
 import 'package:base_sdk/src/domain/interface/user.dart';
+import 'package:base_sdk/src/services/session_start_hooks.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 
@@ -65,4 +68,16 @@ Future<void> syncFcmToken(UserRepositoryFacade userRepository) async {
   } catch (e) {
     debugPrint('===> fcm token sync skipped: $e');
   }
+}
+
+/// Everything auth_sdk does once a session is established: fire base_sdk's
+/// [SessionStartHooks] (for example comms_sdk's one-time notification
+/// permission prompt), then push the FCM token.
+///
+/// The hooks are deliberately not awaited: an OS permission prompt waits
+/// on the user, and the sign-in that fired it must never wait with it.
+/// [SessionStartHooks.run] isolates and logs every hook failure itself.
+Future<void> completeSessionStart(UserRepositoryFacade userRepository) async {
+  unawaited(SessionStartHooks.run());
+  await syncFcmToken(userRepository);
 }

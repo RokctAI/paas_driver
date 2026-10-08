@@ -1,5 +1,100 @@
 # Changelog
 
+## 1.22.2
+
+* fix(comms): the Languages sheet's Save passes `userInitiated: true` to
+  `makeSelectedLang` (base_sdk 1.83.5), so a translations failure after the
+  person saves still shows, while the same call made on load stays silent.
+
+## 1.22.1
+
+* fix(comms): the Languages sheet and the notification list (and its order
+  pane routes) read their surface and ink from Theme.of(context) at build
+  time instead of AppStyle.isDark and its mode statics, so a live dark/light
+  switch restyles them.
+
+## 1.22.0
+
+* fix(comms): notification badge count reads `data.count`; the notification
+  list sends `start`/`limit` and reads the wrapped rows.
+* fix(comms): Help/FAQ calls the public `api.faq.get_faqs`; Terms and Privacy
+  send `route` to `api.page.get_page` and read its `translation`.
+
+## 1.21.0
+
+* feat(comms): `PushMessageDispatcher` feeds received FCM messages into
+  base_sdk 1.79.0's `PushMessages` by `data['type']`. A new boot hook,
+  `comms-push-message-dispatch`, starts it on Android, iOS and macOS.
+* Foreground messages and taps that open the app are dispatched at once.
+  A message that arrives while the app is suspended or closed reaches
+  `firebaseMessagingBackgroundHandler` in a background isolate, where no
+  feature SDK has a handler. Its data is queued (newest 20) and replayed
+  at start and on every resume.
+* Adds `shared_preferences` as a direct dependency (base_sdk's pin).
+* Requires base_sdk >= 1.79.0.
+* Tests: `test/push_message_dispatcher_test.dart`.
+
+## 1.20.0
+
+* feat(comms): `DeviceLiveActivitySink` passes base_sdk 1.78.0's
+  `LiveActivitySnapshot.showProgress` to the device. The Android
+  `LiveUpdatesChannel` draws no progress bar when it is false.
+
+## 1.19.0
+
+* feat(comms): `DeviceLiveActivitySink`, the platform half of base_sdk
+  1.76.0's `LiveActivities`. A new boot hook, `comms-live-activity-sink`,
+  registers it.
+  - Android 16: the sink asks the host's `rokct/live_updates` channel for a
+    promoted `ProgressStyle`. The Kotlin for that channel is a scaffold in
+    `templates/native/android`.
+  - Otherwise, and on Android 15 and older, the sink posts an ongoing entry
+    on the new "Live updates" channel (default importance). The entry has a
+    progress bar, `onlyAlertOnce`, a chronometer countdown and
+    `timeoutAfter`. "Stage N of M" and the end time go into the text.
+  - iOS: the sink starts an ActivityKit Live Activity through
+    `live_activities`, held at 2.4.3 because 2.4.4+ needs
+    permission_handler ^12, which paas_driver and supacharge cannot resolve.
+    The SwiftUI widget is a scaffold in `templates/native/ios` and needs
+    Xcode. The sink skips iOS until `LIVE_ACTIVITY_APP_GROUP` is defined.
+* `LocalNotifications.ensureInitialized()` and `LocalNotifications.plugin`.
+* Requires base_sdk >= 1.76.0.
+* Tests: `test/device_live_activity_sink_test.dart`.
+
+## 1.18.0
+
+* feat(comms): ask for notification permission after a successful sign-in,
+  in every app that composes comms_sdk. New `PushPermissionPrompt`, wired by
+  the new `comms-push-permission-on-sign-in` boot hook into base_sdk's
+  `SessionStartHooks`, which auth_sdk runs once a session is established.
+  Skips demo sessions (`DemoSession.demoActive`), and asks at most once per
+  install: a LocalStorage flag (`comms.push_permission`) is set once the OS
+  was actually asked, so an unsupported platform or a failed request tries
+  again at the next sign-in. The prompt itself still goes through
+  `PushPermissionService`. Requires base_sdk >= 1.75.0; fires only with
+  auth_sdk >= 1.15.0 (older auth_sdk never runs the hooks, so nothing
+  changes there).
+* Tests: `test/push_permission_prompt_test.dart`.
+
+## 1.17.0
+
+* Demo runs the real `SettingsRepository`. `CommsSdkDependencies` registers it
+  directly and registers `assets/demo/comms` with base_sdk's `DemoFixtures`;
+  base_sdk 1.73.0's `DemoGatewayInterceptor` answers each cmd it sends from
+  `templates/assets/demo/comms/<cmd>.json` (installed to `assets/demo/comms`)
+  during a demo session. An unknown cmd fails with `DemoFixtureMissing`.
+* Deleted `MockSettingsRepository`, the `DemoSession` flip listener and
+  `CommsSdkDependencies.stopFollowingDemoSession`; the fixtures carry the data
+  the mock served. Needs base_sdk 1.73.0.
+
+## 1.16.1
+
+* Dark mode: hardcoded light fills and dark ink now follow the active theme
+  through AppStyle.surfaceFor/cardFor/inkFor/secondaryInkFor/strokeFor(Theme.of(
+  context).brightness), and builds read the theme from Theme.of(context) instead
+  of static AppStyle reads. Brand fills, white-on-primary and textGrey are
+  unchanged.
+
 ## 1.16.0
 
 * Changed: demo repositories follow the runtime demo session (phase 2 of

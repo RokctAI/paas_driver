@@ -1,0 +1,9 @@
+{
+  "status": true,
+  "message": "Demo transaction recorded",
+  "data": {
+    "status": "paid",
+    "tag": "cash",
+    "rate": 1
+  }
+}

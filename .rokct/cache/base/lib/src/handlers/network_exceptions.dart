@@ -58,54 +58,82 @@ sealed class NetworkExceptions with _$NetworkExceptions {
 
   const factory NetworkExceptions.unexpectedError() = UnexpectedError;
 
+  /// Classifies a thrown error into one of the variants above.
+  ///
+  /// Every arm used to be a bare `break` that fell through to a single
+  /// `noInternetConnection()` return, so a refused connection, an expired
+  /// certificate, a timeout, a cancelled request and every HTTP status
+  /// alike came back as "the reader has no internet". That is the wrong
+  /// answer for all but one of them, and it is the answer
+  /// `AppHelpers.errorHandler` turned into a student-facing line — Ray,
+  /// 2026-09-19: "not check your connection but check your network
+  /// connection", on a phone whose network was fine and whose backend was
+  /// not answering. Each arm now returns the variant it names.
+  ///
+  /// No new union member: a transport that never reached a responding
+  /// server still answers [NoInternetConnection] here, and the
+  /// offline-versus-unreachable wording is decided by
+  /// `AppHelpers.errorHandler`, which holds the [DioException] itself.
   static NetworkExceptions getDioException(error) {
     if (error is Exception) {
       try {
         if (error is DioException) {
           switch (error.type) {
             case DioExceptionType.cancel:
-              break;
+              return const NetworkExceptions.requestCancelled();
             case DioExceptionType.connectionTimeout:
-              break;
-            case DioExceptionType.unknown:
-              break;
             case DioExceptionType.receiveTimeout:
-              break;
-            case DioExceptionType.badResponse:
-              switch (error.response!.statusCode) {
-                case 400:
-                  break;
-                case 401:
-                  break;
-                case 403:
-                  break;
-                case 404:
-                  break;
-                case 409:
-                  break;
-                case 408:
-                  break;
-                case 500:
-                  break;
-                case 503:
-                  break;
-                default:
-              }
-              break;
+            case DioExceptionType.transformTimeout:
+              return const NetworkExceptions.requestTimeout();
             case DioExceptionType.sendTimeout:
-              break;
+              return const NetworkExceptions.sendTimeout();
+            case DioExceptionType.badResponse:
+              // `?.` not `!`: a badResponse carrying no response object
+              // used to throw straight into the catch below and come back
+              // as an unexpectedError. The default arm covers it.
+              switch (error.response?.statusCode) {
+                case 400:
+                  return const NetworkExceptions.badRequest();
+                case 401:
+                case 403:
+                  return const NetworkExceptions.unauthorisedRequest();
+                case 404:
+                  return NetworkExceptions.notFound(
+                    error.response?.statusMessage ?? 'Not found',
+                  );
+                case 405:
+                  return const NetworkExceptions.methodNotAllowed();
+                case 406:
+                  return const NetworkExceptions.notAcceptable();
+                case 408:
+                  return const NetworkExceptions.requestTimeout();
+                case 409:
+                  return const NetworkExceptions.conflict();
+                case 500:
+                  return const NetworkExceptions.internalServerError();
+                case 501:
+                  return const NetworkExceptions.notImplemented();
+                case 503:
+                  return const NetworkExceptions.serviceUnavailable();
+                default:
+                  return const NetworkExceptions.unexpectedError();
+              }
             case DioExceptionType.badCertificate:
-              // TODO: Handle this case.
-              break;
             case DioExceptionType.connectionError:
-              // TODO: Handle this case.
-              break;
-            default:
-              break;
+            case DioExceptionType.unknown:
+              // Nothing ever answered: offline, DNS failure, connection
+              // refused, a server that is simply not there, or a
+              // certificate the client would not accept.
+              return const NetworkExceptions.noInternetConnection();
+            // No default: the switch is exhaustive over DioExceptionType on
+            // purpose. A dio release that adds a type should fail this
+            // build and be classified deliberately, rather than land
+            // silently in whichever arm a catch-all happened to point at.
           }
         } else if (error is SocketException) {
-        } else {}
-        return const NetworkExceptions.noInternetConnection();
+          return const NetworkExceptions.noInternetConnection();
+        }
+        return const NetworkExceptions.unexpectedError();
       } on FormatException catch (_) {
         return const NetworkExceptions.formatException();
       } catch (_) {

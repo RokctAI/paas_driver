@@ -215,6 +215,9 @@ void main() {
       // api_status already answered "down"; asking the same dead host for
       // translations cost two 30s dio timeouts and changed nothing.
       expect(settings.translationCalls, 0);
+      // ...and neither did asking it for global settings, which getToken
+      // awaited before it routed anywhere.
+      expect(settings.settingsCalls, 0);
       expect(eventOfType('splash_backend_unreachable'), isNotNull,
           reason: 'the skip must still be visible to admins');
     });
@@ -278,6 +281,46 @@ void main() {
       await tester.pump();
 
       expect(reached, ['no_connection']);
+    });
+  });
+
+  group('SplashNotifier.getToken with the radio up and no backend', () {
+    testWidgets('routes off the stored token without asking the backend',
+        (tester) async {
+      // The radio is up (the channel stub answers 'wifi') but the splash's
+      // api_status probe already answered "down". getToken used to fall
+      // straight into getGlobalSettings() here and the caller waited out the
+      // dio timeout before any callback fired.
+      final settings = _DeadSettingsRepository();
+      final notifier = SplashNotifier(settings);
+      final reached = <String>[];
+      late BuildContext capturedContext;
+
+      await tester.pumpWidget(
+        ScreenUtilInit(
+          designSize: const Size(375, 812),
+          builder: (context, child) => MaterialApp(
+            home: Builder(builder: (context) {
+              capturedContext = context;
+              return const SizedBox.shrink();
+            }),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      await notifier.getToken(
+        capturedContext,
+        backendUp: false,
+        goMain: () => reached.add('main'),
+        goLogin: () => reached.add('login'),
+        goNoInternet: () => reached.add('no_connection'),
+      );
+      await tester.pump();
+
+      // No token is stored in a test process, so login is the destination.
+      expect(reached, ['login']);
+      expect(settings.settingsCalls, 0);
     });
   });
 

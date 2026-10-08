@@ -29,6 +29,7 @@ import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/handlers/token_refresh_service.dart';
 
 import 'package:auth_sdk/src/common/domain/interface/deferred_otp_email_resend.dart';
+import 'package:auth_sdk/src/common/domain/interface/email_code_verification.dart';
 import 'package:auth_sdk/src/common/domain/interface/session_password_rotation.dart';
 import 'package:auth_sdk/src/common/domain/interface/session_token_refresh.dart';
 import 'package:auth_sdk/src/common/services/registration_config.dart';
@@ -37,6 +38,7 @@ class AuthRepository
     implements
         AuthRepositoryFacade,
         DeferredOtpEmailResend,
+        EmailCodeVerification,
         SessionPasswordRotation,
         SessionTokenRefresh {
   /// Universal platform gateway: every backend call is a POST to the single
@@ -78,15 +80,33 @@ class AuthRepository
 
   @override
   Future<ApiResult<RegisterResponse>> sendOtp({required String phone}) async {
-    final data = {'phone': phone.replaceAll('+', "")};
+    // The phone goes out exactly as verifyPhone later sends it (with the
+    // leading "+"): the backend caches the OTP under `phone_otp:<phone>`
+    // verbatim, so stripping "+" here meant the verify lookup never matched.
     try {
       final response = await _gateway.call(
         'api.user.send_phone_verification_code',
-        payload: data,
+        payload: {'phone': phone},
         requireAuth: false,
       );
-      // The response from this endpoint is simple, may need to adjust RegisterResponse model
-      return ApiResult.success(data: RegisterResponse.fromJson(response));
+      final rejected = _bodyRejection<RegisterResponse>(response);
+      if (rejected != null) return rejected;
+      // The endpoint answers with a bare message and no verifyId; the phone
+      // itself is the id verify_phone_code keys on, so hand it back as one.
+      final parsed = RegisterResponse.fromJson(response);
+      return ApiResult.success(
+        data: RegisterResponse(
+          timestamp: parsed.timestamp,
+          status: parsed.status,
+          message: parsed.message,
+          data: RegisterData(
+            verifyId: (parsed.data?.verifyId?.isNotEmpty ?? false)
+                ? parsed.data!.verifyId
+                : phone,
+            phone: parsed.data?.phone ?? phone,
+          ),
+        ),
+      );
     } catch (e) {
       debugPrint('==> send otp failure: $e');
       return ApiResult.failure(
@@ -96,6 +116,51 @@ class AuthRepository
     }
   }
 
+  /// api_response answers HTTP 200 with the real outcome in the body's
+  /// `status_code` (a wrong OTP is 401/400 inside a 2xx), so the Dio stack
+  /// never throws for it. Turn such a body into a failure.
+  static ApiResult<T>? _bodyRejection<T>(dynamic response) {
+    if (response is! Map) return null;
+    final code = int.tryParse('${response['status_code'] ?? ''}');
+    if (code == null || code < 400) return null;
+    return ApiResult.failure(
+      error: '${response['message'] ?? 'Request failed'}',
+      statusCode: code,
+    );
+  }
+
+  // EmailCodeVerification: the 6-digit code register_user (and
+  // resend_verification_email) emailed. verify_email_code mints the
+  // session token, so the user is signed in after sign-up -- the same
+  // endpoint the web twin (verifyRegistrationEmail) uses.
+  @override
+  Future<ApiResult<VerifyPhoneResponse>> verifyEmailCode({
+    required String email,
+    required String verifyCode,
+  }) async {
+    try {
+      final response = await _gateway.call(
+        'api.user.verify_email_code',
+        payload: {'email': email, 'otp': verifyCode},
+        requireAuth: false,
+      );
+      final rejected = _bodyRejection<VerifyPhoneResponse>(response);
+      if (rejected != null) return rejected;
+      return ApiResult.success(
+        data: VerifyPhoneResponse.fromJson(response),
+      );
+    } catch (e) {
+      debugPrint('==> verify email code failure: $e');
+      return ApiResult.failure(
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
+    }
+  }
+
+  // Facade fallback without the email: verify_my_email checks the
+  // welcome-link token and mints no session token. The app's code sheet
+  // goes through [verifyEmailCode] instead.
   @override
   Future<ApiResult<VerifyPhoneResponse>> verifyEmail({
     required String verifyCode,
@@ -131,6 +196,8 @@ class AuthRepository
         payload: {"phone": verifyId, "otp": verifyCode},
         requireAuth: false,
       );
+      final rejected = _bodyRejection<VerifyPhoneResponse>(response);
+      if (rejected != null) return rejected;
       return ApiResult.success(
         data: VerifyPhoneResponse.fromJson(response),
       );
@@ -163,6 +230,21 @@ class AuthRepository
     }
   }
 
+  // register_user's signature is (password, first_name, last_name, ...),
+  // but base_sdk's UserModel.toJsonForSignUp emits `firstname`/`lastname`.
+  // Frappe drops unknown kwargs, so without this mapping every sign-up
+  // failed on the missing required first_name/last_name arguments.
+  static Map<String, dynamic> _registerUserPayload(UserModel user) {
+    final json = Map<String, dynamic>.from(user.toJsonForSignUp());
+    if (json.containsKey('firstname')) {
+      json['first_name'] = json.remove('firstname');
+    }
+    if (json.containsKey('lastname')) {
+      json['last_name'] = json.remove('lastname');
+    }
+    return json;
+  }
+
   @override
   Future<ApiResult<VerifyData>> sigUpWithData({
     required UserModel user,
@@ -177,7 +259,7 @@ class AuthRepository
         // Both server params are optional, so the payload stays exactly
         // the old one when the form recorded nothing.
         payload: {
-          ...user.toJsonForSignUp(),
+          ..._registerUserPayload(user),
           ...RegistrationTerms.signUpExtras(),
         },
         requireAuth: false,
@@ -358,7 +440,7 @@ class AuthRepository
         // Same terms/birth-date ride-along as sigUpWithData — the phone
         // path is the same register_user endpoint.
         payload: {
-          ...user.toJsonForSignUp(),
+          ..._registerUserPayload(user),
           ...RegistrationTerms.signUpExtras(),
         },
         requireAuth: false,

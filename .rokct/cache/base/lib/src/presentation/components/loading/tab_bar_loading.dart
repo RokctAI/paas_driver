@@ -46,7 +46,7 @@ class TabBarLoading extends StatelessWidget {
               : Container(
                   width: 84.r,
                   decoration: BoxDecoration(
-                    color: AppStyle.white,
+                    color: AppStyle.cardFor(Theme.of(context).brightness),
                     borderRadius: BorderRadius.circular(10.r),
                     boxShadow: [
                       BoxShadow(

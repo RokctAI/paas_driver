@@ -160,6 +160,15 @@ class _ActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The mode comes from the inherited theme, not from the app-wide
+    // AppStyle.isDark static (Ray, 2026-09-19: "glance doesnt change test
+    // immediately untill you come back if you switched theme mode" - the
+    // same defect, found here by the fleet audit that followed). A static
+    // is not an inherited widget, so a mode flip scheduled no rebuild of
+    // this tile and it kept the previous mode's fill, stroke and ink until
+    // something else happened to rebuild it. A caller's own `item.accent`
+    // is still left alone.
+    final Brightness brightness = Theme.of(context).brightness;
     final badge = item.badgeBuilder?.call(context);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -169,7 +178,7 @@ class _ActionTile extends StatelessWidget {
         height: 100.w,
         padding: EdgeInsets.all(8.r),
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(brightness),
           borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
@@ -188,7 +197,7 @@ class _ActionTile extends StatelessWidget {
                 Icon(
                   item.icon,
                   size: 30.r,
-                  color: item.accent ?? AppStyle.textPrimary,
+                  color: item.accent ?? AppStyle.inkFor(brightness),
                 ),
                 if (badge != null)
                   Positioned(
@@ -203,7 +212,7 @@ class _ActionTile extends StatelessWidget {
               item.label(),
               style: AppStyle.interNormal(
                 size: 12.sp,
-                color: AppStyle.textPrimary,
+                color: AppStyle.inkFor(brightness),
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -226,6 +235,15 @@ class _ActionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The mode comes from the inherited theme, not from the app-wide
+    // AppStyle.isDark static (Ray, 2026-09-19: "glance doesnt change test
+    // immediately untill you come back if you switched theme mode" - the
+    // same defect, found here by the fleet audit that followed). A static
+    // is not an inherited widget, so a mode flip scheduled no rebuild of
+    // this tile and it kept the previous mode's fill, stroke and ink until
+    // something else happened to rebuild it. A caller's own `item.accent`
+    // is still left alone.
+    final Brightness brightness = Theme.of(context).brightness;
     final badge = item.badgeBuilder?.call(context);
     return Padding(
       padding: EdgeInsets.only(bottom: 10.r),
@@ -235,16 +253,16 @@ class _ActionRow extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 14.r, vertical: 13.r),
           decoration: BoxDecoration(
-            color: AppStyle.cardDark,
+            color: AppStyle.cardFor(brightness),
             borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: AppStyle.strokeDark, width: 0.5),
+            border: Border.all(color: AppStyle.strokeFor(brightness), width: 0.5),
           ),
           child: Row(
             children: [
               Icon(
                 item.icon,
                 size: 20.sp,
-                color: item.accent ?? AppStyle.textPrimary,
+                color: item.accent ?? AppStyle.inkFor(brightness),
               ),
               12.horizontalSpace,
               Expanded(
@@ -252,7 +270,7 @@ class _ActionRow extends StatelessWidget {
                   item.label(),
                   style: AppStyle.interSemi(
                     size: 14.sp,
-                    color: AppStyle.textPrimary,
+                    color: AppStyle.inkFor(brightness),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -266,7 +284,7 @@ class _ActionRow extends StatelessWidget {
               Icon(
                 Remix.arrow_right_s_line,
                 size: 20.sp,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(brightness),
               ),
             ],
           ),

@@ -1,0 +1,83 @@
+{
+  "route": {
+    "name": "DR-0001",
+    "mode": "Delivery",
+    "status": "In Progress",
+    "notes": "Morning dispatch route, four stops",
+    "total_stops": 4,
+    "pending_stops": 4
+  },
+  "stops": [
+    {
+      "sequence": 1,
+      "stop_type": "Pickup",
+      "ref_doctype": "Dispatch Route Stop",
+      "ref_name": "DRS-0001",
+      "label": "Corner Kitchen — collect 2 orders",
+      "latitude": -26.1999,
+      "longitude": 28.0442,
+      "quantity": 2,
+      "unit": "orders",
+      "status": "Pending",
+      "missing_coordinates": false,
+      "distance_from_previous_km": 1.2,
+      "meta": {
+        "route_id": "DR-0001"
+      }
+    },
+    {
+      "sequence": 2,
+      "stop_type": "Delivery",
+      "ref_doctype": "Order",
+      "ref_name": "900001",
+      "label": "Thandi Nkosi — 12 Cradock Avenue",
+      "latitude": -26.192,
+      "longitude": 28.0557,
+      "quantity": 1,
+      "unit": "order",
+      "status": "Pending",
+      "missing_coordinates": false,
+      "distance_from_previous_km": 2.4,
+      "meta": {
+        "route_id": "DR-0001",
+        "payment_tag": "cash",
+        "total_price": 189.9
+      }
+    },
+    {
+      "sequence": 3,
+      "stop_type": "Delivery",
+      "ref_doctype": "Order",
+      "ref_name": "900002",
+      "label": "Sipho Dlamini — 34 Jan Smuts Avenue",
+      "latitude": -26.2134,
+      "longitude": 28.059,
+      "quantity": 1,
+      "unit": "order",
+      "status": "Pending",
+      "missing_coordinates": false,
+      "distance_from_previous_km": 3.1,
+      "meta": {
+        "route_id": "DR-0001",
+        "payment_tag": "wallet"
+      }
+    },
+    {
+      "sequence": 4,
+      "stop_type": "Delivery",
+      "ref_doctype": "Parcel Order",
+      "ref_name": "77001",
+      "label": "Parcel — Sipho Dlamini, 34 Jan Smuts Avenue",
+      "latitude": -26.2131,
+      "longitude": 28.0592,
+      "quantity": 1,
+      "unit": "parcel",
+      "status": "Pending",
+      "missing_coordinates": false,
+      "distance_from_previous_km": 0.3,
+      "meta": {
+        "route_id": "DR-0001"
+      }
+    }
+  ]
+}

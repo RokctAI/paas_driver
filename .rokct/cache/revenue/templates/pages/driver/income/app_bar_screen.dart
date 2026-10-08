@@ -74,10 +74,10 @@ class AbbBarScreen extends StatelessWidget {
                 child: Container(
                   padding: EdgeInsets.all(10.r),
                   decoration: BoxDecoration(
-                      color: AppStyle.surfaceDark, shape: BoxShape.circle),
+                      color: AppStyle.surfaceFor(Theme.of(context).brightness), shape: BoxShape.circle),
                   child: Icon(
                     Remix.calendar_event_fill,
-                    color: AppStyle.textPrimary,
+                    color: AppStyle.inkFor(Theme.of(context).brightness),
                   ),
                 ),
               )

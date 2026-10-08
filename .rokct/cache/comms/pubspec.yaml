@@ -1,6 +1,6 @@
 name: comms_sdk
 description: "comms_sdk - extracted from paas_customer (refork 2026-07-11)."
-version: 1.0.0
+version: 1.22.2
 publish_to: 'none'
 environment:
   sdk: '>=3.10.0 <4.0.0'
@@ -10,6 +10,10 @@ dependencies:
     sdk: flutter
   flutter_local_notifications: ^19.5.0 # 19.x adds Windows toasts (flutter_local_notifications_windows)
   timezone: ^0.10.0 # floor required by flutter_local_notifications 19.x
+  # iOS Live Activities (lock screen + Dynamic Island) for DeviceLiveActivitySink.
+  # Held below 2.4.4: 2.4.4+ pulls permission_handler ^12, which paas_driver
+  # and supacharge (^11) cannot resolve yet.
+  live_activities: '>=2.4.3 <2.4.4'
   base_sdk:
     path: ../base
   audioplayers: ^6.5.1 # POS notification sound (matches supacharge's host constraint)
@@ -23,6 +27,7 @@ dependencies:
   google_fonts: ^6.3.3
   jiffy: ^6.2.2 # notification-row relative times (the shipped Jiffy fromNow, chip 704)
   remixicon: ^1.4.1
+  shared_preferences: ^2.5.2 # PushMessageDispatcher's background queue (base_sdk's pin)
 dev_dependencies:
   flutter_test:
     sdk: flutter

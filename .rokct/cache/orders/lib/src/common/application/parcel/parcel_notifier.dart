@@ -30,6 +30,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:base_sdk/src/domain/interface/draw.dart';
+import 'package:orders_sdk/src/common/infrastructure/repositories/orders_repository.dart';
 import 'package:orders_sdk/src/common/application/parcel/parcel_state.dart';
 import 'package:orders_sdk/src/common/infrastructure/repositories/parcel_repository.dart';
 
@@ -257,6 +258,11 @@ class ParcelNotifier extends StateNotifier<ParcelState> {
       );
       response.when(
         success: (data) async {
+          if (data == OrdersRepository.braintreeNativePaid) {
+            // Paid in the native Braintree drop-in: nothing to open.
+            state = state.copyWith(isButtonLoading: false);
+            return;
+          }
           // ignore: deprecated_member_use
           await launch(data, enableJavaScript: true);
         },

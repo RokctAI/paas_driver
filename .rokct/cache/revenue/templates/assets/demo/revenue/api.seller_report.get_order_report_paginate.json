@@ -1,0 +1,85 @@
+{
+  "$demo_select": {
+    "by": "payload.page",
+    "cases": {
+      "2": {
+        "status": true,
+        "data": []
+      },
+      "3": {
+        "status": true,
+        "data": []
+      },
+      "4": {
+        "status": true,
+        "data": []
+      },
+      "5": {
+        "status": true,
+        "data": []
+      },
+      "6": {
+        "status": true,
+        "data": []
+      },
+      "7": {
+        "status": true,
+        "data": []
+      },
+      "8": {
+        "status": true,
+        "data": []
+      },
+      "9": {
+        "status": true,
+        "data": []
+      },
+      "10": {
+        "status": true,
+        "data": []
+      }
+    },
+    "default": {
+      "status": true,
+      "data": [
+        {
+          "id": 1041,
+          "status": "delivered",
+          "firstname": "Naledi",
+          "lastname": "K.",
+          "active": 1,
+          "quantity": 3,
+          "price": 640,
+          "products": [
+            "Family bundle",
+            "Juice 1L"
+          ]
+        },
+        {
+          "id": 1040,
+          "status": "delivered",
+          "firstname": "Sipho",
+          "lastname": "D.",
+          "active": 1,
+          "quantity": 2,
+          "price": 285,
+          "products": [
+            "Breakfast box"
+          ]
+        },
+        {
+          "id": 1039,
+          "status": "canceled",
+          "firstname": "Lerato",
+          "lastname": "M.",
+          "active": 0,
+          "quantity": 1,
+          "price": 120,
+          "products": [
+            "Snack pack"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -20,21 +20,22 @@ import 'package:flutter/foundation.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 
-/// The RUNTIME half of the fleet's demo switch.
+/// The fleet's demo switch.
 ///
-/// [AppConstants.isDemo] (`--dart-define=IS_DEMO=true`) is a compile-time
-/// constant: the guided tour, the render strip and the store screenshots
-/// build the whole app against the in-app fixtures, and a release build
-/// tree-shakes every `Mock*` / `Demo*` twin out. That stays exactly as it
-/// is. This class adds the second source the production build needs for
-/// "demo login in production" (Ray, 2026-09-08): a real account on the
-/// production backend, one per role, signs in through the real
-/// `AuthRepository` like anyone else; when the backend's login payload
-/// marks that account (`is_demo_account`, [UserModel.isDemoAccount]) the
-/// login flow calls [activate] and the app serves that session from the
-/// same fixtures the tour uses. Nothing on screen says demo - the account
+/// A real account on the production backend, one per role, signs in through
+/// the real `AuthRepository` like anyone else; when the backend's login
+/// payload marks that account (`is_demo_account`,
+/// [UserModel.isDemoAccount]) the login flow calls [activate] and the app
+/// serves that session from the in-app fixtures ("demo login in
+/// production", Ray, 2026-09-08). Nothing on screen says demo - the account
 /// is a real person to the user, the backend is the only gatekeeper, and
 /// knowing the address grants nothing without its real password.
+///
+/// The guided tour, the render strip and the store screenshots run the one
+/// build that has no backend and no sign-in to assert a marker with, so
+/// they keep their fixtures through [AppConstants.isTour]
+/// (`--dart-define=TOUR_MODE=true`). There is no other build flag: the
+/// former `AppConstants.isDemo` (`--dart-define=IS_DEMO=true`) is gone.
 ///
 /// Session-scoped: [active] is persisted in [LocalStorage] under
 /// `demo_session_active`, so a relaunch that restores the stored token
@@ -44,26 +45,15 @@ import 'package:base_sdk/src/services/local_storage.dart';
 /// backend answers WITHOUT the marker, so a demo session can never leak
 /// into a real account.
 ///
-/// [demoActive] is the one question every demo seam should ask from here
-/// on: `isDemo || DemoSession.instance.active`. Phase 1 (this class) ships
-/// the switch only; the per-SDK DI ternaries that today read
-/// [AppConstants.isDemo] at registration are re-pointed at [demoActive]
-/// in phase 2, together with a re-registration on [addListener]. Until
-/// then [activate] changes nothing a user can see beyond the flag itself.
+/// [demoActive] is the one question every demo seam asks: the per-SDK DI
+/// ternaries read it at registration and re-register on [addListener], so
+/// a marked account signing in after boot is served the fixtures and a
+/// sign-out ending its session gets the real repositories back.
 class DemoSession extends ChangeNotifier {
   DemoSession._();
 
   /// The app-wide session. A single instance, like the storage it fronts.
   static final DemoSession instance = DemoSession._();
-
-  /// Test-only stand-in for [AppConstants.isDemo], which is a compile-time
-  /// constant and so cannot be flipped by a test. `null` (the default)
-  /// reads the constant. Same seam `DemoCurrency` and `ProfileMetaRow`
-  /// carry.
-  @visibleForTesting
-  static bool? isDemoOverride;
-
-  static bool get _isDemoBuild => isDemoOverride ?? AppConstants.isDemo;
 
   /// True while a server-marked demo account is signed in. Reads the
   /// persisted flag on every call (SharedPreferences answers from its
@@ -73,9 +63,17 @@ class DemoSession extends ChangeNotifier {
   /// again after [clear] or a sign-out.
   bool get active => LocalStorage.getDemoSessionActive();
 
-  /// Whether the app should serve the in-app fixtures right now: a demo
-  /// BUILD ([AppConstants.isDemo]) or a demo SESSION ([active]).
-  static bool get demoActive => _isDemoBuild || instance.active;
+  /// Whether the app should serve the in-app fixtures right now, and the
+  /// only demo switch the fleet has.
+  ///
+  /// Two sources, and no build flag beyond the first. The guided-tour build
+  /// (`--dart-define=TOUR_MODE=true`) runs with no backend and no sign-in,
+  /// so it keeps its in-app fixtures through [AppConstants.isTour];
+  /// everything else is the runtime session ([active]), which auth_sdk
+  /// activates from the server-asserted demo-account marker on the login
+  /// payload. A shipped build sets no define, so there it is the session
+  /// alone.
+  static bool get demoActive => AppConstants.isTour || instance.active;
 
   /// Switches the running session to demo. Called by the login flow
   /// strictly AFTER the real backend has accepted the credentials and its

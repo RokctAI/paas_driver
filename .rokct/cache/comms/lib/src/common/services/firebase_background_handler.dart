@@ -22,6 +22,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import 'push_message_dispatcher.dart';
+
 /// FCM background-message entry point, owned by comms_sdk (the push owner).
 ///
 /// Declared in comms' manifest `boot_hooks` as the handler passed to
@@ -42,4 +44,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp();
   }
+  // No feature SDK is registered in this isolate: queue the data for the
+  // app's PushMessageDispatcher to replay when it comes back.
+  await PushMessageDispatcher.queueBackground(message.data);
 }

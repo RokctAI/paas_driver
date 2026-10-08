@@ -13,9 +13,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // The credit / partly-paid + send-for-delivery checkout (approved strip
-// frames 11g–11i), pumped DIRECTLY from templates/ with the demo
-// PosOrdersFacade (MockPosOrdersRepository). Run with
-// --dart-define=IS_DEMO=true.
+// frames 11g–11i), pumped DIRECTLY from templates/ with the demo till's
+// PosOrdersFacade (support/demo_till.dart).
 //
 // Covers: the customer attach unlocking the split (305/306 — the "owes"
 // chip), the Amount-paying-now edit driving the remainder banner and the
@@ -34,20 +33,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider.dart';
-import 'package:merchants_sdk/src/manager/di/manager_merchants_di.dart';
 import 'package:merchants_sdk/src/manager/domain/interface/pos_orders.dart';
-import 'package:merchants_sdk/src/manager/infrastructure/repositories/mock_pos_orders_repository.dart';
+
+import 'support/demo_till.dart';
+
 import 'package:merchants_sdk/src/manager/utils/pos_connectivity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../templates/pages/manager/billing/checkout_page.dart';
 
 Widget _host(Widget child) => ProviderScope(
-      child: ScreenUtilInit(
-        designSize: const Size(390, 844),
-        builder: (context, _) => MaterialApp(home: child),
-      ),
-    );
+  child: ScreenUtilInit(
+    designSize: const Size(390, 844),
+    builder: (context, _) => MaterialApp(home: child),
+  ),
+);
 
 Future<ProviderContainer> _pumpWithCart(WidgetTester tester) async {
   // Tall canvas (the 11g/11i frames are 390x3420+ logical, plus the
@@ -66,8 +66,7 @@ Future<ProviderContainer> _pumpWithCart(WidgetTester tester) async {
   return container;
 }
 
-MockPosOrdersRepository get _mock =>
-    GetIt.I<PosOrdersFacade>() as MockPosOrdersRepository;
+DemoTillOrders get _mock => GetIt.I<PosOrdersFacade>() as DemoTillOrders;
 
 Future<void> _attachDemoCustomer(WidgetTester tester) async {
   await tester.tap(find.text('Add customer'));
@@ -85,7 +84,7 @@ void main() {
     await LocalStorage.setSelectedCurrency(
       CurrencyData(id: 'ZAR', symbol: 'R', position: 'before', rate: 1),
     );
-    ManagerMerchantsDependencies.register(GetIt.instance);
+    await registerDemoTill();
   });
 
   setUp(() async {
@@ -93,7 +92,7 @@ void main() {
     if (GetIt.I.isRegistered<PosOrdersFacade>()) {
       await GetIt.I.unregister<PosOrdersFacade>();
     }
-    GetIt.I.registerSingleton<PosOrdersFacade>(MockPosOrdersRepository());
+    GetIt.I.registerSingleton<PosOrdersFacade>(DemoTillOrders());
     PosConnectivity.debugConnectivityOverride = true;
   });
 
@@ -101,8 +100,7 @@ void main() {
     PosConnectivity.debugConnectivityOverride = null;
   });
 
-  testWidgets(
-      'credit split (11g): attaching the customer unlocks the amount '
+  testWidgets('credit split (11g): attaching the customer unlocks the amount '
       'entry; editing below the total shows the owes chip, the remainder '
       'banner and the summary split; the submitted draft carries '
       'paid-now + Credit into the pipeline', (tester) async {
@@ -144,15 +142,15 @@ void main() {
     expect(draft.onCredit, isTrue);
     expect(draft.status, 'delivered');
     expect(draft.deliveryType, 'pickup');
-    expect(draft.customerId, MockPosOrdersRepository.demoCustomer.id);
+    expect(draft.customerId, DemoTillOrders.demoCustomer.id);
     expect(draft.total, 150);
     expect(draft.lines, hasLength(1));
     expect(container.read(posCartProvider).lines, isEmpty);
   });
 
-  testWidgets(
-      'all-on-credit quick action (308) zeroes the paying-now amount',
-      (tester) async {
+  testWidgets('all-on-credit quick action (308) zeroes the paying-now amount', (
+    tester,
+  ) async {
     await _pumpWithCart(tester);
     await _attachDemoCustomer(tester);
 
@@ -168,49 +166,51 @@ void main() {
   });
 
   testWidgets(
-      'send-for-delivery (11i): customer and address are required, then '
-      'the draft enters the pipeline as ready/delivery — an offline till '
-      'holds it locally until the sync drains it', (tester) async {
-    final container = await _pumpWithCart(tester);
+    'send-for-delivery (11i): customer and address are required, then '
+    'the draft enters the pipeline as ready/delivery — an offline till '
+    'holds it locally until the sync drains it',
+    (tester) async {
+      final container = await _pumpWithCart(tester);
 
-    await tester.tap(find.text('Send for delivery'));
-    await tester.pump();
+      await tester.tap(find.text('Send for delivery'));
+      await tester.pump();
 
-    // No customer yet: the finish refuses and the sale stays open.
-    await tester.tap(find.text('Send for delivery & Finish'));
-    await tester.pumpAndSettle();
-    expect(_mock.submitted, isEmpty);
-    expect(container.read(posCartProvider).lines, hasLength(1));
+      // No customer yet: the finish refuses and the sale stays open.
+      await tester.tap(find.text('Send for delivery & Finish'));
+      await tester.pumpAndSettle();
+      expect(_mock.submitted, isEmpty);
+      expect(container.read(posCartProvider).lines, hasLength(1));
 
-    await _attachDemoCustomer(tester);
+      await _attachDemoCustomer(tester);
 
-    // Customer but no address: still refused.
-    await tester.tap(find.text('Send for delivery & Finish'));
-    await tester.pumpAndSettle();
-    expect(_mock.submitted, isEmpty);
+      // Customer but no address: still refused.
+      await tester.tap(find.text('Send for delivery & Finish'));
+      await tester.pumpAndSettle();
+      expect(_mock.submitted, isEmpty);
 
-    // Enter the address via the Delivers-to card's editor (314). Two
-    // "Change" links are on screen (billing-to + delivers-to); the
-    // delivers-to card sits below.
-    await tester.tap(find.text('Change').last);
-    await tester.pumpAndSettle();
-    await tester.enterText(
-      find.byType(TextField).last,
-      '12 Marigold Ave, Rosebank',
-    );
-    await tester.tap(find.text('Done'));
-    await tester.pumpAndSettle();
-    expect(find.text('12 Marigold Ave, Rosebank'), findsOneWidget);
+      // Enter the address via the Delivers-to card's editor (314). Two
+      // "Change" links are on screen (billing-to + delivers-to); the
+      // delivers-to card sits below.
+      await tester.tap(find.text('Change').last);
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byType(TextField).last,
+        '12 Marigold Ave, Rosebank',
+      );
+      await tester.tap(find.text('Done'));
+      await tester.pumpAndSettle();
+      expect(find.text('12 Marigold Ave, Rosebank'), findsOneWidget);
 
-    await tester.tap(find.text('Send for delivery & Finish'));
-    await tester.pumpAndSettle();
-    expect(_mock.submitted, hasLength(1));
-    final draft = _mock.submitted.single;
-    expect(draft.status, 'ready');
-    expect(draft.deliveryType, 'delivery');
-    expect(draft.address, '12 Marigold Ave, Rosebank');
-    expect(draft.paidNow, 150); // untouched entry = full total
-    expect(draft.onCredit, isFalse);
-    expect(container.read(posCartProvider).lines, isEmpty);
-  });
+      await tester.tap(find.text('Send for delivery & Finish'));
+      await tester.pumpAndSettle();
+      expect(_mock.submitted, hasLength(1));
+      final draft = _mock.submitted.single;
+      expect(draft.status, 'ready');
+      expect(draft.deliveryType, 'delivery');
+      expect(draft.address, '12 Marigold Ave, Rosebank');
+      expect(draft.paidNow, 150); // untouched entry = full total
+      expect(draft.onCredit, isFalse);
+      expect(container.read(posCartProvider).lines, isEmpty);
+    },
+  );
 }

@@ -316,7 +316,7 @@ class MerchantShopInfoSection extends ConsumerWidget {
           '${state.shop?.translation?.description}',
           style: AppStyle.interNormal(
             size: 13.sp,
-            color: AppStyle.textPrimary,
+            color: AppStyle.inkFor(Theme.of(context).brightness),
           ),
         ),
       ],
@@ -343,7 +343,7 @@ class MerchantWorkingHoursSection extends ConsumerWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.r),
         border: Border.all(
-          color: AppStyle.strokeDark,
+          color: AppStyle.strokeFor(Theme.of(context).brightness),
           width: 1.r,
         ),
       ),
@@ -354,7 +354,7 @@ class MerchantWorkingHoursSection extends ConsumerWidget {
           Icon(
             Remix.time_fill,
             size: 20.r,
-            color: AppStyle.textPrimary,
+            color: AppStyle.inkFor(Theme.of(context).brightness),
           ),
           10.horizontalSpace,
           Builder(
@@ -367,7 +367,7 @@ class MerchantWorkingHoursSection extends ConsumerWidget {
                       ? ''
                       : '${AppHelpers.getTranslation(TrKeys.workingHours)}:',
                   style: AppStyle.interRegular(
-                    color: AppStyle.textPrimary,
+                    color: AppStyle.inkFor(Theme.of(context).brightness),
                     size: 12.sp,
                   ),
                   children: [
@@ -375,7 +375,7 @@ class MerchantWorkingHoursSection extends ConsumerWidget {
                       text:
                           ' ${todayTime ?? AppHelpers.getTranslation(TrKeys.theRestaurantIsClosedToday)}',
                       style: AppStyle.interSemi(
-                        color: AppStyle.textPrimary,
+                        color: AppStyle.inkFor(Theme.of(context).brightness),
                         size: 13.sp,
                       ),
                     ),
@@ -489,7 +489,7 @@ class MerchantProductivitySection extends StatelessWidget {
           // AppStyle.black, which is correct for its many white-sheet call
           // sites (ModalWrap) but invisible on this host's dark page — so
           // the hub passes the mode-resolving token explicitly.
-          titleColor: AppStyle.textPrimary,
+          titleColor: AppStyle.inkFor(Theme.of(context).brightness),
         ),
         20.verticalSpace,
         SectionsItem(
@@ -534,7 +534,7 @@ class MerchantSectionsList extends StatelessWidget {
           title: AppHelpers.getTranslation(TrKeys.sections),
           // See MerchantProductivitySection: the shared default is pinned
           // black for white-sheet hosts; this page is dark-surfaced.
-          titleColor: AppStyle.textPrimary,
+          titleColor: AppStyle.inkFor(Theme.of(context).brightness),
         ),
         20.verticalSpace,
         SectionsItem(
@@ -556,6 +556,16 @@ class MerchantSectionsList extends StatelessWidget {
           title: AppHelpers.getTranslation(TrKeys.quickFlow),
           icon: Remix.flashlight_line,
           onTap: () => context.pushRoute(const ManagerQuickFlowRoute()),
+        ),
+        // SUBSCRIPTION (Ray approved 2026-09-27): the door to the shop's
+        // subscription page, which subscriptions_sdk installs as the
+        // manager's /subscriptions route (ManagerSubscriptionsRoute).
+        // Pushed BY PATH so merchants_sdk never imports subscriptions_sdk;
+        // a compose without it simply resolves nothing.
+        SectionsItem(
+          title: AppHelpers.getTranslation(TrKeys.subscriptions),
+          icon: Remix.vip_crown_line,
+          onTap: () => context.router.pushNamed('/subscriptions'),
         ),
         SectionsItem(
           title: AppHelpers.getTranslation(TrKeys.income),

@@ -97,7 +97,7 @@ class CalculatorView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: AppStyle.surfaceDark,
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: GestureDetector(
         // The shipped swipe-right-to-pop, kept as a shortcut (frame
         // 45a) — the corner pill is the settled affordance, not its
@@ -235,7 +235,10 @@ class _Fold extends ConsumerWidget {
             children: [
               Text(
                 AppHelpers.getTranslation(TrKeys.calculator),
-                style: AppStyle.interSemi(size: 18),
+                style: AppStyle.interSemi(
+                  color: AppStyle.inkFor(Theme.of(context).brightness),
+                  size: 18,
+                ),
               ),
               const Spacer(),
               const CalcMemoryBar(compact: true),
@@ -273,16 +276,21 @@ class _Display extends StatelessWidget {
       width: double.infinity,
       padding: REdgeInsets.symmetric(horizontal: 16, vertical: 18),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: AppStyle.strokeDarkSubtle),
+        border: Border.all(
+          color: AppStyle.subtleStrokeFor(Theme.of(context).brightness),
+        ),
       ),
       child: Text(
         display,
         textAlign: TextAlign.right,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: AppStyle.interSemi(size: size),
+        style: AppStyle.interSemi(
+          color: AppStyle.inkFor(Theme.of(context).brightness),
+          size: size,
+        ),
       ),
     );
   }
@@ -342,7 +350,7 @@ class CalcUseAmountButton extends StatelessWidget {
             textAlign: TextAlign.center,
             style: AppStyle.interNormal(
               size: 11,
-              color: AppStyle.textDarkFaint,
+              color: AppStyle.faintFor(Theme.of(context).brightness),
             ),
           ),
         ],

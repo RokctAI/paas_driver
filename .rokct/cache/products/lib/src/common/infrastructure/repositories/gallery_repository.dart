@@ -28,6 +28,29 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/enums.dart';
 
 class GalleryRepository implements GalleryRepositoryFacade {
+  /// The backend shell app serving the fleet upload endpoint (`rcore` for the
+  /// composed backend); mirrors agent_sdk / lms_sdk `uploadAppPrefix` so a
+  /// host or test can override it at boot.
+  static String uploadAppPrefix = 'rcore';
+
+  /// Core's shared upload endpoint (`base.api.upload.upload_file` via the
+  /// manifest alias), the one the other SDKs use.
+  static String get uploadPath =>
+      '/api/v1/method/$uploadAppPrefix.api.upload.upload_file';
+
+  /// Core's upload_file answers `{file_url, file_name, name}`; the gallery
+  /// model reads the stored url from `data.title`.
+  @visibleForTesting
+  static dynamic uploadResponseJson(dynamic body) {
+    if (body is Map && body['data'] == null && body['file_url'] != null) {
+      return {
+        'status': true,
+        'data': {'title': body['file_url'], 'type': 'image'},
+      };
+    }
+    return body;
+  }
+
   @override
   Future<ApiResult<GalleryUploadResponse>> uploadImage(
     String file,
@@ -77,12 +100,12 @@ class GalleryRepository implements GalleryRepositoryFacade {
     });
     try {
       final client = dioHttp.client(requireAuth: true);
-      // NOTE: Using Frappe's standard file upload method
-      final response = await client.post('/api/method/upload_file', data: data);
+      // Bypasses the gateway: multipart file bytes can't ride its JSON envelope.
+      final response = await client.post(uploadPath, data: data);
       // The response will contain the file URL, which needs to be saved
       // to the appropriate document in a separate API call.
       return ApiResult.success(
-        data: GalleryUploadResponse.fromJson(response.data),
+        data: GalleryUploadResponse.fromJson(uploadResponseJson(response.data)),
       );
     } catch (e) {
       debugPrint('==> upload image failure: $e');

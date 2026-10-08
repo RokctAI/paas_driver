@@ -15,6 +15,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/presentation/theme/theme.dart';
+import 'package:remixicon/remixicon.dart';
 
 class OrderContainer extends StatelessWidget {
   final Widget icon;
@@ -36,7 +37,7 @@ class OrderContainer extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: AppStyle.bgGrey,
+          color: AppStyle.surfaceFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(10.r),
         ),
         padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
@@ -58,7 +59,10 @@ class OrderContainer extends StatelessWidget {
                   width: MediaQuery.sizeOf(context).width - 164.w,
                   child: Text(
                     description,
-                    style: AppStyle.interBold(size: 14, color: AppStyle.black),
+                    style: AppStyle.interBold(
+                      size: 14,
+                      color: AppStyle.inkFor(Theme.of(context).brightness),
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -66,7 +70,7 @@ class OrderContainer extends StatelessWidget {
               ],
             ),
             const Spacer(),
-            Icon(Icons.keyboard_arrow_right, size: 21.r),
+            Icon(Remix.arrow_right_s_line, size: 21.r),
           ],
         ),
       ),

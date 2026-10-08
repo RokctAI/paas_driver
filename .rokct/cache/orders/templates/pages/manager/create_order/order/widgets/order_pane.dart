@@ -118,7 +118,7 @@ class _OrderPaneState extends ConsumerState<OrderPane> {
           // surface in either polarity.
           child: TitleAndIcon(
             title: AppHelpers.getTranslation(TrKeys.orders),
-            titleColor: AppStyle.textPrimary,
+            titleColor: AppStyle.inkFor(Theme.of(context).brightness),
             rightTitleColor: AppStyle.red,
             rightTitle: state.stocks.isEmpty
                 ? null
@@ -199,9 +199,9 @@ class _SubtotalRow extends StatelessWidget {
     return Container(
       padding: REdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppStyle.strokeDarkSubtle),
+        border: Border.all(color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
       ),
       child: Row(
         children: [
@@ -213,7 +213,7 @@ class _SubtotalRow extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: AppStyle.interRegular(
                 size: 15.sp,
-                color: AppStyle.textDarkSecondary,
+                color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
               ),
             ),
           ),
@@ -222,7 +222,7 @@ class _SubtotalRow extends StatelessWidget {
             AppHelpers.numberFormat(number: subtotal),
             style: AppStyle.interSemi(
               size: 16.sp,
-              color: AppStyle.textPrimary,
+              color: AppStyle.inkFor(Theme.of(context).brightness),
             ),
           ),
         ],

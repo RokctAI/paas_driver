@@ -31,6 +31,11 @@ class CommonAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The bar fill comes from the inherited theme, not from AppStyle's
+    // app-wide isDark static. MediaQuery.paddingOf below is NOT a defence:
+    // the view padding does not change when the theme mode does, so nothing
+    // rescheduled this bar and it kept the previous mode's fill.
+    final Brightness brightness = Theme.of(context).brightness;
     return Container(
       width: double.infinity,
       height: height.h +
@@ -38,7 +43,7 @@ class CommonAppBar extends StatelessWidget {
               ? 34.h
               : MediaQuery.paddingOf(context).top),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(brightness),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(16.r),
           bottomRight: Radius.circular(16.r),

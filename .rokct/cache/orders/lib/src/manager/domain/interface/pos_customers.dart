@@ -24,11 +24,16 @@ import 'package:orders_sdk/src/manager/infrastructure/models/response/users_pagi
 /// (`templates/adapters/manager/orders_adapters.dart`) binding this to
 /// users_sdk's facade.
 ///
-/// `createUser` is the fork's known backend gap: users_sdk's `register_user`
-/// is self-signup, and no seller-scoped create-walk-in-customer endpoint
-/// exists yet — see `docs/frappe-endpoint-contract.md`. The contract is
-/// declared anyway so the UI and adapter are ready when the endpoint lands;
-/// an unwired or unimplemented call fails visibly through [ApiResult.failure].
+/// `createUser` is answered by orders' OWN frappe half —
+/// `api.order.create_walk_in_customer` (M19) — not by users_sdk's
+/// `register_user`, which is OTP self-signup and would mint a login for a
+/// person standing at a till. It is seller-only and idempotent; see
+/// `docs/frappe-endpoint-contract.md`. An unwired host still fails visibly
+/// through [ApiResult.failure].
+///
+/// Nothing here is reached when the seller enters NO details: the flow then
+/// places the order against the seller's own account as the walk-in customer
+/// (`resolveWalkInOrderCustomer` in `domain/walk_in_customer.dart`).
 abstract class PosCustomersFacade {
   Future<ApiResult<UsersPaginateResponse>> searchUsers({
     String? query,

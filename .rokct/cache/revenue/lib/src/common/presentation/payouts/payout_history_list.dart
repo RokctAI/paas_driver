@@ -69,7 +69,7 @@ class PayoutHistoryList extends StatelessWidget {
     return Container(
       key: const Key('payoutHistoryList'),
       decoration: BoxDecoration(
-        color: AppStyle.cardDark,
+        color: AppStyle.cardFor(Theme.of(context).brightness),
         borderRadius: BorderRadius.circular(14.r),
       ),
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
@@ -96,7 +96,7 @@ class PayoutHistoryList extends StatelessWidget {
             for (var i = 0; i < requests.length; i++) ...[
               _row(requests[i]),
               if (i != requests.length - 1)
-                Divider(height: 1, color: AppStyle.strokeDarkSubtle),
+                Divider(height: 1, color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
             ],
         ],
       ),

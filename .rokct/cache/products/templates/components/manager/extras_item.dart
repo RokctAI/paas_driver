@@ -49,7 +49,7 @@ class ExtrasItem extends StatelessWidget {
             borderRadius: BorderRadius.circular(100.r),
             color: AppStyle.transparent,
             border: Border.all(
-              color: checked ? AppStyle.primary : AppStyle.strokeDark,
+              color: checked ? AppStyle.primary : AppStyle.strokeFor(Theme.of(context).brightness),
             ),
           ),
           child: Row(
@@ -59,7 +59,7 @@ class ExtrasItem extends StatelessWidget {
                 checked
                     ? Remix.checkbox_circle_fill
                     : Remix.checkbox_blank_circle_line,
-                color: checked ? AppStyle.primary : AppStyle.textDarkFaint,
+                color: checked ? AppStyle.primary : AppStyle.faintFor(Theme.of(context).brightness),
                 size: 18.r,
               ),
               6.horizontalSpace,
@@ -68,7 +68,7 @@ class ExtrasItem extends StatelessWidget {
                 style: AppStyle.interSemi(
                   size: 13.sp,
                   letterSpacing: -0.3,
-                  color: checked ? AppStyle.primary : AppStyle.textDarkSecondary,
+                  color: checked ? AppStyle.primary : AppStyle.secondaryInkFor(Theme.of(context).brightness),
                 ),
               ),
             ],

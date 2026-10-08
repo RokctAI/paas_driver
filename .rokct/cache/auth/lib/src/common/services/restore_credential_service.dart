@@ -206,7 +206,7 @@ class RestoreCredentialService {
     // Push tokens are explicitly NOT restored. Without this the user is
     // signed in but silently stops receiving notifications.
     if (userRepository != null) {
-      await syncFcmToken(userRepository);
+      await completeSessionStart(userRepository);
     }
     return true;
   }

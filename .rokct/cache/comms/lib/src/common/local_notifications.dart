@@ -45,6 +45,20 @@ class LocalNotifications {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
+  /// The shared plugin instance, for comms_sdk's own device sinks
+  /// (`DeviceLiveActivitySink`) that need notification details this
+  /// wrapper does not expose.
+  static FlutterLocalNotificationsPlugin get plugin => _notificationsPlugin;
+
+  static Future<void>? _initializing;
+
+  /// [initialize] at most once per process; later callers join the first.
+  static Future<void> ensureInitialized() =>
+      _initializing ??= initialize().catchError((Object e) {
+        _initializing = null;
+        throw e;
+      });
+
   static Future<void> initialize() async {
     tz.initializeTimeZones();
     const AndroidInitializationSettings initializationSettingsAndroid =

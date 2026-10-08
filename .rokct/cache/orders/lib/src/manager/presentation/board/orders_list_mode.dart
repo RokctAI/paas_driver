@@ -135,7 +135,9 @@ class _OrdersListModeState extends ConsumerState<OrdersListMode> {
                     AppHelpers.getTranslation('no_orders'),
                     style: AppStyle.interNormal(
                       size: 12,
-                      color: AppStyle.textDarkSecondary,
+                      color: AppStyle.secondaryInkFor(
+                        Theme.of(context).brightness,
+                      ),
                     ),
                   ),
                 )
@@ -171,14 +173,20 @@ class _OrdersListModeState extends ConsumerState<OrdersListMode> {
                             margin: const EdgeInsets.fromLTRB(6, 0, 6, 8),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(100),
-                              border: Border.all(color: AppStyle.strokeDark),
+                              border: Border.all(
+                                color: AppStyle.strokeFor(
+                                  Theme.of(context).brightness,
+                                ),
+                              ),
                             ),
                             child: Center(
                               child: Text(
                                 '${AppHelpers.getTranslation('view_more')}  ·  +$moreCount',
                                 style: AppStyle.interSemi(
                                   size: 11.5,
-                                  color: AppStyle.textDarkSecondary,
+                                  color: AppStyle.secondaryInkFor(
+                                    Theme.of(context).brightness,
+                                  ),
                                 ),
                               ),
                             ),
@@ -208,10 +216,12 @@ class _OrdersListModeState extends ConsumerState<OrdersListMode> {
           decoration: BoxDecoration(
             color: isActive
                 ? status.color.withValues(alpha: 0.16)
-                : AppStyle.cardDark,
+                : AppStyle.cardFor(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(100),
             border: Border.all(
-              color: isActive ? status.color : AppStyle.strokeDark,
+              color: isActive
+                  ? status.color
+                  : AppStyle.strokeFor(Theme.of(context).brightness),
             ),
           ),
           child: Row(
@@ -220,10 +230,15 @@ class _OrdersListModeState extends ConsumerState<OrdersListMode> {
               Text(
                 AppHelpers.getTranslation(status.wire),
                 style: isActive
-                    ? AppStyle.interSemi(size: 12, color: AppStyle.textPrimary)
+                    ? AppStyle.interSemi(
+                        size: 12,
+                        color: AppStyle.inkFor(Theme.of(context).brightness),
+                      )
                     : AppStyle.interNormal(
                         size: 12,
-                        color: AppStyle.textDarkSecondary,
+                        color: AppStyle.secondaryInkFor(
+                          Theme.of(context).brightness,
+                        ),
                       ),
               ),
               const SizedBox(width: 7),

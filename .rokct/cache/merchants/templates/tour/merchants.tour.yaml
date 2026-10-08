@@ -9,12 +9,11 @@
 # (paas_manager, pos, launch_manager) - those routes do not exist in other
 # composes.
 #
-# Demo grounding (--dart-define=IS_DEMO=true): merchants_di.dart swaps in
-# MockShopsRepository for the customer-facing ShopsRepositoryFacade, and
-# since 1.22.0 ManagerMerchantsDependencies demo-gates the manager-side
-# SellerShopRepositoryFacade to this SDK's own DemoSellerShopRepository -
-# which serves MockShopsRepository.demoShop itself, so the shop a demo
-# customer browses and the shop a demo manager runs are ONE shop. That is
+# Demo grounding (a demo session): the REAL ShopsRepository and
+# SellerShopRepository run, and base_sdk's DemoGatewayInterceptor answers
+# their cmds from the fixtures in assets/demo/merchants - the manager's
+# own shop is the first demo shop, so the shop a demo customer browses and
+# the shop a demo manager runs are ONE shop. That is
 # what makes the restaurant_hub step below a real capture rather than a
 # blank header. The driver-role story screen (/story, app_type.driver) is
 # out of scope - it belongs in a future driver-role fragment, since this
@@ -25,8 +24,8 @@
 #
 # POS steps (1.12.0, tour-sync rule: screen + fragment ship in the same
 # PR): the till (BillingPage, tab 0) and the /pos-checkout flow ARE
-# demo-grounded - ManagerMerchantsDependencies demo-gates the POS product
-# lookup to this SDK's MockProductsRepository ("Flame-grilled beef burger", R150.00),
+# demo-grounded - the POS product lookup runs the real catalog seam against
+# products_sdk's demo fixtures ("Flame-grilled beef burger", R150.00),
 # and the checkout's connectivity probe fails closed to the offline-code
 # flow in a headless harness - so every POS still below renders real
 # widgets over real demo data with zero backend contact. The camera never
@@ -102,9 +101,10 @@ steps:
     action: dart
     settle: 6
     dart: |
-      // Demo build: the barcode lane resolves through this SDK's
-      // MockProductsRepository ("Flame-grilled beef burger", R150.00), zero backend
-      // contact - the same path a real scan takes.
+      // Demo session: the barcode lane resolves through the real catalog
+      // seam against products_sdk's demo fixtures ("Flame-grilled beef
+      // burger", R150.00), zero backend contact - the same path a real scan
+      // takes.
       final Element element = tester.element(find.byType(Navigator).first);
       final ProviderContainer container =
           ProviderScope.containerOf(element, listen: false);
@@ -206,8 +206,8 @@ steps:
       //
       // The tab is preload: false in the shell's IndexedStack, so selecting
       // it is what first builds RestaurantPage - whose initState fetches
-      // the shop through SellerShopRepositoryFacade. In demo builds that is
-      // this SDK's DemoSellerShopRepository (see the demo-grounding note at
+      // the shop through SellerShopRepositoryFacade. In a demo session that
+      // is answered from the demo fixtures (see the demo-grounding note at
       // the top of this file), so the header renders with the demo shop's
       // name and rating rather than empty; the rows below it carry their
       // own isDemo subtitles. The settle covers that first fetch.

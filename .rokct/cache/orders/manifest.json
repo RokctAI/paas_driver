@@ -1,7 +1,24 @@
 {
   "name": "orders_sdk",
-  "version": "1.21.0",
-  "_comment_requires": "orders_sdk >= 1.21.0 requires base_sdk >= 1.61.0 (DemoSession): the demo repositories - OrdersSdkDependencies' orders/cart twins, ManagerOrdersDependencies' seller-orders twin and the launcher window's fallback - are chosen by base_sdk's runtime demo switch (DemoSession.demoActive: a demo build OR a server-marked demo account's session) and re-registered when it flips, instead of the compile-time IS_DEMO ternary alone. orders_sdk >= 1.20.0 carries the manager window for the launcher canvas (approved design strip frames 53f/53l): the integrations below inject it under launch_sdk's '// @launcher-windows' / '// @launcher-windows-imports' markers and build it with LaunchWindowSource.widget, both of which exist from launch_sdk >= 1.4.3; on an older launch_sdk the composer reports the marker missing and skips the wiring (window absent, nothing else changes), and in hosts without launch_sdk the target file does not exist and the entry is skipped the same way. orders_sdk >= 1.19.0 lays the walk-in order flow on planes (approved design strip section 37, frames 37a-37e: WalkInPlaneFlow + WalkInBoardRail in lib/, the installed create_order templates as host shells) on the same base_sdk >= 1.43.0 plane model (PlaneHost/PlanePage.allowNeighbors/FloatingBackPill) 1.11.0 already requires - no new base_sdk requirement. orders_sdk >= 1.18.0 hosts order history's 38a plane flow as package code (OrderHistoryPlaneFlow; the installed page is the host shell) with no new base_sdk requirement. orders_sdk >= 1.14.0 charges a saved card by its Saved Card docname (`SavedCardModel.id`), not by a gateway reuse credential, so it requires base_sdk >= 1.50.0 (SavedCardModel without `token`, and the `name` -> `id` fallback that fills the handle) and a backend carrying pay's saved-card confinement (pay#46: `process_token_payment` keyed on `saved_card`). Against an older backend the charge is refused WITHOUT being made, never mis-charged. This also covers the client half that shipped unversioned in commerce#92. orders_sdk >= 1.13.0 carries the collected-in-person conversion (approved strip section 43): the ONE atomic seller endpoint lives in merchants (`convert_delivery_to_collected`), so a manager compose wanting the convert lane needs merchants_sdk >= 1.20.0 on the backend side; without it the lane's single call fails through ApiResult.failure rather than half-converting anything. orders_sdk >= 1.12.0 requires base_sdk >= 1.46.0 (the STANDARD LIST LANGUAGE - ListFilterTabBar/ListCountPill/ListScreenHeader/ListViewMore and ListDetailFlow/ListPlaneColumns from approved design strip section 38, which order history is drawn in). orders_sdk >= 1.11.0 requires base_sdk >= 1.43.0 (PlaneHost/Planes/PlaneSpan and FloatingBackPill from the approved plane model — the manager orders workspace hosts its board + order-detail flow in planes per approved frame 33d). orders_sdk >= 1.9.0 carries the int->String docname id migration for the manager/POS slice (Frappe hash docnames; fleet-wide sweep). orders_sdk >= 1.6.0 requires base_sdk >= 1.11.0 (AdaptiveShell/SplitPane/window-size classes from core PR #35 — the wide-screen order board and split create-order layouts import them; >= 1.4.0 required base_sdk >= 1.6.0: CustomerCartStore/kCartSyncOpType and SyncEngine.enqueueOrReplace from the offline-first Phase 3 customer cart, core PR #16; 1.3.0 needed only base_sdk >= 1.5.0's SyncEngine/SyncHandler APIs from Phase 0, core PR #15); the composer manifest schema has no machine-readable minimum-version field, so this is the declaration. orders_sdk >= 1.16.1 requires base_sdk >= 1.56.0: MockOrdersRepository's demo shop logo is one of base_sdk's DemoImages (an inline data: URI), which only base_sdk >= 1.56.0 renders - older base_sdk hands it to CachedNetworkImage and draws its broken-image state.",
+  "version": "1.29.2",
+  "_comment_version_1_29_0": "1.28.0 -> 1.29.0: checkout price information shows \"You saved X with your subscription\" when the quote carries subscription_savings (commerce loyalty customer subscriptions). Requires base_sdk >= 1.82.0 (GetCalculateModel.subscriptionSavings, TrKeys.youSavedWithSubscription).",
+  "_comment_version_1_28_0": "1.27.0 -> 1.28.0: native Braintree checkout for orders and parcels. OrdersRepository.process / ParcelRepository.process with a braintree gateway tag, on Android/iOS, when payments_sdk >= 1.3.0 registered its seam (GetIt function type Future<Map<String, Object?>> Function(String, String) under instanceName payments.braintree_native_checkout), create the order as before and pay it in Braintree's native drop-in (api.payment.braintree_client_token -> api.payment.braintree_checkout, amount from the document server-side). Success answers the marker native-paid://braintree, which order_check and ParcelNotifier treat as paid without opening a WebView. On web/Windows, without payments_sdk, or when the native flow is unavailable, the existing path runs unchanged; every WebView gateway is untouched. New tr key payment_cancelled. Requires pay with braintree_client_token / braintree_checkout.",
+  "_comment_version_1_27_1": "1.27.0 -> 1.27.1: parcel lists send the Parcel Order status labels (\"On a way\") and page with limit/offset, so paging and the on-the-way filter work.",
+  "_comment_version_1_27_0": "1.26.0 -> 1.27.0: PayPal order and parcel checkout move to the wallet's PayPal REST Orders v2 cmds. OrdersRepository.process / ParcelRepository.process for PayPal call api.payment.create_paypal_rest_order {target_type: order|parcel, target_id} and answer its approve_url; WebViewPage captures on the paypal_rest_return redirect with api.payment.capture_paypal_rest_order before treating the payment as paid. The hosted initiate_paypal_payment / initiate_paypal_parcel_payment cmds are retired in pay in the same wave. Requires the matching pay change.",
+  "_comment_version_1_26_0": "1.25.0 -> 1.26.0: the order live activity no longer depends on the order progress screen being open. ActiveOrderTracker (app-wide, activeOrderTrackerProvider) polls each active delivery order: 15s while on the way with the driver location, 120s otherwise, never in the background, and stops at a terminal status. It starts at app start (new customer di_hook), after checkout, on resume, when the home glance card loads active orders, and on an 'order_status' push (base_sdk >= 1.79.0 PushMessages; comms_sdk >= 1.21.0 dispatches FCM into it). OrderProgressPage reuses the tracker instead of running its own poll. getActiveOrders now asks api.order.list_orders for 'accepted,processing,ready,on_a_way' (the orders backend in this same change resolves a comma-separated list and the on_a_way/processing aliases); it asked for 'accepted' alone before, so the glance card never showed a processing, ready or on-the-way order. The backend also pushes the customer an 'order_status' notification on every real status transition (through comms' send_push_notification when composed). Requires base_sdk >= 1.79.0.",
+  "_comment_version_1_25_0": "1.24.1 -> 1.25.0: customer order tracking live activity (design section 2, approved 2026-09-26). OrderLiveActivity maps the polled order plus the driver location onto base_sdk's LiveActivities (base_sdk >= 1.76.0; drawn by comms_sdk >= 1.19.0): five segments, car tracker, Placed / Preparing / Picked up / On the way / Arriving now / Delivered / Order cancelled. order_progress_screen polls every 15s while the order is on its way (120s otherwise, never in the background) and wires the previously unused getDriverLocation (existing api.delivery.get_driver_location cmd, read silently). No ETA field exists, so 'Arrives about' shows the checkout delivery time. Pickup orders get no entry. No manifest key, cmd, payload or route changed.",
+  "_comment_version_1_24_1": "1.24.0 -> 1.24.1: the demo fixture install moves from the app_type.manager block to the top-level installs, next to the top-level app_assets entry that registers it. The common DI registers assets/demo/orders in every role, but only manager composes copied the fixtures, so any other compose (supacharge's Windows build) got an assets/demo/orders/ pubspec entry with nothing behind it and flutter failed with 'unable to find directory entry in pubspec.yaml'. Manifest-only change; no code changes.",
+  "_comment_version_1_24_0": "1.23.1 -> 1.24.0: demo runs the REAL repositories (Ray, 2026-09-25: \"touch all sdk demos ... remove unused files\"). The DI hooks register the real repositories only and call DemoFixtures.registerAssetDirectory('assets/demo/orders'); base_sdk 1.73.0's DemoGatewayInterceptor answers each platform cmd from templates/assets/demo/orders/<cmd>.json (installed to assets/demo/orders) while DemoSession.demoActive, and an unknown cmd fails with DemoFixtureMissing. The cart/order/seller_order fixtures carry (the demo cart, the customer's order history, and the manager's seeded shift of seven orders in rand with its statistic block). Deleted: MockCartRepository, MockOrdersRepository, DemoSellerOrdersRepository and the demo-session swap code that chose them. Needs base_sdk >= 1.73.0 (DemoFixtures / DemoGatewayInterceptor).",
+  "_comment_requires": "orders_sdk >= 1.24.0 requires base_sdk >= 1.73.0 (DemoFixtures.registerAssetDirectory and the DemoGatewayInterceptor that answers the demo fixtures). orders_sdk >= 1.23.0 carries the SHOP side of Ray's own-drivers ruling: /load/drivers, the roster of the drivers a shop keeps, and the \"Manage drivers\" action on /load/issue that opens it. The roster's three endpoints belong to the ZONES app's delivery module - `api.shop_drivers.list_shop_drivers`, `api.shop_drivers.add_shop_driver` and `api.shop_drivers.remove_shop_driver`, all scoped to the calling seller's own shop - so a manager compose wanting the roster screen needs a zones carrying them; against a tenant without it each of the three calls fails visibly through ApiResult.failure, the roster shows its could-not-read line and nothing else changes. The LOAD side of the same ruling is orders' own half and ships with the orders backend module from this same version onwards (`load.py`: a shop with an active `Shop Deliveryman` roster may only issue loads to those drivers, and `list_shop_deliverymen` answers that roster when there is one); that half degrades on its own, because a tenant with no `Shop Deliveryman` doctype keeps exactly the pre-roster behaviour. No new base_sdk floor - the roster is drawn in the STANDARD LIST LANGUAGE base_sdk >= 1.46.0 already supplies, which 1.12.0 pinned. orders_sdk >= 1.22.0 carries the MANAGER side of driver consignment LOADS (commerce#135's `frappe/src/tenant/api/order/load.py`): /load, its load detail and /load/issue speak `api.order.load.get_shop_loads`, `api.order.load.list_shop_deliverymen`, `api.order.load.create_load` and `api.order.load.close_load` through the universal platform gateway, so a manager compose wanting them needs the orders backend module from commerce#135 or later; against an older backend each call fails visibly through ApiResult.failure and nothing else changes. No new base_sdk floor - the list is drawn in the STANDARD LIST LANGUAGE base_sdk >= 1.46.0 already supplies, which 1.12.0 pinned. orders_sdk >= 1.21.1 answers the POS walk-in customer create with orders' OWN frappe half (`api.order.create_walk_in_customer`, whitelisted in orders/frappe/manifest.json), so a manager compose wanting the \"type a new walk-in customer\" step needs the orders backend module from this same version or later; against an older backend that one call fails visibly through ApiResult.failure and nothing else changes. The no-details lane (the seller's own account as the customer) is client-only and needs no backend change. orders_sdk >= 1.21.0 requires base_sdk >= 1.61.0 (DemoSession): the demo repositories - OrdersSdkDependencies' orders/cart twins, ManagerOrdersDependencies' seller-orders twin and the launcher window's fallback - are chosen by base_sdk's runtime demo switch (DemoSession.demoActive: a demo build OR a server-marked demo account's session) and re-registered when it flips, instead of the compile-time IS_DEMO ternary alone. orders_sdk >= 1.20.0 carries the manager window for the launcher canvas (approved design strip frames 53f/53l): the integrations below inject it under launch_sdk's '// @launcher-windows' / '// @launcher-windows-imports' markers and build it with LaunchWindowSource.widget, both of which exist from launch_sdk >= 1.4.3; on an older launch_sdk the composer reports the marker missing and skips the wiring (window absent, nothing else changes), and in hosts without launch_sdk the target file does not exist and the entry is skipped the same way. orders_sdk >= 1.19.0 lays the walk-in order flow on planes (approved design strip section 37, frames 37a-37e: WalkInPlaneFlow + WalkInBoardRail in lib/, the installed create_order templates as host shells) on the same base_sdk >= 1.43.0 plane model (PlaneHost/PlanePage.allowNeighbors/FloatingBackPill) 1.11.0 already requires - no new base_sdk requirement. orders_sdk >= 1.18.0 hosts order history's 38a plane flow as package code (OrderHistoryPlaneFlow; the installed page is the host shell) with no new base_sdk requirement. orders_sdk >= 1.14.0 charges a saved card by its Saved Card docname (`SavedCardModel.id`), not by a gateway reuse credential, so it requires base_sdk >= 1.50.0 (SavedCardModel without `token`, and the `name` -> `id` fallback that fills the handle) and a backend carrying pay's saved-card confinement (pay#46: `process_token_payment` keyed on `saved_card`). Against an older backend the charge is refused WITHOUT being made, never mis-charged. This also covers the client half that shipped unversioned in commerce#92. orders_sdk >= 1.13.0 carries the collected-in-person conversion (approved strip section 43): the ONE atomic seller endpoint lives in merchants (`convert_delivery_to_collected`), so a manager compose wanting the convert lane needs merchants_sdk >= 1.20.0 on the backend side; without it the lane's single call fails through ApiResult.failure rather than half-converting anything. orders_sdk >= 1.12.0 requires base_sdk >= 1.46.0 (the STANDARD LIST LANGUAGE - ListFilterTabBar/ListCountPill/ListScreenHeader/ListViewMore and ListDetailFlow/ListPlaneColumns from approved design strip section 38, which order history is drawn in). orders_sdk >= 1.11.0 requires base_sdk >= 1.43.0 (PlaneHost/Planes/PlaneSpan and FloatingBackPill from the approved plane model — the manager orders workspace hosts its board + order-detail flow in planes per approved frame 33d). orders_sdk >= 1.9.0 carries the int->String docname id migration for the manager/POS slice (Frappe hash docnames; fleet-wide sweep). orders_sdk >= 1.6.0 requires base_sdk >= 1.11.0 (AdaptiveShell/SplitPane/window-size classes from core PR #35 — the wide-screen order board and split create-order layouts import them; >= 1.4.0 required base_sdk >= 1.6.0: CustomerCartStore/kCartSyncOpType and SyncEngine.enqueueOrReplace from the offline-first Phase 3 customer cart, core PR #16; 1.3.0 needed only base_sdk >= 1.5.0's SyncEngine/SyncHandler APIs from Phase 0, core PR #15); the composer manifest schema has no machine-readable minimum-version field, so this is the declaration. orders_sdk >= 1.16.1 requires base_sdk >= 1.56.0: MockOrdersRepository's demo shop logo is one of base_sdk's DemoImages (an inline data: URI), which only base_sdk >= 1.56.0 renders - older base_sdk hands it to CachedNetworkImage and draws its broken-image state.",
+  "app_assets": [
+    "assets/demo/orders/"
+  ],
+  "installs": [
+    {
+      "from": "templates/assets/demo/orders",
+      "to": "assets/demo/orders"
+    }
+  ],
   "installs": [],
   "_comment_integrations": "Approved design strip frames 53f and 53l (Ray 2026-09-01): the manager window on the launcher canvas - the orders waiting to be accepted, and the takings figure deliberately absent (53f chip 1289, the frame's extension of Ray's 53e money ruling). When the host also composes launch_sdk >= 1.4.3 (its installed home page ships the '// @launcher-windows' marker at lib/presentation/pages/launch/home.dart, and '// @launcher-windows-imports' at column 0 among its imports), inject a LaunchWindowSource.widget for manager mode whose content is this SDK's ManagerLaunchWindow. Two entries because the window is this SDK's widget and the launcher never imports orders_sdk on its own: the imports marker takes the import, the windows marker takes the source. Same substring-replace rules as productivity_sdk's launcher glance: the windows placeholder carries its 16-space indent so it cannot match the column-0 imports marker, of which the bare marker text is a prefix. LaunchWindowSource, LaunchMode, AppHelpers and RemixIcons are already imported by the launch home template. The package the window opens is the MANAGER_ANDROID_PACKAGE_NAME define the launcher derived the mode from (LaunchWindowSource.widget's default), so nothing is named here. The launcher owns the chrome and the dataless back-seat row (Ray: 'data dont show on launcher when another mode is active'); ManagerLaunchWindow draws only the content - 'Orders to accept', the 'Waiting on you' count and one Open orders action, no amount. It reads the SellerOrdersRepositoryFacade when the manager DI hook registered one, the demo seller-orders repository in an IS_DEMO build otherwise, and draws the headline and the action without a count when neither answers. Top-level rather than under app_type.manager because the launcher compose declares no app role; the composer strips lib/src/manager/ only for a host whose role this SDK declares and which is not manager, so a manager or role-less host always has the file. This SDK still never imports launch_sdk (ADR-005).",
   "integrations": [
@@ -21,7 +38,8 @@
     "ordersToAccept": "orders_to_accept",
     "waitingOnYou": "waiting_on_you",
     "openOrders": "open_orders",
-    "manager": "manager"
+    "manager": "manager",
+    "paymentCancelled": "payment_cancelled"
   },
   "routes": [],
   "app_type": {
@@ -38,6 +56,14 @@
         {
           "from": "templates/pages/manager/order_history",
           "to": "lib/presentation/pages/order_history"
+        },
+        {
+          "from": "templates/pages/manager/loads",
+          "to": "lib/presentation/pages/loads"
+        },
+        {
+          "from": "templates/pages/manager/drivers",
+          "to": "lib/presentation/pages/drivers"
         },
         {
           "from": "templates/components/manager/orders_item.dart",
@@ -151,9 +177,62 @@
           "page": "ManagerSelectTableRoute.page",
           "type": "MaterialRoute",
           "import": "package:${package}/presentation/pages/create_order/shipping/select_table/select_table_page.dart"
+        },
+        {
+          "path": "/load",
+          "page": "ManagerLoadsRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/loads/loads_page.dart",
+          "_comment": "Driver consignment loads, the shop side (commerce#135). Route names carry the Manager prefix like every other page in this block. The LOAD DETAIL is not a route of its own - it is the pushed PANE of the section-38 list flow, the same shape /order-history reaches an order detail in - so there is no per-load path and no id round-tripping through the router. The orders workspace header opens this one; /load/issue pops back with the load it created and the shop lands on its detail."
+        },
+        {
+          "path": "/load/issue",
+          "page": "ManagerIssueLoadRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/loads/issue_load_page.dart"
+        },
+        {
+          "path": "/load/drivers",
+          "page": "ManagerShopDriversRoute.page",
+          "type": "CupertinoRoute",
+          "import": "package:${package}/presentation/pages/drivers/shop_drivers_page.dart",
+          "_comment": "The shop's OWN DRIVERS (Ray's own-drivers ruling). Under /load because the roster is what the issue-a-load driver picker is allowed to offer: /load/issue carries the Manage-drivers action that pushes this, and the picker refetches the drivers when it pops. One shape at every width - a short list of names with one action each has nothing to put in a second plane - so no plane flow and no pushed pane, unlike /load."
         }
       ],
       "tr_keys": {
+        "loads": "loads",
+        "openLoads": "open_loads",
+        "closedLoads": "closed_loads",
+        "issueLoad": "issue_load",
+        "noLoads": "no_loads",
+        "linesOnLoad": "lines_on_load",
+        "remainingOfIssued": "remaining_of_issued",
+        "issuedOn": "issued_on",
+        "closedOn": "closed_on",
+        "issued": "issued",
+        "sold": "sold",
+        "returned": "returned",
+        "remaining": "remaining",
+        "unitPrice": "unit_price",
+        "variance": "variance",
+        "varianceValue": "variance_value",
+        "closeLoad": "close_load",
+        "closeLoadAndCharge": "close_load_and_charge",
+        "closingChargesTheDriver": "closing_charges_the_driver_for_what_is_missing",
+        "nothingIsMissingSoNothingIsCharged": "nothing_is_missing_so_nothing_is_charged",
+        "willBeChargedToTheDriversWallet": "will_be_charged_to_the_drivers_wallet",
+        "loadClosed": "load_closed",
+        "loadWasAlreadyClosed": "load_was_already_closed",
+        "couldNotCloseLoad": "could_not_close_load",
+        "chooseADeliveryman": "choose_a_deliveryman",
+        "noDeliverymenOnFile": "no_deliverymen_on_file",
+        "onTheLoad": "on_the_load",
+        "tapAProductToPutItOnTheLoad": "tap_a_product_to_put_it_on_the_load",
+        "loadValue": "load_value",
+        "issueToDriver": "issue_to_driver",
+        "issuingTakesTheStockOffTheShelf": "issuing_takes_the_stock_off_the_shelf",
+        "couldNotIssueLoad": "could_not_issue_load",
+        "onHand": "on_hand",
         "aDriverWasAlreadyOnThisOneSoThe": "a_driver_was_already_on_this_one_so_the",
         "assignedToDriver": "assigned",
         "collectedInPerson": "collected_in_person",
@@ -246,7 +325,25 @@
         "swipeToWay": "swipe_to_way",
         "table": "table",
         "takeAway": "take_away",
-        "thereAre": "there_are"
+        "thereAre": "there_are",
+        "addDriver": "add_driver",
+        "cancel": "cancel",
+        "couldNotAddDriver": "could_not_add_driver",
+        "couldNotReadYourDrivers": "could_not_read_your_drivers",
+        "couldNotRemoveDriver": "could_not_remove_driver",
+        "driverAdded": "driver_added",
+        "driverRemoved": "driver_removed",
+        "drivers": "drivers",
+        "manageDrivers": "manage_drivers",
+        "myDrivers": "my_drivers",
+        "noDriversToAdd": "no_drivers_left_to_add",
+        "noOwnDriversYet": "no_own_drivers_yet",
+        "ownDriversExplainer": "a_shop_with_its_own_drivers_can_only_load_those_drivers",
+        "removeDriver": "remove_driver",
+        "removeDriverFromRoster": "take_this_driver_off_your_roster",
+        "retired": "retired",
+        "searchDrivers": "search_drivers",
+        "theyCanNoLongerBeLoaded": "they_can_no_longer_be_issued_a_load_from_this_shop"
       },
       "asset_keys": {
         "pngNoOrders": "assets/images/no_orders.png",
@@ -412,10 +509,21 @@
           ]
         }
       ],
-      "_comment_routes": "Customer routes + AppRoutes seams (fix-wave 2026-09-02). `params` strings must match base_sdk's AppRoutes signatures verbatim; dynamic args are coerced before reaching the typed shells."
+      "_comment_routes": "Customer routes + AppRoutes seams (fix-wave 2026-09-02). `params` strings must match base_sdk's AppRoutes signatures verbatim; dynamic args are coerced before reaching the typed shells.",
+      "di_hooks": [
+        {
+          "id": "orders-customer-active-order-tracker",
+          "order": 30,
+          "body": "ActiveOrderTracker.instance.attach();",
+          "imports": [
+            "import 'package:orders_sdk/src/common/application/live/active_order_tracker.dart';"
+          ]
+        }
+      ],
+      "_comment_di_hooks": "1.26.0: starts the app-wide ActiveOrderTracker at app start, after the sdk-di block has registered OrdersRepositoryFacade and LocalStorage is initialised. attach() observes the app lifecycle (polls only in the foreground and syncs on every resume), registers the 'order_status' push handler in base_sdk's PushMessages (fed by comms_sdk >= 1.21.0's PushMessageDispatcher; inert without it) and lists the signed-in customer's active orders, so the order live activity runs without the order progress screen being open. Does nothing while signed out."
     }
   },
   "_comment_app_type": "manager: paas_manager's orders + POS vertical (order queues, order details, POS create-order flow with shipping/section/table/customer pickers, order history). Application layer, models, facades and the seller orders / POS products repositories live in lib/src/manager/ - declaring this manager block also keeps that folder alive through sdk_composer.py's strip_unused_role_folders. The manager host must call ManagerOrdersDependencies.register (direct src/ import) and register the two ADR-005 seam adapters installed at lib/presentation/routes/orders_adapters.dart (owners: merchants_sdk for sections/tables, users_sdk for customers); unwired seams degrade to visible 501 failures, not crashes. OrdersHomePage installs to lib/presentation/pages/orders/orders_home_page.dart - the exact path merchants_sdk's main_page.dart shell imports; it is tab-hosted, so it declares no route. Cross-vertical widgets the POS pages reference via ${package} host paths (custom_app_bar, filter_screen, loading list/shimmers, modal helpers, categories_tab_bar, shop_bordered_avatar, buttons_bouncing_effect from merchants' install) stay host-owned until the dedup workstream settles them. Requires .rokct/config/app_type = manager. Version bumped 1.0.0 -> 1.1.0 so version-aware cache reconciliation re-extracts composed copies, then 1.1.0 -> 1.2.0 (adopted custom_icon_button, text_loading and select_date_modal from base_sdk per the component triage - each is used by this SDK's templates only; installed to the host's lib/presentation/component/ SINGULAR paths deliberately, because those are the exact paths the existing manager templates import, so no template rewrites are needed).",
-  "_comment_tr_keys": "Declared here rather than hand-written into base_sdk because only this SDK uses them (kitchen_sdk's mechanism/comment). Checked against base_sdk's hand-written keys (the original 39 were exactly the manager orders/POS keys absent there; 1.6.0 adds delivered/canceled for the wide-screen board's two history columns; 1.11.0 adds accepted/cooking/ready/on_a_way plus view_more/drop_here/pickup_skips_on_a_way/start_end for the approved seven-column board — checked against base's hand-written keys and kitchen_sdk's kitchen/kitchens, no collision; 1.13.0 adds the 33 collected-in-person keys for approved strip section 43 - the deliveryman row, the convert lane and its offline relabel, the two outcome lines, Ray's till line, the four confirm-guard ledger rows and the two converted-card notes - checked against base's hand-written keys, kitchen_sdk's two and this manifest's own, no collision) and against kitchen_sdk's two keys - no collision. Values are paas_manager's legacy wire keys verbatim, including the 'spproximate' typo the translation store already contains.",
+  "_comment_tr_keys": "Declared here rather than hand-written into base_sdk because only this SDK uses them (kitchen_sdk's mechanism/comment). Checked against base_sdk's hand-written keys (the original 39 were exactly the manager orders/POS keys absent there; 1.6.0 adds delivered/canceled for the wide-screen board's two history columns; 1.11.0 adds accepted/cooking/ready/on_a_way plus view_more/drop_here/pickup_skips_on_a_way/start_end for the approved seven-column board — checked against base's hand-written keys and kitchen_sdk's kitchen/kitchens, no collision; 1.13.0 adds the 33 collected-in-person keys for approved strip section 43 - the deliveryman row, the convert lane and its offline relabel, the two outcome lines, Ray's till line, the four confirm-guard ledger rows and the two converted-card notes - checked against base's hand-written keys, kitchen_sdk's two and this manifest's own, no collision; 1.22.0 adds the 33 consignment-load keys for the manager's /load, its load detail and /load/issue - the list with its two status tabs, the line table's four quantity columns and the unit price, the variance the shop is told about before it closes a load, and the issue screen's driver row, draft foot and its two refusal lines - checked against base's hand-written keys, kitchen_sdk's two and this manifest's own, no collision; 1.23.0 adds the 18 own-driver keys for /load/drivers and the Manage-drivers action on /load/issue - the roster title and count noun, the line that says what a roster DOES to the load picker, the add and remove actions with their confirm copy and their three refusal lines, the add flow's search field and its nothing-left-to-add line, and the word for a row the shop has retired - checked against base's hand-written keys, kitchen_sdk's two and this manifest's own, no collision) and against kitchen_sdk's two keys - no collision. Values are paas_manager's legacy wire keys verbatim, including the 'spproximate' typo the translation store already contains.",
   "_comment_asset_keys": "Injected into base's AppAssets between the @sdk-asset-keys markers; the files themselves arrive via the installs above. lottiePin is also declared by marketplace_sdk (customer compose) - flavor-gating keeps the two from ever meeting in one app; if they do someday, the installer keeps whichever it sees first, and both point at assets/lottie/pin.json anyway."
 }

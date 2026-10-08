@@ -89,7 +89,7 @@ class _ParcelProgressPageState extends ConsumerState<ParcelProgressPage> {
         AppHelpers.showCustomModalBottomSheet(
           context: context,
           modal: RatingPage(totalPrice: next.parcel?.totalPrice, parcel: true),
-          isDarkMode: false,
+          isDarkMode: Theme.of(context).brightness == Brightness.dark,
         );
       }
     });
@@ -98,7 +98,7 @@ class _ParcelProgressPageState extends ConsumerState<ParcelProgressPage> {
       child: KeyboardDismisser(
         child: Scaffold(
           resizeToAvoidBottomInset: false,
-          backgroundColor: AppStyle.bgGrey,
+          backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
           body: state.isLoading
               ? const Loading()
               : Column(
@@ -138,7 +138,9 @@ class _ParcelProgressPageState extends ConsumerState<ParcelProgressPage> {
                               Container(
                                 width: double.infinity,
                                 decoration: BoxDecoration(
-                                  color: AppStyle.white,
+                                  color: AppStyle.cardFor(
+                                    Theme.of(context).brightness,
+                                  ),
                                   borderRadius: BorderRadius.circular(10.r),
                                 ),
                                 padding: EdgeInsets.all(16.r),
@@ -215,7 +217,9 @@ class _ParcelProgressPageState extends ConsumerState<ParcelProgressPage> {
                               Container(
                                 width: double.infinity,
                                 decoration: BoxDecoration(
-                                  color: AppStyle.white,
+                                  color: AppStyle.cardFor(
+                                    Theme.of(context).brightness,
+                                  ),
                                   borderRadius: BorderRadius.circular(10.r),
                                 ),
                                 padding: EdgeInsets.all(16.r),
@@ -226,7 +230,9 @@ class _ParcelProgressPageState extends ConsumerState<ParcelProgressPage> {
                                       AppHelpers.getTranslation(TrKeys.order),
                                       style: AppStyle.interNoSemi(
                                         size: 16,
-                                        color: AppStyle.black,
+                                        color: AppStyle.inkFor(
+                                          Theme.of(context).brightness,
+                                        ),
                                       ),
                                     ),
                                     8.verticalSpace,
@@ -285,7 +291,9 @@ class _ParcelProgressPageState extends ConsumerState<ParcelProgressPage> {
                                               "",
                                           style: AppStyle.interNoSemi(
                                             size: 16,
-                                            color: AppStyle.black,
+                                            color: AppStyle.inkFor(
+                                              Theme.of(context).brightness,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -304,7 +312,9 @@ class _ParcelProgressPageState extends ConsumerState<ParcelProgressPage> {
                                       ),
                                       textStyle: AppStyle.interSemi(
                                         size: 20,
-                                        color: AppStyle.black,
+                                        color: AppStyle.inkFor(
+                                          Theme.of(context).brightness,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -336,13 +346,19 @@ class _ParcelProgressPageState extends ConsumerState<ParcelProgressPage> {
             children: [
               Text(
                 state.parcel?.usernameFrom ?? "",
-                style: AppStyle.interSemi(size: 16, color: AppStyle.black),
+                style: AppStyle.interSemi(
+                  size: 16,
+                  color: AppStyle.inkFor(Theme.of(context).brightness),
+                ),
               ),
               SizedBox(
                 width: MediaQuery.of(context).size.width - 98.w,
                 child: Text(
                   state.parcel?.addressFrom?.address ?? "",
-                  style: AppStyle.interNormal(size: 12, color: AppStyle.black),
+                  style: AppStyle.interNormal(
+                    size: 12,
+                    color: AppStyle.inkFor(Theme.of(context).brightness),
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

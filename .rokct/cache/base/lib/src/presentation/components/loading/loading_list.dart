@@ -51,7 +51,7 @@ class LoadingList extends StatelessWidget {
           height: itemHeight.h,
           margin: EdgeInsets.only(bottom: itemPadding.h),
           decoration: BoxDecoration(
-            color: AppStyle.white,
+            color: AppStyle.cardFor(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(itemBorderRadius.r),
           ),
         );

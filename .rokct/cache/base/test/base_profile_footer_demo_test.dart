@@ -13,16 +13,16 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // The profile footer's Online/Offline dot is backed by a real api_status
-// probe of the tenant backend. A demo build (--dart-define=IS_DEMO=true)
-// has no backend by design, so that probe can only ever fail there, and
-// every demo build drew a red Offline - the guided tour's profile still
-// captured it verbatim. In a demo build the dot must read as connected
-// without probing; a real build must still ask the backend, and with no
-// backend answering (this test has no connectivity plugin and no server)
-// still report Offline. A demo SESSION (a server-marked demo account on a
-// real build, DemoSession) reads as Online the same way, and the row
-// follows the switch while it is on screen - sign-out happens from the
-// profile, so the dot must fall back to the real probe on the flip.
+// probe of the tenant backend. Wherever DemoSession.demoActive is true the
+// app is served from the in-app fixtures and there is no backend to probe
+// - the guided-tour build has none at all, and a demo session is answered
+// from the same fixtures - so the probe could only ever fail and the dot
+// drew a red Offline, captured verbatim by the guided tour's profile. The
+// dot must read as connected there without probing; a real session must
+// still ask the backend, and with no backend answering (this test has no
+// connectivity plugin and no server) still report Offline. The row follows
+// the switch while it is on screen - sign-out happens from the profile, so
+// the dot must fall back to the real probe on the flip.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -67,18 +67,15 @@ void main() {
   });
 
   tearDown(() async {
-    // The overrides are app-global; never let one test leak into the next.
-    ProfileMetaRow.isDemoOverride = null;
+    // The session is app-global; never let one test leak into the next.
     await DemoSession.instance.clear();
-    DemoSession.isDemoOverride = null;
   });
 
   group('ProfileMetaRow Online/Offline dot', () {
-    testWidgets('a demo build reads as Online without a backend',
+    testWidgets('a demo session reads as Online without a backend',
         (tester) async {
-      // isDemo is a compile-time constant; the override is the only way a
-      // test can stand in a demo build.
-      ProfileMetaRow.isDemoOverride = true;
+      // The only demo switch there is: no build flag stands in for it.
+      await DemoSession.instance.activate();
 
       await tester.pumpWidget(_host(const ProfileMetaRow()));
       await tester.pumpAndSettle();
@@ -89,33 +86,14 @@ void main() {
 
     testWidgets('a real build with no backend answering still reads Offline',
         (tester) async {
-      ProfileMetaRow.isDemoOverride = false;
+      // Session off, and this is no tour build: the dot must probe.
+      expect(DemoSession.demoActive, isFalse);
 
       await tester.pumpWidget(_host(const ProfileMetaRow()));
       await tester.pumpAndSettle();
 
       expect(find.text('Offline'), findsOneWidget);
       expect(find.text('Online'), findsNothing);
-    });
-  });
-
-  group('ProfileMetaRow Online/Offline dot under the runtime demo session',
-      () {
-    setUp(() {
-      // A real build, and the row asks the session rather than a stand-in.
-      DemoSession.isDemoOverride = false;
-      ProfileMetaRow.isDemoOverride = null;
-    });
-
-    testWidgets('a demo session on a real build reads as Online',
-        (tester) async {
-      await DemoSession.instance.activate();
-
-      await tester.pumpWidget(_host(const ProfileMetaRow()));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Online'), findsOneWidget);
-      expect(find.text('Offline'), findsNothing);
     });
 
     testWidgets('the row follows the session while it is on screen',

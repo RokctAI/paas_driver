@@ -129,9 +129,15 @@ class CalcMemoryBar extends ConsumerWidget {
                       padding: REdgeInsets.symmetric(vertical: 6),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: AppStyle.cardDarkAlt,
+                        color: AppStyle.cardAltFor(
+                          Theme.of(context).brightness,
+                        ),
                         borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(color: AppStyle.strokeDarkSubtle),
+                        border: Border.all(
+                          color: AppStyle.subtleStrokeFor(
+                            Theme.of(context).brightness,
+                          ),
+                        ),
                       ),
                       child: Text(
                         keys[i],
