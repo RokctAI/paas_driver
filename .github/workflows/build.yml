@@ -56,7 +56,7 @@ jobs:
   # --- 2. UNIFIED PIPELINE (Smart) ---
   pipeline:
     needs: detect
-    uses: RokctAI/shared-workflows/.github/workflows/universal-pipeline.yml@3d7610a646cc9e6e8b1e5837f2e5fa2acbaaef3d # shared-workflows main (build_hms input + guided-tour/store-listing lanes)
+    uses: RokctAI/shared-workflows/.github/workflows/universal-pipeline.yml@67816785398a60df95682013c0bf356daeccd029 # shared-workflows main (build_hms input + guided-tour/store-listing lanes)
     with:
       project_type: ${{ needs.detect.outputs.is_flutter == 'true' && 'flutter' || (needs.detect.outputs.is_node == 'true' && 'node' || 'frappe') }}
       # Quality Gate Toggles
