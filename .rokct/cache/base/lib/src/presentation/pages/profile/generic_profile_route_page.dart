@@ -81,9 +81,11 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 /// the profile then yields the last plane and spreads over the two before
 /// it, precisely as before.
 ///
-/// On a phone (one plane) the page is [GenericProfilePage] exactly as
-/// before — no host, no pill, no seam; the platform back is the phone's
-/// back and every card pushes the route it always did.
+/// On a phone (one plane) the page is [GenericProfilePage] — no host, no
+/// seam; every card pushes the route it always did. When the route was
+/// PUSHED (something to go back to) it carries the floating nav's
+/// back-only pill at the bottom, like every other pushed page; a root
+/// profile draws none.
 class GenericProfileRoutePage extends ConsumerStatefulWidget {
   const GenericProfileRoutePage({super.key});
 
@@ -163,7 +165,42 @@ class _GenericProfileRoutePageState
       builder: (context, constraints) {
         final count = PlaneHost.planeCountFor(constraints.maxWidth);
         if (count < 2) {
-          return const GenericProfilePage();
+          // A PUSHED profile on a phone (the launcher's avatar opens it
+          // this way) carries the floating nav every other pushed page
+          // carries: the composition's registered nav
+          // ([ProfileSectionRegistry.pushedProfileNavBuilder]), else the
+          // shared pill housing with only its back segment (the comms
+          // settings pattern). The page already pads its
+          // bottom for a floating pill. A profile that IS the root draws
+          // no nav and stays exactly as before.
+          final canPopPhone = Navigator.maybeOf(context)?.canPop() ?? false;
+          if (!canPopPhone) return const GenericProfilePage();
+          return Stack(
+            children: [
+              const Positioned.fill(child: GenericProfilePage()),
+              Positioned.fill(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  // The composition's own nav where it registered one (the
+                  // launcher's full bar, Home taking the user back), else
+                  // the back-only pill.
+                  child: ProfileSectionRegistry.I.pushedProfileNavBuilder
+                          ?.call(context) ??
+                      FloatingBottomNav(
+                        mode: FloatingNavTabsMode(
+                          tabs: const [],
+                          currentIndex: 0,
+                          onSelect: (_) {},
+                          back: FloatingNavBack(
+                            icon: Remix.arrow_left_wide_fill,
+                            label: AppHelpers.getTranslation(TrKeys.back),
+                          ),
+                        ),
+                      ),
+                ),
+              ),
+            ],
+          );
         }
         // The detail plane's content: what a card opened, else — on three
         // planes only — the default. Two planes seed nothing: the profile

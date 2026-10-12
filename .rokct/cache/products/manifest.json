@@ -1,6 +1,7 @@
 {
   "name": "products_sdk",
-  "version": "1.12.5",
+  "version": "1.12.6",
+  "_comment_version_1_12_6": "1.12.5 -> 1.12.6: the demo fixture install is scoped to marketplace apps with \"app_types\": [\"customer\", \"driver\", \"manager\"] (Ray, 2026-10-05: the products demo fixtures install only in marketplace apps). Supacharge and other non-marketplace shells compose products_sdk only transitively and never call its cmds, so they no longer get assets/demo/products/; a composer that understands app_types also leaves the assets/demo/products/ pubspec entry out there and removes unmodified copies an earlier compose left. The DI still registers the directory in every role; with no fixtures DemoFixtures simply finds none there. A composer older than app_types ignores the key and installs the fixtures everywhere, as 1.12.5 did. Manifest-only change; no code changes.",
   "_comment_version_1_12_5": "1.12.4 -> 1.12.5: drop the duplicate empty top-level \"installs\": [] that followed the demo-fixture install. JSON keeps the last duplicate key, so the fixture install added in 1.12.1 never ran: composes registered assets/demo/products/ with nothing behind it and flutter failed with 'unable to find directory entry in pubspec.yaml'.",
   "_comment_version_1_12_2": "1.12.1 -> 1.12.2: SellerProductsRepository.updateStocks / updateExtras leave the dead paas.api.seller_product per-method path and go through the gateway as api.stock.update_product_stocks / api.product_extra.update_product_extras (products frappe, fixplan M20). GalleryRepository.uploadImage stays a direct multipart POST (the one gateway bypass: file bytes cannot ride the JSON envelope) but moves from stock /api/method/upload_file to core's fleet endpoint /api/v1/method/<uploadAppPrefix>.api.upload.upload_file, and maps its {file_url} answer onto GalleryUploadResponse.data.title. Demo fixtures added for the two new cmds.",
   "_comment_version_1_12_1": "1.12.0 -> 1.12.1: the demo fixture install moves from the app_type.manager block to the top-level installs, next to the top-level app_assets entry that registers it. The common DI registers assets/demo/products in every role, but only manager composes copied the fixtures, so any other compose (supacharge's Windows build) got an assets/demo/products/ pubspec entry with nothing behind it and flutter failed with 'unable to find directory entry in pubspec.yaml'. Manifest-only change; no code changes.",
@@ -12,7 +13,12 @@
   "installs": [
     {
       "from": "templates/assets/demo/products",
-      "to": "assets/demo/products"
+      "to": "assets/demo/products",
+      "app_types": [
+        "customer",
+        "driver",
+        "manager"
+      ]
     }
   ],
   "routes": [],

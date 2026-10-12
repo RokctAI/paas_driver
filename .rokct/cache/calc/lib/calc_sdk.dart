@@ -14,6 +14,7 @@
 
 library calc_sdk;
 
+export 'src/common/application/calc_sound.dart';
 export 'src/common/application/calculator/calculator_notifier.dart';
 export 'src/common/application/calculator/calculator_provider.dart';
 export 'src/common/application/calculator/calculator_state.dart';

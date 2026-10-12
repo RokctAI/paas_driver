@@ -33,7 +33,7 @@ import 'package:base_sdk/src/handlers/api_result.dart';
 
 class EditProfileNotifier extends StateNotifier<EditProfileState> {
   final UserRepositoryFacade _userRepository;
-  final GalleryRepositoryFacade _galleryRepository;
+  final GalleryRepositoryFacade? _galleryRepository;
 
   EditProfileNotifier(this._userRepository, this._galleryRepository)
       : super(const EditProfileState());
@@ -156,9 +156,16 @@ class EditProfileNotifier extends StateNotifier<EditProfileState> {
 
   Future<void> updateProfileImage(BuildContext context, String path) async {
     final connected = await AppConnectivity.connectivity();
+    final gallery = _galleryRepository;
+    if (gallery == null) {
+      // No gallery facade in this composition: the avatar cannot be
+      // uploaded, so the profile keeps its current image.
+      debugPrint('==> profile image not uploaded: no GalleryRepositoryFacade');
+      return;
+    }
     if (connected) {
       String? url;
-      final imageResponse = await _galleryRepository.uploadImage(
+      final imageResponse = await gallery.uploadImage(
         path,
         UploadType.users,
       );

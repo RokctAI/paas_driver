@@ -13,12 +13,15 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // ignore_for_file: use_build_context_synchronously
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/application/language/language_provider.dart';
+import 'package:base_sdk/src/navigation/signed_out_entry.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
@@ -175,6 +178,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       _showIntroPage();
       return;
     }
+    // Remembered, so the next cold start lands where this one does instead
+    // of back on this page (Ray, 2026-10-10: "make skip remember that I have
+    // skipped before"). base_sdk's splash reads it through SignedOutEntry.
+    // Written before navigating and not awaited: the landing must not wait
+    // on a preference write, and a write that fails only costs the old
+    // behaviour.
+    unawaited(SignedOutEntry.rememberGuest());
     RegistrationFlow.defaultLanding(context);
   }
 

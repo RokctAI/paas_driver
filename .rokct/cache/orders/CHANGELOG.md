@@ -1,3 +1,22 @@
+## 1.29.3
+
+* fix(deps): the `comms_sdk` dev dependency now uses the sibling path
+  `../comms` (the `.rokct/cache` layout) with a `dependency_overrides` entry
+  for the workspace checkout (`../../../core/comms/dart`), the same
+  convention as `base_sdk`. A vendored copy of orders_sdk now resolves on
+  its own, so the composer's freezed codegen runs in it.
+* fix(analyze): orders_sdk analyzes with 0 errors against base_sdk from
+  core main.
+  * `orders_item.dart` imports `package:flutter/material.dart` again. The
+    Remixicon move (1.29.1) commented it out by mistake, so `OrdersItem`
+    was not a widget.
+  * The manager swipe-button labels and the POS customer picker's
+    "no name" fallback use wire keys from the new `ManagerOrderKeys`, and
+    the checkout's "Payment" heading uses `OrderCheckKeys`. Raw base_sdk
+    has no `TrKeys.swipeTo*`, `TrKeys.noName` or `TrKeys.payment`. The
+    wire strings are unchanged (`swipe_to_accept`, `no_name`, `payment`,
+    ...) and already declared in `manifest.json`.
+
 ## 1.29.2
 
 * fix(theme): widgets read their surface, card, stroke and ink colours from Theme.of(context) at build time (AppStyle.surfaceFor/cardFor/cardAltFor/strokeFor/subtleStrokeFor/inkFor/secondaryInkFor/faintFor) instead of the AppStyle.isDark-resolved statics, so a live dark/light switch restyles open pages instead of leaving the old mode's colours (Ray, 2026-10-04).

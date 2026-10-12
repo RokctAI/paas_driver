@@ -14,7 +14,7 @@
 
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/enums.dart';
-import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:orders_sdk/src/manager/utils/manager_order_keys.dart';
 
 /// The two order-queue helpers `paas_manager` kept on its `AppHelpers`
 /// (`getUpdatableStatus` / `changeStatusButtonText`). base_sdk's AppHelpers is
@@ -51,15 +51,15 @@ class SellerOrderStatus {
   static String changeStatusButtonText(String? value) {
     switch (value) {
       case 'new':
-        return AppHelpers.getTranslation(TrKeys.swipeToAccept);
+        return AppHelpers.getTranslation(ManagerOrderKeys.swipeToAccept);
       case 'accepted':
-        return AppHelpers.getTranslation(TrKeys.swipeToReady);
+        return AppHelpers.getTranslation(ManagerOrderKeys.swipeToReady);
       case 'ready':
-        return AppHelpers.getTranslation(TrKeys.swipeToWay);
+        return AppHelpers.getTranslation(ManagerOrderKeys.swipeToWay);
       case 'on_a_way':
-        return AppHelpers.getTranslation(TrKeys.swipeToDelivered);
+        return AppHelpers.getTranslation(ManagerOrderKeys.swipeToDelivered);
       default:
-        return AppHelpers.getTranslation(TrKeys.swipeToAccept);
+        return AppHelpers.getTranslation(ManagerOrderKeys.swipeToAccept);
     }
   }
 }

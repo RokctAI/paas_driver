@@ -535,6 +535,25 @@ abstract class LocalStorage {
     await _preferences?.remove(StorageKeys.keyDemoSessionActive);
   }
 
+  /// The person chose to use the app without an account. Owned by
+  /// `SignedOutEntry`; deliberately NOT cleared by [logout], which ends the
+  /// session only.
+  static Future<void> setGuestEntry(bool chosen) async {
+    await _preferences?.setBool(StorageKeys.keyIsGuest, chosen);
+  }
+
+  static bool getGuestEntry() =>
+      _preferences?.getBool(StorageKeys.keyIsGuest) ?? false;
+
+  /// The splash has already offered the login page once on this install.
+  /// Owned by `SignedOutEntry`; deliberately NOT cleared by [logout].
+  static Future<void> setLoginOffered(bool offered) async {
+    await _preferences?.setBool(StorageKeys.keyLoginOffered, offered);
+  }
+
+  static bool getLoginOffered() =>
+      _preferences?.getBool(StorageKeys.keyLoginOffered) ?? false;
+
   static void logout() {
     // A demo session is scoped to the sign-in that opened it: every
     // sign-out path (users_sdk logout / delete-account, the 401

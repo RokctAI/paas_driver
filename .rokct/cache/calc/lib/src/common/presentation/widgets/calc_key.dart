@@ -38,9 +38,10 @@
 // than from this SDK.
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
-import 'package:base_sdk/src/services/key_sound.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../../application/calc_sound.dart';
 
 /// What a calculator key is for — the ONLY thing that varies between
 /// tiles, and the whole of the re-tokening that frame 45a asks for
@@ -67,7 +68,8 @@ enum CalcKeyKind {
 /// haptic on touch platforms, behind base_sdk's persisted default-ON
 /// gate. The service fails open: a host without the audio assets, or a
 /// widget test without the platform channel, gets silence and never an
-/// exception.
+/// exception. The press goes through [CalcSound.tap], so the calculator's
+/// own header mute silences it without touching the fleet gate.
 class CalcKey extends StatelessWidget {
   const CalcKey({
     super.key,
@@ -117,13 +119,13 @@ class CalcKey extends StatelessWidget {
         key: Key('calcKey$label'),
         behavior: HitTestBehavior.opaque,
         onTap: () {
-          KeySound.tap();
+          CalcSound.tap();
           onTap();
         },
         onDoubleTap: onDoubleTap == null
             ? null
             : () {
-                KeySound.tap();
+                CalcSound.tap();
                 onDoubleTap!();
               },
         child: Container(

@@ -80,6 +80,13 @@ class ProfileSectionRegistry {
   /// navigation.
   void Function(BuildContext context)? onLogout;
 
+  /// The floating nav a PUSHED routed profile draws on a phone. Null (the
+  /// default) draws the back-only pill. A composition whose profile is
+  /// pushed over its home (the launcher) sets its own full nav here, so the
+  /// profile shows the same bar the home does. Profiles hosted as a shell
+  /// tab never read it.
+  WidgetBuilder? pushedProfileNavBuilder;
+
   /// Overridable top-row page title. Null (the default) renders the
   /// host's own title — the translated `profile` key. An SDK that owns
   /// the profile surface may set a different title at bootstrap.
@@ -325,6 +332,7 @@ class ProfileSectionRegistry {
     onEditProfile = null;
     editProfileDetailBuilder = null;
     onLogout = null;
+    pushedProfileNavBuilder = null;
     pageTitle = null;
     defaultSectionId = null;
   }

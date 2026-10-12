@@ -31,6 +31,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:base_sdk/src/application/splash/splash_notifier.dart';
 import 'package:base_sdk/src/application/splash/splash_provider.dart';
@@ -39,7 +40,10 @@ import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/models/response/global_settings_response.dart';
 import 'package:base_sdk/src/models/response/mobile_translations_response.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
+import 'package:base_sdk/src/navigation/signed_out_entry.dart';
 import 'package:base_sdk/src/presentation/pages/initial/splash/splash_page.dart';
+import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/services/storage_keys.dart';
 import 'package:base_sdk/src/services/telemetry.dart';
 
 /// Stands in for the host's `_HostAppRoutes`: records every destination the
@@ -362,6 +366,60 @@ void main() {
       expect(eventOfType('splash_fallback_route_failed'), isNotNull);
 
       expectNoDiagnosticsOnScreen(tester);
+    });
+  });
+
+  // Kept last: it initialises LocalStorage, which the groups above run
+  // without.
+  group('splash, signed out, in a composition whose home works signed out',
+      () {
+    Future<void> boot(Map<String, Object> prefs) async {
+      SharedPreferences.setMockInitialValues(prefs);
+      await LocalStorage.init();
+    }
+
+    tearDown(() => SignedOutEntry.homeAfterFirstRun = false);
+
+    testWidgets('the first start offers login and records that it did',
+        (tester) async {
+      await tester.runAsync(() => boot(<String, Object>{}));
+      SignedOutEntry.homeAfterFirstRun = true;
+      final routes = _HostRoutesDouble();
+      AppRoutes.I = routes;
+
+      await pumpSplash(tester, settings: _DeadSettingsRepository());
+
+      expect(routes.calls, contains('replaceLoginRoute'));
+      expect(routes.calls, isNot(contains('replaceMainRoute')));
+      expect(LocalStorage.getLoginOffered(), isTrue);
+    });
+
+    testWidgets('a later cold start lands home, not on login',
+        (tester) async {
+      await tester.runAsync(
+          () => boot(<String, Object>{StorageKeys.keyLoginOffered: true}));
+      SignedOutEntry.homeAfterFirstRun = true;
+      final routes = _HostRoutesDouble();
+      AppRoutes.I = routes;
+
+      await pumpSplash(tester, settings: _DeadSettingsRepository());
+
+      expect(routes.calls, contains('replaceMainRoute'));
+      expect(routes.calls, isNot(contains('replaceLoginRoute')));
+      expect(eventOfType('splash_navigation_failed'), isNull);
+    });
+
+    testWidgets('a remembered Skip lands home in any composition',
+        (tester) async {
+      await tester.runAsync(
+          () => boot(<String, Object>{StorageKeys.keyIsGuest: true}));
+      final routes = _HostRoutesDouble();
+      AppRoutes.I = routes;
+
+      await pumpSplash(tester, settings: _DeadSettingsRepository());
+
+      expect(routes.calls, contains('replaceMainRoute'));
+      expect(routes.calls, isNot(contains('replaceLoginRoute')));
     });
   });
 }

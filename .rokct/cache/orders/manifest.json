@@ -1,6 +1,6 @@
 {
   "name": "orders_sdk",
-  "version": "1.29.2",
+  "version": "1.29.3",
   "_comment_version_1_29_0": "1.28.0 -> 1.29.0: checkout price information shows \"You saved X with your subscription\" when the quote carries subscription_savings (commerce loyalty customer subscriptions). Requires base_sdk >= 1.82.0 (GetCalculateModel.subscriptionSavings, TrKeys.youSavedWithSubscription).",
   "_comment_version_1_28_0": "1.27.0 -> 1.28.0: native Braintree checkout for orders and parcels. OrdersRepository.process / ParcelRepository.process with a braintree gateway tag, on Android/iOS, when payments_sdk >= 1.3.0 registered its seam (GetIt function type Future<Map<String, Object?>> Function(String, String) under instanceName payments.braintree_native_checkout), create the order as before and pay it in Braintree's native drop-in (api.payment.braintree_client_token -> api.payment.braintree_checkout, amount from the document server-side). Success answers the marker native-paid://braintree, which order_check and ParcelNotifier treat as paid without opening a WebView. On web/Windows, without payments_sdk, or when the native flow is unavailable, the existing path runs unchanged; every WebView gateway is untouched. New tr key payment_cancelled. Requires pay with braintree_client_token / braintree_checkout.",
   "_comment_version_1_27_1": "1.27.0 -> 1.27.1: parcel lists send the Parcel Order status labels (\"On a way\") and page with limit/offset, so paging and the on-the-way filter work.",

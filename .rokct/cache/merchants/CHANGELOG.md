@@ -1,3 +1,11 @@
+## 1.33.4
+
+* fix(manifest): install the demo fixtures only in marketplace apps
+  (`app_types`: customer, driver, manager; Ray, 2026-10-05). The catch-all
+  `templates/assets` -> `assets` install is split into `audio`, `images`
+  and `svgs` so it no longer copies the fixtures too. Supacharge and other
+  non-marketplace shells no longer get `assets/demo/merchants/`.
+
 ## 1.33.3
 
 * fix(theme): widgets read their surface, card, stroke and ink colours from Theme.of(context) at build time (AppStyle.surfaceFor/cardFor/cardAltFor/strokeFor/subtleStrokeFor/inkFor/secondaryInkFor/faintFor) instead of the AppStyle.isDark-resolved statics, so a live dark/light switch restyles open pages instead of leaving the old mode's colours (Ray, 2026-10-04).

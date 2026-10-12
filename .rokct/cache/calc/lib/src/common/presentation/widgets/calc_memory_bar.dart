@@ -13,11 +13,11 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
-import 'package:base_sdk/src/services/key_sound.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../application/calc_sound.dart';
 import '../../application/calculator/calculator_provider.dart';
 import '../calc_format.dart';
 
@@ -122,7 +122,7 @@ class CalcMemoryBar extends ConsumerWidget {
                     onTap: () {
                       // A key is a key: the mini pills sound exactly
                       // like the pad's own memory row.
-                      KeySound.tap();
+                      CalcSound.tap();
                       notifier.onMemoryPressed(keys[i]);
                     },
                     child: Container(

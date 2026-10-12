@@ -250,16 +250,38 @@ void main() {
     expect(find.byType(FloatingBackPill), findsNothing);
   });
 
-  testWidgets('phone (390 dp): GenericProfilePage exactly as before',
+  testWidgets('phone (390 dp), pushed: the profile carries the floating nav',
       (tester) async {
     await pumpRoutedProfile(tester, width: 390, height: 844);
 
     expect(find.byType(GenericProfilePage), findsOneWidget);
     expect(find.byType(PlaneHost), findsNothing);
     expect(find.byType(FloatingBackPill), findsNothing);
+    // The pushed page's floating nav: the back-only pill housing.
+    expect(find.byType(FloatingBottomNav), findsOneWidget);
     expect(Planes.maybeOf(tester.element(find.byType(GenericProfilePage))),
         isNull);
     // The phone list: one column.
     expect(columnEdges(tester), hasLength(1));
+  });
+
+  testWidgets('phone (390 dp), root: GenericProfilePage with no dead nav',
+      (tester) async {
+    await pumpRoutedProfile(tester, width: 390, height: 844, pushed: false);
+
+    expect(find.byType(GenericProfilePage), findsOneWidget);
+    expect(find.byType(FloatingBottomNav), findsNothing);
+    expect(find.byType(FloatingBackPill), findsNothing);
+    expect(columnEdges(tester), hasLength(1));
+  });
+
+  testWidgets('phone (390 dp), pushed: a registered nav replaces the pill',
+      (tester) async {
+    ProfileSectionRegistry.I.pushedProfileNavBuilder =
+        (_) => const SizedBox(key: ValueKey('host-nav'), height: 60);
+    await pumpRoutedProfile(tester, width: 390, height: 844);
+
+    expect(find.byKey(const ValueKey('host-nav')), findsOneWidget);
+    expect(find.byType(FloatingBottomNav), findsNothing);
   });
 }

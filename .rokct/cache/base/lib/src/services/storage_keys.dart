@@ -31,7 +31,14 @@ abstract class StorageKeys {
   static const String keyViewedProducts = 'keyViewedProducts';
   static const String keyAddressSelected = 'keyAddressSelected';
   static const String keyAddressInformation = 'keyAddressInformation';
+  /// Set once the person chose to use the app without an account (the
+  /// login page's Skip). Read by `SignedOutEntry` so that choice survives a
+  /// restart. Device-level, not owner-scoped, and left alone by logout.
   static const String keyIsGuest = 'keyIsGuest';
+  /// Set the first time the splash hands a signed-out person to the login
+  /// page on this install. Read by `SignedOutEntry` for compositions whose
+  /// home works signed out (the launcher), so later starts land home.
+  static const String keyLoginOffered = 'keyLoginOffered';
   static const String keyLocalAddresses = 'keyLocalAddresses';
   static const String keyActiveAddressTitle = 'keyActiveAddressTitle';
   static const String keyLikedProducts = 'keyLikedProducts';

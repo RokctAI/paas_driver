@@ -23,7 +23,7 @@ import 'order_user_state.dart';
 import 'package:orders_sdk/src/manager/domain/interface/pos_customers.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/models.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
-import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:orders_sdk/src/manager/utils/manager_order_keys.dart';
 
 class OrderUserNotifier extends StateNotifier<OrderUserState> {
   final PosCustomersFacade _usersRepository;
@@ -52,7 +52,7 @@ class OrderUserNotifier extends StateNotifier<OrderUserState> {
     final selectedUser = state.users[index];
     state = state.copyWith(selectedIndex: index, selectedUser: selectedUser);
     state.userTextController?.text =
-        '${selectedUser.firstname ?? AppHelpers.getTranslation(TrKeys.noName)} ${selectedUser.lastname ?? ''}';
+        '${selectedUser.firstname ?? AppHelpers.getTranslation(ManagerOrderKeys.noName)} ${selectedUser.lastname ?? ''}';
   }
 
   setPhone(String value){
@@ -152,7 +152,7 @@ class OrderUserNotifier extends StateNotifier<OrderUserState> {
         final selectedUser = state.users[0];
         state = state.copyWith(selectedIndex: 0, selectedUser: selectedUser);
         state.userTextController?.text =
-            '${selectedUser.firstname ?? AppHelpers.getTranslation(TrKeys.noName)} ${selectedUser.lastname ?? ''}';
+            '${selectedUser.firstname ?? AppHelpers.getTranslation(ManagerOrderKeys.noName)} ${selectedUser.lastname ?? ''}';
       }
       return;
     }

@@ -1,6 +1,7 @@
 {
   "name": "merchants_sdk",
-  "version": "1.33.3",
+  "version": "1.33.4",
+  "_comment_version_1_33_4": "1.33.3 -> 1.33.4: the demo fixture install is scoped to marketplace apps with \"app_types\": [\"customer\", \"driver\", \"manager\"] (Ray, 2026-10-05: the merchants demo fixtures install only in marketplace apps). The catch-all templates/assets -> assets install also copied templates/assets/demo/merchants, so it is split into its three non-demo directories (audio, images, svgs), which still install in every app as before. Supacharge and other non-marketplace shells compose merchants_sdk only transitively and never call its cmds, so they no longer get assets/demo/merchants/; a composer that understands app_types also leaves the assets/demo/merchants/ pubspec entry out there and removes unmodified copies an earlier compose left. A composer older than app_types ignores the key and installs the fixtures everywhere, as 1.33.3 did. Manifest-only change; no code changes.",
   "_comment_version_1_33_1": "1.33.0 -> 1.33.1: ShopsRepository.getShopBranch leaves the dead guest path paas.api.shop.shop.get_shop_branch and calls the new guest gateway cmd api.shop.get_shop_branches (merchants shop.py, fixplan M23), shaped for base_sdk's BranchResponse. Demo fixture added.",
   "_comment_version_1_33_0": "1.32.1 -> 1.33.0: the restaurant hub's Sections list gains a Subscription row (Ray approved 2026-09-27) under Quick flow, titled with base_sdk's existing TrKeys.subscriptions and pushing subscriptions_sdk's /subscriptions route (ManagerSubscriptionsRoute) BY PATH, so merchants_sdk never imports subscriptions_sdk; a compose without subscriptions_sdk gets no page behind the row. No new base API.",
   "_comment_version_1_32_1": "1.32.0 -> 1.32.1: the manager shell's tablet side rail (NavRailLayout) no longer adds a 16 px margin on its page side; the page's own gutter is the gap beside the rail, as it is beside the screen edge with the bottom pill. No new base API.",
@@ -11,11 +12,24 @@
   "installs": [
     {
       "from": "templates/assets/demo/merchants",
-      "to": "assets/demo/merchants"
+      "to": "assets/demo/merchants",
+      "app_types": [
+        "customer",
+        "driver",
+        "manager"
+      ]
     },
     {
-      "from": "templates/assets",
-      "to": "assets"
+      "from": "templates/assets/audio",
+      "to": "assets/audio"
+    },
+    {
+      "from": "templates/assets/images",
+      "to": "assets/images"
+    },
+    {
+      "from": "templates/assets/svgs",
+      "to": "assets/svgs"
     }
   ],
   "app_assets": [

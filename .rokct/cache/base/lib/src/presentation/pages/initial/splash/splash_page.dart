@@ -25,6 +25,7 @@ import 'package:base_sdk/src/application/splash/splash_provider.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
+import 'package:base_sdk/src/navigation/signed_out_entry.dart';
 import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
 import 'package:base_sdk/src/presentation/adaptive/tour_system_ui.dart';
 import 'package:base_sdk/src/presentation/pages/initial/splash/folding_brand_name.dart';
@@ -269,9 +270,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         goMain: () => _leaveSplash('main', () {
           AppHelpers.goHome(context);
         }),
-        goLogin: () => _leaveSplash('login', () {
-          AppRoutes.I.replaceLoginRoute(context);
-        }),
+        goLogin: _leaveSignedOut,
         // The radio dropped between the two checks: offline, not an error.
         goNoInternet: () => unawaited(_proceedOffline()),
       );
@@ -297,11 +296,30 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         AppHelpers.goHome(context);
       });
     } else {
-      // User not logged in, go to login
-      _leaveSplash('login', () {
-        AppRoutes.I.replaceLoginRoute(context);
-      });
+      _leaveSignedOut();
     }
+  }
+
+  /// Nobody is signed in. Every signed-out exit from the splash comes
+  /// through here — online, backend down, offline — so the decision is made
+  /// once. It used to be "login, always": a launcher that Android cold-starts
+  /// again and again then put a person who had chosen not to sign in back on
+  /// the login page every time. [SignedOutEntry] decides now: home for a
+  /// remembered Skip, or after the first run in a composition whose home
+  /// works signed out; the login page otherwise. Being signed out is not an
+  /// error, so nothing is reported.
+  void _leaveSignedOut() {
+    if (!mounted) return;
+    if (SignedOutEntry.landsHome) {
+      _leaveSplash('main', () {
+        AppHelpers.goHome(context);
+      });
+      return;
+    }
+    unawaited(SignedOutEntry.recordLoginOffered());
+    _leaveSplash('login', () {
+      AppRoutes.I.replaceLoginRoute(context);
+    });
   }
 
   @override

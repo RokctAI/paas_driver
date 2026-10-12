@@ -32,6 +32,7 @@ import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart'
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/bundled_translations.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/services/load_silence.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/constants/demo_currency.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
@@ -124,6 +125,7 @@ abstract class AppHelpers {
   }
 
   static showNoConnectionSnackBar(BuildContext context) {
+    if (LoadQuietGate.suppress('showNoConnectionSnackBar', 'offline')) return;
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     final snackBar = SnackBar(
       backgroundColor: AppStyle.primary,
@@ -235,6 +237,8 @@ abstract class AppHelpers {
   /// -- an integration-test driver context, a callback running after its
   /// route is gone -- used to throw straight through the caller.
   static showCheckTopSnackBar(BuildContext context, String text) {
+    // No error before the person has done anything (see LoadQuietGate).
+    if (LoadQuietGate.suppress('showCheckTopSnackBar', text)) return;
     final overlay = Overlay.maybeOf(context);
     if (overlay == null) {
       return;

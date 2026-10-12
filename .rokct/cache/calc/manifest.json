@@ -1,6 +1,6 @@
 {
   "name": "calc_sdk",
-  "version": "1.1.3",
+  "version": "1.3.0",
   "installs": [
     {
       "from": "templates/pages/calc",
@@ -15,15 +15,24 @@
       "import": "package:${package}/presentation/pages/calc/calculator_page.dart"
     }
   ],
+  "host_integration": {
+    "_comment": "The fleet calculator ENTRY (Ray, 2026-10-08: \"i want to remove calc from launcher and only have a window to it\" and \"if opening any of our apps it should not fight them if two or more of apps have calc sdk and it should open that app in the calc\"). Every app that composes calc_sdk gets an exported activity-alias of its own MainActivity answering the action rokct.intent.action.CALCULATOR with the data scheme rokct. launch_sdk (1.20.0+) asks the package manager which apps answer that action - no package list anywhere - and starts the one it picks by explicit component with the data rokct:/calc, so two such apps never raise a chooser. Flutter hands an intent's data to the router as the route (the initial route on a cold start, pushRouteInformation from onNewIntent on a warm one) and auto_route matches on the URI's path, so the app opens on /calc rather than its home; with rebuildStackOnDeepLink left false a running app keeps its stack under it. The alias carries the NormalTheme meta-data MainActivity carries in the base_sdk shell, because FlutterActivity reads its meta-data from the component it was started as (the alias), and without it the launch theme would stay behind the Flutter view. A custom action and not CATEGORY_APP_CALCULATOR on purpose: the fleet apps must not appear in another app's pick-a-calculator list. Applied by the protocol installer's update_host_integration() into the marker-owned <application> block, after MainActivity (an alias must follow its target), and gone again when calc_sdk leaves the compose. No Dart change: /calc is the route that already exists.",
+    "android_application_xml": [
+      "<activity-alias android:name=\".RokctCalculatorEntry\" android:targetActivity=\".MainActivity\" android:exported=\"true\"><meta-data android:name=\"io.flutter.embedding.android.NormalTheme\" android:resource=\"@style/NormalTheme\" /><intent-filter><action android:name=\"rokct.intent.action.CALCULATOR\" /><category android:name=\"android.intent.category.DEFAULT\" /><data android:scheme=\"rokct\" /></intent-filter></activity-alias>"
+    ]
+  },
   "tr_keys": {
     "calculator": "calculator",
     "tape": "tape",
     "clearTheTape": "clear_the_tape",
     "tapeKeepsLast10": "the_tape_keeps_the_last_10_calculations",
     "useAsTheAmount": "use_{amount}_as_the_amount",
-    "fillsTheAmountNeverTheCart": "fills_the_amount_display_it_never_touches_the_cart"
+    "fillsTheAmountNeverTheCart": "fills_the_amount_display_it_never_touches_the_cart",
+    "muteKeySounds": "mute_key_sounds",
+    "unmuteKeySounds": "unmute_key_sounds"
   },
   "_comment_tr_keys": "Section 45's six strings. Until 1.1.0 this SDK declared none - the shipped screen rendered keypad glyphs and numbers only - but the redrawn screen has a tape header, a stated cap, a Clear-the-tape button and (in pick mode) the use-this-amount pill, and every one of those is prose. Checked against base_sdk's hand-written keys and every other SDK manifest in the fleet: no collision. 'use_{amount}_as_the_amount' carries a {amount} placeholder that the pill substitutes; a seeded translation without the placeholder degrades to label-then-amount rather than losing the number.",
+  "_comment_version_1_2_0": "1.1.3 -> 1.2.0: the calculator gets its own mute (Ray: 'calc must have mute on itself'). A speaker toggle in the /calc header (both layouts) flips CalcSound, the calculator's own gate in front of base_sdk's fleet KeySound gate, persisted via LocalStorage.setJson under 'calc_sdk.sound', default unmuted. Two new tr_keys (muteKeySounds, unmuteKeySounds) label the toggle's tooltip and semantics; checked against the fleet manifests for collisions. No route, install or cmd changed.",
   "_comment_routes": "installs and routes are top-level (no app_type block) on purpose: any composition that lists calc_sdk gets the page and the /calc route - Ray's decision is to use it on both manager and driver.",
   "_comment_pick_mode": "The /calc route accepts an optional ?pick=true query param (design strip section 45, flag (a)). Without it the page behaves exactly as it always has and pops nothing. With it the screen grows the chip-840 pill and pops the display STRING back to the caller, so a caller that wants a number - the till's quick-amount chip (843), the deliveryman's Count-it step (845) - gets one. Callers navigate BY ROUTE PATH and never import calc_sdk (ADR-005); a caller running against an older calc_sdk simply gets null and falls through to its own entry, so the gates can ship in either order."
 }

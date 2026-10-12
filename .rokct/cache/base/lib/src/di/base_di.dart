@@ -20,6 +20,7 @@ import 'package:get_it/get_it.dart';
 import 'package:base_sdk/src/constants/demo_currency.dart';
 import 'package:base_sdk/src/handlers/http_service.dart';
 import 'package:base_sdk/src/services/connectivity_service.dart';
+import 'package:base_sdk/src/services/load_silence.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/memory_pressure_service.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
@@ -46,6 +47,12 @@ class BaseSdkDependencies {
     }
     // App-lifetime listener that drains the outbox on connectivity regain.
     ConnectivityService.I.start();
+
+    // No error toast before the person has done anything: splash, the login
+    // screen and a return to the app are the app's own work, and being
+    // offline or signed out is never an error (see LoadQuietGate). Armed
+    // here so every composed app gets it from a base_sdk bump alone.
+    LoadQuietGate.arm();
 
     // Demo builds print every amount in rand. Nothing else in a demo build
     // selects a currency (no backend to list one), and intl's default for

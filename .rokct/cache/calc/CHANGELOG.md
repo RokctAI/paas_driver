@@ -1,3 +1,25 @@
+## 1.3.0
+
+* feat(android): the fleet calculator entry. Ray, 2026-10-08: "i want to
+  remove calc from launcher and only have a window to it", and "if opening
+  any of our apps it should not fight them if two or more of apps have calc
+  sdk and it should open that app in the calc".
+* `host_integration.android_application_xml` declares an exported
+  `activity-alias` (`.RokctCalculatorEntry`) of the host's `.MainActivity`
+  answering the action `rokct.intent.action.CALCULATOR` with the data scheme
+  `rokct`. launch_sdk 1.20.0 asks the package manager which apps answer it
+  (no package list) and starts the one it picks by explicit component with
+  the data `rokct:/calc`, which Flutter hands to the router as the route: the
+  app opens on `/calc`, not on its home, and two such apps never raise a
+  chooser.
+* A custom action rather than `CATEGORY_APP_CALCULATOR`, so the fleet apps do
+  not show up in another app's pick-a-calculator list. No Dart change; the
+  `/calc` route and page are untouched.
+
+## 1.2.0
+
+* feat: the calculator has its own mute (Ray: "calc must have mute on itself"). A speaker toggle in the /calc header (the phone fold's title row, and the top of the pad plane on wide layouts) silences every calculator key click: the pad keys, the double-tap on C and the memory-bar pills. It is the new `CalcSound` gate, sitting in front of base_sdk's fleet-wide `KeySound` gate, so muting the calculator never silences the till's MoneyKeypad. The choice persists across restarts via `LocalStorage.setJson('calc_sdk.sound')` and defaults to unmuted, so nothing changes until someone taps it. Muted also drops the light haptic that rides with the click. New tr_keys: `muteKeySounds`, `unmuteKeySounds`.
+
 ## 1.1.3
 
 * fix(theme): live theme flips. The "Calculator" title, tape card text and keypad tiles take their ink and fills from Theme.of(context).brightness at build instead of AppStyle's static default, so they restyle when the mode changes.

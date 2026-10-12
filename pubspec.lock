@@ -127,7 +127,7 @@ packages:
       path: ".rokct/cache/auth"
       relative: true
     source: path
-    version: "1.16.6"
+    version: "1.17.0"
   auto_route:
     dependency: "direct main"
     description:
@@ -158,7 +158,7 @@ packages:
       path: ".rokct/cache/base"
       relative: true
     source: path
-    version: "1.83.5"
+    version: "1.86.0"
   battery_plus:
     dependency: "direct main"
     description:
@@ -277,7 +277,7 @@ packages:
       path: ".rokct/cache/calc"
       relative: true
     source: path
-    version: "1.1.3"
+    version: "1.3.0"
   calendar_date_picker2:
     dependency: "direct main"
     description:
@@ -1647,7 +1647,7 @@ packages:
       path: ".rokct/cache/merchants"
       relative: true
     source: path
-    version: "1.33.3"
+    version: "1.33.4"
   meta:
     dependency: transitive
     description:
@@ -1702,7 +1702,7 @@ packages:
       path: ".rokct/cache/orders"
       relative: true
     source: path
-    version: "1.29.2"
+    version: "1.29.3"
   osm_nominatim:
     dependency: "direct main"
     description:
@@ -1957,7 +1957,7 @@ packages:
       path: ".rokct/cache/products"
       relative: true
     source: path
-    version: "1.12.5"
+    version: "1.12.6"
   proste_indexed_stack:
     dependency: "direct main"
     description:

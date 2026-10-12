@@ -15,11 +15,19 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:base_sdk/src/di/injection.dart';
+import 'package:base_sdk/src/domain/interface/gallery.dart';
 
 import 'package:base_sdk/src/application/edit_profile/edit_profile_notifier.dart';
 import 'package:base_sdk/src/application/edit_profile/edit_profile_state.dart';
 
 final editProfileProvider =
     StateNotifierProvider<EditProfileNotifier, EditProfileState>(
-  (ref) => EditProfileNotifier(userRepository, galleryRepository),
+  // The gallery facade is resolved only where it is registered: a
+  // composition without products/merchants (the launcher) registers none,
+  // and the edit-own-details sheet must still open and save there. Without
+  // it a picked avatar is not uploaded; every other field saves as before.
+  (ref) => EditProfileNotifier(
+    userRepository,
+    getIt.isRegistered<GalleryRepositoryFacade>() ? galleryRepository : null,
+  ),
 );

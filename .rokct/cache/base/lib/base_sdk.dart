@@ -168,6 +168,7 @@ export 'src/di/base_di.dart';
 // Host-backed indirection for navigation and cross-SDK widget embedding
 export 'src/navigation/app_routes.dart';
 export 'src/navigation/route_presence.dart';
+export 'src/navigation/signed_out_entry.dart';
 export 'src/navigation/embedded_widgets.dart';
 
 // Kernel session models

@@ -1,6 +1,6 @@
 name: orders_sdk
 description: "orders_sdk - extracted from paas_customer (refork 2026-07-11)."
-version: 1.29.2
+version: 1.29.3
 publish_to: 'none'
 environment:
   sdk: '>=3.10.0 <4.0.0'
@@ -46,8 +46,11 @@ dev_dependencies:
   shared_preferences: ^2.2.0
   # End-to-end push test (test/order_status_push_e2e_test.dart): comms'
   # PushMessageDispatcher and DeviceLiveActivitySink drive the tracker.
+  # Sibling path matches the host's .rokct/cache layout (cache/comms); the
+  # dependency_overrides entry below points at the workspace checkout and is
+  # rewritten to this path by the composer when vendored.
   comms_sdk:
-    path: ../../../core/comms/dart
+    path: ../comms
   firebase_messaging: ^15.1.0
   flutter_local_notifications: ^19.5.0
   build_runner: ^2.10.4
@@ -59,3 +62,5 @@ dev_dependencies:
 dependency_overrides:
   base_sdk:
     path: ../base
+  comms_sdk:
+    path: ../comms

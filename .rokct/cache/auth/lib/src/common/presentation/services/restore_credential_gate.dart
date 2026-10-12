@@ -16,7 +16,7 @@ import 'dart:async';
 
 import 'package:base_sdk/src/domain/interface/user.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:auth_sdk/src/common/services/restore_credential_service.dart';
@@ -67,10 +67,22 @@ class RestoreCredentialGate {
   static void install() {
     if (_installed) return;
     _installed = true;
-    // Deliberately not awaited: boot must not block on network I/O. Any
-    // session this establishes lands before the first authenticated screen
-    // asks for data, and if it does not, the app simply shows sign-in.
-    unawaited(_run());
+    // AFTER THE FIRST FRAME, not now. Boot hooks run in main() before
+    // `LocalStorage.init()` (see base_sdk's main.dart template), and before
+    // init `LocalStorage.getToken()` answers '' for everyone. Run from here,
+    // the gate therefore read EVERY launch as signed out: a signed-in user
+    // never got the "make sure there is a restore key" half, and every cold
+    // start - which on the launcher is every return after the system
+    // reclaimed it - went down the signed-out restore path, asking the
+    // backend for assertion options and Credential Manager for a key before
+    // anyone had touched the screen. The first frame is only drawn after
+    // runApp, which main() reaches after init, so the token read there is
+    // the real one. Same deferral PendingOtpGate uses for the same reason.
+    //
+    // Still not awaited: boot must not block on network I/O. Any session
+    // this establishes lands before the first authenticated screen asks for
+    // data, and if it does not, the app simply shows sign-in.
+    WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_run()));
   }
 
   static Future<void> _run() async {

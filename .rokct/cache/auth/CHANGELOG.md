@@ -1,3 +1,24 @@
+## 1.17.0
+
+* fix(auth): Skip on the login page is remembered (Ray, 2026-10-10: "make
+  skip remember that I have skipped before"). Where no onboarding intro is
+  composed, `_skip` calls base_sdk's `SignedOutEntry.rememberGuest()` before
+  landing, so base_sdk's splash sends the next cold start home instead of
+  back to this page. Sign-in stays reachable from the app's own UI. A
+  composed onboarding intro (supacharge) is unchanged. Needs base_sdk
+  >= 1.86.0. New `test/login_skip_is_remembered_test.dart`.
+
+## 1.16.7
+
+* fix(auth): the restore-credential boot hook waits for the first frame
+  before deciding whether anyone is signed in. It runs in main() before
+  `LocalStorage.init()`, where the token always reads empty, so every launch
+  was treated as signed out: a signed-in user never got the restore-key
+  check, and every cold start (on the launcher, every return after the
+  system reclaimed it) asked the backend for restore options and Credential
+  Manager for a key before anyone touched the screen. Nothing is shown
+  either way; failures stay debug-only.
+
 ## 1.16.6
 
 * fix(theme): widgets read their surface, card, stroke and ink colours from Theme.of(context) at build time (AppStyle.surfaceFor/cardFor/cardAltFor/strokeFor/subtleStrokeFor/inkFor/secondaryInkFor/faintFor) instead of the AppStyle.isDark-resolved statics, so a live dark/light switch restyles open pages instead of leaving the old mode's colours (Ray, 2026-10-04).

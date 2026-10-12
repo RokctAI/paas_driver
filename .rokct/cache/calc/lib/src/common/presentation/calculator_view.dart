@@ -45,6 +45,11 @@
 //    desktop order with an operator column, and neither may be
 //    reordered to match the other.
 //
+//  * MUTE ON ITSELF (Ray). A speaker toggle in the header silences
+//    every calculator click (CalcSound, persisted, default unmuted).
+//    It is the calculator's own gate in front of base_sdk's fleet gate,
+//    so muting /calc never silences the till's MoneyKeypad.
+//
 //  * TWO INVISIBLE STATES MADE VISIBLE (flag (c)). `memoryValue` was
 //    stored and never rendered (chip 838); `clearHistory()` was
 //    reachable only by double-tapping C (chip 841). Both elements just
@@ -72,6 +77,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:remixicon/remixicon.dart';
 
+import '../application/calc_sound.dart';
 import '../application/calculator/calculator_provider.dart';
 import 'widgets/calc_memory_bar.dart';
 import 'widgets/calc_pad.dart';
@@ -203,6 +209,13 @@ class _PadColumn extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // The wide layout has no title row; the mute sits at the top
+        // end of the pad plane, over the display it belongs with.
+        const Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: CalcMuteButton(),
+        ),
+        12.verticalSpace,
         _Display(display: display),
         if (pickAmount) ...[
           12.verticalSpace,
@@ -242,6 +255,8 @@ class _Fold extends ConsumerWidget {
               ),
               const Spacer(),
               const CalcMemoryBar(compact: true),
+              8.horizontalSpace,
+              const CalcMuteButton(),
             ],
           ),
           12.verticalSpace,
@@ -355,6 +370,59 @@ class CalcUseAmountButton extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The calculator's own mute (Ray: "calc must have mute on itself").
+///
+/// A speaker tile in the header: volume-up while the keys click,
+/// volume-mute once silenced. Tapping it flips [CalcSound] and persists
+/// the choice, so the calculator reopens the way it was left. It never
+/// plays a click itself.
+class CalcMuteButton extends StatelessWidget {
+  const CalcMuteButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final Brightness b = Theme.of(context).brightness;
+    return ValueListenableBuilder<bool>(
+      valueListenable: CalcSound.muted,
+      builder: (context, muted, _) {
+        final label = AppHelpers.getTranslation(
+          muted ? TrKeys.unmuteKeySounds : TrKeys.muteKeySounds,
+        );
+        return Semantics(
+          button: true,
+          toggled: muted,
+          label: label,
+          excludeSemantics: true,
+          child: Tooltip(
+            message: label,
+            child: GestureDetector(
+              key: const Key('calcMuteToggle'),
+              behavior: HitTestBehavior.opaque,
+              onTap: CalcSound.toggle,
+              child: Container(
+                width: 36.r,
+                height: 36.r,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppStyle.cardAltFor(b),
+                  borderRadius: BorderRadius.circular(10.r),
+                  border: Border.all(color: AppStyle.subtleStrokeFor(b)),
+                ),
+                child: Icon(
+                  muted ? Remix.volume_mute_line : Remix.volume_up_line,
+                  key: Key(muted ? 'calcMuteIconOff' : 'calcMuteIconOn'),
+                  size: 18.r,
+                  color: muted ? AppStyle.primary : AppStyle.inkFor(b),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

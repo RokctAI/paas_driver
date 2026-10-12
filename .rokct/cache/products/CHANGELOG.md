@@ -1,3 +1,9 @@
+## 1.12.6
+
+* fix(manifest): install the demo fixtures only in marketplace apps
+  (`app_types`: customer, driver, manager; Ray, 2026-10-05). Supacharge and
+  other non-marketplace shells no longer get `assets/demo/products/`.
+
 ## 1.12.5
 
 * fix(manifest): remove the duplicate empty top-level `installs` key that

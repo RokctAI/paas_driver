@@ -1,5 +1,60 @@
 # Changelog
 
+## 1.86.0
+
+* fix(base): a signed-out cold start no longer always lands on the login
+  page (Ray, 2026-10-10: "make launcher not to take me to login screen if
+  I'm not logged in when it launch after the first launch ... it's like
+  it's forcing you to login").
+  * Cause: every signed-out exit from the splash (online, backend down,
+    offline) called `replaceLoginRoute`, and Skip was never stored. A
+    home-screen launcher is cold-started by Android over and over, so each
+    start forwarded the person back to login.
+  * New `SignedOutEntry` (navigation/signed_out_entry.dart, exported). The
+    splash sends every signed-out exit through it. A remembered Skip
+    (`rememberGuest`, `LocalStorage` `keyIsGuest`) lands home in any
+    composition. A composition that sets `SignedOutEntry.homeAfterFirstRun`
+    (launch_sdk 1.23.0 does) offers the login page only on the first
+    signed-out start of an install (`keyLoginOffered`) and lands home after.
+  * Both flags are install-level and `LocalStorage.logout()` leaves them
+    alone: sign-out ends the session only. Being signed out is not reported
+    as an error. Compositions that set nothing and whose users never tap
+    Skip behave as before. New `test/signed_out_entry_test.dart`.
+
+## 1.85.0
+
+* fix(base): no error toast before the person has done anything (Ray: being
+  offline or logged out must never be shown as an error; minilauncher 1.2.16
+  still showed a server error on the splash / login screen when opened, or
+  returned to, signed out).
+  * New `LoadQuietGate` (load_silence.dart, exported), armed in
+    `BaseSdkDependencies.register` so every composed app gets it. Until the
+    person touches the screen or presses a key, `AppHelpers.showCheckTopSnackBar`
+    (and through it `ErrorPresenter.show` / `showTechnical` and auth_sdk's
+    `AuthErrorPresenter`) and `AppHelpers.showNoConnectionSnackBar` show
+    nothing and log to debug output. Telemetry the presenters send is
+    unchanged.
+  * A tap is a pointer-down, which lands before the button's handler runs,
+    so errors from anything the person did still show.
+  * Coming back to the app with the last touch older than
+    `LoadQuietGate.staleAfter` (2 minutes) starts quiet again. A shorter
+    trip, such as Google or Apple sign-in UI, keeps the last touch.
+  * Unarmed (unit tests, hosts that never call `BaseSdkDependencies`)
+    nothing changes. New `test/load_quiet_gate_test.dart`.
+
+## 1.84.0
+
+* The routed `/generic-profile` on a phone, when PUSHED (the launcher opens
+  it from its avatar), now carries the floating nav's back-only pill like
+  every other pushed page; a root profile draws none, and planes are
+  unchanged. A composition may register its own nav for that page through
+  the new `ProfileSectionRegistry.pushedProfileNavBuilder` (reset clears it);
+  a profile hosted as a shell tab never reads it.
+* `editProfileProvider` resolves `GalleryRepositoryFacade` only where it is
+  registered, so the shared edit-own-details sheet opens and saves in a
+  composition without products/merchants (the launcher). Without the facade
+  a picked avatar is not uploaded; every other field saves as before.
+
 ## 1.83.5
 
 * fix(base): nothing the app does by itself on load shows an error any more

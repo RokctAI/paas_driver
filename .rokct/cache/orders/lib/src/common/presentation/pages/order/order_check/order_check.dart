@@ -64,6 +64,7 @@ import 'package:orders_sdk/src/common/presentation/pages/order/order_check/widge
 import 'package:orders_sdk/src/common/presentation/pages/order/order_check/widgets/delivery_info.dart';
 import 'package:orders_sdk/src/common/presentation/pages/order/order_check/widgets/order_button.dart';
 import 'package:orders_sdk/src/common/presentation/pages/order/order_check/widgets/order_info.dart';
+import 'package:orders_sdk/src/common/presentation/pages/order/order_check/order_check_keys.dart';
 import 'package:remixicon/remixicon.dart';
 
 // Import the PreloadedWebView provider
@@ -1049,7 +1050,7 @@ class _PayFastPaymentScreenState extends ConsumerState<PayFastPaymentScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                AppHelpers.getTranslation(TrKeys.payment),
+                AppHelpers.getTranslation(OrderCheckKeys.payment),
                 style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),
               ),
               20.verticalSpace,
