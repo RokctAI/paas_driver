@@ -1308,7 +1308,7 @@ packages:
       path: ".rokct/cache/hms"
       relative: true
     source: path
-    version: "1.0.0"
+    version: "1.0.2"
   hotreloader:
     dependency: transitive
     description:

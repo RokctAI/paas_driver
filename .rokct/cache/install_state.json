@@ -1321,7 +1321,7 @@
       }
     },
     "hms_sdk": {
-      "version": "1.0.1",
+      "version": "1.0.2",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -1427,8 +1427,8 @@
       "hash": "2ef4dff138168e31"
     },
     "hms": {
-      "version": "1.0.1",
-      "hash": "b030c92b54f6fefd"
+      "version": "1.0.2",
+      "hash": "fa93206c6fc6db19"
     },
     "desktop": {
       "version": "1.2.2",

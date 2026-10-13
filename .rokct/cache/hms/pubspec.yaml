@@ -1,6 +1,6 @@
 name: hms_sdk
 description: "Huawei Mobile Services (HMS) support: GMS/HMS device-services detection and a Push Kit token bootstrap for GMS-free devices."
-version: 1.0.0
+version: 1.0.2
 # Internal SDK consumed via path/git, never published to pub.dev (matches
 # desktop_sdk/hardware_sdk/base_sdk).
 publish_to: 'none'
@@ -29,6 +29,10 @@ dependencies:
   # plugin injects the Huawei maven repo into all Gradle projects itself,
   # so a plain GMS build of a composed app resolves without host changes.
   huawei_push: ^6.15.0+300
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
 
 dependency_overrides:
   http: ^1.2.0
