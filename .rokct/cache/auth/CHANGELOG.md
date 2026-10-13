@@ -1,3 +1,36 @@
+## 1.20.0
+
+* fix(auth): a wrong password or an unverified account now shows the
+  backend's message. The backend answers these with HTTP 200 and the real
+  status in the body, and login took any 200 as success and saved an empty
+  token. The same check now covers the password-reset code, so a wrong or
+  expired code no longer moves on to the new-password step. A sign-in that
+  comes back without a token is refused instead of saved.
+* fix(auth): the first-run language picker opens again. It counted the
+  languages in a list only the picker itself loads, so it never opened. It
+  now uses the list the login screen fetched, and only asks once the backend
+  has answered: when the backend can't be reached (offline, or online but
+  not answering) the picker is skipped quietly.
+* fix(auth): the Facebook and Apple buttons are hidden on the login and
+  sign-up screens. The backend refuses both since 1.19.0 (they have no
+  verified sign-in path yet). The code behind them is kept. On iPhone the
+  Email/Phone switch shows in the Apple button's place.
+* fix(auth): `GoogleSignInConfig.serverClientId` defaults to the
+  `GOOGLE_SERVER_CLIENT_ID` build setting (from `.env/production.env`, like
+  the other keys), so Android gets the Google ID token the backend checks.
+* fix(auth): the push (FCM) token is sent again whenever Firebase replaces
+  it while someone is signed in, and once at start-up for someone already
+  signed in (new boot hook `auth_fcm_token_sync`). Before, it was only sent
+  at sign-in.
+* fix(auth): Skip on the login screen is remembered in apps with an
+  onboarding intro (supacharge) too, so the next start does not force the
+  login screen again, the same as the launcher.
+* fix(auth): the Login button and the Email/Phone switch are translated.
+* chore(auth): the "Keep me logged in" checkbox is hidden (nothing used it),
+  and the dated September 2024 splash artwork switch is removed
+  (`splash.png` is always used).
+* manifest.json's version now matches pubspec (it still said 1.18.0).
+
 ## 1.19.0
 
 * fix(auth, security): Sign in with Google sends Google's ID token, and the

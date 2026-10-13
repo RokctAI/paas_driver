@@ -35,6 +35,9 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:auth_sdk/src/common/application/auth/auth.dart';
 import 'package:auth_sdk/src/common/services/platform_support.dart';
 
+/// The "Keep me logged in" checkbox is not offered: no code reads it.
+const bool _showKeepLoggedIn = false;
+
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -276,35 +279,41 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         30.verticalSpace,
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: _showKeepLoggedIn
+                              ? MainAxisAlignment.spaceBetween
+                              : MainAxisAlignment.end,
                           children: [
-                            Row(
-                              children: [
-                                SizedBox(
-                                  height: 20.h,
-                                  width: 20.w,
-                                  child: Checkbox(
-                                    side: BorderSide(
-                                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
-                                      width: 2.r,
+                            // "Keep me logged in" is hidden: nothing reads
+                            // the choice (a session is always kept), so the
+                            // checkbox only pretended to do something.
+                            if (_showKeepLoggedIn)
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    height: 20.h,
+                                    width: 20.w,
+                                    child: Checkbox(
+                                      side: BorderSide(
+                                        color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
+                                        width: 2.r,
+                                      ),
+                                      activeColor: AppStyle.primary,
+                                      checkColor: AppStyle.blackColor,
+                                      value: state.isKeepLogin,
+                                      onChanged: (value) =>
+                                          event.setKeepLogin(value!),
                                     ),
-                                    activeColor: AppStyle.primary,
-                                    checkColor: AppStyle.blackColor,
-                                    value: state.isKeepLogin,
-                                    onChanged: (value) =>
-                                        event.setKeepLogin(value!),
                                   ),
-                                ),
-                                8.horizontalSpace,
-                                Text(
-                                  AppHelpers.getTranslation(TrKeys.keepLogged),
-                                  style: AppStyle.interNormal(
-                                    size: 12.sp,
-                                    color: AppStyle.inkFor(Theme.of(context).brightness),
+                                  8.horizontalSpace,
+                                  Text(
+                                    AppHelpers.getTranslation(TrKeys.keepLogged),
+                                    style: AppStyle.interNormal(
+                                      size: 12.sp,
+                                      color: AppStyle.inkFor(Theme.of(context).brightness),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
                             ForgotTextButton(
                               title: AppHelpers.getTranslation(
                                 TrKeys.forgotPassword,
@@ -329,7 +338,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         padding: EdgeInsets.only(top: 30.h),
                         child: CustomButton(
                           isLoading: state.isLoading,
-                          title: 'Login',
+                          title: AppHelpers.getTranslation(TrKeys.login),
                           onPressed: () {
                             if (key.currentState?.validate() ?? false) {
                               event.login(context);
@@ -366,7 +375,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          if (isIOS)
+                          if (isIOS && appleAndFacebookSignInVerified)
                             SocialButton(
                               iconData: Remix.apple_fill,
                               onPressed: () {
@@ -375,19 +384,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               title: "Apple",
                             ),
                           // Add toggle button for email/phone when on Android
-                          if (!isIOS)
+                          // (and on iOS while the Apple button is hidden)
+                          if (!isIOS || !appleAndFacebookSignInVerified)
                             SocialButton(
                               iconData: currentSignUpType == SignUpType.phone
                                   ? Remix.mail_fill
                                   : Remix.phone_fill,
                               onPressed: toggleSignUpType,
-                              title: currentSignUpType == SignUpType.phone
-                                  ? "Email"
-                                  : "Phone",
+                              title: AppHelpers.getTranslation(
+                                currentSignUpType == SignUpType.phone
+                                    ? TrKeys.email
+                                    : TrKeys.phone,
+                              ),
                             ),
                           // No Windows/Linux implementation for these
                           // plugins — hide instead of throwing on tap.
-                          if (supportsSocialSignIn)
+                          if (supportsSocialSignIn &&
+                              appleAndFacebookSignInVerified)
                             SocialButton(
                               iconData: Remix.facebook_fill,
                               onPressed: () {

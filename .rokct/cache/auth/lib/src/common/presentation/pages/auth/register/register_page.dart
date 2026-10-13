@@ -603,7 +603,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                if (isIOS)
+                                // Apple and Facebook stay hidden until
+                                // they have a verified backend path.
+                                if (isIOS && appleAndFacebookSignInVerified)
                                   SocialButton(
                                     iconData: Remix.apple_fill,
                                     onPressed: () {
@@ -612,21 +614,25 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                     title: "Apple",
                                   ),
                                 // Add toggle button for email/phone when on Android
-                                if (!isIOS)
+                                // (and on iOS while the Apple button is hidden)
+                                if (!isIOS || !appleAndFacebookSignInVerified)
                                   SocialButton(
                                     iconData:
                                         currentSignUpType == SignUpType.phone
                                         ? Remix.mail_fill
                                         : Remix.phone_fill,
                                     onPressed: toggleSignUpType,
-                                    title: currentSignUpType == SignUpType.phone
-                                        ? "Email"
-                                        : "Phone",
+                                    title: AppHelpers.getTranslation(
+                                      currentSignUpType == SignUpType.phone
+                                          ? TrKeys.email
+                                          : TrKeys.phone,
+                                    ),
                                   ),
                                 // No Windows/Linux implementation for
                                 // these plugins — hide instead of
                                 // throwing on tap.
-                                if (supportsSocialSignIn)
+                                if (supportsSocialSignIn &&
+                                    appleAndFacebookSignInVerified)
                                   SocialButton(
                                     iconData: Remix.facebook_fill,
                                     onPressed: () {

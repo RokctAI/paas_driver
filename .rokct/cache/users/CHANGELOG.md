@@ -1,3 +1,17 @@
+## 1.5.2
+
+* fix(users): signing out sends this device's push token to
+  `api.user.logout`, and the backend deletes the signed-out account's
+  Device Token for it, so the phone stops getting that account's pushes.
+* fix(users backend): `register_device_token` moves a token that is already
+  registered (under any account) to the person signing in now. Before, it
+  stopped at "already registered", so after switching accounts on one phone
+  the pushes kept going to the previous account.
+* fix(users backend): `update_user_profile` also accepts the app's key names
+  `firstname`, `lastname` and `birthday`; leaves the phone number alone when
+  none is sent; and returns the updated profile under `data`, in the same
+  shape as `get_user_profile`, so the app can show it straight away.
+
 ## 1.5.1
 
 * fix(users): `saveLocation` sends `{'address_data': ...}` to

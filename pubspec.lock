@@ -127,7 +127,7 @@ packages:
       path: ".rokct/cache/auth"
       relative: true
     source: path
-    version: "1.19.0"
+    version: "1.20.0"
   auto_route:
     dependency: "direct main"
     description:
@@ -2487,7 +2487,7 @@ packages:
       path: ".rokct/cache/users"
       relative: true
     source: path
-    version: "1.5.1"
+    version: "1.5.2"
   uuid:
     dependency: "direct main"
     description:

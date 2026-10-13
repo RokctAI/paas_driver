@@ -45,11 +45,14 @@ void main() {
     expect(land, greaterThan(remember));
   });
 
-  test('a composed onboarding intro is left as it was', () {
+  test('Skip is remembered with a composed onboarding intro too', () {
+    // supacharge composes an intro; Skip there must be remembered like the
+    // launcher's, so the next cold start does not force the login page.
     final body = skipBody();
     final intro = body.indexOf('_showIntroPage();');
     final remember = body.indexOf('SignedOutEntry.rememberGuest()');
     expect(intro, greaterThan(0));
-    expect(remember, greaterThan(intro));
+    expect(remember, greaterThan(0));
+    expect(remember, lessThan(intro));
   });
 }

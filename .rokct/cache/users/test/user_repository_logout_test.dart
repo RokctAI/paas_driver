@@ -162,6 +162,24 @@ Future<void> main() async {
       },
     );
 
+    test('sends this device\'s push token so the backend drops it', () async {
+      await signIn();
+      final adapter = _StatusAdapter(200);
+      if (getIt.isRegistered<HttpService>()) {
+        await getIt.unregister<HttpService>();
+      }
+      getIt.registerSingleton<HttpService>(_StubHttpService(adapter));
+
+      await UserRepository().logoutAccount(fcm: 'fcm-token-1');
+
+      final body = (adapter.requests.single.data as Map).cast<String, dynamic>();
+      expect(body['cmd'], 'api.user.logout');
+      expect(
+        (body['payload'] as Map).cast<String, dynamic>(),
+        {'device_token': 'fcm-token-1'},
+      );
+    });
+
     test('runs the session-end hooks on the failing path too', () async {
       await signIn();
       await useGateway(500);

@@ -39,5 +39,15 @@ class GoogleSignInConfig {
   /// Android only returns an ID token when this is set, unless the app's
   /// google-services.json already carries a web client. It must be one of
   /// the ids listed in the backend's Auth Settings > Google Client IDs.
-  static String? serverClientId;
+  ///
+  /// Defaults to the `GOOGLE_SERVER_CLIENT_ID` dart-define, which builds
+  /// read from `.env/production.env` like every other key; an app may
+  /// still set it in code. Unset (empty) means null.
+  static String? serverClientId = _fromEnvironment.isEmpty
+      ? null
+      : _fromEnvironment;
+
+  static const String _fromEnvironment = String.fromEnvironment(
+    'GOOGLE_SERVER_CLIENT_ID',
+  );
 }

@@ -145,7 +145,12 @@ class UserRepository implements UserRepositoryFacade {
       // that logout is about to end, and a signed-out user whose restore
       // key survived would be signed back in by their next device.
       await SessionEndHooks.run();
-      await _gateway.tenant('api.user.logout');
+      // This device's push token, so the backend stops sending this
+      // account's pushes here. Callers without one send ''.
+      await _gateway.tenant(
+        'api.user.logout',
+        fcm.isEmpty ? null : {'device_token': fcm},
+      );
       return const ApiResult.success(data: null);
     } catch (e) {
       return ApiResult.failure(

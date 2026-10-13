@@ -228,7 +228,7 @@
       }
     },
     "users_sdk": {
-      "version": "1.5.1",
+      "version": "1.5.2",
       "files": {
         "assets/demo/users/api.user.search_user.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
         "assets/demo/users/api.user.add_user_address.json": "94040fd50c440c6ddcbbe56ce155489e70d4ae918498599ac55082d238d799ad",
@@ -1144,7 +1144,7 @@
       }
     },
     "auth_sdk": {
-      "version": "1.18.0",
+      "version": "1.20.0",
       "files": {
         "lib/presentation/routes/auth_route_pages.dart": "8eaff3abe2dd38d8a6c2f15ed4b9e4ec779c5b99f3f71a18445ee4a13d12056f",
         "lib/presentation/routes/registration_step_pages.dart": "68aed195fc07db746a0919c7ba6d47ffa445ca86e7d9cf6ee50fbcb00e82d3c2",
@@ -1249,6 +1249,15 @@
             "import 'package:auth_sdk/src/translations/auth_en_translations.dart';"
           ],
           "_comment": "Registers this SDK's bundled English map into base_sdk's BundledTranslations registry at boot (lms_sdk's 'af' hook is the precedent). base_sdk bundles no 'en' map because English normally survives through the humanized-key fallback, but that only holds for keys named after their copy: reset_password_text humanized to the literal \"Reset password text\" on every app shell's reset-password sheet, because demo builds take their served map from comms_sdk's MockSettingsRepository (a handful of rows that never carried this key). Backend-served translation rows still win; the map is only the offline/unseeded fallback consulted before the humanized-key fallback. Imports are declared explicitly (src paths, like lms_sdk) because neither symbol is exported by the auth_sdk barrel every composed main.dart already imports. Requires a base_sdk with bundled_translations.dart (the bundled-af wave)."
+        },
+        {
+          "id": "auth_fcm_token_sync",
+          "order": 3,
+          "body": "FcmTokenSync.install();",
+          "imports": [
+            "import 'package:auth_sdk/src/common/services/platform_support.dart';"
+          ],
+          "_comment": "Keeps the backend's FCM token current between sign-ins: once the first frame is up (LocalStorage and DI are ready by then) it re-sends the token if a backend session is already active, and re-sends every token FirebaseMessaging.onTokenRefresh hands out while signed in. No-op on Windows/Linux and when Firebase is not initialized; fail-open."
         }
       ],
       "database": {
@@ -1375,12 +1384,12 @@
       "hash": "699637eb25bbebf4"
     },
     "auth": {
-      "version": "1.18.0",
-      "hash": "62f8797524c6e513"
+      "version": "1.20.0",
+      "hash": "f92c82812fab6f4c"
     },
     "users": {
-      "version": "1.5.1",
-      "hash": "85f8847951bf6cf9"
+      "version": "1.5.2",
+      "hash": "1e8eee291e0c3997"
     },
     "orders": {
       "version": "1.30.0",

@@ -69,8 +69,11 @@ class AuthRepository
         payload: {'usr': email, 'pwd': password},
         requireAuth: false,
       );
-      // Assuming a successful login returns user data that can be adapted to LoginResponse
-      // This part will need careful adaptation based on the actual Frappe response
+      // A wrong password (401) or an unverified account (403) arrives as a
+      // 200 whose body carries the status_code; it is a failure, not an
+      // empty session.
+      final rejected = _bodyRejection<LoginResponse>(response);
+      if (rejected != null) return rejected;
       return ApiResult.success(data: LoginResponse.fromJson(response));
     } catch (e) {
       debugPrint('==> login failure: $e');
@@ -304,6 +307,9 @@ class AuthRepository
         payload: {'verify_code': verifyCode, 'email': email},
         requireAuth: false,
       );
+      // A wrong or expired code is a 200 whose body says 400.
+      final rejected = _bodyRejection<VerifyData>(response);
+      if (rejected != null) return rejected;
       return ApiResult.success(
         data: VerifyData.fromJson(response['data'] ?? response),
       );

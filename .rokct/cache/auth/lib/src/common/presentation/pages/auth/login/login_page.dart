@@ -54,7 +54,7 @@ class LoginPage extends ConsumerStatefulWidget {
 class _LoginPageState extends ConsumerState<LoginPage> {
   bool _showIntro = false;
   late final LoginEmbeddedSlots _slots;
-  late String splashImage;
+  static const String splashImage = "assets/images/splash.png";
 
   @override
   void initState() {
@@ -81,19 +81,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         Navigator.pop(context);
       },
     );
-
-    // Determine which splash image to use based on the current date
-    DateTime now = DateTime.now();
-    DateTime startDate = DateTime(2024, 9, 1);
-    DateTime endDate = DateTime(2024, 9, 10, 23, 59);
-
-    if (now.isBefore(startDate)) {
-      splashImage = "assets/images/splash1.png";
-    } else if (now.isBefore(endDate)) {
-      splashImage = "assets/images/splash2.png";
-    } else {
-      splashImage = "assets/images/splash.png"; // Default image
-    }
   }
 
   Future<void> initDynamicLinks() async {
@@ -174,17 +161,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   /// the app's normal post-auth destination — the same default landing the
   /// registration pipeline uses — instead of the affordance being hidden.
   void _skip() {
+    // Remembered, so the next cold start lands home instead of back on this
+    // page (Ray, 2026-10-10: "make skip remember that I have skipped
+    // before"), in every composition: with a composed onboarding intro
+    // (supacharge) too, the same as the launcher. base_sdk's splash reads it
+    // through SignedOutEntry. Written before navigating and not awaited: the
+    // landing must not wait on a preference write, and a write that fails
+    // only costs the old behaviour.
+    unawaited(SignedOutEntry.rememberGuest());
     if (_slots.introPage != null) {
       _showIntroPage();
       return;
     }
-    // Remembered, so the next cold start lands where this one does instead
-    // of back on this page (Ray, 2026-10-10: "make skip remember that I have
-    // skipped before"). base_sdk's splash reads it through SignedOutEntry.
-    // Written before navigating and not awaited: the landing must not wait
-    // on a preference write, and a write that fails only costs the old
-    // behaviour.
-    unawaited(SignedOutEntry.rememberGuest());
     RegistrationFlow.defaultLanding(context);
   }
 
@@ -201,11 +189,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     ref.listen(loginProvider, (previous, next) {
       if (!next.isSelectLanguage &&
           !((previous?.isSelectLanguage ?? false) == next.isSelectLanguage)) {
-        // Only show language selection if we have more than one language
-        final languageState = ref.read(languageProvider);
-        if (languageState.list.length > 1) {
+        // Only show language selection if we have more than one language.
+        // The count comes from the list LoginNotifier.checkLanguage just
+        // fetched: languageProvider is only loaded by the language screen
+        // itself, so on a first run it was still empty here and the picker
+        // never opened. An empty list (backend unreachable) opens nothing.
+        if (next.list.length > 1) {
           selectLanguage();
-        } else if (languageState.list.length == 1) {
+        } else if (next.list.length == 1) {
           // If there's only one language, auto-select it
           ref.read(languageProvider.notifier).makeSelectedLang(context);
         }

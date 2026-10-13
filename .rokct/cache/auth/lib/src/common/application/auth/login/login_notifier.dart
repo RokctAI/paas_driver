@@ -100,54 +100,58 @@ class LoginNotifier extends StateNotifier<LoginState> {
     final bool loud = shouldSurfaceLoginError(userInitiated: userInitiated);
     final lang = LocalStorage.getLanguage();
     if (lang == null) {
-      // No language selected yet, check available languages
-      final connect = await AppConnectivity.connectivity();
-      if (connect) {
-        final response = await _settingsRepository.getLanguages();
-        if (!mounted) return;
-        response.when(
-          success: (data) {
-            final List<LanguageData> languages = data.data ?? [];
-            state = state.copyWith(list: languages);
-
-            // Auto-select if there's only one language
-            if (languages.length == 1) {
-              // Set as selected language
-              LocalStorage.setLanguageData(languages[0]);
-              LocalStorage.setLangLtr(languages[0].backward);
-              LocalStorage.setLanguageSelected(true);
-
-              // Get translations for this language
-              _getTranslations(context, languages[0], loud: loud);
-
-              // Update state to skip language selection screen
-              state = state.copyWith(isSelectLanguage: true);
-            } else {
-              // Multiple languages available, show selection screen
-              state = state.copyWith(isSelectLanguage: false);
-            }
-          },
-          failure: (failure, status) {
-            state = state.copyWith(isSelectLanguage: false);
-            // Settings fetch: never user-actionable — friendly line only,
-            // real cause to telemetry (entry-56 rule).
-            if (!loud) {
-              debugPrint('==> LoginNotifier: silent load-time probe failed: $failure');
-              return;
-            }
-            AuthErrorPresenter.showTechnical(
-              context,
-              type: 'auth_languages_load_failed',
-              detail: failure,
-              statusCode: status,
-            );
-          },
-        );
-      } else {
-        if (loud && context.mounted) {
-          AppHelpers.showNoConnectionSnackBar(context);
-        }
+      // No language selected yet, check available languages. Offline-first:
+      // a radio that is up but a backend that does not answer is offline
+      // too, so the first-run picker is only offered once the backend has
+      // actually answered with its languages; otherwise it is skipped
+      // quietly and the bundled translations stay in use.
+      final connect =
+          DemoSession.demoActive || await AppConnectivity.backendAvailability();
+      if (!mounted) return;
+      if (!connect) {
+        debugPrint('==> LoginNotifier: backend unreachable, no language picker');
+        return;
       }
+      final response = await _settingsRepository.getLanguages();
+      if (!mounted) return;
+      response.when(
+        success: (data) {
+          final List<LanguageData> languages = data.data ?? [];
+          state = state.copyWith(list: languages);
+
+          // Auto-select if there's only one language
+          if (languages.length == 1) {
+            // Set as selected language
+            LocalStorage.setLanguageData(languages[0]);
+            LocalStorage.setLangLtr(languages[0].backward);
+            LocalStorage.setLanguageSelected(true);
+
+            // Get translations for this language
+            _getTranslations(context, languages[0], loud: loud);
+
+            // Update state to skip language selection screen
+            state = state.copyWith(isSelectLanguage: true);
+          } else {
+            // Multiple languages available, show selection screen
+            state = state.copyWith(isSelectLanguage: false);
+          }
+        },
+        failure: (failure, status) {
+          state = state.copyWith(isSelectLanguage: false);
+          // Settings fetch: never user-actionable — friendly line only,
+          // real cause to telemetry (entry-56 rule).
+          if (!loud) {
+            debugPrint('==> LoginNotifier: silent load-time probe failed: $failure');
+            return;
+          }
+          AuthErrorPresenter.showTechnical(
+            context,
+            type: 'auth_languages_load_failed',
+            detail: failure,
+            statusCode: status,
+          );
+        },
+      );
     } else {
       // Language already selected, verify it exists in available languages
       final connect = await AppConnectivity.connectivity();
@@ -261,7 +265,23 @@ class LoginNotifier extends StateNotifier<LoginState> {
     UserData? data, {
     bool popUntilRoot = false,
   }) async {
-    final String? role = data?.user?.role;
+    // A "success" without a token is not a session: persisting it would
+    // save an empty token and land the user signed in to nothing.
+    final String? token = data?.accessToken;
+    if (data == null || token == null || token.isEmpty) {
+      if (mounted) {
+        state = state.copyWith(isLoading: false, isLoginError: true);
+      }
+      if (context.mounted) {
+        AuthErrorPresenter.showTechnical(
+          context,
+          type: 'auth_session_missing_token',
+          detail: 'credential exchange returned no access token',
+        );
+      }
+      return;
+    }
+    final String? role = data.user?.role;
     if (!AuthSessionPolicy.I.allows(role)) {
       AuthSessionPolicy.I.onRejected(context, role: role);
       return;
@@ -269,16 +289,16 @@ class LoginNotifier extends StateNotifier<LoginState> {
     // setToken clears any stale refresh contract, so persist the fresh
     // one strictly after it. Flows that mint none (Google login) simply
     // store nothing — their sessions are never proactively refreshed.
-    await LocalStorage.setToken(data?.accessToken ?? '');
-    await SecureStorage.setRefreshToken(data?.refreshToken);
-    await LocalStorage.setTokenExpiry(data?.expiresAt);
-    LocalStorage.setAddressSelected(_activeAddressOf(data?.user));
+    await LocalStorage.setToken(token);
+    await SecureStorage.setRefreshToken(data.refreshToken);
+    await LocalStorage.setTokenExpiry(data.expiresAt);
+    LocalStorage.setAddressSelected(_activeAddressOf(data.user));
     // Persist the account the exchange came back with, so the profile
     // header has a name and avatar on its first paint instead of the
     // empty "Profile" / "?" state it showed until profileProvider's
     // fetch (the only other writer of the stored user) came back. The
     // fetch still runs and overwrites this with the full profile.
-    final UserModel? user = data?.user;
+    final UserModel? user = data.user;
     if (user != null) {
       await LocalStorage.setUser(sessionProfileOf(user));
     }
