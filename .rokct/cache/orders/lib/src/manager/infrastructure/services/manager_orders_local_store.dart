@@ -78,9 +78,41 @@ class ManagerOrdersLocalStore {
   static Future<List<Map<String, dynamic>>> unsynced() async =>
       (await _db.getAll(box)).where((r) => r['synced'] != true).toList();
 
-  /// [unsynced] as list rows for the manager's order queues merge.
-  static Future<List<OrderData>> unsyncedAsOrders() async =>
-      (await unsynced()).map(toOrderData).toList();
+  /// [unsynced] as list rows for the manager's order queues merge; with
+  /// [status] (a queue's wire status) only the rows that queue shows.
+  static Future<List<OrderData>> unsyncedAsOrders({String? status}) async =>
+      (await unsynced())
+          .map(toOrderData)
+          .where((o) => status == null || o.status == status)
+          .toList();
+
+  /// Moves a not-yet-synced sale to [wireStatus] on the device. The sync
+  /// handler sends the record's status, not the one the op was queued with,
+  /// so the sale reaches the backend in the state it is in when it syncs
+  /// (Ray, 2026-10-12: "even temp orders they can move status and once
+  /// synce they keep the status they in"). False when there is no such
+  /// local sale, or it has already synced (move it on the backend instead).
+  static Future<bool> setLocalStatus(String localId, String wireStatus) async {
+    final record = await _db.getItem(box, localId);
+    if (record == null || record['synced'] == true) return false;
+    final order =
+        (record['order'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+    order['status'] = wireStatus;
+    record['order'] = order;
+    await _db.putItem(box, localId, record);
+    return true;
+  }
+
+  /// The backend is holding this sale back (its shop is still pending
+  /// approval). It stays queued, not parked: nothing for staff to fix.
+  static Future<void> markHeld(String localId, String reason) async {
+    final record = await _db.getItem(box, localId);
+    if (record == null) return;
+    record['pending_sync'] = true;
+    record['needs_attention'] = false;
+    record['sync_error'] = reason;
+    await _db.putItem(box, localId, record);
+  }
 
   /// Every `offline:<uuid>` token inside [json] — the temp entities this
   /// payload references (shop, products created offline).

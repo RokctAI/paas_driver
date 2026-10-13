@@ -15,6 +15,8 @@
 
 import 'package:flutter/widgets.dart';
 
+import '../../../models/data/profile_data.dart';
+
 /// WHAT THE FLOATING PILL IS CURRENTLY SHOWING.
 ///
 /// The pill has one look and one owner (base_sdk), but three jobs:
@@ -204,6 +206,20 @@ class FloatingNavTabsMode extends FloatingNavMode {
   /// it entirely.
   final FloatingNavPlacement? tabletPlacement;
 
+  /// The signed-in person's picture as the pill's last entry (see
+  /// [FloatingNavProfile]). Null — the default — draws no picture, so every
+  /// existing host renders exactly as before.
+  final FloatingNavProfile? profile;
+
+  /// A round button floating BESIDE the pill rather than inside it — the
+  /// customer app's cart (paas_customer main_page.dart before the 2026-08-24
+  /// re-fork: a dark basket circle with a count badge, right of the pill).
+  /// Null — the default — draws nothing beside the pill.
+  ///
+  /// Not a destination, like [trailing]: it never carries the active
+  /// indicator. Its [FloatingNavAction.badgeCount] is the badge.
+  final FloatingNavAction? companion;
+
   const FloatingNavTabsMode({
     required this.tabs,
     required this.currentIndex,
@@ -212,6 +228,48 @@ class FloatingNavTabsMode extends FloatingNavMode {
     this.trailing = const [],
     this.back,
     this.tabletPlacement,
+    this.profile,
+    this.companion,
+  });
+
+  /// Whether the pill has anything after its back segment: tabs, trailing
+  /// actions or the profile picture. A back pill with none of them is the
+  /// bare back pill (no hairline, the tablet corner placement).
+  bool get hasEntries =>
+      tabs.isNotEmpty || trailing.isNotEmpty || profile != null;
+}
+
+/// The person's picture as the floating pill's last entry.
+///
+/// Restored from the customer app's original floating nav (paas_customer
+/// main_page.dart before the 2026-08-24 re-fork): a 40px circle carrying the
+/// picture, ringed in the brand colour while the profile is what is on
+/// screen. Drawn with [UserAvatar], so a person with no picture shows their
+/// initials and a signed-out viewer (null [user]) the neutral person glyph.
+///
+/// Not one of [FloatingNavTabsMode.tabs]: where it leads depends on the
+/// session (the profile when signed in, the login page when not), and a
+/// host whose profile is a pushed page rather than a tab still needs to
+/// light it. So the host says both what a tap does and whether it is
+/// [active].
+class FloatingNavProfile {
+  /// The person to draw. Null draws the neutral glyph.
+  final ProfileData? user;
+
+  /// Already translated by the caller — base_sdk owns no copy. The
+  /// accessibility label and the long-press tooltip.
+  final String label;
+
+  /// Ringed in the brand colour: the profile is what is on screen.
+  final bool active;
+
+  final VoidCallback? onTap;
+
+  const FloatingNavProfile({
+    required this.user,
+    required this.label,
+    this.active = false,
+    this.onTap,
   });
 }
 

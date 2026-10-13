@@ -1,6 +1,7 @@
 {
   "name": "auth_sdk",
-  "version": "1.17.0",
+  "version": "1.18.0",
+  "_comment_version_1_18_0": "1.17.0 -> 1.18.0 (\"Becoming a seller or driver\"): session_policy may declare signup_app_role (sign-up asks register_user for that app_role; the manager app asks for seller, which the Users backend grants) and allow_offline_accounts (an account signed up offline on the phone may sign in offline, landing where signup_app_role lands; the manager app sets it, the driver app does not). Emitted by The-Rokct-Protocol's update_session_policy as DeclaredSessionPolicy(appRole:, allowOfflineAccounts:). Both sign-up calls (email and phone, online and the offline sync) send app_role when the policy declares one. After sign-up and its registration steps the policy decides the landing (onSignedUp): the signup_app_role landing (or the '*' fallback), otherwise the account is turned away with the rejection message - before, every app went home, so a new driver reached the driver app unapproved. The registration-steps shell template now completes through RegistrationFlow.signedUpLanding. Without a declared policy nothing changes. Also declares EmbeddedWidgets.phoneVerify and resetPasswordPage (PhoneVerify, ResetPasswordPage), which no SDK declared, so the customer app's Verify phone and Change password threw a StateError.",
   "_comment_version_1_17_0": "1.16.7 -> 1.17.0: the login page's Skip is remembered (Ray, 2026-10-10: \"make skip remember that I have skipped before\"). In the no-intro branch, LoginPage._skip calls base_sdk's SignedOutEntry.rememberGuest() before landing, so the splash lands the next cold start home instead of back on the login page. A composed onboarding intro (supacharge) is unchanged. Needs base_sdk >= 1.86.0 (core: SignedOutEntry).",
   "_comment_version_1_16_4": "1.16.3 -> 1.16.4: login screen silencer (Ray, 2026-10-04). Load-time language/translation probes in LoginNotifier.checkLanguage no longer show backend or no-connection errors; only user actions surface them (shouldSurfaceLoginError).",
   "_comment_version_1_16_3": "1.16.2 -> 1.16.3: offline demo sign-in restored (Ray, 2026-10-03). The 1.13.0 address list (five @demo.rokct.ai accounts + thandi.mokoena@outlook.com) activates DemoSession before LoginNotifier's radio check, so the real AuthRepository is answered by DemoGatewayInterceptor from the auth fixtures with no network; no mock repository. Register and confirmation now store the user profile like login (storeSessionProfile), so LocalStorage.getUser() is set after sign-up. Profile offline after the demo sign-in needs base_sdk 1.83.2.",
@@ -99,6 +100,25 @@
     }
   ],
   "_comment_boot_hooks": "The deferred-OTP UX hook: a background sync of an offline-registered account records OfflineAuthService.pendingOtpKey with no BuildContext in reach, and PendingOtpGate (auth_sdk presentation service, exported from auth_sdk.dart) is what turns that flag into an actual route into the OTP confirmation sheet \u2014 on boot (post-frame, once the router is past the splash), on app resume, and promptly after a mid-session sync via OfflineAuthService.onPendingOtpFlagged. The hook body deliberately declares no 'imports' entry: every composed main.dart already imports package:auth_sdk/auth_sdk.dart in its @generated-sdk-imports block, and a wiring-block duplicate would trip duplicate_import in every app. The second hook (auth_restore_credential_gate) drives Android's Restore Credentials at launch: with no session it tries to restore one from a restore key the device carried over, and with a session already in place it makes sure that account HAS a restore key -- the half that covers users who signed in before the feature shipped. Like the OTP gate it declares no 'imports' entry, because every composed main.dart already imports package:auth_sdk/auth_sdk.dart. It is inert unless the backend's Auth Settings has Enable Restore Credentials switched on AND the app installed core's platform channel into RestoreCredentialPlatform.instance, so composing it changes nothing on its own. Its second statement subscribes the restore-key delete to users_sdk's SessionEndHooks, which user_repository fires on logout and on delete_account -- Google only removes a restore key on uninstall, so deleting it at sign-out is required, not optional. Referencing users_sdk from an auth_sdk hook is safe because auth_sdk already requires a registered UserRepositoryFacade at runtime (login/register sync the FCM token through it), which only users_di provides: an app composing auth_sdk without users_sdk is already non-functional.",
+  "embedded_widgets": [
+    {
+      "method": "phoneVerify",
+      "params": "",
+      "body": "return const PhoneVerify();",
+      "imports": [
+        "import 'package:auth_sdk/src/common/presentation/pages/auth/phone_verify.dart';"
+      ]
+    },
+    {
+      "method": "resetPasswordPage",
+      "params": "",
+      "body": "return const ResetPasswordPage();",
+      "imports": [
+        "import 'package:auth_sdk/src/common/presentation/pages/auth/reset/reset_password_page.dart';"
+      ]
+    }
+  ],
+  "_comment_embedded_widgets": "EmbeddedWidgets.I.phoneVerify() and EmbeddedWidgets.I.resetPasswordPage(): orders_sdk (checkout), base_sdk (edit profile) and marketplace_sdk (Profile > My account > Change password) open these as modal bottom sheets without importing auth_sdk (ADR-005). PhoneVerify and ResetPasswordPage are the same no-argument sheets auth_sdk's own login screen shows.",
   "integrations": [],
   "database": {
     "tables": [

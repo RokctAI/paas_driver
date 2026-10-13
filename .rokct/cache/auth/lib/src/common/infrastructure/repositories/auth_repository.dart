@@ -28,8 +28,10 @@ import 'package:base_sdk/src/models/models.dart';
 
 import 'package:base_sdk/src/handlers/token_refresh_service.dart';
 
+import 'package:auth_sdk/src/common/domain/interface/auth_session_policy.dart';
 import 'package:auth_sdk/src/common/domain/interface/deferred_otp_email_resend.dart';
 import 'package:auth_sdk/src/common/domain/interface/email_code_verification.dart';
+import 'package:auth_sdk/src/common/domain/interface/google_id_token_sign_in.dart';
 import 'package:auth_sdk/src/common/domain/interface/session_password_rotation.dart';
 import 'package:auth_sdk/src/common/domain/interface/session_token_refresh.dart';
 import 'package:auth_sdk/src/common/services/registration_config.dart';
@@ -39,6 +41,7 @@ class AuthRepository
         AuthRepositoryFacade,
         DeferredOtpEmailResend,
         EmailCodeVerification,
+        GoogleIdTokenSignIn,
         SessionPasswordRotation,
         SessionTokenRefresh {
   /// Universal platform gateway: every backend call is a POST to the single
@@ -261,6 +264,11 @@ class AuthRepository
         payload: {
           ..._registerUserPayload(user),
           ...RegistrationTerms.signUpExtras(),
+          // The role this app signs people up as (the manager app asks for
+          // seller). Read at send time, so an offline sign-up syncing
+          // later asks for the same role.
+          if (AuthSessionPolicy.I.signUpAppRole != null)
+            'app_role': AuthSessionPolicy.I.signUpAppRole,
         },
         requireAuth: false,
         // register_user is @idempotent server-side: a stable key makes an
@@ -322,6 +330,39 @@ class AuthRepository
     );
   }
 
+  // GoogleIdTokenSignIn: the backend verifies the Google ID token and
+  // reads the email from it; nothing else the client sends identifies the
+  // account.
+  @override
+  Future<ApiResult<LoginResponse>> loginWithGoogleIdToken({
+    required String idToken,
+    String? displayName,
+    String? avatar,
+  }) async {
+    try {
+      final response = await _gateway.call(
+        'api.user.login_with_google',
+        payload: {
+          'id_token': idToken,
+          if (displayName != null && displayName.isNotEmpty)
+            'display_name': displayName,
+          if (avatar != null && avatar.isNotEmpty) 'avatar': avatar,
+        },
+        requireAuth: false,
+      );
+      return ApiResult.success(data: LoginResponse.fromJson(response));
+    } catch (e) {
+      debugPrint('==> login with google failure: $e');
+      return ApiResult.failure(
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
+    }
+  }
+
+  /// The facade's email/id form. The backend no longer signs anyone in
+  /// from these (it requires a verified Google ID token), so this call is
+  /// refused; Google sign-in goes through [loginWithGoogleIdToken].
   @override
   Future<ApiResult<LoginResponse>> loginWithGoogle({
     required String email,
@@ -442,6 +483,11 @@ class AuthRepository
         payload: {
           ..._registerUserPayload(user),
           ...RegistrationTerms.signUpExtras(),
+          // The role this app signs people up as (the manager app asks for
+          // seller). Read at send time, so an offline sign-up syncing
+          // later asks for the same role.
+          if (AuthSessionPolicy.I.signUpAppRole != null)
+            'app_role': AuthSessionPolicy.I.signUpAppRole,
         },
         requireAuth: false,
       );

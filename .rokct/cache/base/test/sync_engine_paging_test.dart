@@ -122,6 +122,30 @@ void main() {
     expect((await row('op-01'))?.status, OutboxStatus.pending.name);
   });
 
+  test('a held op stays pending, keeps its attempts and waits', () async {
+    await queue('op-01');
+    await queue('op-02', dependsOn: <String>['op-01']);
+    final handler = RecordingHandler(const <String, SyncResult>{
+      'op-01': SyncResult.held('shop pending approval'),
+    });
+    engine.registerHandler('demo.op', handler);
+
+    await engine.kick();
+
+    final held = await row('op-01');
+    expect(held?.status, OutboxStatus.pending.name);
+    expect(held?.attempts, 0);
+    expect(held?.lastError, 'shop pending approval');
+    expect(held?.nextAttemptAt?.isAfter(DateTime.now()), isTrue);
+    // Its dependent waits with it.
+    expect(handler.pushed, <String>['op-01']);
+    expect((await row('op-02'))?.status, OutboxStatus.pending.name);
+
+    // Not due yet: a second pass leaves it alone.
+    await engine.kick();
+    expect(handler.pushed, <String>['op-01']);
+  });
+
   test('a dependency still in the outbox blocks its dependent', () async {
     await queue('op-01');
     await queue('op-02', dependsOn: <String>['op-01']);

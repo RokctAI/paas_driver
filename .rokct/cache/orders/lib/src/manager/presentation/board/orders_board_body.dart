@@ -97,12 +97,13 @@ class _OrdersBoardBodyState extends ConsumerState<OrdersBoardBody> {
       fetchBoardColumn(ref, context, status, isRefresh: false);
 
   bool _canAccept(BoardStatus target, BoardDragData data) {
-    if (data.order.id == null) return false;
+    // A sale still queued on this device moves by its local id.
+    if ((data.order.id ?? data.order.localId) == null) return false;
     return BoardRules.canMove(from: data.from, to: target);
   }
 
   void _onAccept(BoardStatus target, BoardDragData data) {
-    final String? orderId = data.order.id;
+    final String? orderId = data.order.id ?? data.order.localId;
     if (orderId == null) return;
     // THE SMART SKIP (POS board_view.dart:266-273): a pickup dropped on
     // On the way lands in Delivered.

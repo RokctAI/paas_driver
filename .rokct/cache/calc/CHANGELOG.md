@@ -1,3 +1,16 @@
+## 1.4.0
+
+* feat(calc): back returns to the launcher when the launcher opened the
+  calculator (Ray, 2026-10-12, asking whether the calc page's nav, opened in
+  another app, brings him back to the launcher; it did not). launch_sdk
+  (>= 1.25.0) opens a fleet app's calculator with `rokct:/calc?from=launcher`.
+  The route page reads `?from=` and sets `CalculatorView.returnToLauncher`,
+  which wraps the screen in base_sdk's `ReturnToLauncherScope` (base_sdk >=
+  1.87.0): back (the corner pill, the swipe, Android's gesture) pops the
+  calculator and calls `SystemNavigator.pop()`, which on Android 12+ sends
+  the app to the background (state kept) and before 12 closes it. Either
+  way the launcher shows. Opened any other way, back is a plain pop.
+
 ## 1.3.0
 
 * feat(android): the fleet calculator entry. Ray, 2026-10-08: "i want to

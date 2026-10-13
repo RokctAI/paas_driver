@@ -1,6 +1,6 @@
 name: orders_sdk
 description: "orders_sdk - extracted from paas_customer (refork 2026-07-11)."
-version: 1.29.3
+version: 1.30.0
 publish_to: 'none'
 environment:
   sdk: '>=3.10.0 <4.0.0'
@@ -53,6 +53,8 @@ dev_dependencies:
     path: ../comms
   firebase_messaging: ^15.1.0
   flutter_local_notifications: ^19.5.0
+  # In-memory AppDatabase for the queued-sale tests (drift's NativeDatabase).
+  drift: ^2.19.0
   build_runner: ^2.10.4
   freezed: ^3.2.3
   json_serializable: ^6.8.0

@@ -1,3 +1,17 @@
+## 1.29.0
+
+* feat(driver): the driver app lets in approved drivers only. The `'*'`
+  catch-all and the `/become-driver` page are gone. Anyone who is not an
+  approved driver, offline sign-ins included, is told: "Apply in the
+  customer app, or wait for approval if you already have." A new sign-up
+  files its courier request in the vehicle step and is then told the same.
+* fix(customer): "Sign up to deliver" opens the vehicle-details form and
+  sends the courier request (`EmbeddedWidgets.becomeDriverPage`, now
+  `CourierRequestPage`). Before, nothing declared it, so the tile crashed.
+* The vehicle form and its image picker moved to `lib/src/common`. The
+  driver paths re-export them.
+* Needs auth_sdk >= 1.18.0.
+
 ## 1.28.1
 
 * fix(icons): the vehicle details camera button and the status rail tick

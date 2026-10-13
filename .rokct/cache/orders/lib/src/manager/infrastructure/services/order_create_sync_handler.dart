@@ -72,6 +72,10 @@ class OrderCreateSyncHandler extends SyncHandler {
     }
 
     final order = (payload['order'] as Map?)?.cast<String, dynamic>() ?? {};
+    // The sale's status as it is NOW: staff may have moved it on the board
+    // since it was queued (ManagerOrdersLocalStore.setLocalStatus).
+    final localStatus = (record['order'] as Map?)?['status'];
+    if (localStatus != null) order['status'] = localStatus;
     _restoreReferenceIds(order);
     try {
       final response = await const PlatformGateway().call(
@@ -98,12 +102,45 @@ class OrderCreateSyncHandler extends SyncHandler {
       // with the server's message (park-and-surface).
       final status = NetworkExceptions.getDioStatus(e);
       final message = AppHelpers.errorHandler(e);
+      if (isShopPendingApproval(e, status: status, message: message)) {
+        // The shop is still waiting for an admin's approval: the sale is
+        // fine, it just may not sync yet. Held, not parked, so it goes
+        // through on its own once the shop is approved.
+        await ManagerOrdersLocalStore.markHeld(localId, message);
+        return SyncResult.held(message);
+      }
       if (status >= 400 && status < 500 && status != 408) {
         await ManagerOrdersLocalStore.markNeedsAttention(localId, message);
         return SyncResult.rejected(message);
       }
       return SyncResult.retryable(message);
     }
+  }
+
+  /// Marker create_order puts in its refusal of a sale for a shop still
+  /// pending approval (commerce orders' `SHOP_PENDING_APPROVAL`).
+  static const String shopPendingApprovalMarker = 'SHOP_PENDING_APPROVAL';
+
+  /// HTTP status of that refusal (Locked).
+  static const int shopPendingApprovalStatus = 423;
+
+  /// Whether [error] is create_order's "shop pending approval" refusal. The
+  /// status code and the marker are both checked, as either may be lost to
+  /// a wrapping layer on the way back.
+  static bool isShopPendingApproval(
+    Object error, {
+    required int status,
+    required String message,
+  }) {
+    if (status == shopPendingApprovalStatus) return true;
+    if (message.contains(shopPendingApprovalMarker)) return true;
+    if (error is DioException) {
+      final body = error.response?.data;
+      if (body != null && body.toString().contains(shopPendingApprovalMarker)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /// Adds the canonical `create_order(order_data)` keys the backend reads

@@ -35,6 +35,12 @@ sealed class SyncResult {
   /// Terminal rejection (validation error, conflict — 4xx-style). The op is
   /// parked as `failed` for user resolution and never retried automatically.
   const factory SyncResult.rejected(String error) = SyncRejected;
+
+  /// The backend is not ready for the op yet and says so on purpose (e.g. a
+  /// sale for a shop still pending approval). Not a failure: the op stays
+  /// pending, its attempts are not counted (so it never goes dead while it
+  /// waits), and the engine looks again after [SyncEngine.holdDelay].
+  const factory SyncResult.held(String reason) = SyncHeld;
 }
 
 class SyncSynced extends SyncResult {
@@ -56,6 +62,12 @@ class SyncRejected extends SyncResult {
   const SyncRejected(this.error);
 
   final String error;
+}
+
+class SyncHeld extends SyncResult {
+  const SyncHeld(this.reason);
+
+  final String reason;
 }
 
 /// Per-op-type push logic, implemented by feature SDKs and registered with

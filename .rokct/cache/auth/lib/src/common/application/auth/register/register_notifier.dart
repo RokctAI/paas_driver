@@ -26,6 +26,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:base_sdk/src/domain/interface/auth.dart';
 import 'package:base_sdk/src/domain/interface/user.dart';
+import 'package:auth_sdk/src/common/domain/interface/google_id_token_sign_in.dart';
 import 'package:base_sdk/src/models/data/address_old_data.dart';
 import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/models/request/edit_profile.dart';
@@ -766,7 +767,9 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
       state = state.copyWith(isLoading: true);
       GoogleSignInAccount? googleUser;
       try {
-        googleUser = await GoogleSignIn().signIn();
+        googleUser = await GoogleSignIn(
+          serverClientId: GoogleSignInConfig.serverClientId,
+        ).signIn();
       } catch (e) {
         state = state.copyWith(isLoading: false);
         debugPrint('===> login with google exception: $e');
@@ -784,11 +787,33 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
         return;
       }
 
-      final response = await _authRepository.loginWithGoogle(
-        email: googleUser.email,
-        displayName: googleUser.displayName ?? '',
-        id: googleUser.id,
-        avatar: googleUser.photoUrl ?? "",
+      // The backend signs in from the verified Google ID token only (it
+      // reads the email from the token), so the token is what is sent.
+      String? idToken;
+      try {
+        idToken = (await googleUser.authentication).idToken;
+      } catch (e) {
+        debugPrint('===> google authentication exception: $e');
+      }
+      final repo = _authRepository;
+      final googleRepo =
+          repo is GoogleIdTokenSignIn ? repo as GoogleIdTokenSignIn : null;
+      if (idToken == null || googleRepo == null) {
+        state = state.copyWith(isLoading: false);
+        if (context.mounted) {
+          AuthErrorPresenter.showTechnical(
+            context,
+            type: 'auth_social_login_failed',
+            detail: 'Google Sign-In returned no ID token',
+            extra: const {'provider': 'google'},
+          );
+        }
+        return;
+      }
+      final response = await googleRepo.loginWithGoogleIdToken(
+        idToken: idToken,
+        displayName: googleUser.displayName,
+        avatar: googleUser.photoUrl,
       );
       response.when(
         success: (data) async {

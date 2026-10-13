@@ -20,7 +20,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'new_orders_state.dart';
 import 'package:orders_sdk/src/manager/domain/interface/seller_orders.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/models.dart';
-import 'package:orders_sdk/src/manager/infrastructure/services/manager_orders_local_store.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:base_sdk/src/services/enums.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
@@ -69,14 +68,9 @@ class NewOrdersNotifier extends StateNotifier<NewOrdersState> {
       success: (data) async {
         List<OrderData> orders = isRefresh ? [] : List.from(state.orders);
         final List<OrderData> newOrders = data.data?.orders ?? [];
+        // Not-yet-synced POS sales in this status already lead page 1: the
+        // repository merges them for every queue (getOrders).
         orders.addAll(newOrders);
-        if (_page == 1) {
-          // Prepend local not-yet-synced POS sales (pendingSync rows from
-          // the manager_orders box) so an offline sale is visible in the
-          // queue immediately.
-          final pending = await ManagerOrdersLocalStore.unsyncedAsOrders();
-          if (pending.isNotEmpty) orders = [...pending, ...newOrders];
-        }
         _hasMore = newOrders.length >= 10;
         if (_page == 1 && !isRefresh) {
           state = state.copyWith(
@@ -101,11 +95,7 @@ class NewOrdersNotifier extends StateNotifier<NewOrdersState> {
       failure: (failure, status) async {
         _page--;
         if (_page == 0) {
-          // Backend unreachable: still surface local not-yet-synced sales.
-          final pending = await ManagerOrdersLocalStore.unsyncedAsOrders();
-          state = pending.isEmpty
-              ? state.copyWith(isLoading: false)
-              : state.copyWith(isLoading: false, orders: pending);
+          state = state.copyWith(isLoading: false);
         }
         if (isRefresh) {
           state.refreshController?.refreshFailed();

@@ -30,6 +30,7 @@ import 'package:orders_sdk/src/manager/infrastructure/services/collect_conversio
 import 'package:orders_sdk/src/manager/infrastructure/services/order_create_sync_handler.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/data/collect_conversion.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/data/order_calculate_data.dart';
+import 'package:orders_sdk/src/manager/infrastructure/models/data/order_data.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/data/stock.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/data/user_data.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/response/create_order_response.dart';
@@ -92,26 +93,57 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
     String? from,
     String? to,
   }) async {
+    final String? wire = rawStatus ?? _statusText(status);
+    // Sales recorded on this device and not yet synced lead the first page
+    // of the queue for the status they are in, online or not.
+    final bool withQueued = wire != null && (page ?? 1) == 1;
     try {
       final response = await _gateway.tenant(
         'api.seller_order.get_seller_orders',
         {
           if (page != null) 'limit_start': (page - 1) * _pageSize,
           'limit_page_length': _pageSize,
-          if (rawStatus != null)
-            'status': rawStatus
-          else if (status != null)
-            'status': _statusText(status),
+          if (wire != null) 'status': wire,
           if (from != null) 'from_date': from,
           if (to != null) 'to_date': to,
           'lang': LocalStorage.getLanguage()?.locale,
         },
       );
+      final parsed = OrdersPaginateResponse.fromJson(response);
+      if (!withQueued) return ApiResult.success(data: parsed);
+      final queued = await _queuedSales(wire);
+      if (queued.isEmpty) return ApiResult.success(data: parsed);
+      final data = parsed.data ?? OrderResponseData();
       return ApiResult.success(
-        data: OrdersPaginateResponse.fromJson(response),
+        data: parsed.copyWith(
+          data: data.copyWith(orders: [...queued, ...?data.orders]),
+        ),
       );
     } catch (e) {
+      final code = NetworkExceptions.getDioStatus(e);
+      if (withQueued && (code >= 500 || code == 408)) {
+        // Backend unreachable: the queue still shows this device's sales.
+        final queued = await _queuedSales(wire);
+        if (queued.isNotEmpty) {
+          return ApiResult.success(
+            data: OrdersPaginateResponse(
+              data: OrderResponseData(orders: queued),
+            ),
+          );
+        }
+      }
       return _fail(e, 'get seller orders $status');
+    }
+  }
+
+  /// This device's not-yet-synced sales in [wire] status. A local store
+  /// that cannot be read never fails the queue the backend just served.
+  Future<List<OrderData>> _queuedSales(String wire) async {
+    try {
+      return await ManagerOrdersLocalStore.unsyncedAsOrders(status: wire);
+    } catch (e) {
+      debugPrint('==> queued sales unreadable: $e');
+      return const <OrderData>[];
     }
   }
 
@@ -173,6 +205,17 @@ class SellerOrdersRepository implements SellerOrdersRepositoryFacade {
   }) async {
     assert(status != null || rawStatus != null,
         'updateOrderStatus needs a status or a rawStatus');
+    if (orderId.startsWith(kOfflineIdPrefix)) {
+      // A sale still queued on this device: it moves here, and syncs in
+      // whatever status it is in by then.
+      final String? wire = rawStatus ?? _statusText(status);
+      if (wire != null &&
+          await ManagerOrdersLocalStore.setLocalStatus(orderId, wire)) {
+        return ApiResult.success(
+          data: OrderStatusResponse(data: OrderStatusData(status: wire)),
+        );
+      }
+    }
     final data = {
       'order_id': orderId,
       'status': rawStatus ?? _statusText(status),

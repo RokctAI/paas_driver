@@ -1,5 +1,52 @@
 # Changelog
 
+## 1.88.0
+
+* feat(sync): `SyncResult.held(reason)`, for an op the backend is
+  deliberately not ready for yet. The first user is a till sale for a shop
+  still pending approval: it is recorded offline, and syncs once the shop is
+  approved. A held op goes back to pending with its attempt count untouched,
+  so waiting never runs down `maxAttempts`. It is looked at again after
+  `SyncEngine.holdDelay` (15 minutes), and its dependants wait with it.
+
+## 1.87.1
+
+* fix(theme): the app root follows a theme change again (Ray, 2026-10-12:
+  "profile page theme toggle does nothing to profile page ... theme toggle
+  seem to be only working on home page", and the launcher's app drawer not
+  respecting the mode). `templates/app_widget.dart` read `appProvider` with
+  `ref.refresh`, which reads once and subscribes to nothing, so the
+  `MaterialApp`'s `themeMode` stayed at the cold-start value and every page
+  reading `Theme.of(context)` kept the old mode. Only pages that watch
+  `appProvider` themselves (the launcher home) followed a toggle. It now uses
+  `ref.watch`; `AppNotifier` already loads the stored mode and locale when it
+  is created. Language changes reach the root the same way.
+
+## 1.87.0
+
+* feat(floating-nav): the floating pill can carry the person's picture and a
+  round button beside it, restored from the customer app's original
+  floating nav (paas_customer main_page.dart before the 2026-08-24 re-fork),
+  which the SDK move dropped (Ray, 2026-10-12: "let marketplace use floating
+  nav. that profile from old can still be added as i also want it to be
+  used by laucher").
+  * `FloatingNavTabsMode.profile` (`FloatingNavProfile`): a 40px
+    `UserAvatar` after the tabs, ringed in the brand colour while
+    `active`. Signed out (null user) it shows the person glyph. The host
+    says what a tap does (profile or login).
+  * `FloatingNavTabsMode.companion` (`FloatingNavAction`): a 56px dark
+    circle beside the pill with a count badge (the customer cart). In a
+    tablet side rail it rides at the rail's end instead.
+  * `FloatingNavTabsMode.hasEntries`. A back pill with a profile or
+    companion is no longer treated as the bare back pill.
+  * Both default to null, so every existing host renders as before.
+* feat(navigation): `ReturnToLauncherScope` (exported). A page another app
+  opened from the launcher (`?from=launcher`, launch_sdk 1.25.0) wraps itself
+  in it: every pop of its route (back pill, swipe, Android's back) pops the
+  page and calls `SystemNavigator.pop()`, so the person lands back on the
+  launcher (Ray, 2026-10-12, on the calculator opened in another app). Used
+  by calc_sdk 1.4.0 and productivity_sdk 1.8.0.
+
 ## 1.86.0
 
 * fix(base): a signed-out cold start no longer always lands on the login

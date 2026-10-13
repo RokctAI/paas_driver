@@ -20,6 +20,8 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:flutter/material.dart';
 
+import 'package:auth_sdk/src/common/domain/interface/auth_session_policy.dart';
+
 import 'registration_step.dart';
 
 /// Entry points the register flow (and the installed shell) use to run the
@@ -43,12 +45,19 @@ class RegistrationFlow {
   /// registration used to land. Replaces the five hand-written
   /// `goHome` completion sites — with no
   /// contributed steps the shell falls straight through to
-  /// [defaultLanding], so apps without contributions behave as before.
+  /// [signedUpLanding], so apps without contributions behave as before.
   static void completeRegistration(BuildContext context, {ProfileData? user}) {
     lastRegisteredUser = user;
     // Replaces the top page like the old goHome did, so
     // the register modal sheets above it are dismissed the same way.
     context.router.replaceNamed('/registration-steps');
+  }
+
+  /// Where a new account lands once its registration steps are done: the
+  /// composed session policy decides (AuthSessionPolicy.onSignedUp). With
+  /// no declared policy that is [defaultLanding], as before.
+  static void signedUpLanding(BuildContext context) {
+    AuthSessionPolicy.I.onSignedUp(context);
   }
 
   /// The app's normal post-registration destination — exactly the branch
@@ -64,14 +73,14 @@ class RegistrationStepsDeps {
   final List<RegistrationStep> steps;
 
   /// Called once, after the last step (or immediately when no visible steps
-  /// were contributed). The shell's default is [RegistrationFlow.defaultLanding],
+  /// were contributed). The shell's default is [RegistrationFlow.signedUpLanding],
   /// optionally preceded by SDK-injected completion logic (manifest
   /// "integrations" targeting the shell's @registration-complete-hook).
   final void Function(BuildContext context) onComplete;
 
   const RegistrationStepsDeps({
     this.steps = const [],
-    this.onComplete = RegistrationFlow.defaultLanding,
+    this.onComplete = RegistrationFlow.signedUpLanding,
   });
 }
 

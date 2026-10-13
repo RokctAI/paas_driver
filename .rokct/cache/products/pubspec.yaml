@@ -1,6 +1,6 @@
 name: products_sdk
 description: "products_sdk - extracted from paas_customer (refork 2026-07-11)."
-version: 1.12.6
+version: 1.12.7
 publish_to: 'none'
 environment:
   sdk: '>=3.10.0 <4.0.0'

@@ -52,6 +52,25 @@ class AuthSessionPolicy {
   /// them onto the fallback landing, never onto an exact-role one).
   bool allows(String? role) => true;
 
+  /// The role a sign-up in this app asks the backend for (`register_user`'s
+  /// `app_role`, e.g. 'seller' in the manager app). Null asks for none: a
+  /// plain account. The backend grants only the roles it allows at sign-up
+  /// and ignores the rest.
+  String? get signUpAppRole => null;
+
+  /// Whether a local account made by offline sign-up on this device may sign
+  /// in while offline. The default policy admits every account, offline
+  /// ones included.
+  bool allowsOfflineAccount() => allows(null);
+
+  /// Where a person lands right after signing up here (after the
+  /// registration steps). The default lands where registration always did.
+  void onSignedUp(BuildContext context) => AppHelpers.goHome(context);
+
+  /// Where an offline account [allowsOfflineAccount] admitted lands.
+  void onOfflineAuthenticated(BuildContext context) =>
+      onAuthenticated(context);
+
   /// Where an allowed account lands right after sign-in. Only called when
   /// [allows] returned true for [role].
   void onAuthenticated(BuildContext context, {String? role}) {
@@ -110,11 +129,69 @@ class DeclaredSessionPolicy extends AuthSessionPolicy {
   /// page (the login screen the attempt was made from).
   final String? rejectionRoute;
 
+  /// The manifest's `signup_app_role`: the role a sign-up here asks for.
+  final String? appRole;
+
+  /// The manifest's `allow_offline_accounts`. True lets an account made by
+  /// offline sign-up on this device sign in offline, landing where
+  /// [appRole] lands: it was made here, asking for this app's role, and the
+  /// backend grants that role when it syncs. The manager app sets it, so a
+  /// seller can sign up and sell with no signal; the driver app does not,
+  /// since only an approved driver may take orders (Ray, 2026-10-12).
+  final bool allowOfflineAccounts;
+
   const DeclaredSessionPolicy({
     required this.roleLandings,
     this.rejectionMessageTrKey,
     this.rejectionRoute,
+    this.appRole,
+    this.allowOfflineAccounts = false,
   });
+
+  @override
+  String? get signUpAppRole => appRole;
+
+  /// The landing an offline account gets, or null when it is turned away.
+  String? get _offlineLanding {
+    if (allowOfflineAccounts) {
+      final landing = roleLandings[appRole] ?? roleLandings[fallbackRole];
+      if (landing != null) return landing;
+    }
+    // Without the setting, a declared '*' fallback still admits offline
+    // sessions onto the fallback landing, as before.
+    return roleLandings[fallbackRole];
+  }
+
+  @override
+  bool allowsOfflineAccount() => _offlineLanding != null;
+
+  /// Right after sign-up the backend reports a plain account (a new seller
+  /// owns no shop yet; a new driver is not approved yet), so the landing
+  /// follows the role this app signs people up as: the manager app sends a
+  /// new seller to its seller landing. An app with no such landing (the
+  /// driver app: drivers need approval) turns the new account away with the
+  /// rejection message, after its registration steps have filed what they
+  /// file (the courier request).
+  @override
+  void onSignedUp(BuildContext context) {
+    final landing = (appRole == null ? null : roleLandings[appRole]) ??
+        roleLandings[fallbackRole];
+    if (landing != null) {
+      context.router.replaceNamed(landing);
+      return;
+    }
+    onRejected(context);
+  }
+
+  @override
+  void onOfflineAuthenticated(BuildContext context) {
+    final landing = _offlineLanding;
+    if (landing == null) {
+      super.onAuthenticated(context);
+      return;
+    }
+    context.router.replaceNamed(landing);
+  }
 
   @override
   bool allows(String? role) =>

@@ -1,3 +1,48 @@
+## 1.19.0
+
+* fix(auth, security): Sign in with Google sends Google's ID token, and the
+  backend verifies it. `api.user.login_with_google` used to look the
+  account up by the `email` the client sent and return a session for it,
+  with no Google check, so anyone who knew an address could sign in as that
+  account (admins included). It now requires `id_token`, verifies it with
+  google-auth (signature, expiry, issuer, audience against Auth Settings >
+  Google Client IDs, or `google_client_ids` in site_config) and takes the
+  account from the token's verified `email`. Administrator / System Manager
+  accounts are refused on this path. The Google identity (`sub`) is bound
+  to the account in `Google User`, and a different one is refused. The
+  session is minted like `login()` (refresh token, 24h expiry), and `role`
+  is `login()`'s (seller / deliveryman / user) instead of a fixed "user".
+* New `GoogleIdTokenSignIn` capability on `AuthRepository`, which the login
+  and register notifiers use (base_sdk's `AuthRepositoryFacade.loginWithGoogle`
+  is core-owned and still sends the email form, which the backend now
+  refuses). Apps set `GoogleSignInConfig.serverClientId` to their OAuth web
+  client id so Android returns an ID token; that id must be listed in Auth
+  Settings.
+* Breaking for Facebook and Apple sign-in: both also called
+  `login_with_google` with Firebase user details and are refused until they
+  get a verified path of their own.
+
+## 1.18.0
+
+* feat(auth): an app can sign people up as the role it needs. The session
+  policy's `signup_app_role` is sent as `app_role` on every sign-up (email
+  and phone, online and when an offline sign-up syncs). The manager app
+  asks for seller.
+* feat(auth): `allow_offline_accounts` lets an account signed up offline on
+  the phone sign in offline, landing where the app's role lands. The manager
+  app sets it, so a seller can sign up and sell with no signal. The driver
+  app does not: only approved drivers, only online.
+* fix(auth): after sign-up and its registration steps, the session policy
+  decides where the new account lands (`onSignedUp`). Before, every app went
+  straight home, so a new driver reached the driver app unapproved. The
+  manager app lands a new seller on `/main`. The driver app turns the new
+  account away with its approval message, after the vehicle step has filed
+  the courier request. Apps with no declared policy land home as before.
+* fix(wiring): declare `EmbeddedWidgets.phoneVerify` (`PhoneVerify`) and
+  `resetPasswordPage` (`ResetPasswordPage`) in the manifest. No SDK declared
+  them, so the customer app's Verify phone (checkout, edit profile) and
+  Change password (Profile > My account) threw a StateError.
+
 ## 1.17.0
 
 * fix(auth): Skip on the login page is remembered (Ray, 2026-10-10: "make

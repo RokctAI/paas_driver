@@ -1,6 +1,7 @@
 {
   "name": "comms_sdk",
-  "version": "1.22.2",
+  "version": "1.22.3",
+  "_comment_version_1_22_3": "1.22.2 -> 1.22.3: the customer app's chat (shop page header 'Chat with a shop', home layout 4 'Chat with us') and notification settings (Profile > My account > Notifications) threw a StateError: no composed SDK declared AppRoutes.pushChatRoute / pushSettingRoute for the customer app. New app_type.customer block installs templates/routes/comms_route_pages.dart (thin @RoutePage shells ChatRoute -> ChatPage, SettingRoute -> SettingPage, at paas_customer's pre-fork paths /chat and /setting) and declares both app_routes. Also declares EmbeddedWidgets.chatPage at the top level (corporate's loan screen asks for it; nothing declared it).",
   "_comment_version_1_22_0": "1.21.0 -> 1.22.0: NotificationRepository: get_notification_count is read from data.count into CountNotificationModel.notification (badge, DesktopNotificationPoller); get_user_notifications sends start/limit and reads the api_response-wrapped rows. SettingsRepository: Help/FAQ uses the public api.faq.get_faqs instead of the admin-only get_admin_faqs; Terms/Privacy send get_page's route param and read its translation. Requires the matching comms/base frappe changes in the same release.",
   "_comment_version_1_21_0": "1.20.0 -> 1.21.0: PushMessageDispatcher feeds received FCM messages into base_sdk 1.79.0's PushMessages by data['type'] (new boot hook comms-push-message-dispatch, order 15, android/iOS/macOS only, fail-open). Foreground messages and taps that open the app dispatch at once. A message that arrives while the app is suspended or closed reaches firebaseMessagingBackgroundHandler in a background isolate where no feature SDK is registered, so its data is queued in SharedPreferences (newest 20) and replayed at start and on every resume. Adds shared_preferences as a direct dependency (base_sdk's pin). Requires base_sdk >= 1.79.0.",
   "_comment_version_1_20_0": "1.19.0 -> 1.20.0: DeviceLiveActivitySink passes LiveActivitySnapshot.showProgress (base_sdk 1.78.0) to the device, and the Android LiveUpdatesChannel draws no progress bar when it is false. No manifest key, cmd, payload or route changed.",
@@ -34,6 +35,14 @@
       "body": "return LanguageScreen(onSave: onSave);",
       "imports": [
         "import 'package:comms_sdk/src/common/presentation/pages/setting/language_page.dart';"
+      ]
+    },
+    {
+      "method": "chatPage",
+      "params": "{required String roleId, required String name}",
+      "body": "return ChatPage(roleId: roleId, name: name);",
+      "imports": [
+        "import 'package:comms_sdk/src/common/presentation/pages/chat/chat/chat_page.dart';"
       ]
     }
   ],
@@ -83,6 +92,47 @@
   ],
   "_comment_boot_hooks": "The Firebase/FCM boot every composed app needs before anything touches messaging - the follow-up _comment_app_type promised once The-Rokct-Protocol#160 landed (absorbed from paas_manager's retired hand-written main.dart, manager migration M5). Top level deliberately: comms_sdk is the push owner in every composition and the host android/ios templates already wire google-services. Firebase.apps.isEmpty-guarded so a host whose tracked main.dart still initializes Firebase by hand (paas_driver today) double-boots safely during its own migration window. firebaseMessagingBackgroundHandler is comms package code (src/common/services/firebase_background_handler.dart, vm:entry-point) because the background isolate cannot reach a host-private handler from an injected body. Version 1.1.0 -> 1.2.0 for cache reconciliation. 1.5.0: body is platform-guarded to android/iOS/macOS (firebase_messaging has no Windows/Linux implementation, and the unconditional await killed composed Windows exes before runApp so the runner never showed a window) and wrapped fail-open - a boot failure debugPrints instead of blanking the app.",
   "app_type": {
+    "customer": {
+      "installs": [
+        {
+          "from": "templates/routes/comms_route_pages.dart",
+          "to": "lib/presentation/routes/comms_route_pages.dart"
+        }
+      ],
+      "routes": [
+        {
+          "path": "/chat",
+          "page": "ChatRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/comms_route_pages.dart",
+          "_comment": "paas_customer's pre-fork path and route name (MaterialRoute(path: '/chat', page: ChatRoute.page)). The shell renders comms_sdk's ChatPage."
+        },
+        {
+          "path": "/setting",
+          "page": "SettingRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/comms_route_pages.dart",
+          "_comment": "paas_customer's pre-fork path and route name (MaterialRoute(path: '/setting', page: SettingRoute.page)). The shell renders comms_sdk's SettingPage (notification toggles)."
+        }
+      ],
+      "app_routes": [
+        {
+          "method": "pushChatRoute",
+          "params": "BuildContext context, {dynamic name, dynamic roleId}",
+          "body": "context.router.push(ChatRoute(roleId: roleId?.toString() ?? '', name: name?.toString() ?? ''));",
+          "imports": [
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        },
+        {
+          "method": "pushSettingRoute",
+          "body": "context.router.push(SettingRoute());",
+          "imports": [
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        }
+      ]
+    },
     "manager": {
       "installs": [
         {
@@ -129,7 +179,7 @@
       ]
     }
   },
-  "_comment_embedded_widgets": "languageScreen: comms_sdk owns the language surface (LanguageScreen in src/common/presentation/pages/setting/language_page.dart, signature-matched to base_sdk's EmbeddedWidgets.languageScreen({required VoidCallback onSave})). Until now NO SDK declared it - supacharge's legacy hand-edited main covered it - so auth_sdk's login language switcher threw a StateError in any fully generated compose. Declared at the manifest top level: every composed app with comms_sdk gets it.",
+  "_comment_embedded_widgets": "chatPage (1.22.3): ChatPage in src/common/presentation/pages/chat/chat/chat_page.dart, signature-matched to base_sdk's EmbeddedWidgets.chatPage({required String roleId, required String name}); corporate's loan screen asks for it and no SDK declared it. languageScreen: comms_sdk owns the language surface (LanguageScreen in src/common/presentation/pages/setting/language_page.dart, signature-matched to base_sdk's EmbeddedWidgets.languageScreen({required VoidCallback onSave})). Until now NO SDK declared it - supacharge's legacy hand-edited main covered it - so auth_sdk's login language switcher threw a StateError in any fully generated compose. Declared at the manifest top level: every composed app with comms_sdk gets it.",
   "_comment_app_type": "manager: the host notification vertical becomes comms_sdk-owned (fork plan S-3, manager migration bucket b, D4 minimal parameterization). The application slice installs to lib/application/notification/ - the EXACT path paas_manager's tracked copies occupy, so the installer's hash guard warn-skips it until the manager repo deletes its host copies (migration stage M2), then compose provides it; notification_state.freezed.dart regenerates via the host's own build_runner pass. The page installs to the comms-owned lib/presentation/pages/notification/ path (no collision with the tracked host copy at pages/restaurant/, so it installs cleanly TODAY) and declares the /list-notification route; the class name keeps NotificationListPage so the route class regenerates identically. The page imports orders_sdk's installed order_details_modal.dart via ${package} (host-composition file - ADR-005-legal cross-SDK composition in host lib/) and orders_sdk's manager OrderData directly, so it only compiles in a manager compose alongside orders_sdk's app_type.manager installs - same contract as merchants_sdk's shell templates. Version bumped 1.0.0 -> 1.1.0 so version-aware cache reconciliation re-extracts composed copies. Follow-up (not here): comms declares the Firebase/FCM boot via the new boot_hooks manifest key once The-Rokct-Protocol#160 lands.",
   "_comment_app_type_driver": "driver: the paas_driver notification block mirrored per driver migration S-D5. The application slice is the SAME source as manager's - paas_driver's host copies are the manager files modulo import paths - so it moved to templates/application/common/notification and both flavor blocks install that one source (the from-path move is invisible to hosts: the installer keys hash-guard state by install DESTINATION, and the 1.2.0 -> 1.3.0 bump re-extracts caches anyway). Unlike manager's page, the driver page installs to the EXACT tracked host path lib/presentation/pages/profile/notification_list_page.dart: the hash guard warn-skips it while paas_driver's copy is tracked (so auto_route never sees a duplicate NotificationListPage), then compose provides it once driver M2 deletes the host copy. No tr_keys entry needed - the page only uses TrKeys.notifications/readAll, both already static consts in base's tr_keys.dart. paas_driver's pages/profile/widgets/no_notification.dart was classified into this block but is NOT ported (component triage): it has zero consumers (the profile page's _notifications section is commented out, host-side and in delivery_sdk's zones#12 template alike), and its empty-state role is covered by base_sdk's NoDataInfo + TrKeys.noNotices; its assets/image/no_notification.png asset exists only host-side. It simply dies with driver M2."
 }

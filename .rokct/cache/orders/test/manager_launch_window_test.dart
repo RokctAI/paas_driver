@@ -248,7 +248,10 @@ void main() {
     ) as Map<String, dynamic>;
 
     test('declares the current version and the launch_sdk floor', () {
-      expect(manifest['version'], '1.24.0');
+      final pubspecVersion = RegExp(r'^version: (\S+)', multiLine: true)
+          .firstMatch(File('pubspec.yaml').readAsStringSync())!
+          .group(1);
+      expect(manifest['version'], pubspecVersion);
       expect(manifest['_comment_requires'], contains('launch_sdk >= 1.4.3'));
     });
 

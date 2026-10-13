@@ -69,6 +69,7 @@
 
 import 'package:base_sdk/src/presentation/adaptive/planes.dart';
 import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
+import 'package:base_sdk/src/presentation/components/return_to_launcher_scope.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
@@ -87,7 +88,22 @@ import 'widgets/calc_tape_pane.dart';
 /// so a composition can also embed it directly; the installed route
 /// page is a thin wrapper.
 class CalculatorView extends ConsumerWidget {
-  const CalculatorView({super.key, this.pickAmount = false});
+  const CalculatorView({
+    super.key,
+    this.pickAmount = false,
+    this.returnToLauncher = false,
+  });
+
+  /// OPENED BY THE LAUNCHER (Ray, 2026-10-12: asked whether the calc
+  /// page's nav, opened in another app, brings him back to the launcher; it
+  /// did not). launch_sdk opens a fleet app's calculator with
+  /// `rokct:/calc?from=launcher`, and the route page sets this from that.
+  /// The screen is then wrapped in base_sdk's [ReturnToLauncherScope]: back
+  /// (the corner pill, the swipe, Android's gesture) pops the calculator and
+  /// hands back to Android, so the person lands on the launcher.
+  ///
+  /// False - the default - is a plain pop, exactly as before.
+  final bool returnToLauncher;
 
   /// PICK MODE (chip 840, frames 45c/45d): the caller asked this
   /// calculator for a NUMBER. The pad plane grows the "use this amount"
@@ -102,6 +118,13 @@ class CalculatorView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    return ReturnToLauncherScope(
+      enabled: returnToLauncher,
+      child: _screen(context),
+    );
+  }
+
+  Widget _screen(BuildContext context) {
     return Scaffold(
       backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: GestureDetector(

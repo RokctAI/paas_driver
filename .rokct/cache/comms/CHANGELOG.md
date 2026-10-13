@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.22.3
+
+* fix(wiring): the customer app's chat ("Chat with a shop" on a shop page,
+  "Chat with us" on home layout 4) and notification settings (Profile >
+  My account > Notifications) threw a StateError, because no SDK declared
+  `AppRoutes.pushChatRoute` or `pushSettingRoute` for the customer app.
+  comms_sdk now installs route shells for its chat and settings pages
+  (`/chat`, `/setting`) in the customer app and declares both methods.
+* fix(wiring): `EmbeddedWidgets.chatPage` is declared for every app, so the
+  loan screen's chat no longer throws a StateError either.
+
 ## 1.22.2
 
 * fix(comms): the Languages sheet's Save passes `userInitiated: true` to

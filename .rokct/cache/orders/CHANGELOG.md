@@ -1,3 +1,21 @@
+## 1.30.0
+
+* feat(manager): sales for a shop still pending approval wait on the device.
+  The backend refuses them with `SHOP_PENDING_APPROVAL`, and
+  `OrderCreateSyncHandler` answers `SyncResult.held`. The sale stays queued
+  without spending its retry attempts, and syncs once the shop is approved.
+* feat(manager): a queued sale can move on the board. `updateOrderStatus` on
+  an `offline:` id updates the stored sale, and the sync sends the status
+  the sale is in when it syncs. Every column lists the queued sales in its
+  own status. Before, they all sat in New.
+* test: the manifest-version check reads `pubspec.yaml` rather than a
+  hard-coded number that had gone stale.
+* Requires base_sdk >= 1.88.0.
+
+## 1.29.4
+
+* fix(wiring): declare `EmbeddedWidgets.orderMap`, implemented by `OrderMap`. The shop info page threw a `StateError` in the customer app, because no SDK declared it.
+
 ## 1.29.3
 
 * fix(deps): the `comms_sdk` dev dependency now uses the sibling path

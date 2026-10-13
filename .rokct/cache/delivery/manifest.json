@@ -1,6 +1,17 @@
 {
   "name": "delivery_sdk",
-  "version": "1.28.1",
+  "version": "1.29.0",
+  "_comment_version_1_29_0": "1.28.1 -> 1.29.0 (\"Becoming a seller or driver\"): the driver app lets in approved drivers only (no '*' catch-all, no /become-driver route or installed page; the old BecomeDriverPage, which showed text from a dead backend address and sent nothing, is deleted). Declares EmbeddedWidgets.becomeDriverPage as CourierRequestPage: the customer app's \"Sign up to deliver\" tile opens the same vehicle-details form as the driver sign-up and files the same courier request (it threw a StateError before, as nothing declared it). VehicleDetailsSlide and CourierHelpers moved to lib/src/common so the customer compose (no lib/src/driver) can use them; the driver paths re-export them. Needs auth_sdk >= 1.18.0 for the post-sign-up refusal.",
+  "embedded_widgets": [
+    {
+      "method": "becomeDriverPage",
+      "params": "",
+      "body": "return const CourierRequestPage();",
+      "imports": [
+        "import 'package:delivery_sdk/src/common/presentation/pages/become_driver/courier_request_page.dart';"
+      ]
+    }
+  ],
   "_comment_version_1_28_0": "1.27.0 -> 1.28.0: driver active delivery live activity (design section 3a, approved 2026-09-26). DriverLiveActivity publishes ONE key (driver:active) to base_sdk's LiveActivities (base_sdk >= 1.76.0; drawn by comms_sdk >= 1.19.0) from HomeNotifier's state: 'Go to restaurant / Go to customer \u00b7 order #<id>' with three segments (to restaurant, collect, to customer), scooter tracker, address and cash to collect in the subtitle, 'Due HH:mm', Navigate and Delivered (opens the proof step, never completes the order); 'Online \u00b7 waiting for orders' (ongoing, no bar) between deliveries; removed when offline. Not swipeable while online. The courier Workmanager task has no foreground-service notification today, so this is the only ongoing entry and there are never two. No manifest key, cmd, payload or route changed.",
   "_comment_version_1_27_0": "1.26.1 -> 1.27.0: demo runs the REAL courier repositories through base_sdk 1.73.0's DemoGatewayInterceptor (Ray, 2026-09-25). DriverDeliveryDependencies registers the real orders/parcel/courier/route/deposit/load/POI repositories unconditionally plus DemoFixtures.registerAssetDirectory('assets/demo/delivery'); templates/assets/demo/delivery/<cmd>.json (installed with templates/assets) carries the data the deleted Demo* twins served. Deleted: DemoCourierOrdersRepository, DemoCourierParcelRepository, DemoCourierRepository, DemoCourierRouteRepository, DemoDriverDepositRepository, DemoDriverLoadRepository, DemoDriverPoiRepository and the hook's DemoSession listener/slot swap. Kept: a trimmed DemoDeliverySeed serving the three legacy REST calls the interceptor cannot answer (vehicle types, parcel marketplace list, parcel detail) plus the demo map anchor. Demo writes are acknowledged but no longer change what later reads return (fixtures are static). Needs base_sdk 1.73.0.",
   "_comment_requires": "delivery_sdk >= 1.17.0 requires comms_sdk >= 1.15.0: the installed driver home_page template asks for the OS notification permission through comms_sdk's PushPermissionService (comms owns push in every composition), which is the class that de-duplicates a concurrent request and keeps the failure inside a catch. Every driver-persona composer profile already carries comms_sdk. The composer manifest schema has no machine-readable minimum-version field, so this is the declaration.",
@@ -129,10 +140,6 @@
           "to": "lib/presentation/pages/profile/widgets/logout_modal.dart"
         },
         {
-          "from": "templates/pages/driver/become_driver/become_driver.dart",
-          "to": "lib/presentation/pages/auth/become_driver/become_driver.dart"
-        },
-        {
           "from": "templates/pages/driver/deposits/deposits_page.dart",
           "to": "lib/presentation/pages/deposits/deposits_page.dart"
         },
@@ -251,12 +258,6 @@
           "_comment": "Since 1.21.0 the installed page is a host route shell (same route name, path and constructor) rendering base_sdk's GenericProfilePage inside a two-plane PlaneHost, with the driver's content registered on ProfileSectionRegistry (stats header slot, row list, Online helper) - the fleet pattern of merchants' restaurant_page.dart and marketplace's ProfileRoute shell. The path stays declared here because the home page's avatar and Profile tab push ProfileRoute and users_sdk's tour fragment navigates to /profile; the shell is what gives the host its plane cap and corner back pill, which base_sdk's bare /generic-profile route does not."
         },
         {
-          "path": "/become-driver",
-          "page": "BecomeDriverRoute.page",
-          "type": "CupertinoRoute",
-          "import": "package:${package}/presentation/pages/auth/become_driver/become_driver.dart"
-        },
-        {
           "path": "/driver-deposits",
           "page": "DriverDepositsRoute.page",
           "type": "CupertinoRoute",
@@ -337,11 +338,10 @@
       ],
       "session_policy": {
         "allowed_roles": [
-          { "role": "deliveryman", "landing_route": "/home" },
-          { "role": "*", "landing_route": "/become-driver" }
+          { "role": "deliveryman", "landing_route": "/home" }
         ],
-        "rejection_route": "/become-driver",
-        "rejection_message_tr_key": "become.driver"
+        "rejection_route": "/login",
+        "rejection_message_tr_key": "Apply in the customer app, or wait for approval if you already have"
       },
       "registration_steps": [
         {
@@ -450,7 +450,7 @@
   },
   "_comment_home": "delivery_sdk is the driver composition's home SDK (home_sdk flag is what sdk_installer_base.resolve_home_sdk() reads; the composer entry in driver.json should carry the same flag). home_page points at the courier home-map shell template - the key the manifest already named before 1.3.0 without shipping the file; the template now exists and /home is a declared route.",
   "_comment_app_type": "driver: paas_driver's courier vertical (S-D3 of the driver lib-regenerable plan). Application layer, the courier orders/parcel facades + Laravel deliveryman repositories (decision D2: moved AS-IS, no Frappe port - endpoints stay /api/v1/dashboard/deliveryman/*), the vehicle slice and the courier profile slices live in lib/src/driver/ - declaring this driver block also keeps that folder alive through sdk_composer.py's strip_unused_role_folders. Templates install to the EXACT paths paas_driver's tracked router/pages import today, so the hash guard skips them while the host copies exist and the recompose after the host deletions (M2/M3) takes over seamlessly; until then the declared routes duplicate the host router's manual entries outside the generated markers (same path + same route class, first match wins - the manual entries drop in M2). The driver host must call DriverDeliveryDependencies.register(GetIt.instance) via direct src/ import (lib/src/driver/di/driver_delivery_di.dart) before the courier pages first build; drawRepository/galleryRepository/userRepository resolve against base_sdk facades registered by map_sdk/products_sdk/users_sdk (all part of driver.json's compose). filter_screen.dart imports revenue_sdk's src/driver statistics provider - the slice S-D2 moves to corporate revenue_sdk; that template only starts installing once the host copy is deleted (M2), which the plan orders after S-D2 lands. courier_statistics_provider.dart is the host-composition seam to revenue_sdk's CourierStatisticsRepositoryFacade (SDK src imports base_sdk only - the profile/home earnings block reads this installed provider instead). restaurant_item/product_item/maps_list live here per decision D3 (single-consumer components live in the consuming SDK; driver.json's products_sdk annotation should be updated). Profile application slices stay courier-owned per decision D4 - they were diffed against base_sdk's profile/edit_profile/setting slices and are NOT identical (password + updateGeneralInfo endpoint + vehicle entanglement), so nothing base-identical is duplicated: generic reads go through base facades (UserRepositoryFacade/GalleryRepositoryFacade) and only courier extras stay. custom_toggle/custom_date_picker/filter_screen/shop_avarat/buttons_bouncing_effect/keyboard_disable/underline_bordered_text_field are custodianship copies: driver-only widgets whose base_sdk same-name twins have incompatible APIs (or no twin), used only by this vertical's templates - installed to the singular lib/presentation/component/ paths the existing driver code imports, so no template rewrites are needed. Templates additionally need host deps the driver pubspec already carries: workmanager, map_launcher, percent_indicator, flutter_rating_bar, google_sign_in, auto_size_text, cached_network_image, url_launcher, lottie, intl_phone_field, flutter_advanced_switch, calendar_date_picker2, shimmer, google_fonts, firebase_messaging, geolocator. Requires .rokct/config/app_type = driver. Version bumped 1.2.0 -> 1.3.0 so version-aware cache reconciliation re-extracts composed copies.",
-  "_comment_session_policy": "Driver flavour of merchants_sdk's manager policy, per the plan's decision D1 RECOMMENDATION (pending Ray + auth_sdk S-D4): couriers land on /home; any other authenticated role keeps its session and lands on /become-driver to file a courier request (the legacy behaviour - login_notifier.dart gated role != 'deliveryman' to BecomeDriver WITHOUT dropping the token). The '*' fallback entry only takes effect once auth_sdk supports it (S-D4); until then a non-courier is rejected to /become-driver via rejection_route, losing the session - the one behavioural delta, closed by S-D4. Inert today regardless: driver composes auth_sdk with skip_install, so the session-policy shell is absent until the M3 auth flip.",
+  "_comment_session_policy": "Driver app lets in approved drivers only, and only online (\"Becoming a seller or driver\", Ray 2026-10-12). Since 1.29.0: the '*' catch-all and /become-driver are gone. A deliveryman (an account holding a Deliveryman Profile, which an admin's approval of the courier request creates) lands on /home; anyone else, offline sign-ins included, is turned away to /login with \"Apply in the customer app, or wait for approval if you already have\". A new sign-up runs the vehicle-details step (filing the courier request) and is then turned away the same way (auth_sdk >= 1.18.0 onSignedUp).",
   "_comment_registration_steps": "Injects the courier vehicle-details capture into auth_sdk's post-register pipeline (merchants.shop_setup precedent; see sdk_installer_base.py update_registration_steps()). Fields are EXACTLY the host become_driver form's (decision D5: type_of_technique benzine/diesel/gas/motorbike/bike/foot, brand, model, state number, color, height/width/length/weight, car photo - no new document uploads). Wiring: VehicleDetailsSlide (SDK-owned, lib/src/driver/presentation/widgets/) -> CourierVehicleCapture (consumer-owned interface, ADR-005) -> CourierVehicleDetailsAdapter in the installed delivery_adapters.dart (host composition code) -> GalleryRepositoryFacade.uploadImage + CourierRepositoryFacade.createCarInfo -> POST /api/v1/dashboard/user/request-models. skippable stays default-true and the adapter never throws - a failed or skipped submit must never trap a fresh account; the profile page's edit-car modal offers the details again. NOTE: driver.json currently composes auth_sdk with skip_install, so update_registration_steps() no-ops - this declaration is forward-compatible and comes alive at the M3 flip.",
   "_comment_tr_keys_s49_nav": "delivery_sdk 1.19.0 (design strip section 49, chip 301 and frame 49d): jobs and route are the two root-tab labels base does not own (home/income/profile are base keys and are NOT redeclared); shift.ended is the off-duty day-strip stamp 'TODAY \u00b7 SHIFT ENDED 17:04'. Declared here because they are courier vocabulary, like the 31 keys below.",
   "_comment_tr_keys_s49_home": "The 31 keys added for design strip section 49 frames 49a, 49d, 49e and 49m (driver home: day strip, cash-on-hand card, available-work queue, off-duty state, wallet-floor gate) are courier vocabulary and are declared here rather than in base; the installer skips any that base already owns, which is why today/balance/km/cash/wallet are NOT redeclared.",

@@ -1,3 +1,23 @@
+## 1.34.0
+
+* feat(manager): sign-up asks for the seller role, and an account signed up
+  offline on the phone can sign in offline, so a new seller can sign up and
+  sell with no signal. Their shop waits for approval; sales sync once it is
+  approved.
+* An account that isn't a seller is told what to do: "Apply in the customer
+  app (Become a seller)". A seller never waits for approval to sign in (only
+  the shop does), so the message doesn't mention waiting.
+* fix(backend): "Become a seller" in the customer app works. `create_shop`
+  used to refuse anyone without the Seller role, so an existing customer
+  could never apply. A signed-in account now gets its own shop, pending
+  approval, and the Seller role. Guests are refused, and only a System
+  Manager can open a shop in someone else's name.
+* Needs auth_sdk >= 1.18.0.
+
+## 1.33.5
+
+* fix(wiring): declare `EmbeddedWidgets.cartOrderItem`, `cartClearDialog` and `bonusScreen`, implemented by `CartOrderItem`, `CartClearDialog` and `BonusScreen`. The order screen's cart lines and clear-cart dialog, and the product bonus sheet, threw a `StateError` in the customer app, because no SDK declared them.
+
 ## 1.33.4
 
 * fix(manifest): install the demo fixtures only in marketplace apps

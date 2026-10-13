@@ -13,6 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:auto_route/auto_route.dart';
+import 'package:base_sdk/base_sdk.dart' show ReturnToLauncherScope;
 import 'package:calc_sdk/calc_sdk.dart';
 import 'package:flutter/material.dart';
 
@@ -38,13 +39,25 @@ import 'package:flutter/material.dart';
 /// not ask gets the standalone screen and null back, exactly as before.
 @RoutePage()
 class CalculatorPage extends StatelessWidget {
-  const CalculatorPage({super.key, @QueryParam('pick') this.pick = false});
+  const CalculatorPage({
+    super.key,
+    @QueryParam('pick') this.pick = false,
+    @QueryParam('from') this.from,
+  });
 
   /// True when the caller wants the number handed back (chip 840).
   final bool pick;
 
+  /// Who opened this page from outside the app: 'launcher' when launch_sdk's
+  /// floating nav opened it (`rokct:/calc?from=launcher`), so back returns
+  /// to the launcher.
+  final String? from;
+
   @override
   Widget build(BuildContext context) {
-    return CalculatorView(pickAmount: pick);
+    return CalculatorView(
+      pickAmount: pick,
+      returnToLauncher: ReturnToLauncherScope.requestedBy(from),
+    );
   }
 }

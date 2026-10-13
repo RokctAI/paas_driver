@@ -60,6 +60,9 @@ class SyncEngine {
   /// Retryable failures beyond this mark the op [OutboxStatus.dead].
   static const int maxAttempts = 10;
 
+  /// How long a [SyncResult.held] op waits before the engine asks again.
+  static const Duration holdDelay = Duration(minutes: 15);
+
   /// Rows read per query by the drain and the temp-id rewrite pass.
   ///
   /// Both used to materialise their whole result set, which on a large
@@ -358,6 +361,8 @@ class SyncEngine {
             await _applyRetryable(op, error);
           case SyncRejected(:final error):
             await _applyRejected(op, error);
+          case SyncHeld(:final reason):
+            await _applyHeld(op, reason);
         }
       }
 
@@ -559,6 +564,21 @@ class SyncEngine {
         attempts: Value(attempts),
         lastError: Value(error),
         nextAttemptAt: Value(DateTime.now().add(delay)),
+      ),
+      owner: op.owner,
+    );
+  }
+
+  /// Back to pending with the attempt count untouched: a held op is waiting
+  /// on the backend (an approval), not failing, so it must not run down the
+  /// retry cap.
+  Future<void> _applyHeld(OutboxEntry op, String reason) async {
+    await _writeOp(
+      op.id,
+      OutboxTableCompanion(
+        status: Value(OutboxStatus.pending.name),
+        lastError: Value(reason),
+        nextAttemptAt: Value(DateTime.now().add(holdDelay)),
       ),
       owner: op.owner,
     );

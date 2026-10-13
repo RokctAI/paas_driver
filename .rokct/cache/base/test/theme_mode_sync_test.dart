@@ -19,6 +19,8 @@
 // persisted preference — see templates/app_widget.dart's theme/darkTheme
 // pair).
 
+import 'dart:io';
+
 import 'package:base_sdk/base_sdk.dart';
 import 'package:base_sdk/src/application/app_widget/app_provider.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -160,6 +162,23 @@ void main() {
         expect(AppStyle.interNormal(color: AppStyle.red).color, AppStyle.red);
         expect(AppStyle.interBold(color: AppStyle.black).color, AppStyle.black);
       });
+    });
+  });
+
+  group('the app root follows a theme change', () {
+    // The root MaterialApp must SUBSCRIBE to appProvider, or a toggle only
+    // reaches pages that watch it themselves (Ray, 2026-10-12: "theme toggle
+    // seem to be only working on home page").
+    test('templates/app_widget.dart watches appProvider, never refreshes it',
+        () {
+      final String root =
+          File('templates/app_widget.dart').readAsStringSync();
+      expect(root, contains('final state = ref.watch(appProvider);'));
+      expect(root, isNot(contains('ref.refresh(appProvider)')));
+      expect(
+        root,
+        contains('themeMode: state.isDarkMode ? ThemeMode.dark : ThemeMode.light'),
+      );
     });
   });
 }

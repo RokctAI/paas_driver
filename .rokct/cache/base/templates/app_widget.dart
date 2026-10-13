@@ -47,7 +47,15 @@ class AppWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.refresh(appProvider);
+    // WATCH, not refresh. Refreshing the provider read the state once and
+    // subscribed to nothing, so this MaterialApp never rebuilt when the theme
+    // (or language) changed: its themeMode stayed at the cold-start value and
+    // every page reading Theme.of(context) kept the old mode. Only pages that
+    // watch appProvider themselves (the launcher home) followed a toggle (Ray,
+    // 2026-10-12: "theme toggle seem to be only working on home page even if
+    // i toggle it in the profile page"). AppNotifier already loads the stored
+    // mode and locale when it is created, so nothing is lost by watching.
+    final state = ref.watch(appProvider);
     return FutureBuilder(
       future: Future.wait([
         if (LocalStorage.getTranslations().isEmpty) _fetchSettings(),

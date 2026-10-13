@@ -1,3 +1,7 @@
+## 1.12.7
+
+* fix(wiring): declare `EmbeddedWidgets.productScreen` (the product sheet), implemented by `ProductScreen`. Tapping a product in a shop or in search threw a `StateError` in the customer app, because no SDK declared it.
+
 ## 1.12.6
 
 * fix(manifest): install the demo fixtures only in marketplace apps

@@ -27,8 +27,9 @@
 //     student who registers directly (skipping onboarding) is still asked
 //     for both.
 //
-//   * completion behaviour — the default is RegistrationFlow.defaultLanding
-//     (the same goHome landing registration always ended on); an SDK that
+//   * completion behaviour — the default is RegistrationFlow.signedUpLanding
+//     (the composed session policy's onSignedUp; goHome when none is
+//     declared, as registration always ended); an SDK that
 //     needs extra completion logic injects it above the
 //     default via a manifest "integrations" entry targeting this file's
 //     @registration-complete-hook placeholder.
@@ -85,7 +86,7 @@ class _RegistrationStepsRouteViewState
   /// return.
   void _onComplete(BuildContext context) {
     // @registration-complete-hook
-    RegistrationFlow.defaultLanding(context);
+    RegistrationFlow.signedUpLanding(context);
   }
 
   @override

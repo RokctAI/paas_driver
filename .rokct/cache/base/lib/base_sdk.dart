@@ -42,6 +42,7 @@ export 'src/presentation/theme/app_theme.dart';
 // Shared presentation components (generic, no feature-SDK logic — ADR-005)
 export 'src/presentation/components/glance_card.dart';
 export 'src/presentation/components/blur_wrap.dart';
+export 'src/presentation/components/return_to_launcher_scope.dart';
 export 'src/presentation/components/user_avatar.dart';
 
 // Adaptive primitives: Material 3 window-size classes + the two layout

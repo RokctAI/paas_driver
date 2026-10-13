@@ -26,6 +26,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:base_sdk/src/domain/interface/auth.dart';
 import 'package:base_sdk/src/domain/interface/user.dart';
+import 'package:auth_sdk/src/common/domain/interface/google_id_token_sign_in.dart';
 import 'package:base_sdk/src/models/data/address_old_data.dart';
 import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
@@ -401,14 +402,15 @@ class LoginNotifier extends StateNotifier<LoginState> {
     if (result.success) {
       // The role of an offline account can't be verified against the
       // backend, so a declared role-gated policy rejects offline sessions
-      // outright (its onRejected also removes the offline token
-      // loginOffline just stored). The default policy allows them and
-      // lands exactly where this branch always landed.
-      if (!AuthSessionPolicy.I.allows(null)) {
+      // (its onRejected also removes the offline token loginOffline just
+      // stored) unless it lets in offline accounts (the manager app: a
+      // seller signed up here with no signal). The default policy allows
+      // them and lands exactly where this branch always landed.
+      if (!AuthSessionPolicy.I.allowsOfflineAccount()) {
         LocalStorage.deleteToken();
         if (context.mounted) AuthSessionPolicy.I.onRejected(context);
       } else if (context.mounted) {
-        AuthSessionPolicy.I.onAuthenticated(context);
+        AuthSessionPolicy.I.onOfflineAuthenticated(context);
         // An offline sign-in is still a sign-in: run the session-start
         // hooks (there is no FCM token to push without a connection).
         unawaited(SessionStartHooks.run());
@@ -428,7 +430,9 @@ class LoginNotifier extends StateNotifier<LoginState> {
       state = state.copyWith(isLoading: true);
       GoogleSignInAccount? googleUser;
       try {
-        googleUser = await GoogleSignIn().signIn();
+        googleUser = await GoogleSignIn(
+          serverClientId: GoogleSignInConfig.serverClientId,
+        ).signIn();
       } catch (e) {
         if (!mounted) return;
         state = state.copyWith(isLoading: false);
@@ -439,11 +443,34 @@ class LoginNotifier extends StateNotifier<LoginState> {
         return;
       }
 
-      final response = await _authRepository.loginWithGoogle(
-        email: googleUser.email,
-        displayName: googleUser.displayName ?? '',
-        id: googleUser.id,
-        avatar: googleUser.photoUrl ?? "",
+      // The backend signs in from the verified Google ID token only (it
+      // reads the email from the token), so the token is what is sent.
+      String? idToken;
+      try {
+        idToken = (await googleUser.authentication).idToken;
+      } catch (e) {
+        debugPrint('===> google authentication exception: $e');
+      }
+      if (!mounted) return;
+      final repo = _authRepository;
+      final googleRepo =
+          repo is GoogleIdTokenSignIn ? repo as GoogleIdTokenSignIn : null;
+      if (idToken == null || googleRepo == null) {
+        state = state.copyWith(isLoading: false);
+        if (context.mounted) {
+          AuthErrorPresenter.showTechnical(
+            context,
+            type: 'auth_social_login_failed',
+            detail: 'Google Sign-In returned no ID token',
+            extra: const {'provider': 'google'},
+          );
+        }
+        return;
+      }
+      final response = await googleRepo.loginWithGoogleIdToken(
+        idToken: idToken,
+        displayName: googleUser.displayName,
+        avatar: googleUser.photoUrl,
       );
       if (!mounted) return;
       response.when(

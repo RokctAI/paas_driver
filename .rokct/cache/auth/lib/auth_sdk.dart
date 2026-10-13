@@ -24,6 +24,10 @@ export 'src/common/presentation/services/pending_otp_gate.dart';
 // Registration capability flags a composing app's home SDK may flip (see
 // AuthRegistrationConfig — e.g. lms_sdk enabling date-of-birth capture).
 export 'src/common/services/registration_config.dart';
+// Google Sign-In: the app sets GoogleSignInConfig.serverClientId (its OAuth
+// web client id) so Android returns the ID token the backend verifies.
+export 'src/common/domain/interface/google_id_token_sign_in.dart'
+    show GoogleSignInConfig;
 // Android Restore Credentials. The platform seam is exported so a composed
 // app can install core's channel implementation into
 // RestoreCredentialPlatform.instance at startup; the service is exported so

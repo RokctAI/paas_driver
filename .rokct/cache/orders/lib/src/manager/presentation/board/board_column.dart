@@ -298,7 +298,8 @@ class BoardOrderColumn extends StatelessWidget {
       onTap: () => onOrderTap(order),
       onMapTap: onOrderMapTap == null ? null : () => onOrderMapTap!.call(order),
     );
-    final bool isUpdating = updatingIds.contains(order.id);
+    final bool isUpdating =
+        updatingIds.contains(order.id ?? order.localId);
     if (isUpdating) {
       // In-flight cards are dimmed and locked.
       return IgnorePointer(child: Opacity(opacity: 0.5, child: card));
