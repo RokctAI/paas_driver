@@ -1,0 +1,112 @@
+{
+  "data": {
+    "totals": {
+      "revenue": 41900,
+      "profit": 11691.15,
+      "costed_revenue": 36872.0,
+      "margin_pct": 31.71,
+      "orders": 361,
+      "orders_costed": 317,
+      "avg_order": 116.07
+    },
+    "unknown_bucket": {
+      "orders": 44,
+      "revenue_excluded": 5028.0
+    },
+    "series": [
+      {
+        "date": "2026-09-19",
+        "revenue": 5200,
+        "profit": 1441.44
+      },
+      {
+        "date": "2026-09-20",
+        "revenue": 4750,
+        "profit": 1245.64
+      },
+      {
+        "date": "2026-09-21",
+        "revenue": 6100,
+        "profit": 1782.18
+      },
+      {
+        "date": "2026-09-22",
+        "revenue": 5650,
+        "profit": 1521.43
+      },
+      {
+        "date": "2026-09-23",
+        "revenue": 6900,
+        "profit": 2070.55
+      },
+      {
+        "date": "2026-09-24",
+        "revenue": 7400,
+        "profit": 2129.42
+      },
+      {
+        "date": "2026-09-25",
+        "revenue": 5900,
+        "profit": 1500.49
+      }
+    ],
+    "products": [
+      {
+        "product": "demo-family-bundle",
+        "name": "Family bundle",
+        "sold": 64,
+        "revenue": 14011.36,
+        "price": 219,
+        "cost": 149.56,
+        "profit": 4442.64,
+        "margin_pct": 31.71
+      },
+      {
+        "product": "demo-breakfast-box",
+        "name": "Breakfast box",
+        "sold": 69,
+        "revenue": 9955.44,
+        "price": 145,
+        "cost": 99.02,
+        "profit": 3156.61,
+        "margin_pct": 31.71
+      },
+      {
+        "product": "demo-snack-pack",
+        "name": "Snack pack",
+        "sold": 125,
+        "revenue": 7743.12,
+        "price": 62,
+        "cost": 42.34,
+        "profit": 2455.14,
+        "margin_pct": 31.71
+      },
+      {
+        "product": "demo-juice-1l",
+        "name": "Juice 1L",
+        "sold": 136,
+        "revenue": 5162.08,
+        "price": 38,
+        "cost": 25.95,
+        "profit": 1636.76,
+        "margin_pct": 31.71
+      },
+      {
+        "product": "demo-seasonal-special",
+        "name": "Seasonal special",
+        "sold": 53,
+        "revenue": 5028.0,
+        "price": 95,
+        "cost_missing": true
+      }
+    ],
+    "status_counts": {
+      "delivered": 311,
+      "on_a_way": 7,
+      "cooking": 11,
+      "accepted": 11,
+      "new": 7,
+      "cancelled": 14
+    }
+  }
+}

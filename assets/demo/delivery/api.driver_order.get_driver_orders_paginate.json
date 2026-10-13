@@ -1,0 +1,783 @@
+{
+  "$demo_select": {
+    "by": "payload.limit_start",
+    "cases": {
+      "0": {
+        "$demo_select": {
+          "by": "payload.statuses",
+          "cases": {
+            "[\"accepted\",\"ready\",\"on_a_way\"]": {
+              "data": [
+                {
+                  "id": "900001",
+                  "user_id": 8101,
+                  "total_price": 189.9,
+                  "origin_price": 164.9,
+                  "service_fee": 0,
+                  "tax": 10,
+                  "delivery_fee": 15,
+                  "commission_fee": 0,
+                  "status": "accepted",
+                  "current": true,
+                  "km": 3.2,
+                  "otp": 4321,
+                  "note": "Gate code 1234, call on arrival.",
+                  "location": {
+                    "latitude": "-26.192",
+                    "longitude": "28.0557"
+                  },
+                  "address": {
+                    "address": "12 Cradock Avenue, Rosebank",
+                    "house": "12",
+                    "office": null,
+                    "floor": null
+                  },
+                  "delivery_type": "delivery",
+                  "delivery_date": "$now_iso",
+                  "delivery_time": "13:30",
+                  "created_at": "$now_iso",
+                  "updated_at": "$now_iso",
+                  "shop": {
+                    "id": 9101,
+                    "uuid": "demo-shop-9101",
+                    "user_id": 9000,
+                    "price": 25,
+                    "price_per_km": 6,
+                    "tax": 15,
+                    "phone": "+27 10 000 0400",
+                    "visibility": true,
+                    "background_img": null,
+                    "logo_img": null,
+                    "min_amount": 50,
+                    "status": "approved",
+                    "type": "shop",
+                    "delivery_time": {
+                      "from": "15",
+                      "to": "45",
+                      "type": "minute"
+                    },
+                    "location": {
+                      "latitude": "-26.1999",
+                      "longitude": "28.0442"
+                    },
+                    "translation": {
+                      "id": 9101,
+                      "locale": "en",
+                      "title": "Corner Kitchen",
+                      "description": "Flame-grilled favourites, ready in minutes",
+                      "address": "42 Marula Avenue, Sandton"
+                    },
+                    "locales": [
+                      "en"
+                    ]
+                  },
+                  "currency": {
+                    "id": 1,
+                    "symbol": "R",
+                    "title": "ZAR",
+                    "rate": 1,
+                    "active": true
+                  },
+                  "user": {
+                    "id": 8101,
+                    "uuid": "demo-user-8101",
+                    "firstname": "Thandi",
+                    "lastname": "Nkosi",
+                    "email": "thandi.nkosi@rokct.ai",
+                    "phone": "+27 10 000 0101",
+                    "active": true,
+                    "img": null,
+                    "role": "user"
+                  },
+                  "details": [
+                    {
+                      "id": 700011,
+                      "order_id": "900001",
+                      "stock_id": 700011,
+                      "origin_price": 74.95,
+                      "total_price": 149.9,
+                      "tax": 0,
+                      "discount": 0,
+                      "quantity": 2,
+                      "bonus": false,
+                      "stock": {
+                        "id": 700011,
+                        "countable_id": 700011,
+                        "price": 74.95,
+                        "quantity": 2,
+                        "tax": 0,
+                        "total_price": 149.9,
+                        "product": {
+                          "id": 700011,
+                          "uuid": "demo-product-700011",
+                          "shop_id": 9101,
+                          "active": true,
+                          "img": null,
+                          "translation": {
+                            "id": 700011,
+                            "locale": "en",
+                            "title": "Family Feast Combo"
+                          },
+                          "locales": [
+                            "en"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "id": 700012,
+                      "order_id": "900001",
+                      "stock_id": 700012,
+                      "origin_price": 15.0,
+                      "total_price": 15.0,
+                      "tax": 0,
+                      "discount": 0,
+                      "quantity": 1,
+                      "bonus": false,
+                      "stock": {
+                        "id": 700012,
+                        "countable_id": 700012,
+                        "price": 15.0,
+                        "quantity": 1,
+                        "tax": 0,
+                        "total_price": 15.0,
+                        "product": {
+                          "id": 700012,
+                          "uuid": "demo-product-700012",
+                          "shop_id": 9101,
+                          "active": true,
+                          "img": null,
+                          "translation": {
+                            "id": 700012,
+                            "locale": "en",
+                            "title": "Sparkling Lemonade 500 ml"
+                          },
+                          "locales": [
+                            "en"
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "transaction": {
+                    "id": 950001,
+                    "payable_id": 900001,
+                    "price": 189.9,
+                    "note": "Order payment",
+                    "status": "progress",
+                    "created_at": "$now_iso",
+                    "payment_system": {
+                      "id": 1,
+                      "tag": "cash",
+                      "active": true
+                    }
+                  }
+                },
+                {
+                  "id": "900002",
+                  "user_id": 8102,
+                  "total_price": 74.5,
+                  "origin_price": 59.5,
+                  "service_fee": 0,
+                  "tax": 5,
+                  "delivery_fee": 10,
+                  "commission_fee": 0,
+                  "status": "ready",
+                  "current": false,
+                  "km": 1.8,
+                  "otp": 8765,
+                  "location": {
+                    "latitude": "-26.2134",
+                    "longitude": "28.059"
+                  },
+                  "address": {
+                    "address": "34 Jan Smuts Avenue, Rosebank",
+                    "house": "34",
+                    "office": null,
+                    "floor": null
+                  },
+                  "delivery_type": "delivery",
+                  "delivery_date": "$now_iso",
+                  "delivery_time": "14:15",
+                  "created_at": "$now_iso",
+                  "updated_at": "$now_iso",
+                  "shop": {
+                    "id": 9102,
+                    "uuid": "demo-shop-9102",
+                    "user_id": 9000,
+                    "price": 25,
+                    "price_per_km": 6,
+                    "tax": 15,
+                    "phone": "+27 10 000 0400",
+                    "visibility": true,
+                    "background_img": null,
+                    "logo_img": null,
+                    "min_amount": 50,
+                    "status": "approved",
+                    "type": "shop",
+                    "delivery_time": {
+                      "from": "15",
+                      "to": "45",
+                      "type": "minute"
+                    },
+                    "location": {
+                      "latitude": "-26.2099",
+                      "longitude": "28.0522"
+                    },
+                    "translation": {
+                      "id": 9102,
+                      "locale": "en",
+                      "title": "Mama Thembi's Spaza",
+                      "description": "Bread, airtime and the essentials, open till late",
+                      "address": "7 Vilakazi Street, Orlando West, Soweto"
+                    },
+                    "locales": [
+                      "en"
+                    ]
+                  },
+                  "currency": {
+                    "id": 1,
+                    "symbol": "R",
+                    "title": "ZAR",
+                    "rate": 1,
+                    "active": true
+                  },
+                  "user": {
+                    "id": 8102,
+                    "uuid": "demo-user-8102",
+                    "firstname": "Sipho",
+                    "lastname": "Dlamini",
+                    "email": "sipho.dlamini@rokct.ai",
+                    "phone": "+27 10 000 0102",
+                    "active": true,
+                    "img": null,
+                    "role": "user"
+                  },
+                  "details": [
+                    {
+                      "id": 700021,
+                      "order_id": "900002",
+                      "stock_id": 700021,
+                      "origin_price": 49.5,
+                      "total_price": 49.5,
+                      "tax": 0,
+                      "discount": 0,
+                      "quantity": 1,
+                      "bonus": false,
+                      "stock": {
+                        "id": 700021,
+                        "countable_id": 700021,
+                        "price": 49.5,
+                        "quantity": 1,
+                        "tax": 0,
+                        "total_price": 49.5,
+                        "product": {
+                          "id": 700021,
+                          "uuid": "demo-product-700021",
+                          "shop_id": 9101,
+                          "active": true,
+                          "img": null,
+                          "translation": {
+                            "id": 700021,
+                            "locale": "en",
+                            "title": "Chicken Mayo Sandwich"
+                          },
+                          "locales": [
+                            "en"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "id": 700022,
+                      "order_id": "900002",
+                      "stock_id": 700022,
+                      "origin_price": 10.0,
+                      "total_price": 10.0,
+                      "tax": 0,
+                      "discount": 0,
+                      "quantity": 1,
+                      "bonus": false,
+                      "stock": {
+                        "id": 700022,
+                        "countable_id": 700022,
+                        "price": 10.0,
+                        "quantity": 1,
+                        "tax": 0,
+                        "total_price": 10.0,
+                        "product": {
+                          "id": 700022,
+                          "uuid": "demo-product-700022",
+                          "shop_id": 9101,
+                          "active": true,
+                          "img": null,
+                          "translation": {
+                            "id": 700022,
+                            "locale": "en",
+                            "title": "Orange Juice 1 L"
+                          },
+                          "locales": [
+                            "en"
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "transaction": {
+                    "id": 950002,
+                    "payable_id": 900002,
+                    "price": 74.5,
+                    "note": "Order payment",
+                    "status": "paid",
+                    "created_at": "$now_iso",
+                    "payment_system": {
+                      "id": 2,
+                      "tag": "wallet",
+                      "active": true
+                    }
+                  }
+                }
+              ],
+              "meta": {
+                "total": 2
+              }
+            },
+            "[\"accepted\",\"on_a_way\"]": {
+              "data": [
+                {
+                  "id": "900001",
+                  "user_id": 8101,
+                  "total_price": 189.9,
+                  "origin_price": 164.9,
+                  "service_fee": 0,
+                  "tax": 10,
+                  "delivery_fee": 15,
+                  "commission_fee": 0,
+                  "status": "accepted",
+                  "current": true,
+                  "km": 3.2,
+                  "otp": 4321,
+                  "note": "Gate code 1234, call on arrival.",
+                  "location": {
+                    "latitude": "-26.192",
+                    "longitude": "28.0557"
+                  },
+                  "address": {
+                    "address": "12 Cradock Avenue, Rosebank",
+                    "house": "12",
+                    "office": null,
+                    "floor": null
+                  },
+                  "delivery_type": "delivery",
+                  "delivery_date": "$now_iso",
+                  "delivery_time": "13:30",
+                  "created_at": "$now_iso",
+                  "updated_at": "$now_iso",
+                  "shop": {
+                    "id": 9101,
+                    "uuid": "demo-shop-9101",
+                    "user_id": 9000,
+                    "price": 25,
+                    "price_per_km": 6,
+                    "tax": 15,
+                    "phone": "+27 10 000 0400",
+                    "visibility": true,
+                    "background_img": null,
+                    "logo_img": null,
+                    "min_amount": 50,
+                    "status": "approved",
+                    "type": "shop",
+                    "delivery_time": {
+                      "from": "15",
+                      "to": "45",
+                      "type": "minute"
+                    },
+                    "location": {
+                      "latitude": "-26.1999",
+                      "longitude": "28.0442"
+                    },
+                    "translation": {
+                      "id": 9101,
+                      "locale": "en",
+                      "title": "Corner Kitchen",
+                      "description": "Flame-grilled favourites, ready in minutes",
+                      "address": "42 Marula Avenue, Sandton"
+                    },
+                    "locales": [
+                      "en"
+                    ]
+                  },
+                  "currency": {
+                    "id": 1,
+                    "symbol": "R",
+                    "title": "ZAR",
+                    "rate": 1,
+                    "active": true
+                  },
+                  "user": {
+                    "id": 8101,
+                    "uuid": "demo-user-8101",
+                    "firstname": "Thandi",
+                    "lastname": "Nkosi",
+                    "email": "thandi.nkosi@rokct.ai",
+                    "phone": "+27 10 000 0101",
+                    "active": true,
+                    "img": null,
+                    "role": "user"
+                  },
+                  "details": [
+                    {
+                      "id": 700011,
+                      "order_id": "900001",
+                      "stock_id": 700011,
+                      "origin_price": 74.95,
+                      "total_price": 149.9,
+                      "tax": 0,
+                      "discount": 0,
+                      "quantity": 2,
+                      "bonus": false,
+                      "stock": {
+                        "id": 700011,
+                        "countable_id": 700011,
+                        "price": 74.95,
+                        "quantity": 2,
+                        "tax": 0,
+                        "total_price": 149.9,
+                        "product": {
+                          "id": 700011,
+                          "uuid": "demo-product-700011",
+                          "shop_id": 9101,
+                          "active": true,
+                          "img": null,
+                          "translation": {
+                            "id": 700011,
+                            "locale": "en",
+                            "title": "Family Feast Combo"
+                          },
+                          "locales": [
+                            "en"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "id": 700012,
+                      "order_id": "900001",
+                      "stock_id": 700012,
+                      "origin_price": 15.0,
+                      "total_price": 15.0,
+                      "tax": 0,
+                      "discount": 0,
+                      "quantity": 1,
+                      "bonus": false,
+                      "stock": {
+                        "id": 700012,
+                        "countable_id": 700012,
+                        "price": 15.0,
+                        "quantity": 1,
+                        "tax": 0,
+                        "total_price": 15.0,
+                        "product": {
+                          "id": 700012,
+                          "uuid": "demo-product-700012",
+                          "shop_id": 9101,
+                          "active": true,
+                          "img": null,
+                          "translation": {
+                            "id": 700012,
+                            "locale": "en",
+                            "title": "Sparkling Lemonade 500 ml"
+                          },
+                          "locales": [
+                            "en"
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "transaction": {
+                    "id": 950001,
+                    "payable_id": 900001,
+                    "price": 189.9,
+                    "note": "Order payment",
+                    "status": "progress",
+                    "created_at": "$now_iso",
+                    "payment_system": {
+                      "id": 1,
+                      "tag": "cash",
+                      "active": true
+                    }
+                  }
+                }
+              ],
+              "meta": {
+                "total": 1
+              }
+            },
+            "[\"delivered\"]": {
+              "data": [
+                {
+                  "id": "899901",
+                  "user_id": 8102,
+                  "total_price": 96.0,
+                  "origin_price": 84.0,
+                  "tax": 4,
+                  "delivery_fee": 8,
+                  "status": "delivered",
+                  "current": false,
+                  "km": 2.1,
+                  "location": {
+                    "latitude": "-26.2006",
+                    "longitude": "28.0495"
+                  },
+                  "delivery_type": "delivery",
+                  "delivery_date": "$now_iso",
+                  "delivery_time": "12:10",
+                  "created_at": "$now_iso",
+                  "updated_at": "$now_iso",
+                  "shop": {
+                    "id": 9101,
+                    "uuid": "demo-shop-9101",
+                    "user_id": 9000,
+                    "price": 25,
+                    "price_per_km": 6,
+                    "tax": 15,
+                    "phone": "+27 10 000 0400",
+                    "visibility": true,
+                    "background_img": null,
+                    "logo_img": null,
+                    "min_amount": 50,
+                    "status": "approved",
+                    "type": "shop",
+                    "delivery_time": {
+                      "from": "15",
+                      "to": "45",
+                      "type": "minute"
+                    },
+                    "location": {
+                      "latitude": "-26.1999",
+                      "longitude": "28.0442"
+                    },
+                    "translation": {
+                      "id": 9101,
+                      "locale": "en",
+                      "title": "Corner Kitchen",
+                      "description": "Flame-grilled favourites, ready in minutes",
+                      "address": "42 Marula Avenue, Sandton"
+                    },
+                    "locales": [
+                      "en"
+                    ]
+                  },
+                  "currency": {
+                    "id": 1,
+                    "symbol": "R",
+                    "title": "ZAR",
+                    "rate": 1,
+                    "active": true
+                  },
+                  "user": {
+                    "id": 8102,
+                    "uuid": "demo-user-8102",
+                    "firstname": "Sipho",
+                    "lastname": "Dlamini",
+                    "email": "sipho.dlamini@rokct.ai",
+                    "phone": "+27 10 000 0102",
+                    "active": true,
+                    "img": null,
+                    "role": "user"
+                  },
+                  "details": [
+                    {
+                      "id": 699011,
+                      "order_id": "899901",
+                      "stock_id": 699011,
+                      "origin_price": 84.0,
+                      "total_price": 84.0,
+                      "tax": 0,
+                      "discount": 0,
+                      "quantity": 1,
+                      "bonus": false,
+                      "stock": {
+                        "id": 699011,
+                        "countable_id": 699011,
+                        "price": 84.0,
+                        "quantity": 1,
+                        "tax": 0,
+                        "total_price": 84.0,
+                        "product": {
+                          "id": 699011,
+                          "uuid": "demo-product-699011",
+                          "shop_id": 9101,
+                          "active": true,
+                          "img": null,
+                          "translation": {
+                            "id": 699011,
+                            "locale": "en",
+                            "title": "Breakfast Basket"
+                          },
+                          "locales": [
+                            "en"
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "transaction": {
+                    "id": 949901,
+                    "payable_id": 899901,
+                    "price": 96.0,
+                    "note": "Order payment",
+                    "status": "paid",
+                    "created_at": "$now_iso",
+                    "payment_system": {
+                      "id": 1,
+                      "tag": "cash",
+                      "active": true
+                    }
+                  }
+                },
+                {
+                  "id": "899902",
+                  "user_id": 8103,
+                  "total_price": 158.75,
+                  "origin_price": 138.75,
+                  "tax": 8,
+                  "delivery_fee": 12,
+                  "status": "delivered",
+                  "current": false,
+                  "km": 3.9,
+                  "location": {
+                    "latitude": "-26.2085",
+                    "longitude": "28.0564"
+                  },
+                  "delivery_type": "delivery",
+                  "delivery_date": "$now_iso",
+                  "delivery_time": "17:45",
+                  "created_at": "$now_iso",
+                  "updated_at": "$now_iso",
+                  "shop": {
+                    "id": 9102,
+                    "uuid": "demo-shop-9102",
+                    "user_id": 9000,
+                    "price": 25,
+                    "price_per_km": 6,
+                    "tax": 15,
+                    "phone": "+27 10 000 0400",
+                    "visibility": true,
+                    "background_img": null,
+                    "logo_img": null,
+                    "min_amount": 50,
+                    "status": "approved",
+                    "type": "shop",
+                    "delivery_time": {
+                      "from": "15",
+                      "to": "45",
+                      "type": "minute"
+                    },
+                    "location": {
+                      "latitude": "-26.2099",
+                      "longitude": "28.0522"
+                    },
+                    "translation": {
+                      "id": 9102,
+                      "locale": "en",
+                      "title": "Mama Thembi's Spaza",
+                      "description": "Bread, airtime and the essentials, open till late",
+                      "address": "7 Vilakazi Street, Orlando West, Soweto"
+                    },
+                    "locales": [
+                      "en"
+                    ]
+                  },
+                  "currency": {
+                    "id": 1,
+                    "symbol": "R",
+                    "title": "ZAR",
+                    "rate": 1,
+                    "active": true
+                  },
+                  "user": {
+                    "id": 8103,
+                    "uuid": "demo-user-8103",
+                    "firstname": "Lerato",
+                    "lastname": "Mahlangu",
+                    "email": "lerato.mahlangu@rokct.ai",
+                    "phone": "+27 10 000 0103",
+                    "active": true,
+                    "img": null,
+                    "role": "user"
+                  },
+                  "details": [
+                    {
+                      "id": 699021,
+                      "order_id": "899902",
+                      "stock_id": 699021,
+                      "origin_price": 138.75,
+                      "total_price": 138.75,
+                      "tax": 0,
+                      "discount": 0,
+                      "quantity": 1,
+                      "bonus": false,
+                      "stock": {
+                        "id": 699021,
+                        "countable_id": 699021,
+                        "price": 138.75,
+                        "quantity": 1,
+                        "tax": 0,
+                        "total_price": 138.75,
+                        "product": {
+                          "id": 699021,
+                          "uuid": "demo-product-699021",
+                          "shop_id": 9101,
+                          "active": true,
+                          "img": null,
+                          "translation": {
+                            "id": 699021,
+                            "locale": "en",
+                            "title": "Dinner for Two"
+                          },
+                          "locales": [
+                            "en"
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "transaction": {
+                    "id": 949902,
+                    "payable_id": 899902,
+                    "price": 158.75,
+                    "note": "Order payment",
+                    "status": "paid",
+                    "created_at": "$now_iso",
+                    "payment_system": {
+                      "id": 2,
+                      "tag": "wallet",
+                      "active": true
+                    }
+                  }
+                }
+              ],
+              "meta": {
+                "total": 2
+              }
+            }
+          },
+          "default": {
+            "data": [],
+            "meta": {
+              "total": 0
+            }
+          }
+        }
+      }
+    },
+    "default": {
+      "data": [],
+      "meta": {
+        "total": 0
+      }
+    }
+  }
+}

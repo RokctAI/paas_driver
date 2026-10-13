@@ -1,0 +1,278 @@
+{
+  "$demo_select": {
+    "by": "payload.limit_start",
+    "cases": {
+      "0": {
+        "data": [
+          {
+            "id": "900101",
+            "user_id": 8103,
+            "total_price": 129.0,
+            "origin_price": 109.0,
+            "service_fee": 0,
+            "tax": 8,
+            "delivery_fee": 12,
+            "status": "ready",
+            "current": false,
+            "km": 2.4,
+            "deliveryman": null,
+            "location": {
+              "latitude": "-26.1975",
+              "longitude": "28.0371"
+            },
+            "address": {
+              "address": "56 Rivonia Road, Sandton",
+              "house": "56",
+              "office": "2B",
+              "floor": "2"
+            },
+            "delivery_type": "delivery",
+            "delivery_date": "$now_iso",
+            "delivery_time": "15:00",
+            "created_at": "$now_iso",
+            "updated_at": "$now_iso",
+            "shop": {
+              "id": 9101,
+              "uuid": "demo-shop-9101",
+              "user_id": 9000,
+              "price": 25,
+              "price_per_km": 6,
+              "tax": 15,
+              "phone": "+27 10 000 0400",
+              "visibility": true,
+              "background_img": null,
+              "logo_img": null,
+              "min_amount": 50,
+              "status": "approved",
+              "type": "shop",
+              "delivery_time": {
+                "from": "15",
+                "to": "45",
+                "type": "minute"
+              },
+              "location": {
+                "latitude": "-26.1999",
+                "longitude": "28.0442"
+              },
+              "translation": {
+                "id": 9101,
+                "locale": "en",
+                "title": "Corner Kitchen",
+                "description": "Flame-grilled favourites, ready in minutes",
+                "address": "42 Marula Avenue, Sandton"
+              },
+              "locales": [
+                "en"
+              ]
+            },
+            "currency": {
+              "id": 1,
+              "symbol": "R",
+              "title": "ZAR",
+              "rate": 1,
+              "active": true
+            },
+            "user": {
+              "id": 8103,
+              "uuid": "demo-user-8103",
+              "firstname": "Lerato",
+              "lastname": "Mahlangu",
+              "email": "lerato.mahlangu@rokct.ai",
+              "phone": "+27 10 000 0103",
+              "active": true,
+              "img": null,
+              "role": "user"
+            },
+            "details": [
+              {
+                "id": 701011,
+                "order_id": "900101",
+                "stock_id": 701011,
+                "origin_price": 109.0,
+                "total_price": 109.0,
+                "tax": 0,
+                "discount": 0,
+                "quantity": 1,
+                "bonus": false,
+                "stock": {
+                  "id": 701011,
+                  "countable_id": 701011,
+                  "price": 109.0,
+                  "quantity": 1,
+                  "tax": 0,
+                  "total_price": 109.0,
+                  "product": {
+                    "id": 701011,
+                    "uuid": "demo-product-701011",
+                    "shop_id": 9101,
+                    "active": true,
+                    "img": null,
+                    "translation": {
+                      "id": 701011,
+                      "locale": "en",
+                      "title": "Margherita Pizza (Large)"
+                    },
+                    "locales": [
+                      "en"
+                    ]
+                  }
+                }
+              }
+            ],
+            "transaction": {
+              "id": 950101,
+              "payable_id": 900101,
+              "price": 129.0,
+              "note": "Order payment",
+              "status": "progress",
+              "created_at": "$now_iso",
+              "payment_system": {
+                "id": 1,
+                "tag": "cash",
+                "active": true
+              }
+            }
+          },
+          {
+            "id": "900102",
+            "user_id": 8101,
+            "total_price": 245.4,
+            "origin_price": 215.4,
+            "service_fee": 0,
+            "tax": 12,
+            "delivery_fee": 18,
+            "status": "ready",
+            "current": false,
+            "km": 4.7,
+            "deliveryman": null,
+            "location": {
+              "latitude": "-26.2179",
+              "longitude": "28.0414"
+            },
+            "address": {
+              "address": "78 Grayston Drive, Sandton",
+              "house": "78",
+              "office": null,
+              "floor": null
+            },
+            "delivery_type": "delivery",
+            "delivery_date": "$now_iso",
+            "delivery_time": "15:30",
+            "created_at": "$now_iso",
+            "updated_at": "$now_iso",
+            "shop": {
+              "id": 9102,
+              "uuid": "demo-shop-9102",
+              "user_id": 9000,
+              "price": 25,
+              "price_per_km": 6,
+              "tax": 15,
+              "phone": "+27 10 000 0400",
+              "visibility": true,
+              "background_img": null,
+              "logo_img": null,
+              "min_amount": 50,
+              "status": "approved",
+              "type": "shop",
+              "delivery_time": {
+                "from": "15",
+                "to": "45",
+                "type": "minute"
+              },
+              "location": {
+                "latitude": "-26.2099",
+                "longitude": "28.0522"
+              },
+              "translation": {
+                "id": 9102,
+                "locale": "en",
+                "title": "Mama Thembi's Spaza",
+                "description": "Bread, airtime and the essentials, open till late",
+                "address": "7 Vilakazi Street, Orlando West, Soweto"
+              },
+              "locales": [
+                "en"
+              ]
+            },
+            "currency": {
+              "id": 1,
+              "symbol": "R",
+              "title": "ZAR",
+              "rate": 1,
+              "active": true
+            },
+            "user": {
+              "id": 8101,
+              "uuid": "demo-user-8101",
+              "firstname": "Thandi",
+              "lastname": "Nkosi",
+              "email": "thandi.nkosi@rokct.ai",
+              "phone": "+27 10 000 0101",
+              "active": true,
+              "img": null,
+              "role": "user"
+            },
+            "details": [
+              {
+                "id": 701021,
+                "order_id": "900102",
+                "stock_id": 701021,
+                "origin_price": 215.4,
+                "total_price": 215.4,
+                "tax": 0,
+                "discount": 0,
+                "quantity": 1,
+                "bonus": false,
+                "stock": {
+                  "id": 701021,
+                  "countable_id": 701021,
+                  "price": 215.4,
+                  "quantity": 1,
+                  "tax": 0,
+                  "total_price": 215.4,
+                  "product": {
+                    "id": 701021,
+                    "uuid": "demo-product-701021",
+                    "shop_id": 9101,
+                    "active": true,
+                    "img": null,
+                    "translation": {
+                      "id": 701021,
+                      "locale": "en",
+                      "title": "Weekly Groceries Box"
+                    },
+                    "locales": [
+                      "en"
+                    ]
+                  }
+                }
+              }
+            ],
+            "transaction": {
+              "id": 950102,
+              "payable_id": 900102,
+              "price": 245.4,
+              "note": "Order payment",
+              "status": "paid",
+              "created_at": "$now_iso",
+              "payment_system": {
+                "id": 2,
+                "tag": "wallet",
+                "active": true
+              }
+            }
+          }
+        ],
+        "meta": {
+          "total": 2
+        }
+      }
+    },
+    "default": {
+      "data": [],
+      "meta": {
+        "total": 0
+      }
+    }
+  }
+}
