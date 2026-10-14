@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.88.3",
+      "version": "1.88.4",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -1376,8 +1376,8 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.88.3",
-      "hash": "e69de9e57a88f836"
+      "version": "1.88.4",
+      "hash": "9ae90b3b2b7afb43"
     },
     "comms": {
       "version": "1.22.4",

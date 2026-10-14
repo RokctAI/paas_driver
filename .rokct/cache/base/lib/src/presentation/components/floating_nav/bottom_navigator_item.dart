@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -148,28 +147,29 @@ class BottomNavigatorItem extends StatelessWidget {
   /// bare pill, so only the active mark differs from the original.
   Widget _rectangleTab(bool shouldHide) {
     final bool active = index == currentIndex;
+    // The cell is the full height of the tab pill housing (60.r), so the
+    // active rectangle meets the pill's top and bottom edges. The content
+    // is centred vertically with the label spaced below the icon.
     return GestureDetector(
       onTap: selectItem,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         color: AppStyle.transparent,
-        height: shouldHide ? 0.h : 45.h,
+        height: shouldHide ? 0.h : 60.r,
         width: shouldHide ? 0.w : 60.w,
-        child: Center(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          height: double.infinity,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: active ? AppStyle.primary : AppStyle.transparent,
+            borderRadius: BorderRadius.circular(12.r),
+          ),
           // Same guard as the dash layout: contents scale down on
           // geometries the phone design never saw instead of overflowing.
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              padding: EdgeInsets.symmetric(
-                horizontal: shouldHide ? 0.w : 10.w,
-                vertical: shouldHide ? 0.h : 4.h,
-              ),
-              decoration: BoxDecoration(
-                color: active ? AppStyle.primary : AppStyle.transparent,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
+          child: Center(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -179,7 +179,8 @@ class BottomNavigatorItem extends StatelessWidget {
                     size: shouldHide ? 0.r : 24.r,
                     color: AppStyle.white,
                   ),
-                  if (active)
+                  if (active) ...[
+                    SizedBox(height: shouldHide ? 0.h : 2.h),
                     Text(
                       label,
                       style: TextStyle(
@@ -191,6 +192,7 @@ class BottomNavigatorItem extends StatelessWidget {
                         decoration: TextDecoration.none,
                       ),
                     ),
+                  ],
                 ],
               ),
             ),

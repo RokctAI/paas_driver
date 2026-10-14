@@ -707,7 +707,10 @@ class _Housing extends StatelessWidget {
           // margin) while leaving the dark-page look as it was
           // (#131313 -> #161616 over surfaceDark). Same size, radius,
           // blur and placement; only the fill's alpha moves.
-          color: AppStyle.bottomNavigationBarColor.withValues(alpha: 0.7),
+          // Reduced to 50% (2026-10-14) so the frosted blur shows through.
+          // This is below the 70% that kept white ink at 4.5:1 on light
+          // pages: labels on a light page will fall under WCAG AA.
+          color: AppStyle.bottomNavigationBarColor.withValues(alpha: 0.5),
           borderRadius: BorderRadius.all(Radius.circular(radius)),
         ),
         height: height,

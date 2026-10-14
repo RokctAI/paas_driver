@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.88.4
+
+* fix(base): floating nav polish. The active tab's rectangle fills the full height of the pill housing so it sits flush against the pill edges, and the label sits 2px below the icon instead of against the pill. The pill's translucent fill drops from 70% to 50% alpha so the frosted blur shows through; white labels on light pages are now below WCAG AA contrast.
+
 ## 1.88.3
 
 * fix(profile): edit profile saves again. It sent the old key names
