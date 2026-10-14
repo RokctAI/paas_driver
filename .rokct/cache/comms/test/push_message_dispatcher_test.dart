@@ -56,4 +56,50 @@ void main() {
         .dispatch({'type': 'order_status', 'order_id': 'A'});
     expect(seen, ['A']);
   });
+
+  group('handleForeground', () {
+    test('an unclaimed message with a title is shown', () async {
+      final shown = <String>[];
+      final d = PushMessageDispatcher(
+        messages: PushMessages(),
+        presentNotification: (id, title, body) async =>
+            shown.add('$title/$body'),
+      );
+      await d.handleForeground({'type': 'promo'},
+          title: 'Hello', body: 'A new course', messageId: 'm1');
+      expect(shown, ['Hello/A new course']);
+    });
+
+    test('a message a handler claims is not shown again', () async {
+      final pm = PushMessages();
+      pm.register('order_status', (_) {});
+      final shown = <String>[];
+      final d = PushMessageDispatcher(
+        messages: pm,
+        presentNotification: (id, title, body) async => shown.add(title),
+      );
+      await d.handleForeground({'type': 'order_status'},
+          title: 'Order', body: 'On its way');
+      expect(shown, isEmpty);
+    });
+
+    test('a data-only message shows nothing', () async {
+      final shown = <String>[];
+      final d = PushMessageDispatcher(
+        messages: PushMessages(),
+        presentNotification: (id, title, body) async => shown.add(title),
+      );
+      await d.handleForeground({'type': 'sync'});
+      expect(shown, isEmpty);
+    });
+
+    test('a failing presenter never throws', () async {
+      final d = PushMessageDispatcher(
+        messages: PushMessages(),
+        presentNotification: (id, title, body) async =>
+            throw StateError('not initialized'),
+      );
+      await d.handleForeground({}, title: 'Hi');
+    });
+  });
 }

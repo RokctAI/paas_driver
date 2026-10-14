@@ -29,18 +29,12 @@
 // widget's own on the inherited theme restyles it here.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:base_sdk/src/application/orders_list/orders_list_notifier.dart';
-import 'package:base_sdk/src/application/orders_list/orders_list_provider.dart';
 import 'package:base_sdk/src/application/profile/profile_host_capabilities.dart';
-import 'package:base_sdk/src/domain/interface/orders.dart';
-import 'package:base_sdk/src/models/data/order_active_model.dart';
-import 'package:base_sdk/src/presentation/components/glance_card.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_host_scope.dart';
 import 'package:base_sdk/src/presentation/pages/profile/widgets/base_profile_footer.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -99,33 +93,6 @@ class _MetaRowRegion extends StatelessWidget {
       child: ProfileMetaRow(),
     );
   }
-}
-
-/// Stands in for the orders repository the notifier is constructed with.
-/// Nothing is asked of it: the stub notifier below answers the one call the
-/// card makes, so no method of this ever runs.
-class _UnusedOrdersRepository implements OrdersRepositoryFacade {
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw StateError('the active-order glance card asked the backend');
-}
-
-/// The card fetches on mount. This test is about the card's styling, not
-/// its data, so the fetch is answered with nothing: no active order, so
-/// the card renders its empty shape and asks no shop for a logo. What is
-/// under test is whether a theme-mode change rebuilds the card at all.
-class _NoOrdersNotifier extends OrdersListNotifier {
-  _NoOrdersNotifier() : super(_UnusedOrdersRepository());
-
-  @override
-  Future<void> fetchActiveOrders(BuildContext context) async {}
-}
-
-class _GlanceRegion extends StatelessWidget {
-  const _GlanceRegion();
-
-  @override
-  Widget build(BuildContext context) => const ActiveOrderGlanceCard();
 }
 
 void main() {
@@ -256,48 +223,5 @@ void main() {
     expect(light, AppStyle.textDarkSecondary);
     expect(AppStyle.secondaryInkFor(Brightness.dark),
         isNot(AppStyle.secondaryInkFor(Brightness.light)));
-  });
-
-  testWidgets(
-      'a theme-mode change rebuilds the active-order glance card in place',
-      (WidgetTester tester) async {
-    // The weather notice this card adds names a muted colour of ITS own,
-    // which the shell #242 fixed deliberately leaves alone - so the shell's
-    // theme dependency does nothing for it. The notice is built inside two
-    // ValueListenableBuilders, which rebuild only when their notifier
-    // fires, and the colour came from AppStyle's app-wide static. So a mode
-    // change reached neither: nothing rebuilt this card's element and the
-    // notice kept the previous mode's ink until an order or ETA tick
-    // happened along.
-    //
-    // The card's data is not what is under test here (it needs a backend);
-    // the rebuild is. Before the fix, build() ran once and the
-    // ValueListenableBuilder it returns stayed the very same instance
-    // across the flip - proof that the mode change did not reach the card.
-    AppStyle.setBrightness(Brightness.dark);
-
-    final GlobalKey<_ThemedHostState> host = GlobalKey<_ThemedHostState>();
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: <Override>[
-          ordersListProvider.overrideWith((Ref ref) => _NoOrdersNotifier()),
-        ],
-        child: _ThemedHost(key: host, child: const _GlanceRegion()),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    final Finder listener = find.descendant(
-      of: find.byType(ActiveOrderGlanceCard),
-      matching: find.byType(ValueListenableBuilder<OrderActiveModel?>),
-    );
-    final Widget before = tester.widget(listener);
-
-    host.currentState!.flip();
-    await tester.pumpAndSettle();
-
-    expect(tester.widget(listener), isNot(same(before)),
-        reason: 'the theme-mode change did not rebuild the card, so its '
-            "weather notice keeps the previous mode's ink");
   });
 }

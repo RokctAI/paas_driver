@@ -124,10 +124,14 @@ class _LanguagePageState extends ConsumerState<LanguageScreen> {
                         ),
                         CustomButton(
                           title: AppHelpers.getTranslation(TrKeys.save),
-                          onPressed: () {
-                            ref
+                          onPressed: () async {
+                            // Wait for the save (translations, then the
+                            // app's locale) before closing, so a failure
+                            // still has a page to show on.
+                            await ref
                                 .read(languageProvider.notifier)
                                 .makeSelectedLang(context, userInitiated: true);
+                            if (!mounted) return;
                             widget.onSave();
                           },
                         ),

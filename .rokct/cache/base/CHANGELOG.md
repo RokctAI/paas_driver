@@ -1,5 +1,57 @@
 # Changelog
 
+## 1.88.3
+
+* fix(profile): edit profile saves again. It sent the old key names
+  (`firstname`, `birthday`, `images`), which the backend ignores, so names
+  and birthdays never saved. It now sends `first_name`, `last_name`,
+  `birth_date`, `gender` and `phone`, and leaves the phone out when there
+  is none instead of blanking it. The same fix covers registration's
+  profile step, which uses the same request.
+* fix(profile): saving no longer blanks the signed-in user. The backend
+  answers a save with a message, not a profile, and that empty answer was
+  stored as the user. The app now reads the profile back, or keeps the
+  edits on the current user if that read fails.
+* fix(profile): a new profile photo is attached to the account after it
+  uploads (`update_profile_image`). Before, it was uploaded and then never
+  used.
+* fix(profile): the date of birth starts empty for someone who has none,
+  so an untouched Save no longer stores today's date as their birthday.
+* fix(profile): the footer's Online / Offline label and the "No internet
+  connection" snackbar are translated.
+* fix(profile): Terms and Privacy show "Check your network connection"
+  when offline and "This page is not available yet" when the tenant has
+  not published the page, instead of the raw error.
+* fix(profile): deleting the account, or a signed-out profile refresh, no
+  longer routes through a page that has already closed.
+* fix(language): saving a language changes the running app at once
+  (locale and text direction). Before, it only took effect after a restart.
+* fix(splash): a later start routes straight away on the stored settings
+  and refreshes them in the background. Only the first start, which has
+  none stored, waits for them. It was the other way round, so every start
+  after the first waited on the network.
+
+## 1.88.2
+
+* fix(build): base now asks for dio 5.10 or newer. Its timeout handling
+  uses `DioExceptionType.transformTimeout`, which dio added in 5.10, but
+  the constraint still allowed 5.7. Manager and driver had dio 5.7.0 saved
+  in their lockfiles, so their Android and Windows builds failed to
+  compile on 13 Oct. The new floor makes those apps pick up a newer dio.
+
+## 1.88.1
+
+* fix(navigation): `AppHelpers.goHome` no longer crashes an app without a
+  shop page. With the marketplace off (a single-shop build), it asked for
+  the shop page. Only a marketplace app declares that page, so the
+  launcher, manager, driver or supacharge would have thrown there. It now
+  lands on the main screen when the shop page is missing. The marketplace
+  is on in every app today, so nothing crashed yet; this removes the trap.
+* chore: removed `ActiveOrderGlanceCard`, the order-status glance card. No app
+  has used it since 26 Sep, when the live order notification replaced it on
+  the customer home (marketplace 1.14.5). Its theme test goes with it.
+  `GlanceCard` itself, used by the launcher, lms and productivity, stays.
+
 ## 1.88.0
 
 * feat(sync): `SyncResult.held(reason)`, for an op the backend is

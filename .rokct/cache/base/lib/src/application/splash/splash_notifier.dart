@@ -54,40 +54,36 @@ class SplashNotifier extends StateNotifier<SplashState> {
         return;
       }
 
-      if (LocalStorage.getSettingsFetched()) {
-        final response = await _settingsRepository.getGlobalSettings();
-        response.when(
-          success: (data) {
-            LocalStorage.setSettingsList(data.data ?? []);
-            LocalStorage.setSettingsFetched(true);
-          },
-          failure: (failure, status) {
-            debugPrint('==> error with settings fetched');
-          },
-        );
-      }
+      // A later start already has settings stored: route on them at once
+      // and refresh them in the background. Only the first start, with
+      // nothing stored, waits for them. (This was inverted: every later
+      // start waited on the network before routing, and the first start
+      // routed before it had any settings.)
+      final cached = LocalStorage.getSettingsFetched();
+      final refresh = _refreshGlobalSettings();
+      if (!cached) await refresh;
 
       if (LocalStorage.getToken().isEmpty) {
         goLogin?.call();
       } else {
         goMain?.call();
       }
-
-      if (!LocalStorage.getSettingsFetched()) {
-        final response = await _settingsRepository.getGlobalSettings();
-        response.when(
-          success: (data) {
-            LocalStorage.setSettingsList(data.data ?? []);
-            LocalStorage.setSettingsFetched(true);
-          },
-          failure: (failure, status) {
-            debugPrint('==> error with settings fetched');
-          },
-        );
-      }
     } else {
       goNoInternet?.call();
     }
+  }
+
+  Future<void> _refreshGlobalSettings() async {
+    final response = await _settingsRepository.getGlobalSettings();
+    response.when(
+      success: (data) {
+        LocalStorage.setSettingsList(data.data ?? []);
+        LocalStorage.setSettingsFetched(true);
+      },
+      failure: (failure, status) {
+        debugPrint('==> error with settings fetched');
+      },
+    );
   }
 
   Future<void> getTranslations(BuildContext context) async {

@@ -22,7 +22,6 @@ import 'package:intl/intl.dart' as intl;
 import 'package:remixicon/remixicon.dart';
 import 'package:base_sdk/src/application/edit_profile/edit_profile_provider.dart';
 import 'package:base_sdk/src/application/profile/profile_provider.dart';
-import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/app_validators.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
@@ -76,26 +75,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   void initState() {
-    birthDay = TextEditingController(
-      text: intl.DateFormat("yyyy-MM-dd").format(
-        DateTime.tryParse(
-              ref.read(profileProvider).userData?.birthday ?? "",
-            )?.toLocal() ??
-            DateTime.now(),
-      ),
-    );
+    // A user with no stored birthday starts with an empty field. Pre-filling
+    // today's date saved "today" as their birth date on any untouched Save.
+    final storedBirth = DateTime.tryParse(
+      ref.read(profileProvider).userData?.birthday ?? "",
+    )?.toLocal();
+    final birthText = storedBirth == null
+        ? ""
+        : intl.DateFormat("yyyy-MM-dd").format(storedBirth);
+    birthDay = TextEditingController(text: birthText);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       ref
           .read(editProfileProvider.notifier)
           .setPhone(ref.read(profileProvider).userData?.phone ?? "");
-      ref.read(editProfileProvider.notifier).setBirth(
-            intl.DateFormat("yyyy-MM-dd").format(
-              DateTime.tryParse(
-                    ref.read(profileProvider).userData?.birthday ?? "",
-                  )?.toLocal() ??
-                  DateTime.now(),
-            ),
-          );
+      ref.read(editProfileProvider.notifier).setBirth(birthText);
     });
     super.initState();
   }
@@ -121,10 +114,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final user = ref.watch(profileProvider).userData;
     final state = ref.watch(editProfileProvider);
     ref.listen(editProfileProvider, (previous, next) {
-      if (next.isSuccess && (previous?.isSuccess ?? false) != next.isSuccess) {
-        ref
-            .read(profileProvider.notifier)
-            .setUser(next.userData ?? ProfileData());
+      // Never replace the user with an empty profile: the notifier always
+      // hands back the saved (or merged) user on success.
+      final saved = next.userData;
+      if (next.isSuccess &&
+          (previous?.isSuccess ?? false) != next.isSuccess &&
+          saved != null) {
+        ref.read(profileProvider.notifier).setUser(saved);
       }
     });
     return Directionality(

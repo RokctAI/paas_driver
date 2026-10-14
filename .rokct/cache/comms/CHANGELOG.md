@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.22.4
+
+* fix(language): the Languages sheet waits for Save to finish before it
+  closes, so a translations error still shows (as 1.22.2 meant), and the
+  chosen language now applies at once (base_sdk 1.88.3).
+* fix(windows): the notification sound rings 3 times for each new
+  notification, then stops. It used to loop until the unread count went
+  down, and supacharge has no notification list, so it never stopped.
+  Polling still runs every 10 seconds.
+* fix(push): a message that arrives while the app is open, and that no
+  feature claims, now shows as a notification. Before, it showed nothing.
+  The toast and banner text is translated.
+* Requires base_sdk >= 1.88.3.
+
 ## 1.22.3
 
 * fix(wiring): the customer app's chat ("Chat with a shop" on a shop page,

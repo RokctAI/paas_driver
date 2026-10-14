@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.87.1",
+      "version": "1.88.3",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -682,7 +682,7 @@
       ]
     },
     "comms_sdk": {
-      "version": "1.22.3",
+      "version": "1.22.4",
       "files": {
         "lib/application/notification/notification_state.dart": "055c8ab42969bad5e418061cbe38699458bfc8b74ea7d4def4a03a18e261b184",
         "lib/application/notification/notification_notifier.dart": "c5c691d1c0f1d476eea96d5a60bac5316fabe8ea0f77412db1d4d409f1e6b748",
@@ -1376,12 +1376,12 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.87.1",
-      "hash": "8d4317eed49aa6c1"
+      "version": "1.88.3",
+      "hash": "e69de9e57a88f836"
     },
     "comms": {
-      "version": "1.22.3",
-      "hash": "699637eb25bbebf4"
+      "version": "1.22.4",
+      "hash": "2433701a8531dd13"
     },
     "auth": {
       "version": "1.20.0",

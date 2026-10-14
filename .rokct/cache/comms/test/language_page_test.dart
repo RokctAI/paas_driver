@@ -29,6 +29,7 @@ import 'package:base_sdk/src/presentation/components/title_icon.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:comms_sdk/src/common/infrastructure/repositories/settings_repository.dart';
 import 'package:comms_sdk/src/common/presentation/pages/setting/language_page.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,7 @@ class _StubLanguageNotifier extends LanguageNotifier {
   Future<void> getLanguages(
     BuildContext context, {
     bool autoSelectIfSingle = false,
+    bool userInitiated = false,
   }) async {
     state = LanguageState(
       isLoading: false,
@@ -188,4 +190,41 @@ void main() {
       expect(_surfaceOf(tester), AppStyle.surfaceDark.withValues(alpha: 0.96));
     });
   });
+
+  testWidgets('Save closes the sheet only after the language is saved',
+      (tester) async {
+    final events = <String>[];
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        languageProvider.overrideWith((ref) => _RecordingLanguageNotifier(events)),
+      ],
+      child: ScreenUtilInit(
+        designSize: const Size(390, 844),
+        builder: (_, __) => MaterialApp(
+          home: Scaffold(
+            body: LanguageScreen(onSave: () => events.add('closed')),
+          ),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(AppHelpers.getTranslation(TrKeys.save)));
+    await tester.pumpAndSettle();
+    expect(events, ['saved', 'closed']);
+  });
+}
+
+class _RecordingLanguageNotifier extends _StubLanguageNotifier {
+  _RecordingLanguageNotifier(this.events);
+
+  final List<String> events;
+
+  @override
+  Future<void> makeSelectedLang(
+    BuildContext context, {
+    bool userInitiated = false,
+  }) async {
+    await Future<void>.delayed(Duration.zero);
+    events.add('saved');
+  }
 }

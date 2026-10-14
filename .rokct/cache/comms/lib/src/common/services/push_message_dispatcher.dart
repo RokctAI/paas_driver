@@ -20,6 +20,15 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:comms_sdk/src/common/local_notifications.dart';
+
+/// Shows a notification on the device (title, body). The seam tests use.
+typedef ForegroundNotificationPresenter = Future<void> Function(
+  int id,
+  String title,
+  String body,
+);
+
 /// Feeds received FCM messages into base_sdk's [PushMessages], so a
 /// feature SDK's handler (orders' `order_status`) runs without importing
 /// comms_sdk.
@@ -32,9 +41,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///   no feature SDK has registered anything. Its data is queued
 ///   ([queueBackground]) and replayed here at start and on every resume,
 ///   so the handler still sees it when the app comes back.
+/// * FCM shows nothing itself while the app is open. A foreground message
+///   that no feature SDK claims, and that carries a title or body, is shown
+///   as a local notification ([handleForeground]), so it is not lost.
 class PushMessageDispatcher with WidgetsBindingObserver {
-  PushMessageDispatcher({PushMessages? messages})
-      : messages = messages ?? PushMessages.instance;
+  PushMessageDispatcher({
+    PushMessages? messages,
+    ForegroundNotificationPresenter? presentNotification,
+  })  : messages = messages ?? PushMessages.instance,
+        _present = presentNotification ?? _showLocalNotification;
 
   static final PushMessageDispatcher instance = PushMessageDispatcher();
 
@@ -45,6 +60,7 @@ class PushMessageDispatcher with WidgetsBindingObserver {
   static const int maxQueued = 20;
 
   final PushMessages messages;
+  final ForegroundNotificationPresenter _present;
   bool _started = false;
 
   /// Subscribe to FCM and replay the queue. Idempotent.
@@ -53,7 +69,14 @@ class PushMessageDispatcher with WidgetsBindingObserver {
     _started = true;
     WidgetsBinding.instance.addObserver(this);
     try {
-      FirebaseMessaging.onMessage.listen((m) => dispatch(m.data));
+      FirebaseMessaging.onMessage.listen(
+        (m) => handleForeground(
+          m.data,
+          title: m.notification?.title,
+          body: m.notification?.body,
+          messageId: m.messageId,
+        ),
+      );
       FirebaseMessaging.onMessageOpenedApp.listen((m) => dispatch(m.data));
     } catch (e) {
       debugPrint('==> push dispatcher: FCM unavailable: $e');
@@ -80,9 +103,42 @@ class PushMessageDispatcher with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) unawaited(replayQueued());
   }
 
-  Future<void> dispatch(Map<String, dynamic> data) async {
-    if (data.isEmpty) return;
-    await messages.dispatch(Map<String, dynamic>.from(data));
+  /// Runs the handler for [data]'s type. Returns whether one ran.
+  Future<bool> dispatch(Map<String, dynamic> data) async {
+    if (data.isEmpty) return false;
+    return messages.dispatch(Map<String, dynamic>.from(data));
+  }
+
+  /// A message received while the app is open: a type handler gets it
+  /// first; otherwise its title and body are shown as a notification.
+  Future<void> handleForeground(
+    Map<String, dynamic> data, {
+    String? title,
+    String? body,
+    String? messageId,
+  }) async {
+    final claimed = await dispatch(data);
+    if (claimed) return;
+    final t = title?.trim() ?? '';
+    final b = body?.trim() ?? '';
+    if (t.isEmpty && b.isEmpty) return;
+    final id = (messageId ?? '$t|$b|${DateTime.now().microsecondsSinceEpoch}')
+            .hashCode &
+        0x7fffffff;
+    try {
+      await _present(id, t, b);
+    } catch (e) {
+      debugPrint('==> push dispatcher: foreground notification: $e');
+    }
+  }
+
+  static Future<void> _showLocalNotification(
+    int id,
+    String title,
+    String body,
+  ) async {
+    await LocalNotifications.ensureInitialized();
+    await LocalNotifications.show(id: id, title: title, body: body);
   }
 
   /// Called from the background isolate: remember [data] for the next

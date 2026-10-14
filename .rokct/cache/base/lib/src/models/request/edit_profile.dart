@@ -51,24 +51,30 @@ class EditProfile {
     referral = json['referral'];
   }
 
+  /// The `profile_data` sent to `api.user.update_user_profile`. The
+  /// backend only takes first_name, last_name, phone, birth_date, location
+  /// and gender; the Laravel-era firstname/lastname/birthday/images keys
+  /// were dropped there, so names and birthdays never saved. The photo is
+  /// attached separately (`UserRepositoryFacade.updateProfileImage`), so
+  /// [images] is not sent. A null phone is left out: sending it blanked
+  /// the stored number.
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (firstname != null) data['firstname'] = firstname;
-    if (lastname != null) data['lastname'] = lastname;
+    if (firstname != null) data['first_name'] = firstname;
+    if (lastname != null) data['last_name'] = lastname;
     if (email != null) data['email'] = email;
     if (password != null) data['password'] = password;
     if (referral != null) data['referral'] = referral;
     if (confirmPassword != null) {
       data['password_confirmation'] = confirmPassword;
     }
-    if (birthday != null) {
-      data['birthday'] = birthday!.contains(" ")
+    if (birthday != null && birthday!.isNotEmpty) {
+      data['birth_date'] = birthday!.contains(" ")
           ? birthday?.substring(0, birthday?.indexOf(" "))
           : birthday;
     }
-    if (gender != null) data['gender'] = gender;
-    if (images != null && images!.isNotEmpty) data["images"] = [images];
-    data["phone"] = phone;
+    if (gender != null && gender!.isNotEmpty) data['gender'] = gender;
+    if (phone != null) data['phone'] = phone;
     return data;
   }
 }

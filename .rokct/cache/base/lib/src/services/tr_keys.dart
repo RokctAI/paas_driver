@@ -438,6 +438,8 @@ class TrKeys {
   /// A server that answered too slowly rather than not at all — the one
   /// connection-class failure whose instruction really is "try again".
   static const String serverTookTooLong = 'server_took_too_long';
+  /// A content page (terms, privacy policy) the tenant has not published.
+  static const String pageNotAvailableYet = 'this_page_is_not_available_yet';
   static const String somethingWentWrongWithTheServer =
       'something_went_wrong_with_the_server';
   static const String totalProductPrice = 'total_product_price';
@@ -472,6 +474,9 @@ class TrKeys {
   static const String phoneNumber = 'phone_number';
   static const String cancel = 'cancel';
   static const String noInternetConnection = 'no_internet_connection';
+  static const String newNotifications = 'new_notifications';
+  static const String youHaveUnseenNotifications =
+      'you_have_unseen_notifications';
   static const String resetPassword = 'reset_password';
   static const String confirmation = 'confirm';
   static const String confirmPassword = 'confirm_password';

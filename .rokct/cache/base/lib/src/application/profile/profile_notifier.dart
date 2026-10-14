@@ -112,7 +112,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       },
       failure: (r, s) {
         state = state.copyWith(isTermLoading: false);
-        AppHelpers.showCheckTopSnackBar(context, r.toString());
+        _showPageLoadFailure(context, r, s, where: 'getTerm');
       },
     );
   }
@@ -126,9 +126,35 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       },
       failure: (r, s) {
         state = state.copyWith(isPolicyLoading: false);
-        AppHelpers.showCheckTopSnackBar(context, r.toString());
+        _showPageLoadFailure(context, r, s, where: 'getPolicy');
       },
     );
+  }
+
+  /// Terms and privacy failures in plain words. Offline asks the person to
+  /// check their connection, and a page the tenant never published
+  /// (Frappe's DoesNotExistError, a 404) says it is not available yet,
+  /// instead of the raw error text.
+  Future<void> _showPageLoadFailure(
+    BuildContext context,
+    dynamic error,
+    int status, {
+    required String where,
+  }) async {
+    final detail = error?.toString() ?? '';
+    final connected = await AppConnectivity.connectivity();
+    if (!context.mounted) return;
+    final String key;
+    if (!connected) {
+      key = TrKeys.checkYourNetworkConnection;
+    } else if (status == 404 || detail.contains('DoesNotExist')) {
+      key = TrKeys.pageNotAvailableYet;
+    } else {
+      AppHelpers.showCheckTopSnackBar(context, detail);
+      return;
+    }
+    debugPrint('==> $where failure: $detail');
+    AppHelpers.showCheckTopSnackBar(context, AppHelpers.getTranslation(key));
   }
 
   resetShopData() {
@@ -290,7 +316,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
             if (refreshController == null) {
               state = state.copyWith(isLoading: false);
             }
-            if (status == 401) {
+            if (status == 401 && context.mounted) {
               context.router.popUntilRoot();
               AppRoutes.I.replaceLoginRoute(context);
             }
@@ -398,11 +424,15 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       final response = await userRepository.deleteAccount();
       response.when(
         success: (data) async {
+          // The delete request outlives the page when the person leaves
+          // it; routing through a dead context throws.
+          if (!context.mounted) return;
           context.router.popUntilRoot();
           AppRoutes.I.replaceLoginRoute(context);
         },
         failure: (failure, status) {
           state = state.copyWith(isLoading: false);
+          if (!context.mounted) return;
           AppHelpers.showCheckTopSnackBar(context, failure);
         },
       );

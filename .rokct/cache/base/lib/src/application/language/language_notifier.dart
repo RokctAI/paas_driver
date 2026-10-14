@@ -31,7 +31,16 @@ import 'package:base_sdk/src/handlers/api_result.dart';
 class LanguageNotifier extends StateNotifier<LanguageState> {
   final SettingsRepositoryFacade _settingsRepository;
 
-  LanguageNotifier(this._settingsRepository) : super(const LanguageState());
+  /// Applies a saved language to the running app (the provider wires
+  /// `appProvider`'s `changeLocale`, which drives MaterialApp.locale and
+  /// text direction). Null in tests that build the notifier bare.
+  final Future<void> Function(LanguageData language)? _applyLocale;
+
+  LanguageNotifier(
+    this._settingsRepository, {
+    Future<void> Function(LanguageData language)? applyLocale,
+  })  : _applyLocale = applyLocale,
+        super(const LanguageState());
 
   void change(int index) {
     state = state.copyWith(index: index);
@@ -139,10 +148,17 @@ class LanguageNotifier extends StateNotifier<LanguageState> {
     BuildContext context, {
     bool userInitiated = false,
   }) async {
+    if (state.index < 0 || state.index >= state.list.length) return;
+    final selected = state.list[state.index];
     LocalStorage.setLanguageSelected(true);
-    LocalStorage.setLanguageData(state.list[state.index]);
-    LocalStorage.setLangLtr(state.list[state.index].backward);
+    LocalStorage.setLanguageData(selected);
+    LocalStorage.setLangLtr(selected.backward);
     await getTranslations(context, userInitiated: userInitiated);
+    // Storing the language alone changed nothing on screen until the next
+    // cold start: the root MaterialApp reads its locale and direction from
+    // appProvider. Applied after the translations load, so the rebuild
+    // shows the new copy (bundled copy when the fetch failed).
+    await _applyLocale?.call(selected);
   }
 
   Future<void> getTranslations(

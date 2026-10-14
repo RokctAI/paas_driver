@@ -26,6 +26,7 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/demo_session.dart';
+import 'package:base_sdk/src/services/tr_keys.dart';
 
 /// The shared profile-footer meta row: app name, app version (with build
 /// number in debug), the backend-probe Online/Offline dot and the
@@ -149,7 +150,9 @@ class ProfileMetaRow extends StatelessWidget {
                     color: isOnline ? AppStyle.green : AppStyle.red,
                   ),
                   Text(
-                    isOnline ? 'Online' : 'Offline',
+                    AppHelpers.getTranslation(
+                      isOnline ? TrKeys.online : TrKeys.offline,
+                    ),
                     style: TextStyle(
                       color: isOnline ? AppStyle.green : AppStyle.red,
                     ),
