@@ -148,6 +148,11 @@ class _BillingPageState extends ConsumerState<BillingPage>
   /// 45s with no accepted scan pauses the camera (resume re-arms it).
   static const Duration idleTimeout = Duration(seconds: 45);
 
+  /// Scan stage height (design units) on an empty cart, and the height it
+  /// settles at once three cart lines are in.
+  static const double _stageMaxHeight = 340;
+  static const double _stageMinHeight = 200;
+
   MobileScannerController? _controller;
   Timer? _idleTimer;
   bool _paused = false;
@@ -330,7 +335,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
         // 11m plane 1: at three planes the lane (277) is REMOVED — the
         // pane beside it IS Add Items; at the two-plane fold no pane
         // shows, so the lane stays the door.
-        Expanded(child: _scanColumn(context, lane: !addItemsPane)),
+        Expanded(child: _scanColumn(context, lane: false)),
         if (addItemsPane) ...[
           seam,
           // 11m plane 2: the Add Items experience as a permanent pane
@@ -348,7 +353,12 @@ class _BillingPageState extends ConsumerState<BillingPage>
         seam,
         // 11m plane 3: the cart — 278–280, 286/287.
         Expanded(
-          child: SafeArea(bottom: false, child: _cartColumn(context, state)),
+          child: SafeArea(
+            bottom: false,
+            // The Add Items pane is beside the cart at three planes, so the
+            // header button would duplicate it there.
+            child: _cartColumn(context, state, addItems: !addItemsPane),
+          ),
         ),
       ],
     );
@@ -360,8 +370,6 @@ class _BillingPageState extends ConsumerState<BillingPage>
       children: [
         _scannerStage(context),
         16.verticalSpace,
-        _lanes(context),
-        18.verticalSpace,
         Expanded(child: _cartColumn(context, state)),
       ],
     );
@@ -382,10 +390,14 @@ class _BillingPageState extends ConsumerState<BillingPage>
   /// The cart: header (278/279), line cards (280–285), summary + Continue
   /// (286/287). The whole phone page below the lanes; a plane of its own
   /// at plane widths.
-  Widget _cartColumn(BuildContext context, PosCartState state) {
+  Widget _cartColumn(
+    BuildContext context,
+    PosCartState state, {
+    bool addItems = true,
+  }) {
     return Column(
       children: [
-        _cartHeader(context, state),
+        _cartHeader(context, state, addItems: addItems),
         10.verticalSpace,
         Expanded(
           child: state.lines.isEmpty
@@ -470,9 +482,18 @@ class _BillingPageState extends ConsumerState<BillingPage>
   Widget _scannerStage(BuildContext context) {
     final controller = _controller;
     final bool cameraLive = controller != null && !_paused;
-    return Container(
+    // The stage gives up height as lines are added: full height on an empty
+    // cart, stepping down per line until three lines are in, then fixed, so
+    // a fourth line scrolls the list rather than moving the stage again.
+    final int lineCount = ref.watch(posCartProvider).lines.length;
+    final double stageFraction = (lineCount.clamp(0, 3)) / 3;
+    final double stageHeight =
+        _stageMaxHeight - (_stageMaxHeight - _stageMinHeight) * stageFraction;
+    return AnimatedContainer(
       key: const Key('posScanStage'),
-      height: 340.h,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      height: stageHeight.h,
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppStyle.black,
@@ -628,7 +649,11 @@ class _BillingPageState extends ConsumerState<BillingPage>
   }
 
   /// Chips 278/279: "Cart" + quantity-sum chip + Clear All.
-  Widget _cartHeader(BuildContext context, PosCartState state) {
+  Widget _cartHeader(
+    BuildContext context,
+    PosCartState state, {
+    bool addItems = true,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Row(
@@ -651,6 +676,17 @@ class _BillingPageState extends ConsumerState<BillingPage>
               ),
             ),
           const Spacer(),
+          if (addItems) ...[
+            KeyedSubtree(
+              key: const Key('posAddItemsLane'),
+              child: _laneChip(
+                icon: Remix.search_line,
+                label: AppHelpers.getTranslation(TrKeys.addItems),
+                onTap: () => _openAddItemsSheet(context),
+              ),
+            ),
+            10.horizontalSpace,
+          ],
           if ((_pendingSyncCount ?? 0) > 0) ...[
             // Pending-sync indicator: offline-first sales recorded on the
             // till still queued for the backend (they drain through the
@@ -865,6 +901,13 @@ class _BillingPageState extends ConsumerState<BillingPage>
               ),
             ),
             16.verticalSpace,
+            // KEYPAD AUTODIAL (approved design strip section 42): an
+            // empty ticket normally has nowhere to go — but with autodial
+            // armed the pad IS how the ticket gets built, and the pad
+            // lives on the payment surface, so Continue stays live to
+            // carry the attendant there. Money in first, item on the
+            // ticket with one key, no menu hunting. Unarmed shops see
+            // exactly the gate they always saw.
             // KEYPAD AUTODIAL (approved design strip section 42): an
             // empty ticket normally has nowhere to go — but with autodial
             // armed the pad IS how the ticket gets built, and the pad

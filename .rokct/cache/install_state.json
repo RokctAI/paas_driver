@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.88.4",
+      "version": "1.88.5",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -976,7 +976,7 @@
       ]
     },
     "merchants_sdk": {
-      "version": "1.34.0",
+      "version": "1.35.0",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
         "lib/presentation/pages/stores/story_page.dart": "adeb07c24627dd3f1321a4f3eebc4d762e55f8cf8e8e3b7b91daeffdb86b3508",
@@ -1144,7 +1144,7 @@
       }
     },
     "auth_sdk": {
-      "version": "1.20.0",
+      "version": "1.21.0",
       "files": {
         "lib/presentation/routes/auth_route_pages.dart": "8eaff3abe2dd38d8a6c2f15ed4b9e4ec779c5b99f3f71a18445ee4a13d12056f",
         "lib/presentation/routes/registration_step_pages.dart": "68aed195fc07db746a0919c7ba6d47ffa445ca86e7d9cf6ee50fbcb00e82d3c2",
@@ -1376,16 +1376,16 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.88.4",
-      "hash": "9ae90b3b2b7afb43"
+      "version": "1.88.5",
+      "hash": "b83ab8e7db9b41d2"
     },
     "comms": {
       "version": "1.22.4",
       "hash": "2433701a8531dd13"
     },
     "auth": {
-      "version": "1.20.0",
-      "hash": "f92c82812fab6f4c"
+      "version": "1.21.0",
+      "hash": "e7adcc37a1e4f15c"
     },
     "users": {
       "version": "1.5.2",
@@ -1396,8 +1396,8 @@
       "hash": "5609f2e20d4db7ce"
     },
     "merchants": {
-      "version": "1.34.0",
-      "hash": "6a92e092be053d69"
+      "version": "1.35.0",
+      "hash": "9296de39d244d4d9"
     },
     "products": {
       "version": "1.12.7",

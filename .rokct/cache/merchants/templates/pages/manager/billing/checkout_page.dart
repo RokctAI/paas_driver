@@ -700,7 +700,8 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           _autodialCard(context, state),
           20.verticalSpace,
         ],
-        _finishButtons(context, state),
+        // An empty ticket has nothing to finish: no finish buttons.
+        if (state.lines.isNotEmpty) _finishButtons(context, state),
         120.verticalSpace,
       ];
       body = Row(
@@ -757,7 +758,8 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           _autodialCard(context, state),
         ],
         20.verticalSpace,
-        _finishButtons(context, state),
+        // An empty ticket has nothing to finish: no finish buttons.
+        if (state.lines.isNotEmpty) _finishButtons(context, state),
         120.verticalSpace,
       ]);
     }

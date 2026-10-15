@@ -1,3 +1,16 @@
+## 1.35.0
+
+* feat(manager till): the scan stage shrinks as items are added (340 on an
+  empty cart, down to 200 at three lines), so about three lines show before
+  the list scrolls.
+* feat(manager till): Add Items moves into the Cart header row, beside the
+  item count. The separate lane row under the scan stage is removed on the
+  phone and two-plane layouts.
+* fix(manager till): Continue on an empty cart is live only while autodial
+  is armed, so the checkout keypad can build the ticket.
+* fix(manager checkout): Print Receipt & Finish and Finish show only when the
+  ticket has at least one line.
+
 ## 1.34.0
 
 * feat(manager): sign-up asks for the seller role, and an account signed up

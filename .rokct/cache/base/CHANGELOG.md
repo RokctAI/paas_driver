@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.88.5
+
+* fix(android): the app template's ndkVersion is 29.0.14206865 (was 28.2.13676358). The 28.2 NDK fails to install on the CI runner (corrupt archive), so every composed app that uses this template (paas_driver, paas_manager, paas_customer) failed its Android build from 2026-08-11. 29.0.14206865 is the NDK minilauncher builds with.
+
 ## 1.88.4
 
 * fix(base): floating nav polish. The active tab's rectangle fills the full height of the pill housing so it sits flush against the pill edges, and the label sits 2px below the icon instead of against the pill. The pill's translucent fill drops from 70% to 50% alpha so the frosted blur shows through; white labels on light pages are now below WCAG AA contrast.

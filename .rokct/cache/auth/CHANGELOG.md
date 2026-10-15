@@ -1,3 +1,19 @@
+## 1.21.0
+
+* fix(auth): an account made offline on this device can sign in when the
+  backend refuses the login because the account has not synced yet. If the
+  password matches the local account, the app signs in with it instead of
+  showing a credentials error (`matchesUnsyncedAccount`).
+* fix(auth): an offline sign-up keeps the password the user typed (encrypted
+  in the OS keystore via `flutter_secure_storage`, `OfflinePasswordVault`)
+  until the account syncs, and the backend account is created with that
+  password. Before, sync used a random password, so the password the user
+  chose did not work online after sync. The stored copy is deleted on a
+  successful sync, on mark-synced, and on discard. Accounts made before this
+  version keep the random password and need forgot-password after sync.
+* chore(auth): adds the `flutter_secure_storage` ^9.2.2 dependency. Host apps
+  need its platform setup (see the package documentation).
+
 ## 1.20.0
 
 * fix(auth): a wrong password or an unverified account now shows the

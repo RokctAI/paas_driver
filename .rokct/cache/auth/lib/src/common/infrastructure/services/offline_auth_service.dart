@@ -27,6 +27,7 @@ import 'package:base_sdk/src/services/local_storage.dart';
 
 import '../../domain/interface/session_password_rotation.dart';
 import '../../services/secure_password.dart';
+import 'offline_password_vault.dart';
 import '../database/offline_user_table.dart';
 
 /// Result of an offline register/login attempt — deliberately not the same
@@ -162,6 +163,7 @@ class OfflineAuthService {
         passwordHash: Value(_hash(password)),
         referral: Value(referral),
       ));
+      await OfflinePasswordVault.instance.save(existing.id, password);
       final current = LocalStorage.getToken();
       if (current.isEmpty || isOfflineToken(current)) {
         await LocalStorage.setToken(_offlineToken(existing.id));
@@ -184,6 +186,7 @@ class OfflineAuthService {
             referral: Value(referral),
           ),
         );
+    await OfflinePasswordVault.instance.save(id, password);
     // Never clobber a real backend session (e.g. registerWithPhone runs
     // after phone-OTP verification already stored a real token); only
     // activate the offline session when there is no better one.
@@ -234,6 +237,7 @@ class OfflineAuthService {
       backendUserId: Value(backendUserId),
       backendToken: Value(backendToken),
     ));
+    await OfflinePasswordVault.instance.delete(localUserId);
   }
 
   /// Roll back a local-first registration the backend definitively rejected
@@ -244,6 +248,7 @@ class OfflineAuthService {
     await (_db.delete(_db.offlineUsersTable)
           ..where((t) => t.id.equals(localUserId)))
         .go();
+    await OfflinePasswordVault.instance.delete(localUserId);
     if (LocalStorage.getToken() == _offlineToken(localUserId)) {
       await LocalStorage.setToken('');
     }
@@ -269,6 +274,19 @@ class OfflineAuthService {
             : _offlineToken(row.id);
     await LocalStorage.setToken(token);
     return OfflineAuthResult.ok(row.id);
+  }
+
+  /// True when [password] matches a local account on this device that has
+  /// NOT yet synced to the backend. Read-only: unlike [loginOffline] it
+  /// stores no session token, so the online login path can ask it after a
+  /// backend refusal without side effects.
+  Future<bool> matchesUnsyncedAccount({
+    String? phone,
+    String? email,
+    required String password,
+  }) async {
+    final row = await _findLocal(phone: phone, email: email);
+    return row != null && !row.synced && row.passwordHash == _hash(password);
   }
 
   /// Looks up by whichever identifier is non-empty. The login/register
@@ -319,7 +337,11 @@ class OfflineAuthService {
     // password login stays recoverable via the forgot-password flow.
     // Held in [_syncPasswords] until success so a retried push re-sends
     // the same value (see the field comment for why).
-    final syncPassword =
+    // The password the user typed, when it was kept at registration, so the
+    // account signs in online with the password the user chose. Rows made
+    // before the vault existed have no entry and keep the random secret.
+    final typedPassword = await OfflinePasswordVault.instance.read(row.id);
+    final syncPassword = typedPassword ??
         _syncPasswords.putIfAbsent(row.id, generateSecurePassword);
     final response = await authRepository.sigUpWithData(
       user: UserModel(
@@ -341,8 +363,9 @@ class OfflineAuthService {
     );
     return response.when<Future<OfflineSyncOutcome>>(
       success: (data) async {
-        // The random password did its job (the account exists); discard it.
+        // The account now exists with this password; discard the local copies.
         _syncPasswords.remove(row.id);
+        await OfflinePasswordVault.instance.delete(row.id);
         final backendUserId = data.user?.id?.toString();
         await (_db.update(_db.offlineUsersTable)
               ..where((t) => t.id.equals(row.id)))

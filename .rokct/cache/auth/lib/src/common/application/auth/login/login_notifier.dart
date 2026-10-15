@@ -375,6 +375,18 @@ class LoginNotifier extends StateNotifier<LoginState> {
             await _loginOffline(context);
             return;
           }
+          // An account made offline on this device and not yet synced does
+          // not exist on the backend, so the backend refuses it. If the
+          // password matches the local account, sign in with that account
+          // instead of showing a credentials error.
+          if (await _offlineAuth.matchesUnsyncedAccount(
+            phone: state.email,
+            email: state.email,
+            password: state.password,
+          )) {
+            await _loginOffline(context);
+            return;
+          }
           state = state.copyWith(isLoading: false, isLoginError: true);
           // A listed demo address that did not sign in leaves no demo
           // session behind.
