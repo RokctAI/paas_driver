@@ -15,5 +15,6 @@
 
 library telemetry_sdk;
 
+export 'src/common/delivery/telemetry_spool.dart';
 export 'src/common/di/telemetry_bootstrap.dart';
 export 'src/common/di/telemetry_sdk_di.dart';

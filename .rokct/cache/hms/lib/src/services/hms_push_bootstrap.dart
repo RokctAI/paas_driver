@@ -20,6 +20,7 @@ import 'package:flutter/widgets.dart';
 import 'package:huawei_push/huawei_push.dart';
 
 import 'package:hms_sdk/src/services/device_services.dart';
+import 'package:hms_sdk/src/services/hms_push_messages.dart';
 
 /// Huawei Push Kit bootstrap for GMS-free devices, owned by hms_sdk.
 ///
@@ -41,6 +42,10 @@ import 'package:hms_sdk/src/services/device_services.dart';
 /// [initialize] never blocks runApp on a network round-trip; every step is
 /// fail-open (a failure debugPrints instead of blanking the app), matching
 /// comms' firebase boot hook idiom.
+///
+/// Incoming messages: [initialize] also wires [listenForMessages], which
+/// turns Push Kit data/notification messages into local notifications via
+/// [HmsPushMessages] (foreground stream + background handler).
 class HmsPushBootstrap with WidgetsBindingObserver {
   HmsPushBootstrap._();
 
@@ -62,6 +67,7 @@ class HmsPushBootstrap with WidgetsBindingObserver {
 
   bool _initialized = false;
   StreamSubscription<String>? _tokenSubscription;
+  StreamSubscription<RemoteMessage>? _messageSubscription;
 
   /// The newest token Push Kit handed out, synced or not.
   String? _latestToken;
@@ -112,6 +118,40 @@ class HmsPushBootstrap with WidgetsBindingObserver {
     } catch (e) {
       debugPrint('==> HMS push init skipped: $e');
     }
+    listenForMessages();
+  }
+
+  /// Incoming Push Kit messages become local notifications (and, in the
+  /// foreground, base_sdk PushMessages dispatches) through
+  /// [HmsPushMessages] - the HMS twin of comms_sdk's FCM handling. Called
+  /// by [initialize] on the HMS path only. Fail-open per step.
+  @visibleForTesting
+  void listenForMessages({
+    Stream<RemoteMessage>? messages,
+    HmsPushMessages? handler,
+    Future<bool> Function(void Function(RemoteMessage))? registerBackground,
+  }) {
+    final HmsPushMessages target = handler ?? HmsPushMessages.instance;
+    try {
+      _messageSubscription ??=
+          (messages ?? Push.onMessageReceivedStream).listen(
+        (RemoteMessage m) => unawaited(target.handleRemoteMessage(m)),
+        onError: (Object error) {
+          debugPrint('==> HMS push message stream error: $error');
+        },
+      );
+    } catch (e) {
+      debugPrint('==> HMS push message listener skipped: $e');
+    }
+    unawaited(
+      Future<void>(() async {
+        await (registerBackground ?? Push.registerBackgroundMessageHandler)(
+          hmsBackgroundMessageHandler,
+        );
+      }).catchError((Object e) {
+        debugPrint('==> HMS push background handler skipped: $e');
+      }),
+    );
   }
 
   /// A token from Push Kit's token stream. Public for tests only.
@@ -190,6 +230,8 @@ class HmsPushBootstrap with WidgetsBindingObserver {
   Future<void> reset() async {
     await _tokenSubscription?.cancel();
     _tokenSubscription = null;
+    await _messageSubscription?.cancel();
+    _messageSubscription = null;
     _latestToken = null;
     _lastSyncedToken = null;
     _initialized = false;

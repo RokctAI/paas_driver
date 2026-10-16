@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.89.0
+
+* feat(profile): `DevicePushToken.forLogout()` (exported) reads this device's push token for a sign-out. It answers '' on Windows, Linux and web (no FCM), when the read fails (offline, no Firebase app) and after a 3 second timeout, so it never throws and never holds a sign-out. `ProfileNotifier.logOut` now uses it in place of its inline read, and launch_sdk's launcher sign-out (1.28.1) uses it too, so both send the same token.
+
 ## 1.88.5
 
 * fix(android): the app template's ndkVersion is 29.0.14206865 (was 28.2.13676358). The 28.2 NDK fails to install on the CI runner (corrupt archive), so every composed app that uses this template (paas_driver, paas_manager, paas_customer) failed its Android build from 2026-08-11. 29.0.14206865 is the NDK minilauncher builds with.

@@ -17,3 +17,4 @@ library hms_sdk;
 export 'src/di/hms_di.dart';
 export 'src/services/device_services.dart';
 export 'src/services/hms_push_bootstrap.dart';
+export 'src/services/hms_push_messages.dart';

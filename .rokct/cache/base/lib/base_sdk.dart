@@ -129,6 +129,8 @@ export 'src/services/demo_session.dart';
 // The moment a sign-in succeeds, published by auth_sdk and subscribed to
 // by any SDK's boot hook (the counterpart of users_sdk's SessionEndHooks).
 export 'src/services/session_start_hooks.dart';
+// This device's push token for a sign-out (profile and launcher logout).
+export 'src/services/device_push_token.dart';
 // Live notifications (design 2026-09-25): one snapshot + throttle/state
 // controller every adopter publishes to; comms_sdk registers the platform
 // sink that draws it.

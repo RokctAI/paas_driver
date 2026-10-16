@@ -1,6 +1,6 @@
 name: hms_sdk
 description: "Huawei Mobile Services (HMS) support: GMS/HMS device-services detection and a Push Kit token bootstrap for GMS-free devices."
-version: 1.0.2
+version: 1.1.0
 # Internal SDK consumed via path/git, never published to pub.dev (matches
 # desktop_sdk/hardware_sdk/base_sdk).
 publish_to: 'none'

@@ -20,9 +20,10 @@ import 'package:telemetry_sdk/src/common/di/telemetry_bootstrap.dart';
 /// this (installer convention: `<PascalCase>Dependencies.register`), after
 /// base_sdk's own registration. Nothing is registered into [getIt] — the
 /// client stays base_sdk's singleton — this SDK's whole job at boot is
-/// applying the default delivery policy through the seam.
+/// applying its delivery policy through the seam: the offline spool
+/// ([TelemetryBootstrap.enableSpool]).
 class TelemetrySdkDependencies {
   static void register(GetIt getIt) {
-    TelemetryBootstrap.configure();
+    TelemetryBootstrap.enableSpool();
   }
 }

@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.88.5",
+      "version": "1.89.0",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -1330,7 +1330,7 @@
       }
     },
     "hms_sdk": {
-      "version": "1.0.2",
+      "version": "1.1.0",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -1363,7 +1363,7 @@
       "boot_hooks": []
     },
     "telemetry_sdk": {
-      "version": "1.0.1",
+      "version": "1.1.0",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -1376,8 +1376,8 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.88.5",
-      "hash": "b83ab8e7db9b41d2"
+      "version": "1.89.0",
+      "hash": "2cfcef9209bd8d22"
     },
     "comms": {
       "version": "1.22.4",
@@ -1436,16 +1436,16 @@
       "hash": "2ef4dff138168e31"
     },
     "hms": {
-      "version": "1.0.2",
-      "hash": "fa93206c6fc6db19"
+      "version": "1.1.0",
+      "hash": "7f1c497916478f4e"
     },
     "desktop": {
       "version": "1.2.2",
       "hash": "a5f94e74405057ac"
     },
     "telemetry": {
-      "version": "1.0.1",
-      "hash": "d72bc5e07ff1124c"
+      "version": "1.1.0",
+      "hash": "fc4dc71b7401b7bd"
     }
   }
 }
