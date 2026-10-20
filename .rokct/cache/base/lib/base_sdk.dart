@@ -143,6 +143,9 @@ export 'src/services/push_messages.dart';
 // Sign-In requirement).
 export 'src/services/memory_pressure_service.dart';
 export 'src/services/restore_credential_service.dart';
+// Shared sign-in between same-key fleet apps (transport; auth_sdk plugs
+// in what is handed over).
+export 'src/services/session_handoff.dart';
 export 'src/services/storage_keys.dart';
 export 'src/services/tr_keys.dart';
 export 'src/services/bundled_translations.dart';

@@ -13,6 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
+import 'package:comms_sdk/src/common/presentation/notifications/notification_bell.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -20,5 +21,11 @@ void main() {
     // Real coverage lives with the extracted feature code; this placeholder
     // replaces the stale project-template Calculator test.
     expect(true, isTrue);
+  });
+
+  test('bell badge shows the count up to 99, then 99+', () {
+    expect(NotificationBell.badgeLabel(1), '1');
+    expect(NotificationBell.badgeLabel(99), '99');
+    expect(NotificationBell.badgeLabel(100), '99+');
   });
 }

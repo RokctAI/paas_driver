@@ -29,9 +29,12 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 class NotificationRepositoryImpl extends NotificationRepositoryFacade {
   static const _gateway = PlatformGateway();
 
+  /// Rows per page of get_user_notifications.
+  static const pageSize = 7;
+
   @override
   Future<ApiResult<NotificationResponse>> getNotifications({int? page}) async {
-    final data = {'start': ((page ?? 1) - 1) * 7, 'limit': 7};
+    final data = {'start': ((page ?? 1) - 1) * pageSize, 'limit': pageSize};
     try {
       final response = await _gateway.tenant(
         'api.notification.get_user_notifications',

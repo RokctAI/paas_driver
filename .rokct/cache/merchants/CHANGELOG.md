@@ -1,3 +1,13 @@
+## 1.36.0
+
+* feat(manager): manager mode turns on. The manager app now declares the
+  entry the launcher looks for: an exported activity-alias
+  (`.RokctManagerEntry`) of its main activity answering
+  `rokct.intent.action.MANAGER` with the default category and no data. Only
+  the manager compose gets it; the customer and driver apps are unchanged.
+  The launcher's check (launch_sdk `DefaultHomeBridge.fleetManagerPackages`)
+  found nothing before, so manager mode never appeared.
+
 ## 1.35.0
 
 * feat(manager till): the scan stage shrinks as items are added (340 on an

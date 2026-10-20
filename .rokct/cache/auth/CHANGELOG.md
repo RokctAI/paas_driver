@@ -1,3 +1,11 @@
+## 1.22.0
+
+* feat(auth): shared sign-in between the fleet's own apps on one phone. Sign in once on the launcher and the manager (or any fleet app signed with the same key) opens already signed in, without signing the launcher out. New boot hook `auth_session_handoff_gate` (`SessionHandoffGate.install()`).
+* feat(auth): with the backend reachable, the launcher mints a one-time code (`api.auth.handoff_mint`) and the app it opens redeems it (`api.auth.handoff_redeem`) for a session of its OWN, so each app's refresh rotates only its own session. The redeemed sign-in goes through `AuthSessionPolicy` exactly like a password sign-in: the manager still admits sellers only. `AuthRepository` implements the new `SessionHandoffExchange`.
+* feat(auth): with no backend (a local-only account on the launcher, or the backend unreachable) the launcher hands over its local account record instead: local id, names, email, phone, role, sync state and the backend user id once synced. Never the password, the password vault entry or a token. The app that opens makes its own copy of the account (`OfflineAuthService.importHandoffAccount`) and signs in offline, if its policy admits it (`handoffRecordAdmitted`): a backend account by its known role; a local-only account only where offline accounts are allowed and the app signs people up for no particular role, so a local account made on the launcher cannot enter the manager.
+* feat(auth): the copy is never pushed to the backend by `syncOne`, so no second backend account is made. The next time the launcher opens the app with the backend reachable, its server code replaces the offline session and links the copy to the backend user (`linkHandoffAccount`).
+* A backend session the app already holds is never replaced by a hand-off. Needs base_sdk >= 1.90.0 (`SessionHandoff`) and the Users auth backend with the handoff endpoints. No database schema change.
+
 ## 1.21.0
 
 * fix(auth): an account made offline on this device can sign in when the

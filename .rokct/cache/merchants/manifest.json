@@ -1,6 +1,7 @@
 {
   "name": "merchants_sdk",
-  "version": "1.35.0",
+  "version": "1.36.0",
+  "_comment_version_1_36_0": "1.35.0 -> 1.36.0 (manager mode): app_type.manager gains host_integration.android_application_xml, an exported activity-alias .RokctManagerEntry of MainActivity answering rokct.intent.action.MANAGER with CATEGORY_DEFAULT and no data - exactly what launch_sdk's DefaultHomeBridge.fleetManagerPackages queries - so a launcher on a device with the manager app installed turns manager mode on. Only the manager flavor gets it; customer and driver composes are unchanged. No Dart change.",
   "_comment_version_1_35_0": "1.34.0 -> 1.35.0 (manager till): the Continue, Print Receipt & Finish, and Finish gates; Add Items moves into the Cart header; and the scan stage shrinks as lines are added (340 on an empty cart, 200 from three lines). Continue on an empty cart is live only while autodial is armed, so the checkout keypad can build the ticket; the finish buttons show only when the ticket has at least one line.",
   "_comment_version_1_34_0": "1.33.5 -> 1.34.0 (\"Becoming a seller or driver\"): the manager session_policy asks for seller at sign-up (signup_app_role) and lets in an account signed up offline on the phone (allow_offline_accounts), so a new seller can sign up and sell with no signal; the shop waits for approval and its sales sync once approved (orders_sdk 1.30.0, commerce backend). The rejection message now says what to do: \"Apply in the customer app (Become a seller).\" Needs auth_sdk >= 1.18.0 and The-Rokct-Protocol#472 for the two new keys.",
   "_comment_version_1_33_5": "1.33.4 -> 1.33.5: declares EmbeddedWidgets.cartOrderItem -> CartOrderItem, cartClearDialog -> CartClearDialog and bonusScreen -> BonusScreen. The customer app called EmbeddedWidgets.I.<method>() but no composed SDK declared it, so the host's noSuchMethod threw a StateError on the tap (lost-features audit of paas_customer, 2026-10-12; Ray: fix the crashes). Callers: orders order_carts.dart / order_progress_screen.dart (cart lines, clear cart) and products product_page.dart (bonus sheet).",
@@ -72,6 +73,12 @@
       }
     },
     "manager": {
+      "host_integration": {
+        "_comment": "Manager mode's answer (Ray approved, 2026-10-17). launch_sdk's DefaultHomeBridge (fleetManagerPackages) asks the package manager which OTHER apps answer Intent(\"rokct.intent.action.MANAGER\") with CATEGORY_DEFAULT and no data, and turns manager mode on when one does (LaunchModeResolver.discovered). Nothing declared that action, so manager mode never appeared. This flavor block gives the manager app (and only it: app_type.manager) an exported activity-alias of its MainActivity answering exactly that: the action plus the DEFAULT category, and deliberately NO <data> element, because a filter with data does not match the launcher's data-less query intent. Exported so another package's query can see it. Carries the NormalTheme meta-data for the same reason calc_sdk's RokctCalculatorEntry does (FlutterActivity reads meta-data from the component it was started as). Applied by the protocol installer's update_host_integration() into the marker-owned <application> block, after MainActivity, and removed when merchants_sdk leaves a manager compose. The launcher only discovers this entry; it does not start the app through it.",
+        "android_application_xml": [
+          "<activity-alias android:name=\".RokctManagerEntry\" android:targetActivity=\".MainActivity\" android:exported=\"true\"><meta-data android:name=\"io.flutter.embedding.android.NormalTheme\" android:resource=\"@style/NormalTheme\" /><intent-filter><action android:name=\"rokct.intent.action.MANAGER\" /><category android:name=\"android.intent.category.DEFAULT\" /></intent-filter></activity-alias>"
+        ]
+      },
       "integrations": [
         {
           "target": "lib/presentation/routes/auth_route_pages.dart",

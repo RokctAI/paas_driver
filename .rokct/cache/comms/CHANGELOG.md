@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.23.1
+
+* fix(notifications): NotificationInboxPage and NotificationBell import base_sdk's ApiResult, so their `.when` calls resolve. The extension lives in api_result.freezed.dart and failed to compile in hosts that did not already import it.
+
+## 1.23.0
+
+* feat(notifications): an inbox and a bell. `NotificationInboxPage` lists the signed-in user's notifications (api.notification.get_user_notifications), marks one read on tap (read_one_notification) and all read from the header (read_all_notifications), using the existing NotificationRow and NotificationReadAllAction. `NotificationBell` shows the unread count (get_notification_count) as a badge and awaits the host's onOpen, then refreshes. Both are exported from comms_sdk. The host declares the route and pushes it by path. Defaults: newest first as the server returns; the badge shows up to 99 then 99+; a failed count leaves the last value; both no-op when NotificationRepositoryFacade is not registered.
+* feat(notifications): the inbox pages in further notifications as the list is scrolled, until a page comes back short. A failed page load shows a "Tap to retry" row instead of retrying on its own.
+
 ## 1.22.4
 
 * fix(language): the Languages sheet waits for Save to finish before it

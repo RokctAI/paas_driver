@@ -17,6 +17,9 @@ class MainActivity: FlutterFragmentActivity() {
         // Restore Credentials (Zero-Tap Sign-In) plumbing. Needs an Activity,
         // not the application context: the credential provider shows system UI.
         RestoreCredentialBridge.register(messenger, this)
+        // Shared sign-in between same-key fleet apps (SessionHandoffBridge):
+        // hands a sign-in to another fleet app, and takes one in.
+        SessionHandoffBridge.register(messenger, this)
         // Bridges that only exist when the app is composed with the SDK that
         // ships them. This activity cannot reference them directly: it is
         // base_sdk's template and must still compile in an app composed

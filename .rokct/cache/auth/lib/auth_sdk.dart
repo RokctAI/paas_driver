@@ -39,3 +39,8 @@ export 'src/common/services/restore_credential_service.dart';
 // entry; also the re-entry point the Android BackupAgent calls after a
 // data restore, and the sign-out clear an app shell reaches for.
 export 'src/common/presentation/services/restore_credential_gate.dart';
+// Shared sign-in between same-key fleet apps: the boot-hook driver named by
+// the manifest's auth_session_handoff_gate entry, and the service behind it.
+export 'src/common/presentation/services/session_handoff_gate.dart';
+export 'src/common/services/session_handoff_service.dart';
+export 'src/common/domain/interface/session_handoff_exchange.dart';

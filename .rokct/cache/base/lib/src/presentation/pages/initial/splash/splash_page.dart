@@ -385,13 +385,91 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     if (!windowSizeOf(context).isCompact) {
       return Scaffold(
         backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
-        body: Center(child: _BreathingBrandName()),
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            Center(child: _BreathingBrandName()),
+            _poweredByFooter(),
+          ],
+        ),
       );
     }
     return Scaffold(
       backgroundColor: Colors.white, // Ensure background color for dark theme
-      body: SizedBox.expand(
-        child: Image.asset("assets/images/splash.png", fit: BoxFit.fill),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset("assets/images/splash.png", fit: BoxFit.fill),
+          // The artwork does not follow the theme, so the line sits on a
+          // theme-coloured pill (see _PoweredBy).
+          _poweredByFooter(onArtwork: true),
+        ],
+      ),
+    );
+  }
+}
+
+/// "from ROKCT" pinned to the bottom of the splash, above the safe area.
+Widget _poweredByFooter({bool onArtwork = false}) => Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 24),
+          child: Center(child: _PoweredBy(onArtwork: onArtwork)),
+        ),
+      ),
+    );
+
+/// The two-row sign-off, after WhatsApp's "from Meta": row one "from" small,
+/// row two "ROKCT" in bold capitals, both centred.
+///
+/// Colour is the splash text's own ink ([AppStyle.inkFor]), so it flips with
+/// the theme like the wide-window name does. On the phone the splash is
+/// artwork that ignores the theme (base's is orange, an app's can be dark),
+/// so there the line sits on a [AppStyle.surfaceFor] pill: ink on surface
+/// reads in both modes on any artwork.
+class _PoweredBy extends StatelessWidget {
+  const _PoweredBy({this.onArtwork = false});
+
+  /// True on the phone artwork, where the line gets its own pill.
+  final bool onArtwork;
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final ink = AppStyle.inkFor(brightness);
+    final lines = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'from',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(fontSize: 12, color: ink),
+        ),
+        Text(
+          'ROKCT',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+            color: ink,
+          ),
+        ),
+      ],
+    );
+    if (!onArtwork) return lines;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppStyle.surfaceFor(brightness),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: lines,
       ),
     );
   }

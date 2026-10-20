@@ -1,3 +1,13 @@
+## 1.30.0
+
+* feat(driver): driver mode turns on. The driver app now declares the
+  entry the launcher looks for: an exported activity-alias
+  (`.RokctDriverEntry`) of its main activity answering
+  `rokct.intent.action.DRIVER` with the default category and no data. Only
+  the driver compose gets it; the customer app is unchanged. The
+  launcher's check (launch_sdk `DefaultHomeBridge.fleetDriverPackages`)
+  found nothing before, so driver mode never appeared.
+
 ## 1.29.0
 
 * feat(driver): the driver app lets in approved drivers only. The `'*'`

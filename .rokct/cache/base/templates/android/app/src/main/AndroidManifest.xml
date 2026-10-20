@@ -10,6 +10,15 @@
          (huawei_push declares minSdk 21 and needs no override.) -->
     <uses-sdk
         tools:overrideLibrary="com.huawei.hms.flutter.hmsavailability"/>
+    <!-- Shared sign-in between the fleet's own apps (base_sdk
+         SessionHandoffBridge). Signature level: only apps signed with this
+         app's key are granted it, so only they can start
+         SessionHandoffActivity below and hand this app a sign-in. -->
+    <permission
+        android:name="rokct.permission.SESSION_HANDOFF"
+        android:protectionLevel="signature"/>
+    <uses-permission
+        android:name="rokct.permission.SESSION_HANDOFF"/>
     <!-- @sdk-android-permissions-start -->
     <!-- @sdk-android-permissions-end -->
     <uses-permission
@@ -37,6 +46,12 @@
                 android:name="android.intent.action.VIEW"/>
             <data
                 android:scheme="tel"/>
+        </intent>
+        <!-- Lets this app see which installed fleet apps take a shared
+             sign-in (Android 11+ package visibility). -->
+        <intent>
+            <action
+                android:name="rokct.intent.action.SESSION_HANDOFF"/>
         </intent>
     </queries>
     <!-- Backup / device-transfer policy. allowBackup stays true so the app
@@ -132,6 +147,22 @@
             </intent-filter>
 
 
+        </activity>
+        <!-- The only way a shared sign-in comes in (SessionHandoffActivity).
+             Guarded by the signature permission above; it shows nothing and
+             opens the app as its launcher icon does. -->
+        <activity
+            android:name=".SessionHandoffActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:permission="rokct.permission.SESSION_HANDOFF"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="rokct.intent.action.SESSION_HANDOFF"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

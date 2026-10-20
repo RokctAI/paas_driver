@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.91.0
+
+* feat(splash): a "from ROKCT" sign-off at the bottom of the splash, after WhatsApp's "from Meta": "from" small on the first row, "ROKCT" bold in capitals on the second, both centred. It lives in SplashPage, so every composed app gets it from base_sdk with no per-app change. Colour is AppStyle.inkFor(brightness), the splash text's own token, so it flips with the theme. On the phone the splash is artwork that ignores the theme, so the line sits on an AppStyle.surfaceFor pill, which reads on any artwork in either mode. The error fallback screen is unchanged.
+
+## 1.90.0
+
+* feat(auth): shared sign-in between the fleet's own apps on one phone. New `SessionHandoff` (exported) is the transport: `open(package)` opens another fleet app carrying a hand-off (a one-time sign-in code, or the local account record when there is no backend), `takePending()` reads the hand-off this app was opened with, and `addListener()` fires when one arrives while the app is running. auth_sdk decides what is handed over (`SessionHandoff.payloadProvider`); without it every call is a no-op and apps open as before.
+* feat(android): `SessionHandoffBridge.kt` (channel `rokct.base_sdk/session_handoff`, registered in `MainActivity`) and `SessionHandoffActivity.kt`. Only apps signed with the same key can hand over a sign-in: the hand-off comes in only through `SessionHandoffActivity`, guarded by the signature-level permission `rokct.permission.SESSION_HANDOFF` that `AndroidManifest.xml` now defines and uses, and the sending app checks the target's signature and addresses it by explicit component. The hand-off is kept in memory for two minutes and read once.
+* chore(manifest): `host_integration` and `platform_permissions` carry the activity and the `<uses-permission>` for shells whose `AndroidManifest.xml` is not re-extracted. The `<permission>` definition sits outside `<application>`, which `host_integration` cannot reach; a shell without it simply does not take a hand-off (the start is refused and the app opens the ordinary way).
+
 ## 1.89.0
 
 * feat(profile): `DevicePushToken.forLogout()` (exported) reads this device's push token for a sign-out. It answers '' on Windows, Linux and web (no FCM), when the read fails (offline, no Firebase app) and after a 3 second timeout, so it never throws and never holds a sign-out. `ProfileNotifier.logOut` now uses it in place of its inline read, and launch_sdk's launcher sign-out (1.28.1) uses it too, so both send the same token.

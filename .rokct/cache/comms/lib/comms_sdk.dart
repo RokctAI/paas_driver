@@ -22,6 +22,8 @@ export 'src/common/di/comms_di.dart';
 // design strip frame 38b, Ray 2026-08-30 12:23Z): the All/Unread
 // read-state filter and the shipped row + unread dot, in the 33 dress.
 export 'src/common/presentation/notifications/notification_list_language.dart';
+export 'src/common/presentation/notifications/notification_inbox_page.dart';
+export 'src/common/presentation/notifications/notification_bell.dart';
 export 'src/common/local_notifications.dart';
 export 'src/common/services/device_live_activity_sink.dart';
 export 'src/common/services/push_message_dispatcher.dart';

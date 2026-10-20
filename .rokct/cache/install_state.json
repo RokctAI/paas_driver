@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.89.0",
+      "version": "1.91.0",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -104,7 +104,9 @@
         "android/app/src/main/kotlin/com/app/demo/DeviceMemoryBridge.kt": "40ddee5aafb84b0933ca392055f9bf8eb94a3da9ba7badfaafc4bdba604f08bc",
         "android/app/src/main/kotlin/com/app/demo/RokctBackupAgent.kt": "626d4f65db2c83b0153a732d222dab5376211e3c978ae7b848fc97b0eeffe1b7",
         "assets/audio/tap.wav": "577a7e6beb2958269cc5daecb2529cad154ba9cebe5eff988530affb9aff5eb0",
-        "assets/audio/wrong.wav": "a2352725dcffd5505dec676a26db5ef2f299cb5ae4340a91ecd1cef55637223f"
+        "assets/audio/wrong.wav": "a2352725dcffd5505dec676a26db5ef2f299cb5ae4340a91ecd1cef55637223f",
+        "android/app/src/main/kotlin/com/app/demo/SessionHandoffActivity.kt": "3dd6b0050246ca766c13321dbb5d98702040f24698ab734fb20e7614b6e7c1ac",
+        "android/app/src/main/kotlin/com/app/demo/SessionHandoffBridge.kt": "dce4b6c62147bfce895c9cae5570b8c2c756229700fcfa2cd3dd2d08b43a53e0"
       },
       "routes": [
         {
@@ -225,6 +227,12 @@
           "version": 19,
           "step": "if (from < 19) { await ensureOwnerScopeColumns(); }"
         }
+      },
+      "platform_permissions": {
+        "android": [
+          "rokct.permission.SESSION_HANDOFF"
+        ],
+        "ios": {}
       }
     },
     "users_sdk": {
@@ -299,7 +307,7 @@
       ]
     },
     "delivery_sdk": {
-      "version": "1.29.0",
+      "version": "1.30.0",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "11db8e698632a6cee50e92a83fef8a494c4b55cf316bbaf6398f652460cb8dea",
         "lib/presentation/routes/delivery_adapters.dart": "cd22c591ae3179bcc44d95cead4ac89abddfecdc6217a8c316037890e13ecddc",
@@ -682,7 +690,7 @@
       ]
     },
     "comms_sdk": {
-      "version": "1.22.4",
+      "version": "1.23.1",
       "files": {
         "lib/application/notification/notification_state.dart": "055c8ab42969bad5e418061cbe38699458bfc8b74ea7d4def4a03a18e261b184",
         "lib/application/notification/notification_notifier.dart": "c5c691d1c0f1d476eea96d5a60bac5316fabe8ea0f77412db1d4d409f1e6b748",
@@ -976,7 +984,7 @@
       ]
     },
     "merchants_sdk": {
-      "version": "1.35.0",
+      "version": "1.36.0",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
         "lib/presentation/pages/stores/story_page.dart": "adeb07c24627dd3f1321a4f3eebc4d762e55f8cf8e8e3b7b91daeffdb86b3508",
@@ -1144,7 +1152,7 @@
       }
     },
     "auth_sdk": {
-      "version": "1.21.0",
+      "version": "1.22.0",
       "files": {
         "lib/presentation/routes/auth_route_pages.dart": "8eaff3abe2dd38d8a6c2f15ed4b9e4ec779c5b99f3f71a18445ee4a13d12056f",
         "lib/presentation/routes/registration_step_pages.dart": "68aed195fc07db746a0919c7ba6d47ffa445ca86e7d9cf6ee50fbcb00e82d3c2",
@@ -1258,6 +1266,12 @@
             "import 'package:auth_sdk/src/common/services/platform_support.dart';"
           ],
           "_comment": "Keeps the backend's FCM token current between sign-ins: once the first frame is up (LocalStorage and DI are ready by then) it re-sends the token if a backend session is already active, and re-sends every token FirebaseMessaging.onTokenRefresh hands out while signed in. No-op on Windows/Linux and when Firebase is not initialized; fail-open."
+        },
+        {
+          "id": "auth_session_handoff_gate",
+          "order": 4,
+          "body": "SessionHandoffGate.install();",
+          "_comment": "Shared sign-in between same-key fleet apps (see _comment_version_1_22_0). Declares no 'imports' entry: the gate is exported from package:auth_sdk/auth_sdk.dart, which every composed main.dart already imports. Inert on every platform but Android, and on a shell whose MainActivity does not register base_sdk's SessionHandoffBridge (base_sdk >= 1.90.0 template)."
         }
       ],
       "database": {
@@ -1376,16 +1390,16 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.89.0",
-      "hash": "2cfcef9209bd8d22"
+      "version": "1.91.0",
+      "hash": "a7ace571f994b90d"
     },
     "comms": {
-      "version": "1.22.4",
-      "hash": "2433701a8531dd13"
+      "version": "1.23.1",
+      "hash": "22cbd1d5d53829e9"
     },
     "auth": {
-      "version": "1.21.0",
-      "hash": "e7adcc37a1e4f15c"
+      "version": "1.22.0",
+      "hash": "ec02f538bf96c4e7"
     },
     "users": {
       "version": "1.5.2",
@@ -1396,16 +1410,16 @@
       "hash": "5609f2e20d4db7ce"
     },
     "merchants": {
-      "version": "1.35.0",
-      "hash": "9296de39d244d4d9"
+      "version": "1.36.0",
+      "hash": "a56d89d0fbe58216"
     },
     "products": {
       "version": "1.12.7",
       "hash": "0243138547b02d8e"
     },
     "delivery": {
-      "version": "1.29.0",
-      "hash": "cb43171cf28ab641"
+      "version": "1.30.0",
+      "hash": "fa504ebb48079ae1"
     },
     "map": {
       "version": "1.5.0",

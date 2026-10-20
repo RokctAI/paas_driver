@@ -32,6 +32,7 @@ import 'package:auth_sdk/src/common/domain/interface/auth_session_policy.dart';
 import 'package:auth_sdk/src/common/domain/interface/deferred_otp_email_resend.dart';
 import 'package:auth_sdk/src/common/domain/interface/email_code_verification.dart';
 import 'package:auth_sdk/src/common/domain/interface/google_id_token_sign_in.dart';
+import 'package:auth_sdk/src/common/domain/interface/session_handoff_exchange.dart';
 import 'package:auth_sdk/src/common/domain/interface/session_password_rotation.dart';
 import 'package:auth_sdk/src/common/domain/interface/session_token_refresh.dart';
 import 'package:auth_sdk/src/common/services/registration_config.dart';
@@ -42,6 +43,7 @@ class AuthRepository
         DeferredOtpEmailResend,
         EmailCodeVerification,
         GoogleIdTokenSignIn,
+        SessionHandoffExchange,
         SessionPasswordRotation,
         SessionTokenRefresh {
   /// Universal platform gateway: every backend call is a POST to the single
@@ -54,6 +56,54 @@ class AuthRepository
   // an explicit renewal and the automatic 401/expiry path can never race.
   @override
   Future<bool> refreshSession() => TokenRefreshService.refresh();
+
+  // SessionHandoffExchange: shared sign-in between same-key fleet apps.
+  // Neither call ever logs the code or a token.
+  @override
+  Future<String?> mintHandoffCode({String? targetPackage}) async {
+    try {
+      final response = await _gateway.call(
+        'api.auth.handoff_mint',
+        payload: {
+          if (targetPackage != null && targetPackage.isNotEmpty)
+            'target': targetPackage,
+        },
+      );
+      if (_bodyRejection<dynamic>(response) != null) return null;
+      final data = response is Map ? response['data'] : null;
+      final code = data is Map ? data['code']?.toString() : null;
+      return (code == null || code.isEmpty) ? null : code;
+    } catch (e) {
+      debugPrint('==> handoff mint skipped: ${e.runtimeType}');
+      return null;
+    }
+  }
+
+  @override
+  Future<ApiResult<LoginResponse>> redeemHandoffCode({
+    required String code,
+    String? clientId,
+  }) async {
+    try {
+      final response = await _gateway.call(
+        'api.auth.handoff_redeem',
+        payload: {
+          'code': code,
+          if (clientId != null && clientId.isNotEmpty) 'client_id': clientId,
+        },
+        requireAuth: false,
+      );
+      final rejected = _bodyRejection<LoginResponse>(response);
+      if (rejected != null) return rejected;
+      return ApiResult.success(data: LoginResponse.fromJson(response));
+    } catch (e) {
+      debugPrint('==> handoff redeem failure: ${e.runtimeType}');
+      return ApiResult.failure(
+        error: AppHelpers.errorHandler(e),
+        statusCode: NetworkExceptions.getDioStatus(e),
+      );
+    }
+  }
 
   @override
   Future<ApiResult<LoginResponse>> login({

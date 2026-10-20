@@ -327,6 +327,17 @@ class OfflineAuthService {
     AuthRepositoryFacade authRepository, {
     bool activateOnSuccess = true,
   }) async {
+    // A copy of another app's local account (shared sign-in) is synced by
+    // the app that made it, never from here: pushing it would register a
+    // second backend account for the same person. It links to the backend
+    // user when that app next hands over a server code (see
+    // [linkHandoffAccount]).
+    if (isHandoffMirrorId(row.id)) {
+      return OfflineSyncOutcome.fail(
+        'A shared sign-in copy is synced by the app it came from.',
+        409,
+      );
+    }
     // The backend gets a freshly-generated cryptographically random
     // password (256 bits via Random.secure, see generateSecurePassword) —
     // NOT the local row id (predictable) and not the local hash (which
@@ -404,6 +415,110 @@ class OfflineAuthService {
         return OfflineSyncOutcome.fail(failure.toString(), status);
       },
     );
+  }
+
+  // ---------------------------------------------------------------------
+  // Shared sign-in: a local account handed over by another fleet app.
+  // ---------------------------------------------------------------------
+
+  /// Row ids this device made from another app's hand-off start with this.
+  static const String handoffIdPrefix = 'handoff:';
+
+  /// Whether [localUserId] is a copy of another app's local account.
+  static bool isHandoffMirrorId(String localUserId) =>
+      localUserId.startsWith(handoffIdPrefix);
+
+  /// Whether [token] is an offline session on such a copy.
+  static bool isHandoffMirrorToken(String token) =>
+      isOfflineToken(token) &&
+      isHandoffMirrorId(token.substring('offline:'.length));
+
+  /// The local row id an offline [token] names, or null.
+  static String? localIdOfToken(String token) =>
+      isOfflineToken(token) ? token.substring('offline:'.length) : null;
+
+  /// The local account row for [phone] / [email], or null. Never throws.
+  Future<OfflineUserEntity?> findByIdentity({String? phone, String? email}) async {
+    try {
+      return await _findLocal(phone: phone, email: email);
+    } catch (_) {
+      // More than one row for the identifier: none is THE account.
+      return null;
+    }
+  }
+
+  /// Creates or refreshes this app's own copy of a local account another
+  /// fleet app handed over, and returns the row id to sign in with.
+  ///
+  /// When this app already holds a local account for the same phone or
+  /// email, that row is the account and is returned unchanged. Otherwise a
+  /// copy is written under [handoffIdPrefix]. The copy carries no password
+  /// this app could check (its hash is of a random value nobody holds), is
+  /// never pushed by [syncOne], and links to the backend user through
+  /// [linkHandoffAccount] once the source app hands over a server code.
+  /// The password and its vault entry never leave the source app.
+  Future<String?> importHandoffAccount({
+    required String sourceKey,
+    String? backendUserId,
+    bool synced = false,
+    String? phone,
+    String? email,
+    String? firstName,
+    String? lastName,
+  }) async {
+    final cleanPhone = (phone == null || phone.isEmpty) ? null : phone;
+    final cleanEmail = (email == null || email.isEmpty) ? null : email;
+    if (cleanPhone == null && cleanEmail == null) return null;
+    final existing =
+        await findByIdentity(phone: cleanPhone, email: cleanEmail);
+    if (existing != null) {
+      if (isHandoffMirrorId(existing.id)) {
+        await (_db.update(_db.offlineUsersTable)
+              ..where((t) => t.id.equals(existing.id)))
+            .write(OfflineUsersTableCompanion(
+          firstName: Value(firstName),
+          lastName: Value(lastName),
+          synced: Value(existing.synced || synced),
+          backendUserId: Value(backendUserId ?? existing.backendUserId),
+        ));
+      }
+      return existing.id;
+    }
+    final safeKey = sourceKey.replaceAll(RegExp(r'[^A-Za-z0-9._:@+-]'), '_');
+    final id = '$handoffIdPrefix$safeKey';
+    await _db.into(_db.offlineUsersTable).insertOnConflictUpdate(
+          OfflineUsersTableCompanion.insert(
+            id: Value(id),
+            phone: Value(cleanPhone),
+            email: Value(cleanEmail),
+            firstName: Value(firstName),
+            lastName: Value(lastName),
+            passwordHash: _hash(generateSecurePassword()),
+            synced: Value(synced),
+            backendUserId: Value(backendUserId),
+          ),
+        );
+    return id;
+  }
+
+  /// Signs this app in offline on local row [localUserId] (no backend
+  /// call). Used by shared sign-in after [importHandoffAccount].
+  Future<void> activateOfflineSession(String localUserId) =>
+      LocalStorage.setToken(_offlineToken(localUserId));
+
+  /// Records that the copy [localUserId] is the backend user
+  /// [backendUserId], once a server code from the source app signed this
+  /// app in for real. No token is written to the row.
+  Future<void> linkHandoffAccount(
+    String localUserId, {
+    required String? backendUserId,
+  }) async {
+    await (_db.update(_db.offlineUsersTable)
+          ..where((t) => t.id.equals(localUserId)))
+        .write(OfflineUsersTableCompanion(
+      synced: const Value(true),
+      backendUserId: Value(backendUserId),
+    ));
   }
 
   /// The deferred-OTP flag written when a background sync succeeds, or null
