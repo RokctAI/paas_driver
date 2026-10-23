@@ -57,6 +57,16 @@ video:
 store:
   # Play feature graphic hero: the route with stops and one-tap Done - what a courier does all day.
   feature_step: driver_route
+  feature_style:
+    bg: "#0F1115"
+    bg2: "#1B2A20"
+    ink: "#FFFFFF"
+    accent: "#FFD23F"
+    shape: "stripes"
+    layout: "duo"
+    tilt: 5
+    hero2: "revenue_income"
+    headline: "Every stop. Every payout."
 setup:
   # Account auth_sdk's shared tour fragment signs in as ({demo_email} in
   # that fragment). Driver needs the deliveryman role - see header note.
