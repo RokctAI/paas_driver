@@ -55,9 +55,8 @@ video:
   chapter_frame_anchor:
     auth: top
 store:
-  # Play feature graphic: the hero screenshot is the app's HOME step
-  # (the courier /home screen the delivery fragment opens on).
-  feature_step: driver_home
+  # Play feature graphic hero: the route with stops and one-tap Done - what a courier does all day.
+  feature_step: driver_route
 setup:
   # Account auth_sdk's shared tour fragment signs in as ({demo_email} in
   # that fragment). Driver needs the deliveryman role - see header note.
