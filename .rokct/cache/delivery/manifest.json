@@ -1,6 +1,7 @@
 {
   "name": "delivery_sdk",
-  "version": "1.30.0",
+  "version": "1.30.1",
+  "_comment_version_1_30_1": "1.30.0 -> 1.30.1 (tour coverage, Ray 2026-10-23): the delivery tour fragment gains /driver-deposits, /load, /load/sell and /load/return, and the demo get_my_load fixture now holds one stocked open load so those screens render with data. No Dart change.",
   "_comment_version_1_30_0": "1.29.0 -> 1.30.0 (driver mode): app_type.driver gains host_integration.android_application_xml, an exported activity-alias .RokctDriverEntry of MainActivity answering rokct.intent.action.DRIVER with CATEGORY_DEFAULT and no data - exactly what launch_sdk's DefaultHomeBridge.fleetDriverPackages queries - so a launcher on a device with the driver app installed turns driver mode on. Only the driver flavor gets it; the customer compose is unchanged. No Dart change.",
   "_comment_version_1_29_0": "1.28.1 -> 1.29.0 (\"Becoming a seller or driver\"): the driver app lets in approved drivers only (no '*' catch-all, no /become-driver route or installed page; the old BecomeDriverPage, which showed text from a dead backend address and sent nothing, is deleted). Declares EmbeddedWidgets.becomeDriverPage as CourierRequestPage: the customer app's \"Sign up to deliver\" tile opens the same vehicle-details form as the driver sign-up and files the same courier request (it threw a StateError before, as nothing declared it). VehicleDetailsSlide and CourierHelpers moved to lib/src/common so the customer compose (no lib/src/driver) can use them; the driver paths re-export them. Needs auth_sdk >= 1.18.0 for the post-sign-up refusal.",
   "embedded_widgets": [

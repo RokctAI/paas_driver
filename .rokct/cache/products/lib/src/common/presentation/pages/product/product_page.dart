@@ -41,6 +41,10 @@ import 'package:products_sdk/src/common/presentation/pages/product/widgets/image
 import 'package:products_sdk/src/common/presentation/pages/product/widgets/p_main_button.dart';
 import 'package:products_sdk/src/common/presentation/pages/product/widgets/w_product_extras.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
+import 'package:base_sdk/src/guide/guide_definition.dart';
+import 'package:base_sdk/src/guide/guide_host.dart';
+
+const GuideDefinition productAddGuide = GuideDefinition(id: 'products.add', steps: [GuideStep(id: 'products.add.cart', anchor: 'products.add', title: 'Add to cart', body: 'Tap Add to put this product in your cart.')]);
 
 class ProductScreen extends ConsumerStatefulWidget {
   final ProductData? data;
@@ -178,8 +182,12 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
     );
   }
 
+  /// The page sits under its own GuideHost, so its coach-mark shows here only
+  /// and never in the app's MaterialApp builder.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => GuideHost(definition: productAddGuide, child: _buildPage(context));
+
+  Widget _buildPage(BuildContext context) {
     final state = ref.watch(productProvider);
     final stateOrderShop = ref.watch(shopOrderProvider);
     final stateShop = ref.watch(shopProvider);

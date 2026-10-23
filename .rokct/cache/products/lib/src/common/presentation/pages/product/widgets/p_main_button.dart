@@ -24,6 +24,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
+import 'package:base_sdk/src/guide/guide_anchor.dart';
 // [refork] removed host router import
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:remixicon/remixicon.dart';
@@ -127,7 +128,9 @@ class ProductMainButton extends StatelessWidget {
               const Spacer(),
               SizedBox(
                 width: 120.w,
-                child: CustomButton(
+                child: GuideAnchor(
+                  id: 'products.add',
+                  child: CustomButton(
                   isLoading: state.isAddLoading || state.isLoading,
                   title: AppHelpers.getTranslation(TrKeys.add),
                   onPressed: () {
@@ -153,6 +156,7 @@ class ProductMainButton extends StatelessWidget {
                       AppRoutes.I.pushLoginRoute(context);
                     }
                   },
+                  ),
                 ),
               ),
             ],

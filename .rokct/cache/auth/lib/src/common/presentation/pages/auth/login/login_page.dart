@@ -39,9 +39,24 @@ import 'package:auth_sdk/src/common/services/entry_config.dart';
 
 import 'package:base_sdk/src/presentation/theme/theme.dart';
 import 'package:base_sdk/src/presentation/components/buttons/second_button.dart';
+import 'package:base_sdk/src/guide/guide_anchor.dart';
+import 'package:base_sdk/src/guide/guide_definition.dart';
+import 'package:base_sdk/src/guide/guide_host.dart';
 // [refork] intro page embedded via EmbeddedWidgets registry
 // [refork] embed via EmbeddedWidgets
 // [refork] embed via EmbeddedWidgets
+
+const GuideDefinition authLoginGuide = GuideDefinition(
+  id: 'auth.login',
+  steps: [
+    GuideStep(
+      id: 'auth.login.button',
+      anchor: 'auth.login.button',
+      title: 'Sign in',
+      body: 'Tap Login to sign in to your account.',
+    ),
+  ],
+);
 
 @RoutePage()
 class LoginPage extends ConsumerStatefulWidget {
@@ -183,8 +198,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
   }
 
+  /// The page sits under its own GuideHost, so its coach-mark shows here only
+  /// and never in the app's MaterialApp builder.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => GuideHost(
+        definition: authLoginGuide,
+        child: _buildPage(context),
+      );
+
+  Widget _buildPage(BuildContext context) {
     ref.watch(languageProvider);
     ref.listen(loginProvider, (previous, next) {
       if (!next.isSelectLanguage &&
@@ -380,15 +402,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            CustomButton(
-                              title: AppHelpers.getTranslation(TrKeys.login),
-                              onPressed: () {
-                                AppHelpers.showCustomModalBottomSheet(
-                                  context: context,
-                                  modal: const LoginScreen(),
-                                  isDarkMode: isDarkMode,
-                                );
-                              },
+                            GuideAnchor(
+                              id: 'auth.login.button',
+                              child: CustomButton(
+                                title: AppHelpers.getTranslation(TrKeys.login),
+                                onPressed: () {
+                                  AppHelpers.showCustomModalBottomSheet(
+                                    context: context,
+                                    modal: const LoginScreen(),
+                                    isDarkMode: isDarkMode,
+                                  );
+                                },
+                              ),
                             ),
                             10.verticalSpace,
                             CustomButton(

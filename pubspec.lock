@@ -127,7 +127,7 @@ packages:
       path: ".rokct/cache/auth"
       relative: true
     source: path
-    version: "1.22.0"
+    version: "1.22.1"
   auto_route:
     dependency: "direct main"
     description:
@@ -158,7 +158,7 @@ packages:
       path: ".rokct/cache/base"
       relative: true
     source: path
-    version: "1.91.0"
+    version: "1.93.0"
   battery_plus:
     dependency: "direct main"
     description:
@@ -277,7 +277,7 @@ packages:
       path: ".rokct/cache/calc"
       relative: true
     source: path
-    version: "1.4.0"
+    version: "1.4.1"
   calendar_date_picker2:
     dependency: "direct main"
     description:
@@ -390,7 +390,7 @@ packages:
       path: ".rokct/cache/comms"
       relative: true
     source: path
-    version: "1.23.1"
+    version: "1.23.2"
   confetti:
     dependency: "direct main"
     description:
@@ -484,7 +484,7 @@ packages:
       path: ".rokct/cache/delivery"
       relative: true
     source: path
-    version: "1.30.0"
+    version: "1.30.1"
   desktop_sdk:
     dependency: "direct main"
     description:
@@ -1624,7 +1624,7 @@ packages:
       path: ".rokct/cache/map"
       relative: true
     source: path
-    version: "1.5.0"
+    version: "1.5.1"
   matcher:
     dependency: transitive
     description:
@@ -1647,7 +1647,7 @@ packages:
       path: ".rokct/cache/merchants"
       relative: true
     source: path
-    version: "1.36.0"
+    version: "1.36.1"
   meta:
     dependency: transitive
     description:
@@ -1702,7 +1702,7 @@ packages:
       path: ".rokct/cache/orders"
       relative: true
     source: path
-    version: "1.30.0"
+    version: "1.31.1"
   osm_nominatim:
     dependency: "direct main"
     description:
@@ -1957,7 +1957,7 @@ packages:
       path: ".rokct/cache/products"
       relative: true
     source: path
-    version: "1.12.7"
+    version: "1.12.8"
   proste_indexed_stack:
     dependency: "direct main"
     description:
@@ -2020,7 +2020,7 @@ packages:
       path: ".rokct/cache/revenue"
       relative: true
     source: path
-    version: "1.14.1"
+    version: "1.14.2"
   riverpod:
     dependency: transitive
     description:

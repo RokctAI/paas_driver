@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.93.0
+
+* feat(theme): `AppStyle.injectBrandColors` takes optional light-mode values too: `surfaceLight`, `cardLight`, `cardLightAlt`, `strokeLight`, `strokeLightSubtle`, `textLightSecondary`, `textLightFaint`, plus `inkDark` / `inkLight` for the `textPrimary` ink of each mode (no longer `const`). A composed app can now brand its light theme as well as its dark one. Each parameter left out keeps its current value, so existing callers (dark values only) are unchanged and light mode keeps the neutral kernel defaults for them. Test: `test/inject_brand_colors_light_test.dart`.
+
+## 1.92.0
+
+* chore(guide): version for the coach-mark guide kernel merged in #320 (GuideDefinition, GuideStep, GuideProgress, GuideStore, GuideAnchor, GuideHost, exported from base_sdk.dart; off while DemoSession.demoActive). That PR added the code and tests but did not change the version. The app_widget builder it also added was removed in #322.
+
 ## 1.91.0
 
 * feat(splash): a "from ROKCT" sign-off at the bottom of the splash, after WhatsApp's "from Meta": "from" small on the first row, "ROKCT" bold in capitals on the second, both centred. It lives in SplashPage, so every composed app gets it from base_sdk with no per-app change. Colour is AppStyle.inkFor(brightness), the splash text's own token, so it flips with the theme. On the phone the splash is artwork that ignores the theme, so the line sits on an AppStyle.surfaceFor pill, which reads on any artwork in either mode. The error fallback screen is unchanged.

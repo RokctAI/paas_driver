@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.23.2
+
+* feat(tour): the manager tour shell (paas_manager) tours `/list-notification`; the step lives there, not in the shared comms fragment, because the route exists only in the manager and driver composes. Demo sessions get a stocked notification list (`api.notification.get_user_notifications`, five fictional rows, two unread) and an unread count that matches it; `get_notification_count.json` also moves to the `{data: {count}}` shape `NotificationRepositoryImpl.getCount` reads (it held the old `{notification, transaction}` shape, so the count always read 0). Covered by `test/demo_fixtures_real_repository_test.dart`. No version bump (tour and fixtures only).
+
+* chore(guide): version for the notification inbox coach-mark (GuideHost on NotificationInboxPage, anchor on Read all; #324 landed without a bump).
+
 ## 1.23.1
 
 * fix(notifications): NotificationInboxPage and NotificationBell import base_sdk's ApiResult, so their `.when` calls resolve. The extension lives in api_result.freezed.dart and failed to compile in hosts that did not already import it.

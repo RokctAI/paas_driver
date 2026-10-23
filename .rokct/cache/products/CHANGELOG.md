@@ -1,3 +1,9 @@
+## 1.12.8
+
+* feat(tour): the products tour fragment gains `product_detail` (card tap; fills the detail plane on wide screens, a no-op on a phone), `quick_stock` (the Stock button's quick-adjust) and a close step. `ProductPage` is the customer marketplace's page, not a manager screen. No version bump (tour only).
+
+* chore(guide): version for the coach-mark guide mounted on this SDK's primary page (base_sdk GuideHost and GuideAnchor). The mount landed without a version change. Needs base_sdk >= 1.92.0.
+
 ## 1.12.7
 
 * fix(wiring): declare `EmbeddedWidgets.productScreen` (the product sheet), implemented by `ProductScreen`. Tapping a product in a shop or in search threw a `StateError` in the customer app, because no SDK declared it.

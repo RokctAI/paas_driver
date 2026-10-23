@@ -23,6 +23,9 @@ import 'package:base_sdk/src/presentation/components/floating_nav/floating_botto
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:base_sdk/src/guide/guide_anchor.dart';
+import 'package:base_sdk/src/guide/guide_definition.dart';
+import 'package:base_sdk/src/guide/guide_host.dart';
 
 import 'package:revenue_sdk/src/common/infrastructure/wallet_balance_cache.dart';
 import 'package:revenue_sdk/src/driver/application/wallet/wallet_notifier.dart';
@@ -57,6 +60,8 @@ import 'package:revenue_sdk/src/common/presentation/withdraw/withdraw_sheet.dart
 /// app on an older delivery_sdk) hears one friendly line instead of
 /// seeing nothing: a pill that opens nothing is the dead control this
 /// plane was drawn to end, so the guard is the pill's price of admission.
+const GuideDefinition revenueWalletGuide = GuideDefinition(id: 'revenue.wallet', steps: [GuideStep(id: 'revenue.wallet.withdraw', anchor: 'revenue.wallet.withdraw', title: 'Withdraw money', body: 'Tap here to withdraw your balance.')]);
+
 class DriverWalletPage extends ConsumerStatefulWidget {
   const DriverWalletPage({super.key});
 
@@ -142,8 +147,12 @@ class _DriverWalletPageState extends ConsumerState<DriverWalletPage> {
     );
   }
 
+  /// The page sits under its own GuideHost, so its coach-mark shows here only
+  /// and never in the app's MaterialApp builder.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => GuideHost(definition: revenueWalletGuide, child: _buildPage(context));
+
+  Widget _buildPage(BuildContext context) {
     final state = ref.watch(driverWalletProvider);
     final balance = _balance;
     final blockedKey = withdrawBlockedKey(balance);
@@ -169,7 +178,7 @@ class _DriverWalletPageState extends ConsumerState<DriverWalletPage> {
                       failed: state.balanceFailed,
                     ),
                     20.verticalSpace,
-                    CustomButton(
+                    GuideAnchor(id: 'revenue.wallet.withdraw', child: CustomButton(
                       key: const Key('walletWithdrawAction'),
                       title: AppHelpers.getTranslation(TrKeys.withdrawMoney),
                       background: canWithdraw(balance)
@@ -181,7 +190,7 @@ class _DriverWalletPageState extends ConsumerState<DriverWalletPage> {
                       onPressed: canWithdraw(balance)
                           ? () => _openWithdraw(balance)
                           : () {},
-                    ),
+                    )),
                     if (blockedKey != null) ...[
                       8.verticalSpace,
                       Text(

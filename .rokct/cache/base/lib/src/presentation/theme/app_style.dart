@@ -72,6 +72,8 @@ abstract class AppStyle {
 
   // Light counterparts — a soft, warm-neutral light theme (no pure-white
   // glare): the page sits a touch grey, cards a hair brighter for lift.
+  // Injectable too (the light-mode parameters of injectBrandColors); an app
+  // that passes none keeps these defaults.
   static Color _surfaceLight = const Color(0xFFECECEF);
   static Color _cardLight = const Color(0xFFF9F9FB);
   static Color _cardLightAlt = const Color(0xFFF1F1F4);
@@ -82,8 +84,10 @@ abstract class AppStyle {
 
   // Foreground ink that flips with mode. Pages that used [white] for text now
   // use [textPrimary] so labels read on both the dark and light surfaces.
-  static const Color _inkDark = Color(0xFFFFFFFF);
-  static const Color _inkLight = Color(0xFF1B1B20);
+  // Injectable (inkDark / inkLight on injectBrandColors) so a tinted palette
+  // can tint its ink to match; the defaults are pure white and near-black.
+  static Color _inkDark = const Color(0xFFFFFFFF);
+  static Color _inkLight = const Color(0xFF1B1B20);
 
   // Mode-resolving surface tokens.
   static Color get surfaceDark => isDark ? _surfaceDark : _surfaceLight;
@@ -180,9 +184,16 @@ abstract class AppStyle {
   static Color get surfaceLightRaw => _surfaceLight;
   static Color get surfaceDarkRaw => _surfaceDark;
 
-  /// Brand-palette injection seam: a composed app overrides the DARK backing
+  /// Brand-palette injection seam: a composed app overrides the backing
   /// values at boot (before the first frame). Only the parameters an app
-  /// passes change; the light counterparts keep the kernel's neutral defaults.
+  /// passes change; everything else keeps its current value.
+  ///
+  /// The `*Dark` parameters set the dark-mode values and the `*Light`
+  /// parameters set the light-mode values of the same tokens
+  /// ([surfaceDark], [cardDark], [cardDarkAlt], [strokeDark],
+  /// [strokeDarkSubtle], [textDarkSecondary], [textDarkFaint]), plus the
+  /// [textPrimary] ink for each mode ([inkDark] / [inkLight]). An app that
+  /// passes no light parameter keeps the kernel's neutral light theme.
   static void injectBrandColors({
     Color? primary,
     Color? surfaceDark,
@@ -192,6 +203,15 @@ abstract class AppStyle {
     Color? strokeDarkSubtle,
     Color? textDarkSecondary,
     Color? textDarkFaint,
+    Color? inkDark,
+    Color? surfaceLight,
+    Color? cardLight,
+    Color? cardLightAlt,
+    Color? strokeLight,
+    Color? strokeLightSubtle,
+    Color? textLightSecondary,
+    Color? textLightFaint,
+    Color? inkLight,
   }) {
     _primary = primary ?? _primary;
     _surfaceDark = surfaceDark ?? _surfaceDark;
@@ -201,7 +221,17 @@ abstract class AppStyle {
     _strokeDarkSubtle = strokeDarkSubtle ?? _strokeDarkSubtle;
     _textDarkSecondary = textDarkSecondary ?? _textDarkSecondary;
     _textDarkFaint = textDarkFaint ?? _textDarkFaint;
+    _inkDark = inkDark ?? _inkDark;
+    _surfaceLight = surfaceLight ?? _surfaceLight;
+    _cardLight = cardLight ?? _cardLight;
+    _cardLightAlt = cardLightAlt ?? _cardLightAlt;
+    _strokeLight = strokeLight ?? _strokeLight;
+    _strokeLightSubtle = strokeLightSubtle ?? _strokeLightSubtle;
+    _textLightSecondary = textLightSecondary ?? _textLightSecondary;
+    _textLightFaint = textLightFaint ?? _textLightFaint;
+    _inkLight = inkLight ?? _inkLight;
   }
+
   static const Color enterOrderButton = Color(0xFFF4F8F7);
   static const Color tabBarBorderColor = Color(0xFFDEDFE1);
   static const Color orderButtonColor = Color(0xFF323232);

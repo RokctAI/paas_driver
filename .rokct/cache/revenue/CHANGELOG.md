@@ -1,3 +1,9 @@
+## 1.14.2
+
+* feat(tour): the revenue tour fragment gains `revenue_product_profit` (a product row tap opens the profit detail: a pushed `RevenueDetailPage` on a phone, the detail plane on wide) and a tolerant close step. The profit report fixture already carries products. No version bump (tour only).
+
+* chore(guide): version for the coach-mark guide mounted on this SDK's primary page (base_sdk GuideHost and GuideAnchor). The mount landed without a version change. Needs base_sdk >= 1.92.0.
+
 ## 1.14.1
 
 * fix(theme): widgets read their surface, card, stroke and ink colours from Theme.of(context) at build time (AppStyle.surfaceFor/cardFor/cardAltFor/strokeFor/subtleStrokeFor/inkFor/secondaryInkFor/faintFor) instead of the AppStyle.isDark-resolved statics, so a live dark/light switch restyles open pages instead of leaving the old mode's colours (Ray, 2026-10-04).

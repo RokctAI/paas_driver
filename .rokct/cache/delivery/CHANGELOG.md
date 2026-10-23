@@ -1,3 +1,12 @@
+## 1.30.1
+
+* feat(tour): the driver tour now shows every routed driver screen. New
+  steps: deposits (`/driver-deposits`), my load (`/load`), sell at the
+  door (`/load/sell`) and return (`/load/return`).
+* feat(demo): the `api.order.load.get_my_load` fixture holds one open
+  load (bread, milk, eggs) instead of an empty list, so the load screens
+  have something to show in demo.
+
 ## 1.30.0
 
 * feat(driver): driver mode turns on. The driver app now declares the

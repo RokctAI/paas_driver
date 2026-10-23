@@ -112,6 +112,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # The guided tour runs `flutter drive` against integration_test/.
+  integration_test:
+    sdk: flutter
   freezed: ^3.2.3
   build_runner: ^2.10.4
   flutter_lints: ^5.0.0
