@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "id": "cash",
+      "shop_id": "1",
+      "status": 1,
+      "payment": {
+        "id": "cash",
+        "tag": "cash",
+        "active": true
+      }
+    },
+    {
+      "id": "wallet",
+      "shop_id": "1",
+      "status": 1,
+      "payment": {
+        "id": "wallet",
+        "tag": "wallet",
+        "active": true
+      }
+    }
+  ]
+}

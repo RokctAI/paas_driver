@@ -1,0 +1,12 @@
+{
+  "timestamp": "$now_iso",
+  "status": true,
+  "message": "",
+  "data": {
+    "id": "1",
+    "total_price": null,
+    "created_at": "$now_iso",
+    "updated_at": "$now_iso",
+    "user_carts": []
+  }
+}

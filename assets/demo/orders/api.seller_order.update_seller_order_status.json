@@ -1,0 +1,47 @@
+{
+  "$demo_select": {
+    "by": "payload.status",
+    "cases": {
+      "new": {
+        "data": {
+          "status": "new"
+        }
+      },
+      "accepted": {
+        "data": {
+          "status": "accepted"
+        }
+      },
+      "cooking": {
+        "data": {
+          "status": "cooking"
+        }
+      },
+      "ready": {
+        "data": {
+          "status": "ready"
+        }
+      },
+      "on_a_way": {
+        "data": {
+          "status": "on_a_way"
+        }
+      },
+      "delivered": {
+        "data": {
+          "status": "delivered"
+        }
+      },
+      "canceled": {
+        "data": {
+          "status": "canceled"
+        }
+      }
+    },
+    "default": {
+      "data": {
+        "status": "new"
+      }
+    }
+  }
+}
