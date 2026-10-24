@@ -1,3 +1,7 @@
+## 1.14.3
+
+* fix(tour): the revenue tour fragment no longer imports `profit_product_list.dart` (manager-only). A driver compose does not ship manager sources, so the generated tour_steps.g.dart failed to compile in paas_driver's debug tour build. The product row is now found by type name, so driver shells find no row and the tolerant steps skip.
+
 ## 1.14.2
 
 * feat(tour): the revenue tour fragment gains `revenue_product_profit` (a product row tap opens the profit detail: a pushed `RevenueDetailPage` on a phone, the detail plane on wide) and a tolerant close step. The profit report fixture already carries products. No version bump (tour only).

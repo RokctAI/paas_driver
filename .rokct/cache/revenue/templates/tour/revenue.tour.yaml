@@ -20,8 +20,6 @@
 #
 # Format: RokctAI/shared-workflows scripts/tour/README.md
 sdk: revenue
-imports:
-  - "import 'package:revenue_sdk/src/manager/presentation/revenue/profit_product_list.dart';"
 steps:
   - key: revenue_income
     title: "Money at a glance"
@@ -38,7 +36,12 @@ steps:
       // The /income dashboard from the step above is still on screen. Bring
       // the first product row into view and tap it: a pushed detail page on
       // a phone, the detail plane where the dashboard has more than one.
-      final Finder row = find.byType(ProductProfitRow);
+      // Matched by type name: ProductProfitRow lives in the manager-only
+      // sources, which a driver compose does not ship, so importing it
+      // broke the driver tour build. Driver shells find no row and skip.
+      final Finder row = find.byWidgetPredicate(
+        (Widget w) => w.runtimeType.toString() == 'ProductProfitRow',
+      );
       try {
         await tester.scrollUntilVisible(
           row.first,
@@ -59,7 +62,9 @@ steps:
       // on the planes spread nothing was pushed.
       final NavigatorState navigator =
           tester.state(find.byType(Navigator).first);
-      if (find.byType(ProductProfitRow).evaluate().isEmpty &&
+      if (find.byWidgetPredicate(
+            (Widget w) => w.runtimeType.toString() == 'ProductProfitRow',
+          ).evaluate().isEmpty &&
           navigator.canPop()) {
         navigator.pop();
       }

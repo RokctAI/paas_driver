@@ -924,7 +924,7 @@
       ]
     },
     "revenue_sdk": {
-      "version": "1.14.2",
+      "version": "1.14.3",
       "files": {
         "lib/presentation/pages/income/statistics_screen.dart": "b385595295baa359fdd50076b5f8c4823d4e64e3e50c09adfaa885ba57d8a9f2",
         "lib/presentation/pages/income/income_page.dart": "7bdb8248d0695667eb73bb2266609e9ceb2b48cb5112e999a50ebdd9f5aaf92e",
@@ -1442,8 +1442,8 @@
       "hash": "ef378600c400e1cf"
     },
     "revenue": {
-      "version": "1.14.2",
-      "hash": "147f87747ff5917a"
+      "version": "1.14.3",
+      "hash": "361a9c27329234c8"
     },
     "weather": {
       "version": "1.6.2",

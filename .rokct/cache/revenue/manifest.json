@@ -1,6 +1,7 @@
 {
   "name": "revenue_sdk",
-  "version": "1.14.2",
+  "version": "1.14.3",
+  "_comment_version_1_14_3": "1.14.2 -> 1.14.3: the revenue tour fragment no longer imports the manager-only ProductProfitRow, which broke the driver shell tour build (the driver compose does not ship manager sources). Tour template only; see CHANGELOG.",
   "_comment_version_1_14_2": "1.14.1 -> 1.14.2: version for the coach-mark guide mounted on this SDK's primary page (GuideHost and GuideAnchor from base_sdk 1.92.0, off in demo sessions). The mount landed without a version change; see CHANGELOG.",
   "_comment_version_1_14_0": "1.13.2 -> 1.14.0: demo runs the REAL statistics repositories (Ray, 2026-09-25: touch all SDK demos, remove unused files). DemoCourierStatisticsRepository and DemoSellerStatisticsRepository are deleted, and so is the role hooks' DemoSession listener that swapped them in and out (resetDemoSessionListener is gone). DriverRevenueDependencies / ManagerRevenueDependencies register CourierStatisticsRepository / SellerStatisticsRepository always and DemoFixtures.registerAssetDirectory('assets/demo/revenue'); base_sdk 1.73.0's DemoGatewayInterceptor answers api.delivery_man.*, api.driver_order.get_driver_orders_paginate and api.seller_report.* from templates/assets/demo/revenue/<cmd>.json (installed to assets/demo/revenue, both roles) while DemoSession.demoActive. Same fictional week as before. Needs base_sdk 1.73.0.",
   "installs": [
