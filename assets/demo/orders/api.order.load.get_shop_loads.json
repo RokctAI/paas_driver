@@ -1,0 +1,273 @@
+{
+  "$demo_select": {
+    "by": "payload.status",
+    "cases": {
+      "open": [
+        {
+          "id": "LOAD-0007",
+          "shop": {
+            "id": "1",
+            "title": "Corner Kitchen"
+          },
+          "deliveryman": {
+            "id": "sipho.dlamini@demo.rokct.ai",
+            "name": "Sipho Dlamini"
+          },
+          "load_status": "open",
+          "created_at": "$now_iso-3h",
+          "lines": [
+            {
+              "item_id": "LI-0007-1",
+              "stock_id": "1",
+              "product": {
+                "id": "11",
+                "uuid": "demo-prod-11",
+                "translation": {
+                  "title": "Boerewors roll"
+                },
+                "unit": "each"
+              },
+              "unit_price": 42,
+              "issued_qty": 30,
+              "sold_qty": 18,
+              "returned_qty": 0,
+              "remaining_qty": 12
+            },
+            {
+              "item_id": "LI-0007-2",
+              "stock_id": "2",
+              "product": {
+                "id": "12",
+                "uuid": "demo-prod-12",
+                "translation": {
+                  "title": "Vetkoek and mince"
+                },
+                "unit": "each"
+              },
+              "unit_price": 35,
+              "issued_qty": 24,
+              "sold_qty": 15,
+              "returned_qty": 0,
+              "remaining_qty": 9
+            }
+          ]
+        },
+        {
+          "id": "LOAD-0006",
+          "shop": {
+            "id": "1",
+            "title": "Corner Kitchen"
+          },
+          "deliveryman": {
+            "id": "naledi.khumalo@demo.rokct.ai",
+            "name": "Naledi Khumalo"
+          },
+          "load_status": "open",
+          "created_at": "$now_iso-1d",
+          "lines": [
+            {
+              "item_id": "LI-0006-1",
+              "stock_id": "3",
+              "product": {
+                "id": "13",
+                "uuid": "demo-prod-13",
+                "translation": {
+                  "title": "Bunny chow (quarter)"
+                },
+                "unit": "each"
+              },
+              "unit_price": 55,
+              "issued_qty": 20,
+              "sold_qty": 14,
+              "returned_qty": 2,
+              "remaining_qty": 4
+            }
+          ]
+        }
+      ],
+      "closed": [
+        {
+          "id": "LOAD-0005",
+          "shop": {
+            "id": "1",
+            "title": "Corner Kitchen"
+          },
+          "deliveryman": {
+            "id": "sipho.dlamini@demo.rokct.ai",
+            "name": "Sipho Dlamini"
+          },
+          "load_status": "closed",
+          "created_at": "$now_iso-3d",
+          "lines": [
+            {
+              "item_id": "LI-0005-1",
+              "stock_id": "1",
+              "product": {
+                "id": "11",
+                "uuid": "demo-prod-11",
+                "translation": {
+                  "title": "Boerewors roll"
+                },
+                "unit": "each"
+              },
+              "unit_price": 42,
+              "issued_qty": 30,
+              "sold_qty": 27,
+              "returned_qty": 3,
+              "remaining_qty": 0
+            },
+            {
+              "item_id": "LI-0005-2",
+              "stock_id": "4",
+              "product": {
+                "id": "14",
+                "uuid": "demo-prod-14",
+                "translation": {
+                  "title": "Gatsby (half)"
+                },
+                "unit": "each"
+              },
+              "unit_price": 65,
+              "issued_qty": 12,
+              "sold_qty": 11,
+              "returned_qty": 1,
+              "remaining_qty": 0
+            }
+          ]
+        }
+      ]
+    },
+    "default": [
+      {
+        "id": "LOAD-0007",
+        "shop": {
+          "id": "1",
+          "title": "Corner Kitchen"
+        },
+        "deliveryman": {
+          "id": "sipho.dlamini@demo.rokct.ai",
+          "name": "Sipho Dlamini"
+        },
+        "load_status": "open",
+        "created_at": "$now_iso-3h",
+        "lines": [
+          {
+            "item_id": "LI-0007-1",
+            "stock_id": "1",
+            "product": {
+              "id": "11",
+              "uuid": "demo-prod-11",
+              "translation": {
+                "title": "Boerewors roll"
+              },
+              "unit": "each"
+            },
+            "unit_price": 42,
+            "issued_qty": 30,
+            "sold_qty": 18,
+            "returned_qty": 0,
+            "remaining_qty": 12
+          },
+          {
+            "item_id": "LI-0007-2",
+            "stock_id": "2",
+            "product": {
+              "id": "12",
+              "uuid": "demo-prod-12",
+              "translation": {
+                "title": "Vetkoek and mince"
+              },
+              "unit": "each"
+            },
+            "unit_price": 35,
+            "issued_qty": 24,
+            "sold_qty": 15,
+            "returned_qty": 0,
+            "remaining_qty": 9
+          }
+        ]
+      },
+      {
+        "id": "LOAD-0006",
+        "shop": {
+          "id": "1",
+          "title": "Corner Kitchen"
+        },
+        "deliveryman": {
+          "id": "naledi.khumalo@demo.rokct.ai",
+          "name": "Naledi Khumalo"
+        },
+        "load_status": "open",
+        "created_at": "$now_iso-1d",
+        "lines": [
+          {
+            "item_id": "LI-0006-1",
+            "stock_id": "3",
+            "product": {
+              "id": "13",
+              "uuid": "demo-prod-13",
+              "translation": {
+                "title": "Bunny chow (quarter)"
+              },
+              "unit": "each"
+            },
+            "unit_price": 55,
+            "issued_qty": 20,
+            "sold_qty": 14,
+            "returned_qty": 2,
+            "remaining_qty": 4
+          }
+        ]
+      },
+      {
+        "id": "LOAD-0005",
+        "shop": {
+          "id": "1",
+          "title": "Corner Kitchen"
+        },
+        "deliveryman": {
+          "id": "sipho.dlamini@demo.rokct.ai",
+          "name": "Sipho Dlamini"
+        },
+        "load_status": "closed",
+        "created_at": "$now_iso-3d",
+        "lines": [
+          {
+            "item_id": "LI-0005-1",
+            "stock_id": "1",
+            "product": {
+              "id": "11",
+              "uuid": "demo-prod-11",
+              "translation": {
+                "title": "Boerewors roll"
+              },
+              "unit": "each"
+            },
+            "unit_price": 42,
+            "issued_qty": 30,
+            "sold_qty": 27,
+            "returned_qty": 3,
+            "remaining_qty": 0
+          },
+          {
+            "item_id": "LI-0005-2",
+            "stock_id": "4",
+            "product": {
+              "id": "14",
+              "uuid": "demo-prod-14",
+              "translation": {
+                "title": "Gatsby (half)"
+              },
+              "unit": "each"
+            },
+            "unit_price": 65,
+            "issued_qty": 12,
+            "sold_qty": 11,
+            "returned_qty": 1,
+            "remaining_qty": 0
+          }
+        ]
+      }
+    ]
+  }
+}
