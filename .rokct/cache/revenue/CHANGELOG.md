@@ -1,3 +1,7 @@
+## 1.14.4
+
+* fix(tour): the `revenue_product_profit` and close steps move to a new `revenue_manager` tour fragment, listed only by the manager shell. 1.14.3's type-name match made them no-ops on the driver, so the driver tour captured the dashboard twice and the duplicate-screenshot gate failed. Manager tours are unchanged (the import returns, in the manager-only fragment).
+
 ## 1.14.3
 
 * fix(tour): the revenue tour fragment no longer imports `profit_product_list.dart` (manager-only). A driver compose does not ship manager sources, so the generated tour_steps.g.dart failed to compile in paas_driver's debug tour build. The product row is now found by type name, so driver shells find no row and the tolerant steps skip.

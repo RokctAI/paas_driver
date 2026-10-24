@@ -21,6 +21,7 @@ import 'package:base_sdk/src/guide/guide_definition.dart';
 import 'package:base_sdk/src/guide/guide_host.dart';
 import 'package:base_sdk/src/guide/guide_progress.dart';
 import 'package:base_sdk/src/guide/guide_store.dart';
+import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 
@@ -57,6 +58,7 @@ Widget _host(GuideStore store) => MaterialApp(
     );
 
 void main() {
+  _brand();
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await LocalStorage.init();
@@ -133,5 +135,19 @@ void main() {
       (tester) async {
     await tester.pumpWidget(_scene());
     expect(find.text('Go'), findsOneWidget);
+  });
+}
+
+void _brand() {
+  testWidgets('the coach-mark bubble uses the shell card colour',
+      (tester) async {
+    AppStyle.setBrightness(Brightness.light);
+    await tester.pumpWidget(_host(InMemoryGuideStore()));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump(const Duration(milliseconds: 200));
+    final material = tester.widget<Material>(find
+        .ancestor(of: find.text('Start here'), matching: find.byType(Material))
+        .first);
+    expect(material.color, AppStyle.cardFor(Brightness.light));
   });
 }

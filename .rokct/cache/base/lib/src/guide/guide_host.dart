@@ -16,6 +16,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../presentation/theme/app_style.dart';
 import '../services/demo_session.dart';
 import 'guide_anchor.dart';
 import 'guide_definition.dart';
@@ -223,6 +224,10 @@ class _CoachMarkState extends State<_CoachMark> {
       });
     }
     final size = MediaQuery.sizeOf(context);
+    // The shell's brand colours live in AppStyle, not in the ThemeData's
+    // ColorScheme, so read them for the mode the inherited theme is in.
+    final brightness = Theme.of(context).brightness;
+    final ink = AppStyle.inkFor(brightness);
     final placeBelow = rect == null || rect.center.dy < size.height / 2;
     return Positioned.fill(
       child: Stack(
@@ -235,7 +240,7 @@ class _CoachMarkState extends State<_CoachMark> {
               top: placeBelow ? rect.bottom + 12 : null,
               bottom: placeBelow ? null : size.height - rect.top + 12,
               child: Material(
-                color: Theme.of(context).colorScheme.surface,
+                color: AppStyle.cardFor(brightness),
                 elevation: 6,
                 borderRadius: BorderRadius.circular(12),
                 child: Padding(
@@ -245,18 +250,27 @@ class _CoachMarkState extends State<_CoachMark> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(step.title,
-                          style: Theme.of(context).textTheme.titleMedium),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(color: ink)),
                       const SizedBox(height: 6),
-                      Text(step.body),
+                      Text(step.body,
+                          style: TextStyle(
+                              color: AppStyle.secondaryInkFor(brightness))),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           TextButton(
+                              style: TextButton.styleFrom(
+                                  foregroundColor: AppStyle.primary),
                               onPressed: onSkipAll,
                               child: const Text('Skip guide')),
                           const SizedBox(width: 8),
                           FilledButton(
+                              style: FilledButton.styleFrom(
+                                  backgroundColor: AppStyle.primary),
                               onPressed: onGotIt, child: const Text('Got it')),
                         ],
                       ),

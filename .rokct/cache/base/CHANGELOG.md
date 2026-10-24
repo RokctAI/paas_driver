@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.94.0
+
+* feat(templates): base_sdk's Android launcher icons are neutral. `templates/android/app/src/main/res/mipmap-*/ic_launcher.png` are the `flutter create` defaults in place of the Juvo artwork, and the adaptive-icon files (`mipmap-anydpi-v26/ic_launcher.xml`, `ic_launcher_background/foreground/monochrome.png`) are removed from the template, so the SDK carries no app's branding. Shells keep their own artwork in their own repos; compose installs a template file only when the app has none or still holds the copy compose wrote. A shell that still holds base's old Juvo copy (paas_manager, paas_driver, minilauncher) keeps it in git. `AndroidManifest.xml` still points at `@mipmap/ic_launcher`.
+
+## 1.93.2
+
+* fix(guide): the coach-mark bubble takes the app shell colours. It read `Theme.of(context).colorScheme.surface` and the default text and button styles, none of which carry the brand colours `AppStyle.injectBrandColors` sets, so the Guide stayed neutral in a branded shell. The panel is now `AppStyle.cardFor`, the title and body use `inkFor` / `secondaryInkFor`, and the buttons use `AppStyle.primary`, all resolved from the inherited theme brightness. No API change. Test: `test/guide_host_test.dart`.
+
 ## 1.93.1
 
 * fix(demo): `DemoFixtures`' default asset loader consults the asset manifest and answers null for an unbundled key (demo_gateway_interceptor.dart). A cmd whose fixture sits in a later registered directory (api.lms.can_manage_announcements after assets/demo/auth) no longer provokes a failed asset load, which under `flutter test` escaped as an uncaught async error and hung the supacharge lms student profile render (supacharge run 39985416932). Test: test/demo_gateway_interceptor_test.dart.
