@@ -158,7 +158,7 @@ packages:
       path: ".rokct/cache/base"
       relative: true
     source: path
-    version: "1.93.0"
+    version: "1.93.1"
   battery_plus:
     dependency: "direct main"
     description:
@@ -1957,7 +1957,7 @@ packages:
       path: ".rokct/cache/products"
       relative: true
     source: path
-    version: "1.12.8"
+    version: "1.12.9"
   proste_indexed_stack:
     dependency: "direct main"
     description:

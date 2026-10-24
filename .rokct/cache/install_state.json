@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.93.0",
+      "version": "1.93.1",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -1068,7 +1068,7 @@
       }
     },
     "products_sdk": {
-      "version": "1.12.8",
+      "version": "1.12.9",
       "files": {
         "assets/demo/products/api.seller_product.delete_seller_extra_value.json": "36f579d4c4606f9ff3c022585bab9c993c9fb9f0aec51523d0a81a7065d0eb31",
         "assets/demo/products/api.seller_product.get_product_details.json": "c085451bfdfea3523c7993705fcb031786836d9ebf58d8ec9e48e85107bdb54b",
@@ -1390,8 +1390,8 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.93.0",
-      "hash": "e82388e1d65e3cd8"
+      "version": "1.93.1",
+      "hash": "90ecc3b880d440fa"
     },
     "comms": {
       "version": "1.23.2",
@@ -1414,8 +1414,8 @@
       "hash": "8f7c2ae7f09020e7"
     },
     "products": {
-      "version": "1.12.8",
-      "hash": "b4f8f2778ccf084c"
+      "version": "1.12.9",
+      "hash": "56d71b1a3ec2c9a4"
     },
     "delivery": {
       "version": "1.30.1",

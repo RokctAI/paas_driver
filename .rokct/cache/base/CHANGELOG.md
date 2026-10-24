@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.93.1
+
+* fix(demo): `DemoFixtures`' default asset loader consults the asset manifest and answers null for an unbundled key (demo_gateway_interceptor.dart). A cmd whose fixture sits in a later registered directory (api.lms.can_manage_announcements after assets/demo/auth) no longer provokes a failed asset load, which under `flutter test` escaped as an uncaught async error and hung the supacharge lms student profile render (supacharge run 39985416932). Test: test/demo_gateway_interceptor_test.dart.
+
 ## 1.93.0
 
 * feat(theme): `AppStyle.injectBrandColors` takes optional light-mode values too: `surfaceLight`, `cardLight`, `cardLightAlt`, `strokeLight`, `strokeLightSubtle`, `textLightSecondary`, `textLightFaint`, plus `inkDark` / `inkLight` for the `textPrimary` ink of each mode (no longer `const`). A composed app can now brand its light theme as well as its dark one. Each parameter left out keeps its current value, so existing callers (dark values only) are unchanged and light mode keeps the neutral kernel defaults for them. Test: `test/inject_brand_colors_light_test.dart`.
