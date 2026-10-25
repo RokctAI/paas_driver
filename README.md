@@ -16,12 +16,8 @@ tour run, so new screens appear here automatically.
 | ![Driver Home][s05] | ![Driver Orders][s06] | ![Available Orders][s07] |
 | **Driver Route** | **Driver Order History** | **Driver Parcels** |
 | ![Driver Route][s08] | ![Driver Order History][s09] | ![Driver Parcels][s10] |
-| **Available Parcels** | **Driver Parcel History** | **Driver Delivery Zone** |
-| ![Available Parcels][s11] | ![Parcel History][s12] | ![Delivery Zone][s13] |
-| **Revenue Income** | **Calc Keypad** | **Users Profile** |
-| ![Revenue Income][s14] | ![Calc Keypad][s15] | ![Users Profile][s16] |
-| **Users Profile Settings** | | |
-| ![Users Profile Settings][s17] | | |
+| **Available Parcels** | **Driver Parcel History** | **Driver Deposits** |
+| ![Available Parcels][s11] | ![Parcel History][s12] | ![Driver Deposits][s13] |
 
 The full tour lives in the [feature guide](marketing/tour/feature-guide.md),
 with walkthrough videos alongside it in [`marketing/tour/`](marketing/tour).
@@ -34,11 +30,7 @@ with walkthrough videos alongside it in [`marketing/tour/`](marketing/tour).
 [s10]: marketing/tour/store/10-driver_parcels.png
 [s11]: marketing/tour/store/11-driver_available_parcels.png
 [s12]: marketing/tour/store/12-driver_parcel_history.png
-[s13]: marketing/tour/store/13-driver_delivery_zone.png
-[s14]: marketing/tour/store/14-revenue_income.png
-[s15]: marketing/tour/store/15-calc_keypad.png
-[s16]: marketing/tour/store/16-users_profile.png
-[s17]: marketing/tour/store/17-users_profile_settings.png
+[s13]: marketing/tour/store/13-driver_deposits.png
 <!-- @generated-tour-gallery-end -->
 
 <!-- @generated-render-strip-start -->
