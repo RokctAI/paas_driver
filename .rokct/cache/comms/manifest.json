@@ -1,6 +1,7 @@
 {
   "name": "comms_sdk",
-  "version": "1.23.1",
+  "version": "1.23.2",
+  "_comment_version_1_23_2": "1.23.1 -> 1.23.2: version for the notification inbox coach-mark (#324), which landed without a bump.",
   "_comment_version_1_23_1": "1.23.0 -> 1.23.1: NotificationInboxPage and NotificationBell import base_sdk ApiResult so .when resolves (see CHANGELOG).",
   "_comment_version_1_23_0": "1.22.4 -> 1.23.0: NotificationInboxPage and NotificationBell (see CHANGELOG).",
   "_comment_version_1_22_4": "1.22.3 -> 1.22.4: the Languages sheet awaits Save before closing, and the saved language now applies at once (base_sdk 1.88.3 LanguageNotifier -> appProvider.changeLocale). DesktopNotificationPoller (Windows) rings the sound 3 times per count increase instead of looping until the count drops; polling stays at 10 s. PushMessageDispatcher shows a foreground FCM message no type handler claims as a local notification. Requires base_sdk >= 1.88.3.",

@@ -1,3 +1,15 @@
+## 1.31.1
+
+* feat(tour): the orders tour fragment now tours the POS create-order flow: `/order-products`, `/order` (the cart is filled through `orderCartProvider`), `/shipping-address`, `/select-user`, `/select-section`, `/delivery-time`. The product grid and customer picker were already answered by products_sdk and merchants_sdk demo fixtures; the section picker gets the new fixture `api.seller_operations.get_seller_sections.json`. `/select-table` (needs a section argument) and `/select-address` (a Google map) cannot be reached by path and stay out. No version bump (tour and fixtures only).
+
+* feat(tour): the orders tour fragment gains `/load`, `/load/issue` and `/load/drivers` steps, so every manager route of this SDK except the POS create-order flow is toured. The three load fixtures (`api.order.load.get_shop_loads`, `list_shop_deliverymen`, `api.shop_drivers.list_shop_drivers`) were empty lists and now carry a fictional shop's open and closed loads and driver roster; `get_shop_loads` answers by `payload.status`. Covered by `test/demo_fixtures_real_repository_test.dart`. No version bump (tour and fixtures only).
+
+* chore(guide): version for the coach-mark guide mounted on this SDK's primary page (base_sdk GuideHost and GuideAnchor). The mount landed without a version change. Needs base_sdk >= 1.92.0.
+
+## 1.31.0
+
+* feat(manager): declares the manager mode action rokct.intent.action.MANAGER on an activity-alias (manager flavor). The launcher finds an installed manager app by that action, not by a configured package name (launch_sdk 1.27.0).
+
 ## 1.30.0
 
 * feat(manager): sales for a shop still pending approval wait on the device.

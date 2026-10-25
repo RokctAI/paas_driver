@@ -16,10 +16,14 @@
 # assets/demo/orders - on the manager side a seeded shift of seven
 # fictional orders in mixed states, priced in rand. So both screens below
 # capture a stocked queue and a stocked history with zero backend contact.
-# The POS create-order flow (/order-products and its pickers) is still
-# deliberately NOT toured: its product grid comes from the un-gated
-# PosProductsRepositoryFacade and the flow needs cart state, so there is no
-# honest still until that facade gets demo data too.
+# The POS create-order flow (/order-products, /order, /shipping-address,
+# /select-user, /select-section, /delivery-time) is toured: its product grid
+# is answered by products_sdk's seller-product demo fixtures, its customer
+# picker by merchants_sdk's get_shop_users fixture, its section picker by
+# this SDK's api.seller_operations.get_seller_sections fixture, and the
+# cart is filled through orderCartProvider. /select-table (needs a section
+# id argument) and /select-address (a Google map) are not routable by path
+# and stay out.
 #
 # The cross-SDK import below is the established shell contract: the queue
 # tab is selected through merchants_sdk's mainProvider, the same state the
@@ -30,6 +34,8 @@ sdk: orders
 imports:
   - "import 'package:flutter_riverpod/flutter_riverpod.dart';"
   - "import 'package:merchants_sdk/src/manager/application/main/main_provider.dart';"
+  - "import 'package:orders_sdk/src/manager/application/order_cart/order_cart_provider.dart';"
+  - "import 'package:orders_sdk/src/manager/application/order_products/order_products_provider.dart';"
 steps:
   - key: order_queue
     title: "Every order, one queue"
@@ -52,4 +58,104 @@ steps:
     caption: "Every completed sale stays on record - scroll back through *your full history* any time."
     action: route
     route: /order-history
+    settle: 6
+  - key: order_pos_products
+    title: "Start a walk-in order"
+    caption: "Ring up a customer at the counter - *pick from your own menu*, by category, with search."
+    action: route
+    route: /order-products
+    settle: 8
+  - key: order_pos_cart
+    title: "Review the order"
+    caption: "Quantities, add-ons and the running total - *the order reads back* before it goes anywhere."
+    action: dart
+    settle: 6
+    dart: |
+      // The products grid (the previous step's page, answered by
+      // products_sdk's seller-product demo fixtures) is still on screen:
+      // wait for it to load, put its first product in the cart through the
+      // same notifier the product sheet's add button drives, then open the
+      // order summary. The subscriptions keep both autoDispose-free
+      // providers alive across the route change.
+      final Element element = tester.element(find.byType(Navigator).first);
+      final ProviderContainer container =
+          ProviderScope.containerOf(element, listen: false);
+      final ProviderSubscription<dynamic> productsSub =
+          container.listen(orderProductsProvider, (_, __) {});
+      final ProviderSubscription<dynamic> cartSub =
+          container.listen(orderCartProvider, (_, __) {});
+      for (int i = 0;
+          i < 40 && container.read(orderProductsProvider).products.isEmpty;
+          i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 250));
+      }
+      final products = container.read(orderProductsProvider).products;
+      if (products.isNotEmpty && (products.first.stocks ?? []).isNotEmpty) {
+        container.read(orderCartProvider.notifier).addStockToCart(
+              count: 2,
+              product: products.first,
+              stock: products.first.stocks!.first,
+            );
+      }
+      productsSub.close();
+      cartSub.close();
+      router.pushNamed('/order');
+  - key: order_pos_shipping
+    title: "Who is it for, and how"
+    caption: "Choose pickup, delivery or dine-in - *the order type* decides what is asked next."
+    action: dart
+    settle: 6
+    dart: |
+      router.pushNamed('/shipping-address');
+  - key: order_pos_customer
+    title: "Pick the customer"
+    caption: "Search your own customers - or *skip it* and sell to a walk-in."
+    action: dart
+    settle: 6
+    dart: |
+      router.pushNamed('/select-user');
+  - key: order_pos_section
+    title: "Dine-in: pick the section"
+    caption: "Dining room, patio or counter - *seat the order* where the customer is."
+    action: dart
+    settle: 6
+    dart: |
+      router.pushNamed('/select-section');
+  - key: order_pos_delivery_time
+    title: "When, and how it is paid"
+    caption: "Set the time and the payment method - *one tap places the order*."
+    action: dart
+    settle: 6
+    dart: |
+      router.pushNamed('/delivery-time');
+  - key: order_pos_done
+    title: "Back to the till"
+    action: dart
+    screenshot: false
+    settle: 3
+    dart: |
+      // Leave the walk-in flow without placing the order and empty the
+      // cart so the next chapter starts clean.
+      final Element element = tester.element(find.byType(Navigator).first);
+      final ProviderContainer container =
+          ProviderScope.containerOf(element, listen: false);
+      container.read(orderCartProvider.notifier).clearAll();
+      router.popUntilRoot();
+  - key: order_loads
+    title: "Stock out on the road, accounted for"
+    caption: "Hand a driver a *consignment load* and watch it sell down - open loads and closed loads, each with what is sold, returned and still on the van."
+    action: route
+    route: /load
+    settle: 6
+  - key: order_issue_load
+    title: "Issue a load in a few taps"
+    caption: "Pick the driver, pick the stock - *issuing takes it off the shelf* once, and any shortfall is settled when the load closes."
+    action: route
+    route: /load/issue
+    settle: 6
+  - key: order_shop_drivers
+    title: "Your own drivers"
+    caption: "Keep a short roster of *the drivers who carry your stock* - loads can only go to the people on it."
+    action: route
+    route: /load/drivers
     settle: 6

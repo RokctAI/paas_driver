@@ -1,0 +1,49 @@
+# Guided-tour fragment for revenue_sdk's MANAGER-only product profit detail.
+#
+# Split out of revenue.tour.yaml so a driver shell, which composes revenue_sdk
+# without the manager sources, never merges these steps (the row widget lives
+# under src/manager and is not in a driver compose). Only the manager shell's
+# tour/app.tour.yaml lists this fragment, right after `revenue`.
+#
+# Assumes the /income dashboard from the revenue fragment's first step is
+# still on screen.
+#
+# Format: RokctAI/shared-workflows scripts/tour/README.md
+sdk: revenue_manager
+imports:
+  - "import 'package:revenue_sdk/src/manager/presentation/revenue/profit_product_list.dart';"
+steps:
+  - key: revenue_product_profit
+    title: "Which products really earn"
+    caption: "Tap a product for *its own profit* - revenue, margin and cost per variant - so you know what to push."
+    action: dart
+    settle: 6
+    dart: |
+      // The /income dashboard from the step above is still on screen. Bring
+      // the first product row into view and tap it: a pushed detail page on
+      // a phone, the detail plane where the dashboard has more than one.
+      final Finder row = find.byType(ProductProfitRow);
+      try {
+        await tester.scrollUntilVisible(
+          row.first,
+          300,
+          scrollable: find.byType(Scrollable).first,
+        );
+      } catch (_) {}
+      if (row.evaluate().isNotEmpty) {
+        await tester.tap(row.first, warnIfMissed: false);
+      }
+  - key: revenue_product_profit_close
+    title: "Back to the dashboard"
+    action: dart
+    screenshot: false
+    settle: 3
+    dart: |
+      // Tolerant: the phone's detail page is pushed above the dashboard;
+      // on the planes spread nothing was pushed.
+      final NavigatorState navigator =
+          tester.state(find.byType(Navigator).first);
+      if (find.byType(ProductProfitRow).evaluate().isEmpty &&
+          navigator.canPop()) {
+        navigator.pop();
+      }

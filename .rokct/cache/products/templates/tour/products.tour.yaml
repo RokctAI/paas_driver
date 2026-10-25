@@ -30,6 +30,8 @@ imports:
   - "import 'package:flutter_riverpod/flutter_riverpod.dart';"
   - "import 'package:merchants_sdk/src/manager/application/main/main_provider.dart';"
   - "import 'package:remixicon/remixicon.dart';"
+  - "import 'package:products_sdk/src/manager/application/catalog/catalog_provider.dart';"
+  - "import 'package:products_sdk/src/manager/presentation/catalog/product_catalog_card.dart';"
 steps:
   - key: menu
     title: "Your menu, organised"
@@ -76,6 +78,52 @@ steps:
       final NavigatorState navigator =
           tester.state(find.byType(Navigator).first);
       // Bounded: at most the one modal sheet is open.
+      for (int i = 0; i < 3 && navigator.canPop(); i++) {
+        navigator.pop();
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+      }
+
+  - key: product_detail
+    title: "Open a product"
+    caption: "Tap any product for its *full read* - price, stock and options - with edit one tap away."
+    action: dart
+    settle: 6
+    dart: |
+      // Where the catalog has room for a detail plane (tablet and wider)
+      // a card tap fills it; on a phone the catalog keeps the list and the
+      // tap is a no-op, so this step repeats the menu - the stock sheet
+      // below is the phone's second stop.
+      final Finder card = find.byType(ProductCatalogCard);
+      if (card.evaluate().isNotEmpty) {
+        await tester.tap(card.first, warnIfMissed: false);
+      }
+  - key: quick_stock
+    title: "Fix the shelf in one pass"
+    caption: "The *Stock* button opens quick adjust - correct a count, mark a sell-out, and save every change together."
+    action: dart
+    settle: 6
+    dart: |
+      // The amber Stock button carries Remix.archive_line in both its
+      // compact (phone) and labelled (wide) dress: a sheet on a phone, a
+      // plane pane on wide.
+      await tester.tap(
+        find.byIcon(Remix.archive_line).first,
+        warnIfMissed: false,
+      );
+  - key: quick_stock_close
+    title: "Close quick adjust"
+    action: dart
+    settle: 3
+    screenshot: false
+    dart: |
+      final Element element = tester.element(find.byType(Navigator).first);
+      final ProviderContainer container =
+          ProviderScope.containerOf(element, listen: false);
+      container.read(catalogProvider.notifier)
+        ..closeQuickAdjust()
+        ..select(null);
+      final NavigatorState navigator =
+          tester.state(find.byType(Navigator).first);
       for (int i = 0; i < 3 && navigator.canPop(); i++) {
         navigator.pop();
         await Future<void>.delayed(const Duration(milliseconds: 500));

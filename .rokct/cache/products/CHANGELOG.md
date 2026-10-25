@@ -1,3 +1,13 @@
+## 1.12.9
+
+* fix(codegen): `json_serializable` dev dependency raised from `^6.8.0` to `^6.13.0`. A standalone build_runner of this SDK resolved json_serializable 6.11.4 against source_helper 1.4.0 and analyzer 10.2.0, which both define `toStringNonNullable` on `TypeParameterType`, so the build script did not compile (exit 78) and `product_state.freezed.dart` was never written. A host app that re-extracted this SDK (paas_customer, after the 1.12.8 bump) then failed to compile every `ProductState` getter. Checked locally: `flutter pub get` now resolves json_serializable 6.15.2 and `dart run build_runner build` writes `product_state.freezed.dart`.
+
+## 1.12.8
+
+* feat(tour): the products tour fragment gains `product_detail` (card tap; fills the detail plane on wide screens, a no-op on a phone), `quick_stock` (the Stock button's quick-adjust) and a close step. `ProductPage` is the customer marketplace's page, not a manager screen. No version bump (tour only).
+
+* chore(guide): version for the coach-mark guide mounted on this SDK's primary page (base_sdk GuideHost and GuideAnchor). The mount landed without a version change. Needs base_sdk >= 1.92.0.
+
 ## 1.12.7
 
 * fix(wiring): declare `EmbeddedWidgets.productScreen` (the product sheet), implemented by `ProductScreen`. Tapping a product in a shop or in search threw a `StateError` in the customer app, because no SDK declared it.

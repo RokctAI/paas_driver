@@ -1,3 +1,7 @@
+## 1.22.1
+
+* chore(guide): version for the coach-mark guide mounted on this SDK's primary page (base_sdk GuideHost and GuideAnchor). The mount landed without a version change. Needs base_sdk >= 1.92.0.
+
 ## 1.22.0
 
 * feat(auth): shared sign-in between the fleet's own apps on one phone. Sign in once on the launcher and the manager (or any fleet app signed with the same key) opens already signed in, without signing the launcher out. New boot hook `auth_session_handoff_gate` (`SessionHandoffGate.install()`).

@@ -50,6 +50,11 @@ import 'package:base_sdk/src/application/home/home_provider.dart';
 import 'package:base_sdk/src/models/data/cart_data.dart';
 import 'package:merchants_sdk/src/common/presentation/pages/shop/cart/cart_order_page.dart';
 import 'package:merchants_sdk/src/common/presentation/pages/shop/widgets/shop_page_avatar.dart';
+import 'package:base_sdk/src/guide/guide_anchor.dart';
+import 'package:base_sdk/src/guide/guide_definition.dart';
+import 'package:base_sdk/src/guide/guide_host.dart';
+
+const GuideDefinition merchantsShopGuide = GuideDefinition(id: 'merchants.shop', steps: [GuideStep(id: 'merchants.shop.cart', anchor: 'merchants.shop.cart', title: 'Your cart', body: 'Tap the bar to open your cart.')]);
 // [refork] removed host router import
 
 @RoutePage()
@@ -228,8 +233,12 @@ class _ShopPageState extends ConsumerState<ShopPage>
     return height;
   }
 
+  /// The page sits under its own GuideHost, so its coach-mark shows here only
+  /// and never in the app's MaterialApp builder.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => GuideHost(definition: merchantsShopGuide, child: _buildPage(context));
+
+  Widget _buildPage(BuildContext context) {
     final bool isLtr = LocalStorage.getLangLtr();
     final state = ref.watch(shopProvider);
     final orders = ref.watch(shopOrderProvider).cart;
@@ -318,7 +327,9 @@ class _ShopPageState extends ConsumerState<ShopPage>
       children: [
         // Cart info bar - only show when fixed is true and cart has items
         if (isFixed && !isCartEmpty)
-          GestureDetector(
+          GuideAnchor(
+            id: 'merchants.shop.cart',
+            child: GestureDetector(
             onTap: () {
               if (LocalStorage.getToken().isEmpty) {
                 AppRoutes.I.pushLoginRoute(context);
@@ -420,6 +431,7 @@ class _ShopPageState extends ConsumerState<ShopPage>
                   ),
                 ),
               ],
+            ),
             ),
           ),
 

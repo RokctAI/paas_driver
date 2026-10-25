@@ -15,6 +15,9 @@
 import 'dart:async';
 
 import 'package:base_sdk/src/domain/interface/notification.dart';
+import 'package:base_sdk/src/guide/guide_anchor.dart';
+import 'package:base_sdk/src/guide/guide_definition.dart';
+import 'package:base_sdk/src/guide/guide_host.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:base_sdk/src/models/response/notification_response.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -35,6 +38,19 @@ import 'notification_list_language.dart';
 /// unread and read rows together, and tapping an unread row marks only that
 /// row read. Errors show one friendly line; the server detail goes to
 /// TelemetryClient.
+/// The coach-mark for the notification inbox: points at Read all.
+const GuideDefinition notificationInboxGuide = GuideDefinition(
+  id: 'comms.notifications',
+  steps: [
+    GuideStep(
+      id: 'comms.notifications.read_all',
+      anchor: 'comms.notifications.read_all',
+      title: 'Read all',
+      body: 'Tap here to mark every notification as read.',
+    ),
+  ],
+);
+
 class NotificationInboxPage extends StatefulWidget {
   const NotificationInboxPage({super.key});
 
@@ -170,8 +186,15 @@ class _NotificationInboxPageState extends State<NotificationInboxPage> {
     ));
   }
 
+  /// The page sits under its own [GuideHost], so its coach-mark shows here
+  /// only and never in the app's MaterialApp builder.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => GuideHost(
+        definition: notificationInboxGuide,
+        child: _buildPage(context),
+      );
+
+  Widget _buildPage(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final unread = _unread;
     return Scaffold(
@@ -182,8 +205,11 @@ class _NotificationInboxPageState extends State<NotificationInboxPage> {
             Padding(
               padding: const EdgeInsets.only(right: 12),
               child: Center(
-                child: NotificationReadAllAction(
-                  onTap: () => unawaited(_readAll()),
+                child: GuideAnchor(
+                  id: 'comms.notifications.read_all',
+                  child: NotificationReadAllAction(
+                    onTap: () => unawaited(_readAll()),
+                  ),
                 ),
               ),
             ),

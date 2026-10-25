@@ -1,6 +1,7 @@
 {
   "name": "orders_sdk",
-  "version": "1.30.0",
+  "version": "1.31.1",
+  "_comment_version_1_31_1": "1.31.0 -> 1.31.1: version for the coach-mark guide mounted on this SDK's primary page (GuideHost and GuideAnchor from base_sdk 1.92.0, off in demo sessions). The mount landed without a version change; see CHANGELOG.",
   "_comment_version_1_30_0": "1.29.4 -> 1.30.0: a POS sale for a shop still pending approval is held, not parked. The orders backend refuses it with SHOP_PENDING_APPROVAL (HTTP 423); OrderCreateSyncHandler answers SyncResult.held, so the sale stays queued without spending its retry attempts and syncs once the shop is approved. Staff can move a queued sale on the board: updateOrderStatus on an offline: id updates the stored sale, and the handler sends the status the sale is in when it syncs. Every board column now lists the queued sales in its own status (SellerOrdersRepository.getOrders merges them into page 1, also when the backend is unreachable); only the New column did before, with every queued sale in it. Requires base_sdk >= 1.88.0 (SyncResult.held).",
   "_comment_version_1_29_4": "1.29.3 -> 1.29.4: declares EmbeddedWidgets.orderMap -> OrderMap. The customer app called EmbeddedWidgets.I.<method>() but no composed SDK declared it, so the host's noSuchMethod threw a StateError on the tap (lost-features audit of paas_customer, 2026-10-12; Ray: fix the crashes). Caller: merchants shop_detail.dart (the shop info page map). The dynamic parameters are handed straight through; OrderMap's typed fields take them by implicit downcast, so the host needs no google_maps import.",
   "_comment_version_1_29_0": "1.28.0 -> 1.29.0: checkout price information shows \"You saved X with your subscription\" when the quote carries subscription_savings (commerce loyalty customer subscriptions). Requires base_sdk >= 1.82.0 (GetCalculateModel.subscriptionSavings, TrKeys.youSavedWithSubscription).",
@@ -46,6 +47,12 @@
   "routes": [],
   "app_type": {
     "manager": {
+      "_comment_host_integration": "Declares the manager mode action (launch_sdk 1.27.0): the launcher finds an installed manager app by rokct.intent.action.MANAGER, not by a configured package name. Manager flavor only, so customer and driver compositions of this SDK are never a manager mode.",
+      "host_integration": {
+        "android_application_xml": [
+          "<activity-alias android:name=\".fleet.ManagerModeAlias\" android:targetActivity=\".MainActivity\" android:exported=\"true\"><intent-filter><action android:name=\"rokct.intent.action.MANAGER\" /><category android:name=\"android.intent.category.DEFAULT\" /></intent-filter></activity-alias>"
+        ]
+      },
       "installs": [
         {
           "from": "templates/pages/manager/orders",

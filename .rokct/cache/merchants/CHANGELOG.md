@@ -1,3 +1,9 @@
+## 1.36.1
+
+* feat(tour): the merchants tour fragment gains a `/quick-flow` step (the shop's order-automation screen, fixture `api.seller_shop.get_quick_flow_settings` already installed). No version bump (tour only).
+
+* chore(guide): version for the coach-mark guide mounted on this SDK's primary page (base_sdk GuideHost and GuideAnchor). The mount landed without a version change. Needs base_sdk >= 1.92.0.
+
 ## 1.36.0
 
 * feat(manager): manager mode turns on. The manager app now declares the

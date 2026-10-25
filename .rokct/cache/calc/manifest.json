@@ -1,6 +1,7 @@
 {
   "name": "calc_sdk",
-  "version": "1.4.0",
+  "version": "1.4.1",
+  "_comment_version_1_4_1": "1.4.0 -> 1.4.1: version for the coach-mark guide mounted on this SDK's primary page (GuideHost and GuideAnchor from base_sdk 1.92.0, off in demo sessions). The mount landed without a version change; see CHANGELOG.",
   "_comment_version_1_4_0": "1.3.0 -> 1.4.0: CalculatorPage reads ?from= and CalculatorView gains returnToLauncher; launch_sdk >= 1.25.0 opens the fleet calculator with rokct:/calc?from=launcher, and back then pops the calculator and calls SystemNavigator.pop (base_sdk ReturnToLauncherScope, base_sdk >= 1.87.0) so the person lands back on the launcher. Any other opener is unchanged.",
   "installs": [
     {

@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.94.0
+
+* feat(templates): base_sdk's Android launcher icons are neutral. `templates/android/app/src/main/res/mipmap-*/ic_launcher.png` are the `flutter create` defaults in place of the Juvo artwork, and the adaptive-icon files (`mipmap-anydpi-v26/ic_launcher.xml`, `ic_launcher_background/foreground/monochrome.png`) are removed from the template, so the SDK carries no app's branding. Shells keep their own artwork in their own repos; compose installs a template file only when the app has none or still holds the copy compose wrote. A shell that still holds base's old Juvo copy (paas_manager, paas_driver, minilauncher) keeps it in git. `AndroidManifest.xml` still points at `@mipmap/ic_launcher`.
+
+## 1.93.2
+
+* fix(guide): the coach-mark bubble takes the app shell colours. It read `Theme.of(context).colorScheme.surface` and the default text and button styles, none of which carry the brand colours `AppStyle.injectBrandColors` sets, so the Guide stayed neutral in a branded shell. The panel is now `AppStyle.cardFor`, the title and body use `inkFor` / `secondaryInkFor`, and the buttons use `AppStyle.primary`, all resolved from the inherited theme brightness. No API change. Test: `test/guide_host_test.dart`.
+
+## 1.93.1
+
+* fix(demo): `DemoFixtures`' default asset loader consults the asset manifest and answers null for an unbundled key (demo_gateway_interceptor.dart). A cmd whose fixture sits in a later registered directory (api.lms.can_manage_announcements after assets/demo/auth) no longer provokes a failed asset load, which under `flutter test` escaped as an uncaught async error and hung the supacharge lms student profile render (supacharge run 39985416932). Test: test/demo_gateway_interceptor_test.dart.
+
+## 1.93.0
+
+* feat(theme): `AppStyle.injectBrandColors` takes optional light-mode values too: `surfaceLight`, `cardLight`, `cardLightAlt`, `strokeLight`, `strokeLightSubtle`, `textLightSecondary`, `textLightFaint`, plus `inkDark` / `inkLight` for the `textPrimary` ink of each mode (no longer `const`). A composed app can now brand its light theme as well as its dark one. Each parameter left out keeps its current value, so existing callers (dark values only) are unchanged and light mode keeps the neutral kernel defaults for them. Test: `test/inject_brand_colors_light_test.dart`.
+
+## 1.92.0
+
+* chore(guide): version for the coach-mark guide kernel merged in #320 (GuideDefinition, GuideStep, GuideProgress, GuideStore, GuideAnchor, GuideHost, exported from base_sdk.dart; off while DemoSession.demoActive). That PR added the code and tests but did not change the version. The app_widget builder it also added was removed in #322.
+
 ## 1.91.0
 
 * feat(splash): a "from ROKCT" sign-off at the bottom of the splash, after WhatsApp's "from Meta": "from" small on the first row, "ROKCT" bold in capitals on the second, both centred. It lives in SplashPage, so every composed app gets it from base_sdk with no per-app change. Colour is AppStyle.inkFor(brightness), the splash text's own token, so it flips with the theme. On the phone the splash is artwork that ignores the theme, so the line sits on an AppStyle.surfaceFor pill, which reads on any artwork in either mode. The error fallback screen is unchanged.

@@ -1,1 +1,58 @@
-[]
+[
+  {
+    "id": "DEMO-LOAD-1",
+    "shop": {
+      "id": 1,
+      "title": "Ubuntu Corner Foods"
+    },
+    "load_status": "Open",
+    "created_at": "$now_iso",
+    "lines": [
+      {
+        "item_id": "DEMO-LOAD-1-1",
+        "stock_id": "501",
+        "product": {
+          "id": 301,
+          "uuid": "demo-product-bread",
+          "translation": { "title": "Brown bread" },
+          "unit": "loaf"
+        },
+        "unit_price": 18,
+        "issued_qty": 40,
+        "sold_qty": 26,
+        "returned_qty": 2,
+        "remaining_qty": 12
+      },
+      {
+        "item_id": "DEMO-LOAD-1-2",
+        "stock_id": "502",
+        "product": {
+          "id": 302,
+          "uuid": "demo-product-milk",
+          "translation": { "title": "Fresh milk 1L" },
+          "unit": "carton"
+        },
+        "unit_price": 24,
+        "issued_qty": 30,
+        "sold_qty": 21,
+        "returned_qty": 0,
+        "remaining_qty": 9
+      },
+      {
+        "item_id": "DEMO-LOAD-1-3",
+        "stock_id": "503",
+        "product": {
+          "id": 303,
+          "uuid": "demo-product-eggs",
+          "translation": { "title": "Eggs, tray of 30" },
+          "unit": "tray"
+        },
+        "unit_price": 85,
+        "issued_qty": 12,
+        "sold_qty": 9,
+        "returned_qty": 1,
+        "remaining_qty": 2
+      }
+    ]
+  }
+]
