@@ -265,7 +265,7 @@
       ]
     },
     "orders_sdk": {
-      "version": "1.31.1",
+      "version": "1.31.2",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -1406,8 +1406,8 @@
       "hash": "1e8eee291e0c3997"
     },
     "orders": {
-      "version": "1.31.1",
-      "hash": "c1fa821bf4ac7e87"
+      "version": "1.31.2",
+      "hash": "76520cf9635b3e25"
     },
     "merchants": {
       "version": "1.36.1",

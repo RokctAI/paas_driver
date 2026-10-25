@@ -1702,7 +1702,7 @@ packages:
       path: ".rokct/cache/orders"
       relative: true
     source: path
-    version: "1.31.1"
+    version: "1.31.2"
   osm_nominatim:
     dependency: "direct main"
     description:
