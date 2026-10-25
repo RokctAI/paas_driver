@@ -1,3 +1,7 @@
+## 1.31.2
+
+* fix(manifest): remove the duplicate empty top-level `installs` key that overrode the demo fixture install. Manifest only.
+
 ## 1.31.1
 
 * feat(tour): the orders tour fragment now tours the POS create-order flow: `/order-products`, `/order` (the cart is filled through `orderCartProvider`), `/shipping-address`, `/select-user`, `/select-section`, `/delivery-time`. The product grid and customer picker were already answered by products_sdk and merchants_sdk demo fixtures; the section picker gets the new fixture `api.seller_operations.get_seller_sections.json`. `/select-table` (needs a section argument) and `/select-address` (a Google map) cannot be reached by path and stay out. No version bump (tour and fixtures only).
