@@ -65,7 +65,7 @@ store:
     shape: "stripes"
     layout: "duo"
     tilt: 5
-    hero2: "revenue_income"
+    hero2: "driver_deposits"
     headline: "Every stop. Every payout."
 setup:
   # Account auth_sdk's shared tour fragment signs in as ({demo_email} in
