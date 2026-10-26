@@ -1,6 +1,9 @@
 {
   "name": "base_sdk",
-  "version": "1.94.0",
+  "version": "1.94.3",
+  "_comment_version_1_94_3": "1.94.2 -> 1.94.3: the splash's \"from ROKCT\" line loses its pill on the phone artwork and takes dark or light ink from the artwork's bottom strip. No schema change.",
+  "_comment_version_1_94_2": "1.94.1 -> 1.94.2: GuideAnchor attaches no GlobalKey while DemoSession.demoActive and only the first mounted anchor of an id holds it outside demo, so two copies of one anchor (the tour replacing /login with /login) no longer throw Duplicate GlobalKey. No schema change.",
+  "_comment_version_1_94_1": "1.94.0 -> 1.94.1: BlurWrap skips its BackdropFilter and PopButton uses a 72% fill in the guided-tour build (AppConstants.isTour); the tour emulator crashed under backdrop blurs on animating routes. Production keeps the blur. See CHANGELOG.",
   "_comment_version_1_94_0": "1.93.2 -> 1.94.0: the Android launcher icons in templates/android/app/src/main/res are neutral (flutter create defaults) instead of Juvo artwork; the adaptive-icon files (mipmap-anydpi-v26/ic_launcher.xml and the background, foreground and monochrome PNGs) are removed from the template. Each app shell keeps its own artwork, and compose skips an existing file it did not write. No manifest key, cmd, payload or route changed.",
   "_comment_version_1_93_2": "1.93.1 -> 1.93.2: fix. The Guide coach-mark bubble takes the app shell colours (AppStyle card, ink and primary) instead of the neutral ThemeData ones. No manifest key, cmd, payload or route changed.",
   "_comment_version_1_93_1": "1.93.0 -> 1.93.1: fix. DemoFixtures' default asset loader now checks the asset manifest and answers null for a key that is not bundled, instead of provoking a failed asset load. Under flutter test that failure escaped as an uncaught async error after the test completed and hung the supacharge lms student profile render. No manifest key, cmd, payload or route changed.",

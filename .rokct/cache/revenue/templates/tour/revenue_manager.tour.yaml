@@ -19,18 +19,37 @@ steps:
     action: dart
     settle: 6
     dart: |
-      // The /income dashboard from the step above is still on screen. Bring
-      // the first product row into view and tap it: a pushed detail page on
-      // a phone, the detail plane where the dashboard has more than one.
+      // The /income dashboard from the step above is still on screen. The
+      // phone column is ONE lazy vertical ListView with the product rows
+      // below the KPI tiles, chart and status bar, so they are not built
+      // until scrolled to. Scroll the VERTICAL scrollable explicitly (the
+      // first Scrollable in the tree is not guaranteed to be it), then pin
+      // the row fully on screen before tapping: a tap on a row that is
+      // built but still in the list's cache extent lands off screen and,
+      // with warnIfMissed off, is silently lost - the still then repeats
+      // the dashboard byte for byte.
       final Finder row = find.byType(ProductProfitRow);
+      final Finder vertical = find.byWidgetPredicate(
+        (Widget w) => w is Scrollable && w.axis == Axis.vertical,
+      );
+      // The report loads from a post-frame fetch; give it time to land.
+      for (int i = 0; i < 10 && vertical.evaluate().isEmpty; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+        await tester.pump();
+      }
       try {
         await tester.scrollUntilVisible(
           row.first,
           300,
-          scrollable: find.byType(Scrollable).first,
+          scrollable: vertical.first,
+          maxScrolls: 40,
         );
       } catch (_) {}
       if (row.evaluate().isNotEmpty) {
+        try {
+          await tester.ensureVisible(row.first);
+        } catch (_) {}
+        await tester.pump(const Duration(milliseconds: 400));
         await tester.tap(row.first, warnIfMissed: false);
       }
   - key: revenue_product_profit_close

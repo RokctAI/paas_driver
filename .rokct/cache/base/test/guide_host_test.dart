@@ -57,6 +57,28 @@ Widget _host(GuideStore store) => MaterialApp(
       ),
     );
 
+Widget _pair(bool showFirst) => MaterialApp(
+      home: Scaffold(
+        body: Column(children: [
+          if (showFirst)
+            GuideAnchor(
+                key: const ValueKey('first'),
+                id: 't.pair',
+                child: const Text('first')),
+          GuideAnchor(id: 't.pair', child: const Text('second')),
+        ]),
+      ),
+    );
+
+Widget _twin() => MaterialApp(
+      home: Scaffold(
+        body: Column(children: [
+          GuideAnchor(id: 't.twin', child: const Text('one')),
+          GuideAnchor(id: 't.twin', child: const Text('two')),
+        ]),
+      ),
+    );
+
 void main() {
   _brand();
   setUp(() async {
@@ -149,5 +171,35 @@ void _brand() {
         .ancestor(of: find.text('Start here'), matching: find.byType(Material))
         .first);
     expect(material.color, AppStyle.cardFor(Brightness.light));
+  });
+
+  testWidgets('two anchors with one id mount without a duplicate GlobalKey',
+      (tester) async {
+    await tester.pumpWidget(_twin());
+    expect(tester.takeException(), isNull);
+    expect(find.text('one'), findsOneWidget);
+    expect(find.text('two'), findsOneWidget);
+    // The first anchor keeps the key, so a guide can still find it.
+    expect(GuideAnchors.isOnScreen('t.twin'), isTrue);
+  });
+
+  testWidgets('in a demo session an anchor attaches no GlobalKey',
+      (tester) async {
+    await DemoSession.instance.activate();
+    await tester.pumpWidget(_twin());
+    expect(tester.takeException(), isNull);
+    expect(GuideAnchors.isOnScreen('t.twin'), isFalse);
+    expect(find.text('one'), findsOneWidget);
+  });
+
+  testWidgets('the next anchor takes the key when its owner leaves',
+      (tester) async {
+    await tester.pumpWidget(_pair(true));
+    expect(GuideAnchors.isOnScreen('t.pair'), isTrue);
+    await tester.pumpWidget(_pair(false));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    expect(GuideAnchors.isOnScreen('t.pair'), isTrue);
+    expect(find.text('second'), findsOneWidget);
   });
 }

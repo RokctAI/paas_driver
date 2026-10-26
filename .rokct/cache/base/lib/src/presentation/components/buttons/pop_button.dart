@@ -51,7 +51,10 @@ class PopButton extends StatelessWidget {
           height: 48.r,
           padding: EdgeInsets.symmetric(horizontal: 16.r),
           decoration: BoxDecoration(
-            color: AppStyle.bottomNavigationBarColor.withOpacity(0.3),
+            // Without the blur behind it (tour build) the 30% fill is too
+            // thin to read over content, so the pill goes to 72%.
+            color: AppStyle.bottomNavigationBarColor
+                .withOpacity(BlurWrap.blurDisabled ? 0.72 : 0.3),
             borderRadius: BorderRadius.all(Radius.circular(100.r)),
           ),
           child: Column(

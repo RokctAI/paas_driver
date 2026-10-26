@@ -13,6 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -400,8 +401,8 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         fit: StackFit.expand,
         children: [
           Image.asset("assets/images/splash.png", fit: BoxFit.fill),
-          // The artwork does not follow the theme, so the line sits on a
-          // theme-coloured pill (see _PoweredBy).
+          // The artwork does not follow the theme, so the line takes its
+          // ink from the artwork's own bottom edge (see _PoweredBy).
           _poweredByFooter(onArtwork: true),
         ],
       ),
@@ -429,19 +430,46 @@ Widget _poweredByFooter({bool onArtwork = false}) => Positioned(
 /// Colour is the splash text's own ink ([AppStyle.inkFor]), so it flips with
 /// the theme like the wide-window name does. On the phone the splash is
 /// artwork that ignores the theme (base's is orange, an app's can be dark),
-/// so there the line sits on a [AppStyle.surfaceFor] pill: ink on surface
-/// reads in both modes on any artwork.
-class _PoweredBy extends StatelessWidget {
+/// so there the ink follows the artwork instead: the bottom strip of the
+/// splash image is sampled once, and the line is dark ink on a light strip
+/// and light ink on a dark one. No backing shape.
+class _PoweredBy extends StatefulWidget {
   const _PoweredBy({this.onArtwork = false});
 
-  /// True on the phone artwork, where the line gets its own pill.
+  /// True on the phone artwork, where the ink follows the image.
   final bool onArtwork;
 
   @override
+  State<_PoweredBy> createState() => _PoweredByState();
+}
+
+class _PoweredByState extends State<_PoweredBy> {
+  /// The artwork's brightness under the line, once sampled.
+  Brightness? _artwork;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.onArtwork) _sampleArtwork();
+  }
+
+  Future<void> _sampleArtwork() async {
+    try {
+      final brightness = await splashArtworkBrightness(
+        await rootBundle.load('assets/images/splash.png'),
+      );
+      if (mounted) setState(() => _artwork = brightness);
+    } catch (_) {
+      // No artwork or an undecodable one: keep the theme's ink.
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
-    final ink = AppStyle.inkFor(brightness);
-    final lines = Column(
+    // Light artwork reads like a light theme (dark ink) and dark artwork
+    // like a dark theme (light ink).
+    final ink = AppStyle.inkFor(_artwork ?? Theme.of(context).brightness);
+    return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
@@ -461,18 +489,40 @@ class _PoweredBy extends StatelessWidget {
         ),
       ],
     );
-    if (!onArtwork) return lines;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppStyle.surfaceFor(brightness),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: lines,
-      ),
-    );
   }
+}
+
+/// Whether the bottom eighth of a splash image, where "from ROKCT" sits, is
+/// light or dark. The image is decoded at 32 px wide (the splash is drawn
+/// with [BoxFit.fill], so its bottom edge is the screen's) and the strip's
+/// mean relative luminance decides.
+@visibleForTesting
+Future<Brightness> splashArtworkBrightness(ByteData data) async {
+  final codec = await ui.instantiateImageCodec(
+    data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+    targetWidth: 32,
+  );
+  final image = (await codec.getNextFrame()).image;
+  final pixels = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+  final width = image.width;
+  final height = image.height;
+  image.dispose();
+  if (pixels == null || width == 0 || height == 0) {
+    throw StateError('splash artwork has no pixels');
+  }
+  final firstRow = height - (height / 8).ceil();
+  var sum = 0.0;
+  var count = 0;
+  for (var y = firstRow; y < height; y++) {
+    for (var x = 0; x < width; x++) {
+      final i = (y * width + x) * 4;
+      sum += Color.fromARGB(255, pixels.getUint8(i), pixels.getUint8(i + 1),
+              pixels.getUint8(i + 2))
+          .computeLuminance();
+      count++;
+    }
+  }
+  return sum / count > 0.4 ? Brightness.light : Brightness.dark;
 }
 
 /// The wide-window boot brand: the app's display name "breathing" at the
