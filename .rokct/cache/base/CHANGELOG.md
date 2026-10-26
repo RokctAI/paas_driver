@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.94.3
+
+* fix(splash): the "from ROKCT" line on the phone splash no longer sits on a rounded surface-coloured pill. Its ink now follows the artwork: the bottom eighth of `assets/images/splash.png` is sampled once at 32 px wide, and the line is dark on a light strip and light on a dark one (the theme's ink until the sample is in, or if the image cannot be decoded). Test: `test/splash_footer_ink_test.dart`.
+
+## 1.94.2
+
+* fix(guide): `GuideAnchor` no longer throws "Duplicate GlobalKey detected in widget tree". It always wrapped its child in a `KeyedSubtree` holding the id's GlobalKey, even while guides are off, so any moment with two copies of one anchor mounted failed: the guided tour's `/login` to `/login` replace keeps the old and the new LoginPage (each with `auth.login.button`) alive through the transition (paas_manager tour run 40238903363, both legs, right after the welcome step). The anchor now attaches no key while `DemoSession.demoActive`, and outside demo only the first mounted anchor of an id holds the key; a later copy renders its child unkeyed and takes the key over after the owner is disposed, so a guide aimed at it still finds it. Tests in `test/guide_host_test.dart`.
+
+## 1.94.1
+
+* fix(tour): `BlurWrap` skips its `BackdropFilter` in the guided-tour build (`AppConstants.isTour`, the compile-time `TOUR_MODE` flag), and `PopButton`'s pill goes from a 30% to a 72% fill there so it still reads without the blur. The tour's emulator renders through SwiftShader, and a backdrop blur over a still-animating route crashed the emulator itself (qemu SIGSEGV): first on paas_customer's category results page (worked around in commerce#185), then on its search page (tour run 40238523901). Production builds keep the blur. Test: `test/blur_wrap_tour_test.dart`.
+
 ## 1.94.0
 
 * feat(templates): base_sdk's Android launcher icons are neutral. `templates/android/app/src/main/res/mipmap-*/ic_launcher.png` are the `flutter create` defaults in place of the Juvo artwork, and the adaptive-icon files (`mipmap-anydpi-v26/ic_launcher.xml`, `ic_launcher_background/foreground/monochrome.png`) are removed from the template, so the SDK carries no app's branding. Shells keep their own artwork in their own repos; compose installs a template file only when the app has none or still holds the copy compose wrote. A shell that still holds base's old Juvo copy (paas_manager, paas_driver, minilauncher) keeps it in git. `AndroidManifest.xml` still points at `@mipmap/ic_launcher`.

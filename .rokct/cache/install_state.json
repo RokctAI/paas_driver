@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.94.0",
+      "version": "1.94.3",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -924,7 +924,7 @@
       ]
     },
     "revenue_sdk": {
-      "version": "1.14.4",
+      "version": "1.14.5",
       "files": {
         "lib/presentation/pages/income/statistics_screen.dart": "b385595295baa359fdd50076b5f8c4823d4e64e3e50c09adfaa885ba57d8a9f2",
         "lib/presentation/pages/income/income_page.dart": "7bdb8248d0695667eb73bb2266609e9ceb2b48cb5112e999a50ebdd9f5aaf92e",
@@ -1390,8 +1390,8 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.94.0",
-      "hash": "79e8281cf35916c2"
+      "version": "1.94.3",
+      "hash": "0fbed53948d45f48"
     },
     "comms": {
       "version": "1.23.2",
@@ -1442,8 +1442,8 @@
       "hash": "ef378600c400e1cf"
     },
     "revenue": {
-      "version": "1.14.4",
-      "hash": "7850bfba5a9d7aad"
+      "version": "1.14.5",
+      "hash": "dac9e79e22a65329"
     },
     "weather": {
       "version": "1.6.2",
