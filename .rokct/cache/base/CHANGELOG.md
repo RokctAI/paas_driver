@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.96.0
+
+* feat(sync): `AppConstants.freeLocalTier` (`--dart-define=FREE_LOCAL_TIER=true`). When set, `BaseSdkDependencies.register` installs `PlanSyncGate` (base_sdk 1.95.0) so shop data stays on the device until the backend's `get_sync_status` says the shop may sync. Default off: no existing app changes. Applies to any app built with the flag; first user is the ROKCT-branded free POS.
+
+## 1.95.0
+
+* feat(sync): `SyncEngine.pushGate`, an optional hook consulted at the start of every `kick()`. Null (default) leaves the engine unchanged; a gate answering false (or throwing) pushes nothing and leaves every op `pending` with no retry spent. New `PlanSyncGate` (lib/src/sync/plan_sync_gate.dart) asks the backend gateway cmd `api.seller_subscription.get_sync_status` (commerce#187), caches the answer on the device, keeps data local when there is neither an answer nor a cache, and installs itself on the engine. Local reads/writes, sign-up and sign-in never consult it. No app registers it by default, so existing apps are unaffected.
+
 ## 1.94.3
 
 * fix(splash): the "from ROKCT" line on the phone splash no longer sits on a rounded surface-coloured pill. Its ink now follows the artwork: the bottom eighth of `assets/images/splash.png` is sampled once at 32 px wide, and the line is dark on a light strip and light on a dark one (the theme's ink until the sample is in, or if the image cannot be decoded). Test: `test/splash_footer_ink_test.dart`.

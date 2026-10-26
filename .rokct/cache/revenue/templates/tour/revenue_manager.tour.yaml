@@ -12,6 +12,7 @@
 sdk: revenue_manager
 imports:
   - "import 'package:revenue_sdk/src/manager/presentation/revenue/profit_product_list.dart';"
+  - "import 'package:revenue_sdk/src/manager/presentation/revenue/trend_chart.dart';"
 steps:
   - key: revenue_product_profit
     title: "Which products really earn"
@@ -21,36 +22,50 @@ steps:
     dart: |
       // The /income dashboard from the step above is still on screen. The
       // phone column is ONE lazy vertical ListView with the product rows
-      // below the KPI tiles, chart and status bar, so they are not built
-      // until scrolled to. Scroll the VERTICAL scrollable explicitly (the
-      // first Scrollable in the tree is not guaranteed to be it), then pin
-      // the row fully on screen before tapping: a tap on a row that is
-      // built but still in the list's cache extent lands off screen and,
-      // with warnIfMissed off, is silently lost - the still then repeats
-      // the dashboard byte for byte.
+      // below the fold, so they are not built until it scrolls. Three
+      // gesture-based versions of this step (1.14.3 to 1.14.6) passed in
+      // widget tests and still photographed the dashboard twice on the
+      // device, so this one uses no gestures at all:
+      //  * the list is the vertical Scrollable that holds the trend chart,
+      //    not whichever Scrollable the tree lists first;
+      //  * it is moved with jumpTo until a product row is built;
+      //  * the row is brought on screen with Scrollable.ensureVisible and
+      //    its own onTap is called, so no hit test can miss it.
+      // The TOUR_DIAG line lands in logcat, so a future failure says which
+      // of these found nothing.
       final Finder row = find.byType(ProductProfitRow);
-      final Finder vertical = find.byWidgetPredicate(
-        (Widget w) => w is Scrollable && w.axis == Axis.vertical,
+      final Finder list = find.ancestor(
+        of: find.byType(RevenueTrendChart),
+        matching: find.byWidgetPredicate(
+          (Widget w) => w is Scrollable && w.axis == Axis.vertical,
+        ),
       );
       // The report loads from a post-frame fetch; give it time to land.
-      for (int i = 0; i < 10 && vertical.evaluate().isEmpty; i++) {
+      for (int i = 0; i < 10 && list.evaluate().isEmpty; i++) {
         await Future<void>.delayed(const Duration(milliseconds: 500));
         await tester.pump();
       }
-      try {
-        await tester.scrollUntilVisible(
-          row.first,
-          300,
-          scrollable: vertical.first,
-          maxScrolls: 40,
-        );
-      } catch (_) {}
+      int jumps = 0;
+      if (list.evaluate().isNotEmpty) {
+        final ScrollPosition position =
+            tester.state<ScrollableState>(list.first).position;
+        while (row.evaluate().isEmpty &&
+            position.pixels < position.maxScrollExtent &&
+            jumps < 40) {
+          position.jumpTo(
+            (position.pixels + 300).clamp(0.0, position.maxScrollExtent),
+          );
+          jumps++;
+          await tester.pump();
+        }
+      }
+      debugPrint('TOUR_DIAG:revenue_product_profit '
+          'lists=${list.evaluate().length} jumps=$jumps '
+          'rows=${row.evaluate().length}');
       if (row.evaluate().isNotEmpty) {
-        try {
-          await tester.ensureVisible(row.first);
-        } catch (_) {}
-        await tester.pump(const Duration(milliseconds: 400));
-        await tester.tap(row.first, warnIfMissed: false);
+        await Scrollable.ensureVisible(tester.element(row.first));
+        await tester.pump();
+        tester.widget<ProductProfitRow>(row.first).onTap?.call();
       }
   - key: revenue_product_profit_close
     title: "Back to the dashboard"

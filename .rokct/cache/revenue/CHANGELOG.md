@@ -1,3 +1,11 @@
+## 1.14.7
+
+* fix(tour): 1.14.6 passed its widget test but the paas_manager tour (run 40311495619) still photographed `revenue_income` twice, with no error logged. `revenue_product_profit` now uses no gestures. It finds the vertical list that holds the trend chart, jumps it with `jumpTo` until a product row is built, brings the row on screen with `Scrollable.ensureVisible` and calls the row's own `onTap`. A `TOUR_DIAG` line in logcat records how many lists, jumps and rows it saw. The widget test now runs the same logic. Tour template and test only.
+
+## 1.14.6
+
+* fix(tour): `revenue_product_profit` still repeated `revenue_income` on the phone. `scrollUntilVisible(row.first)` throws "No element" while no product row is built yet, and the step's catch swallowed it, so the list never scrolled. The step now drags the vertical list until a row is built, then pins and taps it. A widget test runs the step's logic on a phone-width dashboard and checks the profit detail opens. Tour template and test only.
+
 ## 1.14.5
 
 * fix(tour): `revenue_product_profit` could tap a product row that was built inside the lazy phone list but still off screen, so the tap was lost and the still repeated `revenue_income` byte for byte. The step now scrolls the vertical scrollable explicitly, pins the row with `ensureVisible` and then taps. Tour template only.

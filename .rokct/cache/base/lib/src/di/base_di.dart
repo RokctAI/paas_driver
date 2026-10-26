@@ -17,12 +17,14 @@ import 'dart:async';
 
 import 'package:get_it/get_it.dart';
 
+import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/constants/demo_currency.dart';
 import 'package:base_sdk/src/handlers/http_service.dart';
 import 'package:base_sdk/src/services/connectivity_service.dart';
 import 'package:base_sdk/src/services/load_silence.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/memory_pressure_service.dart';
+import 'package:base_sdk/src/sync/plan_sync_gate.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
 import 'package:base_sdk/src/utils/app_usage_service.dart';
 
@@ -45,6 +47,9 @@ class BaseSdkDependencies {
     if (!getIt.isRegistered<SyncEngine>()) {
       getIt.registerSingleton<SyncEngine>(SyncEngine());
     }
+    // Free local-only tier (FREE_LOCAL_TIER build): the outbox only drains
+    // while the backend says this shop may sync. Not installed otherwise.
+    if (AppConstants.freeLocalTier) PlanSyncGate().install();
     // App-lifetime listener that drains the outbox on connectivity regain.
     ConnectivityService.I.start();
 

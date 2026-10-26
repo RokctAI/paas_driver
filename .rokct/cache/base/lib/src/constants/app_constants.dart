@@ -26,6 +26,12 @@ abstract class AppConstants {
   /// Set only by the Guided Tour build and test args in the shared workflow
   /// (`--dart-define=TOUR_MODE=true`); never in a shipped build.
   static const bool isTour = bool.fromEnvironment('TOUR_MODE');
+
+  /// Set by the build of an app that ships the free local-only tier
+  /// (`--dart-define=FREE_LOCAL_TIER=true`): shop data stays on the device
+  /// until the backend says the shop may sync. Off everywhere else, so
+  /// every other app drains its outbox exactly as before.
+  static const bool freeLocalTier = bool.fromEnvironment('FREE_LOCAL_TIER');
   static const bool isPhoneFirebase = true;
   static const int scheduleInterval = 60;
   /// Defaults to phone when SIGN_UP_TYPE isn't passed via --dart-define

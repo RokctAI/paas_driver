@@ -164,6 +164,7 @@ export 'src/database/owner_scope.dart';
 export 'src/services/connectivity_service.dart';
 export 'src/sync/id_mappings_table.dart';
 export 'src/sync/outbox_table.dart';
+export 'src/sync/plan_sync_gate.dart';
 export 'src/sync/sync_engine.dart';
 export 'src/sync/sync_handler.dart';
 

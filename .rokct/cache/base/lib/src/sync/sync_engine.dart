@@ -76,6 +76,13 @@ class SyncEngine {
 
   final Map<String, SyncHandler> _handlers = {};
 
+  /// Optional gate consulted at the start of every [kick]. When set and it
+  /// answers false (or throws), nothing is pushed: every op stays
+  /// `pending`, untouched, with no retry state spent. Local reads and
+  /// writes never consult it. Null (the default) leaves the engine exactly
+  /// as it was; the free local-only tier sets it via `PlanSyncGate`.
+  Future<bool> Function()? pushGate;
+
   bool _draining = false;
   bool _kickRequested = false;
 
@@ -277,6 +284,16 @@ class SyncEngine {
   /// registered handler stay pending untouched, and backoff windows are
   /// respected.
   Future<void> kick() async {
+    final gate = pushGate;
+    if (gate != null) {
+      bool open;
+      try {
+        open = await gate();
+      } catch (_) {
+        open = false;
+      }
+      if (!open) return;
+    }
     if (_draining) {
       // A drain is running; have it take one more pass so ops enqueued
       // since it started are not missed.
