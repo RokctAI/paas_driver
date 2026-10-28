@@ -1,4 +1,14 @@
+## 1.31.4
+
+* fix(tour): shorten the `order_shop_drivers` caption's highlight phrase to "the drivers". The longer phrase did not fit one row on the phone canvas (280px past the 936px wrap width), which aborted the phone leg's assemble step. A highlight never splits across rows.
+
+## 1.31.3
+
+* fix(tour): shorten the `order_issue_load` caption's highlight phrase to "issuing". The longer phrase "issuing takes it off the shelf" did not fit one row on the phone canvas (113px past the 936px wrap width), which aborted the phone leg's assemble step, so the feature graphic and store stills were never written. A highlight never splits across rows.
+
 ## 1.31.2
+
+* fix(tour): shorten the `order_pos_products` caption's highlight phrase to "pick from your menu". The longer phrase did not fit one 64px row on the phone canvas (24px past the wrap width), and a highlight never splits across rows. No version bump (tour only).
 
 * fix(manifest): remove the duplicate empty top-level `installs` key that overrode the demo fixture install. Manifest only.
 

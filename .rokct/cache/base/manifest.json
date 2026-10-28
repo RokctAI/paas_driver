@@ -1,6 +1,7 @@
 {
   "name": "base_sdk",
-  "version": "1.96.0",
+  "version": "1.97.0",
+  "_comment_version_1_97_0": "1.96.0 -> 1.97.0: PlanAccess.planGatedVisible (true by default) is set by PlanSyncGate from the sync answer, and PlanAccess.gateProfileSections(ids) lists plan-gated profile section ids that ProfileSectionRegistry.sections leaves out while it is false (subscriptions_sdk declares the list). No effect in apps that never install the gate.",
   "_comment_version_1_96_0": "1.95.0 -> 1.96.0: AppConstants.freeLocalTier (--dart-define=FREE_LOCAL_TIER=true) makes BaseSdkDependencies.register install PlanSyncGate. Default off, so no existing app changes. Used by the ROKCT-branded free POS (rokctapp).",
   "_comment_version_1_95_0": "1.94.3 -> 1.95.0: SyncEngine.pushGate (optional, default null = unchanged) and PlanSyncGate, the free local-only tier's gate. Closed gate = every op stays pending; local selling/editing never consults it. Needs merchants backend get_sync_status (commerce#187). Additive, no schema change.",
   "_comment_version_1_94_3": "1.94.2 -> 1.94.3: the splash's \"from ROKCT\" line loses its pill on the phone artwork and takes dark or light ink from the artwork's bottom strip. No schema change.",

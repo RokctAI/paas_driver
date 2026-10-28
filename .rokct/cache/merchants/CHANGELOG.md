@@ -1,3 +1,7 @@
+## 1.37.0
+
+* feat(rokct): a `rokct` role block for the ROKCT app (RokctApp, marker `rokct`, which takes the manager screens through its composer.json `roles: ["manager"]`). It names the app: Android launcher label `ROKCT` and `AppConstants.appTitle` `'ROKCT'`, instead of the base defaults (Juvo/JUVO). Only composes for the `rokct` marker; the manager, customer and driver apps are unchanged. Needs The-Rokct-Protocol with per-SDK roles (#549) and nested flavor merge (#551).
+
 ## 1.36.1
 
 * feat(tour): the merchants tour fragment gains a `/quick-flow` step (the shop's order-automation screen, fixture `api.seller_shop.get_quick_flow_settings` already installed). No version bump (tour only).

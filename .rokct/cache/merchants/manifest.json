@@ -1,6 +1,6 @@
 {
   "name": "merchants_sdk",
-  "version": "1.36.1",
+  "version": "1.37.0",
   "_comment_version_1_36_1": "1.36.0 -> 1.36.1: version for the coach-mark guide mounted on this SDK's primary page (GuideHost and GuideAnchor from base_sdk 1.92.0, off in demo sessions). The mount landed without a version change; see CHANGELOG.",
   "_comment_version_1_36_0": "1.35.0 -> 1.36.0 (manager mode): app_type.manager gains host_integration.android_application_xml, an exported activity-alias .RokctManagerEntry of MainActivity answering rokct.intent.action.MANAGER with CATEGORY_DEFAULT and no data - exactly what launch_sdk's DefaultHomeBridge.fleetManagerPackages queries - so a launcher on a device with the manager app installed turns manager mode on. Only the manager flavor gets it; customer and driver composes are unchanged. No Dart change.",
   "_comment_version_1_35_0": "1.34.0 -> 1.35.0 (manager till): the Continue, Print Receipt & Finish, and Finish gates; Add Items moves into the Cart header; and the scan stage shrinks as lines are added (340 on an empty cart, 200 from three lines). Continue on an empty cart is live only while autodial is armed, so the checkout keypad can build the ticket; the finish buttons show only when the ticket has at least one line.",
@@ -338,6 +338,15 @@
         }
       ],
       "_comment_boot_hooks": "Splash hold until base_sdk's SplashPage calls FlutterNativeSplash.remove() - the base main.dart template says the splash-holding app's HOME SDK declares this, and merchants_sdk is manager's home SDK. ensureInitialized() re-returns the existing binding, so calling it again inside the hook is safe. No flutter/material import entry: main.dart already imports it statically and a wiring duplicate would trip duplicate_import."
+    },
+    "rokct": {
+      "app_name": "ROKCT",
+      "constants": {
+        "overrides": {
+          "appTitle": "'ROKCT'"
+        }
+      },
+      "_comment": "The ROKCT app (RokctApp, marker rokct) takes the manager screens through composer.json roles [manager] and only adds its own identity here: the Android launcher label and AppConstants.appTitle (otherwise the base defaults, Juvo/JUVO, show). Merges over the manager block when composing the rokct marker; no other app is affected."
     },
     "customer": {
       "_comment": "Customer flavour (fix-wave 2026-09-02, route map rows 10 and 28): the storefront and its about sheet, pages this SDK already owned in lib/ but no manifest declared, so marketplace's shop tiles, promotions' story CTA and base_sdk's market items all hit AppRoutes' noSuchMethod. Paths are paas_customer's exact strings (`/shop?shopId=` deep links keep resolving via @QueryParam); shells live in merchants_customer_route_pages.dart. Under app_type.customer only - the driver and manager flavours have their own shop surfaces.",

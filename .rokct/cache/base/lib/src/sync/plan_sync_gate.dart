@@ -24,6 +24,39 @@ const String kSyncStatusCmd = 'api.seller_subscription.get_sync_status';
 
 const String _kCacheKey = 'base_sdk.plan_sync_gate.allowed';
 
+/// Whether screens that only a paying (or unrestricted) seller gets, such as
+/// the productivity group, should be shown.
+///
+/// True by default, so every app that never installs [PlanSyncGate] is
+/// unchanged. [PlanSyncGate] sets it to the sync answer: with no plan or the
+/// free plan the value is false and the host hides those entries. Purely
+/// client-side; the host reads it, nothing is sent anywhere.
+class PlanAccess {
+  PlanAccess._();
+
+  static final ValueNotifier<bool> planGatedVisible = ValueNotifier<bool>(true);
+
+  static final Set<String> _gatedSections = <String>{};
+
+  /// Declares profile section ids that need a plan. An SDK (subscriptions_sdk
+  /// does, for the whole fleet) calls this once at bootstrap; the profile
+  /// registry then leaves those sections out while [planGatedVisible] is
+  /// false. Adding an id is the only step, no per-SDK code. Inert in apps
+  /// that never install [PlanSyncGate].
+  static void gateProfileSections(Iterable<String> ids) =>
+      _gatedSections.addAll(ids);
+
+  /// True when [id] was declared plan-gated and the seller has no plan.
+  static bool isSectionHidden(String id) =>
+      !planGatedVisible.value && _gatedSections.contains(id);
+
+  @visibleForTesting
+  static void reset() {
+    _gatedSections.clear();
+    planGatedVisible.value = true;
+  }
+}
+
 /// The free local-only tier's sync gate.
 ///
 /// Registered on [SyncEngine.pushGate] by an app that ships a free tier
@@ -58,6 +91,11 @@ class PlanSyncGate {
   /// Registers this gate on the sync engine.
   void install([SyncEngine? engine]) {
     (engine ?? SyncEngine()).pushGate = allowsPush;
+    // Start from the cached answer so the gated entries are hidden from the
+    // first frame on a free device; allowsPush corrects it once online.
+    _readCache().then((bool? cached) {
+      PlanAccess.planGatedVisible.value = cached ?? false;
+    }).catchError((Object _) {});
   }
 
   /// Backend answer when reachable (and cached), else the cached answer,
@@ -68,12 +106,15 @@ class PlanSyncGate {
       final bool? allowed = _parse(body);
       if (allowed != null) {
         await _writeCache(allowed);
+        PlanAccess.planGatedVisible.value = allowed;
         return allowed;
       }
     } catch (e) {
       debugPrint('==> plan sync gate: status fetch failed: $e');
     }
-    return (await _readCache()) ?? false;
+    final bool cached = (await _readCache()) ?? false;
+    PlanAccess.planGatedVisible.value = cached;
+    return cached;
   }
 
   /// Re-asks the backend and, if the gate has just opened (a plan was

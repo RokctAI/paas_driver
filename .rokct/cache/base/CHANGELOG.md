@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.97.0
+
+* feat(sync): `PlanAccess.planGatedVisible` (ValueNotifier, true by default). `PlanSyncGate` sets it from the sync answer (cached answer on start), so with no plan or the free plan screens that need a plan are hidden. `PlanAccess.gateProfileSections(ids)` declares plan-gated profile section ids (one call, no per-SDK code); `ProfileSectionRegistry.sections` leaves them out while the flag is false. Apps that never install the gate are unchanged.
+
 ## 1.96.0
 
 * feat(sync): `AppConstants.freeLocalTier` (`--dart-define=FREE_LOCAL_TIER=true`). When set, `BaseSdkDependencies.register` installs `PlanSyncGate` (base_sdk 1.95.0) so shop data stays on the device until the backend's `get_sync_status` says the shop may sync. Default off: no existing app changes. Applies to any app built with the flag; first user is the ROKCT-branded free POS.

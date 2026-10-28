@@ -169,5 +169,34 @@ void main() {
       await engine.kick();
       expect(handler.pushed, 0);
     });
+
+    test('PlanAccess follows the answer and is visible by default', () async {
+      PlanAccess.planGatedVisible.value = true;
+      await gate(fetch: () async => {'sync_allowed': false}).allowsPush();
+      expect(PlanAccess.planGatedVisible.value, isFalse);
+      await gate(fetch: () async => {'sync_allowed': true}).allowsPush();
+      expect(PlanAccess.planGatedVisible.value, isTrue);
+    });
+
+    test('PlanAccess hides on a failed fetch with no cache', () async {
+      PlanAccess.planGatedVisible.value = true;
+      final g = PlanSyncGate(
+        fetch: () async => throw Exception('offline'),
+        readCache: () async => null,
+        writeCache: (_) async {},
+      );
+      await g.allowsPush();
+      expect(PlanAccess.planGatedVisible.value, isFalse);
+    });
+
+    test('declared sections are hidden only while the plan flag is false', () {
+      PlanAccess.reset();
+      PlanAccess.gateProfileSections(['a.tasks']);
+      expect(PlanAccess.isSectionHidden('a.tasks'), isFalse);
+      PlanAccess.planGatedVisible.value = false;
+      expect(PlanAccess.isSectionHidden('a.tasks'), isTrue);
+      expect(PlanAccess.isSectionHidden('other'), isFalse);
+      PlanAccess.reset();
+    });
   });
 }

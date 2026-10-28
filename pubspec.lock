@@ -158,7 +158,7 @@ packages:
       path: ".rokct/cache/base"
       relative: true
     source: path
-    version: "1.96.0"
+    version: "1.97.0"
   battery_plus:
     dependency: "direct main"
     description:
@@ -1647,7 +1647,7 @@ packages:
       path: ".rokct/cache/merchants"
       relative: true
     source: path
-    version: "1.36.1"
+    version: "1.37.0"
   meta:
     dependency: transitive
     description:
@@ -1702,7 +1702,7 @@ packages:
       path: ".rokct/cache/orders"
       relative: true
     source: path
-    version: "1.31.2"
+    version: "1.31.4"
   osm_nominatim:
     dependency: "direct main"
     description:
