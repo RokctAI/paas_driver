@@ -18,33 +18,19 @@ tour run, so new screens appear here automatically.
 | ![Driver Route][s08] | ![Driver Order History][s09] | ![Driver Parcels][s10] |
 | **Available Parcels** | **Driver Parcel History** | **Driver Deposits** |
 | ![Available Parcels][s11] | ![Parcel History][s12] | ![Driver Deposits][s13] |
-| **Driver Load** | **Driver Load Sell** | **Driver Load Return** |
-| ![Driver Load][s14] | ![Driver Load Sell][s15] | ![Driver Load Return][s16] |
-| **Driver Delivery Zone** | **Revenue Income** | **Calc Keypad** |
-| ![Driver Delivery Zone][s17] | ![Revenue Income][s18] | ![Calc Keypad][s19] |
-| **Users Profile** | **Users Profile Settings** | |
-| ![Users Profile][s20] | ![Users Profile Settings][s21] | |
 
 The full tour lives in the [feature guide](marketing/tour/feature-guide.md),
 with walkthrough videos alongside it in [`marketing/tour/`](marketing/tour).
 
-[s05]: marketing/tour/screenshots/05-driver_home.png
-[s06]: marketing/tour/screenshots/06-driver_orders.png
-[s07]: marketing/tour/screenshots/07-driver_available_orders.png
-[s08]: marketing/tour/screenshots/08-driver_route.png
-[s09]: marketing/tour/screenshots/09-driver_order_history.png
-[s10]: marketing/tour/screenshots/10-driver_parcels.png
-[s11]: marketing/tour/screenshots/11-driver_available_parcels.png
-[s12]: marketing/tour/screenshots/12-driver_parcel_history.png
-[s13]: marketing/tour/screenshots/13-driver_deposits.png
-[s14]: marketing/tour/screenshots/14-driver_load.png
-[s15]: marketing/tour/screenshots/15-driver_load_sell.png
-[s16]: marketing/tour/screenshots/16-driver_load_return.png
-[s17]: marketing/tour/screenshots/17-driver_delivery_zone.png
-[s18]: marketing/tour/screenshots/18-revenue_income.png
-[s19]: marketing/tour/screenshots/19-calc_keypad.png
-[s20]: marketing/tour/screenshots/20-users_profile.png
-[s21]: marketing/tour/screenshots/21-users_profile_settings.png
+[s05]: marketing/tour/store/05-driver_home.png
+[s06]: marketing/tour/store/06-driver_orders.png
+[s07]: marketing/tour/store/07-driver_available_orders.png
+[s08]: marketing/tour/store/08-driver_route.png
+[s09]: marketing/tour/store/09-driver_order_history.png
+[s10]: marketing/tour/store/10-driver_parcels.png
+[s11]: marketing/tour/store/11-driver_available_parcels.png
+[s12]: marketing/tour/store/12-driver_parcel_history.png
+[s13]: marketing/tour/store/13-driver_deposits.png
 <!-- @generated-tour-gallery-end -->
 
 <!-- @generated-render-strip-start -->
