@@ -89,7 +89,7 @@ class _ParcelProgressPageState extends ConsumerState<ParcelProgressPage> {
         AppHelpers.showCustomModalBottomSheet(
           context: context,
           modal: RatingPage(totalPrice: next.parcel?.totalPrice, parcel: true),
-          isDarkMode: Theme.of(context).brightness == Brightness.dark,
+          themedSurface: true,
         );
       }
     });

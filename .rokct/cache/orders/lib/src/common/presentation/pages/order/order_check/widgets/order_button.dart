@@ -169,7 +169,7 @@ class OrderButton extends ConsumerWidget {
                     AppHelpers.showCustomModalBottomSheet(
                       context: context,
                       modal: const RefundScreen(),
-                      isDarkMode: Theme.of(context).brightness == Brightness.dark,
+                      themedSurface: true,
                     );
                   },
                 ),

@@ -76,7 +76,7 @@ class _RatingPageState extends ConsumerState<RatingPage> {
     return Container(
       margin: MediaQuery.of(context).viewInsets,
       decoration: BoxDecoration(
-        color: AppStyle.bgGrey.withOpacity(0.96),
+        color: AppStyle.surfaceFor(Theme.of(context).brightness).withOpacity(0.96),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16.r),
           topRight: Radius.circular(16.r),

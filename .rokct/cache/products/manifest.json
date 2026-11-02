@@ -1,6 +1,7 @@
 {
   "name": "products_sdk",
-  "version": "1.12.9",
+  "version": "1.13.0",
+  "_comment_version_1_13_0": "1.12.9 -> 1.13.0: the add-product form can open with a barcode prefilled. CreateProductModal.open(context, {barcode}) is the one entry to the form at any width (a sheet on a phone, ProductEditPage.openCreate at plane widths; the foods tab's + New product now calls it too). CreateProductModal, ProductEditPage.openCreate and CreateFoodDetailsBody take the barcode, and updateAddFoodInfo seeds it into the form's qrcode; when one is given the details form shows a Barcode field holding it (new tr_key barcode). Used by merchants_sdk 1.38.0's till prompt for a scan the catalog does not know.",
   "_comment_version_1_12_9": "1.12.8 -> 1.12.9: dev dependency json_serializable ^6.8.0 -> ^6.13.0. A standalone codegen of this SDK resolved json_serializable 6.11.4 with source_helper 1.4.0 and analyzer 10.2.0, whose toStringNonNullable extensions clash, so build_runner could not compile its build script (exit 78) and no product_state.freezed.dart was written. paas_customer then failed to compile (ProductState had no productData, count, typedExtras ...). Found on the paas_customer Build (Smart) run 39989699617, 2026-10-23.",
   "_comment_version_1_12_8": "1.12.7 -> 1.12.8: version for the coach-mark guide mounted on this SDK's primary page (GuideHost and GuideAnchor from base_sdk 1.92.0, off in demo sessions). The mount landed without a version change; see CHANGELOG.",
   "_comment_version_1_12_7": "1.12.6 -> 1.12.7: declares EmbeddedWidgets.productScreen -> ProductScreen. The customer app called EmbeddedWidgets.I.<method>() but no composed SDK declared it, so the host's noSuchMethod threw a StateError on the tap (lost-features audit of paas_customer, 2026-10-12; Ray: fix the crashes). Callers: merchants shop_page.dart, product_list.dart; marketplace search product_item.dart.",
@@ -108,6 +109,7 @@
         "addons": "addons",
         "adultsOnly": "adults_only_18_plus",
         "areYouSureToDelete": "are_you_sure_to_delete",
+        "barcode": "barcode",
         "categoryName": "category_name",
         "costPrice": "cost_price",
         "edit": "edit",

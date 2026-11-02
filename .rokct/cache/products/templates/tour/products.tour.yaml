@@ -85,17 +85,68 @@ steps:
 
   - key: product_detail
     title: "Open a product"
-    caption: "Tap any product for its *full read* - price, stock and options - with edit one tap away."
+    caption: "Tap any product to *open it* - price, stock and options - and change what you need."
     action: dart
     settle: 6
     dart: |
-      // Where the catalog has room for a detail plane (tablet and wider)
-      // a card tap fills it; on a phone the catalog keeps the list and the
-      // tap is a no-op, so this step repeats the menu - the stock sheet
-      // below is the phone's second stop.
-      final Finder card = find.byType(ProductCatalogCard);
+      // The catalog draws two different widgets for the same list: the grid
+      // ProductCatalogCard on wide screens (a tap selects it and fills the
+      // detail plane) and the list ProductCatalogTile on a phone (a tap
+      // pushes the edit page). The phone never builds a ProductCatalogCard,
+      // so tapping only that type was a silent no-op there and this still
+      // repeated the menu byte for byte. Tap whichever one is on screen.
+      Finder card = find.byType(ProductCatalogCard);
+      if (card.evaluate().isEmpty) {
+        card = find.byType(ProductCatalogTile);
+      }
+      // The foods list loads from a post-frame fetch; allow it a moment.
+      for (int i = 0; i < 6 && card.evaluate().isEmpty; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+        await tester.pump();
+        card = find.byType(ProductCatalogCard);
+        if (card.evaluate().isEmpty) {
+          card = find.byType(ProductCatalogTile);
+        }
+      }
       if (card.evaluate().isNotEmpty) {
-        await tester.tap(card.first, warnIfMissed: false);
+        try {
+          await tester.ensureVisible(card.first);
+        } catch (_) {}
+        await tester.pump(const Duration(milliseconds: 300));
+        // On wide screens the catalog auto-selects the FIRST product when
+        // it loads, so the detail plane already shows it: tapping that
+        // card again changes nothing and the still repeated the menu byte
+        // for byte (the tablet leg). Tap the second card so the selection,
+        // the card highlight and the detail plane all move. A phone has no
+        // selection (the tap pushes the edit page), so its first tile is
+        // fine.
+        final bool wideGrid =
+            find.byType(ProductCatalogCard).evaluate().isNotEmpty;
+        final Finder target =
+            wideGrid && card.evaluate().length > 1 ? card.at(1) : card.first;
+        try {
+          await tester.ensureVisible(target);
+        } catch (_) {}
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.tap(target, warnIfMissed: false);
+      }
+  # Action-only step: on a phone the product tap pushed the edit page over
+  # the catalog (the Stock button below lives on the catalog, not on that
+  # page). Pop it; on wide screens nothing was pushed and the catalog is
+  # still on top, so this does nothing.
+  - key: product_detail_close
+    title: "Back to the menu"
+    action: dart
+    settle: 3
+    screenshot: false
+    dart: |
+      final NavigatorState navigator =
+          tester.state(find.byType(Navigator).first);
+      if (find.byType(ProductCatalogTile).evaluate().isEmpty &&
+          find.byType(ProductCatalogCard).evaluate().isEmpty &&
+          navigator.canPop()) {
+        navigator.pop();
+        await Future<void>.delayed(const Duration(milliseconds: 500));
       }
   - key: quick_stock
     title: "Fix the shelf in one pass"

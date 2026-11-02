@@ -136,8 +136,22 @@ import 'checkout_page.dart';
 // categories; a tapped chip filters the rows (with nothing typed it lists
 // the category). Pane only: the phone sheet (11j) stays 316–321.
 
+/// "Add this product" on the till's unknown-barcode prompt: [barcode] is
+/// the scanned code the catalog did not know.
+typedef PosAddUnknownProduct = void Function(
+  BuildContext context,
+  String barcode,
+);
+
 class BillingPage extends ConsumerStatefulWidget {
-  const BillingPage({super.key});
+  const BillingPage({super.key, this.onAddUnknownProduct});
+
+  /// Called once the unknown-barcode prompt has closed on "Add this
+  /// product". The manager shell opens products_sdk's add-product form
+  /// with the code prefilled (main_page.dart; this page never imports
+  /// products_sdk, ADR-005). Null leaves the prompt with "Scan again"
+  /// only.
+  final PosAddUnknownProduct? onAddUnknownProduct;
 
   @override
   ConsumerState<BillingPage> createState() => _BillingPageState();
@@ -157,6 +171,11 @@ class _BillingPageState extends ConsumerState<BillingPage>
   Timer? _idleTimer;
   bool _paused = false;
   bool _torchOn = false;
+
+  /// Whether the last till layout showed the Add Items pane (three planes,
+  /// nothing stacked over the till) - where an unknown-barcode prompt goes
+  /// in place of a sheet. Written by [_till], read by [_onUnknownBarcode].
+  bool _addItemsPaneShown = false;
 
   /// The checkout holds planes 2–3 (11n) — plane widths only; on a phone
   /// the checkout is the pushed /pos-checkout route and this is ignored.
@@ -226,6 +245,11 @@ class _BillingPageState extends ConsumerState<BillingPage>
   }
 
   void _setPaused(bool paused) {
+    // Resuming the camera answers a pending unknown-barcode prompt the
+    // way "Scan again" does, so the prompt can never strand the till.
+    if (!paused && ref.read(posCartProvider).unknownBarcode != null) {
+      ref.read(posCartProvider.notifier).dismissUnknownBarcode();
+    }
     setState(() => _paused = paused);
     if (paused) {
       _idleTimer?.cancel();
@@ -257,8 +281,56 @@ class _BillingPageState extends ConsumerState<BillingPage>
   bool get _autodialArmed =>
       ref.watch(quickFlowProvider).settings.autodialArmed;
 
+  /// A scan the catalog does not know: the camera pauses and the attendant
+  /// is asked. Where the Add Items pane shows, the prompt takes its place
+  /// (see [_till]); on a phone and at the two-plane fold it is the app's
+  /// own bottom sheet over the till, and closing it any way (a button, a
+  /// swipe, the barrier) answers it.
+  void _onUnknownBarcode(BuildContext context, String barcode) {
+    if (!_paused) _setPaused(true);
+    if (_addItemsPaneShown) return;
+    final notifier = ref.read(posCartProvider.notifier);
+    AppHelpers.showCustomModalBottomSheet(
+      paddingTop: MediaQuery.paddingOf(context).top + 100,
+      context: context,
+      modal: PopScope(
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) notifier.dismissUnknownBarcode();
+        },
+        child: _UnknownBarcodePrompt(
+          barcode: barcode,
+          onAddProduct: _addProductCallback(barcode),
+          onScanAgain: _scanAgain,
+        ),
+      ),
+    );
+  }
+
+  /// "Scan again": forget the code and resume the camera.
+  void _scanAgain() {
+    ref.read(posCartProvider.notifier).dismissUnknownBarcode();
+    if (_paused) _setPaused(false);
+  }
+
+  /// "Add this product": hand the code to the host's create-product form.
+  /// The camera stays paused while the attendant fills the form in.
+  VoidCallback? _addProductCallback(String barcode) {
+    final onAddUnknownProduct = widget.onAddUnknownProduct;
+    if (onAddUnknownProduct == null) return null;
+    return () {
+      ref.read(posCartProvider.notifier).dismissUnknownBarcode();
+      onAddUnknownProduct(context, barcode);
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
+    ref.listen<String?>(
+      posCartProvider.select((s) => s.unknownBarcode),
+      (previous, next) {
+        if (next != null && next != previous) _onUnknownBarcode(context, next);
+      },
+    );
     return Scaffold(
       backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: LayoutBuilder(
@@ -322,13 +394,21 @@ class _BillingPageState extends ConsumerState<BillingPage>
     final state = ref.watch(posCartProvider);
     final planes = Planes.of(context);
     // One-plane screen: the shipped phone page, untouched.
-    if (planes.count == 1) return _phoneColumn(context, state);
+    if (planes.count == 1) {
+      _addItemsPaneShown = false;
+      return _phoneColumn(context, state);
+    }
     // Yielded to one plane beside the checkout (11n plane 1): the scan
     // stage and the Add Items lane — the cart lives in the checkout's
     // summary now.
-    if (planes.span == 1) return _scanColumn(context, lane: true);
+    if (planes.span == 1) {
+      _addItemsPaneShown = false;
+      return _scanColumn(context, lane: true);
+    }
     final SizedBox seam = SizedBox(width: planes.gap);
     final bool addItemsPane = planes.span >= 3;
+    _addItemsPaneShown = addItemsPane;
+    final String? unknownBarcode = state.unknownBarcode;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -343,10 +423,20 @@ class _BillingPageState extends ConsumerState<BillingPage>
           Expanded(
             child: SafeArea(
               bottom: false,
-              child: const _AddItemsSearch(
-                key: Key('posAddItemsPane'),
-                asPane: true,
-              ),
+              // An unknown scan takes the pane's place until it is
+              // answered; the cart (plane 3) is untouched.
+              child: unknownBarcode != null
+                  ? _UnknownBarcodePrompt(
+                      key: const Key('posUnknownBarcodePane'),
+                      barcode: unknownBarcode,
+                      asPane: true,
+                      onAddProduct: _addProductCallback(unknownBarcode),
+                      onScanAgain: _scanAgain,
+                    )
+                  : const _AddItemsSearch(
+                      key: Key('posAddItemsPane'),
+                      asPane: true,
+                    ),
             ),
           ),
         ],
@@ -1018,7 +1108,6 @@ class _BillingPageState extends ConsumerState<BillingPage>
       paddingTop: MediaQuery.paddingOf(context).top + 100,
       context: context,
       modal: const _AddItemsSearch(),
-      isDarkMode: false,
     );
   }
 
@@ -1238,6 +1327,206 @@ class _AddItemsSearchState extends ConsumerState<_AddItemsSearch> {
         ),
       ),
       child: content,
+    );
+  }
+}
+
+/// The unknown-barcode prompt (Ray's ask: an unknown scan must say so and
+/// offer to add the product). One widget, two homes, like
+/// [_AddItemsSearch]: the PHONE / two-plane sheet (rounded surface
+/// housing; a button closes the sheet before it acts) and, [asPane], the
+/// three-plane till's plane 2 in the Add Items pane's place (a card on the
+/// till's own surface, top-aligned where the pane's title sits).
+class _UnknownBarcodePrompt extends StatelessWidget {
+  const _UnknownBarcodePrompt({
+    super.key,
+    required this.barcode,
+    required this.onScanAgain,
+    this.onAddProduct,
+    this.asPane = false,
+  });
+
+  final String barcode;
+  final VoidCallback onScanAgain;
+
+  /// Null hides "Add this product" (no create-product form composed).
+  final VoidCallback? onAddProduct;
+  final bool asPane;
+
+  void _answer(BuildContext context, VoidCallback action) {
+    if (!asPane) Navigator.of(context).pop();
+    action();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final onAddProduct = this.onAddProduct;
+    final Widget body = Column(
+      key: const Key('posUnknownBarcodePrompt'),
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 48.r,
+          height: 48.r,
+          decoration: BoxDecoration(
+            color: AppStyle.primary.withValues(alpha: 0.12),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(Remix.barcode_line, size: 24.r, color: AppStyle.primary),
+        ),
+        16.verticalSpace,
+        Text(
+          AppHelpers.getTranslation(TrKeys.barcodeNotRecognised),
+          key: const Key('posUnknownBarcodeTitle'),
+          style: AppStyle.interSemi(
+            size: 20,
+            color: AppStyle.inkFor(brightness),
+          ),
+        ),
+        12.verticalSpace,
+        // The code itself in the printer face (the receipt slip's
+        // monospace stack), so the attendant can check it against the pack.
+        Container(
+          key: const Key('posUnknownBarcodeChip'),
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+          decoration: BoxDecoration(
+            color: asPane
+                ? AppStyle.cardAltFor(brightness)
+                : AppStyle.cardFor(brightness),
+            borderRadius: BorderRadius.circular(10.r),
+            border: Border.all(
+              color: AppStyle.strokeFor(brightness),
+              width: 1.r,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Remix.barcode_box_line,
+                size: 18.r,
+                color: AppStyle.secondaryInkFor(brightness),
+              ),
+              8.horizontalSpace,
+              Flexible(
+                child: Text(
+                  barcode,
+                  style: TextStyle(
+                    fontFamily: 'monospace',
+                    fontFamilyFallback: const [
+                      'Menlo',
+                      'Roboto Mono',
+                      'Courier New',
+                      'Courier',
+                    ],
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
+                    color: AppStyle.inkFor(brightness),
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        12.verticalSpace,
+        // Two keys, joined here: the untranslated fallback humanizes a
+        // key's '.' into a space, so a sentence break cannot live inside
+        // one value.
+        Text(
+          '${AppHelpers.getTranslation(TrKeys.barcodeNotInProductsYet)}. '
+          '${AppHelpers.getTranslation(TrKeys.wouldYouLikeToAddThisProduct)}',
+          style: AppStyle.interRegular(
+            size: 15,
+            color: AppStyle.secondaryInkFor(brightness),
+          ),
+        ),
+        24.verticalSpace,
+        // Primary: the checkout button's treatment (287/293) - primary
+        // fill, black label.
+        if (onAddProduct != null) ...[
+          GestureDetector(
+            onTap: () => _answer(context, onAddProduct),
+            child: Container(
+              key: const Key('posUnknownBarcodeAdd'),
+              width: double.infinity,
+              height: 56.r,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppStyle.primary,
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              child: Text(
+                AppHelpers.getTranslation(TrKeys.addThisProduct),
+                style: AppStyle.interSemi(
+                  size: 16,
+                  color: AppStyle.blackColor,
+                ),
+              ),
+            ),
+          ),
+          12.verticalSpace,
+        ],
+        GestureDetector(
+          onTap: () => _answer(context, onScanAgain),
+          child: Container(
+            key: const Key('posUnknownBarcodeScanAgain'),
+            width: double.infinity,
+            height: 56.r,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(
+                color: AppStyle.strokeFor(brightness),
+                width: 1.5.r,
+              ),
+            ),
+            child: Text(
+              AppHelpers.getTranslation(TrKeys.scanAgain),
+              style: AppStyle.interSemi(
+                size: 16,
+                color: AppStyle.inkFor(brightness),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+    if (asPane) {
+      return Padding(
+        padding: EdgeInsets.all(16.r),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(20.r),
+            decoration: BoxDecoration(
+              color: AppStyle.cardFor(brightness),
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+            child: body,
+          ),
+        ),
+      );
+    }
+    return Container(
+      decoration: BoxDecoration(
+        color: AppStyle.surfaceFor(brightness),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24.r),
+          topRight: Radius.circular(24.r),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20.r, 24.r, 20.r, 16.r),
+          child: body,
+        ),
+      ),
     );
   }
 }

@@ -95,6 +95,7 @@ class _WorkingTimeModalState extends ConsumerState<WorkingTimeModal> {
   @override
   Widget build(BuildContext context) {
     return ModalWrap(
+      themed: true,
       body: Padding(
         padding: REdgeInsets.symmetric(horizontal: 16),
         child: Consumer(
@@ -117,12 +118,14 @@ class _WorkingTimeModalState extends ConsumerState<WorkingTimeModal> {
                       const ModalDrag(),
                       TitleAndIcon(
                         title: AppHelpers.getTranslation(TrKeys.workingHours),
+                        titleColor:
+                            AppStyle.inkFor(Theme.of(context).brightness),
                       ),
                       Text(
                         AppHelpers.getTranslation(TrKeys.enterOpeningHours),
                         style: AppStyle.interNormal(
                           size: 14.sp,
-                          color: AppStyle.blackColor,
+                          color: AppStyle.inkFor(Theme.of(context).brightness),
                         ),
                       ),
                       24.verticalSpace,

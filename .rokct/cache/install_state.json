@@ -265,7 +265,7 @@
       ]
     },
     "orders_sdk": {
-      "version": "1.31.4",
+      "version": "1.31.5",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -984,7 +984,7 @@
       ]
     },
     "merchants_sdk": {
-      "version": "1.37.0",
+      "version": "1.38.0",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
         "lib/presentation/pages/stores/story_page.dart": "adeb07c24627dd3f1321a4f3eebc4d762e55f8cf8e8e3b7b91daeffdb86b3508",
@@ -1068,7 +1068,7 @@
       }
     },
     "products_sdk": {
-      "version": "1.12.9",
+      "version": "1.13.0",
       "files": {
         "assets/demo/products/api.seller_product.delete_seller_extra_value.json": "36f579d4c4606f9ff3c022585bab9c993c9fb9f0aec51523d0a81a7065d0eb31",
         "assets/demo/products/api.seller_product.get_product_details.json": "c085451bfdfea3523c7993705fcb031786836d9ebf58d8ec9e48e85107bdb54b",
@@ -1406,16 +1406,16 @@
       "hash": "1e8eee291e0c3997"
     },
     "orders": {
-      "version": "1.31.4",
-      "hash": "4709912e6a236960"
+      "version": "1.31.5",
+      "hash": "e4ab983e8fa1e725"
     },
     "merchants": {
-      "version": "1.37.0",
-      "hash": "10a164c6d7b3ee01"
+      "version": "1.38.0",
+      "hash": "425e0e41499c3bc0"
     },
     "products": {
-      "version": "1.12.9",
-      "hash": "56d71b1a3ec2c9a4"
+      "version": "1.13.0",
+      "hash": "1a226c5fb278847b"
     },
     "delivery": {
       "version": "1.30.1",

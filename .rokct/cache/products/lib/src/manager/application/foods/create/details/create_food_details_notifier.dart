@@ -39,7 +39,9 @@ class CreateFoodDetailsNotifier extends StateNotifier<CreateFoodDetailsState> {
   final SellerProductsRepositoryFacade _repository;
   final GalleryRepositoryFacade _galleryRepository;
 
-  void updateAddFoodInfo() {
+  /// Resets the form for a new product. [barcode] prefills the code (the
+  /// till's "Add this product" on a scan the catalog did not know).
+  void updateAddFoodInfo({String barcode = ''}) {
     state = state.copyWith(
       images: [],
       listOfUrls: [],
@@ -49,7 +51,7 @@ class CreateFoodDetailsNotifier extends StateNotifier<CreateFoodDetailsState> {
       maxQty: '',
       tax: '',
       costPrice: '',
-      qrcode: '',
+      qrcode: barcode.trim(),
       active: false,
       isAdult: false,
       clearCreatedProduct: true,

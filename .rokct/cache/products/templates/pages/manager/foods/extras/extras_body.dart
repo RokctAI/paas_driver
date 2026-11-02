@@ -67,7 +67,7 @@ class ExtrasBody extends StatelessWidget {
                           modal: ExtrasGroupDetailsModal(
                             group: state.groups[index],
                           ),
-                          isDarkMode: true,
+                          themedSurface: true,
                         ),
                       ),
                     ),

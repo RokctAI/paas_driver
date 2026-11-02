@@ -1,3 +1,7 @@
+## 1.31.5
+
+* fix(orders): eight order and parcel modal roots (payment method, promo code, age verify, delivery time, refund, auto order, rating, parcel payments) now paint `AppStyle.surfaceFor(Theme.of(context).brightness)` instead of a fixed light grey, and their near-black body text uses `inkFor`. Dark-mode legibility of the remaining grey text is not verified on a device.
+
 ## 1.31.4
 
 * fix(tour): shorten the `order_shop_drivers` caption's highlight phrase to "the drivers". The longer phrase did not fit one row on the phone canvas (280px past the 936px wrap width), which aborted the phone leg's assemble step. A highlight never splits across rows.

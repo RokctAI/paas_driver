@@ -72,7 +72,7 @@ class NewOrdersBody extends StatelessWidget {
                             order: state.orders[index],
                             newOrdersController: state.refreshController,
                           ),
-                          isDarkMode: true,
+                          themedSurface: true,
                         ),
                       ),
                     )

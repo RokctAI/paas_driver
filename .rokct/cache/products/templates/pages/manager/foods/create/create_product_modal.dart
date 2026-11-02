@@ -18,6 +18,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'stocks/create_food_stocks_body.dart';
 import 'details/create_food_details_body.dart';
+import '../edit/product_edit_page.dart';
+import 'package:base_sdk/src/presentation/adaptive/planes.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
@@ -29,7 +31,30 @@ import 'package:base_sdk/src/presentation/components/helper/modal_wrap.dart';
 /// "foods" — `CreateProductModal` at this install path is main_page.dart's
 /// import contract.
 class CreateProductModal extends ConsumerStatefulWidget {
-  const CreateProductModal({super.key});
+  const CreateProductModal({super.key, this.barcode = ''});
+
+  /// Prefills the product's barcode (see [open]); empty adds a blank form.
+  final String barcode;
+
+  /// THE add-product form at any width: the foods tab's "+ New product"
+  /// and the till's "Add this product" (merchants_sdk's unknown-barcode
+  /// prompt, with the scanned [barcode] prefilled). Plane widths push the
+  /// 35b create moment ([ProductEditPage.openCreate]); a phone keeps this
+  /// modal as its bottom sheet.
+  static Future<void> open(BuildContext context, {String barcode = ''}) {
+    final int planes = Planes.maybeOf(context)?.count ??
+        PlaneHost.planeCountFor(MediaQuery.sizeOf(context).width);
+    if (planes > 1) {
+      return ProductEditPage.openCreate(context, barcode: barcode);
+    }
+    AppHelpers.showCustomModalBottomSheet(
+      paddingTop: MediaQuery.paddingOf(context).top + 64,
+      context: context,
+      modal: CreateProductModal(barcode: barcode),
+      themedSurface: true,
+    );
+    return Future<void>.value();
+  }
 
   @override
   ConsumerState<CreateProductModal> createState() => _CreateProductModalState();
@@ -44,7 +69,9 @@ class _CreateProductModalState extends ConsumerState<CreateProductModal>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => ref.read(createFoodDetailsProvider.notifier).updateAddFoodInfo(),
+      (_) => ref
+          .read(createFoodDetailsProvider.notifier)
+          .updateAddFoodInfo(barcode: widget.barcode),
     );
   }
 
@@ -98,6 +125,7 @@ class _CreateProductModalState extends ConsumerState<CreateProductModal>
               physics: const NeverScrollableScrollPhysics(),
               children: [
                 CreateFoodDetailsBody(
+                  initialBarcode: widget.barcode,
                   onSave: () => _tabController.animateTo(
                     1,
                     duration: const Duration(milliseconds: 300),

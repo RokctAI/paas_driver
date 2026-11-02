@@ -111,7 +111,7 @@ class _OrdersHomePageState extends ConsumerState<OrdersHomePage> {
         order: order,
         isHistoryOrder: status.isHistory ? true : null,
       ),
-      isDarkMode: true,
+      themedSurface: true,
     );
   }
 

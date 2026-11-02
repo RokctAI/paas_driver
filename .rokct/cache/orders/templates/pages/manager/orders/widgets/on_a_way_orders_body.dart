@@ -89,7 +89,7 @@ class _OnAWayOrdersBodyState extends State<OnAWayOrdersBody> {
                               order: state.orders[index],
                               onAWayOrdersController: _refreshController,
                             ),
-                            isDarkMode: true,
+                            themedSurface: true,
                           ),
                         );
                       },

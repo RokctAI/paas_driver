@@ -168,7 +168,6 @@ class ShopProductItem extends StatelessWidget {
                                     modal: BonusScreen(
                                       bonus: product.stock?.bonus,
                                     ),
-                                    isDarkMode: Theme.of(context).brightness == Brightness.dark,
                                     isDrag: true,
                                     radius: 12,
                                   );

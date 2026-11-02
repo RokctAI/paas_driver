@@ -74,7 +74,7 @@ void _openLoadSheet(BuildContext context, LoadData load) {
     context: context,
     radius: 12,
     modal: LoadDetail(load: load),
-    isDarkMode: true,
+    themedSurface: true,
   );
 }
 

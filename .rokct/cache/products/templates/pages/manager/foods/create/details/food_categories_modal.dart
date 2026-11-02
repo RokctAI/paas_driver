@@ -65,7 +65,7 @@ class _FoodCategoriesModalState extends ConsumerState<FoodCategoriesModal> {
                 context: context,
                 paddingTop: 100,
                 modal: const AddCategoryModal(),
-                isDarkMode: false,
+                themedSurface: true,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

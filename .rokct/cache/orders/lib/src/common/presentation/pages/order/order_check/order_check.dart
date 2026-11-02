@@ -196,7 +196,6 @@ class _OrderCheckState extends ConsumerState<OrderCheck> {
       AppHelpers.showCustomModalBottomSheet(
         context: context,
         modal: EmbeddedWidgets.I.phoneVerify(),
-        isDarkMode: Theme.of(context).brightness == Brightness.dark,
         paddingTop: MediaQuery.paddingOf(context).top,
       );
       return;
@@ -244,7 +243,7 @@ class _OrderCheckState extends ConsumerState<OrderCheck> {
             );
           },
         ),
-        isDarkMode: Theme.of(context).brightness == Brightness.dark,
+        themedSurface: true,
         paddingTop: MediaQuery.paddingOf(context).top,
       );
       return;
@@ -327,7 +326,6 @@ class _OrderCheckState extends ConsumerState<OrderCheck> {
             }
           },
         ),
-        isDarkMode: Theme.of(context).brightness == Brightness.dark,
       );
     } else {
       // Use the standard flow
@@ -522,7 +520,7 @@ class _OrderCheckState extends ConsumerState<OrderCheck> {
                           state.orderData?.createdAt ?? DateTime.now(),
                         ),
                       ),
-                      isDarkMode: Theme.of(context).brightness == Brightness.dark,
+                      themedSurface: true,
                     );
                   },
                   isRepeatLoading: state.isAddLoading,

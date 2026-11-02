@@ -140,7 +140,7 @@ class _SelectUserPageState extends ConsumerState<SelectUserPage> {
                   onPressed: () => AppHelpers.showCustomModalBottomSheet(
                     context: context,
                     modal: const CreateUserModal(),
-                    isDarkMode: true,
+                    themedSurface: true,
                   ),
                 ),
               ),

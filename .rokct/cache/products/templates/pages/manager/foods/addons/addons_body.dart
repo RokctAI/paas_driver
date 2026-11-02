@@ -69,7 +69,7 @@ class AddonsBody extends StatelessWidget {
                         paddingTop: 60,
                         context: context,
                         modal: EditAddonModal(addon: state.addons[index]),
-                        isDarkMode: false,
+                        themedSurface: true,
                       );
                     },
                   ),

@@ -69,7 +69,7 @@ class _ExtrasGroupDetailsModalState
                 onTap: () => AppHelpers.showCustomModalBottomSheet(
                   context: context,
                   modal: CreateNewGroupItemModal(group: widget.group),
-                  isDarkMode: false,
+                  themedSurface: true,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -99,7 +99,7 @@ class _ExtrasGroupDetailsModalState
               onTap: () => AppHelpers.showCustomModalBottomSheet(
                 context: context,
                 modal: UpdateExtrasGroupModal(group: widget.group),
-                isDarkMode: true,
+                themedSurface: true,
               ),
               suffixIcon:
                   // Shop ids are shop_name docname strings, never ints.
@@ -108,7 +108,7 @@ class _ExtrasGroupDetailsModalState
                   ? GestureDetector(
                       onTap: () => AppHelpers.showCustomModalBottomSheet(
                         context: context,
-                        isDarkMode: true,
+                        themedSurface: true,
                         modal: DeleteExtrasGroupModal(group: widget.group),
                       ),
                       child: Icon(
@@ -149,7 +149,7 @@ class _ExtrasGroupDetailsModalState
                                         group: widget.group,
                                         extras: state.extras[index],
                                       ),
-                                      isDarkMode: false,
+                                      themedSurface: true,
                                     ),
                                 onDeleteTap: () =>
                                     AppHelpers.showCustomModalBottomSheet(
@@ -157,7 +157,7 @@ class _ExtrasGroupDetailsModalState
                                       modal: DeleteExtrasItemModal(
                                         extras: state.extras[index],
                                       ),
-                                      isDarkMode: false,
+                                      themedSurface: true,
                                     ),
                               ),
                         );

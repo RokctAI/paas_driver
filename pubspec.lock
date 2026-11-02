@@ -1647,7 +1647,7 @@ packages:
       path: ".rokct/cache/merchants"
       relative: true
     source: path
-    version: "1.37.0"
+    version: "1.38.0"
   meta:
     dependency: transitive
     description:
@@ -1702,7 +1702,7 @@ packages:
       path: ".rokct/cache/orders"
       relative: true
     source: path
-    version: "1.31.4"
+    version: "1.31.5"
   osm_nominatim:
     dependency: "direct main"
     description:
@@ -1957,7 +1957,7 @@ packages:
       path: ".rokct/cache/products"
       relative: true
     source: path
-    version: "1.12.9"
+    version: "1.13.0"
   proste_indexed_stack:
     dependency: "direct main"
     description:

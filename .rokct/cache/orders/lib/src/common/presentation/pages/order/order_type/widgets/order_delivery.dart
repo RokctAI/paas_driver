@@ -117,7 +117,7 @@ class _OrderDeliveryState extends State<OrderDelivery> {
                           widget.getLocation();
                         },
                       ),
-                      isDarkMode: Theme.of(context).brightness == Brightness.dark,
+                      themedSurface: true,
                     );
                   },
                   icon: Padding(
@@ -142,7 +142,7 @@ class _OrderDeliveryState extends State<OrderDelivery> {
                       paddingTop: MediaQuery.paddingOf(context).top + 150.h,
                       context: context,
                       modal: const TimeDelivery(),
-                      isDarkMode: Theme.of(context).brightness == Brightness.dark,
+                      themedSurface: true,
                       isDrag: true,
                       radius: 12,
                     );
@@ -192,7 +192,6 @@ class _OrderDeliveryState extends State<OrderDelivery> {
                     AppHelpers.showCustomModalBottomSheet(
                       context: context,
                       modal: EmbeddedWidgets.I.phoneVerify(),
-                      isDarkMode: Theme.of(context).brightness == Brightness.dark,
                       paddingTop: MediaQuery.paddingOf(context).top,
                     );
                   },
