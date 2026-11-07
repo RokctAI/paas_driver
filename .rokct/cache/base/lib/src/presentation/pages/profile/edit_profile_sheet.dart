@@ -305,7 +305,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   AppHelpers.showCustomModalBottomSheet(
                                     context: context,
                                     modal: EmbeddedWidgets.I.phoneVerify(),
-                                    isDarkMode: Theme.of(context).brightness == Brightness.dark,
                                     paddingTop: MediaQuery.paddingOf(
                                       context,
                                     ).top,

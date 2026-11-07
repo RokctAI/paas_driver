@@ -186,9 +186,11 @@ class _GuideHostState extends State<GuideHost> {
   }
 }
 
-/// The scrim and bubble for one step. The scrim blocks taps on the screen
-/// behind it; the bubble's buttons are the only way forward. A spotlight cut
-/// out of the scrim and tap-through are not in this version.
+/// The scrim, spotlight and bubble for one step. The scrim is cut away
+/// around the step's anchor, with a ring drawn round it, and the bubble has a
+/// small arrow pointing at it, so the tip shows what it is about. The scrim
+/// still blocks taps everywhere, the spotlight included; the bubble's buttons
+/// are the only way forward.
 class _CoachMark extends StatefulWidget {
   final GuideStep step;
   final VoidCallback onGotIt;
@@ -229,18 +231,49 @@ class _CoachMarkState extends State<_CoachMark> {
     final brightness = Theme.of(context).brightness;
     final ink = AppStyle.inkFor(brightness);
     final placeBelow = rect == null || rect.center.dy < size.height / 2;
+    final hole = rect?.inflate(_spotPad);
+    final card = AppStyle.cardFor(brightness);
+    // The arrow's tip sits under (or over) the anchor's centre, kept inside
+    // the bubble's rounded corners.
+    final arrowX = rect == null
+        ? 0.0
+        : (size.width < 2 * (28 + _arrowHalf)
+            ? size.width / 2
+            : rect.center.dx.clamp(28 + _arrowHalf, size.width - 28 - _arrowHalf).toDouble());
     return Positioned.fill(
       child: Stack(
         children: [
-          ModalBarrier(color: Colors.black54, dismissible: false),
+          // Blocks taps; the dimming itself is painted below with a hole.
+          const ModalBarrier(color: Colors.transparent, dismissible: false),
+          IgnorePointer(
+            child: CustomPaint(
+              key: const ValueKey('guide.spotlight'),
+              size: Size.infinite,
+              painter: _SpotlightPainter(hole: hole, ring: AppStyle.primary),
+            ),
+          ),
+          if (rect != null)
+            Positioned(
+              left: arrowX - _arrowHalf,
+              width: _arrowHalf * 2,
+              top: placeBelow ? hole!.bottom + _gap - _arrowHeight : null,
+              bottom: placeBelow ? null : size.height - hole!.top + _gap - _arrowHeight,
+              height: _arrowHeight + 1,
+              child: IgnorePointer(
+                child: CustomPaint(
+                  key: const ValueKey('guide.arrow'),
+                  painter: _ArrowPainter(color: card, up: placeBelow),
+                ),
+              ),
+            ),
           if (rect != null)
             Positioned(
               left: 16,
               right: 16,
-              top: placeBelow ? rect.bottom + 12 : null,
-              bottom: placeBelow ? null : size.height - rect.top + 12,
+              top: placeBelow ? hole!.bottom + _gap : null,
+              bottom: placeBelow ? null : size.height - hole!.top + _gap,
               child: Material(
-                color: AppStyle.cardFor(brightness),
+                color: card,
                 elevation: 6,
                 borderRadius: BorderRadius.circular(12),
                 child: Padding(
@@ -283,4 +316,73 @@ class _CoachMarkState extends State<_CoachMark> {
       ),
     );
   }
+}
+
+/// Space between the anchor and the edge of its spotlight.
+const double _spotPad = 6;
+
+/// Space between the spotlight and the bubble; the arrow fills it.
+const double _gap = 14;
+const double _arrowHalf = 10;
+const double _arrowHeight = 10;
+
+/// Dims the screen except a rounded hole around the anchor, and rings the
+/// hole so it reads as "this one".
+class _SpotlightPainter extends CustomPainter {
+  final Rect? hole;
+  final Color ring;
+  const _SpotlightPainter({required this.hole, required this.ring});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final screen = Path()..addRect(Offset.zero & size);
+    final h = hole;
+    if (h == null) {
+      canvas.drawPath(screen, Paint()..color = Colors.black54);
+      return;
+    }
+    final spot = RRect.fromRectAndRadius(h, const Radius.circular(12));
+    canvas.drawPath(
+      Path.combine(PathOperation.difference, screen, Path()..addRRect(spot)),
+      Paint()..color = Colors.black54,
+    );
+    canvas.drawRRect(
+      spot,
+      Paint()
+        ..color = ring
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_SpotlightPainter old) => old.hole != hole || old.ring != ring;
+}
+
+/// The bubble's pointer: a small triangle in the bubble's colour, tip toward
+/// the anchor ([up] when the bubble sits below it).
+class _ArrowPainter extends CustomPainter {
+  final Color color;
+  final bool up;
+  const _ArrowPainter({required this.color, required this.up});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+    final path = up
+        ? (Path()
+          ..moveTo(0, h)
+          ..lineTo(w / 2, 0)
+          ..lineTo(w, h)
+          ..close())
+        : (Path()
+          ..moveTo(0, 0)
+          ..lineTo(w / 2, h)
+          ..lineTo(w, 0)
+          ..close());
+    canvas.drawPath(path, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(_ArrowPainter old) => old.color != color || old.up != up;
 }

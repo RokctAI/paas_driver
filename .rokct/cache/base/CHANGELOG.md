@@ -1,5 +1,36 @@
 # Changelog
 
+## 1.104.0
+
+- `ExpandableContent` (new, exported). Long content folds at `collapsedHeight` (240 by default) with a fade at the bottom and "Show more"; opened, it shows in full with "Show less". Content that fits, or is under `slack` (48) past the limit, is left as it is with no button. The fade masks the content itself, so it works on any bubble colour. Ray, 2026-11-06, showing the Claude app: long messages, above all ones that are not the latest, should not fill the screen. Any chat or long text in the fleet can wrap its body in it; agent_sdk's Sticks chats are the first. Covered by `test/expandable_content_test.dart`.
+- fix(navigation): `RouteMemory` builds with auto_route 10 as well as 9. App shells that resolve auto_route 10 failed to compile because a route's `children` is a list there, not a `RouteCollection`; the lookup now reads either. This broke the Sticks APK and Windows builds on 2026-11-06.
+
+## 1.103.0
+
+* feat(navigation): `RouteMemory` brings every app back to the page it was on after Android closed it in the background (Ray: "this needs to benefit our whole fleet"). The app shell template (`templates/app_widget.dart`) attaches its router, the current page's address is kept with the time as the person moves around, and after the splash lands home (`AppHelpers.goHome`) a page left less than 12 hours ago is reopened on top of home, once per run. Splash, no-connection, maintenance and sign-in pages are never kept. Every composed app gets it on its next build; no app shell change is needed.
+* feat(floating-nav): `FloatingNavInput.controller` (default null). A caller that must keep the typed text beyond the bar, such as a chat that keeps an unsent draft per conversation, passes its own `TextEditingController`; the bar shows it, sends from it, clears it on send and never disposes it. Without it the bar keeps its own as before.
+
+## 1.102.0
+
+* feat(floating-nav): `FloatingNavTab.marker` (default null) pins a small widget, such as a status dot or count, to the top right of a tab's icon in both indicator styles and the tablet rail. A page can put its signal on the nav instead of floating it over or under the pill. No change for tabs that do not pass it.
+
+## 1.101.0
+
+* feat(profile): the profile footer shows data used next to days in the app: "4.2 MB used today · 61 MB this month". Tapping it shows the Wi-Fi and mobile split. `DataUsageMeter` counts on the device what the app's own requests send and receive: `HttpService` clients count through `DataUsageInterceptor`, and a `package:http` client counts when wrapped in `MeteredHttpClient`. Bodies plus a 400-byte header allowance each way, so it reads a little under the phone's own data screen. Shown signed in or not.
+
+## 1.100.0
+
+* feat(guide): coach-marks now point at what they describe. The scrim is cut away around the step's anchor with a ring in the brand colour, and the bubble has a small arrow toward it. Taps are still blocked everywhere but the bubble's buttons. No API change: every app using `GuideHost` gets it.
+
+## 1.99.0
+
+* feat(modal): `ModalWrap` takes `themed` (default false). When true, its frosted fill follows the theme (`AppStyle.surfaceFor` for the current brightness, at the same 0.9 opacity) instead of white. Default off: every existing caller is unchanged. Callers opt in only after their body text and icons are theme-aware.
+
+## 1.98.0
+
+* feat(sheet): `AppHelpers.showCustomModalBottomSheet` takes `themedSurface` (default false). When true, the modal is painted on the theme-aware surface (`AppStyle.surfaceFor` for the current brightness, rounded by `radius`), so a sheet follows dark and light mode without its own surface. Default off: existing sheets are unchanged.
+* fix(sheet): `isDarkMode` is now optional and unused. The helper never read it; brightness comes from the theme. Existing callers that pass it still compile.
+
 ## 1.97.0
 
 * feat(sync): `PlanAccess.planGatedVisible` (ValueNotifier, true by default). `PlanSyncGate` sets it from the sync answer (cached answer on start), so with no plan or the free plan screens that need a plan are hidden. `PlanAccess.gateProfileSections(ids)` declares plan-gated profile section ids (one call, no per-SDK code); `ProfileSectionRegistry.sections` leaves them out while the flag is false. Apps that never install the gate are unchanged.

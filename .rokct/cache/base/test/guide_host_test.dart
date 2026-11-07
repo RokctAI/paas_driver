@@ -97,6 +97,14 @@ void main() {
     expect(find.text('Got it'), findsOneWidget);
   });
 
+  testWidgets('the tip lights up its target and points at it', (tester) async {
+    await tester.pumpWidget(_host(InMemoryGuideStore()));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.byKey(const ValueKey('guide.spotlight')), findsOneWidget);
+    expect(find.byKey(const ValueKey('guide.arrow')), findsOneWidget);
+  });
+
   testWidgets('Got it marks the step complete and removes the coach-mark',
       (tester) async {
     final store = InMemoryGuideStore();

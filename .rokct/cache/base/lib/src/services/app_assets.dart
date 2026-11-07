@@ -37,8 +37,5 @@ class AppAssets {
   static const String svgMenu = '$_svgPath/menu.svg';
 
   // @sdk-asset-keys-start
-  static const String pngMyLocation = 'assets/image/my_location.png';
-  static const String svgBalance = 'assets/svg/balance.svg';
-  static const String svgCutter = 'assets/svg/cutter.svg';
   // @sdk-asset-keys-end
 }
