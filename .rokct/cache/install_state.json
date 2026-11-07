@@ -690,7 +690,7 @@
       ]
     },
     "comms_sdk": {
-      "version": "1.23.2",
+      "version": "1.23.4",
       "files": {
         "lib/application/notification/notification_state.dart": "055c8ab42969bad5e418061cbe38699458bfc8b74ea7d4def4a03a18e261b184",
         "lib/application/notification/notification_notifier.dart": "c5c691d1c0f1d476eea96d5a60bac5316fabe8ea0f77412db1d4d409f1e6b748",
@@ -1152,7 +1152,7 @@
       }
     },
     "auth_sdk": {
-      "version": "1.22.1",
+      "version": "1.22.2",
       "files": {
         "lib/presentation/routes/auth_route_pages.dart": "8eaff3abe2dd38d8a6c2f15ed4b9e4ec779c5b99f3f71a18445ee4a13d12056f",
         "lib/presentation/routes/registration_step_pages.dart": "68aed195fc07db746a0919c7ba6d47ffa445ca86e7d9cf6ee50fbcb00e82d3c2",
@@ -1394,12 +1394,12 @@
       "hash": "77f3ac9b860d661c"
     },
     "comms": {
-      "version": "1.23.2",
-      "hash": "3cafcd2562d7b781"
+      "version": "1.23.4",
+      "hash": "0967a0a2da1e17c4"
     },
     "auth": {
-      "version": "1.22.1",
-      "hash": "347f37ed729d44ad"
+      "version": "1.22.2",
+      "hash": "516ed075f8b8aad3"
     },
     "users": {
       "version": "1.5.2",

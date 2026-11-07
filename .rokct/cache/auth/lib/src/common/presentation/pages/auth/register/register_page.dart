@@ -494,7 +494,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               AppHelpers.showCustomModalBottomSheet(
                                 context: context,
                                 modal: RegisterPage(isOnlyEmail: false),
-                                isDarkMode: isDarkMode,
                               );
                             });
                           } else {
@@ -519,7 +518,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                     confirmPassword: state.confirmPassword,
                                   ),
                                 ),
-                                isDarkMode: isDarkMode,
+                                themedSurface: true,
                               );
                             }, onOffline: () {
                               // Offline: skip the OTP step and go straight
@@ -532,7 +531,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               AppHelpers.showCustomModalBottomSheet(
                                 context: context,
                                 modal: RegisterPage(isOnlyEmail: false),
-                                isDarkMode: isDarkMode,
                               );
                             });
                           }

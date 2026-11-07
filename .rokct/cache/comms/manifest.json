@@ -1,6 +1,8 @@
 {
   "name": "comms_sdk",
-  "version": "1.23.2",
+  "version": "1.23.4",
+  "_comment_version_1_23_4": "1.23.3 -> 1.23.4: LocalNotifications.show takes optional group and groupTitle; with a group Android stacks the alerts under one heading (silent summary notification), iOS sets the thread id. Without them nothing changes.",
+  "_comment_version_1_23_3": "1.23.2 -> 1.23.3: LocalNotifications uses the shell's res/drawable/notification_icon (launcher icon only as fallback) and posts on a new high-importance 'alerts' channel so alerts pop down (see CHANGELOG).",
   "_comment_version_1_23_2": "1.23.1 -> 1.23.2: version for the notification inbox coach-mark (#324), which landed without a bump.",
   "_comment_version_1_23_1": "1.23.0 -> 1.23.1: NotificationInboxPage and NotificationBell import base_sdk ApiResult so .when resolves (see CHANGELOG).",
   "_comment_version_1_23_0": "1.22.4 -> 1.23.0: NotificationInboxPage and NotificationBell (see CHANGELOG).",

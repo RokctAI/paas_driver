@@ -129,7 +129,6 @@ class _RegisterConfirmationPageState
         AppHelpers.showCustomModalBottomSheet(
           context: context,
           modal: RegisterPage(isOnlyEmail: false),
-          isDarkMode: isDarkMode,
         );
       }
       if (previous.isResetPasswordSuccess != next.isResetPasswordSuccess &&
@@ -138,7 +137,6 @@ class _RegisterConfirmationPageState
         AppHelpers.showCustomModalBottomSheet(
           context: context,
           modal: const SetPasswordPage(),
-          isDarkMode: isDarkMode,
         );
       }
     });
@@ -192,18 +190,14 @@ class _RegisterConfirmationPageState
                               cursor: Cursor(
                                 width: 1,
                                 height: 24,
-                                color: isDarkMode
-                                    ? AppStyle.white
-                                    : AppStyle.black,
+                                color: AppStyle.inkFor(brightness),
                                 enabled: true,
                               ),
                               decoration: BoxLooseDecoration(
                                 gapSpace: 10.r,
                                 textStyle: AppStyle.interNormal(
                                   size: 15.sp,
-                                  color: isDarkMode
-                                      ? AppStyle.white
-                                      : AppStyle.black,
+                                  color: AppStyle.inkFor(brightness),
                                 ),
                                 bgColorBuilder: FixedColorBuilder(
                                   isDarkMode

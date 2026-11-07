@@ -1,3 +1,7 @@
+## 1.22.2
+
+* fix(login_page): black gradient fading up from the bottom behind the Login/Register buttons on compact screens, so Register reads over busy splash artwork.
+
 ## 1.22.1
 
 * chore(guide): version for the coach-mark guide mounted on this SDK's primary page (base_sdk GuideHost and GuideAnchor). The mount landed without a version change. Needs base_sdk >= 1.92.0.

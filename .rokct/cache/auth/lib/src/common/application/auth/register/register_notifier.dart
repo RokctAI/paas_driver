@@ -449,7 +449,6 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
   /// Shows the email-code sheet for an account [register] just created
   /// online. The sheet replaces the details form.
   void _askForEmailCode(BuildContext context) {
-    final isDarkMode = LocalStorage.getAppThemeMode();
     Navigator.pop(context);
     AppHelpers.showCustomModalBottomSheet(
       context: context,
@@ -462,7 +461,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           email: state.email,
         ),
       ),
-      isDarkMode: isDarkMode,
+      themedSurface: true,
     );
   }
 
