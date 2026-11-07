@@ -714,6 +714,14 @@ class TrKeys {
       'less.than.a.day.in.app.this.year';
   static const String lessThanADayInAppThisWeek =
       'less.than.a.day.in.app.this.week';
+  // DataUsageBadge (profile footer): "4.2 MB used today · 61 MB this
+  // month", and its Wi-Fi / mobile split.
+  static const String dataUsed = 'data.used';
+  static const String dataUsedToday = 'used.today';
+  static const String dataThisMonth = 'this.month';
+  static const String wifi = 'wi-fi';
+  static const String mobileData = 'mobile.data';
+  static const String dataUsedNote = 'data.used.note';
   static const String goodMorning = 'good.Morning';
   static const String goodAfternoon = 'goodAfternoon';
   static const String goodEvening = 'good.Evening';

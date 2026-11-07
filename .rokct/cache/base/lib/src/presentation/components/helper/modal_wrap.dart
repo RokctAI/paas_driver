@@ -22,10 +22,19 @@ import 'package:base_sdk/src/presentation/components/blur_wrap.dart';
 class ModalWrap extends StatelessWidget {
   final Widget body;
 
-  const ModalWrap({super.key, required this.body});
+  /// When true, the frosted fill follows the app theme
+  /// ([AppStyle.surfaceFor] for the current brightness) instead of white.
+  /// Default false keeps the light fill for every existing caller; a caller
+  /// opts in only after its body text and icons are theme-aware.
+  final bool themed;
+
+  const ModalWrap({super.key, required this.body, this.themed = false});
 
   @override
   Widget build(BuildContext context) {
+    final Color fill = themed
+        ? AppStyle.surfaceFor(Theme.of(context).brightness).withOpacity(0.9)
+        : AppStyle.white.withOpacity(0.9);
     return BlurWrap(
       radius: BorderRadius.only(
         topLeft: Radius.circular(16.r),
@@ -37,7 +46,7 @@ class ModalWrap extends StatelessWidget {
             topLeft: Radius.circular(16.r),
             topRight: Radius.circular(16.r),
           ),
-          color: AppStyle.white.withOpacity(0.9),
+          color: fill,
           boxShadow: [
             BoxShadow(
               color: AppStyle.blackColor.withOpacity(0.25),

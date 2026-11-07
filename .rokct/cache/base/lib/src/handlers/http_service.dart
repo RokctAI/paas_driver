@@ -22,6 +22,7 @@ import 'package:base_sdk/src/handlers/log_redaction.dart';
 import 'package:base_sdk/src/handlers/token_interceptor.dart';
 import 'package:base_sdk/src/handlers/token_refresh_service.dart';
 import 'package:base_sdk/src/services/timing_telemetry.dart';
+import 'package:base_sdk/src/services/data_usage_meter.dart';
 
 class HttpService {
   Dio client({bool requireAuth = false, bool routing = false}) {
@@ -42,6 +43,9 @@ class HttpService {
       // before any token, timing or network work (per-call demo switch;
       // pass-through otherwise).
       ..interceptors.add(const DemoGatewayInterceptor())
+      // Counts this call's bytes for the profile's "data used" figure.
+      // After the demo gateway, so fixture answers cost nothing.
+      ..interceptors.add(const DataUsageInterceptor())
       ..interceptors.add(TimingInterceptor())
       ..interceptors.add(TokenInterceptor(requireAuth: requireAuth))
       // 401 -> single-flight token rotation -> one retry (see

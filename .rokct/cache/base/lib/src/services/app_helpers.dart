@@ -17,6 +17,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:base_sdk/src/services/route_memory.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -717,15 +718,27 @@ abstract class AppHelpers {
     );
   }
 
+  /// Opens a modal bottom sheet. The route is transparent, so by default the
+  /// [modal] must paint its own surface.
+  ///
+  /// [themedSurface] (opt-in, default false) paints the theme-aware sheet
+  /// surface ([AppStyle.surfaceFor] for the current brightness, rounded by
+  /// [radius]) behind [modal], so the sheet follows dark and light mode
+  /// without the caller wiring a surface. Pass it when [modal] has no opaque
+  /// surface of its own.
+  ///
+  /// [isDarkMode] is accepted for existing callers and is not read: the
+  /// brightness comes from the theme the sheet is shown in.
   static void showCustomModalBottomSheet({
     required BuildContext context,
     required Widget modal,
-    required bool isDarkMode,
+    bool? isDarkMode,
     double radius = 16,
     bool isDrag = true,
     bool isDismissible = true,
     double paddingTop = 200,
     double maxWidth = AppBreakpoints.sheetMaxWidth,
+    bool themedSurface = false,
   }) {
     // Compact windows keep the classic full-width sheet; anything wider
     // anchors the sheet to the END side instead of centering it.
@@ -746,14 +759,19 @@ abstract class AppHelpers {
       ),
       backgroundColor: AppStyle.transparent,
       context: context,
-      builder: (context) => anchorEnd
-          ? _anchorSheetToEnd(
-              context: context,
-              sheet: modal,
-              maxWidth: maxWidth,
-              isDismissible: isDismissible,
-            )
-          : modal,
+      builder: (context) {
+        final Widget sheet = themedSurface
+            ? _ThemedSheetSurface(radius: radius, child: modal)
+            : modal;
+        return anchorEnd
+            ? _anchorSheetToEnd(
+                context: context,
+                sheet: sheet,
+                maxWidth: maxWidth,
+                isDismissible: isDismissible,
+              )
+            : sheet;
+      },
     );
   }
 
@@ -1197,12 +1215,15 @@ abstract class AppHelpers {
           context,
           shopId: AppConstants.defaultShopId,
         );
+        RouteMemory.restoreAfterHome();
         return;
       } on StateError catch (e) {
         debugPrint('==> no shop page in this app, going to main: $e');
       }
     }
     AppRoutes.I.replaceMainRoute(context);
+    // Back to the page the person was on when the phone closed the app.
+    RouteMemory.restoreAfterHome();
   }
 }
 
@@ -1226,5 +1247,30 @@ extension ExtendedIterable<E> on Iterable<E> {
   Iterable mapIndexed<T>(T Function(E e, int i) f) {
     var i = 0;
     return map((e) => f(e, i++));
+  }
+}
+
+/// The opaque, theme-aware surface under a sheet opened with
+/// `themedSurface: true`: the brightness of the theme the sheet is shown in,
+/// with top corners rounded by the sheet's radius.
+class _ThemedSheetSurface extends StatelessWidget {
+  final double radius;
+  final Widget child;
+
+  const _ThemedSheetSurface({required this.radius, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppStyle.surfaceFor(Theme.of(context).brightness),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(radius.r),
+          topRight: Radius.circular(radius.r),
+        ),
+      ),
+      child: child,
+    );
   }
 }
