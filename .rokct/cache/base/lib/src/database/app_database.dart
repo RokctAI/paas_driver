@@ -28,6 +28,7 @@ import '../sync/id_mappings_table.dart';
 import '../sync/outbox_table.dart';
 
 // @sdk-database-imports-start
+import 'injected/auth_sdk__offline_user_table.dart';
 // @sdk-database-imports-end
 
 part 'app_database.g.dart';
@@ -45,6 +46,7 @@ part 'app_database.g.dart';
     OutboxTable,
     IdMappingsTable,
     // @sdk-database-tables-start
+    OfflineUsersTable,
     // @sdk-database-tables-end
   ],
 )
@@ -98,6 +100,8 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(idMappingsTable);
         }
         // @sdk-database-migrations-start
+        if (from < 16) { await m.createTable(offlineUsersTable); }
+        if (from < 19) { await ensureOwnerScopeColumns(); }
         // @sdk-database-migrations-end
       },
       beforeOpen: (details) async {

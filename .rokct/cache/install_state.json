@@ -94,7 +94,7 @@
         "lib/presentation/theme/theme.dart": "dccd0527934c068d0b8ef48d7d0677d068d1054e7fcc1e1eea1f6682912bfcd5",
         "lib/presentation/theme/app_style.dart": "a45367fab06abafa465a15d659d631e344f3c1badc06a8880b2298eaf063c535",
         "lib/main.dart": "4fe65baf8e403cb55f8f2788fb50e0a4277185f51afb640233d535d00832e455",
-        "lib/presentation/app_widget.dart": "2d55eb016ba98da185517baf8bc43683dbf0860c0b7f0b3be6c9c23cef201844",
+        "lib/presentation/app_widget.dart": "c89f2ff01857cb2a5d2d0f321ce1fc4475c1500c259e88bd11110da20c76b545",
         "lib/presentation/routes/app_router.dart": "3b99e50c60dab1161ccf14aa381f7481ab1baad0223575df04e4bda89a20464b",
         "lib/presentation/routes/route_pages.dart": "32ab7543d1b94e5b5aedd5a59604a390c373d6e881801c875e37f2ddd001d8c8",
         "android/app/src/main/kotlin/com/app/demo/JuvoApplication.kt": "18870e8ca0b87482d3ad45fecc6211762fde11d19fd46791aba40a49b4d31d07",
@@ -1391,7 +1391,7 @@
   "sdk_cache": {
     "base": {
       "version": "1.97.0",
-      "source_hash": "eb51eabec6100fa3"
+      "hash": "19adcf846a6174f4"
     },
     "comms": {
       "version": "1.23.4",
