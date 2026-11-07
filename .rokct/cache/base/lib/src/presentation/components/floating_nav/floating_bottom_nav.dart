@@ -269,6 +269,7 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
               selectIcon: mode.tabs[i].selectIcon,
               unSelectIcon: mode.tabs[i].unSelectIcon,
               label: mode.tabs[i].label,
+              marker: mode.tabs[i].marker,
               indicator: mode.indicator,
             ),
           if (mode.profile != null) _ProfileEntry(profile: mode.profile!),
@@ -386,6 +387,7 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
               selectIcon: mode.tabs[i].selectIcon,
               unSelectIcon: mode.tabs[i].unSelectIcon,
               label: mode.tabs[i].label,
+              marker: mode.tabs[i].marker,
               indicator: mode.indicator,
             ),
           // Same rule as the bottom pill: these invoke a mode rather than
@@ -758,25 +760,44 @@ class _ComposerBlock extends StatefulWidget {
 }
 
 class _ComposerBlockState extends State<_ComposerBlock> {
-  final TextEditingController _controller = TextEditingController();
+  final TextEditingController _own = TextEditingController();
   final FocusNode _focus = FocusNode();
   bool _hasText = false;
+
+  /// The caller's controller when it passes one (a draft kept per chat),
+  /// else the bar's own.
+  TextEditingController get _controller => widget.input?.controller ?? _own;
+
+  void _textChanged() {
+    final has = _controller.text.trim().isNotEmpty;
+    if (has != _hasText) setState(() => _hasText = has);
+  }
 
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() {
-      final has = _controller.text.trim().isNotEmpty;
-      if (has != _hasText) setState(() => _hasText = has);
-    });
+    _controller.addListener(_textChanged);
+    _hasText = _controller.text.trim().isNotEmpty;
     _focus.addListener(
       () => widget.input?.onFocusChanged?.call(_focus.hasFocus),
     );
   }
 
   @override
+  void didUpdateWidget(covariant _ComposerBlock old) {
+    super.didUpdateWidget(old);
+    final was = old.input?.controller ?? _own;
+    if (was != _controller) {
+      was.removeListener(_textChanged);
+      _controller.addListener(_textChanged);
+      _hasText = _controller.text.trim().isNotEmpty;
+    }
+  }
+
+  @override
   void dispose() {
-    _controller.dispose();
+    _controller.removeListener(_textChanged);
+    _own.dispose();
     _focus.dispose();
     super.dispose();
   }

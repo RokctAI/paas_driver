@@ -22,6 +22,7 @@ import 'package:remixicon/remixicon.dart';
 
 import 'package:base_sdk/src/presentation/pages/profile/profile_host_scope.dart';
 import 'package:base_sdk/src/presentation/pages/profile/widgets/app_usage_badge.dart';
+import 'package:base_sdk/src/presentation/pages/profile/widgets/data_usage_badge.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -171,6 +172,11 @@ class ProfileMetaRow extends StatelessWidget {
           SizedBox(width: 16.w),
           const AppUsageBadge(),
         ],
+        // Data used, counted on this device (DataUsageMeter), so it shows
+        // signed in or not. Ray, 2026-11-06: time in the app was here,
+        // data used was not.
+        SizedBox(width: 8.w),
+        const DataUsageBadge(),
       ],
     );
   }

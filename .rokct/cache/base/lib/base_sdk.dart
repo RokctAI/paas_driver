@@ -41,6 +41,7 @@ export 'src/presentation/theme/app_theme.dart';
 
 // Shared presentation components (generic, no feature-SDK logic — ADR-005)
 export 'src/presentation/components/glance_card.dart';
+export 'src/presentation/components/expandable_content.dart';
 export 'src/presentation/components/blur_wrap.dart';
 export 'src/presentation/components/return_to_launcher_scope.dart';
 export 'src/presentation/components/user_avatar.dart';
@@ -105,6 +106,8 @@ export 'src/presentation/pages/profile/profile_section_navigator.dart';
 export 'src/presentation/pages/profile/profile_section_registry.dart';
 export 'src/presentation/pages/profile/widgets/app_usage_badge.dart';
 export 'src/presentation/pages/profile/widgets/base_profile_footer.dart';
+export 'src/presentation/pages/profile/widgets/data_usage_badge.dart';
+export 'src/services/data_usage_meter.dart';
 export 'src/presentation/pages/profile/widgets/base_wallet_card.dart';
 export 'src/presentation/pages/profile/widgets/profile_actions_section.dart';
 export 'src/presentation/pages/profile/widgets/profile_nav_tile.dart';
@@ -116,6 +119,7 @@ export 'src/presentation/pages/profile/widgets/profile_theme_toggle.dart';
 export 'src/services/app_connectivity.dart';
 export 'src/services/load_silence.dart';
 export 'src/services/app_ui_keys.dart';
+export 'src/services/route_memory.dart';
 export 'src/services/customer_cart_store.dart';
 export 'src/services/error_presenter.dart';
 export 'src/services/telemetry.dart';
