@@ -1,6 +1,6 @@
 name: auth_sdk
 description: "auth_sdk - extracted from paas_customer (refork 2026-07-11)."
-version: 1.22.2
+version: 1.22.3
 publish_to: 'none'
 environment:
   sdk: '>=3.10.0 <4.0.0'
@@ -54,3 +54,10 @@ dependency_overrides:
   # hosts). Standalone-only: lets this package's tests compile; composed
   # apps resolve from their own root and never see this override.
   google_fonts: ^6.3.3
+  # Same pins as the app template (base_sdk templates/pubspec.yaml), so code
+  # generation in a composed SDK cache resolves what the app builds with.
+  # Without them the cache floats to sqlite3 3.x, whose build hook downloads
+  # a native library from GitHub at codegen time; when that download fails
+  # the generated files are missing and the app does not compile.
+  drift: 2.31.0
+  sqlite3: 2.9.4

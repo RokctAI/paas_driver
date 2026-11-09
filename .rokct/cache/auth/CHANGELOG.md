@@ -1,3 +1,7 @@
+## 1.22.3
+
+* fix(codegen): pin drift 2.31.0 and sqlite3 2.9.4 in the standalone overrides, the same as the app template, so code generation in a composed SDK cache no longer pulls sqlite3 3.x, whose build hook downloads a native library from GitHub. That download timing out (HTTP 504) left the generated files missing and broke the Sticks Android build.
+
 ## 1.22.2
 
 * fix(login_page): black gradient fading up from the bottom behind the Login/Register buttons on compact screens, so Register reads over busy splash artwork.

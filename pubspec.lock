@@ -127,7 +127,7 @@ packages:
       path: ".rokct/cache/auth"
       relative: true
     source: path
-    version: "1.22.2"
+    version: "1.22.3"
   auto_route:
     dependency: "direct main"
     description:
