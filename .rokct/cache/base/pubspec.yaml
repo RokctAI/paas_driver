@@ -1,6 +1,6 @@
 name: base_sdk
 description: "base_sdk - extracted from paas_customer (refork 2026-07-11)."
-version: 1.104.0
+version: 1.107.0
 publish_to: 'none'
 environment:
   sdk: '>=3.10.0 <4.0.0'
@@ -58,6 +58,10 @@ dependencies:
   shimmer: ^2.0.0
   top_snackbar_flutter: ^3.1.0
   webview_flutter: ^4.10.0
+  # Opens the backend's update link on the update-required page.
+  url_launcher: ^6.3.0
+  # Native store review sheet, used only when STORE_LISTED is set.
+  in_app_review: ^2.0.9
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -254,20 +254,6 @@ class _CoachMarkState extends State<_CoachMark> {
           ),
           if (rect != null)
             Positioned(
-              left: arrowX - _arrowHalf,
-              width: _arrowHalf * 2,
-              top: placeBelow ? hole!.bottom + _gap - _arrowHeight : null,
-              bottom: placeBelow ? null : size.height - hole!.top + _gap - _arrowHeight,
-              height: _arrowHeight + 1,
-              child: IgnorePointer(
-                child: CustomPaint(
-                  key: const ValueKey('guide.arrow'),
-                  painter: _ArrowPainter(color: card, up: placeBelow),
-                ),
-              ),
-            ),
-          if (rect != null)
-            Positioned(
               left: 16,
               right: 16,
               top: placeBelow ? hole!.bottom + _gap : null,
@@ -312,6 +298,23 @@ class _CoachMarkState extends State<_CoachMark> {
                 ),
               ),
             ),
+          // Drawn after the bubble, so the bubble's shadow can't lay a dark
+          // line across the arrow's base (Ray, 2026-11-08: "there is a little
+          // gap in between"); its base runs into the bubble to join it.
+          if (rect != null)
+            Positioned(
+              left: arrowX - _arrowHalf,
+              width: _arrowHalf * 2,
+              top: placeBelow ? hole!.bottom + _gap - _arrowHeight : null,
+              bottom: placeBelow ? null : size.height - hole!.top + _gap - _arrowHeight,
+              height: _arrowHeight + _arrowOverlap,
+              child: IgnorePointer(
+                child: CustomPaint(
+                  key: const ValueKey('guide.arrow'),
+                  painter: _ArrowPainter(color: card, up: placeBelow),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -325,6 +328,9 @@ const double _spotPad = 6;
 const double _gap = 14;
 const double _arrowHalf = 10;
 const double _arrowHeight = 10;
+
+/// How far the arrow's base reaches into the bubble.
+const double _arrowOverlap = 3;
 
 /// Dims the screen except a rounded hole around the anchor, and rings the
 /// hole so it reads as "this one".
@@ -368,17 +374,23 @@ class _ArrowPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final w = size.width, h = size.height;
+    // The triangle is [_arrowHeight] tall; the rest of the box, on the
+    // bubble's side, is a strip that lies on the bubble and joins the two.
+    final w = size.width, h = size.height, a = _arrowHeight;
     final path = up
         ? (Path()
-          ..moveTo(0, h)
+          ..moveTo(0, a)
           ..lineTo(w / 2, 0)
+          ..lineTo(w, a)
           ..lineTo(w, h)
+          ..lineTo(0, h)
           ..close())
         : (Path()
-          ..moveTo(0, 0)
+          ..moveTo(0, h - a)
           ..lineTo(w / 2, h)
+          ..lineTo(w, h - a)
           ..lineTo(w, 0)
+          ..lineTo(0, 0)
           ..close());
     canvas.drawPath(path, Paint()..color = color);
   }

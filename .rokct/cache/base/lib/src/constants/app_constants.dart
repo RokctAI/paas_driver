@@ -32,6 +32,10 @@ abstract class AppConstants {
   /// until the backend says the shop may sync. Off everywhere else, so
   /// every other app drains its outbox exactly as before.
   static const bool freeLocalTier = bool.fromEnvironment('FREE_LOCAL_TIER');
+  /// Set by the build of an app that is listed in the App Store or Play Store
+  /// (`--dart-define=STORE_LISTED=true`). Off by default: the rating screen
+  /// keeps ratings of an unlisted app on the phone and never opens a store.
+  static const bool storeListed = bool.fromEnvironment('STORE_LISTED');
   static const bool isPhoneFirebase = true;
   static const int scheduleInterval = 60;
   /// Defaults to phone when SIGN_UP_TYPE isn't passed via --dart-define

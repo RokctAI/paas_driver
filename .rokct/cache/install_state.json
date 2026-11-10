@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.97.0",
+      "version": "1.107.0",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -106,7 +106,9 @@
         "assets/audio/tap.wav": "577a7e6beb2958269cc5daecb2529cad154ba9cebe5eff988530affb9aff5eb0",
         "assets/audio/wrong.wav": "a2352725dcffd5505dec676a26db5ef2f299cb5ae4340a91ecd1cef55637223f",
         "android/app/src/main/kotlin/com/app/demo/SessionHandoffActivity.kt": "3dd6b0050246ca766c13321dbb5d98702040f24698ab734fb20e7614b6e7c1ac",
-        "android/app/src/main/kotlin/com/app/demo/SessionHandoffBridge.kt": "dce4b6c62147bfce895c9cae5570b8c2c756229700fcfa2cd3dd2d08b43a53e0"
+        "android/app/src/main/kotlin/com/app/demo/SessionHandoffBridge.kt": "dce4b6c62147bfce895c9cae5570b8c2c756229700fcfa2cd3dd2d08b43a53e0",
+        "android/app/src/main/res/drawable/splash_no_icon.xml": "158735d7d563198af387803ad38ceda355e37bbc65924d36a499f12a4850f969",
+        "android/app/src/main/res/values-night/colors.xml": "7326730b7ad77f27409c3fac1737606fdaa3ba7733e738775f174d78fe18d4f3"
       },
       "routes": [
         {
@@ -1390,8 +1392,8 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.97.0",
-      "hash": "19adcf846a6174f4"
+      "version": "1.107.0",
+      "hash": "38c33a2b17d2b90e"
     },
     "comms": {
       "version": "1.23.4",

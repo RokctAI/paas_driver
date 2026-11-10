@@ -117,9 +117,12 @@ export 'src/presentation/pages/profile/widgets/profile_theme_toggle.dart';
 
 // Kernel services
 export 'src/services/app_connectivity.dart';
+export 'src/services/minimum_build.dart';
 export 'src/services/load_silence.dart';
 export 'src/services/app_ui_keys.dart';
 export 'src/services/route_memory.dart';
+export 'src/services/app_rating.dart';
+export 'src/presentation/components/app_rating_sheet.dart';
 export 'src/services/customer_cart_store.dart';
 export 'src/services/error_presenter.dart';
 export 'src/services/telemetry.dart';

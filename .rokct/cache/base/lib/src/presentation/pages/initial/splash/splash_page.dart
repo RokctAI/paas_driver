@@ -19,6 +19,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -33,8 +34,10 @@ import 'package:base_sdk/src/presentation/pages/initial/splash/folding_brand_nam
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/minimum_build.dart';
 import 'package:base_sdk/src/services/telemetry.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:base_sdk/src/services/warm_return.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
 
 @RoutePage()
@@ -52,8 +55,17 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   /// reason it is set is diagnostic detail and rides telemetry.
   String? _fallbackLine;
 
+  /// Non-null when the backend no longer serves this build: [build] shows
+  /// the update page in place of the splash (no route needed, so no shell
+  /// has to declare one).
+  UpdateRequired? _update;
+
   /// Guards the retry button against a second concurrent boot.
   bool _booting = false;
+
+  /// Coming back to the app, not a first open ([WarmReturn]): no artwork,
+  /// no pause, and no waiting on the network before the app shows.
+  late final bool _warm;
 
   /// Removes the native splash AND re-asserts the app's full-frame chrome.
   ///
@@ -78,6 +90,8 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   @override
   void initState() {
     super.initState();
+    _warm = WarmReturn.recent();
+    WarmReturn.watch();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _initializeApp();
     });
@@ -87,6 +101,10 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     if (_booting) return;
     _booting = true;
     try {
+      if (_warm) {
+        await _proceedWarm();
+        return;
+      }
       // Backend-triggered maintenance gate: the tenant's api_status
       // endpoint reports "maintenance" while the site's maintenance_mode
       // site_config flag is set (replaces the old compile-time isMaintain).
@@ -96,6 +114,21 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         _leaveSplash('maintenance', () {
           AppRoutes.I.replaceMaintenanceRoute(context);
         });
+        return;
+      }
+
+      // Minimum build: the same answer can say this build is too old.
+      final update = await MinimumBuild.check();
+      if (update != null) {
+        _report('update_required', 'build ${update.build} is below the minimum ${update.minBuild}', extra: {
+          'app': update.app,
+          'build': update.build,
+          'min_build': update.minBuild,
+          'has_update_url': update.url != null,
+        });
+        if (!mounted) return;
+        _removeSplash();
+        setState(() => _update = update);
         return;
       }
 
@@ -168,6 +201,9 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     _removeSplash();
     try {
       navigate();
+      // A real page is up: from now on, going to the background counts
+      // toward a quick return (not for the maintenance page).
+      if (destination != 'maintenance') WarmReturn.booted();
       return;
     } catch (e) {
       _report('splash_navigation_failed', e, extra: {'destination': destination});
@@ -282,9 +318,22 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     }
   }
 
-  Future<void> _proceedOffline() async {
-    // Add a small delay to show splash screen
-    await Future.delayed(const Duration(seconds: 2));
+  /// Back to the app within [WarmReturn.within]: straight to where the
+  /// person was, from what is stored. The backend is asked in the
+  /// background only, so queued work still drains when it answers; the
+  /// maintenance gate and fresh translations wait for the next first open.
+  Future<void> _proceedWarm() async {
+    unawaited(AppConnectivity.backendStatus().then((s) {
+      if (s == BackendStatus.up) SyncEngine().kick();
+    }).catchError((Object e) {
+      debugPrint('==> SplashPage: background backend check failed: $e');
+    }));
+    await _proceedOffline(pause: false);
+  }
+
+  Future<void> _proceedOffline({bool pause = true}) async {
+    // A short pause so a first open shows the splash; none on a return.
+    if (pause) await Future.delayed(const Duration(seconds: 2));
 
     // Check if user was previously logged in
     final token = LocalStorage.getToken();
@@ -321,6 +370,62 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     _leaveSplash('login', () {
       AppRoutes.I.replaceLoginRoute(context);
     });
+  }
+
+  /// The update page: one friendly line, Update when the backend gave a
+  /// link for this platform, and Try again (after updating elsewhere, or
+  /// once the backend lowers the minimum).
+  Widget _updatePage(BuildContext context, UpdateRequired update) {
+    final ink = AppStyle.inkFor(Theme.of(context).brightness);
+    final url = update.url;
+    return Scaffold(
+      key: const ValueKey('splash.update_required'),
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  AppHelpers.getTranslation(TrKeys.updateRequiredTitle),
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.bold, color: ink),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  AppHelpers.getTranslation(TrKeys.updateRequiredBrief),
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(fontSize: 15, color: ink),
+                ),
+                const SizedBox(height: 24),
+                if (url != null)
+                  FilledButton(
+                    key: const ValueKey('splash.update_required.update'),
+                    onPressed: () async {
+                      try {
+                        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                      } catch (e) {
+                        _report('update_link_failed', e);
+                      }
+                    },
+                    child: Text(AppHelpers.getTranslation(TrKeys.updateNow)),
+                  ),
+                TextButton(
+                  key: const ValueKey('splash.update_required.retry'),
+                  onPressed: () {
+                    setState(() => _update = null);
+                    unawaited(_initializeApp());
+                  },
+                  child: Text(AppHelpers.getTranslation(TrKeys.tryAgain), style: GoogleFonts.inter(fontSize: 15)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -374,6 +479,15 @@ class _SplashPageState extends ConsumerState<SplashPage> {
           ),
         ),
       );
+    }
+
+    final update = _update;
+    if (update != null) return _updatePage(context, update);
+
+    // A return to the app shows no splash artwork: only the app's own
+    // background for the moment it takes to open the page again.
+    if (_warm) {
+      return Scaffold(backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness));
     }
 
     // Adaptive splash: the phone-shaped splash image stretched edge-to-edge

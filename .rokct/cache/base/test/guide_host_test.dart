@@ -105,6 +105,29 @@ void main() {
     expect(find.byKey(const ValueKey('guide.arrow')), findsOneWidget);
   });
 
+  testWidgets('the arrow sits on top of the bubble and reaches into it',
+      (tester) async {
+    await tester.pumpWidget(_host(InMemoryGuideStore()));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump(const Duration(milliseconds: 200));
+    final arrow = find.byKey(const ValueKey('guide.arrow'));
+    final bubble = find.byWidgetPredicate((w) => w is Material && w.elevation == 6);
+    // Painted after the bubble, so the bubble's shadow can't draw a line
+    // between them (Ray, 2026-11-08: "a little gap in between").
+    final painted = <Element>[];
+    void walk(Element e) {
+      painted.add(e);
+      e.visitChildren(walk);
+    }
+    walk(tester.element(find.byType(Stack).last));
+    final arrowAt = painted.indexOf(tester.element(arrow));
+    final bubbleAt = painted.indexOf(tester.element(bubble));
+    expect(arrowAt, greaterThan(bubbleAt));
+    // And its box overlaps the bubble's edge, so no seam shows.
+    final a = tester.getRect(arrow), b = tester.getRect(bubble);
+    expect(a.intersect(b).height, greaterThan(1));
+  });
+
   testWidgets('Got it marks the step complete and removes the coach-mark',
       (tester) async {
     final store = InMemoryGuideStore();

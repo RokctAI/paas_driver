@@ -31,9 +31,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:base_sdk/src/application/splash/splash_notifier.dart';
+import 'package:base_sdk/src/services/app_connectivity.dart';
+import 'package:base_sdk/src/services/minimum_build.dart';
 import 'package:base_sdk/src/application/splash/splash_provider.dart';
 import 'package:base_sdk/src/domain/interface/settings.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
@@ -45,6 +49,7 @@ import 'package:base_sdk/src/presentation/pages/initial/splash/splash_page.dart'
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/storage_keys.dart';
 import 'package:base_sdk/src/services/telemetry.dart';
+import 'package:base_sdk/src/services/warm_return.dart';
 
 /// Stands in for the host's `_HostAppRoutes`: records every destination the
 /// boot path asks for, and throws exactly the way that generated class's
@@ -420,6 +425,173 @@ void main() {
 
       expect(routes.calls, contains('replaceMainRoute'));
       expect(routes.calls, isNot(contains('replaceLoginRoute')));
+    });
+  });
+
+  // Coming back to the app within half an hour (Ray, 2026-11-07): no
+  // splash artwork and no pause.
+  group('splash on a return to the app', () {
+    Future<void> boot(Map<String, Object> prefs) async {
+      SharedPreferences.setMockInitialValues(prefs);
+      await LocalStorage.init();
+    }
+
+    tearDown(WarmReturn.reset);
+
+    testWidgets('a return lands home at once and shows no artwork',
+        (tester) async {
+      await tester.runAsync(() async {
+        await boot(<String, Object>{StorageKeys.keyToken: 'token'});
+        await WarmReturn.mark(now: DateTime.now().subtract(const Duration(minutes: 5)));
+      });
+      final routes = _HostRoutesDouble();
+      AppRoutes.I = routes;
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            splashProvider.overrideWith((ref) => SplashNotifier(_DeadSettingsRepository())),
+          ],
+          child: ScreenUtilInit(
+            designSize: const Size(375, 812),
+            builder: (context, child) => const MaterialApp(home: SplashPage()),
+          ),
+        ),
+      );
+      // Nothing of the splash: no artwork, no name, no footer.
+      expect(find.byType(Image), findsNothing);
+      expect(find.byType(Text), findsNothing);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Well inside the 2s a first open waits.
+      expect(routes.calls, contains('replaceMainRoute'));
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(seconds: 5));
+      }
+    });
+
+    testWidgets('a first open still shows the splash', (tester) async {
+      await tester.runAsync(() async {
+        await boot(<String, Object>{StorageKeys.keyToken: 'token'});
+        await WarmReturn.mark(now: DateTime.now().subtract(const Duration(hours: 3)));
+      });
+      final routes = _HostRoutesDouble();
+      AppRoutes.I = routes;
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            splashProvider.overrideWith((ref) => SplashNotifier(_DeadSettingsRepository())),
+          ],
+          child: ScreenUtilInit(
+            designSize: const Size(375, 812),
+            builder: (context, child) => const MaterialApp(home: SplashPage()),
+          ),
+        ),
+      );
+      // The test window is wide, so the splash is the app's name.
+      expect(find.byType(Text), findsWidgets);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      for (var i = 0; i < 12; i++) {
+        await tester.pump(const Duration(seconds: 5));
+      }
+    });
+
+    testWidgets('only a finished boot counts; closing on purpose forgets',
+        (tester) async {
+      await tester.runAsync(() => boot(<String, Object>{}));
+      WarmReturn.watch();
+      // Put away while still on the splash: not a return later.
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
+      expect(WarmReturn.recent(), isFalse);
+
+      WarmReturn.booted();
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
+      expect(WarmReturn.recent(), isTrue);
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.detached);
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
+      expect(WarmReturn.recent(), isFalse);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    });
+
+    test('recent is true only within the window', () async {
+      await boot(<String, Object>{});
+      final now = DateTime(2026, 11, 7, 12);
+      expect(WarmReturn.recent(now: now), isFalse);
+      await WarmReturn.mark(now: now.subtract(const Duration(minutes: 29)));
+      expect(WarmReturn.recent(now: now), isTrue);
+      await WarmReturn.mark(now: now.subtract(const Duration(minutes: 31)));
+      expect(WarmReturn.recent(now: now), isFalse);
+      // A clock set back is not a return.
+      await WarmReturn.mark(now: now.add(const Duration(minutes: 5)));
+      expect(WarmReturn.recent(now: now), isFalse);
+    });
+  });
+
+  group('minimum build', () {
+    tearDown(() {
+      AppConnectivity.testClient = null;
+      MinimumBuild.reset();
+    });
+
+    /// The backend answers api_status with this build list.
+    void backendSays(Map<String, Object?> extra) {
+      AppConnectivity.testClient = MockClient((request) async => http.Response(
+            jsonEncode({
+              'message': {
+                'status_code': 200,
+                'data': {'status': 'ok', 'version': '15', 'user': 'Guest', ...extra},
+              },
+            }),
+            200,
+          ));
+      MinimumBuild.identity = () async => (keys: <String>['app.sticks.work'], build: 7);
+      MinimumBuild.platform = () => 'android';
+    }
+
+    testWidgets('a build below the minimum stops on the update page', (tester) async {
+      await tester.runAsync(() async {
+        SharedPreferences.setMockInitialValues(<String, Object>{});
+        await LocalStorage.init();
+      });
+      backendSays({
+        'min_builds': {'app.sticks.work': 9},
+        'update_urls': {'app.sticks.work': {'android': 'https://example.com/app.apk'}},
+      });
+      final routes = _HostRoutesDouble();
+      AppRoutes.I = routes;
+      await pumpSplash(tester, settings: _DeadSettingsRepository());
+
+      expect(find.byKey(const ValueKey('splash.update_required')), findsOneWidget);
+      expect(find.byKey(const ValueKey('splash.update_required.update')), findsOneWidget);
+      expect(find.byKey(const ValueKey('splash.update_required.retry')), findsOneWidget);
+      expect(routes.calls, isEmpty);
+      expectNoDiagnosticsOnScreen(tester);
+      final event = eventOfType('update_required');
+      expect(event, isNotNull);
+      final context = event!['context'] as Map<String, dynamic>;
+      expect(context['build'], 7);
+      expect(context['min_build'], 9);
+    });
+
+    testWidgets('a build at the minimum boots as usual', (tester) async {
+      await tester.runAsync(() async {
+        SharedPreferences.setMockInitialValues(<String, Object>{});
+        await LocalStorage.init();
+      });
+      backendSays({'min_builds': {'app.sticks.work': 7}});
+      final routes = _HostRoutesDouble();
+      AppRoutes.I = routes;
+      await pumpSplash(tester, settings: _DeadSettingsRepository());
+
+      expect(find.byKey(const ValueKey('splash.update_required')), findsNothing);
+      expect(routes.calls, isNotEmpty);
     });
   });
 }
