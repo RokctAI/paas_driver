@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.108.0
+
+- fix(rating): follow-up to 1.107.0 (core#420 review). In an app built with `STORE_LISTED=true` every rating now goes on to the store's review sheet, not only 4 and 5 stars: showing it only to happy raters is sentiment gating, which Google Play and Apple discourage. A rating under 4 stars also asks for a private note. `AppRating.offersStore` loses its `stars` argument and `storeThreshold` is replaced by `noteBelow` / `asksNote` (new in 1.107.0, STORE_LISTED off by default, so no app was using the old form). The splash page now calls `AppRating.flush()` once a real page is up, so a rating that could not be sent is retried at the next open. `pubspec.lock` gains `in_app_review`. Tests: `test/app_rating_test.dart`.
+
 ## 1.107.0
 
 - feat(rating): the app's own rating screen (Ray, 2026-11-09: apps need a review form that reaches the store when the app is listed; "if its not in app store it save the rating locally"). New `AppRating` (`lib/src/services/app_rating.dart`) and `AppRatingSheet` (`lib/src/presentation/components/app_rating_sheet.dart`), opened from a "Rate this app" link in `ProfileMetaRow` (`base_profile_footer.dart`). Neither store takes a custom review through an API, so a rating is kept on the phone and sent through the gateway (cmd `api.app_rating.submit_app_rating`, base_sdk frappe 1.11.0) when it can be; one that fails is sent by the next flush. Only 4 or 5 stars in an app built with `--dart-define=STORE_LISTED=true` (`AppConstants.storeListed`, off by default) goes on to the store's review sheet (`in_app_review`); lower ratings stay private. Additive: no existing manifest key, cmd or route changed, and apps not marked listed never open a store. New dependency `in_app_review`. Tests: `test/app_rating_test.dart`. Tour step, demo fixture and guide: see the PR.

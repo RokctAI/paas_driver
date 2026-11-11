@@ -39,12 +39,12 @@ void main() {
     await LocalStorage.init();
   });
 
-  test('the store step needs a listed app and 4+ stars', () {
-    expect(AppRating.offersStore(5, listed: true), isTrue);
-    expect(AppRating.offersStore(4, listed: true), isTrue);
-    expect(AppRating.offersStore(3, listed: true), isFalse);
-    expect(AppRating.offersStore(5, listed: false), isFalse);
-    expect(AppRating.offersStore(5), isFalse, reason: 'STORE_LISTED is off by default');
+  test('a listed app offers the store to every rating; low stars also ask for a note', () {
+    expect(AppRating.offersStore(listed: true), isTrue);
+    expect(AppRating.offersStore(listed: false), isFalse);
+    expect(AppRating.offersStore(), isFalse, reason: 'STORE_LISTED is off by default');
+    expect(AppRating.asksNote(3), isTrue);
+    expect(AppRating.asksNote(4), isFalse);
   });
 
   test('an unsent rating is kept and sent by the next flush', () async {

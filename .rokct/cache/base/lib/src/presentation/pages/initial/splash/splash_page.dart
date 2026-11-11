@@ -25,6 +25,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:base_sdk/src/application/splash/splash_provider.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:base_sdk/src/services/app_rating.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:base_sdk/src/navigation/signed_out_entry.dart';
@@ -203,7 +204,11 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       navigate();
       // A real page is up: from now on, going to the background counts
       // toward a quick return (not for the maintenance page).
-      if (destination != 'maintenance') WarmReturn.booted();
+      if (destination != 'maintenance') {
+        WarmReturn.booted();
+        // Send any rating that could not be sent when it was given.
+        unawaited(AppRating.flush());
+      }
       return;
     } catch (e) {
       _report('splash_navigation_failed', e, extra: {'destination': destination});

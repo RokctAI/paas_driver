@@ -30,21 +30,26 @@ import 'local_storage.dart';
 /// Neither store lets an app post a custom review, so this works in two steps.
 /// [save] keeps every rating on the phone (key [storageKey]) and sends it to
 /// the backend (cmd [cmd]) when it can; a rating that could not be sent waits
-/// and is sent by the next [flush]. Only a rating of [storeThreshold] stars or
-/// more, in an app marked listed ([AppConstants.storeListed]), goes on to the
-/// store's own review sheet ([openStore]). Lower ratings stay private.
+/// and is sent by the next [flush]. In an app marked listed
+/// ([AppConstants.storeListed]) every rating goes on to the store's own review
+/// sheet ([openStore]); a rating under [noteBelow] stars also asks for a
+/// private note, which stays with us.
 class AppRating {
   AppRating._();
 
   static const storageKey = 'app_rating.v1';
   static const cmd = 'api.app_rating.submit_app_rating';
 
-  /// Stars at which the store step is offered.
-  static const storeThreshold = 4;
+  /// Below this many stars the sheet also asks for a private note. Every
+  /// rating gets the store step in a listed app: showing it only to happy
+  /// raters is sentiment gating, which Google Play and Apple discourage.
+  static const noteBelow = 4;
 
-  /// Whether this rating gets the store step.
-  static bool offersStore(int stars, {bool? listed}) =>
-      (listed ?? AppConstants.storeListed) && stars >= storeThreshold;
+  /// Whether the sheet asks for a private note at this rating.
+  static bool asksNote(int stars) => stars < noteBelow;
+
+  /// Whether this rating goes on to the store step.
+  static bool offersStore({bool? listed}) => listed ?? AppConstants.storeListed;
 
   static List<Map<String, dynamic>> pending() {
     final raw = LocalStorage.getJson(storageKey)?['items'];

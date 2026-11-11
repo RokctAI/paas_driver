@@ -47,7 +47,7 @@ class _AppRatingSheetState extends State<AppRatingSheet> {
   }
 
   Future<void> _send() async {
-    final goStore = AppRating.offersStore(_stars);
+    final goStore = AppRating.offersStore();
     await AppRating.save(_stars, comment: _note.text.trim(), wentToStore: goStore);
     if (goStore) await AppRating.openStore();
     if (mounted) setState(() => _done = true);
@@ -75,7 +75,7 @@ class _AppRatingSheetState extends State<AppRatingSheet> {
                   ),
               ],
             ),
-            if (_stars > 0 && !AppRating.offersStore(_stars))
+            if (_stars > 0 && AppRating.asksNote(_stars))
               TextField(
                 key: const ValueKey('app_rating_note'),
                 controller: _note,
@@ -86,7 +86,7 @@ class _AppRatingSheetState extends State<AppRatingSheet> {
             FilledButton(
               key: const ValueKey('app_rating_send'),
               onPressed: _stars == 0 ? null : _send,
-              child: Text(t(AppRating.offersStore(_stars) ? TrKeys.rateInStore : TrKeys.sendFeedback)),
+              child: Text(t(AppRating.offersStore() ? TrKeys.rateInStore : TrKeys.sendFeedback)),
             ),
           ],
         ],

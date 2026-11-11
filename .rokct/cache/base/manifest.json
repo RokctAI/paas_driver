@@ -1,6 +1,7 @@
 {
   "name": "base_sdk",
-  "version": "1.107.0",
+  "version": "1.108.0",
+  "_comment_version_1_108_0": "1.107.0 -> 1.108.0: AppRating store step for every rating in a listed app, note below 4 stars, flush at splash (see CHANGELOG). No manifest key, cmd or route changed.",
   "_comment_version_1_107_0": "1.106.0 -> 1.107.0: AppRating and AppRatingSheet (see CHANGELOG); new dependency in_app_review. Off for the store step unless STORE_LISTED=true. No manifest key, cmd or route changed.",
   "_comment_version_1_104_0": "1.103.0 -> 1.104.0: ExpandableContent, a fold-with-fade and Show more for long content (see CHANGELOG). No install or integration change.",
   "_comment_version_1_103_0": "1.102.0 -> 1.103.0: FloatingNavInput.controller (a caller-owned draft for the floating composer). New RouteMemory (services/route_memory.dart, exported): templates/app_widget.dart attaches its AppRouter, the current url is kept in LocalStorage key route_memory.v1 with the time, and AppHelpers.goHome reopens a page kept less than 12 hours ago on top of home, once per run (skips /, /no-connection, /maintenance and sign-in paths). No manifest key, cmd or route changed.",
