@@ -54,6 +54,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(orderProvider);
+    final brightness = Theme.of(context).brightness;
     return state.isLoading
         ? const Loading()
         : SingleChildScrollView(
@@ -66,7 +67,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.r),
-                    color: AppStyle.cardDark,
+                    color: AppStyle.cardFor(Theme.of(context).brightness),
                   ),
                   padding: EdgeInsets.all(16.r),
                   child: Column(
@@ -106,7 +107,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
                                     Text(
                                       "${AppHelpers.getTranslation(TrKeys.note)}: ${state.order?.details?[index].note}",
                                       style: AppStyle.interRegular(
-                                          color: AppStyle.textPrimary,
+                                          color: AppStyle.inkFor(Theme.of(context).brightness),
                                           size: 14.sp,
                                           letterSpacing: -0.3),
                                     ),
@@ -115,28 +116,33 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
                             );
                           }),
                       _priceItem(
+                        brightness: brightness,
                         title: TrKeys.subtotal,
                         price: hasData
                             ? widget.order.originPrice
                             : state.order?.originPrice,
                       ),
                       _priceItem(
+                        brightness: brightness,
                         title: TrKeys.tax,
                         price: hasData ? widget.order.tax : state.order?.tax,
                       ),
                       _priceItem(
+                        brightness: brightness,
                         title: TrKeys.serviceFee,
                         price: hasData
                             ? widget.order.serviceFee
                             : state.order?.serviceFee,
                       ),
                       _priceItem(
+                        brightness: brightness,
                         title: TrKeys.deliveryFee,
                         price: hasData
                             ? widget.order.deliveryFee
                             : state.order?.deliveryFee,
                       ),
                       _priceItem(
+                        brightness: brightness,
                         isDiscount: true,
                         title: TrKeys.discount,
                         price: hasData
@@ -144,11 +150,13 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
                             : state.order?.totalDiscount,
                       ),
                       _priceItem(
+                        brightness: brightness,
                         isDiscount: true,
                         title: TrKeys.coupon,
                         price: state.order?.couponPrice,
                       ),
                       _priceItem(
+                        brightness: brightness,
                         isTotal: true,
                         title: TrKeys.total,
                         price: hasData
@@ -167,6 +175,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
   _priceItem({
     required String title,
     required num? price,
+    required Brightness brightness,
     bool isTotal = false,
     bool isDiscount = false,
   }) {
@@ -177,7 +186,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
               2.verticalSpace,
               // Was AppStyle.black at 40% - a near-black rule that is
               // invisible on the dark card this table now sits on.
-              Divider(color: AppStyle.strokeDark),
+              Divider(color: AppStyle.strokeFor(brightness)),
               2.verticalSpace,
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -189,7 +198,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
                         : AppStyle.interNormal(
                             size: 14.sp,
                             letterSpacing: -0.3,
-                            color: isDiscount ? AppStyle.red : AppStyle.textPrimary,
+                            color: isDiscount ? AppStyle.red : AppStyle.inkFor(brightness),
                           ),
                   ),
                   Text(
@@ -200,7 +209,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage> {
                         : AppStyle.interNormal(
                             size: 14.sp,
                             letterSpacing: -0.3,
-                            color: isDiscount ? AppStyle.red : AppStyle.textPrimary,
+                            color: isDiscount ? AppStyle.red : AppStyle.inkFor(brightness),
                           ),
                   )
                 ],

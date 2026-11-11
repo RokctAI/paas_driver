@@ -25,6 +25,7 @@ import 'package:delivery_sdk/src/driver/presentation/deposit/bank_deposit_sheet.
 import 'package:delivery_sdk/src/driver/presentation/deposit/deposit_grammar.dart';
 import 'package:delivery_sdk/src/driver/presentation/deposit/deposit_method_sheet.dart';
 import 'package:delivery_sdk/src/driver/presentation/deposit/deposit_status_page.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 /// The three surfaces of the driver's top-up, in order (frames 49g → 49h
 /// → 49i), started from any "Top up" the driver app draws: the wallet
@@ -63,9 +64,9 @@ abstract final class DriverDepositFlow {
     // emptier answer.
     if (destination == null) return;
 
-    AppHelpers.showCustomModalBottomSheet(
-      context: context,
-      isDarkMode: true,
+    DriverSheet.show(
+      context,
+      surface: false,
       modal: DepositMethodSheet(
         balance: state.balance,
         bankDepositsAccepted: destination.accepting,
@@ -128,9 +129,9 @@ abstract final class DriverDepositFlow {
         .join(' ');
     final reference = suggestedReference(fullName, now ?? DateTime.now());
 
-    AppHelpers.showCustomModalBottomSheet(
-      context: context,
-      isDarkMode: true,
+    DriverSheet.show(
+      context,
+      surface: false,
       modal: Consumer(
         builder: (sheetContext, ref, _) {
           final submitting = ref.watch(depositProvider).isSubmitting;

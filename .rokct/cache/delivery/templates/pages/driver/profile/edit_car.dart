@@ -167,6 +167,7 @@ class _EditCarState extends ConsumerState<EditCar> {
     state = ref.watch(profileEditProvider);
     stateImage = ref.watch(profileImageProvider);
     final vehicleTypeState = ref.watch(vehicleTypeProvider);
+    final brightness = Theme.of(context).brightness;
 
     final Widget body = KeyboardDisable(
       child: ListView(
@@ -180,7 +181,7 @@ class _EditCarState extends ConsumerState<EditCar> {
               children: [
                 TitleAndIcon(
                   title: AppHelpers.getTranslation(TrKeys.carSettings),
-                  titleColor: AppStyle.textPrimary,
+                  titleColor: AppStyle.inkFor(brightness),
                 ),
                 24.verticalSpace,
                 vehicleTypeState.when(
@@ -247,7 +248,7 @@ class _EditCarState extends ConsumerState<EditCar> {
                         ).toUpperCase(),
                         labelStyle: AppStyle.interNormal(
                           size: 14.sp,
-                          color: AppStyle.textPrimary,
+                          color: AppStyle.inkFor(brightness),
                         ),
                         contentPadding: REdgeInsets.symmetric(
                           horizontal: 0,
@@ -422,7 +423,7 @@ class _EditCarState extends ConsumerState<EditCar> {
               margin: EdgeInsets.all(16.r),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: AppStyle.strokeDark),
+                border: Border.all(color: AppStyle.strokeFor(brightness)),
               ),
               child: stateImage.carImageUrl == null
                   ? imagePath == null

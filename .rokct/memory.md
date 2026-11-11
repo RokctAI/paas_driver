@@ -26,3 +26,7 @@ read this file to check for past lessons or user preferences.
 is received).*
 
 * **[Date]** - [Lesson]
+
+## Safe ID
+
+noreply.26c12d

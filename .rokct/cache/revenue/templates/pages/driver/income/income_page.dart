@@ -172,7 +172,6 @@ class _IncomePageState extends ConsumerState<IncomePage>
   void _openNoBankAccountSheet() {
     AppHelpers.showCustomModalBottomSheet(
       context: context,
-      isDarkMode: true,
       modal: NoBankAccountSheet(
         available: _balance,
         onDismiss: () => Navigator.pop(context),
@@ -198,7 +197,6 @@ class _IncomePageState extends ConsumerState<IncomePage>
     final balanceBefore = _balance;
     AppHelpers.showCustomModalBottomSheet(
       context: context,
-      isDarkMode: true,
       modal: Consumer(
         builder: (context, ref, _) {
           final withdraw = ref.watch(withdrawProvider);
@@ -256,7 +254,6 @@ class _IncomePageState extends ConsumerState<IncomePage>
     }
     AppHelpers.showCustomModalBottomSheet(
       context: context,
-      isDarkMode: true,
       modal: PayoutSentSheet(
         balanceBefore: balanceBefore,
         amount: amount,

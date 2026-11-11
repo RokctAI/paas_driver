@@ -118,6 +118,7 @@ class DepositMethodSheet extends StatelessWidget {
                 : AppHelpers.getTranslation(
                     'card_top_up_is_not_available_in_this_app_yet'),
             enabled: cardAvailable,
+            brightness: Theme.of(context).brightness,
             onTap: onCard,
           ),
           10.verticalSpace,
@@ -131,6 +132,7 @@ class DepositMethodSheet extends StatelessWidget {
                 : AppHelpers.getTranslation(
                     'bank_deposits_are_not_being_accepted_right_now'),
             enabled: bankDepositsAccepted,
+            brightness: Theme.of(context).brightness,
             onTap: onBankDeposit,
           ),
           14.verticalSpace,
@@ -153,9 +155,12 @@ class DepositMethodSheet extends StatelessWidget {
     required String title,
     required String line,
     required bool enabled,
+    required Brightness brightness,
     required VoidCallback onTap,
   }) {
-    final Color fg = enabled ? AppStyle.textPrimary : AppStyle.textDarkFaint;
+    final Color fg = enabled
+        ? AppStyle.inkFor(brightness)
+        : AppStyle.faintFor(brightness);
     return GestureDetector(
       key: key,
       behavior: HitTestBehavior.opaque,
@@ -163,10 +168,12 @@ class DepositMethodSheet extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
         decoration: BoxDecoration(
-          color: AppStyle.cardDarkAlt,
+          color: AppStyle.cardAltFor(brightness),
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
-            color: enabled ? AppStyle.strokeDark : AppStyle.strokeDarkSubtle,
+            color: enabled
+                ? AppStyle.strokeFor(brightness)
+                : AppStyle.subtleStrokeFor(brightness),
           ),
         ),
         child: Row(
@@ -184,8 +191,8 @@ class DepositMethodSheet extends StatelessWidget {
                     style: AppStyle.interRegular(
                       size: 11.5,
                       color: enabled
-                          ? AppStyle.textDarkSecondary
-                          : AppStyle.textDarkFaint,
+                          ? AppStyle.secondaryInkFor(brightness)
+                          : AppStyle.faintFor(brightness),
                     ),
                   ),
                 ],

@@ -93,7 +93,6 @@ class _DepositApprovalsPageState extends ConsumerState<DepositApprovalsPage> {
   void _openReject(DepositRequestRecord request) {
     AppHelpers.showCustomModalBottomSheet(
       context: context,
-      isDarkMode: true,
       modal: Consumer(
         builder: (sheetContext, ref, _) {
           final resolving = ref.watch(depositApprovalsProvider).resolvingId;

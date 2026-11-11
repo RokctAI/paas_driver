@@ -22,6 +22,7 @@ import 'package:map_launcher/map_launcher.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:delivery_sdk/src/driver/application/order/order_provider.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 import 'package:${package}/presentation/component/maps_list.dart';
 
@@ -435,8 +436,9 @@ class OrderItem extends StatelessWidget {
                       IconButton(
                         padding: EdgeInsets.symmetric(horizontal: 6.w),
                         onPressed: () async {
-                          AppHelpers.showCustomModalBottomSheet(
-                            context: context,
+                          DriverSheet.show(
+                            context,
+                            surface: true,
                             modal: MapsList(
                               location: Coords(
                                 double.tryParse(
@@ -450,7 +452,6 @@ class OrderItem extends StatelessWidget {
                               ),
                               title: "Shop",
                             ),
-                            isDarkMode: false,
                           );
                         },
                         icon: Icon(Remix.map_2_fill, size: 18.r),
@@ -642,8 +643,9 @@ class OrderItem extends StatelessWidget {
                         IconButton(
                           padding: EdgeInsets.symmetric(horizontal: 6.w),
                           onPressed: () {
-                            AppHelpers.showCustomModalBottomSheet(
-                              context: context,
+                            DriverSheet.show(
+                              context,
+                              surface: true,
                               modal: MapsList(
                                 location: Coords(
                                   double.tryParse(
@@ -657,7 +659,6 @@ class OrderItem extends StatelessWidget {
                                 ),
                                 title: "User",
                               ),
-                              isDarkMode: false,
                             );
                           },
                           icon: Icon(Remix.map_2_fill, size: 18.r),

@@ -26,6 +26,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
 import 'package:${package}/presentation/component/maps_list.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'package:${package}/presentation/pages/home/widgets/approve_dialog.dart';
@@ -47,10 +48,9 @@ class ParcelBottomSheetScreen extends StatelessWidget {
           context: context,
           parcelId: parcel?.id,
         );
-    AppHelpers.showCustomModalBottomSheet(
-      context: context,
+    DriverSheet.show(
+      context,
       modal: RateCustomer(parcel: parcel),
-      isDarkMode: false,
     );
   }
 
@@ -237,8 +237,8 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                           horizontal: 6.w,
                                         ),
                                         onPressed: () async {
-                                          AppHelpers.showCustomModalBottomSheet(
-                                            context: context,
+                                          DriverSheet.show(
+                                            context,
                                             modal: MapsList(
                                               location: Coords(
                                                 parcel?.addressFrom?.latitude ??
@@ -250,7 +250,6 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                               ),
                                               title: "A",
                                             ),
-                                            isDarkMode: false,
                                           );
                                         },
                                         icon: Icon(
@@ -365,8 +364,8 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                             horizontal: 6.w,
                                           ),
                                           onPressed: () {
-                                            AppHelpers.showCustomModalBottomSheet(
-                                              context: context,
+                                            DriverSheet.show(
+                                              context,
                                               modal: MapsList(
                                                 location: Coords(
                                                   parcel?.addressTo?.latitude ??
@@ -378,7 +377,6 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                                 ),
                                                 title: "B",
                                               ),
-                                              isDarkMode: false,
                                             );
                                           },
                                           icon: Icon(
