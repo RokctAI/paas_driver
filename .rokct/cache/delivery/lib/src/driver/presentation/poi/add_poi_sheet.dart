@@ -72,6 +72,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:delivery_sdk/src/driver/application/poi/poi_provider.dart';
 import 'package:delivery_sdk/src/driver/application/poi/poi_state.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/driver_poi.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 class AddPoiSheet extends ConsumerStatefulWidget {
   const AddPoiSheet({super.key, this.shop, this.onFiled});
@@ -93,9 +94,8 @@ class AddPoiSheet extends ConsumerStatefulWidget {
     String? shop,
     void Function(DriverPoi point)? onFiled,
   }) {
-    AppHelpers.showCustomModalBottomSheet(
-      context: context,
-      isDarkMode: (Theme.of(context).brightness == Brightness.dark),
+    DriverSheet.show(
+      context,
       modal: AddPoiSheet(shop: shop, onFiled: onFiled),
     );
   }

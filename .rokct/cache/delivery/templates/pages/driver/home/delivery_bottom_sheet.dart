@@ -33,6 +33,7 @@ import 'package:delivery_sdk/src/driver/infrastructure/services/courier_helpers.
 import 'package:delivery_sdk/src/driver/presentation/home/driver_root_nav.dart';
 import 'package:delivery_sdk/src/driver/presentation/widgets/cash_collection_sheet.dart';
 import 'package:delivery_sdk/src/driver/presentation/widgets/delivery_status_rail.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 class DeliverBottomSheetScreen extends StatefulWidget {
   final OrderDetailData order;
@@ -84,12 +85,12 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
           recipientAgeVerified: recipientAgeVerified,
         );
     Navigator.pop(context);
-    AppHelpers.showCustomModalBottomSheet(
-        context: context,
-        modal: RateCustomer(
-          order: widget.order,
-        ),
-        isDarkMode: false);
+    DriverSheet.show(
+      context,
+      modal: RateCustomer(
+        order: widget.order,
+      ),
+    );
   }
 
   /// 18+ orders only (cash-collection dialog precedent): the courier
@@ -171,9 +172,11 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
   /// shipped ones, untouched.
   void _showCashCollectionDialog(
       BuildContext context, WidgetRef ref, bool canConvertToCredit) {
-    AppHelpers.showCustomModalBottomSheet(
-      context: context,
-      isDarkMode: true,
+    // CashCollectionSheet paints its own opaque, theme-aware, top-rounded
+    // root, so the shared DriverSheetSurface is not applied.
+    DriverSheet.show(
+      context,
+      surface: false,
       modal: CashCollectionSheet(
         orderId: widget.order.id,
         expected: widget.order.totalPrice ?? 0,
@@ -215,7 +218,9 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
               : MediaQuery.sizeOf(context).height * 2 / 3,
           width: double.infinity,
           child: DraggableScrollableSheet(
-              initialChildSize: 0.2,
+              // Opens at half the full height (maxChildSize), so the order's
+              // header and actions clear the floating nav pill underneath.
+              initialChildSize: 0.5,
               maxChildSize: 1,
               minChildSize: 0.16,
               snap: true,
@@ -312,12 +317,12 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                                     title: AppHelpers.getTranslation(
                                         TrKeys.orderInformation),
                                     onPressed: () {
-                                      AppHelpers.showCustomModalBottomSheet(
-                                          context: context,
-                                          modal: FoodsPage(
-                                            order: widget.order,
-                                          ),
-                                          isDarkMode: false);
+                                      DriverSheet.show(
+                                        context,
+                                        modal: FoodsPage(
+                                          order: widget.order,
+                                        ),
+                                      );
                                     },
                                     background: AppStyle.transparent,
                                     borderColor: AppStyle.textPrimary,

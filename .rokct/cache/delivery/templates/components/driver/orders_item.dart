@@ -19,6 +19,7 @@ import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 import 'package:base_sdk/src/presentation/components/helper/shimmer.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -44,16 +45,15 @@ class OrdersItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        AppHelpers.showCustomModalBottomSheet(
+        DriverSheet.show(
+          context,
           paddingTop: MediaQuery.paddingOf(context).top,
-          context: context,
           radius: 12,
           modal: OrderDetail(
             isOrder: isOrder,
             order: order,
             isActiveButton: isActiveButton,
           ),
-          isDarkMode: true,
         );
       },
       child: Container(

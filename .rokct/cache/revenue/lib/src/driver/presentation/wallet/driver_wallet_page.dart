@@ -93,7 +93,6 @@ class _DriverWalletPageState extends ConsumerState<DriverWalletPage> {
   void _openWithdraw(num balance) {
     AppHelpers.showCustomModalBottomSheet(
       context: context,
-      isDarkMode: true,
       modal: Consumer(
         builder: (context, ref, _) {
           final withdraw = ref.watch(withdrawProvider);
