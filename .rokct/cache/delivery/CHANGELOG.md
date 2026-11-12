@@ -1,3 +1,8 @@
+## 1.30.2
+
+* fix(assets): the template marker (`templates/assets/images/marker.png`)
+  is now the blue driver pin, matching paas_driver. No Dart change.
+
 ## 1.30.1
 
 * feat(tour): the driver tour now shows every routed driver screen. New

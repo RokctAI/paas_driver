@@ -310,7 +310,7 @@
       ]
     },
     "delivery_sdk": {
-      "version": "1.30.1",
+      "version": "1.30.2",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "11db8e698632a6cee50e92a83fef8a494c4b55cf316bbaf6398f652460cb8dea",
         "lib/presentation/routes/delivery_adapters.dart": "cd22c591ae3179bcc44d95cead4ac89abddfecdc6217a8c316037890e13ecddc",
@@ -1435,8 +1435,8 @@
       "source_hash": "8ac730b21fd20357"
     },
     "delivery": {
-      "version": "1.30.1",
-      "source_hash": "9ffc2414e1531a15"
+      "version": "1.30.2",
+      "source_hash": "49d7e2cc67bb30e8"
     },
     "map": {
       "version": "1.5.1",
