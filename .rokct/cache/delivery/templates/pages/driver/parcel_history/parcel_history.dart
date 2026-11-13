@@ -74,7 +74,7 @@ class _ParcelHistoryPageState extends ConsumerState<ParcelHistoryPage> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      AppHelpers.getTranslation(TrKeys.orderHistory),
+                      AppHelpers.getTranslation(TrKeys.parcelHistory),
                       style: AppStyle.interSemi(size: 18.sp),
                     ),
                     // The key is only "There are"; the count and noun
@@ -83,7 +83,7 @@ class _ParcelHistoryPageState extends ConsumerState<ParcelHistoryPage> {
                     Text(
                       '${AppHelpers.getTranslation(TrKeys.thereAreOrders)} '
                       '${state.historyOrders.length} '
-                      '${AppHelpers.getTranslation(TrKeys.orders).toLowerCase()}',
+                      '${AppHelpers.getTranslation(TrKeys.parcels).toLowerCase()}',
                       style: AppStyle.interRegular(
                         size: 12.sp,
                         letterSpacing: -0.3,

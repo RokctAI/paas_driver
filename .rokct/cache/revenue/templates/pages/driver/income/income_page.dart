@@ -345,7 +345,9 @@ class _IncomePageState extends ConsumerState<IncomePage>
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: REdgeInsets.symmetric(horizontal: 16),
+            // The top gap keeps the last scrolled heading ("Statistics")
+            // from reading as cut off by the button (driver tour shot 14).
+            padding: REdgeInsets.only(left: 16, right: 16, top: 12),
             child: Row(
               children: [
                 Expanded(

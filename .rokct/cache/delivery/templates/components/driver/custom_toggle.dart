@@ -38,13 +38,33 @@ class CustomToggle extends StatefulWidget {
 class _CustomToggleState extends State<CustomToggle> {
   var controller = ValueNotifier<bool>(false);
 
+  /// True while the controller is being synced from [CustomToggle.isOnline],
+  /// so a parent-driven redraw (the settings fetch landing) does not fire
+  /// [CustomToggle.onChange] and flip the server flag back.
+  bool _syncing = false;
+
   @override
   void initState() {
     controller = ValueNotifier<bool>(widget.isOnline);
     controller.addListener(() {
+      if (_syncing) return;
       widget.onChange(controller.value);
     });
     super.initState();
+  }
+
+  // The flag arrives after the first frame (the settings fetch), so the
+  // initState copy alone left the switch on the cold Offline default
+  // (driver tour shot 05). Follow the parent's value when it changes.
+  @override
+  void didUpdateWidget(covariant CustomToggle oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isOnline != oldWidget.isOnline &&
+        widget.isOnline != controller.value) {
+      _syncing = true;
+      controller.value = widget.isOnline;
+      _syncing = false;
+    }
   }
 
   @override

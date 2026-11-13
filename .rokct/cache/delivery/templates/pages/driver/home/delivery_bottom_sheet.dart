@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -212,17 +214,27 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Consumer(builder: (context, ref, child) {
+        final sheetHeight = ref.watch(homeProvider).isGoUser
+            ? MediaQuery.sizeOf(context).height * 1.8 / 3
+            : MediaQuery.sizeOf(context).height * 2 / 3;
+        // The collapsed sheet must keep its header (status stepper) above
+        // the floating root tab pill; a flat 0.16 left it under the pill
+        // (driver tour shot 05).
+        final minSize = ((MediaQuery.paddingOf(context).bottom +
+                    driverRootNavClearance() +
+                    120.h) /
+                sheetHeight)
+            .clamp(0.16, 0.6)
+            .toDouble();
         return SizedBox(
-          height: ref.watch(homeProvider).isGoUser
-              ? MediaQuery.sizeOf(context).height * 1.8 / 3
-              : MediaQuery.sizeOf(context).height * 2 / 3,
+          height: sheetHeight,
           width: double.infinity,
           child: DraggableScrollableSheet(
               // Opens at half the full height (maxChildSize), so the order's
               // header and actions clear the floating nav pill underneath.
-              initialChildSize: 0.5,
+              initialChildSize: math.max(0.5, minSize),
               maxChildSize: 1,
-              minChildSize: 0.16,
+              minChildSize: minSize,
               snap: true,
               builder: (context, scrollController) => Container(
                     width: MediaQuery.sizeOf(context).width,

@@ -121,8 +121,9 @@ class _ParcelsPageState extends ConsumerState<ParcelsPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    // A parcel screen, not an orders one (driver tour).
                     Text(
-                      AppHelpers.getTranslation(TrKeys.orders),
+                      AppHelpers.getTranslation(TrKeys.parcels),
                       style: AppStyle.interSemi(size: 18.sp),
                     ),
                     Row(
@@ -138,7 +139,7 @@ class _ParcelsPageState extends ConsumerState<ParcelsPage>
                               AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
                         ),
                         Text(
-                          AppHelpers.getTranslation(TrKeys.orders).toLowerCase(),
+                          AppHelpers.getTranslation(TrKeys.parcels).toLowerCase(),
                           style:
                               AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
                         ),

@@ -1,3 +1,7 @@
+## 1.14.9
+
+- fix(driver income): header reads "Your earnings" (driver tr_key `yourEarnings`, English fallback in the template) instead of "Earnings of the restaurant"; a top gap above Withdraw so "Statistics" no longer reads as cut off.
+
 ## 1.14.8
 
 - fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").

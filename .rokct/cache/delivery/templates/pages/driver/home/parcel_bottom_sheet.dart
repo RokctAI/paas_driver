@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -137,15 +139,25 @@ class ParcelBottomSheetScreen extends StatelessWidget {
       alignment: Alignment.bottomCenter,
       child: Consumer(
         builder: (context, ref, child) {
+        final sheetHeight = ref.watch(homeProvider).isGoUser
+            ? MediaQuery.sizeOf(context).height * 1.8 / 3
+            : MediaQuery.sizeOf(context).height * 2 / 3;
+        // The collapsed sheet must keep its header (status stepper) above
+        // the floating root tab pill; a flat 0.16 left it under the pill
+        // (driver tour shot 05).
+        final minSize = ((MediaQuery.paddingOf(context).bottom +
+                    driverRootNavClearance() +
+                    120.h) /
+                sheetHeight)
+            .clamp(0.16, 0.6)
+            .toDouble();
           return SizedBox(
-            height: ref.watch(homeProvider).isGoUser
-                ? MediaQuery.sizeOf(context).height * 1.8 / 3
-                : MediaQuery.sizeOf(context).height * 2 / 3,
+            height: sheetHeight,
             width: double.infinity,
             child: DraggableScrollableSheet(
-              initialChildSize: 0.2,
+              initialChildSize: math.max(0.2, minSize),
               maxChildSize: 0.65,
-              minChildSize: 0.16,
+              minChildSize: minSize,
               snap: true,
               builder: (context, scrollController) => Container(
                 width: MediaQuery.sizeOf(context).width,

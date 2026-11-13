@@ -44,6 +44,7 @@ class TrKeys {
   static const String paymentCancelled = 'payment_cancelled';
   static const String deliverymanTransactions = 'deliveryman_transactions';
   static const String doneOrders = 'Done orders';
+  static const String yourEarnings = 'your_earnings';
   static const String asOf = 'as.of';
   static const String drawing = 'drawing';
   static const String points = 'points';

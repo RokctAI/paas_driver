@@ -1,3 +1,7 @@
+## 1.30.6
+
+- fix(driver): online toggle follows the settings fetch (CustomToggle synced only in initState, so demo stayed Offline); rating chip no longer clipped; job/parcel sheets collapse above the root tab pill; route header sized under SafeArea and list clears the pill; parcel screens say Parcels.
+
 ## 1.30.5
 
 - fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").

@@ -29,7 +29,12 @@ class DriverAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 70.r,
+      // The rating chip is wider than the 50-wide avatar that sizes the
+      // Stack; with the default hard-edge clip it was cut off (driver tour
+      // shot 05). Give it room and never clip it.
+      width: 72.r,
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           Container(
             height: 50.r,
@@ -52,6 +57,7 @@ class DriverAvatar extends StatelessWidget {
               ),
               padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 6.w),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     Remix.star_smile_fill,

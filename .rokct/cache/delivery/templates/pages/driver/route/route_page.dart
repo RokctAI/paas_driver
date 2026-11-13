@@ -86,9 +86,26 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
         children: [
           Column(
             children: [
-              CustomAppBar(
-                bottomPadding: 16.h,
-                child: Column(
+              // Was CustomAppBar: its FIXED 110 height holds the title, the
+              // route line and the chip row only by pushing the title up
+              // into the status bar ("My route" over the clock, driver
+              // tour). Same ground and corners, sized by its content under
+              // a SafeArea instead.
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: AppStyle.cardFor(Theme.of(context).brightness),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(16.r),
+                    bottomRight: Radius.circular(16.r),
+                  ),
+                ),
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                        left: 16.w, right: 16.w, top: 8.h, bottom: 16.h),
+                    child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -142,6 +159,8 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                     ),
                   ],
                 ),
+                  ),
+                ),
               ),
               if ((state.dispatchRoute?.notes ?? '').isNotEmpty)
                 Padding(
@@ -172,8 +191,11 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                                   left: 16.w,
                                   right: 16.w,
                                   top: 16.h,
+                                  // Clears the root tab pill so the last
+                                  // stop (stop 4 in the tour) is not under it.
                                   bottom:
-                                      MediaQuery.paddingOf(context).bottom + 72.h,
+                                      MediaQuery.paddingOf(context).bottom +
+                                      driverRootNavClearance(),
                                 ),
                                 physics: const AlwaysScrollableScrollPhysics(),
                                 itemCount: state.stops.length,

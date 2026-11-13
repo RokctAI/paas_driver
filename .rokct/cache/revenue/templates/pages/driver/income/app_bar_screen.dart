@@ -48,8 +48,18 @@ class AbbBarScreen extends StatelessWidget {
                     AppHelpers.getTranslation(TrKeys.income),
                     style: AppStyle.interSemi(size: 18),
                   ),
+                  // The driver's own earnings, not a restaurant's (the
+                  // manager wording leaked into the driver tour, shot 14).
                   Text(
-                    AppHelpers.getTranslation(TrKeys.earningsRestaurant),
+                    // English fallback: no translation row ships for this
+                    // key yet, and the raw key must never show.
+                    () {
+                      final String t =
+                          AppHelpers.getTranslation(TrKeys.yourEarnings);
+                      return (t.isEmpty || t == TrKeys.yourEarnings)
+                          ? 'Your earnings'
+                          : t;
+                    }(),
                     style: AppStyle.interRegular(size: 12, letterSpacing: -0.3),
                   ),
                 ],
