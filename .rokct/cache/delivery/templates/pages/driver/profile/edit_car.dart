@@ -43,6 +43,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/services/courier_helpers.dart';
 import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
+import 'package:base_sdk/src/presentation/components/loading.dart';
 class EditCar extends ConsumerStatefulWidget {
   const EditCar({super.key});
 
@@ -167,6 +168,7 @@ class _EditCarState extends ConsumerState<EditCar> {
     state = ref.watch(profileEditProvider);
     stateImage = ref.watch(profileImageProvider);
     final vehicleTypeState = ref.watch(vehicleTypeProvider);
+    final brightness = Theme.of(context).brightness;
 
     final Widget body = KeyboardDisable(
       child: ListView(
@@ -180,12 +182,12 @@ class _EditCarState extends ConsumerState<EditCar> {
               children: [
                 TitleAndIcon(
                   title: AppHelpers.getTranslation(TrKeys.carSettings),
-                  titleColor: AppStyle.textPrimary,
+                  titleColor: AppStyle.inkFor(brightness),
                 ),
                 24.verticalSpace,
                 vehicleTypeState.when(
                   loading: () =>
-                      const Center(child: CircularProgressIndicator()),
+                      const Loading(),
                   error: (msg) => Text(
                     'Error: $msg',
                     style: const TextStyle(color: Colors.red),
@@ -247,7 +249,7 @@ class _EditCarState extends ConsumerState<EditCar> {
                         ).toUpperCase(),
                         labelStyle: AppStyle.interNormal(
                           size: 14.sp,
-                          color: AppStyle.textPrimary,
+                          color: AppStyle.inkFor(brightness),
                         ),
                         contentPadding: REdgeInsets.symmetric(
                           horizontal: 0,
@@ -422,7 +424,7 @@ class _EditCarState extends ConsumerState<EditCar> {
               margin: EdgeInsets.all(16.r),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: AppStyle.strokeDark),
+                border: Border.all(color: AppStyle.strokeFor(brightness)),
               ),
               child: stateImage.carImageUrl == null
                   ? imagePath == null

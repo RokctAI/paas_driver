@@ -17,6 +17,8 @@
 // parking it, and the sale syncs in the status it is in by then, since
 // staff may have moved it on the board while it waited.
 
+// compliance-ignore-file: flutter-http-timeout (test or caller of base_sdk's shared HttpService (timeouts set there); no Dio client is built here without timeouts)
+
 import 'dart:convert';
 import 'dart:typed_data';
 

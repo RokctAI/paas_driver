@@ -13,16 +13,19 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:base_sdk/src/application/splash/splash_provider.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:base_sdk/src/services/app_rating.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:base_sdk/src/navigation/signed_out_entry.dart';
@@ -32,8 +35,10 @@ import 'package:base_sdk/src/presentation/pages/initial/splash/folding_brand_nam
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/minimum_build.dart';
 import 'package:base_sdk/src/services/telemetry.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:base_sdk/src/services/warm_return.dart';
 import 'package:base_sdk/src/sync/sync_engine.dart';
 
 @RoutePage()
@@ -51,8 +56,17 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   /// reason it is set is diagnostic detail and rides telemetry.
   String? _fallbackLine;
 
+  /// Non-null when the backend no longer serves this build: [build] shows
+  /// the update page in place of the splash (no route needed, so no shell
+  /// has to declare one).
+  UpdateRequired? _update;
+
   /// Guards the retry button against a second concurrent boot.
   bool _booting = false;
+
+  /// Coming back to the app, not a first open ([WarmReturn]): no artwork,
+  /// no pause, and no waiting on the network before the app shows.
+  late final bool _warm;
 
   /// Removes the native splash AND re-asserts the app's full-frame chrome.
   ///
@@ -77,6 +91,8 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   @override
   void initState() {
     super.initState();
+    _warm = WarmReturn.recent();
+    WarmReturn.watch();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _initializeApp();
     });
@@ -86,6 +102,10 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     if (_booting) return;
     _booting = true;
     try {
+      if (_warm) {
+        await _proceedWarm();
+        return;
+      }
       // Backend-triggered maintenance gate: the tenant's api_status
       // endpoint reports "maintenance" while the site's maintenance_mode
       // site_config flag is set (replaces the old compile-time isMaintain).
@@ -95,6 +115,21 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         _leaveSplash('maintenance', () {
           AppRoutes.I.replaceMaintenanceRoute(context);
         });
+        return;
+      }
+
+      // Minimum build: the same answer can say this build is too old.
+      final update = await MinimumBuild.check();
+      if (update != null) {
+        _report('update_required', 'build ${update.build} is below the minimum ${update.minBuild}', extra: {
+          'app': update.app,
+          'build': update.build,
+          'min_build': update.minBuild,
+          'has_update_url': update.url != null,
+        });
+        if (!mounted) return;
+        _removeSplash();
+        setState(() => _update = update);
         return;
       }
 
@@ -167,6 +202,13 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     _removeSplash();
     try {
       navigate();
+      // A real page is up: from now on, going to the background counts
+      // toward a quick return (not for the maintenance page).
+      if (destination != 'maintenance') {
+        WarmReturn.booted();
+        // Send any rating that could not be sent when it was given.
+        unawaited(AppRating.flush());
+      }
       return;
     } catch (e) {
       _report('splash_navigation_failed', e, extra: {'destination': destination});
@@ -281,9 +323,22 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     }
   }
 
-  Future<void> _proceedOffline() async {
-    // Add a small delay to show splash screen
-    await Future.delayed(const Duration(seconds: 2));
+  /// Back to the app within [WarmReturn.within]: straight to where the
+  /// person was, from what is stored. The backend is asked in the
+  /// background only, so queued work still drains when it answers; the
+  /// maintenance gate and fresh translations wait for the next first open.
+  Future<void> _proceedWarm() async {
+    unawaited(AppConnectivity.backendStatus().then((s) {
+      if (s == BackendStatus.up) SyncEngine().kick();
+    }).catchError((Object e) {
+      debugPrint('==> SplashPage: background backend check failed: $e');
+    }));
+    await _proceedOffline(pause: false);
+  }
+
+  Future<void> _proceedOffline({bool pause = true}) async {
+    // A short pause so a first open shows the splash; none on a return.
+    if (pause) await Future.delayed(const Duration(seconds: 2));
 
     // Check if user was previously logged in
     final token = LocalStorage.getToken();
@@ -320,6 +375,62 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     _leaveSplash('login', () {
       AppRoutes.I.replaceLoginRoute(context);
     });
+  }
+
+  /// The update page: one friendly line, Update when the backend gave a
+  /// link for this platform, and Try again (after updating elsewhere, or
+  /// once the backend lowers the minimum).
+  Widget _updatePage(BuildContext context, UpdateRequired update) {
+    final ink = AppStyle.inkFor(Theme.of(context).brightness);
+    final url = update.url;
+    return Scaffold(
+      key: const ValueKey('splash.update_required'),
+      backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  AppHelpers.getTranslation(TrKeys.updateRequiredTitle),
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.bold, color: ink),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  AppHelpers.getTranslation(TrKeys.updateRequiredBrief),
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(fontSize: 15, color: ink),
+                ),
+                const SizedBox(height: 24),
+                if (url != null)
+                  FilledButton(
+                    key: const ValueKey('splash.update_required.update'),
+                    onPressed: () async {
+                      try {
+                        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                      } catch (e) {
+                        _report('update_link_failed', e);
+                      }
+                    },
+                    child: Text(AppHelpers.getTranslation(TrKeys.updateNow)),
+                  ),
+                TextButton(
+                  key: const ValueKey('splash.update_required.retry'),
+                  onPressed: () {
+                    setState(() => _update = null);
+                    unawaited(_initializeApp());
+                  },
+                  child: Text(AppHelpers.getTranslation(TrKeys.tryAgain), style: GoogleFonts.inter(fontSize: 15)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -375,6 +486,15 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       );
     }
 
+    final update = _update;
+    if (update != null) return _updatePage(context, update);
+
+    // A return to the app shows no splash artwork: only the app's own
+    // background for the moment it takes to open the page again.
+    if (_warm) {
+      return Scaffold(backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness));
+    }
+
     // Adaptive splash: the phone-shaped splash image stretched edge-to-edge
     // across a wide (tablet/desktop) window looks bad (and per core#35 no
     // image belongs there at all), so only compact windows fill the screen
@@ -400,8 +520,8 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         fit: StackFit.expand,
         children: [
           Image.asset("assets/images/splash.png", fit: BoxFit.fill),
-          // The artwork does not follow the theme, so the line sits on a
-          // theme-coloured pill (see _PoweredBy).
+          // The artwork does not follow the theme, so the line takes its
+          // ink from the artwork's own bottom edge (see _PoweredBy).
           _poweredByFooter(onArtwork: true),
         ],
       ),
@@ -429,19 +549,46 @@ Widget _poweredByFooter({bool onArtwork = false}) => Positioned(
 /// Colour is the splash text's own ink ([AppStyle.inkFor]), so it flips with
 /// the theme like the wide-window name does. On the phone the splash is
 /// artwork that ignores the theme (base's is orange, an app's can be dark),
-/// so there the line sits on a [AppStyle.surfaceFor] pill: ink on surface
-/// reads in both modes on any artwork.
-class _PoweredBy extends StatelessWidget {
+/// so there the ink follows the artwork instead: the bottom strip of the
+/// splash image is sampled once, and the line is dark ink on a light strip
+/// and light ink on a dark one. No backing shape.
+class _PoweredBy extends StatefulWidget {
   const _PoweredBy({this.onArtwork = false});
 
-  /// True on the phone artwork, where the line gets its own pill.
+  /// True on the phone artwork, where the ink follows the image.
   final bool onArtwork;
 
   @override
+  State<_PoweredBy> createState() => _PoweredByState();
+}
+
+class _PoweredByState extends State<_PoweredBy> {
+  /// The artwork's brightness under the line, once sampled.
+  Brightness? _artwork;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.onArtwork) _sampleArtwork();
+  }
+
+  Future<void> _sampleArtwork() async {
+    try {
+      final brightness = await splashArtworkBrightness(
+        await rootBundle.load('assets/images/splash.png'),
+      );
+      if (mounted) setState(() => _artwork = brightness);
+    } catch (_) {
+      // No artwork or an undecodable one: keep the theme's ink.
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
-    final ink = AppStyle.inkFor(brightness);
-    final lines = Column(
+    // Light artwork reads like a light theme (dark ink) and dark artwork
+    // like a dark theme (light ink).
+    final ink = AppStyle.inkFor(_artwork ?? Theme.of(context).brightness);
+    return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
@@ -461,18 +608,40 @@ class _PoweredBy extends StatelessWidget {
         ),
       ],
     );
-    if (!onArtwork) return lines;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppStyle.surfaceFor(brightness),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: lines,
-      ),
-    );
   }
+}
+
+/// Whether the bottom eighth of a splash image, where "from ROKCT" sits, is
+/// light or dark. The image is decoded at 32 px wide (the splash is drawn
+/// with [BoxFit.fill], so its bottom edge is the screen's) and the strip's
+/// mean relative luminance decides.
+@visibleForTesting
+Future<Brightness> splashArtworkBrightness(ByteData data) async {
+  final codec = await ui.instantiateImageCodec(
+    data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+    targetWidth: 32,
+  );
+  final image = (await codec.getNextFrame()).image;
+  final pixels = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+  final width = image.width;
+  final height = image.height;
+  image.dispose();
+  if (pixels == null || width == 0 || height == 0) {
+    throw StateError('splash artwork has no pixels');
+  }
+  final firstRow = height - (height / 8).ceil();
+  var sum = 0.0;
+  var count = 0;
+  for (var y = firstRow; y < height; y++) {
+    for (var x = 0; x < width; x++) {
+      final i = (y * width + x) * 4;
+      sum += Color.fromARGB(255, pixels.getUint8(i), pixels.getUint8(i + 1),
+              pixels.getUint8(i + 2))
+          .computeLuminance();
+      count++;
+    }
+  }
+  return sum / count > 0.4 ? Brightness.light : Brightness.dark;
 }
 
 /// The wide-window boot brand: the app's display name "breathing" at the

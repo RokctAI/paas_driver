@@ -14,6 +14,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:base_sdk/src/presentation/components/loading.dart' show AppShimmer;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -38,7 +39,8 @@ class LoadingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
+    return AppShimmer(
+      child: ListView.builder(
       itemCount: itemCount,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -56,6 +58,7 @@ class LoadingList extends StatelessWidget {
           ),
         );
       },
+    ),
     );
   }
 }

@@ -14,6 +14,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:base_sdk/src/presentation/components/loading.dart' show AppShimmer;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
@@ -53,7 +54,8 @@ class LoadingGrid extends StatelessWidget {
     // theme mode" - the same defect, found here by the fleet audit).
     final Brightness brightness = Theme.of(context).brightness;
 
-    return AnimationLimiter(
+    return AppShimmer(
+      child: AnimationLimiter(
       child: GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: crossAxisCount,
@@ -88,6 +90,7 @@ class LoadingGrid extends StatelessWidget {
           );
         },
       ),
+    ),
     );
   }
 }

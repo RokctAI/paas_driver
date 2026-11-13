@@ -112,6 +112,7 @@ void main() {
       expect(CalcPad.kindOf('M+'), CalcKeyKind.memory);
       expect(CalcPad.kindOf('%'), CalcKeyKind.function);
       expect(CalcPad.kindOf('C'), CalcKeyKind.function);
+      // compliance-ignore: flutter-hardcoded-secret (false positive: this is a translation key, asset path or test fixture, not a credential)
       expect(CalcPad.kindOf('='), CalcKeyKind.operator);
       expect(CalcPad.kindOf('÷'), CalcKeyKind.operator);
     });

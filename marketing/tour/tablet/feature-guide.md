@@ -84,33 +84,60 @@ Parcels waiting nearby - add one to your run whenever it fits.
 Delivered parcels keep their own history, ready whenever you need the paper
 trail.
 
-## 13. Draw where you deliver
+## 13. Cash you owe, plain and simple
 
-![Draw where you deliver](screenshots/13-driver_delivery_zone.png)
+![Cash you owe, plain and simple](screenshots/13-driver_deposits.png)
+
+Your wallet balance and every deposit - approved, rejected or waiting - so you
+always know where the cash stands.
+
+## 14. The van, by the numbers
+
+![The van, by the numbers](screenshots/14-driver_load.png)
+
+The stock the shop handed you - issued, sold, returned and left on every line.
+
+## 15. Sell at the door
+
+![Sell at the door](screenshots/15-driver_load_sell.png)
+
+Pick what the customer takes and collect the cash at the load price - the van
+updates itself.
+
+## 16. Bring back what's left
+
+![Bring back what's left](screenshots/16-driver_load_return.png)
+
+Anything unsold goes back on the shop's books - return it before you close the
+load.
+
+## 17. Draw where you deliver
+
+![Draw where you deliver](screenshots/17-driver_delivery_zone.png)
 
 Your delivery zone on the map - redraw the outline whenever your patch changes,
 and dispatch follows.
 
-## 14. Money at a glance
+## 18. Money at a glance
 
-![Money at a glance](screenshots/14-revenue_income.png)
+![Money at a glance](screenshots/18-revenue_income.png)
 
 Today, this week or this month - every rand earned, charted day by day.
 
-## 15. A calculator, right where you work
+## 19. A calculator, right where you work
 
-![A calculator, right where you work](screenshots/15-calc_keypad.png)
+![A calculator, right where you work](screenshots/19-calc_keypad.png)
 
 Quick sums without switching apps - a full calculator built in.
 
-## 16. Your account at a glance
+## 20. Your account at a glance
 
-![Your account at a glance](screenshots/16-users_profile.png)
+![Your account at a glance](screenshots/20-users_profile.png)
 
 Your Driver account keeps all your details in one place.
 
-## 17. Keep your details fresh
+## 21. Keep your details fresh
 
-![Keep your details fresh](screenshots/17-users_profile_settings.png)
+![Keep your details fresh](screenshots/21-users_profile_settings.png)
 
 Update your name, phone, email any time they change.

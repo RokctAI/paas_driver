@@ -51,7 +51,12 @@ import 'package:lottie/lottie.dart' as lottie;
 
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
+import 'package:base_sdk/src/guide/guide_anchor.dart';
+import 'package:base_sdk/src/guide/guide_definition.dart';
+import 'package:base_sdk/src/guide/guide_host.dart';
 import 'package:map_sdk/src/common/di/map_di.dart';
+
+const GuideDefinition mapConfirmGuide = GuideDefinition(id: 'map.confirm', steps: [GuideStep(id: 'map.confirm.location', anchor: 'map.confirm.location', title: 'Confirm location', body: 'Tap here once the pin is where you want it.')]);
 
 @RoutePage()
 class ViewMapPage extends ConsumerStatefulWidget {
@@ -280,8 +285,12 @@ class _ViewMapPageState extends ConsumerState<ViewMapPage>
     super.initState();
   }
 
+  /// The page sits under its own GuideHost, so its coach-mark shows here only
+  /// and never in the app's MaterialApp builder.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => GuideHost(definition: mapConfirmGuide, child: _buildPage(context));
+
+  Widget _buildPage(BuildContext context) {
     final state = ref.watch(viewMapProvider);
     final bool isLtr = LocalStorage.getLangLtr();
     final bool isDarkMode = ref.watch(appProvider).isDarkMode;
@@ -635,7 +644,7 @@ class _ViewMapPageState extends ConsumerState<ViewMapPage>
                           Expanded(
                             child: Opacity(
                               opacity: state.isScrolling ? 0.5 : 1,
-                              child: CustomButton(
+                              child: GuideAnchor(id: 'map.confirm.location', child: CustomButton(
                                 isLoading: controller.text.isEmpty,
                                 title: AppHelpers.getTranslation(
                                   TrKeys.confirmLocation,
@@ -744,6 +753,7 @@ class _ViewMapPageState extends ConsumerState<ViewMapPage>
                                     );
                                   }
                                 },
+                              ),
                               ),
                             ),
                           ),

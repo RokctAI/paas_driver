@@ -38,7 +38,6 @@ class PhoneVerify extends ConsumerWidget {
   Widget build(BuildContext context, ref) {
     final event = ref.read(registerProvider.notifier);
     final state = ref.watch(registerProvider);
-    final bool isDarkMode = LocalStorage.getAppThemeMode();
     final bool isLtr = LocalStorage.getLangLtr();
     // A BuildContext lookup for the mode, not the app-wide AppStyle.isDark
     // static behind AppStyle.surfaceDark/textPrimary (Ray, 2026-09-19:
@@ -201,7 +200,7 @@ class PhoneVerify extends ConsumerWidget {
                                   confirmPassword: state.confirmPassword,
                                 ),
                               ),
-                              isDarkMode: isDarkMode,
+                              themedSurface: true,
                             );
                           });
                         }

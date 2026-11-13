@@ -80,7 +80,7 @@ class _AddCategoryModalState extends State<AddCategoryModal> {
                           paddingTop: MediaQuery.paddingOf(context).top + 100.h,
                           context: context,
                           modal: const FoodCategoriesModal(isSubCategory: true),
-                          isDarkMode: false,
+                          themedSurface: true,
                         ),
                       );
                     },

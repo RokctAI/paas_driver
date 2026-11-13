@@ -13,6 +13,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -61,8 +63,13 @@ class LocalNotifications {
 
   static Future<void> initialize() async {
     tz.initializeTimeZones();
+    // The small status-bar icon is the app's own white silhouette,
+    // res/drawable/notification_icon.png, which every app shell carries
+    // (base_sdk's Android template; FCM uses the same file). A full-colour
+    // launcher icon draws as a grey square there, so it is only the
+    // fallback for an app without the file.
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings(androidSmallIcon);
     const DarwinInitializationSettings initializationSettingsDarwin =
         DarwinInitializationSettings(
           requestAlertPermission: true,
@@ -81,34 +88,133 @@ class LocalNotifications {
           iOS: initializationSettingsDarwin,
           windows: initializationSettingsWindows,
         );
-    await _notificationsPlugin.initialize(initializationSettings);
+    try {
+      await _notificationsPlugin.initialize(initializationSettings);
+    } on PlatformException catch (e) {
+      if (e.code != 'invalid_icon') rethrow;
+      await _notificationsPlugin.initialize(
+        const InitializationSettings(
+          android: AndroidInitializationSettings(androidFallbackIcon),
+          iOS: initializationSettingsDarwin,
+          windows: initializationSettingsWindows,
+        ),
+      );
+    }
   }
+
+  /// The small icon every app shell ships in res/drawable.
+  static const String androidSmallIcon = '@drawable/notification_icon';
+  static const String androidFallbackIcon = '@mipmap/ic_launcher';
+
+  /// The channel [show] posts on. A new id (was `general_notifications`):
+  /// Android keeps a channel's importance from the first time it was made,
+  /// so a phone that once made the old one quieter never popped these down.
+  static const String alertsChannelId = 'alerts';
+
+  /// What [show] posts with on Android: high importance so the alert
+  /// slides down over the screen (heads-up) with sound and vibration,
+  /// marked as a message. Public for tests.
+  static const AndroidNotificationDetails alertDetails =
+      AndroidNotificationDetails(
+        alertsChannelId,
+        'Alerts',
+        channelDescription: 'Messages and things that need you',
+        importance: Importance.max,
+        priority: Priority.max,
+        category: AndroidNotificationCategory.message,
+        playSound: true,
+        enableVibration: true,
+      );
 
   /// Shows an immediate notification on any initialized platform
   /// (Android/iOS/Windows). Callers are expected to wrap this fail-open —
   /// it throws if [initialize] has not run on this platform.
+  ///
+  /// With [group] (any stable string, e.g. one per sender) Android stacks
+  /// every notification with the same group under one heading, [groupTitle]
+  /// (default: the group's first title), and a new alert does not replace
+  /// the earlier ones as long as the caller gives it its own [id]. iOS
+  /// groups by thread id and Windows ignores it.
   static Future<void> show({
     required int id,
     required String title,
     required String body,
+    String? group,
+    String? groupTitle,
   }) async {
+    if (group == null) {
+      await _notificationsPlugin.show(
+        id,
+        title,
+        body,
+        NotificationDetails(
+          android: alertDetails,
+          iOS: const DarwinNotificationDetails(),
+          windows: const WindowsNotificationDetails(),
+        ),
+      );
+      return;
+    }
     await _notificationsPlugin.show(
       id,
       title,
       body,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'general_notifications',
-          'Notifications',
-          channelDescription: 'General notifications',
-          importance: Importance.max,
-          priority: Priority.high,
-        ),
-        iOS: DarwinNotificationDetails(),
-        windows: WindowsNotificationDetails(),
+      NotificationDetails(
+        android: groupedDetails(group),
+        iOS: DarwinNotificationDetails(threadIdentifier: group),
+        windows: const WindowsNotificationDetails(),
       ),
     );
+    // The heading: one silent summary per group so Android folds the group
+    // even when it has fewer than four members. Android only: elsewhere the
+    // plugin would post it as a second toast or banner.
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+    await _notificationsPlugin.show(
+      summaryId(group),
+      groupTitle ?? title,
+      body,
+      NotificationDetails(android: summaryDetails(group)),
+    );
   }
+
+  /// Fixed id of a group's summary notification. Public for tests.
+  /// A fixed fold of the code units: String.hashCode may change between
+  /// runs or Dart versions, which would orphan an old summary.
+  static int summaryId(String group) {
+    var h = 17;
+    for (final c in group.codeUnits) {
+      h = (h * 31 + c) & 0x7fffffff;
+    }
+    return h;
+  }
+
+  /// [alertDetails] plus the group key. Public for tests.
+  static AndroidNotificationDetails groupedDetails(String group) =>
+      AndroidNotificationDetails(
+        alertsChannelId,
+        'Alerts',
+        channelDescription: 'Messages and things that need you',
+        importance: Importance.max,
+        priority: Priority.max,
+        category: AndroidNotificationCategory.message,
+        playSound: true,
+        enableVibration: true,
+        groupKey: group,
+      );
+
+  /// The group heading: silent, so only the member alert makes a sound.
+  static AndroidNotificationDetails summaryDetails(String group) =>
+      AndroidNotificationDetails(
+        alertsChannelId,
+        'Alerts',
+        channelDescription: 'Messages and things that need you',
+        importance: Importance.max,
+        priority: Priority.max,
+        groupKey: group,
+        setAsGroupSummary: true,
+        groupAlertBehavior: GroupAlertBehavior.children,
+        onlyAlertOnce: true,
+      );
 
   static Future<void> scheduleNotification({
     required int id,

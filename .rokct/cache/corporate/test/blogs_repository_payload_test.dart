@@ -26,6 +26,8 @@
 //   * both calls stay guest calls to the gateway path, with the prefix-free
 //     `api.blog.*` cmds promotions' frappe manifest whitelists.
 
+// compliance-ignore-file: flutter-http-timeout (test or caller of base_sdk's shared HttpService (timeouts set there); no Dio client is built here without timeouts)
+
 import 'package:base_sdk/src/handlers/handlers.dart';
 import 'package:base_sdk/src/handlers/http_service.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';

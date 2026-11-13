@@ -28,7 +28,9 @@ import 'package:base_sdk/src/presentation/components/floating_nav/floating_botto
 import 'package:base_sdk/src/presentation/components/keyboard_dismisser.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/components/title_icon.dart';
+import 'package:base_sdk/src/constants/demo_currency.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:orders_sdk/src/manager/application/order/create_order_provider.dart';
 import 'package:orders_sdk/src/manager/application/order/shipping/address/order/order_address_provider.dart';
@@ -157,7 +159,9 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
               right: 16.w,
               // Room under the last card for the floating row on the
               // phone route; the hosted pane docks the button below.
-              bottom: hosted ? 24.h : 140.h,
+              // Place order (48) + its two-line offline note + gaps sit
+              // over the foot; 140 clipped the Total row under them.
+              bottom: hosted ? 24.h : 200.h,
             ),
             child: Column(
               children: [
@@ -165,7 +169,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                   builder: (context, ref, child) {
                     return Container(
                       decoration: BoxDecoration(
-                        color: AppStyle.white,
+                        color: AppStyle.cardFor(Theme.of(context).brightness),
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       padding: REdgeInsets.only(
@@ -182,6 +186,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                           return Column(
                             children: [
                               TitleAndIcon(
+                                titleColor: AppStyle.inkFor(Theme.of(context).brightness),
                                 title: AppHelpers.getTranslation(
                                     TrKeys.deliveryTime),
                               ),
@@ -194,7 +199,10 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                                     AppHelpers.getTranslation(
                                         TrKeys.selectedTimeAndDay),
                                     style: AppStyle.interSemi(
-                                        size: 14.sp, letterSpacing: -0.3),
+                                        size: 14.sp,
+                                        letterSpacing: -0.3,
+                                        color: AppStyle.inkFor(
+                                            Theme.of(context).brightness)),
                                   ),
                                   GestureDetector(
                                     onTap: () =>
@@ -215,7 +223,10 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                                     child: Text(
                                       timeState.deliveryDate,
                                       style: AppStyle.interNormal(
-                                          size: 14.sp, letterSpacing: -0.3),
+                                          size: 14.sp,
+                                          letterSpacing: -0.3,
+                                          color: AppStyle.inkFor(
+                                              Theme.of(context).brightness)),
                                     ),
                                   ),
                                 ],
@@ -232,7 +243,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                     return Container(
                       margin: EdgeInsets.symmetric(vertical: 10.h),
                       decoration: BoxDecoration(
-                        color: AppStyle.white,
+                        color: AppStyle.cardFor(Theme.of(context).brightness),
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       padding: REdgeInsets.symmetric(
@@ -242,6 +253,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                       child: Column(
                         children: [
                           TitleAndIcon(
+                            titleColor: AppStyle.inkFor(Theme.of(context).brightness),
                             title: AppHelpers.getTranslation(TrKeys.payment),
                           ),
                           Consumer(
@@ -256,12 +268,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                                       height: 30.r,
                                       margin:
                                           REdgeInsets.symmetric(vertical: 20),
-                                      child: Center(
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 3.r,
-                                          color: AppStyle.primary,
-                                        ),
-                                      ),
+                                      child: const Loading(),
                                     )
                                   : ListView.builder(
                                       itemCount: paymentState.payments.length,
@@ -293,7 +300,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                   return Container(
                     margin: EdgeInsets.symmetric(vertical: 10.h),
                     decoration: BoxDecoration(
-                      color: AppStyle.white,
+                      color: AppStyle.cardFor(Theme.of(context).brightness),
                       borderRadius: BorderRadius.circular(10.r),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 24.h),
@@ -304,8 +311,12 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                                 child: TitleAndIcon(
+                                  titleColor: AppStyle.inkFor(Theme.of(context).brightness),
                                   title:
-                                      "${AppHelpers.getTranslation(TrKeys.payment)} - \$",
+                                      // The shop's currency (the stored one, or the demo's
+                                      // rand), never a hard-coded dollar.
+                                      "${AppHelpers.getTranslation(TrKeys.payment)} - "
+                                      "${(LocalStorage.getSelectedCurrency() ?? DemoCurrency.fallback)?.symbol ?? ''}",
                                 ),
                               ),
                               24.verticalSpace,
@@ -352,7 +363,10 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                                     size: 16, letterSpacing: -0.3),
                               ),
                               16.verticalSpace,
-                              Divider(color: AppStyle.shimmerBase),
+                              Divider(
+                                color: AppStyle.subtleStrokeFor(
+                                    Theme.of(context).brightness),
+                              ),
                               16.verticalSpace,
                               TitleAndPrice(
                                 title: AppHelpers.getTranslation(TrKeys.total),

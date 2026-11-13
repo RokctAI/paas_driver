@@ -88,7 +88,7 @@ class _AcceptedOrdersBodyState extends State<AcceptedOrdersBody> {
                             order: state.orders[index],
                             acceptedOrdersController: _refreshController,
                           ),
-                          isDarkMode: true,
+                          themedSurface: true,
                         ),
                       ),
                     )

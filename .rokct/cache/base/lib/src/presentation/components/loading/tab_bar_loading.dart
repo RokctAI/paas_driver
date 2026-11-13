@@ -14,6 +14,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:base_sdk/src/presentation/components/loading.dart' show AppShimmer;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -27,7 +28,8 @@ class TabBarLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return AppShimmer(
+      child: SizedBox(
       height: 36.r,
       child: ListView.builder(
         physics: const BouncingScrollPhysics(),
@@ -62,6 +64,7 @@ class TabBarLoading extends StatelessWidget {
                 );
         },
       ),
+    ),
     );
   }
 }

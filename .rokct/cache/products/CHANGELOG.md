@@ -1,3 +1,31 @@
+## 1.13.3
+
+- fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").
+
+## 1.13.2
+
+- fix(manager): the phone add-product sheet follows the app theme (`ModalWrap(themed: true)`, picture card on `cardFor`/`inkFor`, tab bar on theme ink). The white sheet in the dark app left the field labels nearly invisible.
+
+## 1.13.1
+
+- chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.
+
+## 1.13.0
+
+* feat(manager): the add-product form can open with a barcode prefilled, for merchants_sdk 1.38.0's till prompt on an unknown scan. `CreateProductModal.open(context, {barcode})` opens the form at any width: the bottom sheet on a phone, `ProductEditPage.openCreate` at plane widths. The foods tab's "+ New product" now calls it too (same behaviour as before). With a barcode the details form shows a Barcode field holding it (new tr_key `barcode`); it is saved the way the form already sent its code (`sku` on create).
+
+## 1.12.9
+
+* fix(tour): `product_detail` taps the second product card on wide screens. The catalog auto-selects the first product on load, so tapping that card again changed nothing and the tablet still repeated the menu byte for byte. No version bump (tour only).
+
+* fix(codegen): `json_serializable` dev dependency raised from `^6.8.0` to `^6.13.0`. A standalone build_runner of this SDK resolved json_serializable 6.11.4 against source_helper 1.4.0 and analyzer 10.2.0, which both define `toStringNonNullable` on `TypeParameterType`, so the build script did not compile (exit 78) and `product_state.freezed.dart` was never written. A host app that re-extracted this SDK (paas_customer, after the 1.12.8 bump) then failed to compile every `ProductState` getter. Checked locally: `flutter pub get` now resolves json_serializable 6.15.2 and `dart run build_runner build` writes `product_state.freezed.dart`.
+
+## 1.12.8
+
+* feat(tour): the products tour fragment gains `product_detail` (card tap; fills the detail plane on wide screens, a no-op on a phone), `quick_stock` (the Stock button's quick-adjust) and a close step. `ProductPage` is the customer marketplace's page, not a manager screen. No version bump (tour only).
+
+* chore(guide): version for the coach-mark guide mounted on this SDK's primary page (base_sdk GuideHost and GuideAnchor). The mount landed without a version change. Needs base_sdk >= 1.92.0.
+
 ## 1.12.7
 
 * fix(wiring): declare `EmbeddedWidgets.productScreen` (the product sheet), implemented by `ProductScreen`. Tapping a product in a shop or in search threw a `StateError` in the customer app, because no SDK declared it.
@@ -64,6 +92,10 @@
   mode instead of hardcoded light colours or static theme reads.
 
 # Changelog
+
+## Unreleased
+
+* fix(tour): `product_detail` only tapped `ProductCatalogCard` (the wide grid card). A phone draws `ProductCatalogTile`, so the tap never fired and the still repeated `menu` byte for byte. The step taps whichever is on screen and a new `product_detail_close` step pops the edit page a phone tap pushes. No version bump (tour only).
 
 ## 1.11.0
 

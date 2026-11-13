@@ -25,6 +25,8 @@ import 'package:orders_sdk/src/manager/infrastructure/models/data/collect_conver
 import 'package:orders_sdk/src/manager/infrastructure/models/data/order_calculate_data.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/response/create_order_response.dart';
 import 'package:orders_sdk/src/manager/infrastructure/repositories/seller_orders_repository.dart';
+import 'package:orders_sdk/src/manager/infrastructure/repositories/shop_drivers_repository.dart';
+import 'package:orders_sdk/src/manager/infrastructure/repositories/shop_loads_repository.dart';
 
 import 'support/demo_fixtures.dart';
 
@@ -148,11 +150,25 @@ void main() {
     expect(calc.data!.totalPrice, 175);
   });
 
-  test('empty lists for loads and the driver roster', () async {
-    expect(
-      await const PlatformGateway().tenant('api.order.load.get_shop_loads'),
-      isEmpty,
+  test('the POS section picker has sections to seat an order in', () async {
+    final body = await const PlatformGateway().tenant(
+      'api.seller_operations.get_seller_sections',
     );
+    expect((body as Map)['data'], hasLength(3));
+  });
+
+  test('loads and the driver roster: a stocked, fictional shop', () async {
+    final loads = ShopLoadsRepository();
+    final all = ok(await loads.getShopLoads());
+    expect(all, hasLength(3));
+    expect(ok(await loads.getShopLoads(status: 'open')), hasLength(2));
+    final closed = ok(await loads.getShopLoads(status: 'closed'));
+    expect(closed.single.isClosed, isTrue);
+    expect(closed.single.lines.every((l) => l.remainingQty == 0), isTrue);
+    expect(all.first.lines.first.product.title, 'Boerewors roll');
+    expect(all.first.varianceAmount, greaterThan(0));
+    expect(ok(await loads.listShopDeliverymen()), hasLength(3));
+    expect(ok(await ShopDriversRepository().listShopDrivers()), hasLength(2));
   });
 
   test(

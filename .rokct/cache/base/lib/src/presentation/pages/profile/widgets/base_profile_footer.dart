@@ -22,6 +22,8 @@ import 'package:remixicon/remixicon.dart';
 
 import 'package:base_sdk/src/presentation/pages/profile/profile_host_scope.dart';
 import 'package:base_sdk/src/presentation/pages/profile/widgets/app_usage_badge.dart';
+import 'package:base_sdk/src/presentation/pages/profile/widgets/data_usage_badge.dart';
+import 'package:base_sdk/src/presentation/components/app_rating_sheet.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_connectivity.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -171,6 +173,22 @@ class ProfileMetaRow extends StatelessWidget {
           SizedBox(width: 16.w),
           const AppUsageBadge(),
         ],
+        // Data used, counted on this device (DataUsageMeter), so it shows
+        // signed in or not. Ray, 2026-11-06: time in the app was here,
+        // data used was not.
+        SizedBox(width: 8.w),
+        const DataUsageBadge(),
+        // The app's own rating screen (see AppRating): a 4 or 5 goes on to the
+        // store's review sheet in a listed app, anything else stays private.
+        SizedBox(width: 8.w),
+        InkWell(
+          key: const ValueKey('profile_rate_app'),
+          onTap: () => AppRatingSheet.show(context),
+          child: Text(
+            AppHelpers.getTranslation(TrKeys.rateThisApp),
+            style: AppStyle.interBold(color: AppStyle.primary),
+          ),
+        ),
       ],
     );
   }

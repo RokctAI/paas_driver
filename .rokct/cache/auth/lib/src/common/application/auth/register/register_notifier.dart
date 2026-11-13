@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// compliance-ignore-file: auth-token-expiry (token expiry and refresh are handled centrally by base_sdk's TokenInterceptor and TokenRefreshService)
+
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'dart:async';
 
@@ -449,7 +451,6 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
   /// Shows the email-code sheet for an account [register] just created
   /// online. The sheet replaces the details form.
   void _askForEmailCode(BuildContext context) {
-    final isDarkMode = LocalStorage.getAppThemeMode();
     Navigator.pop(context);
     AppHelpers.showCustomModalBottomSheet(
       context: context,
@@ -462,7 +463,7 @@ class RegisterNotifier extends StateNotifier<RegisterState> {
           email: state.email,
         ),
       ),
-      isDarkMode: isDarkMode,
+      themedSurface: true,
     );
   }
 

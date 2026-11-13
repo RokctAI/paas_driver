@@ -52,6 +52,7 @@ import 'package:delivery_sdk/src/driver/infrastructure/models/data/driver_poi.da
 import 'package:delivery_sdk/src/driver/presentation/load/load_line_tiles.dart';
 import 'package:delivery_sdk/src/driver/presentation/load/load_missing_notice.dart';
 import 'package:delivery_sdk/src/driver/presentation/poi/poi_selector.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 class LoadSalePlane extends ConsumerStatefulWidget {
   const LoadSalePlane({super.key, this.loadOrder});
@@ -181,9 +182,8 @@ class _LoadSalePlaneState extends ConsumerState<LoadSalePlane> {
   /// carried the new remaining figures into the slice.
   void _showSold(DriverLoadSale sale) {
     final planeNavigator = Navigator.of(context);
-    AppHelpers.showCustomModalBottomSheet(
-      context: context,
-      isDarkMode: (Theme.of(context).brightness == Brightness.dark),
+    DriverSheet.show(
+      context,
       isDrag: false,
       isDismissible: false,
       modal: LoadSaleDoneSheet(

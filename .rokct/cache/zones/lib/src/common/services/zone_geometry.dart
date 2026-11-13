@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// compliance-ignore-file: obs-flutter-trace (no outgoing HTTP to our backend here (flagged by file name or an external download); backend calls go through base_sdk's HttpService, which registers TraceIdInterceptor)
+
 import 'dart:math' as math;
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';

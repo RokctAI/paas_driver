@@ -19,7 +19,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show AssetManifest, rootBundle;
 
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/demo_session.dart';
@@ -92,6 +92,7 @@ class DemoFixtures {
   /// Test seam: forgets every registration and restores the defaults.
   static void reset() {
     _directories.clear();
+    _manifestKeys = null;
     loader = _loadAsset;
     role = _storedRole;
   }
@@ -176,7 +177,23 @@ class DemoFixtures {
     }
   }
 
+  static Set<String>? _manifestKeys;
+
+  /// Reads one asset as text, or null when it is not bundled. The asset
+  /// manifest is consulted first: loading an absent key from the bundle
+  /// throws, and under `flutter test` that failure also escapes as an
+  /// uncaught async error (and can hang the test), so a lookup that walks
+  /// several registered directories must not provoke it.
   static Future<String?> _loadAsset(String key) async {
+    try {
+      final Set<String> keys = _manifestKeys ??=
+          (await AssetManifest.loadFromAssetBundle(rootBundle))
+              .listAssets()
+              .toSet();
+      if (!keys.contains(key)) return null;
+    } catch (_) {
+      // Manifest unreadable: fall through to the direct load below.
+    }
     try {
       return await rootBundle.loadString(key);
     } catch (_) {

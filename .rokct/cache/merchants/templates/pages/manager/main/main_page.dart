@@ -74,7 +74,16 @@ class _MainPageState extends State<MainPage> {
   // kitchen_sdk 1.3.0 frames 34a–34d); foods and the restaurant tab
   // shifted one right — the kitchen/products tour fragments track it.
   List<IndexedStackChild> list = [
-    IndexedStackChild(child: const BillingPage(), preload: true),
+    // "Add this product" on the till's unknown-barcode prompt opens
+    // products_sdk's add-product form with the scanned code prefilled
+    // (products_sdk >= 1.13.0).
+    IndexedStackChild(
+      child: BillingPage(
+        onAddUnknownProduct: (context, barcode) =>
+            CreateProductModal.open(context, barcode: barcode),
+      ),
+      preload: true,
+    ),
     IndexedStackChild(child: const OrdersHomePage(), preload: true),
     IndexedStackChild(child: const KitchenHomePage(), preload: false),
     IndexedStackChild(child: const FoodsPage(), preload: false),
@@ -443,7 +452,6 @@ class _MainPageState extends State<MainPage> {
       paddingTop: MediaQuery.of(context).padding.top + 64.h,
       context: context,
       modal: modal,
-      isDarkMode: false,
     );
   }
 

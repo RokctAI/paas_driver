@@ -31,20 +31,28 @@ class TitleAndPrice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Theme ink, not a fixed black: the walk-in cards follow the app's
+    // brightness (cardFor), so a fixed colour vanished on one of them.
+    final Color ink = AppStyle.inkFor(Theme.of(context).brightness);
     return Padding(
       padding: REdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: AppStyle.interRegular(
-              size: 16.sp,
-              color: AppStyle.blackColor,
-              letterSpacing: -0.3,
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppStyle.interRegular(
+                size: 16.sp,
+                color: ink,
+                letterSpacing: -0.3,
+              ),
             ),
           ),
-          Text(rightTitle, style: textStyle),
+          8.horizontalSpace,
+          Text(rightTitle, style: textStyle.copyWith(color: ink)),
         ],
       ),
     );

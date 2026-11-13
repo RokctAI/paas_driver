@@ -73,6 +73,9 @@ import 'package:base_sdk/src/presentation/components/return_to_launcher_scope.da
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:base_sdk/src/guide/guide_anchor.dart';
+import 'package:base_sdk/src/guide/guide_definition.dart';
+import 'package:base_sdk/src/guide/guide_host.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -83,6 +86,18 @@ import '../application/calculator/calculator_provider.dart';
 import 'widgets/calc_memory_bar.dart';
 import 'widgets/calc_pad.dart';
 import 'widgets/calc_tape_pane.dart';
+
+const GuideDefinition calcGuide = GuideDefinition(
+  id: 'calc.pad',
+  steps: [
+    GuideStep(
+      id: 'calc.pad.keys',
+      anchor: 'calc.pad',
+      title: 'Calculator',
+      body: 'Tap the keys to enter a number.',
+    ),
+  ],
+);
 
 /// The /calc screen. Lives in lib (not only in the installed template)
 /// so a composition can also embed it directly; the installed route
@@ -116,8 +131,15 @@ class CalculatorView extends ConsumerWidget {
   /// The claim (frame 45a). Two planes: tape, and display+pad.
   static const PlaneSpan span = PlaneSpan.two;
 
+  /// The page sits under its own GuideHost, so its coach-mark shows here only
+  /// and never in the app's MaterialApp builder.
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context, WidgetRef ref) => GuideHost(
+    definition: calcGuide,
+    child: _buildPage(context, ref),
+  );
+
+  Widget _buildPage(BuildContext context, WidgetRef ref) {
     return ReturnToLauncherScope(
       enabled: returnToLauncher,
       child: _screen(context),
@@ -245,7 +267,9 @@ class _PadColumn extends ConsumerWidget {
           CalcUseAmountButton(display: display),
         ],
         16.verticalSpace,
-        const Expanded(child: CalcPad()),
+        Expanded(
+          child: GuideAnchor(id: 'calc.pad', child: const CalcPad()),
+        ),
       ],
     );
   }
@@ -291,7 +315,9 @@ class _Fold extends ConsumerWidget {
             CalcUseAmountButton(display: display),
           ],
           12.verticalSpace,
-          Expanded(child: CalcPad(gap: 8.r)),
+          Expanded(
+            child: GuideAnchor(id: 'calc.pad', child: CalcPad(gap: 8.r)),
+          ),
           // Clearance for the corner back pill.
           64.verticalSpace,
         ],

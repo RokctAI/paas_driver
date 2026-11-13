@@ -223,3 +223,9 @@ steps:
     action: route
     route: /sync-issues
     settle: 6
+  - key: quick_flow
+    title: "Let the shop run itself"
+    caption: "Auto-accept incoming orders, auto-complete at Ready and dial products from the keypad - *quick flow* takes the repeat taps out of every order."
+    action: route
+    route: /quick-flow
+    settle: 6

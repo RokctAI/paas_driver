@@ -1260,6 +1260,7 @@ void main() {
 
     Future<void> pickThePlaceAndSell(
       WidgetTester tester, {
+      // compliance-ignore: flutter-hardcoded-secret (false positive: this is a translation key, asset path or test fixture, not a credential)
       String pointKey = 'poiRow-POI-FAR',
     }) async {
       await tester.tap(find.byKey(const Key('loadSalePoiOpen')));

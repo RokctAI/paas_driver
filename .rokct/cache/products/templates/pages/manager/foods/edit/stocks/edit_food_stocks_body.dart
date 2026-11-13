@@ -101,7 +101,7 @@ class _EditFoodStocksBodyState extends ConsumerState<EditFoodStocksBody> {
                               context: context,
                               radius: 12,
                               modal: EditGroupExtrasModal(groupIndex: index),
-                              isDarkMode: false,
+                              themedSurface: true,
                             );
                           },
                         ),
@@ -151,7 +151,7 @@ class _EditFoodStocksBodyState extends ConsumerState<EditFoodStocksBody> {
                             onSave: (addons) =>
                                 event.setStockAddons(addons, index),
                           ),
-                          isDarkMode: true,
+                          themedSurface: true,
                         ),
                         onSkuChange: (value) =>
                             event.setSku(value: value, index: index),

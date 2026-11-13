@@ -1,5 +1,110 @@
 # Changelog
 
+## 1.109.0
+
+- feat(loading): shimmers instead of spinners (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps"). `Loading` (`components/loading.dart`) now draws a shimmer placeholder: one bar in a small box such as a button, three skeleton lines with room. `LoadingList`, `LoadingGrid` and `TabBarLoading` shimmer too. New `AppShimmer` wrapper (theme-aware colours), exported from `base_sdk.dart` with `Loading`. Constructors unchanged, so every app using `Loading()` gets the shimmer with no edit. Tour, demo data and guide unchanged: loading states do not appear in tours (renders capture after data loads).
+
+## 1.108.2
+
+- fix(floating nav): a tap anywhere on the composer block (`FloatingNavInput`), not only on the text line, focuses the field and starts typing, while the input is enabled and no panel is open. Buttons in the block keep their own taps. Most of the diff in `floating_bottom_nav.dart` is `dart format` re-indentation around the new wrapper. Tests: `test/floating_nav_input_controller_test.dart`.
+
+## 1.108.1
+
+- chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.
+
+## 1.108.0
+
+- fix(rating): follow-up to 1.107.0 (core#420 review). In an app built with `STORE_LISTED=true` every rating now goes on to the store's review sheet, not only 4 and 5 stars: showing it only to happy raters is sentiment gating, which Google Play and Apple discourage. A rating under 4 stars also asks for a private note. `AppRating.offersStore` loses its `stars` argument and `storeThreshold` is replaced by `noteBelow` / `asksNote` (new in 1.107.0, STORE_LISTED off by default, so no app was using the old form). The splash page now calls `AppRating.flush()` once a real page is up, so a rating that could not be sent is retried at the next open. `pubspec.lock` gains `in_app_review`. Tests: `test/app_rating_test.dart`.
+
+## 1.107.0
+
+- feat(rating): the app's own rating screen (Ray, 2026-11-09: apps need a review form that reaches the store when the app is listed; "if its not in app store it save the rating locally"). New `AppRating` (`lib/src/services/app_rating.dart`) and `AppRatingSheet` (`lib/src/presentation/components/app_rating_sheet.dart`), opened from a "Rate this app" link in `ProfileMetaRow` (`base_profile_footer.dart`). Neither store takes a custom review through an API, so a rating is kept on the phone and sent through the gateway (cmd `api.app_rating.submit_app_rating`, base_sdk frappe 1.11.0) when it can be; one that fails is sent by the next flush. Only 4 or 5 stars in an app built with `--dart-define=STORE_LISTED=true` (`AppConstants.storeListed`, off by default) goes on to the store's review sheet (`in_app_review`); lower ratings stay private. Additive: no existing manifest key, cmd or route changed, and apps not marked listed never open a store. New dependency `in_app_review`. Tests: `test/app_rating_test.dart`. Tour step, demo fixture and guide: see the PR.
+
+## 1.106.0
+
+- feat(splash): minimum build, update required. The backend now sets the oldest app build it still serves (Ray, 2026-11-09: "minimum version will be said by backend"). The guest `api.system.api_status` answer may carry `min_builds` (per app, keyed by package name such as `app.sticks.work`, or the app's name; `*` covers every app) and `update_urls` (per app, one link or one per platform: `android`, `windows`, `ios`, `macos`, `linux`, `web`). A tenant site sets them with `bench set-config -p app_min_builds '{"app.sticks.work": 42}'` and `app_update_urls`. When the running build number is below its minimum, `SplashPage` shows an update page in place: one friendly line, Update (opens the link for this platform, http/https only) and Try again. It needs no new route, so no app shell has to declare one. The numbers go to telemetry (`update_required`), never to the screen. It fails open: no answer from the backend, no entry for the app, or a build number the app cannot read never blocks anyone. A quick return to the app (`WarmReturn`) skips the check until the next first open, like the maintenance gate. New `MinimumBuild` and `UpdateRequired` (exported); `AppConnectivity.backendStatus` keeps the answer for it. Adds `url_launcher` (^6.3.0, already in the app template). Covered by `test/minimum_build_test.dart` and `test/splash_boot_test.dart`.
+
+## 1.105.0
+
+- fix(guide): the tip's arrow joins its bubble. It was drawn under the bubble, so the bubble's shadow laid a thin dark line across the arrow's base that read as a gap; it is now drawn on top, its base reaching 3 points into the bubble. Ray, 2026-11-08: "there is a little gap in between". Covered by `test/guide_host_test.dart`.
+- feat(splash): no splash when coming back to the app. Android may close an app in the background, and the next open used to show the whole splash again. `WarmReturn` (new, `lib/src/services/warm_return.dart`) notes the time whenever the app goes to the background, once this run's boot has reached a real page (an app put away while still on the splash is not counted, and swiping it away from recent apps forgets the time when Android reports it); when the app was open less than 30 minutes ago, `SplashPage` shows no artwork, does not pause, does not wait on the network and goes straight to where the person was (via `RouteMemory`). The backend check still runs in the background, so queued work drains; the maintenance gate and fresh translations wait for the next first open. Ray, 2026-11-07. Covered by `test/splash_boot_test.dart`.
+- fix(android template): Android 12 and later draw their own splash (a blank page with the app icon) before ours, so people saw two. The template's `values-v31` and `values-night-v31` launch themes now show no icon (`drawable/splash_no_icon.xml`) on `@color/splash_background` (`values/colors.xml`, and `values-night/colors.xml` for dark mode), so the system splash reads as the start of ours. App shells copy these files and set `splash_background` in both files to the main colour of their own light and dark splash images. Android 11 and older are unchanged: there the system already shows our splash image.
+
+## 1.104.0
+
+- `ExpandableContent` (new, exported). Long content folds at `collapsedHeight` (240 by default) with a fade at the bottom and "Show more"; opened, it shows in full with "Show less". Content that fits, or is under `slack` (48) past the limit, is left as it is with no button. The fade masks the content itself, so it works on any bubble colour. Ray, 2026-11-06, showing the Claude app: long messages, above all ones that are not the latest, should not fill the screen. Any chat or long text in the fleet can wrap its body in it; agent_sdk's Sticks chats are the first. Covered by `test/expandable_content_test.dart`.
+- fix(navigation): `RouteMemory` builds with auto_route 10 as well as 9. App shells that resolve auto_route 10 failed to compile because a route's `children` is a list there, not a `RouteCollection`; the lookup now reads either. This broke the Sticks APK and Windows builds on 2026-11-06.
+
+## 1.103.0
+
+* feat(navigation): `RouteMemory` brings every app back to the page it was on after Android closed it in the background (Ray: "this needs to benefit our whole fleet"). The app shell template (`templates/app_widget.dart`) attaches its router, the current page's address is kept with the time as the person moves around, and after the splash lands home (`AppHelpers.goHome`) a page left less than 12 hours ago is reopened on top of home, once per run. Splash, no-connection, maintenance and sign-in pages are never kept. Every composed app gets it on its next build; no app shell change is needed.
+* feat(floating-nav): `FloatingNavInput.controller` (default null). A caller that must keep the typed text beyond the bar, such as a chat that keeps an unsent draft per conversation, passes its own `TextEditingController`; the bar shows it, sends from it, clears it on send and never disposes it. Without it the bar keeps its own as before.
+
+## 1.102.0
+
+* feat(floating-nav): `FloatingNavTab.marker` (default null) pins a small widget, such as a status dot or count, to the top right of a tab's icon in both indicator styles and the tablet rail. A page can put its signal on the nav instead of floating it over or under the pill. No change for tabs that do not pass it.
+
+## 1.101.0
+
+* feat(profile): the profile footer shows data used next to days in the app: "4.2 MB used today · 61 MB this month". Tapping it shows the Wi-Fi and mobile split. `DataUsageMeter` counts on the device what the app's own requests send and receive: `HttpService` clients count through `DataUsageInterceptor`, and a `package:http` client counts when wrapped in `MeteredHttpClient`. Bodies plus a 400-byte header allowance each way, so it reads a little under the phone's own data screen. Shown signed in or not.
+
+## 1.100.0
+
+* feat(guide): coach-marks now point at what they describe. The scrim is cut away around the step's anchor with a ring in the brand colour, and the bubble has a small arrow toward it. Taps are still blocked everywhere but the bubble's buttons. No API change: every app using `GuideHost` gets it.
+
+## 1.99.0
+
+* feat(modal): `ModalWrap` takes `themed` (default false). When true, its frosted fill follows the theme (`AppStyle.surfaceFor` for the current brightness, at the same 0.9 opacity) instead of white. Default off: every existing caller is unchanged. Callers opt in only after their body text and icons are theme-aware.
+
+## 1.98.0
+
+* feat(sheet): `AppHelpers.showCustomModalBottomSheet` takes `themedSurface` (default false). When true, the modal is painted on the theme-aware surface (`AppStyle.surfaceFor` for the current brightness, rounded by `radius`), so a sheet follows dark and light mode without its own surface. Default off: existing sheets are unchanged.
+* fix(sheet): `isDarkMode` is now optional and unused. The helper never read it; brightness comes from the theme. Existing callers that pass it still compile.
+
+## 1.97.0
+
+* feat(sync): `PlanAccess.planGatedVisible` (ValueNotifier, true by default). `PlanSyncGate` sets it from the sync answer (cached answer on start), so with no plan or the free plan screens that need a plan are hidden. `PlanAccess.gateProfileSections(ids)` declares plan-gated profile section ids (one call, no per-SDK code); `ProfileSectionRegistry.sections` leaves them out while the flag is false. Apps that never install the gate are unchanged.
+
+## 1.96.0
+
+* feat(sync): `AppConstants.freeLocalTier` (`--dart-define=FREE_LOCAL_TIER=true`). When set, `BaseSdkDependencies.register` installs `PlanSyncGate` (base_sdk 1.95.0) so shop data stays on the device until the backend's `get_sync_status` says the shop may sync. Default off: no existing app changes. Applies to any app built with the flag; first user is the ROKCT-branded free POS.
+
+## 1.95.0
+
+* feat(sync): `SyncEngine.pushGate`, an optional hook consulted at the start of every `kick()`. Null (default) leaves the engine unchanged; a gate answering false (or throwing) pushes nothing and leaves every op `pending` with no retry spent. New `PlanSyncGate` (lib/src/sync/plan_sync_gate.dart) asks the backend gateway cmd `api.seller_subscription.get_sync_status` (commerce#187), caches the answer on the device, keeps data local when there is neither an answer nor a cache, and installs itself on the engine. Local reads/writes, sign-up and sign-in never consult it. No app registers it by default, so existing apps are unaffected.
+
+## 1.94.3
+
+* fix(splash): the "from ROKCT" line on the phone splash no longer sits on a rounded surface-coloured pill. Its ink now follows the artwork: the bottom eighth of `assets/images/splash.png` is sampled once at 32 px wide, and the line is dark on a light strip and light on a dark one (the theme's ink until the sample is in, or if the image cannot be decoded). Test: `test/splash_footer_ink_test.dart`.
+
+## 1.94.2
+
+* fix(guide): `GuideAnchor` no longer throws "Duplicate GlobalKey detected in widget tree". It always wrapped its child in a `KeyedSubtree` holding the id's GlobalKey, even while guides are off, so any moment with two copies of one anchor mounted failed: the guided tour's `/login` to `/login` replace keeps the old and the new LoginPage (each with `auth.login.button`) alive through the transition (paas_manager tour run 40238903363, both legs, right after the welcome step). The anchor now attaches no key while `DemoSession.demoActive`, and outside demo only the first mounted anchor of an id holds the key; a later copy renders its child unkeyed and takes the key over after the owner is disposed, so a guide aimed at it still finds it. Tests in `test/guide_host_test.dart`.
+
+## 1.94.1
+
+* fix(tour): `BlurWrap` skips its `BackdropFilter` in the guided-tour build (`AppConstants.isTour`, the compile-time `TOUR_MODE` flag), and `PopButton`'s pill goes from a 30% to a 72% fill there so it still reads without the blur. The tour's emulator renders through SwiftShader, and a backdrop blur over a still-animating route crashed the emulator itself (qemu SIGSEGV): first on paas_customer's category results page (worked around in commerce#185), then on its search page (tour run 40238523901). Production builds keep the blur. Test: `test/blur_wrap_tour_test.dart`.
+
+## 1.94.0
+
+* feat(templates): base_sdk's Android launcher icons are neutral. `templates/android/app/src/main/res/mipmap-*/ic_launcher.png` are the `flutter create` defaults in place of the Juvo artwork, and the adaptive-icon files (`mipmap-anydpi-v26/ic_launcher.xml`, `ic_launcher_background/foreground/monochrome.png`) are removed from the template, so the SDK carries no app's branding. Shells keep their own artwork in their own repos; compose installs a template file only when the app has none or still holds the copy compose wrote. A shell that still holds base's old Juvo copy (paas_manager, paas_driver, minilauncher) keeps it in git. `AndroidManifest.xml` still points at `@mipmap/ic_launcher`.
+
+## 1.93.2
+
+* fix(guide): the coach-mark bubble takes the app shell colours. It read `Theme.of(context).colorScheme.surface` and the default text and button styles, none of which carry the brand colours `AppStyle.injectBrandColors` sets, so the Guide stayed neutral in a branded shell. The panel is now `AppStyle.cardFor`, the title and body use `inkFor` / `secondaryInkFor`, and the buttons use `AppStyle.primary`, all resolved from the inherited theme brightness. No API change. Test: `test/guide_host_test.dart`.
+
+## 1.93.1
+
+* fix(demo): `DemoFixtures`' default asset loader consults the asset manifest and answers null for an unbundled key (demo_gateway_interceptor.dart). A cmd whose fixture sits in a later registered directory (api.lms.can_manage_announcements after assets/demo/auth) no longer provokes a failed asset load, which under `flutter test` escaped as an uncaught async error and hung the supacharge lms student profile render (supacharge run 39985416932). Test: test/demo_gateway_interceptor_test.dart.
+
+## 1.93.0
+
+* feat(theme): `AppStyle.injectBrandColors` takes optional light-mode values too: `surfaceLight`, `cardLight`, `cardLightAlt`, `strokeLight`, `strokeLightSubtle`, `textLightSecondary`, `textLightFaint`, plus `inkDark` / `inkLight` for the `textPrimary` ink of each mode (no longer `const`). A composed app can now brand its light theme as well as its dark one. Each parameter left out keeps its current value, so existing callers (dark values only) are unchanged and light mode keeps the neutral kernel defaults for them. Test: `test/inject_brand_colors_light_test.dart`.
+
+## 1.92.0
+
+* chore(guide): version for the coach-mark guide kernel merged in #320 (GuideDefinition, GuideStep, GuideProgress, GuideStore, GuideAnchor, GuideHost, exported from base_sdk.dart; off while DemoSession.demoActive). That PR added the code and tests but did not change the version. The app_widget builder it also added was removed in #322.
+
 ## 1.91.0
 
 * feat(splash): a "from ROKCT" sign-off at the bottom of the splash, after WhatsApp's "from Meta": "from" small on the first row, "ROKCT" bold in capitals on the second, both centred. It lives in SplashPage, so every composed app gets it from base_sdk with no per-app change. Colour is AppStyle.inkFor(brightness), the splash text's own token, so it flips with the theme. On the phone the splash is artwork that ignores the theme, so the line sits on an AppStyle.surfaceFor pill, which reads on any artwork in either mode. The error fallback screen is unchanged.

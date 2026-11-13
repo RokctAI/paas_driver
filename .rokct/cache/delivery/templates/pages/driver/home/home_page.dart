@@ -493,6 +493,11 @@ class _HomePageState extends ConsumerState<HomePage> {
         body: Consumer(
           builder: (context, ref, child) {
             final state = ref.watch(homeProvider);
+            // The on/off-duty chrome reads CourierStorage.getOnline(), which
+            // is not reactive. The settings fetch (initState) writes it and
+            // then updates driverProvider, so watching that is what redraws
+            // the home with the server's flag instead of the cold default.
+            ref.watch(driverProvider);
             return Stack(
               children: [
                 _map(context, ref),

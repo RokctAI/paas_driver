@@ -109,7 +109,7 @@ class _TimeDeliveryState extends ConsumerState<TimeDelivery>
     state = ref.watch(timeProvider);
     return Container(
       decoration: BoxDecoration(
-        color: AppStyle.bgGrey.withOpacity(0.96),
+        color: AppStyle.surfaceFor(Theme.of(context).brightness).withOpacity(0.96),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(12.r),
           topRight: Radius.circular(12.r),

@@ -172,7 +172,10 @@ void main() {
       expect(_ok(await deposits.getDestination()).accepting, isTrue);
       expect(_ok(await deposits.getWalletBalance()), -1240);
       expect(_ok(await deposits.listMyDeposits()), hasLength(2));
-      expect(_ok(await DriverLoadRepository().getMyLoad()), isEmpty);
+      final loads = _ok(await DriverLoadRepository().getMyLoad());
+      expect(loads, hasLength(1));
+      expect(loads.single.isOpen, isTrue);
+      expect(loads.single.sellableLines, hasLength(3));
       final DriverPoiRepository poi = DriverPoiRepository();
       expect(_ok(await poi.types()), isEmpty);
       expect(_ok(await poi.nearby(latitude: 0, longitude: 0)), isEmpty);

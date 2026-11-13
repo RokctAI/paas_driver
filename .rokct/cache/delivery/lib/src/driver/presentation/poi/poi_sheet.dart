@@ -33,6 +33,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 
 import 'package:delivery_sdk/src/driver/application/poi/poi_provider.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/driver_poi.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 class PoiSheet extends ConsumerStatefulWidget {
   const PoiSheet({super.key, required this.point});
@@ -41,11 +42,7 @@ class PoiSheet extends ConsumerStatefulWidget {
 
   /// Opens the sheet for [point] and reads its sales history.
   static void open(BuildContext context, DriverPoi point) {
-    AppHelpers.showCustomModalBottomSheet(
-      context: context,
-      isDarkMode: (Theme.of(context).brightness == Brightness.dark),
-      modal: PoiSheet(point: point),
-    );
+    DriverSheet.show(context, modal: PoiSheet(point: point));
   }
 
   @override

@@ -28,6 +28,7 @@ import 'package:base_sdk/src/presentation/components/title_icon.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:delivery_sdk/src/driver/application/home/home_provider.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 class RateCustomer extends StatefulWidget {
   final OrderDetailData? order;
@@ -64,7 +65,7 @@ class _RateCustomerState extends State<RateCustomer> {
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
-              color: AppStyle.cardDark,
+              color: AppStyle.cardFor(Theme.of(context).brightness),
               borderRadius: BorderRadius.circular(10.r),
             ),
             padding: EdgeInsets.all(16.r),
@@ -121,19 +122,18 @@ class _RateCustomerState extends State<RateCustomer> {
   Widget _addComment(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        AppHelpers.showCustomModalBottomSheet(
-          context: context,
+        DriverSheet.show(
+          context,
           modal: AddComment(
             onChange: (s) {
               note = s;
             },
           ),
-          isDarkMode: false,
         );
       },
       child: Container(
         decoration: BoxDecoration(
-          color: AppStyle.cardDark,
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           borderRadius: BorderRadius.circular(10.r),
         ),
         padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),

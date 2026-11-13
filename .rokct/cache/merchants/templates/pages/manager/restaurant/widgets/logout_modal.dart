@@ -43,6 +43,7 @@ class LogoutModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ModalWrap(
+      themed: true,
       body: Padding(
         padding: REdgeInsets.symmetric(horizontal: 15),
         child: Column(
@@ -62,7 +63,9 @@ class LogoutModal extends StatelessWidget {
               children: [
                 Expanded(
                   child: CustomButton(
-                      borderColor: AppStyle.black,
+                      borderColor:
+                          AppStyle.inkFor(Theme.of(context).brightness),
+                      textColor: AppStyle.inkFor(Theme.of(context).brightness),
                       background: AppStyle.transparent,
                       title: AppHelpers.getTranslation(TrKeys.cancel),
                       onPressed: () {

@@ -1,3 +1,33 @@
+## 1.30.5
+
+- fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").
+
+## 1.30.4
+
+- fix(driver): income page R0.00 and empty statistics in demo. delivery and revenue both ship `api.delivery_man.get_deliveryman_order_report.json`; DemoFixtures answers from the first registered directory (delivery), whose flat copy had no `data` envelope, so revenue's income model read nothing. The delivery fixture is now the superset: `data` envelope (DriverDayReport already unwraps it) carrying the day-strip keys plus `last_order_total_price`, `last_order_income` and a dated `chart`.
+- fix(driver): home showed Offline for a driver the server has online. The home reads the non-reactive `CourierStorage.getOnline()`; `fetchDriverDetails` now stores the flag before updating `driverProvider`, and the home page and bottom sheet watch `driverProvider` so they redraw with it.
+- fix(driver): parcels subtitle said "There are 0 orders" above a listed parcel: `ParcelState.totalActiveOrder` was never set. It is now the fetched count.
+- fix(driver): order and parcel history subtitles read "There are" with nothing after it; they now carry the count and noun like the orders page.
+- Verified: flutter analyze clean on changed lib files; throwaway fixture-parse test (load + report) passed; load/parcel/demo-fixture tests pass. Templates are not analyzable here (`${package}` imports).
+
+## 1.30.3
+
+- chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.
+
+## 1.30.2
+
+* fix(assets): the template marker (`templates/assets/images/marker.png`)
+  is now the blue driver pin, matching paas_driver. No Dart change.
+
+## 1.30.1
+
+* feat(tour): the driver tour now shows every routed driver screen. New
+  steps: deposits (`/driver-deposits`), my load (`/load`), sell at the
+  door (`/load/sell`) and return (`/load/return`).
+* feat(demo): the `api.order.load.get_my_load` fixture holds one open
+  load (bread, milk, eggs) instead of an empty list, so the load screens
+  have something to show in demo.
+
 ## 1.30.0
 
 * feat(driver): driver mode turns on. The driver app now declares the

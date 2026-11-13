@@ -55,7 +55,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:remixicon/remixicon.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:${package}/presentation/pages/order_history/order_history.dart';
@@ -69,7 +68,6 @@ import 'package:base_sdk/src/application/profile/profile_provider.dart';
 import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/navigation/embedded_widgets.dart';
 import 'package:base_sdk/src/presentation/adaptive/planes.dart';
-import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/pages/profile/generic_profile_page.dart';
 import 'package:base_sdk/src/presentation/pages/profile/generic_profile_route_page.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section.dart';
@@ -77,9 +75,10 @@ import 'package:base_sdk/src/presentation/pages/profile/profile_section_navigato
 import 'package:base_sdk/src/presentation/pages/profile/profile_section_registry.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
-import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:delivery_sdk/src/driver/application/home/home_provider.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/driver_root_nav.dart';
 import 'package:delivery_sdk/src/driver/presentation/profile/driver_profile_sections.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 /// Registers the driver's profile content with base_sdk's
 /// [ProfileSectionRegistry]: the header pencil and top-row sign-out, the
@@ -142,11 +141,12 @@ void _openProfileSettings(BuildContext context) {
   // Plane widths: the form in the profile's detail pane (the last plane);
   // the seam answers false on a phone, so the sheet opens as before.
   if (ProfileSectionNavigator.openEditProfile(context)) return;
-  AppHelpers.showCustomModalBottomSheet(
-    paddingTop: MediaQuery.paddingOf(context).top + 32.h,
-    context: context,
+  // EditProfileModal's root is already DriverSheetSurface, so no second surface.
+  DriverSheet.show(
+    context,
     modal: const EditProfileModal(),
-    isDarkMode: LocalStorage.getAppThemeMode(),
+    surface: false,
+    paddingTop: MediaQuery.paddingOf(context).top + 32.h,
   );
 }
 
@@ -193,10 +193,10 @@ void _openIncome(BuildContext context) {
 }
 
 void _openLanguage(BuildContext context) {
-  AppHelpers.showCustomModalBottomSheet(
+  DriverSheet.show(
+    context,
     isDismissible: true,
     isDrag: false,
-    context: context,
     modal: EmbeddedWidgets.I.languageScreen(
       onSave: () {
         Navigator.pop(context);
@@ -206,15 +206,13 @@ void _openLanguage(BuildContext context) {
         ).read(appProvider.notifier).changeLocale(LocalStorage.getLanguage());
       },
     ),
-    isDarkMode: LocalStorage.getAppThemeMode(),
   );
 }
 
 void _openDeleteAccount(BuildContext context) {
-  AppHelpers.showCustomModalBottomSheet(
-    context: context,
+  DriverSheet.show(
+    context,
     modal: const LogoutModal(isDeleteAccount: true),
-    isDarkMode: LocalStorage.getAppThemeMode(),
   );
 }
 
@@ -261,12 +259,26 @@ class _ProfilePageState extends State<ProfilePage> {
     registerDriverProfileSections();
   }
 
+  /// Same destinations as the home page's root tab set (CHIP 301): Profile
+  /// is the lit tab here, so a tap on it does nothing; the others open the
+  /// existing route for that tab, and Home returns to the root.
+  void _openRootTab(DriverRootTab tab) {
+    switch (tab) {
+      case DriverRootTab.home:
+        context.router.popUntilRoot();
+      case DriverRootTab.jobs:
+        context.pushRoute(const OrdersRoute());
+      case DriverRootTab.route:
+        context.pushRoute(const DriverRouteRoute());
+      case DriverRootTab.income:
+        context.pushRoute(const DriverIncomeRoute());
+      case DriverRootTab.profile:
+        return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final back = FloatingNavBack(
-      icon: Remix.arrow_left_wide_fill,
-      label: AppHelpers.getTranslation(TrKeys.back),
-    );
     return Directionality(
       textDirection: isLtr ? TextDirection.ltr : TextDirection.rtl,
       child: LayoutBuilder(
@@ -294,13 +306,9 @@ class _ProfilePageState extends State<ProfilePage> {
               Positioned.fill(
                 child: Align(
                   alignment: Alignment.bottomCenter,
-                  child: FloatingBottomNav(
-                    mode: FloatingNavTabsMode(
-                      tabs: const [],
-                      currentIndex: 0,
-                      onSelect: (_) {},
-                      back: back,
-                    ),
+                  child: DriverRootNav(
+                    current: DriverRootTab.profile,
+                    onSelect: _openRootTab,
                   ),
                 ),
               ),

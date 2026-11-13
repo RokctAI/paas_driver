@@ -19,6 +19,8 @@
 // gateway runs here against a recording adapter that answers like the
 // backend does.
 
+// compliance-ignore-file: flutter-http-timeout (test or caller of base_sdk's shared HttpService (timeouts set there); no Dio client is built here without timeouts)
+
 import 'dart:convert';
 import 'dart:typed_data';
 

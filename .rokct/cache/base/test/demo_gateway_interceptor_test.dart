@@ -40,6 +40,7 @@ class _Network implements HttpClientAdapter {
 }
 
 void main() {
+  _defaultLoaderTests();
   late bool demo;
   late _Network network;
   late Dio dio;
@@ -137,5 +138,24 @@ void main() {
     files['assets/demo/x/api.x.list.json'] = '"x"';
     expect((await call('api.x.list')).data, 'x');
     expect(DemoFixtures.directories, ['assets/demo/x', 'assets/demo/y']);
+  });
+}
+
+void _defaultLoaderTests() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  group('DemoFixtures default asset loader', () {
+    setUp(DemoFixtures.reset);
+    tearDown(DemoFixtures.reset);
+
+    test('an absent asset answers null and raises nothing', () async {
+      expect(await DemoFixtures.loader('assets/demo/none/api.x.json'), isNull);
+    });
+
+    test('answer skips an unbundled directory and then reports the miss',
+        () async {
+      DemoFixtures.registerAssetDirectory('assets/demo/none');
+      expect(DemoFixtures.answer('api.x', const {}),
+          throwsA(isA<DemoFixtureMissing>()));
+    });
   });
 }

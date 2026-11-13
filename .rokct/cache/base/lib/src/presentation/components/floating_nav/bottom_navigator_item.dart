@@ -41,6 +41,9 @@ class BottomNavigatorItem extends StatelessWidget {
   /// tab's icon + label instead.
   final FloatingNavIndicator indicator;
 
+  /// Pinned to the icon's top right ([FloatingNavTab.marker]).
+  final Widget? marker;
+
   const BottomNavigatorItem({
     super.key,
     required this.selectItem,
@@ -51,7 +54,19 @@ class BottomNavigatorItem extends StatelessWidget {
     required this.isScrolling,
     required this.label,
     this.indicator = FloatingNavIndicator.dash,
+    this.marker,
   });
+
+  /// The tab icon, with the [marker] on its top right when there is one.
+  /// Hidden with the icon while the page scrolls.
+  Widget _icon(IconData icon, bool hide) {
+    final glyph = Icon(icon, size: hide ? 0.r : 24.r, color: AppStyle.white);
+    if (marker == null || hide) return glyph;
+    return Stack(clipBehavior: Clip.none, children: [
+      glyph,
+      Positioned(top: -2.r, right: -4.r, child: marker!),
+    ]);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,17 +102,9 @@ class BottomNavigatorItem extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      index == currentIndex
-                          ? Icon(
-                              selectIcon,
-                              size: shouldHide ? 0.r : 24.r,
-                              color: AppStyle.white,
-                            )
-                          : Icon(
-                              unSelectIcon,
-                              size: shouldHide ? 0.r : 24.r,
-                              color: AppStyle.white,
-                            ),
+                      _icon(
+                          index == currentIndex ? selectIcon : unSelectIcon,
+                          shouldHide),
                       if (index == currentIndex)
                         Text(
                           label,
@@ -174,11 +181,7 @@ class BottomNavigatorItem extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    active ? selectIcon : unSelectIcon,
-                    size: shouldHide ? 0.r : 24.r,
-                    color: AppStyle.white,
-                  ),
+                  _icon(active ? selectIcon : unSelectIcon, shouldHide),
                   if (active) ...[
                     SizedBox(height: shouldHide ? 0.h : 2.h),
                     Text(

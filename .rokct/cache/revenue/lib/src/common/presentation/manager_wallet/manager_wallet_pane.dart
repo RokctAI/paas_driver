@@ -231,7 +231,6 @@ class _ManagerWithdrawActionState extends ConsumerState<ManagerWithdrawAction> {
   void _openNoBankAccountSheet() {
     AppHelpers.showCustomModalBottomSheet(
       context: context,
-      isDarkMode: true,
       modal: NoBankAccountSheet(
         available: _balance,
         onDismiss: () => Navigator.pop(context),
@@ -251,7 +250,6 @@ class _ManagerWithdrawActionState extends ConsumerState<ManagerWithdrawAction> {
     final notifier = ref.read(managerWalletProvider(_scope).notifier);
     AppHelpers.showCustomModalBottomSheet(
       context: context,
-      isDarkMode: true,
       modal: Consumer(
         builder: (context, ref, _) {
           final state = ref.watch(managerWalletProvider(_scope));
@@ -292,7 +290,6 @@ class _ManagerWithdrawActionState extends ConsumerState<ManagerWithdrawAction> {
   }) {
     AppHelpers.showCustomModalBottomSheet(
       context: context,
-      isDarkMode: true,
       modal: PayoutSentSheet(
         balanceBefore: balanceBefore,
         amount: amount,

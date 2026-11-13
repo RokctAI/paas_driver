@@ -375,11 +375,12 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                     const Divider(),
                     GestureDetector(
                       onTap: () {
-                        AppHelpers.showCustomModalBottomSheet(
-                          paddingTop: 120.h,
-                          context: context,
+                        // EditCar's root is already DriverSheetSurface.
+                        DriverSheet.show(
+                          context,
                           modal: const EditCar(),
-                          isDarkMode: false,
+                          surface: false,
+                          paddingTop: 120.h,
                         );
                       },
                       child: Container(
@@ -469,7 +470,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
         ),
       );
     }
-    // The sheet route is transparent (AppHelpers.showCustomModalBottomSheet);
+    // The sheet route is transparent (DriverSheet.show, via AppHelpers);
     // the opaque themed card is this widget's to paint, loader included.
     return DriverSheetSurface(child: body);
   }

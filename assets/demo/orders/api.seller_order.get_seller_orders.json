@@ -1,0 +1,4090 @@
+{
+  "$demo_select": {
+    "by": "payload.payment_status",
+    "cases": {
+      "Credit": {
+        "$demo_select": {
+          "by": "payload.order_user",
+          "cases": {
+            "demo-customer": {
+              "data": [
+                {
+                  "id": "1034",
+                  "total_price": 89.5,
+                  "pos_paid_amount": 0
+                }
+              ]
+            }
+          },
+          "default": {
+            "data": []
+          }
+        }
+      }
+    },
+    "default": {
+      "$demo_select": {
+        "by": "payload.status",
+        "cases": {
+          "new": {
+            "$demo_select": {
+              "by": "payload.limit_start",
+              "cases": {
+                "10": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "20": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "30": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "40": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "50": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "60": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "70": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "80": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "90": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "100": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "110": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "120": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "130": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "140": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "150": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "160": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "170": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "180": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "190": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "200": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                }
+              },
+              "default": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": [
+                    {
+                      "id": "1041",
+                      "user_id": "1",
+                      "status": "new",
+                      "delivery_type": "delivery",
+                      "total_price": 248.5,
+                      "delivery_fee": 25,
+                      "tax": 0,
+                      "currency": {
+                        "id": "ZAR",
+                        "symbol": "R",
+                        "title": "South African Rand",
+                        "rate": 1,
+                        "default": true,
+                        "active": true,
+                        "position": "before"
+                      },
+                      "user": {
+                        "id": "1",
+                        "uuid": "demo_user_1",
+                        "firstname": "Thandi",
+                        "lastname": "Mokoena",
+                        "email": "thandi.mokoena@example.com",
+                        "phone": "+27 82 000 001",
+                        "active": true,
+                        "role": "user"
+                      },
+                      "delivery_date": "$now_iso",
+                      "delivery_time": "12:40",
+                      "created_at": "$now_iso",
+                      "transaction": {
+                        "id": "demo_trx_cash",
+                        "price": 248.5,
+                        "status": "paid",
+                        "payment_system": {
+                          "id": "cash",
+                          "tag": "cash",
+                          "active": true
+                        }
+                      },
+                      "details": [
+                        {
+                          "id": "1",
+                          "quantity": 2,
+                          "origin_price": 89.0,
+                          "total_price": 178.0,
+                          "tax": 0,
+                          "discount": 0,
+                          "stock": {
+                            "id": "1",
+                            "price": 89.0,
+                            "quantity": 2,
+                            "total_price": 178.0,
+                            "product": {
+                              "id": "1",
+                              "uuid": "demo_product_1",
+                              "translation": {
+                                "title": "Peri-peri chicken wrap",
+                                "locale": "en"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "id": "2",
+                          "quantity": 1,
+                          "origin_price": 45.5,
+                          "total_price": 45.5,
+                          "tax": 0,
+                          "discount": 0,
+                          "stock": {
+                            "id": "2",
+                            "price": 45.5,
+                            "quantity": 1,
+                            "total_price": 45.5,
+                            "product": {
+                              "id": "2",
+                              "uuid": "demo_product_2",
+                              "translation": {
+                                "title": "Chakalaka fries",
+                                "locale": "en"
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "location": {
+                        "latitude": -26.2041,
+                        "longitude": 28.0473
+                      }
+                    },
+                    {
+                      "id": "1040",
+                      "user_id": "2",
+                      "status": "new",
+                      "delivery_type": "dine_in",
+                      "total_price": 132.0,
+                      "delivery_fee": 0,
+                      "tax": 0,
+                      "currency": {
+                        "id": "ZAR",
+                        "symbol": "R",
+                        "title": "South African Rand",
+                        "rate": 1,
+                        "default": true,
+                        "active": true,
+                        "position": "before"
+                      },
+                      "user": {
+                        "id": "2",
+                        "uuid": "demo_user_2",
+                        "firstname": "Sipho",
+                        "lastname": "Dlamini",
+                        "email": "sipho.dlamini@example.com",
+                        "phone": "+27 82 000 002",
+                        "active": true,
+                        "role": "user"
+                      },
+                      "delivery_date": "$now_iso",
+                      "delivery_time": "12:25",
+                      "created_at": "$now_iso",
+                      "transaction": {
+                        "id": "demo_trx_cash",
+                        "price": 132.0,
+                        "status": "paid",
+                        "payment_system": {
+                          "id": "cash",
+                          "tag": "cash",
+                          "active": true
+                        }
+                      },
+                      "details": [
+                        {
+                          "id": "3",
+                          "quantity": 2,
+                          "origin_price": 66.0,
+                          "total_price": 132.0,
+                          "tax": 0,
+                          "discount": 0,
+                          "stock": {
+                            "id": "3",
+                            "price": 66.0,
+                            "quantity": 2,
+                            "total_price": 132.0,
+                            "product": {
+                              "id": "3",
+                              "uuid": "demo_product_3",
+                              "translation": {
+                                "title": "Bunny chow (quarter)",
+                                "locale": "en"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "accepted": {
+            "$demo_select": {
+              "by": "payload.limit_start",
+              "cases": {
+                "10": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "20": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "30": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "40": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "50": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "60": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "70": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "80": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "90": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "100": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "110": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "120": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "130": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "140": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "150": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "160": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "170": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "180": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "190": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "200": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                }
+              },
+              "default": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": [
+                    {
+                      "id": "1039",
+                      "user_id": "3",
+                      "status": "accepted",
+                      "delivery_type": "pickup",
+                      "total_price": 96.0,
+                      "delivery_fee": 0,
+                      "tax": 0,
+                      "currency": {
+                        "id": "ZAR",
+                        "symbol": "R",
+                        "title": "South African Rand",
+                        "rate": 1,
+                        "default": true,
+                        "active": true,
+                        "position": "before"
+                      },
+                      "user": {
+                        "id": "3",
+                        "uuid": "demo_user_3",
+                        "firstname": "Lerato",
+                        "lastname": "Naidoo",
+                        "email": "lerato.naidoo@example.com",
+                        "phone": "+27 82 000 003",
+                        "active": true,
+                        "role": "user"
+                      },
+                      "delivery_date": "$now_iso",
+                      "delivery_time": "12:10",
+                      "created_at": "$now_iso",
+                      "transaction": {
+                        "id": "demo_trx_wallet",
+                        "price": 96.0,
+                        "status": "paid",
+                        "payment_system": {
+                          "id": "wallet",
+                          "tag": "wallet",
+                          "active": true
+                        }
+                      },
+                      "details": [
+                        {
+                          "id": "4",
+                          "quantity": 2,
+                          "origin_price": 48.0,
+                          "total_price": 96.0,
+                          "tax": 0,
+                          "discount": 0,
+                          "stock": {
+                            "id": "4",
+                            "price": 48.0,
+                            "quantity": 2,
+                            "total_price": 96.0,
+                            "product": {
+                              "id": "4",
+                              "uuid": "demo_product_4",
+                              "translation": {
+                                "title": "Boerewors roll",
+                                "locale": "en"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "cooking": {
+            "$demo_select": {
+              "by": "payload.limit_start",
+              "cases": {
+                "10": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "20": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "30": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "40": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "50": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "60": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "70": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "80": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "90": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "100": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "110": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "120": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "130": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "140": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "150": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "160": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "170": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "180": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "190": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "200": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                }
+              },
+              "default": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              }
+            }
+          },
+          "ready": {
+            "$demo_select": {
+              "by": "payload.limit_start",
+              "cases": {
+                "10": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "20": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "30": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "40": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "50": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "60": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "70": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "80": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "90": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "100": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "110": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "120": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "130": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "140": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "150": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "160": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "170": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "180": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "190": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "200": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                }
+              },
+              "default": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": [
+                    {
+                      "id": "1038",
+                      "user_id": "4",
+                      "status": "ready",
+                      "delivery_type": "delivery",
+                      "total_price": 415.75,
+                      "delivery_fee": 25,
+                      "tax": 0,
+                      "currency": {
+                        "id": "ZAR",
+                        "symbol": "R",
+                        "title": "South African Rand",
+                        "rate": 1,
+                        "default": true,
+                        "active": true,
+                        "position": "before"
+                      },
+                      "user": {
+                        "id": "4",
+                        "uuid": "demo_user_4",
+                        "firstname": "Ayanda",
+                        "lastname": "Khumalo",
+                        "email": "ayanda.khumalo@example.com",
+                        "phone": "+27 82 000 004",
+                        "active": true,
+                        "role": "user"
+                      },
+                      "delivery_date": "$now_iso",
+                      "delivery_time": "11:55",
+                      "created_at": "$now_iso",
+                      "transaction": {
+                        "id": "demo_trx_cash",
+                        "price": 415.75,
+                        "status": "paid",
+                        "payment_system": {
+                          "id": "cash",
+                          "tag": "cash",
+                          "active": true
+                        }
+                      },
+                      "details": [
+                        {
+                          "id": "5",
+                          "quantity": 1,
+                          "origin_price": 390.75,
+                          "total_price": 390.75,
+                          "tax": 0,
+                          "discount": 0,
+                          "stock": {
+                            "id": "5",
+                            "price": 390.75,
+                            "quantity": 1,
+                            "total_price": 390.75,
+                            "product": {
+                              "id": "5",
+                              "uuid": "demo_product_5",
+                              "translation": {
+                                "title": "Family braai platter",
+                                "locale": "en"
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "location": {
+                        "latitude": -26.1952,
+                        "longitude": 28.034
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "on_a_way": {
+            "$demo_select": {
+              "by": "payload.limit_start",
+              "cases": {
+                "10": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "20": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "30": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "40": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "50": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "60": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "70": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "80": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "90": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "100": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "110": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "120": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "130": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "140": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "150": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "160": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "170": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "180": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "190": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "200": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                }
+              },
+              "default": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              }
+            }
+          },
+          "delivered": {
+            "$demo_select": {
+              "by": "payload.limit_start",
+              "cases": {
+                "10": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "20": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "30": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "40": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "50": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "60": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "70": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "80": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "90": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "100": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "110": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "120": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "130": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "140": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "150": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "160": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "170": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "180": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "190": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "200": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                }
+              },
+              "default": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": [
+                    {
+                      "id": "1037",
+                      "user_id": "5",
+                      "status": "delivered",
+                      "delivery_type": "delivery",
+                      "total_price": 187.0,
+                      "delivery_fee": 25,
+                      "tax": 0,
+                      "currency": {
+                        "id": "ZAR",
+                        "symbol": "R",
+                        "title": "South African Rand",
+                        "rate": 1,
+                        "default": true,
+                        "active": true,
+                        "position": "before"
+                      },
+                      "user": {
+                        "id": "5",
+                        "uuid": "demo_user_5",
+                        "firstname": "Nomsa",
+                        "lastname": "Petersen",
+                        "email": "nomsa.petersen@example.com",
+                        "phone": "+27 82 000 005",
+                        "active": true,
+                        "role": "user"
+                      },
+                      "delivery_date": "$now_iso",
+                      "delivery_time": "11:20",
+                      "created_at": "$now_iso",
+                      "transaction": {
+                        "id": "demo_trx_cash",
+                        "price": 187.0,
+                        "status": "paid",
+                        "payment_system": {
+                          "id": "cash",
+                          "tag": "cash",
+                          "active": true
+                        }
+                      },
+                      "details": [
+                        {
+                          "id": "6",
+                          "quantity": 2,
+                          "origin_price": 81.0,
+                          "total_price": 162.0,
+                          "tax": 0,
+                          "discount": 0,
+                          "stock": {
+                            "id": "6",
+                            "price": 81.0,
+                            "quantity": 2,
+                            "total_price": 162.0,
+                            "product": {
+                              "id": "6",
+                              "uuid": "demo_product_6",
+                              "translation": {
+                                "title": "Gatsby (half)",
+                                "locale": "en"
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "deliveryman_name": "Bongani M."
+                    },
+                    {
+                      "id": "1036",
+                      "user_id": "6",
+                      "status": "delivered",
+                      "delivery_type": "pickup",
+                      "total_price": 74.5,
+                      "delivery_fee": 0,
+                      "tax": 0,
+                      "currency": {
+                        "id": "ZAR",
+                        "symbol": "R",
+                        "title": "South African Rand",
+                        "rate": 1,
+                        "default": true,
+                        "active": true,
+                        "position": "before"
+                      },
+                      "user": {
+                        "id": "6",
+                        "uuid": "demo_user_6",
+                        "firstname": "Kagiso",
+                        "lastname": "Steyn",
+                        "email": "kagiso.steyn@example.com",
+                        "phone": "+27 82 000 006",
+                        "active": true,
+                        "role": "user"
+                      },
+                      "delivery_date": "$now_iso",
+                      "delivery_time": "10:45",
+                      "created_at": "$now_iso",
+                      "transaction": {
+                        "id": "demo_trx_cash",
+                        "price": 74.5,
+                        "status": "paid",
+                        "payment_system": {
+                          "id": "cash",
+                          "tag": "cash",
+                          "active": true
+                        }
+                      },
+                      "details": [
+                        {
+                          "id": "7",
+                          "quantity": 2,
+                          "origin_price": 37.25,
+                          "total_price": 74.5,
+                          "tax": 0,
+                          "discount": 0,
+                          "stock": {
+                            "id": "7",
+                            "price": 37.25,
+                            "quantity": 2,
+                            "total_price": 74.5,
+                            "product": {
+                              "id": "7",
+                              "uuid": "demo_product_7",
+                              "translation": {
+                                "title": "Vetkoek and mince",
+                                "locale": "en"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "1035",
+                      "user_id": "7",
+                      "status": "delivered",
+                      "delivery_type": "dine_in",
+                      "total_price": 322.0,
+                      "delivery_fee": 0,
+                      "tax": 0,
+                      "currency": {
+                        "id": "ZAR",
+                        "symbol": "R",
+                        "title": "South African Rand",
+                        "rate": 1,
+                        "default": true,
+                        "active": true,
+                        "position": "before"
+                      },
+                      "user": {
+                        "id": "7",
+                        "uuid": "demo_user_7",
+                        "firstname": "Zanele",
+                        "lastname": "Botha",
+                        "email": "zanele.botha@example.com",
+                        "phone": "+27 82 000 007",
+                        "active": true,
+                        "role": "user"
+                      },
+                      "delivery_date": "$now_iso",
+                      "delivery_time": "19:30",
+                      "created_at": "$now_iso",
+                      "transaction": {
+                        "id": "demo_trx_wallet",
+                        "price": 322.0,
+                        "status": "paid",
+                        "payment_system": {
+                          "id": "wallet",
+                          "tag": "wallet",
+                          "active": true
+                        }
+                      },
+                      "details": [
+                        {
+                          "id": "8",
+                          "quantity": 2,
+                          "origin_price": 161.0,
+                          "total_price": 322.0,
+                          "tax": 0,
+                          "discount": 0,
+                          "stock": {
+                            "id": "8",
+                            "price": 161.0,
+                            "quantity": 2,
+                            "total_price": 322.0,
+                            "product": {
+                              "id": "8",
+                              "uuid": "demo_product_8",
+                              "translation": {
+                                "title": "Seafood potjie for two",
+                                "locale": "en"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "canceled": {
+            "$demo_select": {
+              "by": "payload.limit_start",
+              "cases": {
+                "10": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "20": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "30": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "40": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "50": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "60": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "70": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "80": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "90": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "100": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "110": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "120": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "130": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "140": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "150": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "160": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "170": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "180": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "190": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                },
+                "200": {
+                  "data": {
+                    "statistic": {
+                      "new_orders_count": 2,
+                      "accepted_orders_count": 1,
+                      "cooking_orders_count": 0,
+                      "ready_orders_count": 1,
+                      "on_a_way_orders_count": 0,
+                      "delivered_orders_count": 3,
+                      "cancel_orders_count": 0,
+                      "progress_orders_count": 4,
+                      "orders_count": 7,
+                      "total_price": 1475.75,
+                      "today_count": 7
+                    },
+                    "orders": []
+                  }
+                }
+              },
+              "default": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              }
+            }
+          }
+        },
+        "default": {
+          "$demo_select": {
+            "by": "payload.limit_start",
+            "cases": {
+              "10": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "20": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "30": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "40": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "50": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "60": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "70": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "80": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "90": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "100": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "110": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "120": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "130": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "140": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "150": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "160": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "170": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "180": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "190": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              },
+              "200": {
+                "data": {
+                  "statistic": {
+                    "new_orders_count": 2,
+                    "accepted_orders_count": 1,
+                    "cooking_orders_count": 0,
+                    "ready_orders_count": 1,
+                    "on_a_way_orders_count": 0,
+                    "delivered_orders_count": 3,
+                    "cancel_orders_count": 0,
+                    "progress_orders_count": 4,
+                    "orders_count": 7,
+                    "total_price": 1475.75,
+                    "today_count": 7
+                  },
+                  "orders": []
+                }
+              }
+            },
+            "default": {
+              "data": {
+                "statistic": {
+                  "new_orders_count": 2,
+                  "accepted_orders_count": 1,
+                  "cooking_orders_count": 0,
+                  "ready_orders_count": 1,
+                  "on_a_way_orders_count": 0,
+                  "delivered_orders_count": 3,
+                  "cancel_orders_count": 0,
+                  "progress_orders_count": 4,
+                  "orders_count": 7,
+                  "total_price": 1475.75,
+                  "today_count": 7
+                },
+                "orders": [
+                  {
+                    "id": "1041",
+                    "user_id": "1",
+                    "status": "new",
+                    "delivery_type": "delivery",
+                    "total_price": 248.5,
+                    "delivery_fee": 25,
+                    "tax": 0,
+                    "currency": {
+                      "id": "ZAR",
+                      "symbol": "R",
+                      "title": "South African Rand",
+                      "rate": 1,
+                      "default": true,
+                      "active": true,
+                      "position": "before"
+                    },
+                    "user": {
+                      "id": "1",
+                      "uuid": "demo_user_1",
+                      "firstname": "Thandi",
+                      "lastname": "Mokoena",
+                      "email": "thandi.mokoena@example.com",
+                      "phone": "+27 82 000 001",
+                      "active": true,
+                      "role": "user"
+                    },
+                    "delivery_date": "$now_iso",
+                    "delivery_time": "12:40",
+                    "created_at": "$now_iso",
+                    "transaction": {
+                      "id": "demo_trx_cash",
+                      "price": 248.5,
+                      "status": "paid",
+                      "payment_system": {
+                        "id": "cash",
+                        "tag": "cash",
+                        "active": true
+                      }
+                    },
+                    "details": [
+                      {
+                        "id": "1",
+                        "quantity": 2,
+                        "origin_price": 89.0,
+                        "total_price": 178.0,
+                        "tax": 0,
+                        "discount": 0,
+                        "stock": {
+                          "id": "1",
+                          "price": 89.0,
+                          "quantity": 2,
+                          "total_price": 178.0,
+                          "product": {
+                            "id": "1",
+                            "uuid": "demo_product_1",
+                            "translation": {
+                              "title": "Peri-peri chicken wrap",
+                              "locale": "en"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "id": "2",
+                        "quantity": 1,
+                        "origin_price": 45.5,
+                        "total_price": 45.5,
+                        "tax": 0,
+                        "discount": 0,
+                        "stock": {
+                          "id": "2",
+                          "price": 45.5,
+                          "quantity": 1,
+                          "total_price": 45.5,
+                          "product": {
+                            "id": "2",
+                            "uuid": "demo_product_2",
+                            "translation": {
+                              "title": "Chakalaka fries",
+                              "locale": "en"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "location": {
+                      "latitude": -26.2041,
+                      "longitude": 28.0473
+                    }
+                  },
+                  {
+                    "id": "1040",
+                    "user_id": "2",
+                    "status": "new",
+                    "delivery_type": "dine_in",
+                    "total_price": 132.0,
+                    "delivery_fee": 0,
+                    "tax": 0,
+                    "currency": {
+                      "id": "ZAR",
+                      "symbol": "R",
+                      "title": "South African Rand",
+                      "rate": 1,
+                      "default": true,
+                      "active": true,
+                      "position": "before"
+                    },
+                    "user": {
+                      "id": "2",
+                      "uuid": "demo_user_2",
+                      "firstname": "Sipho",
+                      "lastname": "Dlamini",
+                      "email": "sipho.dlamini@example.com",
+                      "phone": "+27 82 000 002",
+                      "active": true,
+                      "role": "user"
+                    },
+                    "delivery_date": "$now_iso",
+                    "delivery_time": "12:25",
+                    "created_at": "$now_iso",
+                    "transaction": {
+                      "id": "demo_trx_cash",
+                      "price": 132.0,
+                      "status": "paid",
+                      "payment_system": {
+                        "id": "cash",
+                        "tag": "cash",
+                        "active": true
+                      }
+                    },
+                    "details": [
+                      {
+                        "id": "3",
+                        "quantity": 2,
+                        "origin_price": 66.0,
+                        "total_price": 132.0,
+                        "tax": 0,
+                        "discount": 0,
+                        "stock": {
+                          "id": "3",
+                          "price": 66.0,
+                          "quantity": 2,
+                          "total_price": 132.0,
+                          "product": {
+                            "id": "3",
+                            "uuid": "demo_product_3",
+                            "translation": {
+                              "title": "Bunny chow (quarter)",
+                              "locale": "en"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "1039",
+                    "user_id": "3",
+                    "status": "accepted",
+                    "delivery_type": "pickup",
+                    "total_price": 96.0,
+                    "delivery_fee": 0,
+                    "tax": 0,
+                    "currency": {
+                      "id": "ZAR",
+                      "symbol": "R",
+                      "title": "South African Rand",
+                      "rate": 1,
+                      "default": true,
+                      "active": true,
+                      "position": "before"
+                    },
+                    "user": {
+                      "id": "3",
+                      "uuid": "demo_user_3",
+                      "firstname": "Lerato",
+                      "lastname": "Naidoo",
+                      "email": "lerato.naidoo@example.com",
+                      "phone": "+27 82 000 003",
+                      "active": true,
+                      "role": "user"
+                    },
+                    "delivery_date": "$now_iso",
+                    "delivery_time": "12:10",
+                    "created_at": "$now_iso",
+                    "transaction": {
+                      "id": "demo_trx_wallet",
+                      "price": 96.0,
+                      "status": "paid",
+                      "payment_system": {
+                        "id": "wallet",
+                        "tag": "wallet",
+                        "active": true
+                      }
+                    },
+                    "details": [
+                      {
+                        "id": "4",
+                        "quantity": 2,
+                        "origin_price": 48.0,
+                        "total_price": 96.0,
+                        "tax": 0,
+                        "discount": 0,
+                        "stock": {
+                          "id": "4",
+                          "price": 48.0,
+                          "quantity": 2,
+                          "total_price": 96.0,
+                          "product": {
+                            "id": "4",
+                            "uuid": "demo_product_4",
+                            "translation": {
+                              "title": "Boerewors roll",
+                              "locale": "en"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "1038",
+                    "user_id": "4",
+                    "status": "ready",
+                    "delivery_type": "delivery",
+                    "total_price": 415.75,
+                    "delivery_fee": 25,
+                    "tax": 0,
+                    "currency": {
+                      "id": "ZAR",
+                      "symbol": "R",
+                      "title": "South African Rand",
+                      "rate": 1,
+                      "default": true,
+                      "active": true,
+                      "position": "before"
+                    },
+                    "user": {
+                      "id": "4",
+                      "uuid": "demo_user_4",
+                      "firstname": "Ayanda",
+                      "lastname": "Khumalo",
+                      "email": "ayanda.khumalo@example.com",
+                      "phone": "+27 82 000 004",
+                      "active": true,
+                      "role": "user"
+                    },
+                    "delivery_date": "$now_iso",
+                    "delivery_time": "11:55",
+                    "created_at": "$now_iso",
+                    "transaction": {
+                      "id": "demo_trx_cash",
+                      "price": 415.75,
+                      "status": "paid",
+                      "payment_system": {
+                        "id": "cash",
+                        "tag": "cash",
+                        "active": true
+                      }
+                    },
+                    "details": [
+                      {
+                        "id": "5",
+                        "quantity": 1,
+                        "origin_price": 390.75,
+                        "total_price": 390.75,
+                        "tax": 0,
+                        "discount": 0,
+                        "stock": {
+                          "id": "5",
+                          "price": 390.75,
+                          "quantity": 1,
+                          "total_price": 390.75,
+                          "product": {
+                            "id": "5",
+                            "uuid": "demo_product_5",
+                            "translation": {
+                              "title": "Family braai platter",
+                              "locale": "en"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "location": {
+                      "latitude": -26.1952,
+                      "longitude": 28.034
+                    }
+                  },
+                  {
+                    "id": "1037",
+                    "user_id": "5",
+                    "status": "delivered",
+                    "delivery_type": "delivery",
+                    "total_price": 187.0,
+                    "delivery_fee": 25,
+                    "tax": 0,
+                    "currency": {
+                      "id": "ZAR",
+                      "symbol": "R",
+                      "title": "South African Rand",
+                      "rate": 1,
+                      "default": true,
+                      "active": true,
+                      "position": "before"
+                    },
+                    "user": {
+                      "id": "5",
+                      "uuid": "demo_user_5",
+                      "firstname": "Nomsa",
+                      "lastname": "Petersen",
+                      "email": "nomsa.petersen@example.com",
+                      "phone": "+27 82 000 005",
+                      "active": true,
+                      "role": "user"
+                    },
+                    "delivery_date": "$now_iso",
+                    "delivery_time": "11:20",
+                    "created_at": "$now_iso",
+                    "transaction": {
+                      "id": "demo_trx_cash",
+                      "price": 187.0,
+                      "status": "paid",
+                      "payment_system": {
+                        "id": "cash",
+                        "tag": "cash",
+                        "active": true
+                      }
+                    },
+                    "details": [
+                      {
+                        "id": "6",
+                        "quantity": 2,
+                        "origin_price": 81.0,
+                        "total_price": 162.0,
+                        "tax": 0,
+                        "discount": 0,
+                        "stock": {
+                          "id": "6",
+                          "price": 81.0,
+                          "quantity": 2,
+                          "total_price": 162.0,
+                          "product": {
+                            "id": "6",
+                            "uuid": "demo_product_6",
+                            "translation": {
+                              "title": "Gatsby (half)",
+                              "locale": "en"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "deliveryman_name": "Bongani M."
+                  },
+                  {
+                    "id": "1036",
+                    "user_id": "6",
+                    "status": "delivered",
+                    "delivery_type": "pickup",
+                    "total_price": 74.5,
+                    "delivery_fee": 0,
+                    "tax": 0,
+                    "currency": {
+                      "id": "ZAR",
+                      "symbol": "R",
+                      "title": "South African Rand",
+                      "rate": 1,
+                      "default": true,
+                      "active": true,
+                      "position": "before"
+                    },
+                    "user": {
+                      "id": "6",
+                      "uuid": "demo_user_6",
+                      "firstname": "Kagiso",
+                      "lastname": "Steyn",
+                      "email": "kagiso.steyn@example.com",
+                      "phone": "+27 82 000 006",
+                      "active": true,
+                      "role": "user"
+                    },
+                    "delivery_date": "$now_iso",
+                    "delivery_time": "10:45",
+                    "created_at": "$now_iso",
+                    "transaction": {
+                      "id": "demo_trx_cash",
+                      "price": 74.5,
+                      "status": "paid",
+                      "payment_system": {
+                        "id": "cash",
+                        "tag": "cash",
+                        "active": true
+                      }
+                    },
+                    "details": [
+                      {
+                        "id": "7",
+                        "quantity": 2,
+                        "origin_price": 37.25,
+                        "total_price": 74.5,
+                        "tax": 0,
+                        "discount": 0,
+                        "stock": {
+                          "id": "7",
+                          "price": 37.25,
+                          "quantity": 2,
+                          "total_price": 74.5,
+                          "product": {
+                            "id": "7",
+                            "uuid": "demo_product_7",
+                            "translation": {
+                              "title": "Vetkoek and mince",
+                              "locale": "en"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "1035",
+                    "user_id": "7",
+                    "status": "delivered",
+                    "delivery_type": "dine_in",
+                    "total_price": 322.0,
+                    "delivery_fee": 0,
+                    "tax": 0,
+                    "currency": {
+                      "id": "ZAR",
+                      "symbol": "R",
+                      "title": "South African Rand",
+                      "rate": 1,
+                      "default": true,
+                      "active": true,
+                      "position": "before"
+                    },
+                    "user": {
+                      "id": "7",
+                      "uuid": "demo_user_7",
+                      "firstname": "Zanele",
+                      "lastname": "Botha",
+                      "email": "zanele.botha@example.com",
+                      "phone": "+27 82 000 007",
+                      "active": true,
+                      "role": "user"
+                    },
+                    "delivery_date": "$now_iso",
+                    "delivery_time": "19:30",
+                    "created_at": "$now_iso",
+                    "transaction": {
+                      "id": "demo_trx_wallet",
+                      "price": 322.0,
+                      "status": "paid",
+                      "payment_system": {
+                        "id": "wallet",
+                        "tag": "wallet",
+                        "active": true
+                      }
+                    },
+                    "details": [
+                      {
+                        "id": "8",
+                        "quantity": 2,
+                        "origin_price": 161.0,
+                        "total_price": 322.0,
+                        "tax": 0,
+                        "discount": 0,
+                        "stock": {
+                          "id": "8",
+                          "price": 161.0,
+                          "quantity": 2,
+                          "total_price": 322.0,
+                          "product": {
+                            "id": "8",
+                            "uuid": "demo_product_8",
+                            "translation": {
+                              "title": "Seafood potjie for two",
+                              "locale": "en"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

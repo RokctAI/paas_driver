@@ -169,9 +169,9 @@ class _ParcelPageState extends ConsumerState<ParcelPage> {
                                             event.setPayment(payment);
                                           },
                                         ),
-                                        isDarkMode: Theme.of(context).brightness == Brightness.dark,
                                         isDrag: true,
                                         radius: 12,
+                                        themedSurface: true,
                                       );
                                     },
                                   ),

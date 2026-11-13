@@ -72,7 +72,7 @@ class _PromoCodeState extends ConsumerState<PromoCodeScreen> {
     return Container(
       margin: MediaQuery.of(context).viewInsets,
       decoration: BoxDecoration(
-        color: AppStyle.bgGrey.withOpacity(0.96),
+        color: AppStyle.surfaceFor(Theme.of(context).brightness).withOpacity(0.96),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(12.r),
           topRight: Radius.circular(12.r),
@@ -134,7 +134,7 @@ class _PromoCodeState extends ConsumerState<PromoCodeScreen> {
                             ),
                             child: Icon(
                               Remix.check_double_line,
-                              color: AppStyle.black,
+                              color: AppStyle.inkFor(Theme.of(context).brightness),
                               size: 16.r,
                             ),
                           )

@@ -127,7 +127,7 @@ packages:
       path: ".rokct/cache/auth"
       relative: true
     source: path
-    version: "1.22.0"
+    version: "1.22.5"
   auto_route:
     dependency: "direct main"
     description:
@@ -158,7 +158,7 @@ packages:
       path: ".rokct/cache/base"
       relative: true
     source: path
-    version: "1.91.0"
+    version: "1.109.0"
   battery_plus:
     dependency: "direct main"
     description:
@@ -277,7 +277,7 @@ packages:
       path: ".rokct/cache/calc"
       relative: true
     source: path
-    version: "1.4.0"
+    version: "1.4.2"
   calendar_date_picker2:
     dependency: "direct main"
     description:
@@ -390,7 +390,7 @@ packages:
       path: ".rokct/cache/comms"
       relative: true
     source: path
-    version: "1.23.1"
+    version: "1.23.4"
   confetti:
     dependency: "direct main"
     description:
@@ -429,7 +429,7 @@ packages:
       path: ".rokct/cache/corporate"
       relative: true
     source: path
-    version: "1.2.0"
+    version: "1.2.1"
   cross_file:
     dependency: transitive
     description:
@@ -484,7 +484,7 @@ packages:
       path: ".rokct/cache/delivery"
       relative: true
     source: path
-    version: "1.30.0"
+    version: "1.30.5"
   desktop_sdk:
     dependency: "direct main"
     description:
@@ -1308,7 +1308,7 @@ packages:
       path: ".rokct/cache/hms"
       relative: true
     source: path
-    version: "1.1.0"
+    version: "1.1.1"
   hotreloader:
     dependency: transitive
     description:
@@ -1461,6 +1461,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.1+1"
+  in_app_review:
+    dependency: transitive
+    description:
+      name: in_app_review
+      sha256: "364db0c160b37fe7fad9cdaa18f968473924b17368869010af902760421b6bf8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.12"
+  in_app_review_platform_interface:
+    dependency: transitive
+    description:
+      name: in_app_review_platform_interface
+      sha256: fed2c755f2125caa9ae10495a3c163aa7fab5af3585a9c62ef4a6920c5b45f10
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.5"
   integration_test:
     dependency: "direct dev"
     description: flutter
@@ -1624,7 +1640,7 @@ packages:
       path: ".rokct/cache/map"
       relative: true
     source: path
-    version: "1.5.0"
+    version: "1.5.2"
   matcher:
     dependency: transitive
     description:
@@ -1647,7 +1663,7 @@ packages:
       path: ".rokct/cache/merchants"
       relative: true
     source: path
-    version: "1.36.0"
+    version: "1.38.2"
   meta:
     dependency: transitive
     description:
@@ -1702,7 +1718,7 @@ packages:
       path: ".rokct/cache/orders"
       relative: true
     source: path
-    version: "1.30.0"
+    version: "1.31.8"
   osm_nominatim:
     dependency: "direct main"
     description:
@@ -1957,7 +1973,7 @@ packages:
       path: ".rokct/cache/products"
       relative: true
     source: path
-    version: "1.12.7"
+    version: "1.13.3"
   proste_indexed_stack:
     dependency: "direct main"
     description:
@@ -2020,7 +2036,7 @@ packages:
       path: ".rokct/cache/revenue"
       relative: true
     source: path
-    version: "1.14.1"
+    version: "1.14.8"
   riverpod:
     dependency: transitive
     description:
@@ -2360,7 +2376,7 @@ packages:
       path: ".rokct/cache/telemetry"
       relative: true
     source: path
-    version: "1.1.0"
+    version: "1.1.1"
   term_glyph:
     dependency: transitive
     description:
@@ -2487,7 +2503,7 @@ packages:
       path: ".rokct/cache/users"
       relative: true
     source: path
-    version: "1.5.2"
+    version: "1.5.3"
   uuid:
     dependency: "direct main"
     description:
@@ -2558,7 +2574,7 @@ packages:
       path: ".rokct/cache/weather"
       relative: true
     source: path
-    version: "1.2.0"
+    version: "1.6.3"
   web:
     dependency: transitive
     description:
@@ -2725,7 +2741,7 @@ packages:
       path: ".rokct/cache/zones"
       relative: true
     source: path
-    version: "1.7.0"
+    version: "1.7.1"
 sdks:
   dart: ">=3.10.0 <4.0.0"
   flutter: ">=3.38.5"

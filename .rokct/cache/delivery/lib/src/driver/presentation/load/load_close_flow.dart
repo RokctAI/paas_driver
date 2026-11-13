@@ -37,6 +37,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:delivery_sdk/src/driver/application/load/load_provider.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/driver_load.dart';
 import 'package:delivery_sdk/src/driver/presentation/load/load_line_tiles.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 class DriverLoadCloseFlow {
   const DriverLoadCloseFlow._();
@@ -55,11 +56,7 @@ class DriverLoadCloseFlow {
     final closed =
         await ref.read(driverLoadProvider.notifier).close(load: load, context: context);
     if (closed == null || !context.mounted) return;
-    AppHelpers.showCustomModalBottomSheet(
-      context: context,
-      isDarkMode: (Theme.of(context).brightness == Brightness.dark),
-      modal: LoadCloseSummarySheet(load: closed),
-    );
+    DriverSheet.show(context, modal: LoadCloseSummarySheet(load: closed));
   }
 }
 

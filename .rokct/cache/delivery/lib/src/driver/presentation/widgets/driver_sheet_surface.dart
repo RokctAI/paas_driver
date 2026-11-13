@@ -24,29 +24,63 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
+import 'package:base_sdk/src/services/app_helpers.dart';
 
+/// The opaque surface under every driver sheet, resolved from the theme the
+/// sheet is shown in (dark: the dark surface; light: the light surface).
 class DriverSheetSurface extends StatelessWidget {
   final Widget child;
+  final double radius;
 
-  const DriverSheetSurface({super.key, required this.child});
+  const DriverSheetSurface({super.key, required this.child, this.radius = 16});
 
-  /// The surface colour for the current theme mode - the same pair
-  /// base_sdk's edit-profile sheet resolves.
-  static Color color() =>
-      AppStyle.isDark ? AppStyle.surfaceDark : AppStyle.bgGrey;
+  /// The surface colour for [context]'s brightness.
+  static Color color(BuildContext context) =>
+      AppStyle.surfaceFor(Theme.of(context).brightness);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: color(),
+        color: color(context),
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16.r),
-          topRight: Radius.circular(16.r),
+          topLeft: Radius.circular(radius.r),
+          topRight: Radius.circular(radius.r),
         ),
       ),
       child: child,
+    );
+  }
+}
+
+/// The one way a delivery screen opens a bottom sheet.
+///
+/// Wraps AppHelpers.showCustomModalBottomSheet, whose route is transparent,
+/// so every sheet gets the theme-aware [DriverSheetSurface] behind it and
+/// the sheet follows the app's dark or light mode. Pass [surface] false only
+/// when the [modal] already paints an opaque, theme-aware surface of its own
+/// that covers the whole sheet.
+class DriverSheet {
+  DriverSheet._();
+
+  static void show(
+    BuildContext context, {
+    required Widget modal,
+    bool surface = true,
+    bool isDrag = true,
+    bool isDismissible = true,
+    double paddingTop = 200,
+    double radius = 16,
+  }) {
+    AppHelpers.showCustomModalBottomSheet(
+      context: context,
+      modal: modal,
+      themedSurface: surface,
+      isDrag: isDrag,
+      isDismissible: isDismissible,
+      paddingTop: paddingTop,
+      radius: radius,
     );
   }
 }

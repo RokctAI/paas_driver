@@ -64,7 +64,7 @@ class _SelectSectionPageState extends ConsumerState<SelectSectionPage> {
   Widget build(BuildContext context) {
     return KeyboardDismisser(
       child: Scaffold(
-        backgroundColor: AppStyle.bgGrey,
+        backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
         body: Consumer(
           builder: (context, ref, child) {
             final state = ref.watch(sectionProvider);

@@ -1,0 +1,10 @@
+{
+  "message": {
+    "total_price": 50.0,
+    "total_tax": 5.0,
+    "total_shop_tax": 2.5,
+    "price": 45.0,
+    "delivery_fee": 2.5,
+    "service_fee": 0.0
+  }
+}

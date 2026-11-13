@@ -129,7 +129,7 @@ class _CreateAddonModalState extends ConsumerState<CreateAddonModal> {
                                               context: context,
                                               modal:
                                                   const CreateAddonUnitsModal(),
-                                              isDarkMode: false,
+                                              themedSurface: true,
                                             ),
                                       );
                                     },
@@ -194,7 +194,9 @@ class _CreateAddonModalState extends ConsumerState<CreateAddonModal> {
                                         style: AppStyle.interNormal(
                                           size: 14.sp,
                                           letterSpacing: -0.3,
-                                          color: AppStyle.blackColor,
+                                          color: AppStyle.inkFor(
+                                            Theme.of(context).brightness,
+                                          ),
                                         ),
                                       ),
                                       CustomToggle(

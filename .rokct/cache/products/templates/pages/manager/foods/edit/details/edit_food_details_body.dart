@@ -109,12 +109,7 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
             final event = ref.read(editFoodDetailsProvider.notifier);
             final foodsEvent = ref.read(foodsProvider.notifier);
             return state.product == null
-                ? Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3.r,
-                      color: AppStyle.primary,
-                    ),
-                  )
+                ? const Loading()
                 : Form(
                     key: _formKey,
                     child: Column(
@@ -163,7 +158,7 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
                                 MediaQuery.paddingOf(context).top + 100.h,
                             context: context,
                             modal: const EditFoodCategoriesModal(),
-                            isDarkMode: false,
+                            themedSurface: true,
                           ),
                           validator: SellerFormValidators.emptyCheck,
                         ),
@@ -186,7 +181,7 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
                                           250.h,
                                   context: context,
                                   modal: const EditFoodUnitsModal(),
-                                  isDarkMode: false,
+                                  themedSurface: true,
                                 ),
                                 validator: SellerFormValidators.emptyCheck,
                               ),
@@ -207,7 +202,7 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
                                           250.h,
                                   context: context,
                                   modal: const FoodKitchensModal(),
-                                  isDarkMode: false,
+                                  themedSurface: true,
                                 ),
                               ),
                             ),

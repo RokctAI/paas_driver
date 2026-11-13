@@ -25,6 +25,8 @@
 // cmds; the gallery upload stays a direct multipart POST, but to core's fleet
 // upload endpoint.
 
+// compliance-ignore-file: flutter-http-timeout (test or caller of base_sdk's shared HttpService (timeouts set there); no Dio client is built here without timeouts)
+
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';

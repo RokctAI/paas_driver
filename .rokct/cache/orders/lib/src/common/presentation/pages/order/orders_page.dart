@@ -29,6 +29,11 @@ import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/theme/theme.dart';
 import 'package:orders_sdk/src/common/presentation/pages/order/widgets/orders_item.dart';
 import 'package:base_sdk/src/presentation/components/badges.dart';
+import 'package:base_sdk/src/guide/guide_anchor.dart';
+import 'package:base_sdk/src/guide/guide_definition.dart';
+import 'package:base_sdk/src/guide/guide_host.dart';
+
+const GuideDefinition ordersListGuide = GuideDefinition(id: 'orders.list', steps: [GuideStep(id: 'orders.list.tabs', anchor: 'orders.list.tabs', title: 'Filter by status', body: 'Use these tabs to see orders by status.')]);
 
 @RoutePage()
 class OrdersListPage extends ConsumerStatefulWidget {
@@ -81,8 +86,12 @@ class _OrderPageState extends ConsumerState<OrdersListPage>
     super.dispose();
   }
 
+  /// The page sits under its own GuideHost, so its coach-mark shows here only
+  /// and never in the app's MaterialApp builder.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => GuideHost(definition: ordersListGuide, child: _buildPage(context));
+
+  Widget _buildPage(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final bool isLtr = LocalStorage.getLangLtr();
     final state = ref.watch(ordersListProvider);
@@ -107,10 +116,13 @@ class _OrderPageState extends ConsumerState<OrdersListPage>
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Column(
                   children: [
-                    CustomTabBar(
-                      isScrollable: true,
-                      tabController: _tabController,
-                      tabs: _tabs,
+                    GuideAnchor(
+                      id: 'orders.list.tabs',
+                      child: CustomTabBar(
+                        isScrollable: true,
+                        tabController: _tabController,
+                        tabs: _tabs,
+                      ),
                     ),
                     Expanded(
                       child: TabBarView(

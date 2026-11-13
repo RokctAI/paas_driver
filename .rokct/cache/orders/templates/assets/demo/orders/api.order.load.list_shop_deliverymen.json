@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "sipho.dlamini@demo.rokct.ai",
+    "name": "Sipho Dlamini"
+  },
+  {
+    "id": "naledi.khumalo@demo.rokct.ai",
+    "name": "Naledi Khumalo"
+  },
+  {
+    "id": "thabo.molefe@demo.rokct.ai",
+    "name": "Thabo Molefe"
+  }
+]

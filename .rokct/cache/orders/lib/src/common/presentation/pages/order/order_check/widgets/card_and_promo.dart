@@ -47,9 +47,9 @@ class CardAndPromo extends StatelessWidget {
                       shopEnableCod:
                           ref.watch(orderProvider).shopData?.enableCod ?? true,
                     ),
-                    isDarkMode: Theme.of(context).brightness == Brightness.dark,
                     isDrag: true,
                     radius: 12,
+                    themedSurface: true,
                   );
                 },
                 icon: Icon(
@@ -105,9 +105,9 @@ class CardAndPromo extends StatelessWidget {
                   AppHelpers.showCustomModalBottomSheet(
                     context: context,
                     modal: const PromoCodeScreen(),
-                    isDarkMode: Theme.of(context).brightness == Brightness.dark,
                     isDrag: true,
                     radius: 12,
+                    themedSurface: true,
                   );
                 },
                 isActive: ref.watch(orderProvider).promoCode != null,

@@ -24,6 +24,8 @@
 // repositories' model parsing may land on the failure branch; that is not
 // what these tests guard (the wire contract is captured before parsing).
 
+// compliance-ignore-file: flutter-http-timeout (test or caller of base_sdk's shared HttpService (timeouts set there); no Dio client is built here without timeouts)
+
 import 'dart:convert';
 import 'dart:typed_data';
 

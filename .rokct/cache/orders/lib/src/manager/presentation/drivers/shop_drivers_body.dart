@@ -409,8 +409,8 @@ void showAddShopDriverSheet(BuildContext context) {
   AppHelpers.showCustomModalBottomSheet(
     context: context,
     modal: const AddShopDriverSheet(),
-    isDarkMode: true,
     radius: 12,
+    themedSurface: true,
   );
 }
 

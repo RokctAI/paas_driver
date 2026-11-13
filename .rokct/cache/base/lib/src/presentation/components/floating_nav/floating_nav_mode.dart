@@ -104,10 +104,17 @@ class FloatingNavTab {
   final IconData unSelectIcon;
   final String label;
 
+  /// A small mark pinned to the top right of the tab's icon, such as a
+  /// status dot or a count. It is part of the tab, so a page puts a
+  /// signal on the nav instead of floating it over or under the pill.
+  /// Null, the default, draws the tab exactly as before.
+  final Widget? marker;
+
   const FloatingNavTab({
     required this.selectIcon,
     required this.unSelectIcon,
     required this.label,
+    this.marker,
   });
 }
 
@@ -368,11 +375,18 @@ class FloatingNavInput {
   /// card that rises behind this bar.
   final ValueChanged<bool>? onFocusChanged;
 
+  /// The caller's own text, when it must outlive the bar: a chat that keeps
+  /// an unsent draft per conversation passes the draft's controller, so the
+  /// words are still there when the person comes back. The bar never
+  /// disposes it. Null: the bar keeps its own.
+  final TextEditingController? controller;
+
   const FloatingNavInput({
     required this.placeholder,
     this.enabled = true,
     this.onSubmit,
     this.onFocusChanged,
+    this.controller,
   });
 }
 

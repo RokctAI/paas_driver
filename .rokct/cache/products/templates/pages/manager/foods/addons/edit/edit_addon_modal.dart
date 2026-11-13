@@ -120,7 +120,7 @@ class _EditAddonModalState extends State<EditAddonModal> {
                                               300.h,
                                           context: context,
                                           modal: const EditAddonUnitsModal(),
-                                          isDarkMode: false,
+                                          themedSurface: true,
                                         ),
                                   ),
                                   24.verticalSpace,
@@ -195,7 +195,9 @@ class _EditAddonModalState extends State<EditAddonModal> {
                                         style: AppStyle.interNormal(
                                           size: 14.sp,
                                           letterSpacing: -0.3,
-                                          color: AppStyle.blackColor,
+                                          color: AppStyle.inkFor(
+                                            Theme.of(context).brightness,
+                                          ),
                                         ),
                                       ),
                                       CustomToggle(

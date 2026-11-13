@@ -21,6 +21,7 @@ import 'package:http/http.dart' as http;
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/minimum_build.dart';
 
 /// Result of [AppConnectivity.backendStatus]: the backend answered normally
 /// ([up]), answered but reports the site is in maintenance ([maintenance]),
@@ -72,10 +73,17 @@ abstract class AppConnectivity {
 
   // Tri-state variant of backendAvailability() for flows that must
   // distinguish a backend in maintenance mode from one that is unreachable.
+  /// The client [backendStatus] uses when the caller passes none (the
+  /// splash does not). Tests only.
+  @visibleForTesting
+  static http.Client? testClient;
+
   static Future<BackendStatus> backendStatus({
     Duration timeout = const Duration(seconds: 5),
     http.Client? client,
   }) async {
+    client ??= testClient;
+    MinimumBuild.remember(null);
     try {
       if (!await connectivity()) return BackendStatus.down;
       // Raw http (pre-DI) — POST the platform gateway envelope directly;
@@ -91,6 +99,8 @@ abstract class AppConnectivity {
           .timeout(timeout);
       if (response.statusCode != 200) return BackendStatus.down;
       final dynamic message = jsonDecode(response.body)['message'];
+      // The same answer says which builds the backend still serves.
+      MinimumBuild.remember(message?['data']);
       final status = message?['data']?['status']?.toString();
       return status == 'maintenance'
           ? BackendStatus.maintenance

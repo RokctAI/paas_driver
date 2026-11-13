@@ -309,7 +309,6 @@ class MerchantShopInfoSection extends ConsumerWidget {
             paddingTop: MediaQuery.paddingOf(context).top + 60,
             context: context,
             modal: const EditRestaurantModal(),
-            isDarkMode: false,
           ),
         ),
         Text(
@@ -544,7 +543,6 @@ class MerchantSectionsList extends StatelessWidget {
             paddingTop: MediaQuery.paddingOf(context).top + 60,
             context: context,
             modal: const EditRestaurantModal(),
-            isDarkMode: false,
           ),
         ),
         // QUICK FLOW (approved design strip section 42, chip 795): the
@@ -601,7 +599,6 @@ class MerchantSectionsList extends StatelessWidget {
               AppHelpers.showCustomModalBottomSheet(
                 context: context,
                 modal: const LogoutModal(isDeleteAccount: true),
-                isDarkMode: false,
               );
             },
           ),

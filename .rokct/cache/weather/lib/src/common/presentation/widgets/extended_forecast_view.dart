@@ -25,6 +25,7 @@ import 'package:weather_sdk/src/common/infrastructure/services/open_weather_icon
 import 'package:weather_sdk/src/common/infrastructure/services/open_weather_service.dart';
 import 'package:weather_sdk/src/common/presentation/widgets/temperature_badge.dart';
 
+import 'package:base_sdk/src/presentation/components/loading.dart';
 /// Horizontally scrollable day-4-6 cards from the OpenWeather feed.
 /// Ported from pos main's `weather/extended_forecast_view.dart`.
 class ExtendedForecastView extends ConsumerWidget {
@@ -149,11 +150,7 @@ class ExtendedForecastView extends ConsumerWidget {
       },
       loading: () => Padding(
         padding: EdgeInsets.all(24.sp),
-        child: Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppStyle.textPrimary),
-          ),
-        ),
+        child: const Loading(),
       ),
       error: (error, stackTrace) => Padding(
         padding: EdgeInsets.all(24.sp),

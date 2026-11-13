@@ -89,6 +89,30 @@ steps:
     action: route
     route: /parcel-history
     settle: 8
+  - key: driver_deposits
+    title: "Cash you owe, plain and simple"
+    caption: "Your wallet balance and every *deposit* - approved, rejected or waiting - so you always know where the cash stands."
+    action: route
+    route: /driver-deposits
+    settle: 8
+  - key: driver_load
+    title: "The van, by the numbers"
+    caption: "The stock the shop handed you - *issued, sold, returned and left* on every line."
+    action: route
+    route: /load
+    settle: 8
+  - key: driver_load_sell
+    title: "Sell at the door"
+    caption: "Pick what the customer takes and *collect the cash* at the load price - the van updates itself."
+    action: route
+    route: /load/sell
+    settle: 8
+  - key: driver_load_return
+    title: "Bring back what's left"
+    caption: "Anything unsold goes back on the shop's books - *return it* before you close the load."
+    action: route
+    route: /load/return
+    settle: 8
   # Navigation-only step (no still). It still routes the tour to /profile so
   # the courier chapter ends on the profile page (the next chapters open
   # from there in normal use), but the /profile STILL is owned by users_sdk's

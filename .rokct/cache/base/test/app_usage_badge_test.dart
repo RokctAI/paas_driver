@@ -28,6 +28,8 @@
 // The meta row's version line is the short "v1.2.3" form (the
 // spelled-out "App Version" label was retired as too long).
 
+// compliance-ignore-file: flutter-http-timeout (test or caller of base_sdk's shared HttpService (timeouts set there); no Dio client is built here without timeouts)
+
 import 'package:base_sdk/base_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';

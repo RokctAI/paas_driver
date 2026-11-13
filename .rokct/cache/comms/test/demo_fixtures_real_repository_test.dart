@@ -28,6 +28,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:comms_sdk/src/common/di/comms_di.dart';
+import 'package:comms_sdk/src/common/infrastructure/repositories/notification_repository.dart';
 import 'package:comms_sdk/src/common/infrastructure/repositories/settings_repository.dart';
 
 T ok<T>(ApiResult<T> r) => switch (r) {
@@ -84,5 +85,13 @@ void main() {
     expect(list.data!.single.type, 'order');
     ok(await repo.updateNotification(
         [NotificationData(type: 'order', active: true)]));
+  });
+
+  test('the notification list and unread count are stocked', () async {
+    final repo = NotificationRepositoryImpl();
+    final page = ok(await repo.getNotifications(page: 1));
+    expect(page.data, hasLength(5));
+    expect(page.data!.where((n) => n.readAt == null), hasLength(2));
+    expect(ok(await repo.getCount()).notification, 2);
   });
 }

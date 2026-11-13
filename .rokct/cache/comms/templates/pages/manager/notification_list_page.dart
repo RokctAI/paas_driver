@@ -140,7 +140,7 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
         // as String, so the id passes straight through.
         order: sdk.OrderData(id: notification.orderData?.id),
       ),
-      isDarkMode: true,
+      themedSurface: true,
     );
   }
 

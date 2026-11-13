@@ -167,7 +167,6 @@ void main() {
                 onPressed: () => AppHelpers.showCustomModalBottomSheet(
                   context: context,
                   modal: LanguageScreen(onSave: () {}),
-                  isDarkMode: true,
                 ),
                 child: const Text('open'),
               ),

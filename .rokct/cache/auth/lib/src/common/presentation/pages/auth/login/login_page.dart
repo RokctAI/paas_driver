@@ -39,9 +39,24 @@ import 'package:auth_sdk/src/common/services/entry_config.dart';
 
 import 'package:base_sdk/src/presentation/theme/theme.dart';
 import 'package:base_sdk/src/presentation/components/buttons/second_button.dart';
+import 'package:base_sdk/src/guide/guide_anchor.dart';
+import 'package:base_sdk/src/guide/guide_definition.dart';
+import 'package:base_sdk/src/guide/guide_host.dart';
 // [refork] intro page embedded via EmbeddedWidgets registry
 // [refork] embed via EmbeddedWidgets
 // [refork] embed via EmbeddedWidgets
+
+const GuideDefinition authLoginGuide = GuideDefinition(
+  id: 'auth.login',
+  steps: [
+    GuideStep(
+      id: 'auth.login.button',
+      anchor: 'auth.login.button',
+      title: 'Sign in',
+      body: 'Tap Login to sign in to your account.',
+    ),
+  ],
+);
 
 @RoutePage()
 class LoginPage extends ConsumerStatefulWidget {
@@ -144,7 +159,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       isDrag: false,
       context: context,
       modal: languageScreen,
-      isDarkMode: Theme.of(context).brightness == Brightness.dark,
     );
   }
 
@@ -183,8 +197,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
   }
 
+  /// The page sits under its own GuideHost, so its coach-mark shows here only
+  /// and never in the app's MaterialApp builder.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => GuideHost(
+        definition: authLoginGuide,
+        child: _buildPage(context),
+      );
+
+  Widget _buildPage(BuildContext context) {
     ref.watch(languageProvider);
     ref.listen(loginProvider, (previous, next) {
       if (!next.isSelectLanguage &&
@@ -242,7 +263,36 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           alignment: Alignment.center,
                         ),
                       ),
-                child: SafeArea(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // Black fade rising from the bottom edge so the action
+                    // buttons (Register especially) stay readable over busy
+                    // splash artwork. Compact only: wide windows are imageless.
+                    if (!isWideWindow)
+                      const Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        height: 340,
+                        child: IgnorePointer(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                colors: [
+                                  Color(0xE6000000),
+                                  Color(0xB3000000),
+                                  Color(0x00000000),
+                                ],
+                                stops: [0.0, 0.55, 1.0],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    SafeArea(
                   child: Padding(
                     padding: REdgeInsets.symmetric(horizontal: 16.w),
                     child: Column(
@@ -380,15 +430,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            CustomButton(
-                              title: AppHelpers.getTranslation(TrKeys.login),
-                              onPressed: () {
-                                AppHelpers.showCustomModalBottomSheet(
-                                  context: context,
-                                  modal: const LoginScreen(),
-                                  isDarkMode: isDarkMode,
-                                );
-                              },
+                            GuideAnchor(
+                              id: 'auth.login.button',
+                              child: CustomButton(
+                                title: AppHelpers.getTranslation(TrKeys.login),
+                                onPressed: () {
+                                  AppHelpers.showCustomModalBottomSheet(
+                                    context: context,
+                                    modal: const LoginScreen(),
+                                  );
+                                },
+                              ),
                             ),
                             10.verticalSpace,
                             CustomButton(
@@ -397,7 +449,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 AppHelpers.showCustomModalBottomSheet(
                                   context: context,
                                   modal: RegisterPage(isOnlyEmail: true),
-                                  isDarkMode: isDarkMode,
                                   paddingTop: MediaQuery.paddingOf(context).top,
                                 );
                               },
@@ -423,6 +474,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ],
                     ),
                   ),
+                ),
+                  ],
                 ),
               ),
       ),

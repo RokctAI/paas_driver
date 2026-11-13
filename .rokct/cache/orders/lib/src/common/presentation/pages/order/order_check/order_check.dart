@@ -67,6 +67,7 @@ import 'package:orders_sdk/src/common/presentation/pages/order/order_check/widge
 import 'package:orders_sdk/src/common/presentation/pages/order/order_check/order_check_keys.dart';
 import 'package:remixicon/remixicon.dart';
 
+import 'package:base_sdk/src/presentation/components/loading.dart';
 // Import the PreloadedWebView provider
 final preloadedWebViewProvider = StateProvider<PreloadedWebViewState?>(
   (ref) => null,
@@ -196,7 +197,6 @@ class _OrderCheckState extends ConsumerState<OrderCheck> {
       AppHelpers.showCustomModalBottomSheet(
         context: context,
         modal: EmbeddedWidgets.I.phoneVerify(),
-        isDarkMode: Theme.of(context).brightness == Brightness.dark,
         paddingTop: MediaQuery.paddingOf(context).top,
       );
       return;
@@ -244,7 +244,7 @@ class _OrderCheckState extends ConsumerState<OrderCheck> {
             );
           },
         ),
-        isDarkMode: Theme.of(context).brightness == Brightness.dark,
+        themedSurface: true,
         paddingTop: MediaQuery.paddingOf(context).top,
       );
       return;
@@ -327,7 +327,6 @@ class _OrderCheckState extends ConsumerState<OrderCheck> {
             }
           },
         ),
-        isDarkMode: Theme.of(context).brightness == Brightness.dark,
       );
     } else {
       // Use the standard flow
@@ -522,7 +521,7 @@ class _OrderCheckState extends ConsumerState<OrderCheck> {
                           state.orderData?.createdAt ?? DateTime.now(),
                         ),
                       ),
-                      isDarkMode: Theme.of(context).brightness == Brightness.dark,
+                      themedSurface: true,
                     );
                   },
                   isRepeatLoading: state.isAddLoading,
@@ -869,7 +868,7 @@ class _WebViewPageState extends State<WebViewPage> {
 
           // Loading indicator shows while content is loading
           if (isLoading)
-            Center(child: CircularProgressIndicator(color: AppStyle.primary)),
+            const Loading(),
         ],
       ),
     );
@@ -1045,7 +1044,7 @@ class _PayFastPaymentScreenState extends ConsumerState<PayFastPaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return _loadingCards
-        ? Center(child: CircularProgressIndicator(color: AppStyle.primary))
+        ? const Loading()
         : Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

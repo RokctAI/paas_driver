@@ -214,7 +214,7 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: AppStyle.white,
+                        color: AppStyle.cardFor(Theme.of(context).brightness),
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       padding: REdgeInsets.symmetric(
@@ -225,6 +225,7 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
                         children: [
                           24.verticalSpace,
                           TitleAndIcon(
+                            titleColor: AppStyle.inkFor(Theme.of(context).brightness),
                             title: AppHelpers.getTranslation(
                               TrKeys.deliveryType,
                             ),
@@ -266,7 +267,7 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
                       Container(
                         margin: REdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
-                          color: AppStyle.white,
+                          color: AppStyle.cardFor(Theme.of(context).brightness),
                           borderRadius: BorderRadius.circular(10.r),
                         ),
                         padding: REdgeInsets.symmetric(
@@ -276,6 +277,7 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
                         child: Column(
                           children: [
                             TitleAndIcon(
+                              titleColor: AppStyle.inkFor(Theme.of(context).brightness),
                               title: AppHelpers.getTranslation(
                                 TrKeys.customerInformation,
                               ),
@@ -423,7 +425,7 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
                       Container(
                         margin: REdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
-                          color: AppStyle.white,
+                          color: AppStyle.cardFor(Theme.of(context).brightness),
                           borderRadius: BorderRadius.only(
                             bottomLeft: Radius.circular(10.r),
                             bottomRight: Radius.circular(10.r),
@@ -444,6 +446,7 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
                             return Column(
                               children: [
                                 TitleAndIcon(
+                                  titleColor: AppStyle.inkFor(Theme.of(context).brightness),
                                   title: AppHelpers.getTranslation(
                                     TrKeys.shippingAddress,
                                   ),
@@ -531,7 +534,7 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
                           return Container(
                             margin: REdgeInsets.only(bottom: 10),
                             decoration: BoxDecoration(
-                              color: AppStyle.white,
+                              color: AppStyle.cardFor(Theme.of(context).brightness),
                               borderRadius: BorderRadius.circular(10.r),
                             ),
                             padding: REdgeInsets.symmetric(
@@ -541,6 +544,7 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
                             child: Column(
                               children: [
                                 TitleAndIcon(
+                                  titleColor: AppStyle.inkFor(Theme.of(context).brightness),
                                   title: AppHelpers.getTranslation(
                                     TrKeys.selectTable,
                                   ),

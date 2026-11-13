@@ -44,7 +44,7 @@ class ProductData {
     List<Galleries>? galleries,
     Stock? stock,
     KitchenModel? kitchen,
-    int? unitId,
+    String? unitId,
     List<ProductDiscounts>? discounts,
     bool? isSelectedAddon,
   }) {
@@ -141,7 +141,7 @@ class ProductData {
       });
     }
 
-    _unitId = json['unit_id'];
+    _unitId = json['unit_id']?.toString();
 
     if (json['discounts'] != null) {
       _discounts = [];
@@ -183,7 +183,7 @@ class ProductData {
   List<Stock>? _stocks;
   Stock? _stock;
   KitchenModel? _kitchen;
-  int? _unitId;
+  String? _unitId;
   List<ProductDiscounts>? _discounts;
   bool? _isSelectedAddon;
 
@@ -210,7 +210,7 @@ class ProductData {
     List<Stock>? stocks,
     List<Translation>? translations,
     Stock? stock,
-    int? unitId,
+    String? unitId,
     List<ProductDiscounts>? discounts,
     bool? isSelectedAddon,
     KitchenModel? kitchen,
@@ -286,7 +286,7 @@ class ProductData {
   KitchenModel? get kitchen => _kitchen;
   List<Stock>? get stocks => _stocks;
   Stock? get stock => _stock;
-  int? get unitId => _unitId;
+  String? get unitId => _unitId;
   List<ProductDiscounts>? get discounts => _discounts;
   bool? get isSelectedAddon => _isSelectedAddon;
 

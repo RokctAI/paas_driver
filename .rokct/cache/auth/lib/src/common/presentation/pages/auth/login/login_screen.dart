@@ -66,7 +66,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final event = ref.read(loginProvider.notifier);
     final state = ref.watch(loginProvider);
-    final bool isDarkMode = LocalStorage.getAppThemeMode();
     final bool isLtr = LocalStorage.getLangLtr();
     final bool isIOS = Theme.of(context).platform == TargetPlatform.iOS;
 
@@ -323,7 +322,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 AppHelpers.showCustomModalBottomSheet(
                                   context: context,
                                   modal: const ResetPasswordPage(),
-                                  isDarkMode: isDarkMode,
                                 );
                               },
                             ),

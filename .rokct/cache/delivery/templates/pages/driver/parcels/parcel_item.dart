@@ -15,6 +15,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:base_sdk/src/models/data/parcel_order.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 import 'package:intl/intl.dart' as intl;
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -38,14 +39,13 @@ class ParcelItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        AppHelpers.showCustomModalBottomSheet(
-          context: context,
+        DriverSheet.show(
+          context,
           modal: ParcelOrderPage(
             parcel: parcel,
             isOrder: isOrder,
             isSet: isSet,
           ),
-          isDarkMode: false,
           paddingTop: MediaQuery.paddingOf(context).top,
           radius: 12,
         );

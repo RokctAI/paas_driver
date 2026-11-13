@@ -1,0 +1,28 @@
+{
+  "data": [
+    {
+      "id": "SEC-DEMO-0001",
+      "shop_id": "1",
+      "area": "Dining room",
+      "translation": {
+        "title": "Dining room"
+      }
+    },
+    {
+      "id": "SEC-DEMO-0002",
+      "shop_id": "1",
+      "area": "Patio",
+      "translation": {
+        "title": "Patio"
+      }
+    },
+    {
+      "id": "SEC-DEMO-0003",
+      "shop_id": "1",
+      "area": "Counter",
+      "translation": {
+        "title": "Counter"
+      }
+    }
+  ]
+}

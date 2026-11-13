@@ -6,6 +6,14 @@
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <!-- Android 12 and later always draw their own splash (a plain page
+             with the app icon) before ours. No icon, and the colour of our
+             splash artwork, so it reads as the start of our splash instead
+             of a second one. Set splash_background in values/colors.xml to
+             the main colour of the app's splash image. -->
+        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_no_icon</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/splash_background</item>
     </style>
     <!-- Theme applied to the Android Window as soon as the process has started.
          This theme determines the color of the Android Window while your

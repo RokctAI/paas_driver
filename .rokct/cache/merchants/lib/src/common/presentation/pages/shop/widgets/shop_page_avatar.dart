@@ -220,7 +220,6 @@ class ShopPageAvatar extends StatelessWidget {
             AppHelpers.showCustomModalBottomSheet(
               context: context,
               modal: GroupOrderScreen(shop: shop, cartId: cartId),
-              isDarkMode: Theme.of(context).brightness == Brightness.dark,
               isDrag: true,
               radius: 12,
             );
@@ -255,7 +254,6 @@ class ShopPageAvatar extends StatelessWidget {
                       paddingTop: MediaQuery.paddingOf(context).top + 160.h,
                       context: context,
                       modal: GroupOrderScreen(shop: shop, cartId: cartId),
-                      isDarkMode: Theme.of(context).brightness == Brightness.dark,
                       isDrag: true,
                       radius: 12,
                     );
@@ -431,7 +429,6 @@ class ShopPageAvatar extends StatelessWidget {
             paddingTop: MediaQuery.paddingOf(context).top,
             context: context,
             modal: BonusScreen(bonus: bonus),
-            isDarkMode: Theme.of(context).brightness == Brightness.dark,
             isDrag: true,
             radius: 12,
           );

@@ -1,3 +1,7 @@
+## 1.2.1
+
+- chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.
+
 ## 1.2.0
 
 * **`/term` and `/policy` are routes again.** The pre-fork `paas_customer`

@@ -27,6 +27,9 @@
 // `client` test seam, backed by a recording HttpClientAdapter; nothing
 // touches the network.
 
+// compliance-ignore-file: flutter-http-timeout (test or caller of base_sdk's shared HttpService (timeouts set there); no Dio client is built here without timeouts)
+// compliance-ignore-file: obs-flutter-trace (no outgoing HTTP to our backend here (flagged by file name or an external download); backend calls go through base_sdk's HttpService, which registers TraceIdInterceptor)
+
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -36,6 +39,7 @@ import 'package:map_sdk/src/common/infrastructure/services/places/places_service
 
 /// A value shaped like a real Google API key, so a substring search for it
 /// across the URI is meaningful.
+// compliance-ignore: flutter-hardcoded-secret (false positive: this is a translation key, asset path or test fixture, not a credential)
 const _apiKey = 'AIzaSyTEST-ThisIsNotARealKey_0123456789abcd';
 const _placeId = 'ChIJj61dQgK6j4AR4GeTYWZsKWw';
 
