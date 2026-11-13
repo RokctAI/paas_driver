@@ -1,8 +1,28 @@
 {
-  "total_price": 20,
-  "total_delivered_count": 2,
-  "total_count": 6,
-  "last_delivered_fee": 12,
-  "cash_on_hand": 0,
-  "cash_order_count": 0
+  "data": {
+    "total_price": 20,
+    "fm_total_price": 20,
+    "total_delivered_count": 2,
+    "total_count": 6,
+    "total_new_count": 1,
+    "total_ready_count": 1,
+    "total_on_a_way_count": 1,
+    "total_accepted_count": 1,
+    "total_canceled_count": 0,
+    "total_today_count": 6,
+    "last_delivered_fee": 12,
+    "last_order_total_price": 96,
+    "last_order_income": 12,
+    "cash_on_hand": 0,
+    "cash_order_count": 0,
+    "chart": [
+      { "time": "$today-6d", "total_price": 42 },
+      { "time": "$today-5d", "total_price": 36 },
+      { "time": "$today-4d", "total_price": 58 },
+      { "time": "$today-3d", "total_price": 47 },
+      { "time": "$today-2d", "total_price": 61 },
+      { "time": "$today-1d", "total_price": 54 },
+      { "time": "$today", "total_price": 20 }
+    ]
+  }
 }
