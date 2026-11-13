@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,9 +40,9 @@ export 'floating_nav_mode.dart';
 /// as a raised object sitting ON the lesson, and a translucent panel over a
 /// dark board disappears into it.
 Color get _blockFill => Color.alphaBlend(
-      AppStyle.white.withOpacity(0.10),
-      AppStyle.bottomNavigationBarColor,
-    );
+  AppStyle.white.withOpacity(0.10),
+  AppStyle.bottomNavigationBarColor,
+);
 
 /// A resting control on the block: solid and DARKER than the surface it
 /// sits on, the way the reference composer's buttons are.
@@ -131,8 +130,7 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
     // exactly as before. Compact windows never reach this branch, and a
     // controls bar (session/call) never consults placement: controls
     // stay where the thumbs are regardless of window size.
-    if (mode is FloatingNavTabsMode &&
-        windowSizeOf(context).isAtLeastMedium) {
+    if (mode is FloatingNavTabsMode && windowSizeOf(context).isAtLeastMedium) {
       // THE BARE BACK PILL — back with no tabs and no trailing actions —
       // is not a tab bar and consults no placement. The approved
       // two-state nav rule (design strip section 12, frame 12d): "the nav
@@ -143,8 +141,7 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
       if (mode.back != null && !mode.hasEntries && mode.companion == null) {
         return _backCorner(mode.back!);
       }
-      final placement =
-          mode.tabletPlacement ?? AppConstants.tabletNavPlacement;
+      final placement = mode.tabletPlacement ?? AppConstants.tabletNavPlacement;
       switch (placement) {
         case FloatingNavPlacement.bottomCenter:
           // Today's layout, below, unchanged.
@@ -181,7 +178,8 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
               duration: const Duration(milliseconds: 180),
               curve: Curves.easeOut,
               alignment: Alignment.bottomCenter,
-              child: _reactionsOpen &&
+              child:
+                  _reactionsOpen &&
                       mode is FloatingNavControlsMode &&
                       // A risen panel owns the moment; the emoji strip must
                       // not float above it.
@@ -289,7 +287,10 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
             fit: BoxFit.scaleDown,
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              children: [pill, _CompanionButton(action: companion)],
+              children: [
+                pill,
+                _CompanionButton(action: companion),
+              ],
             ),
           ),
         ),
@@ -459,8 +460,8 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
               onTap: !mode.reactionsEnabled
                   ? null
                   : (repeat != null && !_reactionsOpen)
-                      ? () => mode.onReaction?.call(repeat)
-                      : () => setState(() => _reactionsOpen = !_reactionsOpen),
+                  ? () => mode.onReaction?.call(repeat)
+                  : () => setState(() => _reactionsOpen = !_reactionsOpen),
             ),
           );
 
@@ -480,8 +481,7 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
             if (reactionsButton != null) reactionsButton,
             for (final action in mode.leadingActions)
               _NavActionButton(action: action),
-            for (final action in mode.actions)
-              _NavActionButton(action: action),
+            for (final action in mode.actions) _NavActionButton(action: action),
           ],
         ),
       );
@@ -724,7 +724,9 @@ class _Housing extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Flexible(child: FittedBox(fit: BoxFit.scaleDown, child: surface)),
+        Flexible(
+          child: FittedBox(fit: BoxFit.scaleDown, child: surface),
+        ),
       ],
     );
   }
@@ -813,8 +815,7 @@ class _ComposerBlockState extends State<_ComposerBlock> {
   Widget build(BuildContext context) {
     final input = widget.input;
     final panel = widget.panel;
-    final enabled =
-        input != null && input.enabled && input.onSubmit != null;
+    final enabled = input != null && input.enabled && input.onSubmit != null;
     // Frosted glass, like the tab pill and like a video call's controls:
     // the board, video or photo behind stays visible through it. That is
     // the whole point of the material, so the fill stays translucent and a
@@ -824,131 +825,137 @@ class _ComposerBlockState extends State<_ComposerBlock> {
     // translucent panel has no silhouette at all, and the block stopped
     // reading as raised. The border gives it one on ANY background, so the
     // frost never costs legibility.
-    return BlurWrap(
-      radius: BorderRadius.circular(26.r),
-      blur: 22,
-      child: Container(
-        decoration: BoxDecoration(
-          color: _blockFill.withOpacity(0.55),
-          borderRadius: BorderRadius.circular(26.r),
-          border: Border.all(color: AppStyle.white.withOpacity(0.10)),
-        ),
-        padding: EdgeInsets.fromLTRB(16.r, 14.r, 16.r, 12.r),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // What the bar has grown to show occupies the top of the SAME
-            // block. There is no second card behind: the block itself gets
-            // taller and the composer below simply rides up with it, so the
-            // frosted material and its single edge are never duplicated.
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 260),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeIn,
-              transitionBuilder: (child, animation) => FadeTransition(
-                opacity: animation,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0, 0.18),
-                    end: Offset.zero,
-                  ).animate(animation),
-                  child: child,
+    // A tap anywhere on the block, not only on the text line, starts
+    // typing. The buttons inside still win their own taps.
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: enabled && panel == null ? _focus.requestFocus : null,
+      child: BlurWrap(
+        radius: BorderRadius.circular(26.r),
+        blur: 22,
+        child: Container(
+          decoration: BoxDecoration(
+            color: _blockFill.withOpacity(0.55),
+            borderRadius: BorderRadius.circular(26.r),
+            border: Border.all(color: AppStyle.white.withOpacity(0.10)),
+          ),
+          padding: EdgeInsets.fromLTRB(16.r, 14.r, 16.r, 12.r),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // What the bar has grown to show occupies the top of the SAME
+              // block. There is no second card behind: the block itself gets
+              // taller and the composer below simply rides up with it, so the
+              // frosted material and its single edge are never duplicated.
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 260),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeIn,
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.18),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
                 ),
+                child: panel == null
+                    ? const SizedBox.shrink()
+                    : Padding(
+                        padding: EdgeInsets.only(bottom: 14.h),
+                        child: panel,
+                      ),
               ),
-              child: panel == null
-                  ? const SizedBox.shrink()
-                  : Padding(
-                      padding: EdgeInsets.only(bottom: 14.h),
-                      child: panel,
-                    ),
-            ),
-            // Visible but out of play while something has risen: the
-            // composer and controls stay exactly where they were, so the
-            // surface reads as one object that grew, faded back hard
-            // because the risen content owns the moment.
-            IgnorePointer(
-              ignoring: panel != null,
-              child: Opacity(
-                opacity: panel != null ? 0.26 : 1,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        if (input != null && !input.enabled)
-                          Padding(
-                            padding: EdgeInsets.only(right: 8.r),
-                            child: Icon(
-                              Remix.lock_line,
-                              size: 17.r,
-                              color: AppStyle.white.withOpacity(0.42),
+              // Visible but out of play while something has risen: the
+              // composer and controls stay exactly where they were, so the
+              // surface reads as one object that grew, faded back hard
+              // because the risen content owns the moment.
+              IgnorePointer(
+                ignoring: panel != null,
+                child: Opacity(
+                  opacity: panel != null ? 0.26 : 1,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          if (input != null && !input.enabled)
+                            Padding(
+                              padding: EdgeInsets.only(right: 8.r),
+                              child: Icon(
+                                Remix.lock_line,
+                                size: 17.r,
+                                color: AppStyle.white.withOpacity(0.42),
+                              ),
                             ),
-                          ),
-                        Expanded(
-                          child: TextField(
-                            controller: _controller,
-                            focusNode: _focus,
-                            enabled: enabled,
-                            minLines: 1,
-                            maxLines: 4,
-                            textInputAction: TextInputAction.send,
-                            onSubmitted: (_) => _submit(),
-                            style: TextStyle(
-                              fontSize: 15.sp,
-                              color: AppStyle.white,
-                            ),
-                            cursorColor: AppStyle.primary,
-                            decoration: InputDecoration(
-                              isDense: true,
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              disabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              contentPadding: EdgeInsets.zero,
-                              hintText: input?.placeholder ?? '',
-                              hintStyle: TextStyle(
+                          Expanded(
+                            child: TextField(
+                              controller: _controller,
+                              focusNode: _focus,
+                              enabled: enabled,
+                              minLines: 1,
+                              maxLines: 4,
+                              textInputAction: TextInputAction.send,
+                              onSubmitted: (_) => _submit(),
+                              style: TextStyle(
                                 fontSize: 15.sp,
-                                color: AppStyle.white.withOpacity(0.45),
+                                color: AppStyle.white,
+                              ),
+                              cursorColor: AppStyle.primary,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                disabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                                hintText: input?.placeholder ?? '',
+                                hintStyle: TextStyle(
+                                  fontSize: 15.sp,
+                                  color: AppStyle.white.withOpacity(0.45),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 14.h),
-                    Row(
-                      children: [
-                        if (widget.leading != null) widget.leading!,
-                        if (widget.target != null) ...[
-                          SizedBox(width: 8.r),
-                          _TargetChip(target: widget.target!),
                         ],
-                        for (final action in widget.leadingActions)
-                          _NavActionButton(action: action, compact: true),
-                        const Spacer(),
-                        for (final action in widget.actions)
-                          _NavActionButton(action: action, compact: true),
-                        // Send joins the control row rather than sitting
-                        // inside the text, so the block keeps clean lines.
-                        if (enabled && _hasText)
-                          _NavActionButton(
-                            compact: true,
-                            action: FloatingNavAction(
-                              icon: Remix.arrow_up_line,
-                              label: input.placeholder,
-                              active: true,
-                              onTap: _submit,
+                      ),
+                      SizedBox(height: 14.h),
+                      Row(
+                        children: [
+                          if (widget.leading != null) widget.leading!,
+                          if (widget.target != null) ...[
+                            SizedBox(width: 8.r),
+                            _TargetChip(target: widget.target!),
+                          ],
+                          for (final action in widget.leadingActions)
+                            _NavActionButton(action: action, compact: true),
+                          const Spacer(),
+                          for (final action in widget.actions)
+                            _NavActionButton(action: action, compact: true),
+                          // Send joins the control row rather than sitting
+                          // inside the text, so the block keeps clean lines.
+                          if (enabled && _hasText)
+                            _NavActionButton(
+                              compact: true,
+                              action: FloatingNavAction(
+                                icon: Remix.arrow_up_line,
+                                label: input.placeholder,
+                                active: true,
+                                onTap: _submit,
+                              ),
                             ),
-                          ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1139,7 +1146,10 @@ class _NavActionButton extends StatelessWidget {
                 padding: margin ?? EdgeInsets.only(left: 8.r),
                 child: button,
               )
-            : SizedBox(width: 60.w, child: Center(child: button)),
+            : SizedBox(
+                width: 60.w,
+                child: Center(child: button),
+              ),
       ),
     );
   }

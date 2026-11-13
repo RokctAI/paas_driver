@@ -43,6 +43,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/services/courier_helpers.dart';
 import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
+import 'package:base_sdk/src/presentation/components/loading.dart';
 class EditCar extends ConsumerStatefulWidget {
   const EditCar({super.key});
 
@@ -186,7 +187,7 @@ class _EditCarState extends ConsumerState<EditCar> {
                 24.verticalSpace,
                 vehicleTypeState.when(
                   loading: () =>
-                      const Center(child: CircularProgressIndicator()),
+                      const Loading(),
                   error: (msg) => Text(
                     'Error: $msg',
                     style: const TextStyle(color: Colors.red),

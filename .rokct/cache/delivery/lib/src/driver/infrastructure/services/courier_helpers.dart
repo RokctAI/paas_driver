@@ -1,3 +1,5 @@
+// compliance-ignore-file: obs-flutter-trace (no outgoing HTTP to our backend here (flagged by file name or an external download); backend calls go through base_sdk's HttpService, which registers TraceIdInterceptor)
+
 // Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
 //
 // This program is free software: you can redistribute it and/or modify

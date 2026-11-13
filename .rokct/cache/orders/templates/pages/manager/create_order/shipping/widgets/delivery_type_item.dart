@@ -36,6 +36,7 @@ class DeliveryTypeItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color ink = AppStyle.inkFor(Theme.of(context).brightness);
     return ButtonsBouncingEffect(
       child: GestureDetector(
         onTap: onTap,
@@ -43,7 +44,9 @@ class DeliveryTypeItem extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10.r),
             border: Border.all(
-              color: isActive ? AppStyle.primary : AppStyle.shimmerBase,
+              color: isActive
+                  ? AppStyle.primary
+                  : AppStyle.strokeFor(Theme.of(context).brightness),
             ),
           ),
           padding: REdgeInsets.all(10),
@@ -53,38 +56,46 @@ class DeliveryTypeItem extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: isActive ? AppStyle.blackColor : AppStyle.transparent,
-                  border: Border.all(color: AppStyle.blackColor),
+                  border: Border.all(color: isActive ? AppStyle.blackColor : ink),
                 ),
                 padding: EdgeInsets.all(10.r),
                 child: Center(
                   child: Icon(
                     iconData,
-                    color: isActive ? AppStyle.primary : AppStyle.blackColor,
+                    color: isActive ? AppStyle.primary : ink,
                   ),
                 ),
               ),
               10.horizontalSpace,
-              Column(
+              // Expanded so a long localized line wraps inside the row
+              // instead of overflowing it (RenderFlex stripes on phones).
+              Expanded(
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: AppStyle.interSemi(
                       size: 14.sp,
-                      color: AppStyle.blackColor,
+                      color: ink,
                       letterSpacing: -0.3,
                     ),
                   ),
                   Text(
                     desc,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: AppStyle.interNormal(
                       size: 12.sp,
-                      color: AppStyle.blackColor,
+                      color: ink,
                       letterSpacing: -0.3,
                     ),
                   ),
                 ],
+                ),
               ),
             ],
           ),

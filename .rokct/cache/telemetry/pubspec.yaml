@@ -1,6 +1,6 @@
 name: telemetry_sdk
 description: "Telemetry delivery-policy SDK - owns the TelemetryClient injection seam (base_sdk stays the only client)."
-version: 1.1.0
+version: 1.1.1
 publish_to: 'none'
 environment:
   sdk: '>=3.10.0 <4.0.0'

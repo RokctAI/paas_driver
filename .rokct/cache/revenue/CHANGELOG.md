@@ -1,3 +1,7 @@
+## 1.14.8
+
+- fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").
+
 ## 1.14.7
 
 * fix(tour): 1.14.6 passed its widget test but the paas_manager tour (run 40311495619) still photographed `revenue_income` twice, with no error logged. `revenue_product_profit` now uses no gestures. It finds the vertical list that holds the trend chart, jumps it with `jumpTo` until a product row is built, brings the row on screen with `Scrollable.ensureVisible` and calls the row's own `onTap`. A `TOUR_DIAG` line in logcat records how many lists, jumps and rows it saw. The widget test now runs the same logic. Tour template and test only.

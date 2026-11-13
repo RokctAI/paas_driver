@@ -77,8 +77,13 @@ class _ParcelHistoryPageState extends ConsumerState<ParcelHistoryPage> {
                       AppHelpers.getTranslation(TrKeys.orderHistory),
                       style: AppStyle.interSemi(size: 18.sp),
                     ),
+                    // The key is only "There are"; the count and noun
+                    // follow it, as on the parcels page (tour 2026-11-13,
+                    // frame 12 read "There are" with nothing after it).
                     Text(
-                      AppHelpers.getTranslation(TrKeys.thereAreOrders),
+                      '${AppHelpers.getTranslation(TrKeys.thereAreOrders)} '
+                      '${state.historyOrders.length} '
+                      '${AppHelpers.getTranslation(TrKeys.orders).toLowerCase()}',
                       style: AppStyle.interRegular(
                         size: 12.sp,
                         letterSpacing: -0.3,

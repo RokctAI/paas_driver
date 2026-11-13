@@ -83,7 +83,12 @@ class _CreateProductModalState extends ConsumerState<CreateProductModal>
 
   @override
   Widget build(BuildContext context) {
+    final Brightness brightness = Theme.of(context).brightness;
+    // themed: the sheet is opened with themedSurface, and the form's
+    // fields (UnderlinedTextField) already draw in theme ink - the white
+    // fill left them white-on-white in the dark app.
     return ModalWrap(
+      themed: true,
       body: Column(
         children: [
           const ModalDrag(),
@@ -94,7 +99,7 @@ class _CreateProductModalState extends ConsumerState<CreateProductModal>
               decoration: BoxDecoration(
                 color: AppStyle.transparent,
                 borderRadius: BorderRadius.circular(10.r),
-                border: Border.all(color: AppStyle.tabBarBorderColor),
+                border: Border.all(color: AppStyle.strokeFor(brightness)),
               ),
               margin: REdgeInsets.symmetric(horizontal: 16),
               child: TabBar(
@@ -102,10 +107,10 @@ class _CreateProductModalState extends ConsumerState<CreateProductModal>
                 controller: _tabController,
                 indicator: BoxDecoration(
                   borderRadius: BorderRadius.circular(10.r),
-                  color: AppStyle.blackColor,
+                  color: AppStyle.inkFor(brightness),
                 ),
-                labelColor: AppStyle.white,
-                unselectedLabelColor: AppStyle.textGrey,
+                labelColor: AppStyle.surfaceFor(brightness),
+                unselectedLabelColor: AppStyle.secondaryInkFor(brightness),
                 unselectedLabelStyle: AppStyle.interRegular(size: 14.sp),
                 labelStyle: AppStyle.interSemi(size: 14.sp),
                 tabs: [

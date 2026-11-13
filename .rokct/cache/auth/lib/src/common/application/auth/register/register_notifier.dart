@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// compliance-ignore-file: auth-token-expiry (token expiry and refresh are handled centrally by base_sdk's TokenInterceptor and TokenRefreshService)
+
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'dart:async';
 

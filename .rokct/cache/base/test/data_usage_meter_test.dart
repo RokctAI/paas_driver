@@ -4,6 +4,8 @@
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, version 3.
 
+// compliance-ignore-file: flutter-http-timeout (test or caller of base_sdk's shared HttpService (timeouts set there); no Dio client is built here without timeouts)
+
 import 'dart:convert';
 
 import 'package:base_sdk/base_sdk.dart';

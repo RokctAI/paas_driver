@@ -25,6 +25,8 @@
 // so the assertion covers the real PlatformGateway envelope
 // ({cmd, payload} POSTed to kPlatformGatewayPath), not a hand-rolled mock.
 
+// compliance-ignore-file: flutter-http-timeout (test or caller of base_sdk's shared HttpService (timeouts set there); no Dio client is built here without timeouts)
+
 import 'dart:convert';
 import 'dart:typed_data';
 

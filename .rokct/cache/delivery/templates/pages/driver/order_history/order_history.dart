@@ -126,11 +126,15 @@ class _OrderHistoryPageState extends ConsumerState<OrderHistoryPage> {
 
 /// The page's title and subtitle - inside the app bar on the routed page,
 /// as a plain heading at the top of the embedded pane.
-class _OrderHistoryHeading extends StatelessWidget {
+class _OrderHistoryHeading extends ConsumerWidget {
   const _OrderHistoryHeading();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // "There are N orders": the key is only the "There are" half, so the
+    // count and the noun follow it (as on the orders page). Shown bare it
+    // read "There are" with nothing after it (tour 2026-11-13, frame 09).
+    final int count = ref.watch(orderProvider).historyOrders.length;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.end,
@@ -140,7 +144,8 @@ class _OrderHistoryHeading extends StatelessWidget {
           style: AppStyle.interSemi(size: 18.sp),
         ),
         Text(
-          AppHelpers.getTranslation(TrKeys.thereAreOrders),
+          '${AppHelpers.getTranslation(TrKeys.thereAreOrders)} $count '
+          '${AppHelpers.getTranslation(TrKeys.orders).toLowerCase()}',
           style: AppStyle.interRegular(
             size: 12.sp,
             letterSpacing: -0.3,

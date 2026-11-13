@@ -1,6 +1,6 @@
 {
   "name": "delivery_sdk",
-  "version": "1.30.2",
+  "version": "1.30.5",
   "_comment_version_1_30_2": "1.30.1 -> 1.30.2: templates/assets/images/marker.png is now the blue driver pin (same file as paas_driver main), so the composer re-extracts it and the shell stays clean at HEAD. No Dart change.",
   "_comment_version_1_30_1": "1.30.0 -> 1.30.1 (tour coverage, Ray 2026-10-23): the delivery tour fragment gains /driver-deposits, /load, /load/sell and /load/return, and the demo get_my_load fixture now holds one stocked open load so those screens render with data. No Dart change.",
   "_comment_version_1_30_0": "1.29.0 -> 1.30.0 (driver mode): app_type.driver gains host_integration.android_application_xml, an exported activity-alias .RokctDriverEntry of MainActivity answering rokct.intent.action.DRIVER with CATEGORY_DEFAULT and no data - exactly what launch_sdk's DefaultHomeBridge.fleetDriverPackages queries - so a launcher on a device with the driver app installed turns driver mode on. Only the driver flavor gets it; the customer compose is unchanged. No Dart change.",

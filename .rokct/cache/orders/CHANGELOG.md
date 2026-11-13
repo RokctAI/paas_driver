@@ -1,3 +1,19 @@
+## 1.31.8
+
+- fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").
+
+## 1.31.7
+
+- fix(manager/pos): `ProductData.unitId` is a `String?` (docname). The `int?` field threw on the demo and live `unit_id` strings, failing the whole `get_seller_products` parse, so the walk-in grid, its cart and `/load/issue` showed no products.
+- fix(manager/pos): shipping, select-user, select-section and place-order pages use the theme's `cardFor`/`inkFor`/`surfaceFor` colours instead of fixed white/black; labels, the customer field, delivery time and payment names now read in the dark app.
+- fix(manager/pos): delivery-type rows wrap/ellipsize their text instead of overflowing (RenderFlex stripes).
+- fix(manager/pos): the payment summary title shows the shop currency symbol (stored currency, or the demo rand) instead of a hard-coded `$`; the phone foot leaves room so Total is not hidden under Place order.
+- feat(i18n): boot hook `orders-en-bundled-translations` registers an English fallback for the legacy `spproximate_preparation_time: ` key: "Approximate preparation time:".
+
+## 1.31.6
+
+- chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.
+
 ## 1.31.5
 
 * fix(orders): eight order and parcel modal roots (payment method, promo code, age verify, delivery time, refund, auto order, rating, parcel payments) now paint `AppStyle.surfaceFor(Theme.of(context).brightness)` instead of a fixed light grey, and their near-black body text uses `inkFor`. Dark-mode legibility of the remaining grey text is not verified on a device.

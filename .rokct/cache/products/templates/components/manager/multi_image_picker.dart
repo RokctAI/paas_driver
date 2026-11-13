@@ -78,7 +78,7 @@ class MultiImagePicker extends StatelessWidget {
                     width: double.infinity,
                     height: 180.r,
                     decoration: BoxDecoration(
-                      color: AppStyle.white,
+                      color: AppStyle.cardFor(Theme.of(context).brightness),
                       borderRadius: BorderRadius.circular(10.r),
                     ),
                     padding: REdgeInsets.symmetric(vertical: 24),
@@ -94,7 +94,7 @@ class MultiImagePicker extends StatelessWidget {
                           AppHelpers.getTranslation(TrKeys.productPicture),
                           style: AppStyle.interSemi(
                             size: 14,
-                            color: AppStyle.black,
+                            color: AppStyle.inkFor(Theme.of(context).brightness),
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -102,7 +102,7 @@ class MultiImagePicker extends StatelessWidget {
                           AppHelpers.getTranslation(TrKeys.recommendedSize),
                           style: AppStyle.interRegular(
                             size: 14,
-                            color: AppStyle.black,
+                            color: AppStyle.inkFor(Theme.of(context).brightness),
                             letterSpacing: -0.3,
                           ),
                         ),

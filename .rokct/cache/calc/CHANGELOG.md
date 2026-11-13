@@ -1,3 +1,7 @@
+## 1.4.2
+
+- chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.
+
 ## 1.4.1
 
 * chore(guide): version for the coach-mark guide mounted on this SDK's primary page (base_sdk GuideHost and GuideAnchor). The mount landed without a version change. Needs base_sdk >= 1.92.0.

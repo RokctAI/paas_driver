@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.108.0",
+      "version": "1.109.0",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -239,7 +239,7 @@
       }
     },
     "users_sdk": {
-      "version": "1.5.2",
+      "version": "1.5.3",
       "files": {
         "assets/demo/users/api.user.search_user.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
         "assets/demo/users/api.user.add_user_address.json": "94040fd50c440c6ddcbbe56ce155489e70d4ae918498599ac55082d238d799ad",
@@ -268,7 +268,7 @@
       ]
     },
     "orders_sdk": {
-      "version": "1.31.5",
+      "version": "1.31.8",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -285,7 +285,18 @@
       ],
       "registration_steps": [],
       "di_hooks": [],
-      "boot_hooks": [],
+      "boot_hooks": [
+        {
+          "id": "orders-en-bundled-translations",
+          "order": 64,
+          "body": "BundledTranslations.register('en', kOrdersEnTranslations);",
+          "imports": [
+            "import 'package:base_sdk/src/services/bundled_translations.dart';",
+            "import 'package:orders_sdk/src/translations/orders_en_translations.dart';"
+          ],
+          "_comment": "Registers English fallbacks for tr_keys whose legacy wire key humanizes badly (spproximate_preparation_time). Backend-served rows still win; the map is consulted only before the humanized-key fallback."
+        }
+      ],
       "tr_keys": {
         "ordersToAccept": "orders_to_accept",
         "waitingOnYou": "waiting_on_you",
@@ -310,13 +321,13 @@
       ]
     },
     "delivery_sdk": {
-      "version": "1.30.2",
+      "version": "1.30.5",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "11db8e698632a6cee50e92a83fef8a494c4b55cf316bbaf6398f652460cb8dea",
         "lib/presentation/routes/delivery_adapters.dart": "cd22c591ae3179bcc44d95cead4ac89abddfecdc6217a8c316037890e13ecddc",
         "lib/presentation/pages/home/parcel_bottom_sheet.dart": "3a526a1a12c79250595d2c5afee4a44765b8dcfaf09d8a5cb08b93beef8a4f78",
-        "lib/presentation/pages/home/bottom_sheet_screen.dart": "641818bdcb1162ec956912eafb42774e6c21e107611e32a08bf6f30d58a49ee6",
-        "lib/presentation/pages/home/home_page.dart": "62b5984bef254fc6cce0fc555cd13f495ccc02acb8ea2cb384c613ccb70ee641",
+        "lib/presentation/pages/home/bottom_sheet_screen.dart": "dccb25195734d4011bfeadd77a5a650c566663b214f7e09d8bdc5fa3260da549",
+        "lib/presentation/pages/home/home_page.dart": "8252bb3dac3a24f0b47cef495a63824282fc6d12f25e4626aeb35c030d1e6b70",
         "lib/presentation/pages/home/delivery_bottom_sheet.dart": "367f042961a56bed02239ff94fecfc2180b4bce6d77994ad0a72f11f9a7d6b45",
         "lib/presentation/pages/home/widgets/outside_painter.dart": "60866744c76343e4a4cf92b27adb08a17a74dbe5f0e4bd99b6657c30aba402e3",
         "lib/presentation/pages/home/widgets/rate_customer.dart": "54aa03d498db5a7766c3cf05e57b136f23d6f627607b4ff041058cadf0a375f9",
@@ -325,14 +336,14 @@
         "lib/presentation/pages/home/widgets/approve_dialog.dart": "8a943db976f465fccfed0ed3f60dfce95edf14c55ab078e2a35b79818fc1e6fc",
         "lib/presentation/pages/home/widgets/add_comment.dart": "464d54eb71b45d60306ae992cc099efcce5388c915af71b543bcac563962203c",
         "lib/presentation/pages/orders/orders_page.dart": "9d5b6adb352d6076b36ae7210e2b24a486f587b8197cf72f4f0a5bc30ff0760c",
-        "lib/presentation/pages/order_history/order_history.dart": "a3966a4f32ce6ce8145b2482326efebade72610ef4e278c9fe30c4e8e69b5706",
+        "lib/presentation/pages/order_history/order_history.dart": "8e60111d5cf6a7df392ac70b826d8e785457b63cc0c300e033b4202ec5e375e4",
         "lib/presentation/pages/parcel/parcel_item.dart": "e61c134db7e5dfad2b550164ebfd3bdbeb53852c37e8d7e588430f0924852c22",
         "lib/presentation/pages/parcel/parcel_order.dart": "620ecaf6bbc032f8f70ece3b372f0a547e30b9d94d21fcae91ce9ebacd620ed2",
         "lib/presentation/pages/parcel/parcels_page.dart": "df952a1992d1d4f5c3b1338d1ea36cbf10bd7ae75ce4fe811b6b3c0fe15cc35e",
-        "lib/presentation/pages/parcels_history/parcel_history.dart": "a900b58ed44c0f802e72d20e2eecf6496d8ae819cc207409a8cf08c1dbf704da",
+        "lib/presentation/pages/parcels_history/parcel_history.dart": "08a0b82959d8237d1c24d2e1bb3f65bd7a7f741d1cc99dfe7ba5241cf9ed970b",
         "lib/presentation/pages/push_order/push_order_screen.dart": "5c66d301cf766b26ea27b4ecf13f88026b77989d2157ccd5599e12ae6eb8e8f2",
         "lib/presentation/pages/profile/profile_page.dart": "d477fbbecc47925f266a227b07f07278a7334c2af14e3ba7209494fb5e29e50c",
-        "lib/presentation/pages/profile/edit_car.dart": "b251fe5dfecc999b74a49b5b366de6955d076881cc170f964081988d1ecd733b",
+        "lib/presentation/pages/profile/edit_car.dart": "7102b10bb4db3453cd6e420c6a5cffb9c6d1f11242ef7d80f8d97667ef7ab0b0",
         "lib/presentation/pages/profile/widgets/cancel_dialog.dart": "07780d5e61c179d24a5c4694412f61d052bccf20eaf5c946b0cbf85be1b09ed0",
         "lib/presentation/pages/profile/widgets/edit_profile_modal.dart": "f275dd4728c49e5fbd6971af82219089093cc333b4661f95af84c64f34cdc41d",
         "lib/presentation/pages/profile/widgets/logout_modal.dart": "8f0dabbab10f77125cfe6f510955124bbe6816d4e1b2341e3a64c47d87d74000",
@@ -819,7 +830,7 @@
       "boot_hooks": []
     },
     "corporate_sdk": {
-      "version": "1.2.0",
+      "version": "1.2.1",
       "files": {
         "lib/presentation/routes/corporate_route_pages.dart": "7bd7deacfebf5ae507821ca4778a460cb5ac709158254b1ae725003efc6992fe"
       },
@@ -856,7 +867,7 @@
       "boot_hooks": []
     },
     "map_sdk": {
-      "version": "1.5.1",
+      "version": "1.5.2",
       "files": {
         "assets/demo/map/api.poi.get_customer_pois.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
       },
@@ -873,7 +884,7 @@
       "boot_hooks": []
     },
     "zones_sdk": {
-      "version": "1.7.0",
+      "version": "1.7.1",
       "files": {
         "lib/presentation/pages/profile/delivery_zone/delivery_zone_page.dart": "6f411ebaa05581e1ee6efcc903ecc0ef434a51e05cd5856d09f13fbae4a1b5b4",
         "lib/presentation/routes/zones_adapters.dart": "a7e64e1765f0fb2e84a23a07c5daf2af0727b841dc58135e19da2f52c9a23812",
@@ -936,7 +947,7 @@
       ]
     },
     "revenue_sdk": {
-      "version": "1.14.7",
+      "version": "1.14.8",
       "files": {
         "lib/presentation/pages/income/statistics_screen.dart": "b385595295baa359fdd50076b5f8c4823d4e64e3e50c09adfaa885ba57d8a9f2",
         "lib/presentation/pages/income/income_page.dart": "dde907b148729fe9caedc89f031ad024588924da9071ba8748f80d5e3aabe1ee",
@@ -996,7 +1007,7 @@
       ]
     },
     "merchants_sdk": {
-      "version": "1.38.0",
+      "version": "1.38.2",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
         "lib/presentation/pages/stores/story_page.dart": "adeb07c24627dd3f1321a4f3eebc4d762e55f8cf8e8e3b7b91daeffdb86b3508",
@@ -1080,7 +1091,7 @@
       }
     },
     "products_sdk": {
-      "version": "1.13.0",
+      "version": "1.13.3",
       "files": {
         "assets/demo/products/api.seller_product.delete_seller_extra_value.json": "36f579d4c4606f9ff3c022585bab9c993c9fb9f0aec51523d0a81a7065d0eb31",
         "assets/demo/products/api.seller_product.get_product_details.json": "c085451bfdfea3523c7993705fcb031786836d9ebf58d8ec9e48e85107bdb54b",
@@ -1134,7 +1145,7 @@
       ]
     },
     "calc_sdk": {
-      "version": "1.4.1",
+      "version": "1.4.2",
       "files": {
         "lib/presentation/pages/calc/calculator_page.dart": "55eb940c5ff99fa2e8d3cf0b2118d3a3459d6e38b2e81e7e09dd33bd95f49f76"
       },
@@ -1169,7 +1180,7 @@
       }
     },
     "auth_sdk": {
-      "version": "1.22.3",
+      "version": "1.22.5",
       "files": {
         "lib/presentation/routes/auth_route_pages.dart": "8eaff3abe2dd38d8a6c2f15ed4b9e4ec779c5b99f3f71a18445ee4a13d12056f",
         "lib/presentation/routes/registration_step_pages.dart": "68aed195fc07db746a0919c7ba6d47ffa445ca86e7d9cf6ee50fbcb00e82d3c2",
@@ -1308,7 +1319,7 @@
       ]
     },
     "weather_sdk": {
-      "version": "1.6.2",
+      "version": "1.6.3",
       "files": {
         "lib/presentation/components/weather/weather_widget.dart": "13e7964746cd367f4e019c2d192e2a0ef8bf3445060c562a611f2caa14c2c53c"
       },
@@ -1361,7 +1372,7 @@
       }
     },
     "hms_sdk": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -1394,7 +1405,7 @@
       "boot_hooks": []
     },
     "telemetry_sdk": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -1407,76 +1418,76 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.108.0",
-      "source_hash": "b78414bf2891bf89"
+      "version": "1.109.0",
+      "source_hash": "c37097a434be4454"
     },
     "comms": {
       "version": "1.23.4",
       "source_hash": "ba44faa679dd37d6"
     },
     "auth": {
-      "version": "1.22.3",
-      "source_hash": "ef795439748d4229"
+      "version": "1.22.5",
+      "source_hash": "704f6c9d67e4a6cd"
     },
     "users": {
-      "version": "1.5.2",
-      "source_hash": "d95b63306d36447c"
+      "version": "1.5.3",
+      "source_hash": "cb3062dc3a29f9fd"
     },
     "orders": {
-      "version": "1.31.5",
-      "source_hash": "2e16833a21e207f5"
+      "version": "1.31.8",
+      "source_hash": "78a6ea1928922e67"
     },
     "merchants": {
-      "version": "1.38.0",
-      "source_hash": "8da1021d0cbe99ea"
+      "version": "1.38.2",
+      "source_hash": "61962590c5439f3b"
     },
     "products": {
-      "version": "1.13.0",
-      "source_hash": "8ac730b21fd20357"
+      "version": "1.13.3",
+      "source_hash": "2d0f52e4f382d7e0"
     },
     "delivery": {
-      "version": "1.30.2",
-      "source_hash": "49d7e2cc67bb30e8"
+      "version": "1.30.5",
+      "source_hash": "1d9d0bc9e3b072d2"
     },
     "map": {
-      "version": "1.5.1",
-      "source_hash": "fbed5ace6023733d"
+      "version": "1.5.2",
+      "source_hash": "dc26dd31a6b36799"
     },
     "zones": {
-      "version": "1.7.0",
-      "source_hash": "5fb18ab20a500f9c"
+      "version": "1.7.1",
+      "source_hash": "3394cab139b72fa8"
     },
     "processing": {
       "version": "1.0.2",
       "source_hash": "0f71149fa89119ec"
     },
     "calc": {
-      "version": "1.4.1",
-      "source_hash": "81be2f16a93df1c7"
+      "version": "1.4.2",
+      "source_hash": "c377439da86beced"
     },
     "corporate": {
-      "version": "1.2.0",
-      "source_hash": "5aea0c4f3228da60"
+      "version": "1.2.1",
+      "source_hash": "42eb71115dcd4610"
     },
     "revenue": {
-      "version": "1.14.7",
-      "source_hash": "28a564b195a2e616"
+      "version": "1.14.8",
+      "source_hash": "db1d2174a88a284a"
     },
     "weather": {
-      "version": "1.6.2",
-      "source_hash": "2ef4dff138168e31"
+      "version": "1.6.3",
+      "source_hash": "ce5b491355f50b4e"
     },
     "hms": {
-      "version": "1.1.0",
-      "source_hash": "7f1c497916478f4e"
+      "version": "1.1.1",
+      "source_hash": "9413501caf93bf5d"
     },
     "desktop": {
       "version": "1.2.2",
       "source_hash": "a5f94e74405057ac"
     },
     "telemetry": {
-      "version": "1.1.0",
-      "source_hash": "fc4dc71b7401b7bd"
+      "version": "1.1.1",
+      "source_hash": "396500678188b0f2"
     }
   }
 }

@@ -71,6 +71,7 @@ export 'src/presentation/components/helper/modal_wrap.dart';
 export 'src/presentation/components/helper/shop_bordered_avatar.dart';
 export 'src/presentation/components/loading/loading_list.dart';
 export 'src/presentation/components/loading/tab_bar_loading.dart';
+export 'src/presentation/components/loading.dart';
 export 'src/presentation/components/text_fields/underlined_text_field.dart';
 export 'src/presentation/components/keypad/money_keypad.dart';
 

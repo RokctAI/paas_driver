@@ -33,6 +33,7 @@ class SectionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Brightness brightness = Theme.of(context).brightness;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -41,7 +42,7 @@ class SectionItem extends StatelessWidget {
         padding: REdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           color:
-              isSelected ? AppStyle.primary.withOpacity(0.06) : AppStyle.white,
+              isSelected ? AppStyle.primary.withOpacity(0.06) : AppStyle.cardFor(brightness),
           borderRadius: isSelected ? null : BorderRadius.circular(10.r),
           border: isSelected
               ? Border(
@@ -56,7 +57,7 @@ class SectionItem extends StatelessWidget {
               height: 50.r,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10.r),
-                color: AppStyle.black.withOpacity(0.06),
+                color: AppStyle.faintFor(brightness),
               ),
               alignment: Alignment.center,
               child: CommonImage(
@@ -75,12 +76,22 @@ class SectionItem extends StatelessWidget {
                 children: [
                   Text(
                     section?.translation?.title ?? "",
-                    style: AppStyle.interSemi(size: 15.sp),
+                    style: AppStyle.interSemi(
+                      size: 15.sp,
+                      color: AppStyle.inkFor(brightness),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   4.verticalSpace,
                   Text(
                     section?.area ?? "",
-                    style: AppStyle.interNormal(size: 12.sp),
+                    style: AppStyle.interNormal(
+                      size: 12.sp,
+                      color: AppStyle.secondaryInkFor(brightness),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),

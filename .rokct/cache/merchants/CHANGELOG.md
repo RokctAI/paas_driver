@@ -1,3 +1,11 @@
+## 1.38.2
+
+- fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").
+
+## 1.38.1
+
+- chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.
+
 ## 1.38.0
 
 * feat(manager till): an unknown barcode is no longer ignored. When the catalog has no product for a scanned code, the camera pauses and the till says "We don't recognise this barcode", shows the code, and asks "It isn't in your products yet. Would you like to add this product?" with **Add this product** and **Scan again** (render approved by Ray 2026-10-30 19:22Z). On a phone and at the two-plane fold it is a bottom sheet; at three planes it takes the Add Items pane's place in plane 2 until answered, and the cart stays as it was.

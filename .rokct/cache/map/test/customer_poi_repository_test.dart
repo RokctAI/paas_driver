@@ -28,6 +28,8 @@
 // platform gateway resolves through get_it for one whose Dio uses a
 // recording HttpClientAdapter; nothing touches the network.
 
+// compliance-ignore-file: flutter-http-timeout (test or caller of base_sdk's shared HttpService (timeouts set there); no Dio client is built here without timeouts)
+
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -309,6 +311,7 @@ void main() {
     test('a point of interest reaches the map as position and name only', () {
       final row = _row(label: 'Water Point');
       for (final key in _withheldKeys) {
+        // compliance-ignore: flutter-hardcoded-secret (false positive: this is a translation key, asset path or test fixture, not a credential)
         row[key] = 'must not be drawn';
       }
 

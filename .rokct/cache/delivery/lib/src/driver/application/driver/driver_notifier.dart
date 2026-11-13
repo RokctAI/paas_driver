@@ -39,10 +39,14 @@ class DriverNotifier extends StateNotifier<DriverState> {
   Future<void> fetchDriverDetails({required BuildContext context}) async {
     final response = await courierRepository.getDriverDetails();
     response.when(
-      success: (data) {
-        setDriverData(data);
+      success: (data) async {
+        // The flag is stored BEFORE the state changes: the home reads
+        // CourierStorage.getOnline() while it rebuilds for this state, so
+        // the other order rebuilt it on the old value and a driver the
+        // server has online showed Offline (tour 2026-11-13, frame 05).
+        await CourierStorage.setOnline(data.data?.online ?? false);
         CourierStorage.setDeliveryInfo(data);
-        CourierStorage.setOnline(data.data?.online ?? false);
+        setDriverData(data);
       },
       failure: (failure, status) {
         AppHelpers.showCheckTopSnackBar(

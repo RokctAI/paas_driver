@@ -62,4 +62,15 @@ void main() {
     await tester.pump();
     expect(sent, ['hello']);
   });
+
+  testWidgets('a tap anywhere on the block starts typing', (tester) async {
+    await tester.pumpWidget(_host(FloatingNavInput(placeholder: 'Message', onSubmit: (_) {})));
+    final field = tester.widget<TextField>(find.byType(TextField));
+    expect(field.focusNode!.hasFocus, isFalse);
+    // Below the text line, inside the block's padding.
+    final box = tester.getRect(find.byType(TextField));
+    await tester.tapAt(Offset(box.center.dx, box.bottom + 6));
+    await tester.pump();
+    expect(field.focusNode!.hasFocus, isTrue);
+  });
 }

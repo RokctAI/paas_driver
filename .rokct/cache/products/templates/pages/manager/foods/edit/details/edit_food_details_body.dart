@@ -109,12 +109,7 @@ class _EditFoodDetailsBodyState extends ConsumerState<EditFoodDetailsBody> {
             final event = ref.read(editFoodDetailsProvider.notifier);
             final foodsEvent = ref.read(foodsProvider.notifier);
             return state.product == null
-                ? Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3.r,
-                      color: AppStyle.primary,
-                    ),
-                  )
+                ? const Loading()
                 : Form(
                     key: _formKey,
                     child: Column(

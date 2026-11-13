@@ -120,8 +120,13 @@ class ParcelNotifier extends StateNotifier<ParcelState> {
       final response = await _parcelRepo.getActiveOrders(1);
       response.when(
         success: (data) {
+          // The parcels page subtitle reads this ("There are N orders").
+          // It was never set, so it said 0 above a listed parcel (tour
+          // 2026-11-13, frames 10/11). The parcel list call carries no
+          // meta total, so the count is what has been fetched.
           state = state.copyWith(
             activeOrders: data,
+            totalActiveOrder: data.length,
             isActiveLoading: false,
           );
         },
@@ -189,6 +194,7 @@ class ParcelNotifier extends StateNotifier<ParcelState> {
           if (isRefresh) {
             state = state.copyWith(
               activeOrders: data,
+              totalActiveOrder: data.length,
             );
             controller.refreshCompleted();
           } else {
@@ -197,6 +203,7 @@ class ParcelNotifier extends StateNotifier<ParcelState> {
               list.addAll(data);
               state = state.copyWith(
                 activeOrders: list,
+                totalActiveOrder: list.length,
               );
               controller.loadComplete();
             } else {

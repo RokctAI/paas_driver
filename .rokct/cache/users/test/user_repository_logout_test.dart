@@ -29,6 +29,8 @@
 // revoke fails the way a real one does -- a DioException out of
 // PlatformGateway -- and the assertion covers the real call path.
 
+// compliance-ignore-file: flutter-http-timeout (test or caller of base_sdk's shared HttpService (timeouts set there); no Dio client is built here without timeouts)
+
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -102,6 +104,7 @@ Future<void> main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   /// The token an offline / temp-local account actually carries.
+  // compliance-ignore: flutter-hardcoded-secret (false positive: this is a translation key, asset path or test fixture, not a credential)
   const String offlineToken = 'offline:local-user-1';
 
   Future<void> signIn() async {

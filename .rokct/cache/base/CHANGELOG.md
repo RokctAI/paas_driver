@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.109.0
+
+- feat(loading): shimmers instead of spinners (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps"). `Loading` (`components/loading.dart`) now draws a shimmer placeholder: one bar in a small box such as a button, three skeleton lines with room. `LoadingList`, `LoadingGrid` and `TabBarLoading` shimmer too. New `AppShimmer` wrapper (theme-aware colours), exported from `base_sdk.dart` with `Loading`. Constructors unchanged, so every app using `Loading()` gets the shimmer with no edit. Tour, demo data and guide unchanged: loading states do not appear in tours (renders capture after data loads).
+
+## 1.108.2
+
+- fix(floating nav): a tap anywhere on the composer block (`FloatingNavInput`), not only on the text line, focuses the field and starts typing, while the input is enabled and no panel is open. Buttons in the block keep their own taps. Most of the diff in `floating_bottom_nav.dart` is `dart format` re-indentation around the new wrapper. Tests: `test/floating_nav_input_controller_test.dart`.
+
+## 1.108.1
+
+- chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.
+
 ## 1.108.0
 
 - fix(rating): follow-up to 1.107.0 (core#420 review). In an app built with `STORE_LISTED=true` every rating now goes on to the store's review sheet, not only 4 and 5 stars: showing it only to happy raters is sentiment gating, which Google Play and Apple discourage. A rating under 4 stars also asks for a private note. `AppRating.offersStore` loses its `stars` argument and `storeThreshold` is replaced by `noteBelow` / `asksNote` (new in 1.107.0, STORE_LISTED off by default, so no app was using the old form). The splash page now calls `AppRating.flush()` once a real page is up, so a rating that could not be sent is retried at the next open. `pubspec.lock` gains `in_app_review`. Tests: `test/app_rating_test.dart`.

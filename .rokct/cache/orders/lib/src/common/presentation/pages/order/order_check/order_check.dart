@@ -67,6 +67,7 @@ import 'package:orders_sdk/src/common/presentation/pages/order/order_check/widge
 import 'package:orders_sdk/src/common/presentation/pages/order/order_check/order_check_keys.dart';
 import 'package:remixicon/remixicon.dart';
 
+import 'package:base_sdk/src/presentation/components/loading.dart';
 // Import the PreloadedWebView provider
 final preloadedWebViewProvider = StateProvider<PreloadedWebViewState?>(
   (ref) => null,
@@ -867,7 +868,7 @@ class _WebViewPageState extends State<WebViewPage> {
 
           // Loading indicator shows while content is loading
           if (isLoading)
-            Center(child: CircularProgressIndicator(color: AppStyle.primary)),
+            const Loading(),
         ],
       ),
     );
@@ -1043,7 +1044,7 @@ class _PayFastPaymentScreenState extends ConsumerState<PayFastPaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return _loadingCards
-        ? Center(child: CircularProgressIndicator(color: AppStyle.primary))
+        ? const Loading()
         : Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

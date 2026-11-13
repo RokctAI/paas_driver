@@ -32,6 +32,7 @@ import 'package:merchants_sdk/src/manager/application/restaurant/restaurant_prov
 import 'package:merchants_sdk/src/manager/application/restaurant/working_days/working_days_provider.dart';
 import 'package:merchants_sdk/src/manager/utils/week_days.dart';
 
+import 'package:base_sdk/src/presentation/components/loading.dart';
 // Ported from paas_manager lib/presentation/pages/restaurant/widgets/
 // working_time_modal.dart. Deltas: the day model is base_sdk's
 // [ShopWorkingDay] (no copyWith — entries are rebuilt in place); the time
@@ -105,12 +106,7 @@ class _WorkingTimeModalState extends ConsumerState<WorkingTimeModal> {
             final event = ref.read(workingDaysProvider.notifier);
             final shopEvent = ref.read(restaurantProvider.notifier);
             return state.workingDays.isEmpty
-                ? Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3.r,
-                      color: AppStyle.primary,
-                    ),
-                  )
+                ? const Loading()
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,

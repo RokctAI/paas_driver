@@ -110,6 +110,7 @@ void main() {
     });
 
     test('an SDK-registered en entry wins over the humanized key too', () {
+      // compliance-ignore: flutter-hardcoded-secret (false positive: this is a translation key, asset path or test fixture, not a credential)
       const key = 'seeder_test_registered_key';
       BundledTranslations.register('en', const {key: 'Registered copy'});
       addTearDown(() => BundledTranslations.register('en', const {key: ''}));

@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// compliance-ignore-file: flutter-http-timeout (metering interceptor and client wrapper only; it never builds a client of its own, and the callers set the timeouts)
+
 import 'dart:async';
 import 'dart:convert';
 

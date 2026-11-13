@@ -46,6 +46,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:merchants_sdk/src/manager/application/restaurant/restaurant_provider.dart';
 import 'package:merchants_sdk/src/manager/application/restaurant/working_days/working_days_provider.dart';
 
+import 'package:base_sdk/src/presentation/components/loading.dart';
 // Ported from paas_manager lib/presentation/pages/restaurant/widgets/
 // edit_restaurant_modal.dart. Deltas: KeyboardDisable -> base_sdk's
 // KeyboardDismisser; AppValidators.emptyCheck -> isNotEmptyValidator (the
@@ -83,12 +84,7 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
               debugPrint(e.toString());
             }
             return state.shop == null
-                ? Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3.r,
-                      color: AppStyle.primary,
-                    ),
-                  )
+                ? const Loading()
                 : SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
                     child: Form(

@@ -21,6 +21,7 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:weather_sdk/src/common/config/weather_sdk_config.dart';
 import 'package:weather_sdk/src/common/infrastructure/services/weather_icon_mapper.dart';
 
+import 'package:base_sdk/src/presentation/components/loading.dart';
 /// Ported from pos main's `weather/weather_icon.dart`
 /// (`AppConstants.weatherIcon` -> [WeatherSdkConfig.useNetworkIcons]).
 class WeatherIcon extends StatelessWidget {
@@ -73,13 +74,7 @@ class WeatherIcon extends StatelessWidget {
     return SizedBox(
       width: size,
       height: size,
-      child: Center(
-        child: CircularProgressIndicator(
-          value: progress,
-          strokeWidth: 2,
-          color: color ?? AppStyle.textPrimary,
-        ),
-      ),
+      child: const Loading(),
     );
   }
 
