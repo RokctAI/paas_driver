@@ -24,6 +24,7 @@ import 'package:auth_sdk/src/common/domain/interface/auth_session_policy.dart';
 
 import 'registration_step.dart';
 
+import 'package:base_sdk/src/presentation/components/loading.dart';
 /// Entry points the register flow (and the installed shell) use to run the
 /// contributed-steps pipeline. Static, like `AppRoutes.I` — the register
 /// notifier lives in auth_sdk and cannot see the host-composed step list,
@@ -160,7 +161,7 @@ class _RegistrationStepsPageState extends State<RegistrationStepsPage> {
       // One frame while the post-frame callback lands.
       return Scaffold(
         backgroundColor: surface,
-        body: const Center(child: CircularProgressIndicator()),
+        body: const Loading(),
       );
     }
 

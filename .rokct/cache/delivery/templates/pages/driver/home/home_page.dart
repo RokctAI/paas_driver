@@ -83,6 +83,24 @@ class _HomePageState extends ConsumerState<HomePage> {
   final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
   final bool isLtr = LocalStorage.getLangLtr();
   GoogleMapController? googleMapController;
+
+  /// True once the native map has handed over its controller AND gone
+  /// idle after its first camera position - the closest signal
+  /// google_maps_flutter gives to "the first tiles are drawn" (it has no
+  /// tiles-loaded callback). While true, [_mapSurface] carries an empty
+  /// marker widget keyed [mapReadyKey], which the guided tour's
+  /// driver_home step waits for before taking its still. No effect on
+  /// what the driver sees.
+  bool _mapReady = false;
+
+  /// The key the guided tour (templates/tour/delivery.tour.yaml) waits on.
+  static const String mapReadyKey = 'driver_home_map_ready';
+
+  void _markMapReady() {
+    if (_mapReady || !mounted || googleMapController == null) return;
+    setState(() => _mapReady = true);
+  }
+
   BitmapDescriptor myIcon = BitmapDescriptor.defaultMarker;
   OrderDetailData? push;
   Timer? timer;
@@ -493,6 +511,11 @@ class _HomePageState extends ConsumerState<HomePage> {
         body: Consumer(
           builder: (context, ref, child) {
             final state = ref.watch(homeProvider);
+            // The on/off-duty chrome reads CourierStorage.getOnline(), which
+            // is not reactive. The settings fetch (initState) writes it and
+            // then updates driverProvider, so watching that is what redraws
+            // the home with the server's flag instead of the cold default.
+            ref.watch(driverProvider);
             return Stack(
               children: [
                 _map(context, ref),
@@ -730,7 +753,9 @@ class _HomePageState extends ConsumerState<HomePage> {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
       height: MediaQuery.sizeOf(context).height,
-      child: DeferredMapSurface(
+      child: Stack(
+        children: [
+          Positioned.fill(child: DeferredMapSurface(
         child: GoogleMap(
           // Tablet audit 2026-09-07 (05-driver_home LIGHT in dark mode):
           // the native map resolves with the mode like the chrome over
@@ -800,6 +825,9 @@ class _HomePageState extends ConsumerState<HomePage> {
             }
           },
           onCameraIdle: () {
+            // First idle after onMapCreated: the map has rendered its
+            // first camera position (see [_mapReady]).
+            _markMapReady();
             // [_delayed] is a 36-second one-shot with no cancel, so it can
             // fire after this page is popped; reading `ref` then throws
             // "Cannot use ref after the widget was disposed" (tablet tour).
@@ -816,6 +844,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                     : 330.h,
           ),
         ),
+      )),
+          if (_mapReady)
+            const SizedBox.shrink(key: ValueKey<String>(mapReadyKey)),
+        ],
       ),
     );
   }

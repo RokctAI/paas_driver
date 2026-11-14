@@ -1,3 +1,36 @@
+## 1.30.8
+
+- fix(tour): the driver_home still waits for the map. HomePage now renders an empty widget keyed `driver_home_map_ready` once GoogleMap's `onMapCreated` has fired and the map has gone idle on its first camera position; the delivery tour fragment routes to /home without a still, then polls for that key (up to 45s) and allows 4s more for tiles to fill before the screenshot. The route page has no map, so it needs no wait. Not run: tour runs only in CI; templates are not analyzable here.
+
+## 1.30.7
+
+- fix(driver): the home order sheet opens tall enough that its address and phone rows sit above the floating nav; the route list and its 4th stop end above the translucent pill instead of showing through it; the profile stat labels wrap to two lines ("Delivered orders"); Profile settings shows the person's avatar (photo or initials) instead of a placeholder; a demo Sell-from-load opens with one unit of the first line so the total and Confirm are live (tour 1113b).
+
+## 1.30.6
+
+- fix(driver): online toggle follows the settings fetch (CustomToggle synced only in initState, so demo stayed Offline); rating chip no longer clipped; job/parcel sheets collapse above the root tab pill; route header sized under SafeArea and list clears the pill; parcel screens say Parcels.
+
+## 1.30.5
+
+- fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").
+
+## 1.30.4
+
+- fix(driver): income page R0.00 and empty statistics in demo. delivery and revenue both ship `api.delivery_man.get_deliveryman_order_report.json`; DemoFixtures answers from the first registered directory (delivery), whose flat copy had no `data` envelope, so revenue's income model read nothing. The delivery fixture is now the superset: `data` envelope (DriverDayReport already unwraps it) carrying the day-strip keys plus `last_order_total_price`, `last_order_income` and a dated `chart`.
+- fix(driver): home showed Offline for a driver the server has online. The home reads the non-reactive `CourierStorage.getOnline()`; `fetchDriverDetails` now stores the flag before updating `driverProvider`, and the home page and bottom sheet watch `driverProvider` so they redraw with it.
+- fix(driver): parcels subtitle said "There are 0 orders" above a listed parcel: `ParcelState.totalActiveOrder` was never set. It is now the fetched count.
+- fix(driver): order and parcel history subtitles read "There are" with nothing after it; they now carry the count and noun like the orders page.
+- Verified: flutter analyze clean on changed lib files; throwaway fixture-parse test (load + report) passed; load/parcel/demo-fixture tests pass. Templates are not analyzable here (`${package}` imports).
+
+## 1.30.3
+
+- chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.
+
+## 1.30.2
+
+* fix(assets): the template marker (`templates/assets/images/marker.png`)
+  is now the blue driver pin, matching paas_driver. No Dart change.
+
 ## 1.30.1
 
 * feat(tour): the driver tour now shows every routed driver screen. New

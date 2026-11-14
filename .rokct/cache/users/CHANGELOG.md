@@ -1,3 +1,7 @@
+## 1.5.3
+
+- chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.
+
 ## 1.5.2
 
 * fix(users): signing out sends this device's push token to

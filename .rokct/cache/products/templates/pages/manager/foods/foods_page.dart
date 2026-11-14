@@ -383,15 +383,12 @@ class _FoodsPageState extends ConsumerState<FoodsPage>
     // the shipped bottom sheet (sheet = phone behaviour, 12:02Z); the
     // add-on and extras-group creates are single-tab CRUD satellites and
     // stay sheets at every width (transfer item 3).
-    final bool onPlanes = (Planes.maybeOf(context)?.count ?? 1) > 1;
-    if (foodTabIndex == 0 && onPlanes) {
-      ProductEditPage.openCreate(context);
+    if (foodTabIndex == 0) {
+      CreateProductModal.open(context);
       return;
     }
     Widget modal;
-    if (foodTabIndex == 0) {
-      modal = const CreateProductModal();
-    } else if (foodTabIndex == 1) {
+    if (foodTabIndex == 1) {
       modal = const CreateAddonModal();
     } else {
       modal = const CreateExtrasGroupModal();
@@ -400,7 +397,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage>
       paddingTop: MediaQuery.paddingOf(context).top + 64,
       context: context,
       modal: modal,
-      isDarkMode: false,
+      themedSurface: true,
     );
   }
 }

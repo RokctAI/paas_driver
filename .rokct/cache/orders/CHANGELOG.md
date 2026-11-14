@@ -1,3 +1,41 @@
+## 1.31.9
+
+- fix(pos): Place order docks under its cards so Total is not covered by the button, offline note or Back pill, and the summary is titled "Total" instead of "Payment - R"; walk-in product rows follow the theme (no white rows or black image boxes on dark); the POS cart lists the cart's own lines when the calculation echoes none, and its subtotal ends above the Next | Back row (tour 1113b).
+
+## 1.31.8
+
+- fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").
+
+## 1.31.7
+
+- fix(manager/pos): `ProductData.unitId` is a `String?` (docname). The `int?` field threw on the demo and live `unit_id` strings, failing the whole `get_seller_products` parse, so the walk-in grid, its cart and `/load/issue` showed no products.
+- fix(manager/pos): shipping, select-user, select-section and place-order pages use the theme's `cardFor`/`inkFor`/`surfaceFor` colours instead of fixed white/black; labels, the customer field, delivery time and payment names now read in the dark app.
+- fix(manager/pos): delivery-type rows wrap/ellipsize their text instead of overflowing (RenderFlex stripes).
+- fix(manager/pos): the payment summary title shows the shop currency symbol (stored currency, or the demo rand) instead of a hard-coded `$`; the phone foot leaves room so Total is not hidden under Place order.
+- feat(i18n): boot hook `orders-en-bundled-translations` registers an English fallback for the legacy `spproximate_preparation_time: ` key: "Approximate preparation time:".
+
+## 1.31.6
+
+- chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.
+
+## 1.31.5
+
+* fix(orders): eight order and parcel modal roots (payment method, promo code, age verify, delivery time, refund, auto order, rating, parcel payments) now paint `AppStyle.surfaceFor(Theme.of(context).brightness)` instead of a fixed light grey, and their near-black body text uses `inkFor`. Dark-mode legibility of the remaining grey text is not verified on a device.
+
+## 1.31.4
+
+* fix(tour): shorten the `order_shop_drivers` caption's highlight phrase to "the drivers". The longer phrase did not fit one row on the phone canvas (280px past the 936px wrap width), which aborted the phone leg's assemble step. A highlight never splits across rows.
+
+## 1.31.3
+
+* fix(tour): shorten the `order_issue_load` caption's highlight phrase to "issuing". The longer phrase "issuing takes it off the shelf" did not fit one row on the phone canvas (113px past the 936px wrap width), which aborted the phone leg's assemble step, so the feature graphic and store stills were never written. A highlight never splits across rows.
+
+## 1.31.2
+
+* fix(tour): shorten the `order_pos_products` caption's highlight phrase to "pick from your menu". The longer phrase did not fit one 64px row on the phone canvas (24px past the wrap width), and a highlight never splits across rows. No version bump (tour only).
+
+* fix(manifest): remove the duplicate empty top-level `installs` key that overrode the demo fixture install. Manifest only.
+
 ## 1.31.1
 
 * feat(tour): the orders tour fragment now tours the POS create-order flow: `/order-products`, `/order` (the cart is filled through `orderCartProvider`), `/shipping-address`, `/select-user`, `/select-section`, `/delivery-time`. The product grid and customer picker were already answered by products_sdk and merchants_sdk demo fixtures; the section picker gets the new fixture `api.seller_operations.get_seller_sections.json`. `/select-table` (needs a section argument) and `/select-address` (a Google map) cannot be reached by path and stay out. No version bump (tour and fixtures only).

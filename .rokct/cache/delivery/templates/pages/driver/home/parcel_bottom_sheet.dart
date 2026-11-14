@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,6 +28,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
 import 'package:${package}/presentation/component/maps_list.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'package:${package}/presentation/pages/home/widgets/approve_dialog.dart';
@@ -47,10 +50,9 @@ class ParcelBottomSheetScreen extends StatelessWidget {
           context: context,
           parcelId: parcel?.id,
         );
-    AppHelpers.showCustomModalBottomSheet(
-      context: context,
+    DriverSheet.show(
+      context,
       modal: RateCustomer(parcel: parcel),
-      isDarkMode: false,
     );
   }
 
@@ -137,15 +139,37 @@ class ParcelBottomSheetScreen extends StatelessWidget {
       alignment: Alignment.bottomCenter,
       child: Consumer(
         builder: (context, ref, child) {
+        final sheetHeight = ref.watch(homeProvider).isGoUser
+            ? MediaQuery.sizeOf(context).height * 1.8 / 3
+            : MediaQuery.sizeOf(context).height * 2 / 3;
+        // The collapsed sheet must keep its header (status stepper) above
+        // the floating root tab pill; a flat 0.16 left it under the pill
+        // (driver tour shot 05).
+        final minSize = ((MediaQuery.paddingOf(context).bottom +
+                    driverRootNavClearance() +
+                    120.h) /
+                sheetHeight)
+            .clamp(0.16, 0.6)
+            .toDouble();
+        // The sheet opens tall enough that the order's address and phone
+        // rows (about 300 logical px of header + rows) sit above the
+        // floating pill, not under it (tour 1113b, 05-driver_home).
+        final openSize = math.max(
+          minSize,
+          ((MediaQuery.paddingOf(context).bottom +
+                      driverRootNavClearance() +
+                      300.h) /
+                  sheetHeight)
+              .clamp(0.2, 0.65)
+              .toDouble(),
+        );
           return SizedBox(
-            height: ref.watch(homeProvider).isGoUser
-                ? MediaQuery.sizeOf(context).height * 1.8 / 3
-                : MediaQuery.sizeOf(context).height * 2 / 3,
+            height: sheetHeight,
             width: double.infinity,
             child: DraggableScrollableSheet(
-              initialChildSize: 0.2,
+              initialChildSize: openSize,
               maxChildSize: 0.65,
-              minChildSize: 0.16,
+              minChildSize: minSize,
               snap: true,
               builder: (context, scrollController) => Container(
                 width: MediaQuery.sizeOf(context).width,
@@ -237,8 +261,8 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                           horizontal: 6.w,
                                         ),
                                         onPressed: () async {
-                                          AppHelpers.showCustomModalBottomSheet(
-                                            context: context,
+                                          DriverSheet.show(
+                                            context,
                                             modal: MapsList(
                                               location: Coords(
                                                 parcel?.addressFrom?.latitude ??
@@ -250,7 +274,6 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                               ),
                                               title: "A",
                                             ),
-                                            isDarkMode: false,
                                           );
                                         },
                                         icon: Icon(
@@ -365,8 +388,8 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                             horizontal: 6.w,
                                           ),
                                           onPressed: () {
-                                            AppHelpers.showCustomModalBottomSheet(
-                                              context: context,
+                                            DriverSheet.show(
+                                              context,
                                               modal: MapsList(
                                                 location: Coords(
                                                   parcel?.addressTo?.latitude ??
@@ -378,7 +401,6 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                                                 ),
                                                 title: "B",
                                               ),
-                                              isDarkMode: false,
                                             );
                                           },
                                           icon: Icon(

@@ -39,6 +39,7 @@ void main() {
 
   Future<void> seed(String box, int count) async {
     for (var i = 0; i < count; i++) {
+      // compliance-ignore: flutter-hardcoded-secret (false positive: this is a translation key, asset path or test fixture, not a credential)
       final key = 'k-${i.toString().padLeft(2, '0')}';
       await db.putItem(box, key, <String, dynamic>{'n': i});
     }

@@ -13,21 +13,22 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:remixicon/remixicon.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:delivery_sdk/src/driver/application/parcel/parcel_notifier.dart';
 import 'package:delivery_sdk/src/driver/application/parcel/parcel_provider.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/driver_root_nav.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
 
 
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:${package}/presentation/pages/parcel/parcel_item.dart';
+import 'package:${package}/presentation/routes/app_router.dart';
 import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
-import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/components/custom_tab_bar.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
@@ -87,6 +88,24 @@ class _ParcelsPageState extends ConsumerState<ParcelsPage>
     super.dispose();
   }
 
+  /// Same destinations as the home page's root tab set (CHIP 301): Jobs is
+  /// the lit tab here, so a tap on it does nothing; the others open the
+  /// existing route for that tab, and Home returns to the root.
+  void _openRootTab(DriverRootTab tab) {
+    switch (tab) {
+      case DriverRootTab.home:
+        context.router.popUntilRoot();
+      case DriverRootTab.jobs:
+        return;
+      case DriverRootTab.route:
+        context.pushRoute(const DriverRouteRoute());
+      case DriverRootTab.income:
+        context.pushRoute(const DriverIncomeRoute());
+      case DriverRootTab.profile:
+        context.pushRoute(const ProfileRoute());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(parcelProvider);
@@ -102,8 +121,9 @@ class _ParcelsPageState extends ConsumerState<ParcelsPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    // A parcel screen, not an orders one (driver tour).
                     Text(
-                      AppHelpers.getTranslation(TrKeys.orders),
+                      AppHelpers.getTranslation(TrKeys.parcels),
                       style: AppStyle.interSemi(size: 18.sp),
                     ),
                     Row(
@@ -119,7 +139,7 @@ class _ParcelsPageState extends ConsumerState<ParcelsPage>
                               AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
                         ),
                         Text(
-                          AppHelpers.getTranslation(TrKeys.orders).toLowerCase(),
+                          AppHelpers.getTranslation(TrKeys.parcels).toLowerCase(),
                           style:
                               AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
                         ),
@@ -222,24 +242,14 @@ class _ParcelsPageState extends ConsumerState<ParcelsPage>
               ),
             ],
           ),
-          // The floating nav's back-only pill (FloatingNavBack, core#125 — design
-          // strip section 12's one-back rule): the shared pill housing carrying
-          // only the leading back segment, this screen's ONE back affordance,
-          // replacing the standalone PopButton. Back-only (empty tab list): the
-          // driver app composes no root tab set.
+          // Driver root tab pill: this page is the Jobs tab (Parcels), so a
+          // tap on Jobs does nothing (see _openRootTab).
           Positioned.fill(
             child: Align(
               alignment: Alignment.bottomCenter,
-              child: FloatingBottomNav(
-                mode: FloatingNavTabsMode(
-                  tabs: const [],
-                  currentIndex: 0,
-                  onSelect: (_) {},
-                  back: FloatingNavBack(
-                    icon: Remix.arrow_left_wide_fill,
-                    label: AppHelpers.getTranslation(TrKeys.back),
-                  ),
-                ),
+              child: DriverRootNav(
+                current: DriverRootTab.jobs,
+                onSelect: _openRootTab,
               ),
             ),
           ),

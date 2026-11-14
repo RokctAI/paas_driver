@@ -44,6 +44,7 @@ class TrKeys {
   static const String paymentCancelled = 'payment_cancelled';
   static const String deliverymanTransactions = 'deliveryman_transactions';
   static const String doneOrders = 'Done orders';
+  static const String yourEarnings = 'your_earnings';
   static const String asOf = 'as.of';
   static const String drawing = 'drawing';
   static const String points = 'points';
@@ -534,6 +535,9 @@ class TrKeys {
 
   static const String maintenanceTitle = 'maintenance_title';
   static const String maintenanceBrief = 'maintenance_brief';
+  static const String updateRequiredTitle = 'update_required_title';
+  static const String updateRequiredBrief = 'update_required_brief';
+  static const String updateNow = 'update_now';
   static const String hello = 'hello';
   static const String hey = 'hey';
   static const String there = 'there';
@@ -714,6 +718,14 @@ class TrKeys {
       'less.than.a.day.in.app.this.year';
   static const String lessThanADayInAppThisWeek =
       'less.than.a.day.in.app.this.week';
+  // DataUsageBadge (profile footer): "4.2 MB used today · 61 MB this
+  // month", and its Wi-Fi / mobile split.
+  static const String dataUsed = 'data.used';
+  static const String dataUsedToday = 'used.today';
+  static const String dataThisMonth = 'this.month';
+  static const String wifi = 'wi-fi';
+  static const String mobileData = 'mobile.data';
+  static const String dataUsedNote = 'data.used.note';
   static const String goodMorning = 'good.Morning';
   static const String goodAfternoon = 'goodAfternoon';
   static const String goodEvening = 'good.Evening';
@@ -1059,6 +1071,12 @@ class TrKeys {
   static const String oneMoreWorkedExample = 'want_one_more_worked_example';
   static const String oneTrackOnlyExplainer = 'you_take_one_maths_track_not_both';
   static const String online = 'online';
+  static const String rateThisApp = 'rate_this_app';
+  static const String howIsTheApp = 'how_are_you_finding_the_app';
+  static const String thanksForRating = 'thanks_for_your_rating';
+  static const String tellUsWhatToFix = 'tell_us_what_we_can_do_better';
+  static const String sendFeedback = 'send_feedback';
+  static const String rateInStore = 'rate_us_in_the_store';
   static const String onlineHelper = 'online.helper';
   static const String onlyGradeRLessonsSoFar = 'only_grade_r_lessons_so_far';
   static const String openSettings = 'open_settings';

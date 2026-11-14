@@ -1,6 +1,6 @@
 name: weather_sdk
 description: "weather_sdk - shop-located weather suite (header widget, forecast dialog, extended forecast, rain feedback) ported from paas_pos main's JuvoONE weather/, refork 2026-08. Adaptive: full interactive dialog on large screens, minimal popup-free inline card on small screens."
-version: 1.2.0
+version: 1.6.3
 publish_to: 'none'
 
 environment:

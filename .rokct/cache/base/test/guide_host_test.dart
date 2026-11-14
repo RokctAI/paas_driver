@@ -21,6 +21,7 @@ import 'package:base_sdk/src/guide/guide_definition.dart';
 import 'package:base_sdk/src/guide/guide_host.dart';
 import 'package:base_sdk/src/guide/guide_progress.dart';
 import 'package:base_sdk/src/guide/guide_store.dart';
+import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 
@@ -56,7 +57,30 @@ Widget _host(GuideStore store) => MaterialApp(
       ),
     );
 
+Widget _pair(bool showFirst) => MaterialApp(
+      home: Scaffold(
+        body: Column(children: [
+          if (showFirst)
+            GuideAnchor(
+                key: const ValueKey('first'),
+                id: 't.pair',
+                child: const Text('first')),
+          GuideAnchor(id: 't.pair', child: const Text('second')),
+        ]),
+      ),
+    );
+
+Widget _twin() => MaterialApp(
+      home: Scaffold(
+        body: Column(children: [
+          GuideAnchor(id: 't.twin', child: const Text('one')),
+          GuideAnchor(id: 't.twin', child: const Text('two')),
+        ]),
+      ),
+    );
+
 void main() {
+  _brand();
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await LocalStorage.init();
@@ -71,6 +95,37 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
     expect(find.text('Start here'), findsOneWidget);
     expect(find.text('Got it'), findsOneWidget);
+  });
+
+  testWidgets('the tip lights up its target and points at it', (tester) async {
+    await tester.pumpWidget(_host(InMemoryGuideStore()));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.byKey(const ValueKey('guide.spotlight')), findsOneWidget);
+    expect(find.byKey(const ValueKey('guide.arrow')), findsOneWidget);
+  });
+
+  testWidgets('the arrow sits on top of the bubble and reaches into it',
+      (tester) async {
+    await tester.pumpWidget(_host(InMemoryGuideStore()));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump(const Duration(milliseconds: 200));
+    final arrow = find.byKey(const ValueKey('guide.arrow'));
+    final bubble = find.byWidgetPredicate((w) => w is Material && w.elevation == 6);
+    // Painted after the bubble, so the bubble's shadow can't draw a line
+    // between them (Ray, 2026-11-08: "a little gap in between").
+    final painted = <Element>[];
+    void walk(Element e) {
+      painted.add(e);
+      e.visitChildren(walk);
+    }
+    walk(tester.element(find.byType(Stack).last));
+    final arrowAt = painted.indexOf(tester.element(arrow));
+    final bubbleAt = painted.indexOf(tester.element(bubble));
+    expect(arrowAt, greaterThan(bubbleAt));
+    // And its box overlaps the bubble's edge, so no seam shows.
+    final a = tester.getRect(arrow), b = tester.getRect(bubble);
+    expect(a.intersect(b).height, greaterThan(1));
   });
 
   testWidgets('Got it marks the step complete and removes the coach-mark',
@@ -133,5 +188,49 @@ void main() {
       (tester) async {
     await tester.pumpWidget(_scene());
     expect(find.text('Go'), findsOneWidget);
+  });
+}
+
+void _brand() {
+  testWidgets('the coach-mark bubble uses the shell card colour',
+      (tester) async {
+    AppStyle.setBrightness(Brightness.light);
+    await tester.pumpWidget(_host(InMemoryGuideStore()));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump(const Duration(milliseconds: 200));
+    final material = tester.widget<Material>(find
+        .ancestor(of: find.text('Start here'), matching: find.byType(Material))
+        .first);
+    expect(material.color, AppStyle.cardFor(Brightness.light));
+  });
+
+  testWidgets('two anchors with one id mount without a duplicate GlobalKey',
+      (tester) async {
+    await tester.pumpWidget(_twin());
+    expect(tester.takeException(), isNull);
+    expect(find.text('one'), findsOneWidget);
+    expect(find.text('two'), findsOneWidget);
+    // The first anchor keeps the key, so a guide can still find it.
+    expect(GuideAnchors.isOnScreen('t.twin'), isTrue);
+  });
+
+  testWidgets('in a demo session an anchor attaches no GlobalKey',
+      (tester) async {
+    await DemoSession.instance.activate();
+    await tester.pumpWidget(_twin());
+    expect(tester.takeException(), isNull);
+    expect(GuideAnchors.isOnScreen('t.twin'), isFalse);
+    expect(find.text('one'), findsOneWidget);
+  });
+
+  testWidgets('the next anchor takes the key when its owner leaves',
+      (tester) async {
+    await tester.pumpWidget(_pair(true));
+    expect(GuideAnchors.isOnScreen('t.pair'), isTrue);
+    await tester.pumpWidget(_pair(false));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    expect(GuideAnchors.isOnScreen('t.pair'), isTrue);
+    expect(find.text('second'), findsOneWidget);
   });
 }

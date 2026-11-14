@@ -1,3 +1,23 @@
+## 1.22.6
+
+- fix(login): the splash artwork scales to half size toward the top while a login/register sheet covers the page, and login/register sheets are capped at 70% height over the splash ground colour, so the headline ("One Click Away") stays visible above the sheet.
+
+## 1.22.5
+
+- fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").
+
+## 1.22.4
+
+- chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.
+
+## 1.22.3
+
+* fix(codegen): pin drift 2.31.0 and sqlite3 2.9.4 in the standalone overrides, the same as the app template, so code generation in a composed SDK cache no longer pulls sqlite3 3.x, whose build hook downloads a native library from GitHub. That download timing out (HTTP 504) left the generated files missing and broke the Sticks Android build.
+
+## 1.22.2
+
+* fix(login_page): black gradient fading up from the bottom behind the Login/Register buttons on compact screens, so Register reads over busy splash artwork.
+
 ## 1.22.1
 
 * chore(guide): version for the coach-mark guide mounted on this SDK's primary page (base_sdk GuideHost and GuideAnchor). The mount landed without a version change. Needs base_sdk >= 1.92.0.

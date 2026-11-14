@@ -95,7 +95,17 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                   ],
                 ),
               ),
-              const Expanded(child: OrderPane()),
+              // Room at the foot for the floating Next | Back row, so the
+              // pane's subtotal row ends above it instead of under Next
+              // (tour 1113b, 19-order_pos_cart).
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.paddingOf(context).bottom + 72,
+                  ),
+                  child: const OrderPane(),
+                ),
+              ),
             ],
           ),
           // Next (685) at the START, the corner Back pill (347) at the END

@@ -85,6 +85,7 @@ Future<void> main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   /// The token an offline / temp-local account actually carries.
+  // compliance-ignore: flutter-hardcoded-secret (false positive: this is a translation key, asset path or test fixture, not a credential)
   const String offlineToken = 'offline:local-user-1';
 
   Future<void> signIn() async {

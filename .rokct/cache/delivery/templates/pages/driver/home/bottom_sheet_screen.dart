@@ -69,6 +69,7 @@ import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 
+import 'package:delivery_sdk/src/driver/application/driver/driver_provider.dart';
 import 'package:delivery_sdk/src/driver/application/home/driver_home_notifier.dart';
 import 'package:delivery_sdk/src/driver/application/home/driver_home_provider.dart';
 import 'package:delivery_sdk/src/driver/application/load/load_provider.dart';
@@ -193,6 +194,9 @@ class _BottomSheetScreenState extends ConsumerState<BottomSheetScreen> {
   }
 
   Widget _sheetBody(BuildContext context) {
+    // Watched so the sheet redraws once the settings fetch has stored the
+    // server's online flag (see home_page.dart).
+    ref.watch(driverProvider);
     final onDuty = CourierStorage.getOnline();
     final home = ref.watch(driverHomeProvider);
     final loadState = ref.watch(driverLoadProvider);

@@ -46,7 +46,10 @@ class OrderFoodItem extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          color: AppStyle.white,
+          // Theme-aware row: a hard-coded white row read as a light
+          // island on the dark manager theme (tour 1113b,
+          // 18-order_pos_products).
+          color: AppStyle.cardFor(Theme.of(context).brightness),
           margin: EdgeInsets.only(bottom: spacing.r),
           padding: REdgeInsets.symmetric(vertical: 12),
           child: Column(
@@ -80,7 +83,7 @@ class OrderFoodItem extends StatelessWidget {
                           '${product.translation?.title}',
                           style: AppStyle.interNormal(
                             size: 14.sp,
-                            color: AppStyle.blackColor,
+                            color: AppStyle.inkFor(Theme.of(context).brightness),
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -118,7 +121,7 @@ class OrderFoodItem extends StatelessWidget {
                                           ),
                                           style: AppStyle.interSemi(
                                             size: 14.sp,
-                                            color: AppStyle.blackColor,
+                                            color: AppStyle.inkFor(Theme.of(context).brightness),
                                             letterSpacing: -0.3,
                                             decoration:
                                                 TextDecoration.lineThrough,
@@ -166,7 +169,7 @@ class OrderFoodItem extends StatelessWidget {
                                                 ),
                                                 style: AppStyle.interSemi(
                                                   size: 14.sp,
-                                                  color: AppStyle.blackColor,
+                                                  color: AppStyle.inkFor(Theme.of(context).brightness),
                                                   letterSpacing: -0.3,
                                                 ),
                                               ),
@@ -183,7 +186,7 @@ class OrderFoodItem extends StatelessWidget {
                                       ),
                                       style: AppStyle.interSemi(
                                         size: 14.sp,
-                                        color: AppStyle.blackColor,
+                                        color: AppStyle.inkFor(Theme.of(context).brightness),
                                         letterSpacing: -0.3,
                                       ),
                                     )),
@@ -195,9 +198,11 @@ class OrderFoodItem extends StatelessWidget {
                     width: 110,
                     height: 106,
                     url: product.img,
-                    radius: 0,
-                    errorRadius: 0,
-                    fit: BoxFit.fitWidth,
+                    radius: 12,
+                    errorRadius: 12,
+                    errorBackground:
+                        AppStyle.strokeFor(Theme.of(context).brightness),
+                    fit: BoxFit.cover,
                   ),
                   16.horizontalSpace,
                 ],

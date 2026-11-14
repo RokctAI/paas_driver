@@ -25,6 +25,7 @@ import 'package:base_sdk/src/database/owner_scope.dart';
 import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/services/secure_storage.dart';
 import 'package:base_sdk/src/services/storage_keys.dart';
+import 'package:base_sdk/src/services/route_memory.dart';
 
 abstract class LocalStorage {
   LocalStorage._();
@@ -567,6 +568,9 @@ abstract class LocalStorage {
     // never wipe: deleting them is what left a temp-local account staring at
     // an empty app after a single Log out.
     unawaited(DemoSession.instance.clear());
+    // The page kept for coming back after a switch away belongs to this
+    // session: the next person to sign in starts at home.
+    unawaited(RouteMemory.forget());
     _deleteUser();
     deleteToken();
     deleteTokenExpiry();

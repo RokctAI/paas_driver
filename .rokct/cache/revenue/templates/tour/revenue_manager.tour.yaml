@@ -1,0 +1,83 @@
+# Guided-tour fragment for revenue_sdk's MANAGER-only product profit detail.
+#
+# Split out of revenue.tour.yaml so a driver shell, which composes revenue_sdk
+# without the manager sources, never merges these steps (the row widget lives
+# under src/manager and is not in a driver compose). Only the manager shell's
+# tour/app.tour.yaml lists this fragment, right after `revenue`.
+#
+# Assumes the /income dashboard from the revenue fragment's first step is
+# still on screen.
+#
+# Format: RokctAI/shared-workflows scripts/tour/README.md
+sdk: revenue_manager
+imports:
+  - "import 'package:revenue_sdk/src/manager/presentation/revenue/profit_product_list.dart';"
+  - "import 'package:revenue_sdk/src/manager/presentation/revenue/trend_chart.dart';"
+steps:
+  - key: revenue_product_profit
+    title: "Which products really earn"
+    caption: "Tap a product for *its own profit* - revenue, margin and cost per variant - so you know what to push."
+    action: dart
+    settle: 6
+    dart: |
+      // The /income dashboard from the step above is still on screen. The
+      // phone column is ONE lazy vertical ListView with the product rows
+      // below the fold, so they are not built until it scrolls. Three
+      // gesture-based versions of this step (1.14.3 to 1.14.6) passed in
+      // widget tests and still photographed the dashboard twice on the
+      // device, so this one uses no gestures at all:
+      //  * the list is the vertical Scrollable that holds the trend chart,
+      //    not whichever Scrollable the tree lists first;
+      //  * it is moved with jumpTo until a product row is built;
+      //  * the row is brought on screen with Scrollable.ensureVisible and
+      //    its own onTap is called, so no hit test can miss it.
+      // The TOUR_DIAG line lands in logcat, so a future failure says which
+      // of these found nothing.
+      final Finder row = find.byType(ProductProfitRow);
+      final Finder list = find.ancestor(
+        of: find.byType(RevenueTrendChart),
+        matching: find.byWidgetPredicate(
+          (Widget w) => w is Scrollable && w.axis == Axis.vertical,
+        ),
+      );
+      // The report loads from a post-frame fetch; give it time to land.
+      for (int i = 0; i < 10 && list.evaluate().isEmpty; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+        await tester.pump();
+      }
+      int jumps = 0;
+      if (list.evaluate().isNotEmpty) {
+        final ScrollPosition position =
+            tester.state<ScrollableState>(list.first).position;
+        while (row.evaluate().isEmpty &&
+            position.pixels < position.maxScrollExtent &&
+            jumps < 40) {
+          position.jumpTo(
+            (position.pixels + 300).clamp(0.0, position.maxScrollExtent),
+          );
+          jumps++;
+          await tester.pump();
+        }
+      }
+      debugPrint('TOUR_DIAG:revenue_product_profit '
+          'lists=${list.evaluate().length} jumps=$jumps '
+          'rows=${row.evaluate().length}');
+      if (row.evaluate().isNotEmpty) {
+        await Scrollable.ensureVisible(tester.element(row.first));
+        await tester.pump();
+        tester.widget<ProductProfitRow>(row.first).onTap?.call();
+      }
+  - key: revenue_product_profit_close
+    title: "Back to the dashboard"
+    action: dart
+    screenshot: false
+    settle: 3
+    dart: |
+      // Tolerant: the phone's detail page is pushed above the dashboard;
+      // on the planes spread nothing was pushed.
+      final NavigatorState navigator =
+          tester.state(find.byType(Navigator).first);
+      if (find.byType(ProductProfitRow).evaluate().isEmpty &&
+          navigator.canPop()) {
+        navigator.pop();
+      }

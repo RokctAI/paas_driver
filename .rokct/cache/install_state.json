@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.93.1",
+      "version": "1.109.1",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -30,14 +30,10 @@
         "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29~ipad.png": "41b9440c36800caac47be04afac3135b699a6cb4ca432d6f22d0d0ed17cfa289",
         "assets/notification.wav": "f4ab5f12b8f99cd2ce06168f1173e50ecf758bbe859871c838e867e08e0a0c6a",
         "assets/images/ui1.png": "cbcefd92c0f96e9c4f9315fff357cc63a8095d51ac53080f4490f7f8427ed9c7",
-        "assets/images/splash2.png": "15f17d2db026f6d02d4b639aa1ed7c8930a10952e09da8607c52f4c4443cc122",
         "assets/images/person.png": "6feaae82919733fea31ee6b873c1bdfba02814e7c165a8e707751ffa8aa8265f",
-        "assets/images/splash1.png": "15f17d2db026f6d02d4b639aa1ed7c8930a10952e09da8607c52f4c4443cc122",
         "assets/images/delivery_banner.png": "5cd18fbd0ef827a5ce393b180facb13696990b36313b9cf47634e228d9cc1afd",
         "assets/images/notFound.png": "bd8902d7a7b2b4f3d5701caf9ef252dc8765ab359f379c0dcb16f27ffe478adf",
         "assets/images/ui3.png": "f916a60c05da26d504525cba339bf8e77063fe8bf7f0277884b93fffc730fe8e",
-        "assets/images/marker.png": "873ddee9717c4eab9947c9309ab9fb2796fcf0521a12fc03473047d34bdf2f4f",
-        "assets/images/splash.png": "15f17d2db026f6d02d4b639aa1ed7c8930a10952e09da8607c52f4c4443cc122",
         "assets/images/fast.png": "76bdf5d241ba5b8c515233349174e5cbbe0984a9e52fb5834bbef008b4b3ddfc",
         "assets/images/order.png": "08558741d26a73cef0e93745cb9a8a3630ba716444adbed02453e9ee4ca15eec",
         "assets/images/delivery.png": "bfba72635a86d7b69bca1774302e2f07cfe297b82fdcc7c45d1eae0915fbf5d1",
@@ -94,7 +90,7 @@
         "lib/presentation/theme/theme.dart": "dccd0527934c068d0b8ef48d7d0677d068d1054e7fcc1e1eea1f6682912bfcd5",
         "lib/presentation/theme/app_style.dart": "a45367fab06abafa465a15d659d631e344f3c1badc06a8880b2298eaf063c535",
         "lib/main.dart": "4fe65baf8e403cb55f8f2788fb50e0a4277185f51afb640233d535d00832e455",
-        "lib/presentation/app_widget.dart": "2d55eb016ba98da185517baf8bc43683dbf0860c0b7f0b3be6c9c23cef201844",
+        "lib/presentation/app_widget.dart": "c89f2ff01857cb2a5d2d0f321ce1fc4475c1500c259e88bd11110da20c76b545",
         "lib/presentation/routes/app_router.dart": "3b99e50c60dab1161ccf14aa381f7481ab1baad0223575df04e4bda89a20464b",
         "lib/presentation/routes/route_pages.dart": "32ab7543d1b94e5b5aedd5a59604a390c373d6e881801c875e37f2ddd001d8c8",
         "android/app/src/main/kotlin/com/app/demo/JuvoApplication.kt": "18870e8ca0b87482d3ad45fecc6211762fde11d19fd46791aba40a49b4d31d07",
@@ -106,7 +102,9 @@
         "assets/audio/tap.wav": "577a7e6beb2958269cc5daecb2529cad154ba9cebe5eff988530affb9aff5eb0",
         "assets/audio/wrong.wav": "a2352725dcffd5505dec676a26db5ef2f299cb5ae4340a91ecd1cef55637223f",
         "android/app/src/main/kotlin/com/app/demo/SessionHandoffActivity.kt": "3dd6b0050246ca766c13321dbb5d98702040f24698ab734fb20e7614b6e7c1ac",
-        "android/app/src/main/kotlin/com/app/demo/SessionHandoffBridge.kt": "dce4b6c62147bfce895c9cae5570b8c2c756229700fcfa2cd3dd2d08b43a53e0"
+        "android/app/src/main/kotlin/com/app/demo/SessionHandoffBridge.kt": "dce4b6c62147bfce895c9cae5570b8c2c756229700fcfa2cd3dd2d08b43a53e0",
+        "android/app/src/main/res/drawable/splash_no_icon.xml": "158735d7d563198af387803ad38ceda355e37bbc65924d36a499f12a4850f969",
+        "android/app/src/main/res/values-night/colors.xml": "7326730b7ad77f27409c3fac1737606fdaa3ba7733e738775f174d78fe18d4f3"
       },
       "routes": [
         {
@@ -233,10 +231,15 @@
           "rokct.permission.SESSION_HANDOFF"
         ],
         "ios": {}
+      },
+      "host_integration": {
+        "android_application_xml": [
+          "<activity android:name=\".SessionHandoffActivity\" android:exported=\"true\" android:excludeFromRecents=\"true\" android:noHistory=\"true\" android:permission=\"rokct.permission.SESSION_HANDOFF\" android:taskAffinity=\"\" android:theme=\"@android:style/Theme.Translucent.NoTitleBar\"><intent-filter><action android:name=\"rokct.intent.action.SESSION_HANDOFF\"/><category android:name=\"android.intent.category.DEFAULT\"/></intent-filter></activity>"
+        ]
       }
     },
     "users_sdk": {
-      "version": "1.5.2",
+      "version": "1.5.3",
       "files": {
         "assets/demo/users/api.user.search_user.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
         "assets/demo/users/api.user.add_user_address.json": "94040fd50c440c6ddcbbe56ce155489e70d4ae918498599ac55082d238d799ad",
@@ -265,7 +268,7 @@
       ]
     },
     "orders_sdk": {
-      "version": "1.31.1",
+      "version": "1.31.9",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -282,7 +285,18 @@
       ],
       "registration_steps": [],
       "di_hooks": [],
-      "boot_hooks": [],
+      "boot_hooks": [
+        {
+          "id": "orders-en-bundled-translations",
+          "order": 64,
+          "body": "BundledTranslations.register('en', kOrdersEnTranslations);",
+          "imports": [
+            "import 'package:base_sdk/src/services/bundled_translations.dart';",
+            "import 'package:orders_sdk/src/translations/orders_en_translations.dart';"
+          ],
+          "_comment": "Registers English fallbacks for tr_keys whose legacy wire key humanizes badly (spproximate_preparation_time). Backend-served rows still win; the map is consulted only before the humanized-key fallback."
+        }
+      ],
       "tr_keys": {
         "ordersToAccept": "orders_to_accept",
         "waitingOnYou": "waiting_on_you",
@@ -307,50 +321,50 @@
       ]
     },
     "delivery_sdk": {
-      "version": "1.30.1",
+      "version": "1.30.8",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "11db8e698632a6cee50e92a83fef8a494c4b55cf316bbaf6398f652460cb8dea",
         "lib/presentation/routes/delivery_adapters.dart": "cd22c591ae3179bcc44d95cead4ac89abddfecdc6217a8c316037890e13ecddc",
-        "lib/presentation/pages/home/parcel_bottom_sheet.dart": "008bb9812843fe0024cf77b29640494f63416c76ba4795f174a27e9227f1cb95",
-        "lib/presentation/pages/home/bottom_sheet_screen.dart": "641818bdcb1162ec956912eafb42774e6c21e107611e32a08bf6f30d58a49ee6",
-        "lib/presentation/pages/home/home_page.dart": "62b5984bef254fc6cce0fc555cd13f495ccc02acb8ea2cb384c613ccb70ee641",
-        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "cc501115039ed9fe1a5034585256743eb7a3c62b2bf0e466b2c159eee8062349",
+        "lib/presentation/pages/home/parcel_bottom_sheet.dart": "6f22e19cb055a2ab1730799095d01b8f3d4eb63df06b08a8b92da5848b6056a6",
+        "lib/presentation/pages/home/bottom_sheet_screen.dart": "dccb25195734d4011bfeadd77a5a650c566663b214f7e09d8bdc5fa3260da549",
+        "lib/presentation/pages/home/home_page.dart": "e520bd4719b02681a2cc410ccf544e990f50e8721775150c333ac00d4fe1374c",
+        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "8ec7d7e801a45c75e7228cefedbe2074a1905b6b5429a2fb5cdb971d20b3af15",
         "lib/presentation/pages/home/widgets/outside_painter.dart": "60866744c76343e4a4cf92b27adb08a17a74dbe5f0e4bd99b6657c30aba402e3",
-        "lib/presentation/pages/home/widgets/rate_customer.dart": "1cc8cad88894b84141ac2bf18cf6e945414daf20226dc9078dc2810ef3770358",
+        "lib/presentation/pages/home/widgets/rate_customer.dart": "54aa03d498db5a7766c3cf05e57b136f23d6f627607b4ff041058cadf0a375f9",
         "lib/presentation/pages/home/widgets/stores.dart": "498027146cd90e11c9edc48e6bcfe2cd71574edb98f7228ed2a2507666f35b18",
-        "lib/presentation/pages/home/widgets/foods_page.dart": "d2164370375680f7c4a95c0944c8e954c2bf531e9d8e6bb2619c79e96bc8d290",
+        "lib/presentation/pages/home/widgets/foods_page.dart": "bfb781d829fe15da5a020a788567a9cdb628ddec93725e433da416c93cbd1c72",
         "lib/presentation/pages/home/widgets/approve_dialog.dart": "8a943db976f465fccfed0ed3f60dfce95edf14c55ab078e2a35b79818fc1e6fc",
         "lib/presentation/pages/home/widgets/add_comment.dart": "464d54eb71b45d60306ae992cc099efcce5388c915af71b543bcac563962203c",
-        "lib/presentation/pages/orders/orders_page.dart": "8557b6fc37f917d5eac645d2ab69cf8f792b264f81904c67d1db720087e7f541",
-        "lib/presentation/pages/order_history/order_history.dart": "e2c4addb089c9ee965678b7b910bb668e76eae73d34f71026c2be4519a83e379",
-        "lib/presentation/pages/parcel/parcel_item.dart": "729eb6fe6d8ddac801bd1bbfc399dbf9c9eca6dce16a4886ecc23399cfbefa6b",
-        "lib/presentation/pages/parcel/parcel_order.dart": "f1be00a635ff236794f1335f99b1d9133c6e57fca6b54d98ddf8be55025d0243",
-        "lib/presentation/pages/parcel/parcels_page.dart": "ffc2e63c5804a4f7182da17c98a2a45960a8e751581c28b7147d0c4b2f1cc751",
-        "lib/presentation/pages/parcels_history/parcel_history.dart": "f6b261d7f80f84e67e96eec2b130c3861122a16b2f77388f1d200e6340ce74df",
+        "lib/presentation/pages/orders/orders_page.dart": "9d5b6adb352d6076b36ae7210e2b24a486f587b8197cf72f4f0a5bc30ff0760c",
+        "lib/presentation/pages/order_history/order_history.dart": "8e60111d5cf6a7df392ac70b826d8e785457b63cc0c300e033b4202ec5e375e4",
+        "lib/presentation/pages/parcel/parcel_item.dart": "e61c134db7e5dfad2b550164ebfd3bdbeb53852c37e8d7e588430f0924852c22",
+        "lib/presentation/pages/parcel/parcel_order.dart": "620ecaf6bbc032f8f70ece3b372f0a547e30b9d94d21fcae91ce9ebacd620ed2",
+        "lib/presentation/pages/parcel/parcels_page.dart": "e0bbc55951b8280f4ecac4d6037bd9d4dc4d80e25f2f5a9e066ddd1743705d59",
+        "lib/presentation/pages/parcels_history/parcel_history.dart": "cae4f4b19aed14aa6a8571c25c8c3b6dd9a8808900728d7a77a4ecaa748ba710",
         "lib/presentation/pages/push_order/push_order_screen.dart": "5c66d301cf766b26ea27b4ecf13f88026b77989d2157ccd5599e12ae6eb8e8f2",
-        "lib/presentation/pages/profile/profile_page.dart": "3c4e5ccd99e4129e3ea02b29817cd2d3283a030723721239be45ed7adc4d2f9d",
-        "lib/presentation/pages/profile/edit_car.dart": "648a82e48b46ba35df36dce1ce5de8882fea7c2ecd3eac7ac6a6521375a1c180",
+        "lib/presentation/pages/profile/profile_page.dart": "d477fbbecc47925f266a227b07f07278a7334c2af14e3ba7209494fb5e29e50c",
+        "lib/presentation/pages/profile/edit_car.dart": "7102b10bb4db3453cd6e420c6a5cffb9c6d1f11242ef7d80f8d97667ef7ab0b0",
         "lib/presentation/pages/profile/widgets/cancel_dialog.dart": "07780d5e61c179d24a5c4694412f61d052bccf20eaf5c946b0cbf85be1b09ed0",
-        "lib/presentation/pages/profile/widgets/edit_profile_modal.dart": "054d81e0f546b33e54b899d381a2a12048b593ddf81c0db75244e41c9623ab48",
+        "lib/presentation/pages/profile/widgets/edit_profile_modal.dart": "89682f2e78b7133824e7c8ca20a14cffd25c719c484abbd3dc1306a0ef09de42",
         "lib/presentation/pages/profile/widgets/logout_modal.dart": "8f0dabbab10f77125cfe6f510955124bbe6816d4e1b2341e3a64c47d87d74000",
         "lib/presentation/pages/profile/widgets/sections_item.dart": "e1b13f1ec5c5ea3341a18ab03d1edfdfed53e2a0d251877ab2084f7d70d90f10",
         "lib/presentation/pages/auth/become_driver/become_driver.dart": "827e48b4224df8027f6b8318b6e40922884bd4206afdb7787a9682e9c8cf1cee",
-        "lib/presentation/component/driver_avatar.dart": "c64b47e1a27ebb7f7016f7aed537315ae42565db3bc555fc3d1e89805c28c935",
+        "lib/presentation/component/driver_avatar.dart": "6bc4ebf5e7263f622ae94730a8f78d299904e56bcabf1304f5f64d5498c1b394",
         "lib/presentation/component/image_dialog.dart": "ce98046373c6a7703e06352e5dc7dfe39d6bf262c1e10203d004939b6483d189",
-        "lib/presentation/component/order_detail.dart": "a862daeb9b1af40e8039afb23cba606cf72f0251934b6b0a6e3ed47ddb40ee5a",
-        "lib/presentation/component/order_item.dart": "6cc7384be5a1b258f2ef7945dc7ed3853b2c41d795b086adbf09fa9aed4974dd",
-        "lib/presentation/component/orders_item.dart": "4a7c09307a95ddebc36a50693007aa7a26da1084ddd7bbfbd6932d7ec20eb81a",
-        "lib/presentation/component/maps_list.dart": "7730b6c290b4b81bc63e40b2589f61447050b58d9dee5a1e149f2b0237c55051",
+        "lib/presentation/component/order_detail.dart": "24e77903eea2640b13d48cf03b5b977e52eff3118fed22aff6bbd47b6851a685",
+        "lib/presentation/component/order_item.dart": "7b60a8987cc5ab7bcca0692f1abb522f4ad0860df7e30380aef59d8d41f12ed7",
+        "lib/presentation/component/orders_item.dart": "15e17b6fae13ce3b819291633e377f73176829f450aa196f096deabf4af04e35",
+        "lib/presentation/component/maps_list.dart": "9f4d0f143605c9d2b4234a730a8629bc854c476a0d2f31dac9587579af63aeeb",
         "lib/presentation/component/product_item.dart": "ed599c9dbf763f4eaddf19623c9466ddc3c60a60d864b7d427a81e24bd31ee8f",
         "lib/presentation/component/restaurant_item.dart": "f2de52e4212c4d3977f71111f1765cb9dc5248c24c941647365e485691e4b286",
-        "lib/presentation/component/custom_toggle.dart": "99fd19209fd9d09885436e5f49369482c3531bb761041e8963119d508e29b28c",
+        "lib/presentation/component/custom_toggle.dart": "55d1a7438563e6f7123110f2d6cb3820b021d62d50927ef1167183b2fb9986ec",
         "lib/presentation/component/custom_date_picker.dart": "af31a7c3051162ec2328998e5646027865e84835bb0e9aeb926c94475dbc990b",
         "lib/presentation/component/filter_screen.dart": "1548abb5c31b1756919c1bb8983c9f0c878589cecd2adfbe7c236418dd419282",
         "lib/presentation/component/shop_avarat.dart": "a33bb6faa15ba77e425c3045e68058dfa13558c6833597803db37bb6656a44ea",
         "lib/presentation/component/buttons/buttons_bouncing_effect.dart": "c548da4acd677c8f1370f9ac3409fb82a7c0485fda46d23484d0e340852ceec5",
         "lib/presentation/component/helper/keyboard_disable.dart": "837447d41e4c1b1cb0b1b1a1e938cafa413c3258d7b900552e97f2d93b8f2021",
         "lib/presentation/component/text_fields/underline_bordered_text_field.dart": "5efec626091dc54d51af545bde5a2d428042fc421cdab1e70968b6161fc0761c",
-        "lib/presentation/pages/route/route_page.dart": "b687e04496a703f29ca13a2c5abb2f2b2d045978d10910579176826e2af78579",
+        "lib/presentation/pages/route/route_page.dart": "a02ff3863b26f46e16b37344c91bf7ac70dd0285acb223eeabc91945ec8c9853",
         "lib/presentation/pages/deposits/deposits_page.dart": "f48b60499c1763cf4bd9433bdf6cd09bd101ba53125762b96b1c6b06ecbe00e1",
         "assets/demo/delivery/api.driver_order.upload_order_image.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
         "assets/demo/delivery/api.user.create_request_model.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
@@ -394,7 +408,11 @@
         "assets/demo/delivery/api.driver.update_location.json": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
         "lib/presentation/pages/load/load_page.dart": "72e587d4f4461fecf297ac9378d8636807bcb7bbe1965aabe28ef1cd1c5b77bf",
         "lib/presentation/pages/load/load_return_page.dart": "5da84f5be30c2499f105da019a8c59661b566cd8cd220b5d857d4e883ff14480",
-        "lib/presentation/pages/load/load_sell_page.dart": "90c2b662714c23efd70fc27467cfb098ddb15bbf446fe9802f35ed7245f6ebcd"
+        "lib/presentation/pages/load/load_sell_page.dart": "90c2b662714c23efd70fc27467cfb098ddb15bbf446fe9802f35ed7245f6ebcd",
+        "assets/images/splash.png": "15f17d2db026f6d02d4b639aa1ed7c8930a10952e09da8607c52f4c4443cc122",
+        "assets/images/splash1.png": "15f17d2db026f6d02d4b639aa1ed7c8930a10952e09da8607c52f4c4443cc122",
+        "assets/images/marker.png": "ea702779447899c77e86291af98fbc94c0706af6573bcb2b9d2194d93aedaf6f",
+        "assets/images/splash2.png": "15f17d2db026f6d02d4b639aa1ed7c8930a10952e09da8607c52f4c4443cc122"
       },
       "routes": [
         {
@@ -687,10 +705,15 @@
           "replacement": "  // Driver app (home SDK contribution): the courier shell has no guest\n  // surface \u2014 every screen needs a signed-in courier account \u2014 so the\n  // login page's default-on guest Skip affordance is hidden here.\n  AuthEntryConfig.showsGuestSkip = false;",
           "_comment": "Pairs with auth_sdk >= 1.9.0's @auth-entry-config placeholder (Users repo). Ray's rule: Skip (guest entry) lives in the shared login page and shows in ALL apps by default; a home SDK that doesn't need it opts out \u2014 'delivery and merchants dont need it'. On older auth_sdk the marker is absent and the installer only warns (wiring NOT applied), leaving behavior unchanged."
         }
-      ]
+      ],
+      "host_integration": {
+        "android_application_xml": [
+          "<activity-alias android:name=\".RokctDriverEntry\" android:targetActivity=\".MainActivity\" android:exported=\"true\"><meta-data android:name=\"io.flutter.embedding.android.NormalTheme\" android:resource=\"@style/NormalTheme\" /><intent-filter><action android:name=\"rokct.intent.action.DRIVER\" /><category android:name=\"android.intent.category.DEFAULT\" /></intent-filter></activity-alias>"
+        ]
+      }
     },
     "comms_sdk": {
-      "version": "1.23.2",
+      "version": "1.23.4",
       "files": {
         "lib/application/notification/notification_state.dart": "055c8ab42969bad5e418061cbe38699458bfc8b74ea7d4def4a03a18e261b184",
         "lib/application/notification/notification_notifier.dart": "c5c691d1c0f1d476eea96d5a60bac5316fabe8ea0f77412db1d4d409f1e6b748",
@@ -807,7 +830,7 @@
       "boot_hooks": []
     },
     "corporate_sdk": {
-      "version": "1.2.0",
+      "version": "1.2.1",
       "files": {
         "lib/presentation/routes/corporate_route_pages.dart": "7bd7deacfebf5ae507821ca4778a460cb5ac709158254b1ae725003efc6992fe"
       },
@@ -844,7 +867,7 @@
       "boot_hooks": []
     },
     "map_sdk": {
-      "version": "1.5.1",
+      "version": "1.5.2",
       "files": {
         "assets/demo/map/api.poi.get_customer_pois.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
       },
@@ -861,7 +884,7 @@
       "boot_hooks": []
     },
     "zones_sdk": {
-      "version": "1.7.0",
+      "version": "1.7.1",
       "files": {
         "lib/presentation/pages/profile/delivery_zone/delivery_zone_page.dart": "6f411ebaa05581e1ee6efcc903ecc0ef434a51e05cd5856d09f13fbae4a1b5b4",
         "lib/presentation/routes/zones_adapters.dart": "a7e64e1765f0fb2e84a23a07c5daf2af0727b841dc58135e19da2f52c9a23812",
@@ -924,11 +947,11 @@
       ]
     },
     "revenue_sdk": {
-      "version": "1.14.3",
+      "version": "1.14.10",
       "files": {
         "lib/presentation/pages/income/statistics_screen.dart": "b385595295baa359fdd50076b5f8c4823d4e64e3e50c09adfaa885ba57d8a9f2",
-        "lib/presentation/pages/income/income_page.dart": "7bdb8248d0695667eb73bb2266609e9ceb2b48cb5112e999a50ebdd9f5aaf92e",
-        "lib/presentation/pages/income/app_bar_screen.dart": "9bb3cda736cb5f7bf62614201beef509414f7385b5c608c997a2a68ea13f1088",
+        "lib/presentation/pages/income/income_page.dart": "c94eb8784a9cb7512d2df3aa62792a5b83152ef1ff7f5b58f6052dd4a63d2e82",
+        "lib/presentation/pages/income/app_bar_screen.dart": "5446fcc437edb185dc11ce6aac8d22e328585683ed9452378b14d0a61d9ca888",
         "lib/presentation/pages/income/widgets/statistics_item.dart": "b43a9adb482a8bd0751b9b97b04051fec9fa48f1a958dccc294d6402dba0caf5",
         "lib/presentation/pages/income/widgets/income_item.dart": "6d6db6f0ac4ba18846fae7fad6bc23b385eaff79a682a5568bd127e1ce6be7de",
         "assets/demo/revenue/api.delivery_man.get_deliveryman_order_report.json": "04b1d511d3c230a63dd384ccee229dea7d22fd80e8fdf7125b0f3ba2f144c60e",
@@ -963,7 +986,8 @@
       "boot_hooks": [],
       "tr_keys": {
         "deliverymanTransactions": "deliveryman_transactions",
-        "doneOrders": "Done orders"
+        "doneOrders": "Done orders",
+        "yourEarnings": "your_earnings"
       },
       "integrations": [
         {
@@ -984,7 +1008,7 @@
       ]
     },
     "merchants_sdk": {
-      "version": "1.36.1",
+      "version": "1.38.3",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
         "lib/presentation/pages/stores/story_page.dart": "adeb07c24627dd3f1321a4f3eebc4d762e55f8cf8e8e3b7b91daeffdb86b3508",
@@ -1068,7 +1092,7 @@
       }
     },
     "products_sdk": {
-      "version": "1.12.9",
+      "version": "1.13.3",
       "files": {
         "assets/demo/products/api.seller_product.delete_seller_extra_value.json": "36f579d4c4606f9ff3c022585bab9c993c9fb9f0aec51523d0a81a7065d0eb31",
         "assets/demo/products/api.seller_product.get_product_details.json": "c085451bfdfea3523c7993705fcb031786836d9ebf58d8ec9e48e85107bdb54b",
@@ -1122,7 +1146,7 @@
       ]
     },
     "calc_sdk": {
-      "version": "1.4.1",
+      "version": "1.4.2",
       "files": {
         "lib/presentation/pages/calc/calculator_page.dart": "55eb940c5ff99fa2e8d3cf0b2118d3a3459d6e38b2e81e7e09dd33bd95f49f76"
       },
@@ -1149,10 +1173,15 @@
         "fillsTheAmountNeverTheCart": "fills_the_amount_display_it_never_touches_the_cart",
         "muteKeySounds": "mute_key_sounds",
         "unmuteKeySounds": "unmute_key_sounds"
+      },
+      "host_integration": {
+        "android_application_xml": [
+          "<activity-alias android:name=\".RokctCalculatorEntry\" android:targetActivity=\".MainActivity\" android:exported=\"true\"><meta-data android:name=\"io.flutter.embedding.android.NormalTheme\" android:resource=\"@style/NormalTheme\" /><intent-filter><action android:name=\"rokct.intent.action.CALCULATOR\" /><category android:name=\"android.intent.category.DEFAULT\" /><data android:scheme=\"rokct\" /></intent-filter></activity-alias>"
+        ]
       }
     },
     "auth_sdk": {
-      "version": "1.22.1",
+      "version": "1.22.6",
       "files": {
         "lib/presentation/routes/auth_route_pages.dart": "8eaff3abe2dd38d8a6c2f15ed4b9e4ec779c5b99f3f71a18445ee4a13d12056f",
         "lib/presentation/routes/registration_step_pages.dart": "68aed195fc07db746a0919c7ba6d47ffa445ca86e7d9cf6ee50fbcb00e82d3c2",
@@ -1291,7 +1320,7 @@
       ]
     },
     "weather_sdk": {
-      "version": "1.6.2",
+      "version": "1.6.3",
       "files": {
         "lib/presentation/components/weather/weather_widget.dart": "13e7964746cd367f4e019c2d192e2a0ef8bf3445060c562a611f2caa14c2c53c"
       },
@@ -1344,7 +1373,7 @@
       }
     },
     "hms_sdk": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -1377,7 +1406,7 @@
       "boot_hooks": []
     },
     "telemetry_sdk": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -1390,76 +1419,76 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.93.1",
-      "hash": "90ecc3b880d440fa"
+      "version": "1.109.1",
+      "source_hash": "4781c80f46598af8"
     },
     "comms": {
-      "version": "1.23.2",
-      "hash": "3cafcd2562d7b781"
+      "version": "1.23.4",
+      "source_hash": "ba44faa679dd37d6"
     },
     "auth": {
-      "version": "1.22.1",
-      "hash": "347f37ed729d44ad"
+      "version": "1.22.6",
+      "source_hash": "2d1342094a4b1772"
     },
     "users": {
-      "version": "1.5.2",
-      "hash": "1e8eee291e0c3997"
+      "version": "1.5.3",
+      "source_hash": "cb3062dc3a29f9fd"
     },
     "orders": {
-      "version": "1.31.1",
-      "hash": "c1fa821bf4ac7e87"
+      "version": "1.31.9",
+      "source_hash": "65c463db32f118dc"
     },
     "merchants": {
-      "version": "1.36.1",
-      "hash": "8f7c2ae7f09020e7"
+      "version": "1.38.3",
+      "source_hash": "4aa875171d41a0fb"
     },
     "products": {
-      "version": "1.12.9",
-      "hash": "56d71b1a3ec2c9a4"
+      "version": "1.13.3",
+      "source_hash": "2d0f52e4f382d7e0"
     },
     "delivery": {
-      "version": "1.30.1",
-      "hash": "a70645daa7f8e685"
+      "version": "1.30.8",
+      "source_hash": "1423722c2a53f19c"
     },
     "map": {
-      "version": "1.5.1",
-      "hash": "5a71671191e4d0c7"
+      "version": "1.5.2",
+      "source_hash": "dc26dd31a6b36799"
     },
     "zones": {
-      "version": "1.7.0",
-      "hash": "d2d8bb5297532465"
+      "version": "1.7.1",
+      "source_hash": "3394cab139b72fa8"
     },
     "processing": {
       "version": "1.0.2",
-      "hash": "83864d75f80cd5e1"
+      "source_hash": "0f71149fa89119ec"
     },
     "calc": {
-      "version": "1.4.1",
-      "hash": "81be2f16a93df1c7"
+      "version": "1.4.2",
+      "source_hash": "c377439da86beced"
     },
     "corporate": {
-      "version": "1.2.0",
-      "hash": "ef378600c400e1cf"
+      "version": "1.2.1",
+      "source_hash": "42eb71115dcd4610"
     },
     "revenue": {
-      "version": "1.14.3",
-      "hash": "361a9c27329234c8"
+      "version": "1.14.10",
+      "source_hash": "40d847dc17e2ecad"
     },
     "weather": {
-      "version": "1.6.2",
-      "hash": "2ef4dff138168e31"
+      "version": "1.6.3",
+      "source_hash": "ce5b491355f50b4e"
     },
     "hms": {
-      "version": "1.1.0",
-      "hash": "7f1c497916478f4e"
+      "version": "1.1.1",
+      "source_hash": "9413501caf93bf5d"
     },
     "desktop": {
       "version": "1.2.2",
-      "hash": "a5f94e74405057ac"
+      "source_hash": "a5f94e74405057ac"
     },
     "telemetry": {
-      "version": "1.1.0",
-      "hash": "fc4dc71b7401b7bd"
+      "version": "1.1.1",
+      "source_hash": "396500678188b0f2"
     }
   }
 }

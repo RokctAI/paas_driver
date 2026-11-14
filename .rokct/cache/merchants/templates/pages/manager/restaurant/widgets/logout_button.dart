@@ -22,7 +22,6 @@ import 'package:${package}/presentation/pages/main/widgets/buttons_bouncing_effe
 import 'package:base_sdk/src/presentation/components/blur_wrap.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
-import 'package:base_sdk/src/services/local_storage.dart';
 
 // Ported from paas_manager lib/presentation/pages/restaurant/widgets/
 // logout_button.dart; BlurWrap now comes from base_sdk, the toggle stays
@@ -64,7 +63,6 @@ class LogoutButton extends StatelessWidget {
               onTap: () => AppHelpers.showCustomModalBottomSheet(
                 context: context,
                 modal: const LogoutModal(),
-                isDarkMode: LocalStorage.getAppThemeMode(),
               ),
               child: BlurWrap(
                 radius: BorderRadius.circular(10.r),

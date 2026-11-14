@@ -13,6 +13,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,7 +22,6 @@ import 'package:map_launcher/map_launcher.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:base_sdk/src/presentation/components/app_bars/custom_app_bar.dart';
-import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -33,9 +33,12 @@ import 'package:delivery_sdk/src/driver/infrastructure/models/data/route_stop.da
 
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/driver_poi.dart';
 import 'package:delivery_sdk/src/driver/presentation/poi/add_poi_sheet.dart';
+import 'package:delivery_sdk/src/driver/presentation/home/driver_root_nav.dart';
 import 'package:delivery_sdk/src/driver/presentation/poi/poi_sheet.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 import 'package:${package}/presentation/component/maps_list.dart';
+import 'package:${package}/presentation/routes/app_router.dart';
 
 /// The driver's numbered, server-ordered route: active order and parcel
 /// stops merged with the pending stops of an admin-composed Dispatch
@@ -83,9 +86,26 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
         children: [
           Column(
             children: [
-              CustomAppBar(
-                bottomPadding: 16.h,
-                child: Column(
+              // Was CustomAppBar: its FIXED 110 height holds the title, the
+              // route line and the chip row only by pushing the title up
+              // into the status bar ("My route" over the clock, driver
+              // tour). Same ground and corners, sized by its content under
+              // a SafeArea instead.
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: AppStyle.cardFor(Theme.of(context).brightness),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(16.r),
+                    bottomRight: Radius.circular(16.r),
+                  ),
+                ),
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                        left: 16.w, right: 16.w, top: 8.h, bottom: 16.h),
+                    child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -139,6 +159,8 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                     ),
                   ],
                 ),
+                  ),
+                ),
               ),
               if ((state.dispatchRoute?.notes ?? '').isNotEmpty)
                 Padding(
@@ -156,8 +178,17 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                     ),
                   ),
                 ),
+              // The list ENDS above the root tab pill instead of only
+              // padding its last item: the pill is translucent, so a card
+              // scrolled under it showed through (tour 1113b,
+              // 08-driver_route, stop 4).
               Expanded(
-                child: state.isLoading
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.paddingOf(context).bottom +
+                        driverRootNavClearance(),
+                  ),
+                  child: state.isLoading
                     ? const Loading()
                     : RefreshIndicator(
                         onRefresh: () =>
@@ -169,8 +200,7 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                                   left: 16.w,
                                   right: 16.w,
                                   top: 16.h,
-                                  bottom:
-                                      MediaQuery.paddingOf(context).bottom + 72.h,
+                                  bottom: 16.h,
                                 ),
                                 physics: const AlwaysScrollableScrollPhysics(),
                                 itemCount: state.stops.length,
@@ -184,33 +214,42 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                                 },
                               ),
                       ),
+                ),
               ),
             ],
           ),
-          // The floating nav's back-only pill (FloatingNavBack, core#125 — design
-          // strip section 12's one-back rule): the shared pill housing carrying
-          // only the leading back segment, this screen's ONE back affordance,
-          // replacing the standalone PopButton. Back-only (empty tab list): the
-          // driver app composes no root tab set.
+          // Driver root tab pill: this page is the Route tab, so a tap on
+          // Route does nothing (see _openRootTab).
           Positioned.fill(
             child: Align(
               alignment: Alignment.bottomCenter,
-              child: FloatingBottomNav(
-                mode: FloatingNavTabsMode(
-                  tabs: const [],
-                  currentIndex: 0,
-                  onSelect: (_) {},
-                  back: FloatingNavBack(
-                    icon: Remix.arrow_left_wide_fill,
-                    label: AppHelpers.getTranslation(TrKeys.back),
-                  ),
-                ),
+              child: DriverRootNav(
+                current: DriverRootTab.route,
+                onSelect: _openRootTab,
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  /// Same destinations as the home page's root tab set (CHIP 301): Route is
+  /// the lit tab here, so a tap on it does nothing; the others open the
+  /// existing route for that tab, and Home returns to the root.
+  void _openRootTab(DriverRootTab tab) {
+    switch (tab) {
+      case DriverRootTab.home:
+        context.router.popUntilRoot();
+      case DriverRootTab.jobs:
+        context.pushRoute(const OrdersRoute());
+      case DriverRootTab.route:
+        return;
+      case DriverRootTab.income:
+        context.pushRoute(const DriverIncomeRoute());
+      case DriverRootTab.profile:
+        context.pushRoute(const ProfileRoute());
+    }
   }
 
   Widget _emptyRoute(bool isPoiRoute) {
@@ -482,8 +521,8 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
 
   void _openInMaps(BuildContext context, RouteStopData stop) {
     if (!stop.hasCoordinates) return;
-    AppHelpers.showCustomModalBottomSheet(
-      context: context,
+    DriverSheet.show(
+      context,
       modal: SafeArea(
         child: Padding(
           padding: EdgeInsets.only(top: 16.h),
@@ -493,7 +532,6 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
           ),
         ),
       ),
-      isDarkMode: false,
     );
   }
 }

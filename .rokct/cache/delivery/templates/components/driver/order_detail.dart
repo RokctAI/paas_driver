@@ -24,6 +24,7 @@ import 'package:${package}/presentation/pages/home/widgets/foods_page.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
 import 'image_dialog.dart';
@@ -62,10 +63,10 @@ class OrderDetail extends StatelessWidget {
                   CustomButton(
                     title: AppHelpers.getTranslation(TrKeys.orderInformation),
                     onPressed: () {
-                      AppHelpers.showCustomModalBottomSheet(
-                        context: context,
+                      DriverSheet.show(
+                        context,
+                        surface: true,
                         modal: FoodsPage(order: order),
-                        isDarkMode: false,
                       );
                     },
                     background: AppStyle.transparent,

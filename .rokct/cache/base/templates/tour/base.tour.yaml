@@ -23,7 +23,7 @@ sdk: base
 steps:
   - key: base_profile
     title: "Your account at a glance"
-    caption: "Your name, role and details - *your account* in one clean card."
+    caption: "Your name, role and details - *your account* in one clean card, with a link to rate the app."
     action: route
     route: /generic-profile
     settle: 7

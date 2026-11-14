@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1
+
+- chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.
+
 ## 1.1.0
 
 * feat(telemetry): offline events are no longer lost. `TelemetrySdkDependencies.register` now calls the new `TelemetryBootstrap.enableSpool`, which installs `TelemetrySpool.deliver` as `TelemetryClient`'s transport. Online, events leave through the same platform-gateway POST as before. Offline, or when the send fails at the network level (timeouts, connection errors, 502/503/504), they are queued on the device (base_sdk `LocalStorage` JSON record `telemetry_spool`, at most 500, oldest dropped first) with their original payload and timestamp. The queue is flushed in batches of 20 when connectivity returns, at boot, and after any successful live send. A flush stops on a network failure or a 401/403 and keeps the rest. A rejected tenant cmd is retried under its `control:` twin, and an event rejected under both is dropped. Live rejections are still rethrown, so `TelemetryClient`'s `control:` fallback works as before. `TelemetryBootstrap.configure` is unchanged. New dependencies `connectivity_plus` and `dio` use base_sdk's constraints.

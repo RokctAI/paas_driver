@@ -345,7 +345,6 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                                                 bonus:
                                                     state.selectedStock?.bonus,
                                               ),
-                                              isDarkMode: Theme.of(context).brightness == Brightness.dark,
                                               isDrag: true,
                                               radius: 12,
                                             );

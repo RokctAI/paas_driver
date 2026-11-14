@@ -20,6 +20,7 @@ import 'package:base_sdk/src/application/profile/profile_host_capabilities.dart'
 import 'package:base_sdk/src/presentation/pages/profile/profile_action_item.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section.dart';
 import 'package:base_sdk/src/presentation/pages/profile/widgets/base_profile_footer.dart';
+import 'package:base_sdk/src/sync/plan_sync_gate.dart';
 
 /// Cross-SDK section registry backing the generic profile page.
 ///
@@ -301,7 +302,9 @@ class ProfileSectionRegistry {
   /// Registered sections sorted by [ProfileSection.order], ties broken by
   /// id so the layout is deterministic across bootstraps.
   List<ProfileSection> get sections {
-    final list = _sections.values.toList()
+    final list = _sections.values
+        .where((s) => !PlanAccess.isSectionHidden(s.id))
+        .toList()
       ..sort((a, b) {
         final byOrder = a.order.compareTo(b.order);
         return byOrder != 0 ? byOrder : a.id.compareTo(b.id);

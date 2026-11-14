@@ -90,6 +90,7 @@ class _Offline extends OfflineAuthService {
     String? firstName,
     String? lastName,
   }) async {
+    // compliance-ignore: flutter-hardcoded-secret (false positive: this is a translation key, asset path or test fixture, not a credential)
     final id = '${OfflineAuthService.handoffIdPrefix}$sourceKey';
     rows[id] = OfflineUserEntity(
       id: id,

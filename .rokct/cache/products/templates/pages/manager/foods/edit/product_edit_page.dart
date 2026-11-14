@@ -64,7 +64,11 @@ class ProductEditPage extends ConsumerStatefulWidget {
   /// The product being edited, or null for the ADD moment.
   final SellerProductData? product;
 
-  const ProductEditPage({super.key, required this.product});
+  const ProductEditPage({super.key, required this.product, this.barcode = ''});
+
+  /// The ADD moment only: the scanned code to prefill (the till's "Add
+  /// this product"); empty adds a blank form.
+  final String barcode;
 
   bool get isCreate => product == null;
 
@@ -88,10 +92,12 @@ class ProductEditPage extends ConsumerStatefulWidget {
   /// The ADD moment at plane widths: pushes this page with the CREATE bodies
   /// in the panes (the same route type, the same nav fold). The create
   /// providers are reset from the page itself, exactly where the shipped
-  /// modal reset them.
-  static Future<void> openCreate(BuildContext context) {
+  /// modal reset them. [barcode] prefills the product's barcode.
+  static Future<void> openCreate(BuildContext context, {String barcode = ''}) {
     return Navigator.of(context, rootNavigator: true).push(
-      MaterialPageRoute(builder: (_) => const ProductEditPage(product: null)),
+      MaterialPageRoute(
+        builder: (_) => ProductEditPage(product: null, barcode: barcode),
+      ),
     );
   }
 
@@ -108,8 +114,9 @@ class _ProductEditPageState extends ConsumerState<ProductEditPage> {
     if (widget.isCreate) {
       // The shipped CreateProductModal's initState reset, unchanged.
       WidgetsBinding.instance.addPostFrameCallback(
-        (_) =>
-            ref.read(createFoodDetailsProvider.notifier).updateAddFoodInfo(),
+        (_) => ref
+            .read(createFoodDetailsProvider.notifier)
+            .updateAddFoodInfo(barcode: widget.barcode),
       );
     }
   }
@@ -152,12 +159,13 @@ class _ProductEditPageState extends ConsumerState<ProductEditPage> {
                   // page's reserve).
                   padding: const EdgeInsets.only(bottom: 64),
                   child: product == null
-                      ? const CreateFoodDetailsBody(
+                      ? CreateFoodDetailsBody(
                           // The shipped modal hopped to its stocks tab
                           // after the details save; the lock lifting is
                           // that hop here (ProductFormSplit).
                           onSave: _noHop,
                           dark: true,
+                          initialBarcode: widget.barcode,
                         )
                       : EditFoodDetailsBody(
                           controller: _detailsScroll,

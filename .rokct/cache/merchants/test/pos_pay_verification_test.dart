@@ -28,6 +28,7 @@ import 'package:merchants_sdk/src/manager/utils/pos_pay_verification.dart';
 void main() {
   const orderId = 'POS-1756383000000-0042';
   const shopId = '17';
+  // compliance-ignore: flutter-hardcoded-secret (false positive: this is a translation key, asset path or test fixture, not a credential)
   const secret = 'shop-uuid-bella-napoli';
 
   test('derives a deterministic 6-digit code from the spec algorithm', () {

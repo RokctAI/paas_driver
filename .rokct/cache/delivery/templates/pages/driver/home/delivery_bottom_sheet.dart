@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -33,6 +35,7 @@ import 'package:delivery_sdk/src/driver/infrastructure/services/courier_helpers.
 import 'package:delivery_sdk/src/driver/presentation/home/driver_root_nav.dart';
 import 'package:delivery_sdk/src/driver/presentation/widgets/cash_collection_sheet.dart';
 import 'package:delivery_sdk/src/driver/presentation/widgets/delivery_status_rail.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 class DeliverBottomSheetScreen extends StatefulWidget {
   final OrderDetailData order;
@@ -84,12 +87,12 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
           recipientAgeVerified: recipientAgeVerified,
         );
     Navigator.pop(context);
-    AppHelpers.showCustomModalBottomSheet(
-        context: context,
-        modal: RateCustomer(
-          order: widget.order,
-        ),
-        isDarkMode: false);
+    DriverSheet.show(
+      context,
+      modal: RateCustomer(
+        order: widget.order,
+      ),
+    );
   }
 
   /// 18+ orders only (cash-collection dialog precedent): the courier
@@ -171,9 +174,11 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
   /// shipped ones, untouched.
   void _showCashCollectionDialog(
       BuildContext context, WidgetRef ref, bool canConvertToCredit) {
-    AppHelpers.showCustomModalBottomSheet(
-      context: context,
-      isDarkMode: true,
+    // CashCollectionSheet paints its own opaque, theme-aware, top-rounded
+    // root, so the shared DriverSheetSurface is not applied.
+    DriverSheet.show(
+      context,
+      surface: false,
       modal: CashCollectionSheet(
         orderId: widget.order.id,
         expected: widget.order.totalPrice ?? 0,
@@ -209,15 +214,39 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Consumer(builder: (context, ref, child) {
+        final sheetHeight = ref.watch(homeProvider).isGoUser
+            ? MediaQuery.sizeOf(context).height * 1.8 / 3
+            : MediaQuery.sizeOf(context).height * 2 / 3;
+        // The collapsed sheet must keep its header (status stepper) above
+        // the floating root tab pill; a flat 0.16 left it under the pill
+        // (driver tour shot 05).
+        final minSize = ((MediaQuery.paddingOf(context).bottom +
+                    driverRootNavClearance() +
+                    120.h) /
+                sheetHeight)
+            .clamp(0.16, 0.6)
+            .toDouble();
+        // The sheet opens tall enough that the order's address and phone
+        // rows (about 300 logical px of header + rows) sit above the
+        // floating pill, not under it (tour 1113b, 05-driver_home).
+        final openSize = math.max(
+          minSize,
+          ((MediaQuery.paddingOf(context).bottom +
+                      driverRootNavClearance() +
+                      300.h) /
+                  sheetHeight)
+              .clamp(0.5, 1.0)
+              .toDouble(),
+        );
         return SizedBox(
-          height: ref.watch(homeProvider).isGoUser
-              ? MediaQuery.sizeOf(context).height * 1.8 / 3
-              : MediaQuery.sizeOf(context).height * 2 / 3,
+          height: sheetHeight,
           width: double.infinity,
           child: DraggableScrollableSheet(
-              initialChildSize: 0.2,
+              // Opens at half the full height (maxChildSize), so the order's
+              // header and actions clear the floating nav pill underneath.
+              initialChildSize: openSize,
               maxChildSize: 1,
-              minChildSize: 0.16,
+              minChildSize: minSize,
               snap: true,
               builder: (context, scrollController) => Container(
                     width: MediaQuery.sizeOf(context).width,
@@ -312,12 +341,12 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                                     title: AppHelpers.getTranslation(
                                         TrKeys.orderInformation),
                                     onPressed: () {
-                                      AppHelpers.showCustomModalBottomSheet(
-                                          context: context,
-                                          modal: FoodsPage(
-                                            order: widget.order,
-                                          ),
-                                          isDarkMode: false);
+                                      DriverSheet.show(
+                                        context,
+                                        modal: FoodsPage(
+                                          order: widget.order,
+                                        ),
+                                      );
                                     },
                                     background: AppStyle.transparent,
                                     borderColor: AppStyle.textPrimary,

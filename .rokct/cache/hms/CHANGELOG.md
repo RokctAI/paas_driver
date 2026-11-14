@@ -1,3 +1,7 @@
+## 1.1.1
+
+- chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.
+
 ## 1.1.0
 
 * feat(hms): incoming Huawei Push Kit messages now show. The token was

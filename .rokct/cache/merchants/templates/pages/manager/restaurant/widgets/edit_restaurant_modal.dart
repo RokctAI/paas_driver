@@ -46,6 +46,7 @@ import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:merchants_sdk/src/manager/application/restaurant/restaurant_provider.dart';
 import 'package:merchants_sdk/src/manager/application/restaurant/working_days/working_days_provider.dart';
 
+import 'package:base_sdk/src/presentation/components/loading.dart';
 // Ported from paas_manager lib/presentation/pages/restaurant/widgets/
 // edit_restaurant_modal.dart. Deltas: KeyboardDisable -> base_sdk's
 // KeyboardDismisser; AppValidators.emptyCheck -> isNotEmptyValidator (the
@@ -68,6 +69,7 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
   Widget build(BuildContext context) {
     return KeyboardDismisser(
       child: ModalWrap(
+        themed: true,
         body: Consumer(
           builder: (context, ref, child) {
             final state = ref.watch(restaurantProvider);
@@ -82,12 +84,7 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
               debugPrint(e.toString());
             }
             return state.shop == null
-                ? Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3.r,
-                      color: AppStyle.primary,
-                    ),
-                  )
+                ? const Loading()
                 : SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
                     child: Form(
@@ -102,6 +99,9 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                 TitleAndIcon(
                                   title: AppHelpers.getTranslation(
                                     TrKeys.restaurantSettings,
+                                  ),
+                                  titleColor: AppStyle.inkFor(
+                                    Theme.of(context).brightness,
                                   ),
                                 ),
                                 24.verticalSpace,
@@ -350,7 +350,6 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                 paddingTop: MediaQuery.paddingOf(context).top,
                                 context: context,
                                 modal: const WorkingTimeModal(),
-                                isDarkMode: false,
                               );
                             },
                             child: Container(
@@ -362,7 +361,9 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                     Icon(
                                       Remix.time_fill,
                                       size: 18.r,
-                                      color: AppStyle.blackColor,
+                                      color: AppStyle.inkFor(
+                                        Theme.of(context).brightness,
+                                      ),
                                     ),
                                     8.horizontalSpace,
                                     Column(
@@ -371,11 +372,13 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                       children: [
                                         Text(
                                           AppHelpers.getTranslation(
-                                            TrKeys.workingHours,
-                                          ),
-                                          style: AppStyle.interNormal(
-                                            size: 12.sp,
-                                            color: AppStyle.blackColor,
+                                              TrKeys.workingHours,
+                                            ),
+                                            style: AppStyle.interNormal(
+                                              size: 12.sp,
+                                              color: AppStyle.inkFor(
+                                                Theme.of(context).brightness,
+                                              ),
                                           ),
                                         ),
                                         4.verticalSpace,
@@ -411,7 +414,9 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                     Icon(
                                       Remix.arrow_right_s_line,
                                       size: 24.r,
-                                      color: AppStyle.blackColor,
+                                      color: AppStyle.inkFor(
+                                        Theme.of(context).brightness,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -437,14 +442,18 @@ class _EditRestaurantModalState extends ConsumerState<EditRestaurantModal> {
                                       ),
                                       style: AppStyle.interNormal(
                                         size: 12.sp,
-                                        color: AppStyle.blackColor,
+                                        color: AppStyle.inkFor(
+                                          Theme.of(context).brightness,
+                                        ),
                                       ),
                                     ),
                                     const Spacer(),
                                     Icon(
                                       Remix.arrow_right_s_line,
                                       size: 24.r,
-                                      color: AppStyle.blackColor,
+                                      color: AppStyle.inkFor(
+                                        Theme.of(context).brightness,
+                                      ),
                                     ),
                                   ],
                                 ),

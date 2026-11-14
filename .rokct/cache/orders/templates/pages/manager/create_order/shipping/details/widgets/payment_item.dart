@@ -49,12 +49,24 @@ class PaymentItem extends StatelessWidget {
                       ? Remix.checkbox_circle_fill
                       : Remix.checkbox_circle_line,
                   size: 24.r,
-                  color: isSelected ? AppStyle.primary : AppStyle.blackColor,
+                  color: isSelected
+                      ? AppStyle.primary
+                      : AppStyle.inkFor(Theme.of(context).brightness),
                 ),
                 14.horizontalSpace,
-                Text(
-                  '${toBeginningOfSentenceCase(payment.payment?.tag)}',
-                  style: AppStyle.interSemi(size: 14.sp, letterSpacing: -0.3),
+                Expanded(
+                  child: Text(
+                    // The tag is the label; an untagged row says so rather
+                    // than printing "null".
+                    toBeginningOfSentenceCase(payment.payment?.tag) ?? '-',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppStyle.interSemi(
+                      size: 14.sp,
+                      letterSpacing: -0.3,
+                      color: AppStyle.inkFor(Theme.of(context).brightness),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -62,7 +74,7 @@ class PaymentItem extends StatelessWidget {
               Column(
                 children: [
                   14.verticalSpace,
-                  Divider(thickness: 1.r, height: 1.r, color: AppStyle.bgGrey),
+                  Divider(thickness: 1.r, height: 1.r, color: AppStyle.subtleStrokeFor(Theme.of(context).brightness)),
                   14.verticalSpace,
                 ],
               ),

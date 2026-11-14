@@ -23,13 +23,17 @@ import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/domain/interface/settings.dart';
 import 'package:base_sdk/src/services/app_ui_keys.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/services/route_memory.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:${package}/presentation/routes/app_router.dart';
 
 class AppWidget extends ConsumerWidget {
   const AppWidget({super.key});
 
+  // Kept in RouteMemory as the person moves, so a cold start after Android
+  // closed the app in the background reopens the same page.
   static final _appRouter = AppRouter();
+  static bool _remembered = false;
 
   Future<void> _fetchSettings() async {
     // Settings live behind comms_sdk's registration; apps composed without
@@ -47,6 +51,10 @@ class AppWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (!_remembered) {
+      _remembered = true;
+      RouteMemory.attach(_appRouter);
+    }
     // WATCH, not refresh. Refreshing the provider read the state once and
     // subscribed to nothing, so this MaterialApp never rebuilt when the theme
     // (or language) changed: its themeMode stayed at the cold-start value and

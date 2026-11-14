@@ -70,6 +70,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   bool _showIntro = false;
   late final LoginEmbeddedSlots _slots;
   static const String splashImage = "assets/images/splash.png";
+  static const Color _splashGround = Color(0xFFDC3700);
 
   @override
   void initState() {
@@ -159,7 +160,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       isDrag: false,
       context: context,
       modal: languageScreen,
-      isDarkMode: Theme.of(context).brightness == Brightness.dark,
     );
   }
 
@@ -200,6 +200,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   /// The page sits under its own GuideHost, so its coach-mark shows here only
   /// and never in the app's MaterialApp builder.
+  /// The gap above an auth sheet, in the units showCustomModalBottomSheet
+  /// takes (it applies `.r`): 30% of the screen, so the half-size splash
+  /// headline stays visible above the sheet.
+  double _sheetTopGap(BuildContext context) =>
+      MediaQuery.sizeOf(context).height * 0.3 / 1.r;
+
   @override
   Widget build(BuildContext context) => GuideHost(
         definition: authLoginGuide,
@@ -253,18 +259,70 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 // render no image — just the Scaffold's plain surface, the
                 // way the wide splash is imageless. Compact keeps the
                 // full-bleed image exactly as before.
-                decoration: isWideWindow
-                    ? null
-                    : BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage(splashImage),
-                          // fill matches the phone look the portrait asset
-                          // was drawn for.
-                          fit: BoxFit.fill,
-                          alignment: Alignment.center,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // The splash artwork as its own layer (was the
+                    // Container's DecorationImage) so it can shrink toward
+                    // the top while a login/register sheet covers the
+                    // page: the headline is painted in the art's top half
+                    // ("One Click Away" read only "One" above the sheet,
+                    // tour 2026-11-13). Half size keeps it above a sheet
+                    // that starts at about a third of the screen. The
+                    // dependency on ModalRoute rebuilds this when a sheet
+                    // is pushed or popped.
+                    // The splash art's own ground (0xFFDC3700, sampled from
+                    // the Juvo shells' assets/images/splash.png edges), so
+                    // the sides left by the shrunk art read as the same
+                    // picture instead of the page's plain background.
+                    if (!isWideWindow)
+                      const Positioned.fill(
+                        child: ColoredBox(color: _splashGround),
+                      ),
+                    if (!isWideWindow)
+                      Positioned.fill(
+                        child: AnimatedScale(
+                          scale: (ModalRoute.of(context)?.isCurrent ?? true)
+                              ? 1
+                              : 0.5,
+                          alignment: Alignment.topCenter,
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeOut,
+                          child: Image.asset(
+                            splashImage,
+                            // fill matches the phone look the portrait
+                            // asset was drawn for.
+                            fit: BoxFit.fill,
+                          ),
                         ),
                       ),
-                child: SafeArea(
+                    // Black fade rising from the bottom edge so the action
+                    // buttons (Register especially) stay readable over busy
+                    // splash artwork. Compact only: wide windows are imageless.
+                    if (!isWideWindow)
+                      const Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        height: 340,
+                        child: IgnorePointer(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                colors: [
+                                  Color(0xE6000000),
+                                  Color(0xB3000000),
+                                  Color(0x00000000),
+                                ],
+                                stops: [0.0, 0.55, 1.0],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    SafeArea(
                   child: Padding(
                     padding: REdgeInsets.symmetric(horizontal: 16.w),
                     child: Column(
@@ -410,7 +468,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   AppHelpers.showCustomModalBottomSheet(
                                     context: context,
                                     modal: const LoginScreen(),
-                                    isDarkMode: isDarkMode,
+                                    // Never taller than 70% of the screen:
+                                    // the half-size headline above it ends
+                                    // near 26%. The form scrolls inside.
+                                    paddingTop: _sheetTopGap(context),
                                   );
                                 },
                               ),
@@ -422,8 +483,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 AppHelpers.showCustomModalBottomSheet(
                                   context: context,
                                   modal: RegisterPage(isOnlyEmail: true),
-                                  isDarkMode: isDarkMode,
-                                  paddingTop: MediaQuery.paddingOf(context).top,
+                                  // Was the status-bar inset (a full-height
+                                  // sheet over the headline). Capped like
+                                  // login; the form scrolls inside.
+                                  paddingTop: _sheetTopGap(context),
                                 );
                               },
                               background: AppStyle.transparent,
@@ -448,6 +511,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ],
                     ),
                   ),
+                ),
+                  ],
                 ),
               ),
       ),

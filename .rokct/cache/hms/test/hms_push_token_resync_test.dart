@@ -16,6 +16,8 @@
 // It used to be marked synced anyway and was never sent again. Now a failed
 // sync leaves it unsynced, and a sign-in (SessionStartHooks) sends it.
 
+// compliance-ignore-file: flutter-http-timeout (test or caller of base_sdk's shared HttpService (timeouts set there); no Dio client is built here without timeouts)
+
 import 'dart:convert';
 import 'dart:typed_data';
 

@@ -1,3 +1,31 @@
+## 1.14.10
+
+- fix(income): the driver income column fades out at the Withdraw bar instead of slicing "Statistics" in half; the manager Revenue workspace ends above the floating nav so its chart is not under the pill (tour 1113b).
+
+## 1.14.9
+
+- fix(driver income): header reads "Your earnings" (driver tr_key `yourEarnings`, English fallback in the template) instead of "Earnings of the restaurant"; a top gap above Withdraw so "Statistics" no longer reads as cut off.
+
+## 1.14.8
+
+- fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").
+
+## 1.14.7
+
+* fix(tour): 1.14.6 passed its widget test but the paas_manager tour (run 40311495619) still photographed `revenue_income` twice, with no error logged. `revenue_product_profit` now uses no gestures. It finds the vertical list that holds the trend chart, jumps it with `jumpTo` until a product row is built, brings the row on screen with `Scrollable.ensureVisible` and calls the row's own `onTap`. A `TOUR_DIAG` line in logcat records how many lists, jumps and rows it saw. The widget test now runs the same logic. Tour template and test only.
+
+## 1.14.6
+
+* fix(tour): `revenue_product_profit` still repeated `revenue_income` on the phone. `scrollUntilVisible(row.first)` throws "No element" while no product row is built yet, and the step's catch swallowed it, so the list never scrolled. The step now drags the vertical list until a row is built, then pins and taps it. A widget test runs the step's logic on a phone-width dashboard and checks the profit detail opens. Tour template and test only.
+
+## 1.14.5
+
+* fix(tour): `revenue_product_profit` could tap a product row that was built inside the lazy phone list but still off screen, so the tap was lost and the still repeated `revenue_income` byte for byte. The step now scrolls the vertical scrollable explicitly, pins the row with `ensureVisible` and then taps. Tour template only.
+
+## 1.14.4
+
+* fix(tour): the `revenue_product_profit` and close steps move to a new `revenue_manager` tour fragment, listed only by the manager shell. 1.14.3's type-name match made them no-ops on the driver, so the driver tour captured the dashboard twice and the duplicate-screenshot gate failed. Manager tours are unchanged (the import returns, in the manager-only fragment).
+
 ## 1.14.3
 
 * fix(tour): the revenue tour fragment no longer imports `profit_product_list.dart` (manager-only). A driver compose does not ship manager sources, so the generated tour_steps.g.dart failed to compile in paas_driver's debug tour build. The product row is now found by type name, so driver shells find no row and the tolerant steps skip.

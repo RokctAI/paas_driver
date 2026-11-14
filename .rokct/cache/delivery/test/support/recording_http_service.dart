@@ -22,6 +22,8 @@
 // strips the top-level `message` envelope before a repository sees it, and
 // this double stands in for the stack past that point.
 
+// compliance-ignore-file: flutter-http-timeout (test or caller of base_sdk's shared HttpService (timeouts set there); no Dio client is built here without timeouts)
+
 import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/handlers/http_service.dart';
 import 'package:base_sdk/src/handlers/platform_gateway.dart';

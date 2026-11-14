@@ -75,7 +75,7 @@ class _AutoOrderModalState extends ConsumerState<AutoOrderModal> {
     return Container(
       margin: MediaQuery.of(context).viewInsets,
       decoration: BoxDecoration(
-        color: AppStyle.bgGrey.withOpacity(0.96),
+        color: AppStyle.surfaceFor(Theme.of(context).brightness).withOpacity(0.96),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(12.r),
           topRight: Radius.circular(12.r),
@@ -117,7 +117,7 @@ class _AutoOrderModalState extends ConsumerState<AutoOrderModal> {
                     AppHelpers.getTranslation(TrKeys.period),
                     style: AppStyle.interNormal(
                       size: 14,
-                      color: AppStyle.black,
+                      color: AppStyle.inkFor(Theme.of(context).brightness),
                     ),
                   ),
                   8.verticalSpace,
@@ -248,7 +248,7 @@ class _AutoOrderModalState extends ConsumerState<AutoOrderModal> {
                     AppHelpers.getTranslation(TrKeys.paymentMethod),
                     style: AppStyle.interNormal(
                       size: 14,
-                      color: AppStyle.black,
+                      color: AppStyle.inkFor(Theme.of(context).brightness),
                     ),
                   ),
                   8.verticalSpace,
@@ -306,7 +306,7 @@ class _AutoOrderModalState extends ConsumerState<AutoOrderModal> {
                                 "Available Balance: ${AppHelpers.numberFormat(number: state.availableBalance)}",
                                 style: AppStyle.interNormal(
                                   size: 14,
-                                  color: AppStyle.black,
+                                  color: AppStyle.inkFor(Theme.of(context).brightness),
                                 ),
                               ),
                               Text(
@@ -323,7 +323,7 @@ class _AutoOrderModalState extends ConsumerState<AutoOrderModal> {
                             "Reserved Amount (Entire Period): ${AppHelpers.numberFormat(number: state.orderTotal)}",
                             style: AppStyle.interSemi(
                               size: 14,
-                              color: AppStyle.black,
+                              color: AppStyle.inkFor(Theme.of(context).brightness),
                             ),
                           ),
                           if (state.availableBalance < state.orderTotal)

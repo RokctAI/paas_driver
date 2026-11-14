@@ -1,6 +1,6 @@
 {
   "name": "weather_sdk",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "boot_hooks": [
     {
       "id": "weather-af-bundled-translations",

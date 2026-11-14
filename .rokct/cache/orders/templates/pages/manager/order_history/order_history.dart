@@ -124,6 +124,6 @@ void _openHistorySheet(BuildContext context, OrderData order) {
     context: context,
     radius: 12,
     modal: OrderDetailsModal(isHistoryOrder: true, order: order),
-    isDarkMode: true,
+    themedSurface: true,
   );
 }

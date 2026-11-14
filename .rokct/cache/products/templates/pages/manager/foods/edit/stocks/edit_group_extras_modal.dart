@@ -25,6 +25,7 @@ import 'package:base_sdk/src/presentation/components/helper/modal_drag.dart';
 import 'package:base_sdk/src/presentation/components/helper/modal_wrap.dart';
 import 'package:${package}/presentation/components/foods/group_extras_item.dart';
 
+import 'package:base_sdk/src/presentation/components/loading.dart';
 class EditGroupExtrasModal extends ConsumerStatefulWidget {
   final int groupIndex;
 
@@ -67,12 +68,7 @@ class _EditGroupsExtrasModalState extends ConsumerState<EditGroupExtrasModal> {
                   return state.isLoading
                       ? Padding(
                           padding: REdgeInsets.symmetric(vertical: 20),
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 3.r,
-                              color: AppStyle.primary,
-                            ),
-                          ),
+                          child: const Loading(),
                         )
                       : ListView.builder(
                           physics: const NeverScrollableScrollPhysics(),

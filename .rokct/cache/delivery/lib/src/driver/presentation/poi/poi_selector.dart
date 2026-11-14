@@ -35,6 +35,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:delivery_sdk/src/driver/application/poi/poi_provider.dart';
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/driver_poi.dart';
 import 'package:delivery_sdk/src/driver/presentation/poi/add_poi_sheet.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 class PoiSelectorRow extends ConsumerStatefulWidget {
   const PoiSelectorRow({super.key, this.shop});
@@ -61,11 +62,7 @@ class _PoiSelectorRowState extends ConsumerState<PoiSelectorRow> {
   }
 
   void _openList() {
-    AppHelpers.showCustomModalBottomSheet(
-      context: context,
-      isDarkMode: (Theme.of(context).brightness == Brightness.dark),
-      modal: _PoiPickerSheet(shop: widget.shop),
-    );
+    DriverSheet.show(context, modal: _PoiPickerSheet(shop: widget.shop));
   }
 
   @override

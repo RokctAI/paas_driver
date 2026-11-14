@@ -42,7 +42,6 @@ class ResetPasswordPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final notifier = ref.read(resetPasswordProvider.notifier);
     final state = ref.watch(resetPasswordProvider);
-    final bool isDarkMode = LocalStorage.getAppThemeMode();
     final bool isLtr = LocalStorage.getLangLtr();
     // A BuildContext lookup for the mode, not the app-wide AppStyle.isDark
     // static behind AppStyle.surfaceDark/textDarkSecondary/textPrimary (Ray,
@@ -72,7 +71,7 @@ class ResetPasswordPage extends ConsumerWidget {
             userModel: UserModel(email: state.email),
             isResetPassword: true,
           ),
-          isDarkMode: isDarkMode,
+          themedSurface: true,
         );
       }
     });

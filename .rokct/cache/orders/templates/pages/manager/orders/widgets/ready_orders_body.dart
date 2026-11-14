@@ -88,7 +88,7 @@ class _ReadyOrdersBodyState extends State<ReadyOrdersBody> {
                             order: state.orders[index],
                             readyOrdersController: _refreshController,
                           ),
-                          isDarkMode: true,
+                          themedSurface: true,
                         ),
                       ),
                     )

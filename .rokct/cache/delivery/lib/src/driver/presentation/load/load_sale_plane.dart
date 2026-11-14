@@ -41,6 +41,7 @@ import 'package:base_sdk/src/presentation/components/floating_nav/floating_botto
 import 'package:base_sdk/src/presentation/components/text_fields/outline_bordered_text_field.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 
 import 'package:delivery_sdk/src/common/application/poi/poi_proximity.dart';
@@ -52,6 +53,7 @@ import 'package:delivery_sdk/src/driver/infrastructure/models/data/driver_poi.da
 import 'package:delivery_sdk/src/driver/presentation/load/load_line_tiles.dart';
 import 'package:delivery_sdk/src/driver/presentation/load/load_missing_notice.dart';
 import 'package:delivery_sdk/src/driver/presentation/poi/poi_selector.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 
 class LoadSalePlane extends ConsumerStatefulWidget {
   const LoadSalePlane({super.key, this.loadOrder});
@@ -73,6 +75,21 @@ class LoadSalePlane extends ConsumerStatefulWidget {
 class _LoadSalePlaneState extends ConsumerState<LoadSalePlane> {
   LoadDraft _draft = const LoadDraft();
   final TextEditingController _note = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // A demo session opens with one unit of the first sellable line in the
+    // basket, so the total reads as a real figure and Confirm is live. An
+    // empty basket showed R0.00 beside a greyed Confirm, which read as a
+    // broken screen (tour 1113b, driver "Sell from load"). A real session
+    // still starts empty: nothing is sold that the driver did not pick.
+    if (DemoSession.demoActive) {
+      final load = _load;
+      final lines = load?.sellableLines ?? const <DriverLoadLine>[];
+      if (lines.isNotEmpty) _draft = _draft.increment(lines.first);
+    }
+  }
 
   @override
   void dispose() {
@@ -181,9 +198,8 @@ class _LoadSalePlaneState extends ConsumerState<LoadSalePlane> {
   /// carried the new remaining figures into the slice.
   void _showSold(DriverLoadSale sale) {
     final planeNavigator = Navigator.of(context);
-    AppHelpers.showCustomModalBottomSheet(
-      context: context,
-      isDarkMode: (Theme.of(context).brightness == Brightness.dark),
+    DriverSheet.show(
+      context,
       isDrag: false,
       isDismissible: false,
       modal: LoadSaleDoneSheet(

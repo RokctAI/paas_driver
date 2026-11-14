@@ -168,7 +168,7 @@ class _OrderPageState extends ConsumerState<OrderPage>
         AppHelpers.showCustomModalBottomSheet(
           context: context,
           modal: RatingPage(totalPrice: next.orderData?.totalPrice),
-          isDarkMode: isDarkMode,
+          themedSurface: true,
         );
       }
     });

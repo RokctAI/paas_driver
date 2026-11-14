@@ -41,8 +41,17 @@ const Map<String, String> kBaseEnTranslations = {
   'maintenance_title': 'Under maintenance',
   'maintenance_brief':
       'We are doing some maintenance. Please try again shortly.',
+  'update_required_title': 'Update needed',
+  'update_required_brief':
+      'This version of the app is too old. Please update it to keep going.',
+  'update_now': 'Update',
   // Customer subscriptions (loyalty_sdk).
   'payment_overdue_benefits_are_paused':
       'Payment overdue. Your benefits are paused until it goes through.',
   'the_payment_did_not_go_through': "The payment didn't go through.",
+  // Profile data-used badge (DataUsageBadge).
+  'wi-fi': 'Wi-Fi',
+  'data.used.note':
+      "Counted on this device from the app's own requests. Your phone's "
+      'data screen may show a little more.',
 };

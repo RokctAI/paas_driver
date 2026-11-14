@@ -1,3 +1,26 @@
+## 1.38.3
+
+- fix(manager): the checkout's scroller ends above the Back pill so Total is not under it; a demo session with no parked records shows two sample sync issues instead of "No data" (tour 1113b).
+
+## 1.38.2
+
+- fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").
+
+## 1.38.1
+
+- chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.
+
+## 1.38.0
+
+* feat(manager till): an unknown barcode is no longer ignored. When the catalog has no product for a scanned code, the camera pauses and the till says "We don't recognise this barcode", shows the code, and asks "It isn't in your products yet. Would you like to add this product?" with **Add this product** and **Scan again** (render approved by Ray 2026-10-30 19:22Z). On a phone and at the two-plane fold it is a bottom sheet; at three planes it takes the Add Items pane's place in plane 2 until answered, and the cart stays as it was.
+* Scan again (or resuming the camera, or closing the sheet) clears the prompt and forgets the 2s scan dedupe, so the same code can be scanned again at once.
+* Add this product calls the new `BillingPage.onAddUnknownProduct(context, barcode)`. The installed manager `main_page.dart` opens products_sdk's add-product form with the barcode prefilled (`CreateProductModal.open`, needs products_sdk >= 1.13.0). Without a callback the prompt offers Scan again only.
+* New tr_keys: `barcodeNotRecognised`, `barcodeNotInProductsYet`, `wouldYouLikeToAddThisProduct`, `addThisProduct`, `scanAgain`.
+
+## 1.37.0
+
+* feat(rokct): a `rokct` role block for the ROKCT app (RokctApp, marker `rokct`, which takes the manager screens through its composer.json `roles: ["manager"]`). It names the app: Android launcher label `ROKCT` and `AppConstants.appTitle` `'ROKCT'`, instead of the base defaults (Juvo/JUVO). Only composes for the `rokct` marker; the manager, customer and driver apps are unchanged. Needs The-Rokct-Protocol with per-SDK roles (#549) and nested flavor merge (#551).
+
 ## 1.36.1
 
 * feat(tour): the merchants tour fragment gains a `/quick-flow` step (the shop's order-automation screen, fixture `api.seller_shop.get_quick_flow_settings` already installed). No version bump (tour only).

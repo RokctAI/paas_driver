@@ -21,6 +21,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:delivery_sdk/src/driver/application/home/home_provider.dart';
+import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
 import 'package:base_sdk/src/models/data/parcel_order.dart';
 import 'package:base_sdk/src/constants/app_constants.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
@@ -97,8 +98,8 @@ class ParcelOrderPage extends StatelessWidget {
                           IconButton(
                             padding: EdgeInsets.symmetric(horizontal: 6.w),
                             onPressed: () async {
-                              AppHelpers.showCustomModalBottomSheet(
-                                context: context,
+                              DriverSheet.show(
+                                context,
                                 modal: MapsList(
                                   location: Coords(
                                     parcel?.addressFrom?.latitude ?? 0,
@@ -106,7 +107,6 @@ class ParcelOrderPage extends StatelessWidget {
                                   ),
                                   title: "A",
                                 ),
-                                isDarkMode: false,
                               );
                             },
                             icon: Icon(Remix.map_2_fill, size: 18.r),
@@ -231,8 +231,8 @@ class ParcelOrderPage extends StatelessWidget {
                             IconButton(
                               padding: EdgeInsets.symmetric(horizontal: 6.w),
                               onPressed: () {
-                                AppHelpers.showCustomModalBottomSheet(
-                                  context: context,
+                                DriverSheet.show(
+                                  context,
                                   modal: MapsList(
                                     location: Coords(
                                       parcel?.addressTo?.latitude ?? 0,
@@ -240,7 +240,6 @@ class ParcelOrderPage extends StatelessWidget {
                                     ),
                                     title: "B",
                                   ),
-                                  isDarkMode: false,
                                 );
                               },
                               icon: Icon(Remix.map_2_fill, size: 18.r),

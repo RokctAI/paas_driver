@@ -27,6 +27,7 @@ import 'package:base_sdk/src/presentation/components/helper/modal_drag.dart';
 import 'package:base_sdk/src/presentation/components/helper/modal_wrap.dart';
 import 'package:${package}/presentation/components/foods/food_unit_item.dart';
 
+import 'package:base_sdk/src/presentation/components/loading.dart';
 class EditFoodUnitsModal extends ConsumerStatefulWidget {
   const EditFoodUnitsModal({super.key});
 
@@ -62,12 +63,7 @@ class _EditFoodUnitsModalState extends ConsumerState<EditFoodUnitsModal> {
                 final state = ref.watch(editFoodUnitsProvider);
                 final event = ref.read(editFoodUnitsProvider.notifier);
                 return state.isLoading
-                    ? Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 3.r,
-                          color: AppStyle.primary,
-                        ),
-                      )
+                    ? const Loading()
                     : Expanded(
                         child: ListView.builder(
                           padding: EdgeInsets.zero,

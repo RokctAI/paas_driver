@@ -119,7 +119,7 @@ class _OrderProgressPageState extends ConsumerState<OrderProgressPage> {
         AppHelpers.showCustomModalBottomSheet(
           context: context,
           modal: RatingPage(totalPrice: next.orderData?.totalPrice),
-          isDarkMode: Theme.of(context).brightness == Brightness.dark,
+          themedSurface: true,
         );
       }
     });

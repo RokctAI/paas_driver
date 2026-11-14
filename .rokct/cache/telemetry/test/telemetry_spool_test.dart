@@ -16,6 +16,8 @@
 // gateway POST and swallowed the failure. TelemetrySpool keeps it on the
 // device and sends it, in batches, once the backend can be reached.
 
+// compliance-ignore-file: flutter-http-timeout (test or caller of base_sdk's shared HttpService (timeouts set there); no Dio client is built here without timeouts)
+
 import 'dart:async';
 
 import 'package:base_sdk/base_sdk.dart';

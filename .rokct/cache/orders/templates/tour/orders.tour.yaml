@@ -61,7 +61,7 @@ steps:
     settle: 6
   - key: order_pos_products
     title: "Start a walk-in order"
-    caption: "Ring up a customer at the counter - *pick from your own menu*, by category, with search."
+    caption: "Ring up a customer at the counter - *pick from your menu*, by category, with search."
     action: route
     route: /order-products
     settle: 8
@@ -149,13 +149,13 @@ steps:
     settle: 6
   - key: order_issue_load
     title: "Issue a load in a few taps"
-    caption: "Pick the driver, pick the stock - *issuing takes it off the shelf* once, and any shortfall is settled when the load closes."
+    caption: "Pick the driver, pick the stock - *issuing* takes it off the shelf once, and any shortfall is settled when the load closes."
     action: route
     route: /load/issue
     settle: 6
   - key: order_shop_drivers
     title: "Your own drivers"
-    caption: "Keep a short roster of *the drivers who carry your stock* - loads can only go to the people on it."
+    caption: "Keep a short roster of *the drivers* who carry your stock - loads can only go to the people on it."
     action: route
     route: /load/drivers
     settle: 6

@@ -41,14 +41,20 @@ class CreateFoodDetailsBody extends StatefulWidget {
 
   /// True when this body sits on the dark pushed page (the 35b add moment,
   /// ProductEditPage): the picker chevrons and toggle labels take the
-  /// mode-resolving ink. False (the default) keeps the shipped bottom-sheet
-  /// look untouched.
+  /// mode-resolving ink. False (the default) resolves the ink from the sheet's
+  /// brightness instead (light value is #1B1B20, not pure black).
   final bool dark;
+
+  /// The scanned code this product is being added for (the till's "Add
+  /// this product"). Non-empty shows the barcode field, prefilled with it;
+  /// the form's own reset seeds the same value into the notifier.
+  final String initialBarcode;
 
   const CreateFoodDetailsBody({
     super.key,
     required this.onSave,
     this.dark = false,
+    this.initialBarcode = '',
   });
 
   @override
@@ -58,7 +64,9 @@ class CreateFoodDetailsBody extends StatefulWidget {
 class _CreateFoodDetailsBodyState extends State<CreateFoodDetailsBody> {
   final _formKey = GlobalKey<FormState>();
 
-  Color get _ink => widget.dark ? AppStyle.textPrimary : AppStyle.blackColor;
+  Color get _ink => widget.dark
+      ? AppStyle.textPrimary
+      : AppStyle.inkFor(Theme.of(context).brightness);
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +105,17 @@ class _CreateFoodDetailsBodyState extends State<CreateFoodDetailsBody> {
                       onChanged: event.setTitle,
                       validator: SellerFormValidators.emptyCheck,
                     ),
+                    if (widget.initialBarcode.isNotEmpty) ...[
+                      24.verticalSpace,
+                      UnderlinedTextField(
+                        key: const Key('createProductBarcodeField'),
+                        label: AppHelpers.getTranslation(TrKeys.barcode),
+                        initialText: widget.initialBarcode,
+                        inputType: TextInputType.text,
+                        textInputAction: TextInputAction.next,
+                        onChanged: event.setQrcode,
+                      ),
+                    ],
                     24.verticalSpace,
                     UnderlinedTextField(
                       label:
@@ -126,7 +145,7 @@ class _CreateFoodDetailsBodyState extends State<CreateFoodDetailsBody> {
                                 MediaQuery.paddingOf(context).top + 100.h,
                             context: context,
                             modal: const FoodCategoriesModal(),
-                            isDarkMode: false,
+                            themedSurface: true,
                           ),
                         );
                       },
@@ -149,7 +168,7 @@ class _CreateFoodDetailsBodyState extends State<CreateFoodDetailsBody> {
                                 MediaQuery.paddingOf(context).top + 300.h,
                             context: context,
                             modal: const CreateFoodUnitsModal(),
-                            isDarkMode: false,
+                            themedSurface: true,
                           ),
                         );
                       },
@@ -171,7 +190,7 @@ class _CreateFoodDetailsBodyState extends State<CreateFoodDetailsBody> {
                                 MediaQuery.paddingOf(context).top + 300.h,
                             context: context,
                             modal: const FoodKitchensModal(),
-                            isDarkMode: false,
+                            themedSurface: true,
                           ),
                         );
                       },
