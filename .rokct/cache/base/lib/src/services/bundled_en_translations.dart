@@ -54,4 +54,7 @@ const Map<String, String> kBaseEnTranslations = {
   'data.used.note':
       "Counted on this device from the app's own requests. Your phone's "
       'data screen may show a little more.',
+  // Humanizing this misspelt legacy key read "Restauran home" on the
+  // driver's active-job sheet (tour 1114b, driver 05-driver_home).
+  'restauran_home': 'Shop to customer',
 };

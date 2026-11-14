@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.111.0",
+      "version": "1.111.1",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -268,7 +268,7 @@
       ]
     },
     "orders_sdk": {
-      "version": "1.31.10",
+      "version": "1.31.11",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -321,26 +321,26 @@
       ]
     },
     "delivery_sdk": {
-      "version": "1.31.0",
+      "version": "1.31.1",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "11db8e698632a6cee50e92a83fef8a494c4b55cf316bbaf6398f652460cb8dea",
         "lib/presentation/routes/delivery_adapters.dart": "cd22c591ae3179bcc44d95cead4ac89abddfecdc6217a8c316037890e13ecddc",
         "lib/presentation/pages/home/parcel_bottom_sheet.dart": "6f22e19cb055a2ab1730799095d01b8f3d4eb63df06b08a8b92da5848b6056a6",
         "lib/presentation/pages/home/bottom_sheet_screen.dart": "dccb25195734d4011bfeadd77a5a650c566663b214f7e09d8bdc5fa3260da549",
         "lib/presentation/pages/home/home_page.dart": "e520bd4719b02681a2cc410ccf544e990f50e8721775150c333ac00d4fe1374c",
-        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "bccc5d6a8ec473de39a439310d146a2528901365c92f683d47a72669c766e6bb",
+        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "a55408261747947a517c337b9db6f759f5193f79725f17a10a40367e0b14f232",
         "lib/presentation/pages/home/widgets/outside_painter.dart": "60866744c76343e4a4cf92b27adb08a17a74dbe5f0e4bd99b6657c30aba402e3",
         "lib/presentation/pages/home/widgets/rate_customer.dart": "54aa03d498db5a7766c3cf05e57b136f23d6f627607b4ff041058cadf0a375f9",
         "lib/presentation/pages/home/widgets/stores.dart": "498027146cd90e11c9edc48e6bcfe2cd71574edb98f7228ed2a2507666f35b18",
         "lib/presentation/pages/home/widgets/foods_page.dart": "bfb781d829fe15da5a020a788567a9cdb628ddec93725e433da416c93cbd1c72",
         "lib/presentation/pages/home/widgets/approve_dialog.dart": "8a943db976f465fccfed0ed3f60dfce95edf14c55ab078e2a35b79818fc1e6fc",
         "lib/presentation/pages/home/widgets/add_comment.dart": "464d54eb71b45d60306ae992cc099efcce5388c915af71b543bcac563962203c",
-        "lib/presentation/pages/orders/orders_page.dart": "9d5b6adb352d6076b36ae7210e2b24a486f587b8197cf72f4f0a5bc30ff0760c",
-        "lib/presentation/pages/order_history/order_history.dart": "8e60111d5cf6a7df392ac70b826d8e785457b63cc0c300e033b4202ec5e375e4",
+        "lib/presentation/pages/orders/orders_page.dart": "96f8b40a5fc823e42ebfb3dc81aa5e9ffd4146d0af6fe5503678c38720c9f4ad",
+        "lib/presentation/pages/order_history/order_history.dart": "f0c8ad889599ab803aa412125a0f2a52ea33a38065b3e76a2794ccab1d368a16",
         "lib/presentation/pages/parcel/parcel_item.dart": "e61c134db7e5dfad2b550164ebfd3bdbeb53852c37e8d7e588430f0924852c22",
         "lib/presentation/pages/parcel/parcel_order.dart": "620ecaf6bbc032f8f70ece3b372f0a547e30b9d94d21fcae91ce9ebacd620ed2",
-        "lib/presentation/pages/parcel/parcels_page.dart": "e0bbc55951b8280f4ecac4d6037bd9d4dc4d80e25f2f5a9e066ddd1743705d59",
-        "lib/presentation/pages/parcels_history/parcel_history.dart": "cae4f4b19aed14aa6a8571c25c8c3b6dd9a8808900728d7a77a4ecaa748ba710",
+        "lib/presentation/pages/parcel/parcels_page.dart": "d9a546800f7dddc3696a1da4cd7dab889a0b7789e46a7d45c3da0679efa4b990",
+        "lib/presentation/pages/parcels_history/parcel_history.dart": "7aac4f9469fdbbccbb9832e67312e0bcc7572a88c5dbe2598773ca1fc5c6f758",
         "lib/presentation/pages/push_order/push_order_screen.dart": "5c66d301cf766b26ea27b4ecf13f88026b77989d2157ccd5599e12ae6eb8e8f2",
         "lib/presentation/pages/profile/profile_page.dart": "d477fbbecc47925f266a227b07f07278a7334c2af14e3ba7209494fb5e29e50c",
         "lib/presentation/pages/profile/edit_car.dart": "7102b10bb4db3453cd6e420c6a5cffb9c6d1f11242ef7d80f8d97667ef7ab0b0",
@@ -352,7 +352,7 @@
         "lib/presentation/component/driver_avatar.dart": "6bc4ebf5e7263f622ae94730a8f78d299904e56bcabf1304f5f64d5498c1b394",
         "lib/presentation/component/image_dialog.dart": "ce98046373c6a7703e06352e5dc7dfe39d6bf262c1e10203d004939b6483d189",
         "lib/presentation/component/order_detail.dart": "24e77903eea2640b13d48cf03b5b977e52eff3118fed22aff6bbd47b6851a685",
-        "lib/presentation/component/order_item.dart": "7b60a8987cc5ab7bcca0692f1abb522f4ad0860df7e30380aef59d8d41f12ed7",
+        "lib/presentation/component/order_item.dart": "57b54e67865a601a6a81e4c9e702056a1041da009b40d21c5beee8348fdacc85",
         "lib/presentation/component/orders_item.dart": "15e17b6fae13ce3b819291633e377f73176829f450aa196f096deabf4af04e35",
         "lib/presentation/component/maps_list.dart": "9f4d0f143605c9d2b4234a730a8629bc854c476a0d2f31dac9587579af63aeeb",
         "lib/presentation/component/product_item.dart": "ed599c9dbf763f4eaddf19623c9466ddc3c60a60d864b7d427a81e24bd31ee8f",
@@ -382,7 +382,7 @@
         "assets/demo/delivery/api.driver_order.get_driver_route.json": "7aca2264e7f9f73f048ef6ea3fcc60d3c38783e56c230fcf7168d94ddfcc61b7",
         "assets/demo/delivery/api.order.load.get_my_load.json": "06170de6d0c8baca3208b4da641a1dd9191fb1804bc50fe0b687e60df3871942",
         "assets/demo/delivery/api.poi.get_poi_types.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
-        "assets/demo/delivery/api.driver_order.get_driver_orders_paginate.json": "6fc5ffb923a0ef0e1670c8f233a96fa675682cf3be9ecf695b15c8e9a1b8ef77",
+        "assets/demo/delivery/api.driver_order.get_driver_orders_paginate.json": "ec9b991a8558f6a338cadd4f4d464b573c76684fa373bcc0f43761d176842f1c",
         "assets/demo/delivery/api.poi.get_my_poi_shops.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
         "assets/demo/delivery/api.driver_order.attach_order_to_me.json": "e5ad01294501ef89506d1e257820ec66e9b9dd15ba57a7090fb8b5ef8b5c32d6",
         "assets/demo/delivery/api.dispatch_route.get_my_dispatch_route.json": "ed1d37906da8a6b10140aca9b911faa75f3a467a97f21d6108bbce1ca4de5a12",
@@ -884,7 +884,7 @@
       "boot_hooks": []
     },
     "zones_sdk": {
-      "version": "1.7.2",
+      "version": "1.7.3",
       "files": {
         "lib/presentation/pages/profile/delivery_zone/delivery_zone_page.dart": "2804d30bd9ea8f9f7f0d169dcbe83a5b9347fac07dfa70e7f2b66f4b3b339354",
         "lib/presentation/routes/zones_adapters.dart": "a7e64e1765f0fb2e84a23a07c5daf2af0727b841dc58135e19da2f52c9a23812",
@@ -947,7 +947,7 @@
       ]
     },
     "revenue_sdk": {
-      "version": "1.14.11",
+      "version": "1.14.12",
       "files": {
         "lib/presentation/pages/income/statistics_screen.dart": "b385595295baa359fdd50076b5f8c4823d4e64e3e50c09adfaa885ba57d8a9f2",
         "lib/presentation/pages/income/income_page.dart": "66540ab8bf869109d304cfc76c960864e358c3f0e2c237adb9f688f3ace3ee36",
@@ -1008,7 +1008,7 @@
       ]
     },
     "merchants_sdk": {
-      "version": "1.38.4",
+      "version": "1.38.5",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
         "lib/presentation/pages/stores/story_page.dart": "adeb07c24627dd3f1321a4f3eebc4d762e55f8cf8e8e3b7b91daeffdb86b3508",
@@ -1092,7 +1092,7 @@
       }
     },
     "products_sdk": {
-      "version": "1.13.3",
+      "version": "1.13.4",
       "files": {
         "assets/demo/products/api.seller_product.delete_seller_extra_value.json": "36f579d4c4606f9ff3c022585bab9c993c9fb9f0aec51523d0a81a7065d0eb31",
         "assets/demo/products/api.seller_product.get_product_details.json": "c085451bfdfea3523c7993705fcb031786836d9ebf58d8ec9e48e85107bdb54b",
@@ -1181,7 +1181,7 @@
       }
     },
     "auth_sdk": {
-      "version": "1.22.6",
+      "version": "1.22.7",
       "files": {
         "lib/presentation/routes/auth_route_pages.dart": "8eaff3abe2dd38d8a6c2f15ed4b9e4ec779c5b99f3f71a18445ee4a13d12056f",
         "lib/presentation/routes/registration_step_pages.dart": "68aed195fc07db746a0919c7ba6d47ffa445ca86e7d9cf6ee50fbcb00e82d3c2",
@@ -1419,44 +1419,44 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.111.0",
-      "source_hash": "d1aab81fdc1b2c7f"
+      "version": "1.111.1",
+      "source_hash": "ecf7c2b76e281e83"
     },
     "comms": {
       "version": "1.23.4",
       "source_hash": "ba44faa679dd37d6"
     },
     "auth": {
-      "version": "1.22.6",
-      "source_hash": "2d1342094a4b1772"
+      "version": "1.22.7",
+      "source_hash": "6ccb3cd4a34b45d0"
     },
     "users": {
       "version": "1.5.3",
       "source_hash": "cb3062dc3a29f9fd"
     },
     "orders": {
-      "version": "1.31.10",
-      "source_hash": "efb510dd2754c9ea"
+      "version": "1.31.11",
+      "source_hash": "6be730f213b8143d"
     },
     "merchants": {
-      "version": "1.38.4",
-      "source_hash": "ad7c65cd1a63e0d8"
+      "version": "1.38.5",
+      "source_hash": "91f8506b53c9ac3e"
     },
     "products": {
-      "version": "1.13.3",
-      "source_hash": "2d0f52e4f382d7e0"
+      "version": "1.13.4",
+      "source_hash": "f11b51c19fabbd2d"
     },
     "delivery": {
-      "version": "1.31.0",
-      "source_hash": "a351c56daf13c467"
+      "version": "1.31.1",
+      "source_hash": "3901e23f79051eeb"
     },
     "map": {
       "version": "1.5.2",
       "source_hash": "dc26dd31a6b36799"
     },
     "zones": {
-      "version": "1.7.2",
-      "source_hash": "a0f04c59e3ac6d7c"
+      "version": "1.7.3",
+      "source_hash": "271f395783d863a1"
     },
     "processing": {
       "version": "1.0.2",
@@ -1471,8 +1471,8 @@
       "source_hash": "42eb71115dcd4610"
     },
     "revenue": {
-      "version": "1.14.11",
-      "source_hash": "c3e2577e4b31c056"
+      "version": "1.14.12",
+      "source_hash": "c36dcc9e564b0fee"
     },
     "weather": {
       "version": "1.6.3",

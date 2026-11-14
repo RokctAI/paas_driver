@@ -1,3 +1,9 @@
+## 1.31.11
+
+- fix(pos cart): the `FoodStockItem` qty badge sizes to its label and is inset from the row edge, so "2 each" is no longer clipped on the left; the product name wraps to 2 lines (tour 1114b manager 19-order_pos_cart).
+- fix(pos cart): the order pane shows an empty-cart state and always shows the subtotal row (summed from the cart while no calculation has landed), so the tablet walk-in third pane is no longer blank (tour 1114b manager tablet 18-order_pos_products).
+- fix(issue load): the footer keeps room for the floating Back pill, which covered "Issue to driver" (tour 1114b manager 25-order_issue_load).
+
 ## 1.31.10
 
 - fix(pos cart): `FoodStockItem` reads the product from the cart line itself when the row is a cart stock rather than a calculation echo. It only read the echo's nested `stock.product`, so a cart row (the pane's fallback since 1.31.9, because the demo calculation echoes no stocks) showed no name, no image, and the shelf quantity in the badge: "40 / R89.00" (tour 1114, 19-order_pos_cart). The badge now shows the ordered count; the row follows the theme (card surface, mode ink) instead of a pinned white band.

@@ -1,3 +1,8 @@
+## 1.14.12
+
+- fix(product profit): the margin cell scales down instead of cutting ("R69.44 · %"), and "Edit cost price" keeps room below it for the floating Back pill on a tablet pane (tour 1114b manager 32-revenue_product_profit).
+- fix(revenue): a KPI tile's sub-line wraps to 2 lines, so "As sold · 317 of 361 orders costed" is no longer cut (tour 1114b manager 31-revenue_income).
+
 ## 1.14.11
 
 - fix(driver income): on a phone, Withdraw and the Back pill share one docked row (the Back pill is base's `FloatingBackPill`, the delivery-time page's docked-row pattern) instead of stacking the button over a full-width nav row. The stack took ~150 dp off the scroller, so its fold landed on the "Statistics" heading right above Withdraw (tour 1114, 18-revenue_income). The insufficient-balance line sits above the row. Tablet / wide windows keep the stacked bar unchanged (the landscape tests' layout).

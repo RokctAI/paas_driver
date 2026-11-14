@@ -530,6 +530,12 @@
                     "latitude": "-26.2006",
                     "longitude": "28.0495"
                   },
+                  "address": {
+                    "address": "7 Jan Smuts Avenue, Parktown",
+                    "house": null,
+                    "office": null,
+                    "floor": null
+                  },
                   "delivery_type": "delivery",
                   "delivery_date": "$now_iso",
                   "delivery_time": "12:10",
@@ -650,6 +656,12 @@
                   "location": {
                     "latitude": "-26.2085",
                     "longitude": "28.0564"
+                  },
+                  "address": {
+                    "address": "21 Keyes Avenue, Rosebank",
+                    "house": null,
+                    "office": null,
+                    "floor": null
                   },
                   "delivery_type": "delivery",
                   "delivery_date": "$now_iso",

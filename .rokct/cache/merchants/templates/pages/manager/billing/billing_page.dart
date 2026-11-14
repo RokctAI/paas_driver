@@ -849,7 +849,7 @@ class _BillingPageState extends ConsumerState<BillingPage>
                 Text(
                   line.title,
                   style: AppStyle.interSemi(size: 16),
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 4.verticalSpace,

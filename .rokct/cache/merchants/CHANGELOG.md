@@ -1,3 +1,7 @@
+## 1.38.5
+
+- fix(pos cart): a cart line's product name wraps to 2 lines instead of ellipsizing ("Flame-grilled beef burg...", tour 1114b manager 06-pos_cart).
+
 ## 1.38.4
 
 - fix(pos checkout): on the phone route the checkout column clears the status bar (the "Checkout" header sat under the clock) and the Items / Total summary reads right under the Cash | QR toggle, above the QR card, instead of at the fold beside the Back pill where Total was cut off (tour 1114, 07-pos_checkout). The planes spread is unchanged. Quick flow's last card is fixed in base_sdk 1.110.0 (`PlaneHost` fades a one-plane page out above its corner Back pill).

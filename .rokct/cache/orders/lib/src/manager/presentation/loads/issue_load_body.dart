@@ -288,7 +288,9 @@ class LoadDraftReview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      // The bottom keeps room for the floating Back pill, which otherwise
+      // sits over "Issue to driver" (tour 1114b manager 25-order_issue_load).
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),
       decoration: BoxDecoration(
         color: AppStyle.cardFor(Theme.of(context).brightness),
         border: Border(top: BorderSide(color: AppStyle.subtleStrokeFor(Theme.of(context).brightness))),

@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:delivery_sdk/src/driver/presentation/copy/count_line.dart';
 import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -125,24 +126,14 @@ class _OrdersPageState extends ConsumerState<OrdersPage>
                       AppHelpers.getTranslation(TrKeys.orders),
                       style: AppStyle.interSemi(size: 18.sp),
                     ),
-                    Row(
-                      children: [
-                        Text(
-                          AppHelpers.getTranslation(TrKeys.thereAreOrders),
-                          style:
-                              AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
-                        ),
-                        Text(
-                          " ${state.totalActiveOrder} ",
-                          style:
-                              AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
-                        ),
-                        Text(
-                          AppHelpers.getTranslation(TrKeys.orders).toLowerCase(),
-                          style:
-                              AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
-                        ),
-                      ],
+                    Text(
+                      driverCountLine(
+                        count: state.totalActiveOrder.toInt(),
+                        singularKey: 'order',
+                        pluralKey: TrKeys.orders,
+                      ),
+                      style:
+                          AppStyle.interRegular(size: 12.sp, letterSpacing: -0.3),
                     ),
                   ],
                 ),

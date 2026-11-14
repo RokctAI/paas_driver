@@ -808,6 +808,22 @@ abstract class AppHelpers {
     // Compact windows keep the classic full-width sheet; anything wider
     // anchors the sheet to the END side instead of centering it.
     final bool anchorEnd = windowSizeOf(context).isAtLeastMedium;
+    // The drag sheet is maxChildSize of the constrained height, so the
+    // near-full-height rule must look at the height it really reaches:
+    // running the constraint up to the status bar and then taking 90% of
+    // it still left a strip of the page above the sheet - the ghost
+    // "Profile settings" row behind the edit-profile header (tour 1114b,
+    // driver 21-users_profile_settings). A drag sheet that would stop
+    // within 96 logical px of the status bar opens at full height.
+    final double screenHeight = MediaQuery.sizeOf(context).height;
+    final double underStatusBar =
+        screenHeight - MediaQuery.paddingOf(context).top;
+    double sheetMaxHeight = _sheetMaxHeight(context, paddingTop);
+    double childSize = maxChildSize;
+    if (underStatusBar - sheetMaxHeight * childSize < 96) {
+      sheetMaxHeight = underStatusBar;
+      childSize = 1.0;
+    }
     showModalBottomSheet(
       isDismissible: isDismissible,
       enableDrag: isDrag,
@@ -822,15 +838,15 @@ abstract class AppHelpers {
         // Never taller than the space under the status bar: paddingTop is
         // scaled by .r, which shrinks below 1 on short phones (tour 1113b).
         // See [_sheetMaxHeight] for the near-full-height rule.
-        maxHeight: _sheetMaxHeight(context, paddingTop),
+        maxHeight: sheetMaxHeight,
         maxWidth: anchorEnd ? double.infinity : maxWidth,
       ),
       backgroundColor: AppStyle.transparent,
       context: context,
       builder: (context) {
         final Widget sheet = DraggableScrollableSheet(
-          initialChildSize: maxChildSize,
-          maxChildSize: maxChildSize,
+          initialChildSize: childSize,
+          maxChildSize: childSize,
           expand: false,
           builder: (BuildContext context, ScrollController scrollController) {
             return modal(scrollController);

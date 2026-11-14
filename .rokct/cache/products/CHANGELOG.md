@@ -1,3 +1,9 @@
+## 1.13.4
+
+- fix(catalog): `FoodsBody` owns its product `RefreshController`. On a split-pane width, opening Quick stock rebuilds the catalog into a new plane while the old one is still mounted, and the shared page controller crashed with pull_to_refresh "Don't use one refreshController to multiple SmartRefresher" (tour 1114b manager tablet 15-quick_stock). The page's scroll listener also skips while two lists are attached.
+- fix(catalog): the phone products list fades out above the floating nav pill (base_sdk `FloatingNavFold`) and its bottom padding lets the last card scroll clear (tour 1114b manager 12-menu).
+- fix(edit product): the header shows "Edit product" with the product name on its own line (up to 2 lines) instead of one ellipsized line; the description field wraps up to 4 lines (needs base_sdk 1.111.1 `UnderlinedTextField.maxLines`) (tour 1114b manager 14-product_detail).
+
 ## 1.13.3
 
 - fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").

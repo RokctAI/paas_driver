@@ -1,6 +1,6 @@
 {
   "name": "products_sdk",
-  "version": "1.13.3",
+  "version": "1.13.4",
   "_comment_version_1_13_2": "1.13.1 -> 1.13.2: the phone create-product sheet (CreateProductModal) paints the themed ModalWrap fill and the picture card on cardFor/inkFor, with the tab bar on theme ink; the white fill left the form's theme-ink labels unreadable in the dark app.",
   "_comment_version_1_13_0": "1.12.9 -> 1.13.0: the add-product form can open with a barcode prefilled. CreateProductModal.open(context, {barcode}) is the one entry to the form at any width (a sheet on a phone, ProductEditPage.openCreate at plane widths; the foods tab's + New product now calls it too). CreateProductModal, ProductEditPage.openCreate and CreateFoodDetailsBody take the barcode, and updateAddFoodInfo seeds it into the form's qrcode; when one is given the details form shows a Barcode field holding it (new tr_key barcode). Used by merchants_sdk 1.38.0's till prompt for a scan the catalog does not know.",
   "_comment_version_1_12_9": "1.12.8 -> 1.12.9: dev dependency json_serializable ^6.8.0 -> ^6.13.0. A standalone codegen of this SDK resolved json_serializable 6.11.4 with source_helper 1.4.0 and analyzer 10.2.0, whose toStringNonNullable extensions clash, so build_runner could not compile its build script (exit 78) and no product_state.freezed.dart was written. paas_customer then failed to compile (ProductState had no productData, count, typedExtras ...). Found on the paas_customer Build (Smart) run 39989699617, 2026-10-23.",

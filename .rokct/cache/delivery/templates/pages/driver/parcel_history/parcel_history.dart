@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:delivery_sdk/src/driver/presentation/copy/count_line.dart';
 import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -81,9 +82,11 @@ class _ParcelHistoryPageState extends ConsumerState<ParcelHistoryPage> {
                     // follow it, as on the parcels page (tour 2026-11-13,
                     // frame 12 read "There are" with nothing after it).
                     Text(
-                      '${AppHelpers.getTranslation(TrKeys.thereAreOrders)} '
-                      '${state.historyOrders.length} '
-                      '${AppHelpers.getTranslation(TrKeys.parcels).toLowerCase()}',
+                      driverCountLine(
+                        count: state.historyOrders.length,
+                        singularKey: 'parcel',
+                        pluralKey: TrKeys.parcels,
+                      ),
                       style: AppStyle.interRegular(
                         size: 12.sp,
                         letterSpacing: -0.3,
@@ -154,7 +157,14 @@ class _ParcelHistoryPageState extends ConsumerState<ParcelHistoryPage> {
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterFloat,
       floatingActionButton: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        // Lifted above the root nav pill: at the pill's height the filter
+        // button sat on the Profile tab (tour 1114b driver
+        // 09-driver_order_history, parcel history alike).
+        padding: EdgeInsets.only(
+          left: 16.w,
+          right: 16.w,
+          bottom: driverRootNavClearance() - 12.h,
+        ),
         // The back affordance moved into the floating nav's pill (see the
         // body Stack); only the filter action remains here, keeping its
         // right-edge spot.

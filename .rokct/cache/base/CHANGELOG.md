@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.111.1
+
+- fix(copy): bundled English for `restauran_home` ("Shop to customer"); the humanized key read "Restauran home" on the driver's active-job sheet (tour 1114b, driver 05-driver_home).
+- fix(sheets): `showCustomModalBottomDragSheet` applies the near-full-height rule to the height the sheet really reaches (`maxChildSize` of the constraint). Running the constraint to the status bar and then opening at 90% of it still left a strip of the page above the sheet: the ghost "Profile settings" row behind the edit-profile header (tour 1114b, driver 21-users_profile_settings). A drag sheet that would stop within 96 logical px of the status bar now opens at full height. Not a capture timing issue.
+- feat(text fields): `UnderlinedTextField` takes `maxLines` (default 1) and `minLines`, so a long value such as a product description wraps instead of clipping (tour 1114b, manager 14-product_detail). An obscured field stays single-line.
+
 ## 1.111.0
 
 - feat(floating nav): `FloatingNavFold` (`components/floating_nav/floating_nav_fold.dart`, also exported from `floating_bottom_nav.dart`), the one shared fold above a floating nav pill. Scrolling content fades out over 48 logical px and is gone before it reaches the pill, so nothing is sliced against the pill at scroll rest and nothing shows through it. Used by `GenericProfilePage`'s phone list (the list runs to the foot of the page with the pill's room as bottom padding; tour 1114 20-users_profile) and by `PlaneHost` on a one-plane screen with the corner back pill (tour 1114 manager 11-quick_flow). Paint only.

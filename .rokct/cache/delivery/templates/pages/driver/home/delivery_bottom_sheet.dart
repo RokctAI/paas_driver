@@ -20,6 +20,7 @@ import 'package:delivery_sdk/src/driver/infrastructure/models/data/order_detail.
 
 
 
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_nav_fold.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:${package}/presentation/pages/home/widgets/approve_dialog.dart';
 import 'package:${package}/presentation/pages/home/widgets/foods_page.dart';
@@ -257,7 +258,16 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                               blurRadius: 40,
                               offset: const Offset(0, -2))
                         ]),
-                    child: ListView(
+                    // The sheet's rows fade out before the floating nav
+                    // pill at rest instead of sitting under it (the
+                    // delivery note, tour 1114b driver 05-driver_home);
+                    // the bottom padding still lets the last row scroll
+                    // clear.
+                    child: FloatingNavFold(
+                      foot: MediaQuery.paddingOf(context).bottom +
+                          driverRootNavClearance() -
+                          12.h,
+                      child: ListView(
                       controller: scrollController,
                       padding: EdgeInsets.only(
                           top: 8.h,
@@ -509,6 +519,7 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                           },
                         ),
                       ],
+                    ),
                     ),
                   )),
         );

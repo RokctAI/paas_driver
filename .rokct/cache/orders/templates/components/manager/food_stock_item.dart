@@ -95,20 +95,27 @@ class FoodStockItem extends StatelessWidget {
         child: Row(
           children: [
             if ((product?.quantity ?? 0) > 0)
+              // The qty badge sizes to its label ("2 each") and sits inset
+              // from the row edge: a fixed 50px badge flush left clipped
+              // the number (tour 1114b manager 19-order_pos_cart).
               Container(
-                width: 50.r,
+                constraints: BoxConstraints(minWidth: 50.r, maxWidth: 96.r),
                 height: 78.r,
+                margin: REdgeInsetsDirectional.only(start: 12),
+                padding: REdgeInsets.symmetric(horizontal: 8),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(16.r),
-                    bottomRight: Radius.circular(16.r),
-                  ),
+                  borderRadius: BorderRadius.circular(16.r),
                   color: AppStyle.primary,
                 ),
-                child: Text(
-                  '${_count * (_item?.interval ?? 1)} ${_item?.unit?.translation?.title ?? ""}',
-                  style: AppStyle.interSemi(size: 15.sp),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    '${_count * (_item?.interval ?? 1)} ${_item?.unit?.translation?.title ?? ""}'
+                        .trim(),
+                    maxLines: 1,
+                    style: AppStyle.interSemi(size: 15.sp),
+                  ),
                 ),
               ),
             16.horizontalSpace,
@@ -118,6 +125,8 @@ class FoodStockItem extends StatelessWidget {
                 children: [
                   Text(
                     _item?.translation?.title ?? '',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: AppStyle.interNormal(
                       size: 14.sp,
                       color: ink,

@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../edit/product_edit_page.dart';
 import 'package:base_sdk/src/presentation/adaptive/planes.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_nav_fold.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
@@ -36,20 +37,42 @@ import 'package:products_sdk/src/manager/presentation/catalog/product_catalog_ca
 /// Kitchen-picker seeding note (kept from the modal era): kitchen_sdk's
 /// `kitchenPickerProvider` is autoDispose, so EditFoodDetailsBody seeds it
 /// in its own initState from the product it already has.
-class FoodsBody extends ConsumerWidget {
-  final RefreshController categoryController;
-  final RefreshController productController;
+class FoodsBody extends ConsumerStatefulWidget {
+  /// Kept for source compatibility; the body owns its own refresh
+  /// controllers so every mounted instance has a distinct one.
+  final RefreshController? categoryController;
+  final RefreshController? productController;
   final ScrollController? scrollController;
 
   const FoodsBody({
     super.key,
-    required this.categoryController,
-    required this.productController,
+    this.categoryController,
+    this.productController,
     this.scrollController,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FoodsBody> createState() => _FoodsBodyState();
+}
+
+class _FoodsBodyState extends ConsumerState<FoodsBody> {
+  // pull_to_refresh allows ONE SmartRefresher per RefreshController. On a
+  // split-pane width the catalog is rebuilt into a new plane when the quick
+  // stock pane is pushed, so the outgoing and incoming catalog briefly
+  // coexist. A controller per State keeps them apart ("Don't use one
+  // refreshController to multiple SmartRefresher").
+  final RefreshController productController = RefreshController();
+
+  ScrollController? get scrollController => widget.scrollController;
+
+  @override
+  void dispose() {
+    productController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -170,7 +193,13 @@ class FoodsBody extends ConsumerWidget {
     // denser 2×span suits its smaller cards). One plane keeps the list.
     final int columns = wide ? (planes!.span + 1) : 1;
 
-    return SmartRefresher(
+    // On one plane the list runs under the floating nav pill: fade it out
+    // before the pill (base_sdk FloatingNavFold) and keep enough bottom
+    // padding for the last card to scroll clear (tour 1114b manager 12).
+    return FloatingNavFold(
+      foot: columns == 1 ? 72 : 0,
+      fade: columns == 1 ? 48 : 0,
+      child: SmartRefresher(
       controller: productController,
       enablePullDown: true,
       enablePullUp: true,
@@ -181,7 +210,7 @@ class FoodsBody extends ConsumerWidget {
       child: columns == 1
           ? ListView.separated(
               controller: scrollController,
-              padding: const EdgeInsets.only(top: 4, bottom: 96),
+              padding: const EdgeInsets.only(top: 4, bottom: 132),
               itemCount: productsState.foods.length,
               separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
@@ -196,7 +225,7 @@ class FoodsBody extends ConsumerWidget {
             )
           : GridView.builder(
               controller: scrollController,
-              padding: const EdgeInsets.only(top: 4, bottom: 96),
+              padding: const EdgeInsets.only(top: 4, bottom: 132),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: columns,
                 mainAxisSpacing: 10,
@@ -216,6 +245,7 @@ class FoodsBody extends ConsumerWidget {
                 );
               },
             ),
+    ),
     );
   }
 }

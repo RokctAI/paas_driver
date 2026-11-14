@@ -84,8 +84,6 @@ class _FoodsPageState extends ConsumerState<FoodsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late ScrollController _scrollController;
-  late RefreshController _categoryController;
-  late RefreshController _productController;
   late RefreshController _addonsController;
   late RefreshController _extrasController;
 
@@ -103,11 +101,12 @@ class _FoodsPageState extends ConsumerState<FoodsPage>
       setState(() {});
     });
     _scrollController = ScrollController();
-    _categoryController = RefreshController();
-    _productController = RefreshController();
     _addonsController = RefreshController();
     _extrasController = RefreshController();
     _scrollController.addListener(() {
+      // The catalog can be mounted twice while a plane is pushed; read the
+      // direction only when exactly one list is attached.
+      if (_scrollController.positions.length != 1) return;
       final direction = _scrollController.position.userScrollDirection;
       ref
           .read(mainProvider.notifier)
@@ -126,8 +125,6 @@ class _FoodsPageState extends ConsumerState<FoodsPage>
     super.dispose();
     _tabController.dispose();
     _scrollController.dispose();
-    _categoryController.dispose();
-    _productController.dispose();
     _addonsController.dispose();
     _extrasController.dispose();
   }
@@ -218,11 +215,7 @@ class _FoodsPageState extends ConsumerState<FoodsPage>
             physics: const NeverScrollableScrollPhysics(),
             controller: _tabController,
             children: [
-              FoodsBody(
-                categoryController: _categoryController,
-                productController: _productController,
-                scrollController: _scrollController,
-              ),
+              FoodsBody(scrollController: _scrollController),
               AddonsBody(addonsController: _addonsController),
               ExtrasBody(refreshController: _extrasController),
             ],

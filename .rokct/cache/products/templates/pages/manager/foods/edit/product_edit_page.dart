@@ -197,19 +197,41 @@ class _ProductEditPageState extends ConsumerState<ProductEditPage> {
     final product = widget.product;
     final String title = product == null
         ? AppHelpers.getTranslation('new_product')
-        : '${AppHelpers.getTranslation(TrKeys.editProduct)} — '
-            '${product.translation?.title ?? ''}';
+        : AppHelpers.getTranslation(TrKeys.editProduct);
+    // The product name goes on its own line under "Edit product", up to
+    // two lines, instead of one ellipsized "Edit product — Flame-gr..."
+    // (tour 1114b manager 14-product_detail).
+    final String? name = product?.translation?.title;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Expanded(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppStyle.interBold(size: 20, color: AppStyle.inkFor(Theme.of(context).brightness)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppStyle.interBold(size: 20, color: AppStyle.inkFor(Theme.of(context).brightness)),
+                ),
+                if (name != null && name.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppStyle.interSemi(
+                        size: 16,
+                        color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ],

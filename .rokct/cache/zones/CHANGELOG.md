@@ -1,3 +1,7 @@
+## 1.7.3
+
+- fix(tour): the delivery-zone step waits 12s for tiles after map-ready on a tablet (4s on a phone, as since zones#154): the tablet map needs several times the tiles and tour 1114b captured the outer ring still grey (tablet 17-driver_delivery_zone).
+
 ## 1.7.2
 
 - fix(tour): the driver_delivery_zone still waits for the map, as delivery_sdk 1.30.8 does for the driver home (zones#153). The delivery-zone page renders an empty widget keyed `driver_delivery_zone_map_ready` once GoogleMap's `onMapCreated` has fired and the map has gone idle on its first camera position; the zones fragment routes to /delivery-zone without a still, then polls for that key (up to 45s) and allows 4s more for tiles before the screenshot (tour 1114 captured grey, unloaded tiles). No visible change for the driver.

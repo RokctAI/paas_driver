@@ -296,6 +296,32 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ),
                         ),
                       ),
+                    // Wide windows: the hero art as a contained panel in
+                    // the start pane, beside the end-anchored 440-wide
+                    // actions column, so the tablet welcome is not a blank
+                    // dark page (tour 1114b tablet 01-welcome). Contained,
+                    // not stretched: the portrait art keeps its shape.
+                    if (isWideWindow)
+                      PositionedDirectional(
+                        start: 24,
+                        top: 72,
+                        bottom: 24,
+                        end: 440 + 64,
+                        child: IgnorePointer(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(24),
+                            child: ColoredBox(
+                              color: _splashGround,
+                              child: Image.asset(
+                                splashImage,
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, __, ___) =>
+                                    const SizedBox.shrink(),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     // Black fade rising from the bottom edge so the action
                     // buttons (Register especially) stay readable over busy
                     // splash artwork. Compact only: wide windows are imageless.

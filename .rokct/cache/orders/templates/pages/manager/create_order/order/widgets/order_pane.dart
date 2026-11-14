@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:remixicon/remixicon.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:orders_sdk/src/manager/infrastructure/models/models.dart';
 
@@ -146,7 +147,11 @@ class _OrderPaneState extends ConsumerState<OrderPane> {
           child: SlidableAutoCloseBehavior(
             child: paymentState.isCalculateLoading
                 ? const LoadingList(itemPadding: 2)
-                : ListView.builder(
+                : rows.isEmpty
+                    // An empty cart says so instead of leaving the pane
+                    // blank (tour 1114b manager tablet 18-order_pos_products).
+                    ? _EmptyCart()
+                    : ListView.builder(
                     padding: REdgeInsets.only(
                       bottom: MediaQuery.paddingOf(context).bottom + 68,
                     ),
@@ -167,9 +172,10 @@ class _OrderPaneState extends ConsumerState<OrderPane> {
         // 684: the calculated subtotal as one quiet row — getCalculate
         // already runs on this pane; the full totals stay on
         // /delivery-time, as shipped.
-        if (calculate != null &&
-            state.stocks.isNotEmpty &&
-            !paymentState.isCalculateLoading)
+        // The total always shows on the pane (R0.00 for an empty cart);
+        // before a calculation lands it is summed from the cart rows.
+        if (!paymentState.isCalculateLoading &&
+            (widget.embedded || state.stocks.isNotEmpty))
           Padding(
             padding: REdgeInsets.only(
               left: 16,
@@ -178,7 +184,14 @@ class _OrderPaneState extends ConsumerState<OrderPane> {
             ),
             child: _SubtotalRow(
               itemCount: itemCount,
-              subtotal: calculate.price ?? 0,
+              subtotal: calculate?.price ??
+                  rows.fold<num>(
+                    0,
+                    (sum, stock) =>
+                        sum +
+                        (stock.price ?? 0) *
+                            ((echoed ? stock.quantity : stock.cartCount) ?? 1),
+                  ),
             ),
           ),
         if (widget.embedded && state.stocks.isNotEmpty)
@@ -191,6 +204,38 @@ class _OrderPaneState extends ConsumerState<OrderPane> {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// The pane's empty state: no lines in the walk-in cart yet.
+class _EmptyCart extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return Center(
+      child: Padding(
+        padding: REdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Remix.shopping_basket_2_line,
+              size: 40.r,
+              color: AppStyle.secondaryInkFor(brightness),
+            ),
+            12.verticalSpace,
+            Text(
+              AppHelpers.getTranslation(TrKeys.cartIsEmpty),
+              textAlign: TextAlign.center,
+              style: AppStyle.interRegular(
+                size: 15.sp,
+                color: AppStyle.secondaryInkFor(brightness),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

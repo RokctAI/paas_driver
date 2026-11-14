@@ -39,6 +39,14 @@ class UnderlinedTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final List<TextInputFormatter>? inputFormatters;
 
+  /// Lines the field grows to. 1 (the default) keeps a single-line field;
+  /// more lets a long value (a product description) wrap instead of
+  /// clipping. Ignored for an obscured field, which must stay single-line.
+  final int maxLines;
+
+  /// Lines the field starts at; null starts at one line.
+  final int? minLines;
+
   const UnderlinedTextField({
     super.key,
     required this.label,
@@ -58,6 +66,8 @@ class UnderlinedTextField extends StatelessWidget {
     this.onTap,
     this.validator,
     this.inputFormatters,
+    this.maxLines = 1,
+    this.minLines,
   });
 
   @override
@@ -73,6 +83,8 @@ class UnderlinedTextField extends StatelessWidget {
           onChanged: onChanged,
           obscureText: !(obscure ?? true),
           obscuringCharacter: '*',
+          maxLines: !(obscure ?? true) ? 1 : maxLines,
+          minLines: !(obscure ?? true) ? null : minLines,
           controller: textController,
           style: AppStyle.interNormal(
             size: 15.sp,

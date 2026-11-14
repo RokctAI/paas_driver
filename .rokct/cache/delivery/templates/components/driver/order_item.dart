@@ -614,18 +614,27 @@ class OrderItem extends StatelessWidget {
                         size: 14.sp,
                         letterSpacing: -0.3,
                       ),
-                      maxLines: 1,
+                      // Two lines: one line cut the street mid-word
+                      // (tour 1114b driver 05-driver_home).
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   2.verticalSpace,
                   IntrinsicHeight(
                     child: Row(
                       children: [
-                        Expanded(
+                        // The name keeps one line (it wrapped as "Than / di"
+                        // when the phone took the row, tour 1114b driver
+                        // 05-driver_home); the phone scales down instead.
+                        Flexible(
                           child: Text(
                             order.user == null
                                 ? AppHelpers.getTranslation(TrKeys.deletedUser)
                                 : order.user?.firstname ?? "",
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.ellipsis,
                             style: AppStyle.interNormal(
                               size: 12.sp,
                               letterSpacing: -0.3,
@@ -633,11 +642,18 @@ class OrderItem extends StatelessWidget {
                           ),
                         ),
                         const VerticalDivider(),
-                        Text(
-                          order.user?.phone ?? "",
-                          style: AppStyle.interNormal(
-                            size: 12.sp,
-                            letterSpacing: -0.3,
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: AlignmentDirectional.centerStart,
+                            child: Text(
+                              order.user?.phone ?? "",
+                              maxLines: 1,
+                              style: AppStyle.interNormal(
+                                size: 12.sp,
+                                letterSpacing: -0.3,
+                              ),
+                            ),
                           ),
                         ),
                         IconButton(

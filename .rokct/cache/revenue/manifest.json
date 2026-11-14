@@ -1,6 +1,6 @@
 {
   "name": "revenue_sdk",
-  "version": "1.14.11",
+  "version": "1.14.12",
   "_comment_version_1_14_7": "1.14.6 -> 1.14.7: the revenue_manager tour step stops using gestures. It jumps the list that holds the trend chart until a product row is built, brings the row on screen and calls its onTap, and logs a TOUR_DIAG line. 1.14.6 still photographed the dashboard twice on the device. Tour template and test only; see CHANGELOG.",
   "_comment_version_1_14_6": "1.14.5 -> 1.14.6: the revenue_manager tour step drags the dashboard list by hand until a product row is built; scrollUntilVisible(row.first) threw while no row existed and the catch hid it, so the still repeated the dashboard. Tour template only; see CHANGELOG.",
   "_comment_version_1_14_5": "1.14.4 -> 1.14.5: the revenue_manager tour step now scrolls the vertical dashboard list and pins the first product row on screen before tapping it, so the profit detail opens instead of the still repeating the dashboard. Tour template only; see CHANGELOG.",

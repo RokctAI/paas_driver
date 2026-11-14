@@ -1,3 +1,9 @@
+## 1.31.1
+
+- fix(driver home): the active-job sheet's rows fade out above the root tab pill (base_sdk `FloatingNavFold`) instead of the delivery note sitting under it; the customer name keeps one line (it wrapped as "Than / di") with the phone scaling down beside it, and the delivery address wraps to 2 lines instead of being cut (tour 1114b, 05-driver_home). The "Restauran home" label is fixed by base_sdk 1.111.1's bundled English copy for `restauran_home`.
+- fix(driver history): the filter button on order and parcel history sits above the root tab pill instead of on the Profile tab; the demo history orders carry a delivery address, so the cards show it (tour 1114b, 09-driver_order_history).
+- fix(copy): the orders / parcels subtitles are pluralised: "There is 1 parcel", "There are 3 parcels" (`driverCountLine`), not "There are 1 parcels".
+
 ## 1.31.0
 
 - fix(driver home): the active-job sheet opens at its full height (two thirds of the screen), so the order's Restaurant / Home distance row and the customer-code card sit above the floating root tab pill instead of under it (tour 1114, 05-driver_home). Dragging down still collapses it.

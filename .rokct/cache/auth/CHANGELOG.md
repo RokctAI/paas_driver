@@ -1,3 +1,7 @@
+## 1.22.7
+
+- fix(welcome): wide windows (tablet/desktop) show the splash hero art as a contained panel in the start pane, beside the end-anchored Login / Register column, instead of a blank dark page (tour 1114b tablet 01-welcome, manager and driver). Compact is unchanged.
+
 ## 1.22.6
 
 - fix(login): the splash artwork scales to half size toward the top while a login/register sheet covers the page, and login/register sheets are capped at 70% height over the splash ground colour, so the headline ("One Click Away") stays visible above the sheet.

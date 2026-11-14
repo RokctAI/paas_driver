@@ -17,7 +17,7 @@
 # opens on a visible polygon.
 #
 # The step routes first (no still), then waits (up to 45s) for the page's
-# map-ready marker plus a short tile fill before the still - the same wait
+# map-ready marker plus a tile fill (4s phone, 12s tablet) before the still - the same wait
 # delivery_sdk's driver_home step uses (zones#153). Tour 1114 captured this
 # page while the tiles were still grey. Map TILES need network in the
 # capture emulator; if they never come the wait times out and the still is
@@ -55,10 +55,16 @@ steps:
         }
         await Future<void>.delayed(const Duration(milliseconds: 500));
       }
-      // Then 4s more for the tiles to download and fill the map area
-      // (first idle can land while tiles are still streaming in).
+      // Then more time for the tiles to download and fill the map area
+      // (first idle can land while tiles are still streaming in): 4s on a
+      // phone, 12s on a tablet, whose map needs several times the tiles
+      // (tour 1114b tablet 17 still had the outer tiles grey after 4s).
+      final double shortestSide =
+          (tester.view.physicalSize / tester.view.devicePixelRatio)
+              .shortestSide;
+      final int tileTicks = shortestSide >= 600 ? 24 : 8;
       if (ready) {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < tileTicks; i++) {
           await tester.pump();
           await Future<void>.delayed(const Duration(milliseconds: 500));
         }
