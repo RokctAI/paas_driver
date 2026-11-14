@@ -1,1 +1,47 @@
-{"data": []}
+{
+  "data": [
+    {
+      "id": "NL-DEMO-0005",
+      "type": "status",
+      "title": "Stock is low",
+      "body": "Boerewors rolls are down to 6 on the shelf.",
+      "created_at": "$now_iso-20m",
+      "updated_at": "$now_iso-20m"
+    },
+    {
+      "id": "NL-DEMO-0004",
+      "type": "status",
+      "title": "Order ready for collection",
+      "body": "Order 1038 is ready and waiting at the counter.",
+      "created_at": "$now_iso-2h",
+      "updated_at": "$now_iso-2h"
+    },
+    {
+      "id": "NL-DEMO-0003",
+      "type": "status",
+      "title": "Load closed",
+      "body": "Sipho Dlamini returned load LOAD-0005 with 4 items back on the shelf.",
+      "created_at": "$now_iso-1d",
+      "updated_at": "$now_iso-1d",
+      "read_at": "$now_iso-23h"
+    },
+    {
+      "id": "NL-DEMO-0002",
+      "type": "status",
+      "title": "Payout sent",
+      "body": "Your weekly payout has been sent to your bank account.",
+      "created_at": "$now_iso-3d",
+      "updated_at": "$now_iso-3d",
+      "read_at": "$now_iso-3d"
+    },
+    {
+      "id": "NL-DEMO-0001",
+      "type": "status",
+      "title": "Welcome to Corner Kitchen",
+      "body": "Your shop is set up. Add a product to take your first order.",
+      "created_at": "$now_iso-6d",
+      "updated_at": "$now_iso-6d",
+      "read_at": "$now_iso-6d"
+    }
+  ]
+}
