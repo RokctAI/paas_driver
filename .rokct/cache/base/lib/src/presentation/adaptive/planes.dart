@@ -16,6 +16,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:base_sdk/src/presentation/adaptive/breakpoints.dart';
 import 'package:base_sdk/src/presentation/components/floating_nav/floating_bottom_nav.dart';
@@ -354,7 +355,17 @@ class PlaneHost extends StatelessWidget {
         if (back == null || stack.length < 2) return planesRow;
         return Stack(
           children: [
-            planesRow,
+            // One plane (a phone): the page runs under the corner pill, so
+            // its content fades out above the pill instead of sliding
+            // under it - the last card of a pushed page read as covered
+            // by Back (tour 1114, manager 11-quick_flow).
+            // Wider screens keep their planes unfaded (fade 0); one
+            // wrapper either way so a resize keeps the planes' state.
+            FloatingNavFold(
+              foot: 16 + MediaQuery.paddingOf(context).bottom + 60.r,
+              fade: count == 1 ? 48 : 0,
+              child: planesRow,
+            ),
             PositionedDirectional(
               end: 16,
               bottom: 16,

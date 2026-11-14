@@ -29,6 +29,8 @@ import 'floating_nav_mode.dart';
 // FloatingNavTab moved to floating_nav_mode.dart when the pill gained modes;
 // re-exported so every existing importer of this file still resolves it.
 export 'floating_nav_mode.dart';
+// The shared fold above the pill (tour 1114), for every importer.
+export 'floating_nav_fold.dart';
 
 /// The composer block's raised fill.
 ///
@@ -200,6 +202,10 @@ class _FloatingBottomNavState extends ConsumerState<FloatingBottomNav> {
                     )
                   : const SizedBox.shrink(),
             ),
+            // The notice strip (FloatingNavTabsMode.notice) sits directly
+            // on top of the pill, tucked under its top edge.
+            if (mode is FloatingNavTabsMode && mode.notice != null)
+              FloatingNavNoticeStrip(notice: mode.notice!),
             // The bar is anchored at the bottom, so growing moves only its
             // TOP edge upward — long enough and eased enough to read as the
             // bar rising, not as a panel blinking into place.
@@ -1304,6 +1310,95 @@ class _CompanionButton extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The strip [FloatingNavTabsMode.notice] draws on top of the pill: one
+/// frosted rounded bar, narrower than the screen, with the message, an
+/// optional action button and an optional close cross.
+class FloatingNavNoticeStrip extends StatelessWidget {
+  final FloatingNavNotice notice;
+
+  const FloatingNavNoticeStrip({super.key, required this.notice});
+
+  @override
+  Widget build(BuildContext context) {
+    final tint = notice.warning
+        ? const Color(0xFFB45309) // amber 700: white ink at 5:1
+        : AppStyle.bottomNavigationBarColor;
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Flexible(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: BlurWrap(
+                radius: BorderRadius.circular(16.r),
+                child: Container(
+                  key: const ValueKey('floating_nav.notice'),
+                  padding: EdgeInsetsDirectional.only(
+                    start: 14.r,
+                    end: notice.onDismiss == null ? 14.r : 4.r,
+                    top: 6.r,
+                    bottom: 6.r,
+                  ),
+                  decoration: BoxDecoration(
+                    color: tint.withValues(alpha: 0.85),
+                    borderRadius: BorderRadius.circular(16.r),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          notice.message,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: AppStyle.white,
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      if (notice.actionLabel != null)
+                        TextButton(
+                          key: const ValueKey('floating_nav.notice.action'),
+                          onPressed: notice.onAction,
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppStyle.white,
+                            backgroundColor:
+                                AppStyle.white.withValues(alpha: 0.18),
+                            padding: EdgeInsets.symmetric(horizontal: 12.r),
+                            minimumSize: Size(0, 30.r),
+                            shape: const StadiumBorder(),
+                          ),
+                          child: Text(
+                            notice.actionLabel!,
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      if (notice.onDismiss != null)
+                        IconButton(
+                          key: const ValueKey('floating_nav.notice.dismiss'),
+                          onPressed: notice.onDismiss,
+                          icon: Icon(Remix.close_line,
+                              size: 18.r, color: AppStyle.white),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

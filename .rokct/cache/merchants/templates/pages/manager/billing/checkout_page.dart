@@ -639,7 +639,17 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     Widget column(List<Widget> children) => CustomScrollView(
           slivers: [
             SliverPadding(
-              padding: EdgeInsets.all(16.r),
+              // The phone route draws edge to edge (no SafeArea, no app
+              // bar), so the column clears the status bar itself: the
+              // "Checkout" header sat under the clock (tour 1114,
+              // 07-pos_checkout). Hosted in planes, the host owns the
+              // insets.
+              padding: EdgeInsets.fromLTRB(
+                16.r,
+                16.r + (inPlanes ? 0 : MediaQuery.paddingOf(context).top),
+                16.r,
+                16.r,
+              ),
               sliver: SliverList(delegate: SliverChildListDelegate(children)),
             ),
           ],
@@ -727,6 +737,11 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
         ],
         _methodToggle(context),
         20.verticalSpace,
+        // The ticket's Items / Total reads first on the phone, above the
+        // QR: under it, the summary landed at the fold beside the Back
+        // pill and the Total row was cut off (tour 1114, 07-pos_checkout).
+        _summary(context, state),
+        20.verticalSpace,
         if (showQr) ...[
           if (offline) _offlineBanner(context) else _qrHintBanner(context),
           20.verticalSpace,
@@ -753,7 +768,6 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           ],
           6.verticalSpace,
         ],
-        _summary(context, state),
         if (showAutodial) ...[
           14.verticalSpace,
           _autodialCard(context, state),

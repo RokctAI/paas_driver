@@ -1,3 +1,7 @@
+## 1.38.4
+
+- fix(pos checkout): on the phone route the checkout column clears the status bar (the "Checkout" header sat under the clock) and the Items / Total summary reads right under the Cash | QR toggle, above the QR card, instead of at the fold beside the Back pill where Total was cut off (tour 1114, 07-pos_checkout). The planes spread is unchanged. Quick flow's last card is fixed in base_sdk 1.110.0 (`PlaneHost` fades a one-plane page out above its corner Back pill).
+
 ## 1.38.3
 
 - fix(manager): the checkout's scroller ends above the Back pill so Total is not under it; a demo session with no parked records shows two sample sync issues instead of "No data" (tour 1113b).

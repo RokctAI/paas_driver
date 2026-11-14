@@ -33,6 +33,7 @@ import 'package:delivery_sdk/src/driver/infrastructure/models/data/route_stop.da
 
 import 'package:delivery_sdk/src/driver/infrastructure/models/data/driver_poi.dart';
 import 'package:delivery_sdk/src/driver/presentation/poi/add_poi_sheet.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_nav_fold.dart';
 import 'package:delivery_sdk/src/driver/presentation/home/driver_root_nav.dart';
 import 'package:delivery_sdk/src/driver/presentation/poi/poi_sheet.dart';
 import 'package:delivery_sdk/src/driver/presentation/widgets/driver_sheet_surface.dart';
@@ -178,16 +179,15 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                     ),
                   ),
                 ),
-              // The list ENDS above the root tab pill instead of only
-              // padding its last item: the pill is translucent, so a card
-              // scrolled under it showed through (tour 1113b,
-              // 08-driver_route, stop 4).
+              // The list runs to the foot of the page and fades out before
+              // the root tab pill (base's shared FloatingNavFold). Ending
+              // the viewport right above the pill sliced stop 3 against it
+              // (tour 1114, 08-driver_route); running under the
+              // translucent pill let a card show through (tour 1113b).
+              // The list's bottom padding lets the last stop scroll clear.
               Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.paddingOf(context).bottom +
-                        driverRootNavClearance(),
-                  ),
+                child: FloatingNavFold(
+                  foot: MediaQuery.paddingOf(context).bottom + 60.r + 18.h,
                   child: state.isLoading
                     ? const Loading()
                     : RefreshIndicator(
@@ -200,7 +200,8 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                                   left: 16.w,
                                   right: 16.w,
                                   top: 16.h,
-                                  bottom: 16.h,
+                                  bottom: MediaQuery.paddingOf(context).bottom +
+                                      driverRootNavClearance(),
                                 ),
                                 physics: const AlwaysScrollableScrollPhysics(),
                                 itemCount: state.stops.length,

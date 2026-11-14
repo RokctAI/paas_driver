@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -226,24 +225,20 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                 sheetHeight)
             .clamp(0.16, 0.6)
             .toDouble();
-        // The sheet opens tall enough that the order's address and phone
-        // rows (about 300 logical px of header + rows) sit above the
-        // floating pill, not under it (tour 1113b, 05-driver_home).
-        final openSize = math.max(
-          minSize,
-          ((MediaQuery.paddingOf(context).bottom +
-                      driverRootNavClearance() +
-                      300.h) /
-                  sheetHeight)
-              .clamp(0.5, 1.0)
-              .toDouble(),
-        );
+        // The sheet opens at its full height (maxChildSize). Sized to
+        // "about 300 logical px of header + rows" it still left the order's
+        // Restaurant / Home distance row and the customer-code card under
+        // the floating root tab pill (tour 1114, 05-driver_home): the
+        // OrderItem card alone is taller than that once the address wraps.
+        // Full height is two thirds of the screen, so the map keeps its
+        // top third; dragging down still collapses to [minSize].
+        const double openSize = 1.0;
         return SizedBox(
           height: sheetHeight,
           width: double.infinity,
           child: DraggableScrollableSheet(
-              // Opens at half the full height (maxChildSize), so the order's
-              // header and actions clear the floating nav pill underneath.
+              // Opens at the full height (maxChildSize), so the order's
+              // rows clear the floating nav pill underneath.
               initialChildSize: openSize,
               maxChildSize: 1,
               minChildSize: minSize,

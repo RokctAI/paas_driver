@@ -237,13 +237,46 @@ class FloatingNavTabsMode extends FloatingNavMode {
     this.tabletPlacement,
     this.profile,
     this.companion,
+    this.notice,
   });
+
+  /// A short notice strip attached to the TOP of the pill (see
+  /// [FloatingNavNotice]). Null, the default, draws nothing, so every
+  /// existing host renders exactly as before.
+  final FloatingNavNotice? notice;
 
   /// Whether the pill has anything after its back segment: tabs, trailing
   /// actions or the profile picture. A back pill with none of them is the
   /// bare back pill (no hairline, the tablet corner placement).
   bool get hasEntries =>
       tabs.isNotEmpty || trailing.isNotEmpty || profile != null;
+}
+
+/// A compact notice strip that sits on top of the tab pill, like the
+/// "Approaching limit / View usage" strip above a chat composer (Ray,
+/// 2026-11-14). One line of [message], an optional [actionLabel] button
+/// and, when [onDismiss] is set, a close cross.
+///
+/// The page decides when to pass one, the same way it passes
+/// [FloatingNavTabsMode.currentIndex]; the bar stores nothing. A page that
+/// wants the strip to stay closed after a dismiss keeps that answer itself.
+class FloatingNavNotice {
+  final String message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  final VoidCallback? onDismiss;
+
+  /// Warm amber tint for something the viewer should act on soon; false
+  /// keeps the neutral bar colour.
+  final bool warning;
+
+  const FloatingNavNotice({
+    required this.message,
+    this.actionLabel,
+    this.onAction,
+    this.onDismiss,
+    this.warning = true,
+  });
 }
 
 /// The person's picture as the floating pill's last entry.

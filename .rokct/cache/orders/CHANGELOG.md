@@ -1,3 +1,8 @@
+## 1.31.10
+
+- fix(pos cart): `FoodStockItem` reads the product from the cart line itself when the row is a cart stock rather than a calculation echo. It only read the echo's nested `stock.product`, so a cart row (the pane's fallback since 1.31.9, because the demo calculation echoes no stocks) showed no name, no image, and the shelf quantity in the badge: "40 / R89.00" (tour 1114, 19-order_pos_cart). The badge now shows the ordered count; the row follows the theme (card surface, mode ink) instead of a pinned white band.
+- fix(place order): the delivery-time page fits Total above the docked Place order row on a phone: the breakdown card drops its "Total" heading (its last row already says Total) and the cards tighten their padding and row gaps, so Discount and Total no longer sit under or clip at the docked row (tour 1114, 23-order_pos_delivery_time).
+
 ## 1.31.9
 
 - fix(pos): Place order docks under its cards so Total is not covered by the button, offline note or Back pill, and the summary is titled "Total" instead of "Payment - R"; walk-in product rows follow the theme (no white rows or black image boxes on dark); the POS cart lists the cart's own lines when the calculation echoes none, and its subtotal ends above the Next | Back row (tour 1113b).

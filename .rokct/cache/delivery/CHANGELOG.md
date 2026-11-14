@@ -1,3 +1,9 @@
+## 1.31.0
+
+- fix(driver home): the active-job sheet opens at its full height (two thirds of the screen), so the order's Restaurant / Home distance row and the customer-code card sit above the floating root tab pill instead of under it (tour 1114, 05-driver_home). Dragging down still collapses it.
+- fix(driver route): the stop list runs to the foot of the page and fades out before the root tab pill through base_sdk's shared `FloatingNavFold` (requires base_sdk >= 1.111.0), with the pill's room as bottom padding; ending the viewport right above the pill sliced stop 3 against it (tour 1114, 08-driver_route).
+- fix(driver profile settings): the avatar shows the person's photo or initials clean, with a small camera badge on its corner; the dimming overlay with a centred camera covered the initials and read as a placeholder (tour 1114, 21-users_profile_settings). The faded header above that sheet is fixed in base_sdk 1.111.0's `showCustomModalBottomSheet`.
+
 ## 1.30.8
 
 - fix(tour): the driver_home still waits for the map. HomePage now renders an empty widget keyed `driver_home_map_ready` once GoogleMap's `onMapCreated` has fired and the map has gone idle on its first camera position; the delivery tour fragment routes to /home without a still, then polls for that key (up to 45s) and allows 4s more for tiles to fill before the screenshot. The route page has no map, so it needs no wait. Not run: tour runs only in CI; templates are not analyzable here.

@@ -243,7 +243,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       padding: REdgeInsets.symmetric(
-                        vertical: 24,
+                        vertical: 16,
                         horizontal: 16,
                       ),
                       child: Column(
@@ -269,8 +269,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                                   : ListView.builder(
                                       itemCount: paymentState.payments.length,
                                       shrinkWrap: true,
-                                      padding:
-                                          REdgeInsets.symmetric(vertical: 18),
+                                      padding: REdgeInsets.only(top: 12),
                                       physics:
                                           const NeverScrollableScrollPhysics(),
                                       itemBuilder: (context, index) =>
@@ -299,26 +298,17 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                       color: AppStyle.cardFor(Theme.of(context).brightness),
                       borderRadius: BorderRadius.circular(10.r),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 24.h),
+                    padding: EdgeInsets.symmetric(vertical: 16.h),
                     child: state.isCalculateLoading
                         ? const Loading()
                         : Column(
                             children: [
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                                child: TitleAndIcon(
-                                  titleColor: AppStyle.inkFor(Theme.of(context).brightness),
-                                  title:
-                                      // The shop's currency (the stored one, or the demo's
-                                      // rand), never a hard-coded dollar.
-                                      // The price breakdown, titled as one.
-                                      // "Payment - R" repeated the payment
-                                      // card above and dangled a currency
-                                      // symbol (tour 1113b).
-                                      AppHelpers.getTranslation(TrKeys.total),
-                                ),
-                              ),
-                              24.verticalSpace,
+                              // No "Total" heading over the breakdown: the
+                              // card's last row already says Total, and the
+                              // repeated heading pushed that row and the
+                              // Discount row below the docked Place order
+                              // row on a phone (tour 1114,
+                              // 23-order_pos_delivery_time).
                               TitleAndPrice(
                                 title:
                                     AppHelpers.getTranslation(TrKeys.subtotal),
@@ -328,7 +318,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                                   letterSpacing: -0.3,
                                 ),
                               ),
-                              16.verticalSpace,
+                              10.verticalSpace,
                               TitleAndPrice(
                                 title: AppHelpers.getTranslation(
                                     TrKeys.deliveryPrice),
@@ -336,7 +326,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                                 textStyle: AppStyle.interRegular(
                                     size: 16, letterSpacing: -0.3),
                               ),
-                              16.verticalSpace,
+                              10.verticalSpace,
                               TitleAndPrice(
                                 title: AppHelpers.getTranslation(
                                     TrKeys.serviceFee),
@@ -344,7 +334,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                                 textStyle: AppStyle.interRegular(
                                     size: 16, letterSpacing: -0.3),
                               ),
-                              16.verticalSpace,
+                              10.verticalSpace,
                               TitleAndPrice(
                                 title:
                                     AppHelpers.getTranslation(TrKeys.discount),
@@ -353,7 +343,7 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                                 textStyle: AppStyle.interRegular(
                                     size: 16, letterSpacing: -0.3),
                               ),
-                              16.verticalSpace,
+                              10.verticalSpace,
                               TitleAndPrice(
                                 title:
                                     AppHelpers.getTranslation(TrKeys.totalTax),
@@ -361,12 +351,12 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                                 textStyle: AppStyle.interRegular(
                                     size: 16, letterSpacing: -0.3),
                               ),
-                              16.verticalSpace,
+                              10.verticalSpace,
                               Divider(
                                 color: AppStyle.subtleStrokeFor(
                                     Theme.of(context).brightness),
                               ),
-                              16.verticalSpace,
+                              10.verticalSpace,
                               TitleAndPrice(
                                 title: AppHelpers.getTranslation(TrKeys.total),
                                 rightTitle: AppHelpers.numberFormat(number: state.orderCalculate?.totalPrice ?? 0),

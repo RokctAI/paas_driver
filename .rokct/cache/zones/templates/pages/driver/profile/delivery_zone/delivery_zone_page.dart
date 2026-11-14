@@ -50,6 +50,25 @@ class DriverDeliveryZonePage extends ConsumerStatefulWidget {
 }
 
 class _DeliveryZonePageState extends ConsumerState<DriverDeliveryZonePage> {
+  /// True once the native map has handed over its controller AND gone idle
+  /// on its first camera position - the closest signal google_maps_flutter
+  /// gives to "the first tiles are drawn" (it has no tiles-loaded
+  /// callback). While true, the page carries an empty marker keyed
+  /// [mapReadyKey], which the guided tour's driver_delivery_zone step waits
+  /// for before its still (tour 1114 caught grey, unloaded tiles). The
+  /// same signal delivery_sdk's home exposes as 'driver_home_map_ready'.
+  /// No effect on what the driver sees.
+  bool _mapCreated = false;
+  bool _mapReady = false;
+
+  /// The key the guided tour (templates/tour/zones.tour.yaml) waits on.
+  static const String mapReadyKey = 'driver_delivery_zone_map_ready';
+
+  void _markMapReady() {
+    if (_mapReady || !mounted || !_mapCreated) return;
+    setState(() => _mapReady = true);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -92,6 +111,10 @@ class _DeliveryZonePageState extends ConsumerState<DriverDeliveryZonePage> {
                         zoomControlsEnabled: false,
                         polygons: state.polygon,
                         onTap: event.addTappedPoint,
+                        onMapCreated: (_) => _mapCreated = true,
+                        // First idle after onMapCreated: the map has
+                        // rendered its first camera position.
+                        onCameraIdle: _markMapReady,
                         initialCameraPosition: CameraPosition(
                           bearing: 0,
                           target: LatLng(
@@ -113,6 +136,8 @@ class _DeliveryZonePageState extends ConsumerState<DriverDeliveryZonePage> {
                         ),
                       ),
                     ),
+              if (_mapReady)
+                const SizedBox.shrink(key: ValueKey<String>(mapReadyKey)),
               AnimatedPositioned(
                 duration: const Duration(milliseconds: 150),
                 bottom: 20.r,

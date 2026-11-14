@@ -133,6 +133,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                                     dimension: 50.r,
                                     child: Stack(
                                       alignment: Alignment.center,
+                                      clipBehavior: Clip.none,
                                       children: [
                                         // A freshly picked file shows as
                                         // picked; otherwise the person's
@@ -157,25 +158,23 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                                             user: state.userData,
                                             size: 50.r,
                                           ),
-                                        Container(
-                                          width: 50.r,
-                                          height: 50.r,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              16.r,
-                                            ),
-                                            color: AppStyle.black.withOpacity(
-                                              0.27,
-                                            ),
-                                          ),
-                                        ),
-                                        IconButton(
-                                          icon: Icon(
-                                            Remix.camera_fill,
-                                            color: AppStyle.white,
-                                            size: 20.r,
-                                          ),
-                                          onPressed: () async {
+                                        // The change-photo affordance is a
+                                        // small badge on the avatar's
+                                        // corner. A dimming overlay with a
+                                        // centred camera covered the whole
+                                        // avatar, so the demo courier's
+                                        // initials read as a camera
+                                        // placeholder (tour 1114,
+                                        // 21-users_profile_settings).
+                                        PositionedDirectional(
+                                          end: -4.r,
+                                          bottom: -4.r,
+                                          child: Material(
+                                          color: AppStyle.primary,
+                                          shape: const CircleBorder(),
+                                          child: InkWell(
+                                          customBorder: const CircleBorder(),
+                                          onTap: () async {
                                             final XFile? pickedFile =
                                                 await ImagePicker().pickImage(
                                                   source: ImageSource.gallery,
@@ -200,6 +199,16 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                                                   );
                                             }
                                           },
+                                          child: Padding(
+                                            padding: EdgeInsets.all(4.r),
+                                            child: Icon(
+                                              Remix.camera_fill,
+                                              color: AppStyle.white,
+                                              size: 12.r,
+                                            ),
+                                          ),
+                                        ),
+                                        ),
                                         ),
                                       ],
                                     ),

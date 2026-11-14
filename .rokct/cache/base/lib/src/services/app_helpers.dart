@@ -729,6 +729,22 @@ abstract class AppHelpers {
   ///
   /// [isDarkMode] is accepted for existing callers and is not read: the
   /// brightness comes from the theme the sheet is shown in.
+  /// The tallest a modal sheet may be: [paddingTop] (scaled by `.r`) below
+  /// the top of the screen, never under the status bar. A sheet that would
+  /// stop within 96 logical pixels of the status bar runs right up to it
+  /// instead: the thin gap showed a faded strip of the page underneath -
+  /// its header ("Profile settings", "Products") peeking out under the
+  /// clock (tour 1114, driver 21-users_profile_settings, manager
+  /// 13-add_product). A sheet that stops well short of the top keeps its
+  /// gap.
+  static double _sheetMaxHeight(BuildContext context, double paddingTop) {
+    final double screenHeight = MediaQuery.sizeOf(context).height;
+    final double underStatusBar =
+        screenHeight - MediaQuery.paddingOf(context).top;
+    final double height = min(screenHeight - paddingTop.r, underStatusBar);
+    return underStatusBar - height < 96 ? underStatusBar : height;
+  }
+
   static void showCustomModalBottomSheet({
     required BuildContext context,
     required Widget modal,
@@ -754,16 +770,10 @@ abstract class AppHelpers {
       ),
       isScrollControlled: true,
       constraints: BoxConstraints(
-        // Never taller than the space under the status bar (plus a 16
-        // gap): paddingTop is scaled by .r, which shrinks below 1 on short
-        // phones, so a "status bar + 32" gap ended up under the status bar
-        // (tour 1113b, driver 21-users_profile_settings).
-        maxHeight: min(
-          MediaQuery.sizeOf(context).height - paddingTop.r,
-          MediaQuery.sizeOf(context).height -
-              MediaQuery.paddingOf(context).top -
-              16,
-        ),
+        // Never taller than the space under the status bar: paddingTop is
+        // scaled by .r, which shrinks below 1 on short phones (tour 1113b).
+        // See [_sheetMaxHeight] for the near-full-height rule.
+        maxHeight: _sheetMaxHeight(context, paddingTop),
         maxWidth: anchorEnd ? double.infinity : maxWidth,
       ),
       backgroundColor: AppStyle.transparent,
@@ -809,16 +819,10 @@ abstract class AppHelpers {
       ),
       isScrollControlled: true,
       constraints: BoxConstraints(
-        // Never taller than the space under the status bar (plus a 16
-        // gap): paddingTop is scaled by .r, which shrinks below 1 on short
-        // phones, so a "status bar + 32" gap ended up under the status bar
-        // (tour 1113b, driver 21-users_profile_settings).
-        maxHeight: min(
-          MediaQuery.sizeOf(context).height - paddingTop.r,
-          MediaQuery.sizeOf(context).height -
-              MediaQuery.paddingOf(context).top -
-              16,
-        ),
+        // Never taller than the space under the status bar: paddingTop is
+        // scaled by .r, which shrinks below 1 on short phones (tour 1113b).
+        // See [_sheetMaxHeight] for the near-full-height rule.
+        maxHeight: _sheetMaxHeight(context, paddingTop),
         maxWidth: anchorEnd ? double.infinity : maxWidth,
       ),
       backgroundColor: AppStyle.transparent,

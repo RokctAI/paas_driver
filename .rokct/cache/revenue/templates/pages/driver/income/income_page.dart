@@ -365,60 +365,102 @@ class _IncomePageState extends ConsumerState<IncomePage>
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            // The top gap keeps the last scrolled heading ("Statistics")
-            // from reading as cut off by the button (driver tour shot 14).
-            padding: REdgeInsets.only(left: 16, right: 16, top: 12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: CustomButton(
-                    title: AppHelpers.getTranslation(TrKeys.withdrawMoney),
-                    // Nothing to withdraw: a wallet at or below
-                    // zero. A driver's balance going NEGATIVE is
-                    // deliberate and normal (he keeps the cash he
-                    // collects and his ledger carries the debt),
-                    // so the control is simply inert and the line
-                    // under it says why, in plain words.
-                    background: _canWithdraw
-                        ? AppStyle.primary
-                        : AppStyle.strokeFor(Theme.of(context).brightness),
-                    textColor: _canWithdraw
-                        ? AppStyle.blackColor
-                        : AppStyle.faintFor(Theme.of(context).brightness),
-                    onPressed: _canWithdraw ? () => _openWithdraw() : () {},
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (!_canWithdraw) ...[
-            6.verticalSpace,
+          if (isWide)
             Padding(
-              padding: REdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                AppHelpers.getTranslation(TrKeys.insufficientBalance),
-                textAlign: TextAlign.center,
-                style: AppStyle.interRegular(
-                  size: 12,
-                  color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
+              // The top gap keeps the last scrolled heading ("Statistics")
+              // from reading as cut off by the button (driver tour shot 14).
+              padding: REdgeInsets.only(left: 16, right: 16, top: 12),
+              child: Row(
+                children: [
+                  Expanded(child: _withdrawButton(context)),
+                ],
+              ),
+            )
+          else ...[
+            if (!_canWithdraw)
+              Padding(
+                padding: REdgeInsets.only(top: 8),
+                child: _withdrawNote(context),
+              ),
+            // PHONE: Withdraw and the Back pill share ONE row (the
+            // delivery-time page's docked row). Stacked, the button and
+            // the full-width nav row took ~150 dp off the scroller, so its
+            // fold landed on the "Statistics" heading right above Withdraw
+            // (tour 1114, 18-revenue_income).
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: REdgeInsets.fromLTRB(16, 12, 16, 16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(child: _withdrawButton(context)),
+                    8.horizontalSpace,
+                    FloatingBackPill(
+                      back: FloatingNavBack(
+                        icon: Remix.arrow_left_wide_fill,
+                        label: AppHelpers.getTranslation(TrKeys.back),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ],
-          FloatingBottomNav(
-            mode: FloatingNavTabsMode(
-              tabs: const [],
-              currentIndex: 0,
-              onSelect: (_) {},
-              back: FloatingNavBack(
-                icon: Remix.arrow_left_wide_fill,
-                label: AppHelpers.getTranslation(TrKeys.back),
+          if (isWide && !_canWithdraw) ...[
+            6.verticalSpace,
+            _withdrawNote(context),
+          ],
+          if (isWide)
+            FloatingBottomNav(
+              mode: FloatingNavTabsMode(
+                tabs: const [],
+                currentIndex: 0,
+                onSelect: (_) {},
+                back: FloatingNavBack(
+                  icon: Remix.arrow_left_wide_fill,
+                  label: AppHelpers.getTranslation(TrKeys.back),
+                ),
               ),
             ),
-          ),
         ],
       ),
+    );
+  }
+
+  /// Why Withdraw is inert, in plain words (a wallet at or below zero).
+  Widget _withdrawNote(BuildContext context) {
+    return Padding(
+      padding: REdgeInsets.symmetric(horizontal: 16),
+      child: Text(
+        AppHelpers.getTranslation(TrKeys.insufficientBalance),
+        textAlign: TextAlign.center,
+        style: AppStyle.interRegular(
+          size: 12,
+          color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
+        ),
+      ),
+    );
+  }
+
+  /// The Withdraw action, the same on every width: inert (and greyed)
+  /// while the wallet holds nothing to withdraw.
+  Widget _withdrawButton(BuildContext context) {
+    return CustomButton(
+      title: AppHelpers.getTranslation(TrKeys.withdrawMoney),
+      // Nothing to withdraw: a wallet at or below
+      // zero. A driver's balance going NEGATIVE is
+      // deliberate and normal (he keeps the cash he
+      // collects and his ledger carries the debt),
+      // so the control is simply inert and the line
+      // under it says why, in plain words.
+      background: _canWithdraw
+          ? AppStyle.primary
+          : AppStyle.strokeFor(Theme.of(context).brightness),
+      textColor: _canWithdraw
+          ? AppStyle.blackColor
+          : AppStyle.faintFor(Theme.of(context).brightness),
+      onPressed: _canWithdraw ? () => _openWithdraw() : () {},
     );
   }
 

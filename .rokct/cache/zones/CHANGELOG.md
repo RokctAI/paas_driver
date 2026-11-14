@@ -1,3 +1,7 @@
+## 1.7.2
+
+- fix(tour): the driver_delivery_zone still waits for the map, as delivery_sdk 1.30.8 does for the driver home (zones#153). The delivery-zone page renders an empty widget keyed `driver_delivery_zone_map_ready` once GoogleMap's `onMapCreated` has fired and the map has gone idle on its first camera position; the zones fragment routes to /delivery-zone without a still, then polls for that key (up to 45s) and allows 4s more for tiles before the screenshot (tour 1114 captured grey, unloaded tiles). No visible change for the driver.
+
 ## 1.7.1
 
 - chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.

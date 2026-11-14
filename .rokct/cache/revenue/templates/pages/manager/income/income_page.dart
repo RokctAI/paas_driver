@@ -16,6 +16,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_nav_fold.dart';
 import 'package:get_it/get_it.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -164,26 +165,35 @@ class _IncomePageState extends ConsumerState<ManagerIncomePage> {
               final bool wide =
                   PlaneHost.planeCountFor(constraints.maxWidth) > 1;
               final bool navFolded = wide && selectedId != null;
+              final Widget workspace = RevenueWorkspace(
+                shopName: shopName,
+                onOrderHistory: () =>
+                    context.pushRoute(const ManagerOrderHistoryRoute()),
+                // Costs are set on products — land on the foods tab.
+                onSetCosts: () => _goTab(3),
+                onEditCost: (context, productId) =>
+                    _openEditCost(context, productId),
+                variantsFor: _variantsFor,
+              );
               return Stack(
                 children: [
                   // The workspace ENDS above the floating nav (60 tall,
                   // 8 off the edge, plus the frames' 12 gap) instead of
                   // running under it: the Revenue chart sat behind the
-                  // pill (tour 1113b).
+                  // pill (tour 1113b). Its foot fades out (base's shared
+                  // FloatingNavFold) so the chart is not sliced hard
+                  // against the pill at scroll rest (tour 1114,
+                  // 31-revenue_income).
                   Positioned(
                     left: 0,
                     right: 0,
                     top: 0,
                     bottom: navFolded ? 0 : 60.r + 8.h + 12.h,
-                    child: RevenueWorkspace(
-                      shopName: shopName,
-                      onOrderHistory: () =>
-                          context.pushRoute(const ManagerOrderHistoryRoute()),
-                      // Costs are set on products — land on the foods tab.
-                      onSetCosts: () => _goTab(3),
-                      onEditCost: (context, productId) =>
-                          _openEditCost(context, productId),
-                      variantsFor: _variantsFor,
+                    // Always the same wrapper (fade 0 while the nav is
+                    // folded away) so the workspace keeps its state.
+                    child: FloatingNavFold(
+                      fade: navFolded ? 0 : 48,
+                      child: workspace,
                     ),
                   ),
                   if (!navFolded)

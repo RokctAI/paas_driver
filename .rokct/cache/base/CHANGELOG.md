@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.111.0
+
+- feat(floating nav): `FloatingNavFold` (`components/floating_nav/floating_nav_fold.dart`, also exported from `floating_bottom_nav.dart`), the one shared fold above a floating nav pill. Scrolling content fades out over 48 logical px and is gone before it reaches the pill, so nothing is sliced against the pill at scroll rest and nothing shows through it. Used by `GenericProfilePage`'s phone list (the list runs to the foot of the page with the pill's room as bottom padding; tour 1114 20-users_profile) and by `PlaneHost` on a one-plane screen with the corner back pill (tour 1114 manager 11-quick_flow). Paint only.
+- fix(lists): `ListScreenHeader` never ellipsizes its title. The title shares its row only with the count pill and round actions (and scales down slightly if those crowd it); the hint moves to its own line under the row, up to 3 lines. The half-width rule of 1.109.1 still let the hint squeeze the title to "Sync is...", "Order hist...", "My dri...", "Notific..." (tour 1114, manager 10/17/26/30).
+- fix(sheets): `showCustomModalBottomSheet` and `showCustomModalBottomDragSheet` run a near-full-height sheet (one that would stop within 96 logical px of the status bar) right up to the status bar, so no faded strip of the page header shows above it (tour 1114, driver 21-users_profile_settings, manager 13-add_product).
+
+## 1.110.0
+
+- feat(floating nav): `FloatingNavTabsMode.notice` takes a `FloatingNavNotice` (message, optional action button, optional close cross) drawn as a compact strip on top of the tab pill, like the usage strip above a chat composer (Ray, 2026-11-14). Optional and null by default, so every existing host renders as before. First user: Supacharge's subscription due / grace notice (lms_sdk). Tests: `test/floating_nav_notice_test.dart`.
+
 ## 1.109.1
 
 - fix(layout): the generic profile list ends above the floating nav pill so rows ("Languages") no longer show through it; `showCustomModalBottomSheet` sheets never rise under the status bar (the `.r`-scaled top gap shrank on short phones); `ListScreenHeader` gives a long title its own line instead of truncating it ("Order hist...", "My dri...", "Notific...") (tour 1113b).

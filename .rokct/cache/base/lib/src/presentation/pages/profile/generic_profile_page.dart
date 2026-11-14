@@ -20,6 +20,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:base_sdk/src/presentation/components/floating_nav/floating_nav_fold.dart';
 import 'package:remixicon/remixicon.dart';
 
 import 'package:base_sdk/src/application/app_widget/app_provider.dart';
@@ -352,14 +353,19 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
                         header: header,
                         sections: sections,
                       )
-                    // The list ENDS above the floating nav pill rather
-                    // than scrolling under it: the pill is translucent,
-                    // so rows parked behind it ("Languages", tour 1113b
-                    // 20-users_profile) showed through.
-                    : Padding(
-                      padding: EdgeInsets.only(bottom: _navClearance),
+                    // The list runs to the foot of the page and FADES OUT
+                    // before the floating nav pill (FloatingNavFold): a
+                    // hard edge right above the pill read as the last row
+                    // sitting under the nav (tour 1114 20-users_profile),
+                    // and rows scrolled behind the translucent pill showed
+                    // through it (tour 1113b). The list's own bottom
+                    // padding lets the last row scroll clear of the pill.
+                    : FloatingNavFold(
+                      foot: _navClearance - 16.r,
                       child: ListView(
-                        padding: _listPadding,
+                        padding: _listPadding.copyWith(
+                          bottom: _listPadding.bottom + _navClearance,
+                        ),
                         children: [
                           topRow,
                           12.verticalSpace,

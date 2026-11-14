@@ -1,3 +1,8 @@
+## 1.14.11
+
+- fix(driver income): on a phone, Withdraw and the Back pill share one docked row (the Back pill is base's `FloatingBackPill`, the delivery-time page's docked-row pattern) instead of stacking the button over a full-width nav row. The stack took ~150 dp off the scroller, so its fold landed on the "Statistics" heading right above Withdraw (tour 1114, 18-revenue_income). The insufficient-balance line sits above the row. Tablet / wide windows keep the stacked bar unchanged (the landscape tests' layout).
+- fix(manager revenue): the workspace's foot fades out above the floating nav through base_sdk's shared `FloatingNavFold` (requires base_sdk >= 1.111.0), so the chart is no longer sliced hard against the pill at scroll rest (tour 1114, 31-revenue_income). Fade off while the drill-down folds the nav away.
+
 ## 1.14.10
 
 - fix(income): the driver income column fades out at the Withdraw bar instead of slicing "Statistics" in half; the manager Revenue workspace ends above the floating nav so its chart is not under the pill (tour 1113b).

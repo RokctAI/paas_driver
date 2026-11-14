@@ -16,16 +16,51 @@
 # the same fictional zone square the courier home map shows, so the editor
 # opens on a visible polygon.
 #
-# Map TILES need network in the capture emulator; the zone polygon and the
-# save/back controls render from demo data either way, and a grey tile
-# background is an acceptable still (same note as delivery_sdk's home step).
+# The step routes first (no still), then waits (up to 45s) for the page's
+# map-ready marker plus a short tile fill before the still - the same wait
+# delivery_sdk's driver_home step uses (zones#153). Tour 1114 captured this
+# page while the tiles were still grey. Map TILES need network in the
+# capture emulator; if they never come the wait times out and the still is
+# taken anyway.
 #
 # Format: RokctAI/shared-workflows scripts/tour/README.md
 sdk: zones
 steps:
+  - key: driver_delivery_zone_open
+    title: "Draw where you deliver"
+    action: route
+    route: /delivery-zone
+    screenshot: false
+    settle: 2
   - key: driver_delivery_zone
     title: "Draw where you deliver"
     caption: "Your delivery zone on the map - *redraw the outline* whenever your patch changes, and dispatch follows."
-    action: route
-    route: /delivery-zone
-    settle: 8
+    action: dart
+    screenshot: true
+    settle: 2
+    dart: |
+      // Up to 45s for the page's map-ready marker, polled every half
+      // second. DriverDeliveryZonePage renders an empty SizedBox keyed
+      // 'driver_delivery_zone_map_ready' once GoogleMap's onMapCreated has
+      // fired AND the map has gone idle on its first camera position.
+      // Matched by key string: no import needed.
+      final Finder mapReady = find
+          .byKey(const ValueKey<String>('driver_delivery_zone_map_ready'));
+      bool ready = false;
+      for (int i = 0; i < 90; i++) {
+        await tester.pump();
+        if (mapReady.evaluate().isNotEmpty) {
+          ready = true;
+          break;
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+      }
+      // Then 4s more for the tiles to download and fill the map area
+      // (first idle can land while tiles are still streaming in).
+      if (ready) {
+        for (int i = 0; i < 8; i++) {
+          await tester.pump();
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+        }
+      }
+      await tester.pump();
