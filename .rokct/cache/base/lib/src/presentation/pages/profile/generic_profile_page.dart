@@ -103,7 +103,13 @@ class GenericProfilePage extends ConsumerStatefulWidget {
 /// edge) so the last rows — the footer's app-name meta row on a long page —
 /// scroll clear of it instead of ending underneath (Ray, 2026-09-23).
 EdgeInsets get _pagePadding =>
-    EdgeInsets.fromLTRB(16.r, 16.r, 16.r, 16.r + 96.r);
+    EdgeInsets.fromLTRB(16.r, 16.r, 16.r, 16.r + _navClearance);
+
+/// The room the floating nav pill takes at the foot of the page.
+double get _navClearance => 96.r;
+
+/// The phone list's own padding; the pill's room sits outside it.
+EdgeInsets get _listPadding => EdgeInsets.all(16.r);
 
 class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
   /// Resolved async visibility gates, keyed by section id. A gated section
@@ -346,8 +352,14 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
                         header: header,
                         sections: sections,
                       )
-                    : ListView(
-                        padding: _pagePadding,
+                    // The list ENDS above the floating nav pill rather
+                    // than scrolling under it: the pill is translucent,
+                    // so rows parked behind it ("Languages", tour 1113b
+                    // 20-users_profile) showed through.
+                    : Padding(
+                      padding: EdgeInsets.only(bottom: _navClearance),
+                      child: ListView(
+                        padding: _listPadding,
                         children: [
                           topRow,
                           12.verticalSpace,
@@ -362,6 +374,7 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
                                 .map((section) => section.builder(context)),
                         ],
                       ),
+                    ),
               ),
       ),
     );

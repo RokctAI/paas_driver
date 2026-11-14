@@ -14,10 +14,10 @@
 # the role on /home): the app manifest signs in through auth_sdk's fragment
 # before running this one. Auth screens are auth_sdk's fragment, not ours.
 #
-# The home step captures the courier map. Map TILES need network in the
-# capture emulator; the surrounding UI (zone polygon, online toggle, current
-# delivery sheet) renders from demo data either way, and a grey tile
-# background is an acceptable still. Tab-switch steps drive the real tabs
+# The home step captures the courier map. It waits (up to 45s) for the
+# home's map-ready marker plus a short tile fill before the still. Map TILES
+# need network in the capture emulator; if they never come the wait times
+# out and the still is taken anyway. Tab-switch steps drive the real tabs
 # via AppHelpers.getTranslation(TrKeys.*) finders - the same strings the
 # tabs render - so they stay brand- and locale-neutral.
 #
@@ -27,12 +27,50 @@ imports:
   - "import 'package:base_sdk/src/services/app_helpers.dart';"
   - "import 'package:base_sdk/src/services/tr_keys.dart';"
 steps:
+  # Route first (no still), then wait for the map before the still: the
+  # 2026-11-14 tour captured the home before the map had drawn its tiles
+  # (the map mounts 800 ms after the page settles - DeferredMapSurface -
+  # and the native view then needs a few seconds to fetch tiles).
+  - key: driver_home_open
+    title: "Your day on the map"
+    action: route
+    route: /home
+    screenshot: false
+    settle: 2
   - key: driver_home
     title: "Your day on the map"
     caption: "Go *online* and drive - your zone, your current delivery and your next job all live on one map."
-    action: route
-    route: /home
-    settle: 10
+    action: dart
+    screenshot: true
+    settle: 2
+    dart: |
+      // Up to 45s for the home's map-ready marker, polled every half
+      // second. HomePage renders an empty SizedBox keyed
+      // 'driver_home_map_ready' once GoogleMap's onMapCreated has fired
+      // AND the map has gone idle on its first camera position
+      // (google_maps_flutter has no tiles-loaded callback; first idle is
+      // the closest signal). Matched by key string: no import needed.
+      final Finder mapReady =
+          find.byKey(const ValueKey<String>('driver_home_map_ready'));
+      bool ready = false;
+      for (int i = 0; i < 90; i++) {
+        await tester.pump();
+        if (mapReady.evaluate().isNotEmpty) {
+          ready = true;
+          break;
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+      }
+      // Then 4s more for the tiles to download and fill the map area
+      // (first idle can land while tiles are still streaming in). Skipped
+      // when the marker never came, so a map-less run costs 45s, not more.
+      if (ready) {
+        for (int i = 0; i < 8; i++) {
+          await tester.pump();
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+        }
+      }
+      await tester.pump();
   - key: driver_orders
     title: "Deliveries in hand"
     caption: "Every delivery you have accepted, with the customer, the total and the *cash to collect* up front."

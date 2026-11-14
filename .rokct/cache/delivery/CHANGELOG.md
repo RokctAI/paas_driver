@@ -1,3 +1,11 @@
+## 1.30.8
+
+- fix(tour): the driver_home still waits for the map. HomePage now renders an empty widget keyed `driver_home_map_ready` once GoogleMap's `onMapCreated` has fired and the map has gone idle on its first camera position; the delivery tour fragment routes to /home without a still, then polls for that key (up to 45s) and allows 4s more for tiles to fill before the screenshot. The route page has no map, so it needs no wait. Not run: tour runs only in CI; templates are not analyzable here.
+
+## 1.30.7
+
+- fix(driver): the home order sheet opens tall enough that its address and phone rows sit above the floating nav; the route list and its 4th stop end above the translucent pill instead of showing through it; the profile stat labels wrap to two lines ("Delivered orders"); Profile settings shows the person's avatar (photo or initials) instead of a placeholder; a demo Sell-from-load opens with one unit of the first line so the total and Confirm are live (tour 1113b).
+
 ## 1.30.6
 
 - fix(driver): online toggle follows the settings fetch (CustomToggle synced only in initState, so demo stayed Offline); rating chip no longer clipped; job/parcel sheets collapse above the root tab pill; route header sized under SafeArea and list clears the pill; parcel screens say Parcels.

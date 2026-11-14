@@ -28,9 +28,7 @@ import 'package:base_sdk/src/presentation/components/floating_nav/floating_botto
 import 'package:base_sdk/src/presentation/components/keyboard_dismisser.dart';
 import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/components/title_icon.dart';
-import 'package:base_sdk/src/constants/demo_currency.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
-import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 import 'package:orders_sdk/src/manager/application/order/create_order_provider.dart';
 import 'package:orders_sdk/src/manager/application/order/shipping/address/order/order_address_provider.dart';
@@ -114,34 +112,35 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                     ),
                   ),
                   Expanded(child: _cards(context, hosted: hosted)),
-                  if (hosted)
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
-                      child: _placeOrder(context),
-                    ),
+                  // Docked under the cards on EVERY width, never floated
+                  // over them: on the phone the floating row (Place order,
+                  // its offline note, the Back pill) sat on top of the
+                  // Total row (tour 1113b, 23-order_pos_delivery_time).
+                  // The scroller now ends where the row begins.
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
+                    child: hosted
+                        ? _placeOrder(context)
+                        // The phone route: Place order (699) at the START
+                        // with its offline line, the corner Back pill (347)
+                        // at the END.
+                        : Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Expanded(child: _placeOrder(context)),
+                              8.horizontalSpace,
+                              FloatingBackPill(
+                                back: FloatingNavBack(
+                                  icon: Remix.arrow_left_wide_fill,
+                                  label:
+                                      AppHelpers.getTranslation(TrKeys.back),
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
                 ],
               ),
-              // The phone route: Place order (699) at the START with its
-              // offline line, the corner Back pill (347) at the END.
-              if (!hosted)
-                PositionedDirectional(
-                  start: 16,
-                  end: 16,
-                  bottom: 16,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(child: _placeOrder(context)),
-                      8.horizontalSpace,
-                      FloatingBackPill(
-                        back: FloatingNavBack(
-                          icon: Remix.arrow_left_wide_fill,
-                          label: AppHelpers.getTranslation(TrKeys.back),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
             ],
           ),
         ),
@@ -157,11 +156,8 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
             padding: EdgeInsets.only(
               left: 16.w,
               right: 16.w,
-              // Room under the last card for the floating row on the
-              // phone route; the hosted pane docks the button below.
-              // Place order (48) + its two-line offline note + gaps sit
-              // over the foot; 140 clipped the Total row under them.
-              bottom: hosted ? 24.h : 200.h,
+              // The action row docks below the scroller on every width.
+              bottom: 24.h,
             ),
             child: Column(
               children: [
@@ -315,8 +311,11 @@ class _DeliveryTimePageState extends ConsumerState<DeliveryTimePage> {
                                   title:
                                       // The shop's currency (the stored one, or the demo's
                                       // rand), never a hard-coded dollar.
-                                      "${AppHelpers.getTranslation(TrKeys.payment)} - "
-                                      "${(LocalStorage.getSelectedCurrency() ?? DemoCurrency.fallback)?.symbol ?? ''}",
+                                      // The price breakdown, titled as one.
+                                      // "Payment - R" repeated the payment
+                                      // card above and dangled a currency
+                                      // symbol (tour 1113b).
+                                      AppHelpers.getTranslation(TrKeys.total),
                                 ),
                               ),
                               24.verticalSpace,

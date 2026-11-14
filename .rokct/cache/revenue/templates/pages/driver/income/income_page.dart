@@ -306,7 +306,25 @@ class _IncomePageState extends ConsumerState<IncomePage>
             child: Builder(
               builder: (context) => isWide
                   ? _wideBody(context, state)
-                  : SingleChildScrollView(
+                  // The fold fades out over its last 32 px instead of
+                  // slicing a heading in half: a hard clip at the
+                  // Withdraw bar's top edge left "Statistics" reading as
+                  // covered by the button (tour 1113b, 18-revenue_income).
+                  : ShaderMask(
+                    blendMode: BlendMode.dstIn,
+                    shaderCallback: (bounds) => LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: const [Colors.black, Colors.black, Colors.transparent],
+                      stops: [
+                        0,
+                        bounds.height <= 0
+                            ? 1
+                            : (1 - 32 / bounds.height).clamp(0.0, 1.0),
+                        1,
+                      ],
+                    ).createShader(bounds),
+                    child: SingleChildScrollView(
                       padding: EdgeInsets.only(
                         right: 16.w,
                         left: 16.w,
@@ -329,9 +347,12 @@ class _IncomePageState extends ConsumerState<IncomePage>
                           ..._transactions(context, state),
                           32.verticalSpace,
                           _chart(state),
+                          // Room for the last card to scroll past the fade.
+                          32.verticalSpace,
                         ],
                       ),
                     ),
+                  ),
             ),
           ),
         ],

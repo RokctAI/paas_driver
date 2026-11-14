@@ -35,6 +35,7 @@ import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/key_sound.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:merchants_sdk/src/manager/presentation/main/manager_nav_clearance.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_provider.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_cart_state.dart';
 import 'package:merchants_sdk/src/manager/application/pos_cart/pos_sale_finish.dart';
@@ -760,7 +761,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
         20.verticalSpace,
         // An empty ticket has nothing to finish: no finish buttons.
         if (state.lines.isNotEmpty) _finishButtons(context, state),
-        120.verticalSpace,
+        20.verticalSpace,
       ]);
     }
 
@@ -768,7 +769,19 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
       body: Stack(
         children: [
-          body,
+          // On the phone the scroller ENDS above the back pill rather than
+          // running under it: the summary's Total row sat behind the
+          // translucent pill at scroll rest (tour 1113b, checkout).
+          if (inPlanes)
+            body
+          else
+            Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.paddingOf(context).bottom +
+                    managerNavClearance(),
+              ),
+              child: body,
+            ),
           // The floating nav's back-only pill (FloatingNavBack, core#125 —
           // design strip section 12's one-back rule): the shared pill
           // housing carrying only the leading back segment, this screen's

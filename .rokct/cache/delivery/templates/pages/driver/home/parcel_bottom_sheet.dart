@@ -151,11 +151,23 @@ class ParcelBottomSheetScreen extends StatelessWidget {
                 sheetHeight)
             .clamp(0.16, 0.6)
             .toDouble();
+        // The sheet opens tall enough that the order's address and phone
+        // rows (about 300 logical px of header + rows) sit above the
+        // floating pill, not under it (tour 1113b, 05-driver_home).
+        final openSize = math.max(
+          minSize,
+          ((MediaQuery.paddingOf(context).bottom +
+                      driverRootNavClearance() +
+                      300.h) /
+                  sheetHeight)
+              .clamp(0.2, 0.65)
+              .toDouble(),
+        );
           return SizedBox(
             height: sheetHeight,
             width: double.infinity,
             child: DraggableScrollableSheet(
-              initialChildSize: math.max(0.2, minSize),
+              initialChildSize: openSize,
               maxChildSize: 0.65,
               minChildSize: minSize,
               snap: true,

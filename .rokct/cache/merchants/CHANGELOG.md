@@ -1,3 +1,7 @@
+## 1.38.3
+
+- fix(manager): the checkout's scroller ends above the Back pill so Total is not under it; a demo session with no parked records shows two sample sync issues instead of "No data" (tour 1113b).
+
 ## 1.38.2
 
 - fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").

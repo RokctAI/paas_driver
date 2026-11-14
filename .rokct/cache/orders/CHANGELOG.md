@@ -1,3 +1,7 @@
+## 1.31.9
+
+- fix(pos): Place order docks under its cards so Total is not covered by the button, offline note or Back pill, and the summary is titled "Total" instead of "Payment - R"; walk-in product rows follow the theme (no white rows or black image boxes on dark); the POS cart lists the cart's own lines when the calculation echoes none, and its subtotal ends above the Next | Back row (tour 1113b).
+
 ## 1.31.8
 
 - fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.109.1
+
+- fix(layout): the generic profile list ends above the floating nav pill so rows ("Languages") no longer show through it; `showCustomModalBottomSheet` sheets never rise under the status bar (the `.r`-scaled top gap shrank on short phones); `ListScreenHeader` gives a long title its own line instead of truncating it ("Order hist...", "My dri...", "Notific...") (tour 1113b).
+
 ## 1.109.0
 
 - feat(loading): shimmers instead of spinners (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps"). `Loading` (`components/loading.dart`) now draws a shimmer placeholder: one bar in a small box such as a button, three skeleton lines with room. `LoadingList`, `LoadingGrid` and `TabBarLoading` shimmer too. New `AppShimmer` wrapper (theme-aware colours), exported from `base_sdk.dart` with `Loading`. Constructors unchanged, so every app using `Loading()` gets the shimmer with no edit. Tour, demo data and guide unchanged: loading states do not appear in tours (renders capture after data loads).

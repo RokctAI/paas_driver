@@ -178,8 +178,17 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                     ),
                   ),
                 ),
+              // The list ENDS above the root tab pill instead of only
+              // padding its last item: the pill is translucent, so a card
+              // scrolled under it showed through (tour 1113b,
+              // 08-driver_route, stop 4).
               Expanded(
-                child: state.isLoading
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.paddingOf(context).bottom +
+                        driverRootNavClearance(),
+                  ),
+                  child: state.isLoading
                     ? const Loading()
                     : RefreshIndicator(
                         onRefresh: () =>
@@ -191,11 +200,7 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                                   left: 16.w,
                                   right: 16.w,
                                   top: 16.h,
-                                  // Clears the root tab pill so the last
-                                  // stop (stop 4 in the tour) is not under it.
-                                  bottom:
-                                      MediaQuery.paddingOf(context).bottom +
-                                      driverRootNavClearance(),
+                                  bottom: 16.h,
                                 ),
                                 physics: const AlwaysScrollableScrollPhysics(),
                                 itemCount: state.stops.length,
@@ -209,6 +214,7 @@ class _DriverRoutePageState extends ConsumerState<DriverRoutePage> {
                                 },
                               ),
                       ),
+                ),
               ),
             ],
           ),

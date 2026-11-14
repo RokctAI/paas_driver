@@ -324,38 +324,86 @@ class ListScreenHeader extends StatelessWidget {
     final Brightness brightness = Theme.of(context).brightness;
 
     final double sidePadding = compact ? 16 : 20;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(sidePadding, 14, sidePadding, 10),
-      child: Row(
-        children: [
-          Flexible(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppStyle.interBold(
-                size: compact ? 20 : 23,
-                color: AppStyle.inkFor(brightness),
-              ),
-            ),
-          ),
-          if (countPill != null) ...[const SizedBox(width: 10), countPill!],
-          const Spacer(),
-          if (hint != null)
-            Flexible(
-              child: Text(
-                hint!,
-                maxLines: 2,
-                textAlign: TextAlign.end,
-                overflow: TextOverflow.ellipsis,
-                style: AppStyle.interNormal(
-                  size: 11,
-                  color: AppStyle.faintFor(brightness),
+    final TextStyle titleStyle = AppStyle.interBold(
+      size: compact ? 20 : 23,
+      color: AppStyle.inkFor(brightness),
+    );
+    final bool hasTrailing =
+        countPill != null || hint != null || actions.isNotEmpty;
+    Widget titleText({bool scaleDown = false}) {
+      final text = Text(
+        title,
+        maxLines: 1,
+        overflow: scaleDown ? TextOverflow.visible : TextOverflow.ellipsis,
+        style: titleStyle,
+      );
+      return scaleDown
+          ? FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: text,
+            )
+          : text;
+    }
+
+    Widget trailingRow({required bool withTitle}) => Row(
+          children: [
+            if (withTitle) Flexible(child: titleText()),
+            if (countPill != null) ...[
+              if (withTitle) const SizedBox(width: 10),
+              countPill!,
+            ],
+            const Spacer(),
+            if (hint != null)
+              Flexible(
+                child: Text(
+                  hint!,
+                  maxLines: 2,
+                  textAlign: TextAlign.end,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppStyle.interNormal(
+                    size: 11,
+                    color: AppStyle.faintFor(brightness),
+                  ),
                 ),
               ),
-            ),
-          for (final action in actions) ...[const SizedBox(width: 8), action],
-        ],
+            for (final action in actions) ...[const SizedBox(width: 8), action],
+          ],
+        );
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(sidePadding, 14, sidePadding, 10),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (!hasTrailing || !constraints.hasBoundedWidth) {
+            return hasTrailing
+                ? trailingRow(withTitle: true)
+                : titleText(scaleDown: true);
+          }
+          // TITLE FIRST. The title is the screen's name and must read in
+          // full; the pill, hint and actions sharing its row squeezed it
+          // to "Order hist...", "Notific..." (tour 1113b). When the title
+          // would take more than half the row, it gets a line of its own
+          // and the rest sits on the line under it.
+          final painter = TextPainter(
+            text: TextSpan(text: title, style: titleStyle),
+            maxLines: 1,
+            textDirection: Directionality.of(context),
+            textScaler: MediaQuery.textScalerOf(context),
+          )..layout();
+          final bool fitsBeside = painter.width <= constraints.maxWidth / 2;
+          painter.dispose();
+          if (fitsBeside) return trailingRow(withTitle: true);
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              titleText(scaleDown: true),
+              const SizedBox(height: 8),
+              trailingRow(withTitle: false),
+            ],
+          );
+        },
       ),
     );
   }

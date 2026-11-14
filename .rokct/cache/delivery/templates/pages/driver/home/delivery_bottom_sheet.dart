@@ -226,13 +226,25 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                 sheetHeight)
             .clamp(0.16, 0.6)
             .toDouble();
+        // The sheet opens tall enough that the order's address and phone
+        // rows (about 300 logical px of header + rows) sit above the
+        // floating pill, not under it (tour 1113b, 05-driver_home).
+        final openSize = math.max(
+          minSize,
+          ((MediaQuery.paddingOf(context).bottom +
+                      driverRootNavClearance() +
+                      300.h) /
+                  sheetHeight)
+              .clamp(0.5, 1.0)
+              .toDouble(),
+        );
         return SizedBox(
           height: sheetHeight,
           width: double.infinity,
           child: DraggableScrollableSheet(
               // Opens at half the full height (maxChildSize), so the order's
               // header and actions clear the floating nav pill underneath.
-              initialChildSize: math.max(0.5, minSize),
+              initialChildSize: openSize,
               maxChildSize: 1,
               minChildSize: minSize,
               snap: true,

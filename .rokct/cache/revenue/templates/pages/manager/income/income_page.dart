@@ -166,7 +166,15 @@ class _IncomePageState extends ConsumerState<ManagerIncomePage> {
               final bool navFolded = wide && selectedId != null;
               return Stack(
                 children: [
-                  Positioned.fill(
+                  // The workspace ENDS above the floating nav (60 tall,
+                  // 8 off the edge, plus the frames' 12 gap) instead of
+                  // running under it: the Revenue chart sat behind the
+                  // pill (tour 1113b).
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    bottom: navFolded ? 0 : 60.r + 8.h + 12.h,
                     child: RevenueWorkspace(
                       shopName: shopName,
                       onOrderHistory: () =>

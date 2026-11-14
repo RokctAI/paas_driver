@@ -275,7 +275,10 @@ class _Stat extends StatelessWidget {
               size: 12.sp,
               color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
             ),
-            maxLines: 1,
+            // Two lines: a third of the card is too narrow for
+            // "Delivered orders" on one line, which read "Delivered or..."
+            // (tour 1113b, 20-users_profile).
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           2.verticalSpace,

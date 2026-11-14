@@ -101,9 +101,18 @@ class _OrderPaneState extends ConsumerState<OrderPane> {
     final paymentNotifier = ref.read(orderPaymentProvider.notifier);
     final productsEvent = ref.read(orderProductsProvider.notifier);
     final calculate = paymentState.orderCalculate;
-    final int itemCount = (calculate?.stocks ?? const <Stock>[]).fold<int>(
+    // The rows the pane lists: the calculation's echo of the cart when it
+    // carries one, else the cart's own stocks. A calculation that answers
+    // with a price but no stocks (the demo fixture does) left the pane
+    // empty above "Subtotal · 0 items  R150.00" (tour 1113b,
+    // 19-order_pos_cart).
+    final List<Stock> calculated = calculate?.stocks ?? const <Stock>[];
+    final bool echoed = calculated.isNotEmpty;
+    final List<Stock> rows = echoed ? calculated : state.stocks;
+    final int itemCount = rows.fold<int>(
       0,
-      (sum, stock) => sum + (stock.quantity ?? 0),
+      (sum, stock) =>
+          sum + ((echoed ? stock.quantity : stock.cartCount) ?? 1).toInt(),
     );
     return Column(
       children: [
@@ -142,12 +151,12 @@ class _OrderPaneState extends ConsumerState<OrderPane> {
                       bottom: MediaQuery.paddingOf(context).bottom + 68,
                     ),
                     shrinkWrap: true,
-                    itemCount: calculate?.stocks?.length ?? 0,
+                    itemCount: rows.length,
                     physics: const BouncingScrollPhysics(),
                     itemBuilder: (context, index) => FoodStockItem(
-                      product: calculate?.stocks?[index],
+                      product: rows[index],
                       onDelete: () => event.deleteStockFromCart(
-                        stock: calculate?.stocks?[index] ?? Stock(),
+                        stock: rows[index],
                         updateProducts: (stocks) =>
                             productsEvent.updateProducts(cartStocks: stocks),
                       ),

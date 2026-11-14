@@ -23,6 +23,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
 
 import 'package:base_sdk/src/presentation/components/loading.dart';
+import 'package:base_sdk/src/presentation/components/user_avatar.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_section_navigator.dart';
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:${package}/presentation/pages/profile/edit_car.dart';
@@ -133,16 +134,29 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                                     child: Stack(
                                       alignment: Alignment.center,
                                       children: [
-                                        ShopAvatar(
-                                          radius: 16,
-                                          imageUrl: imageState.imageUrl,
-                                          path: imageState.path,
-                                          size: 50,
-                                          padding: 6,
-                                          bgColor: AppStyle.black.withOpacity(
-                                            0.27,
+                                        // A freshly picked file shows as
+                                        // picked; otherwise the person's
+                                        // own avatar (photo, else
+                                        // initials) - the one the profile
+                                        // header draws - not ShopAvatar's
+                                        // image placeholder, which is all
+                                        // a demo data: URI produced (tour
+                                        // 1113b, 21-users_profile_settings).
+                                        if ((imageState.path ?? '').isNotEmpty)
+                                          ShopAvatar(
+                                            radius: 16,
+                                            imageUrl: imageState.imageUrl,
+                                            path: imageState.path,
+                                            size: 50,
+                                            padding: 6,
+                                            bgColor: AppStyle.black
+                                                .withOpacity(0.27),
+                                          )
+                                        else
+                                          UserAvatar(
+                                            user: state.userData,
+                                            size: 50.r,
                                           ),
-                                        ),
                                         Container(
                                           width: 50.r,
                                           height: 50.r,

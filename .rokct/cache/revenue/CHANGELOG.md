@@ -1,3 +1,7 @@
+## 1.14.10
+
+- fix(income): the driver income column fades out at the Withdraw bar instead of slicing "Statistics" in half; the manager Revenue workspace ends above the floating nav so its chart is not under the pill (tour 1113b).
+
 ## 1.14.9
 
 - fix(driver income): header reads "Your earnings" (driver tr_key `yourEarnings`, English fallback in the template) instead of "Earnings of the restaurant"; a top gap above Withdraw so "Statistics" no longer reads as cut off.

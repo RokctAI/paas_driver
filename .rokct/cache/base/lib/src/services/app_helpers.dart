@@ -754,7 +754,16 @@ abstract class AppHelpers {
       ),
       isScrollControlled: true,
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.sizeOf(context).height - paddingTop.r,
+        // Never taller than the space under the status bar (plus a 16
+        // gap): paddingTop is scaled by .r, which shrinks below 1 on short
+        // phones, so a "status bar + 32" gap ended up under the status bar
+        // (tour 1113b, driver 21-users_profile_settings).
+        maxHeight: min(
+          MediaQuery.sizeOf(context).height - paddingTop.r,
+          MediaQuery.sizeOf(context).height -
+              MediaQuery.paddingOf(context).top -
+              16,
+        ),
         maxWidth: anchorEnd ? double.infinity : maxWidth,
       ),
       backgroundColor: AppStyle.transparent,
@@ -800,7 +809,16 @@ abstract class AppHelpers {
       ),
       isScrollControlled: true,
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.sizeOf(context).height - paddingTop.r,
+        // Never taller than the space under the status bar (plus a 16
+        // gap): paddingTop is scaled by .r, which shrinks below 1 on short
+        // phones, so a "status bar + 32" gap ended up under the status bar
+        // (tour 1113b, driver 21-users_profile_settings).
+        maxHeight: min(
+          MediaQuery.sizeOf(context).height - paddingTop.r,
+          MediaQuery.sizeOf(context).height -
+              MediaQuery.paddingOf(context).top -
+              16,
+        ),
         maxWidth: anchorEnd ? double.infinity : maxWidth,
       ),
       backgroundColor: AppStyle.transparent,
