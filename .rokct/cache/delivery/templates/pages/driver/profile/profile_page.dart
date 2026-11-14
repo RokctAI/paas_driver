@@ -142,11 +142,21 @@ void _openProfileSettings(BuildContext context) {
   // the seam answers false on a phone, so the sheet opens as before.
   if (ProfileSectionNavigator.openEditProfile(context)) return;
   // EditProfileModal's root is already DriverSheetSurface, so no second surface.
+  // The form is shorter than the sheet cap, so a content-sized sheet left a
+  // gap that showed the profile menu behind it (a faded 'Profile settings'
+  // row above the title). Fill the capped height; the parent's max still
+  // wins when the sheet is shorter, so this never overflows.
+  final double top = MediaQuery.paddingOf(context).top + 32.h;
   DriverSheet.show(
     context,
-    modal: const EditProfileModal(),
+    modal: ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: MediaQuery.sizeOf(context).height - top,
+      ),
+      child: const EditProfileModal(),
+    ),
     surface: false,
-    paddingTop: MediaQuery.paddingOf(context).top + 32.h,
+    paddingTop: top,
   );
 }
 

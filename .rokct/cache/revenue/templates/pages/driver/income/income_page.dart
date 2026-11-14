@@ -333,8 +333,14 @@ class _IncomePageState extends ConsumerState<IncomePage>
                         // the Scaffold reserves the bottom slot (it strips the
                         // body's bottom padding when a bottomNavigationBar is
                         // set) and only ever carries the slot's height if the
-                        // body is made to run under the bar again.
-                        bottom: MediaQuery.paddingOf(context).bottom + 12.h,
+                        // body is made to run under the bar again. The extra
+                        // 72.h is scroll room: the last block (the Statistics
+                        // tiles and the chart) can scroll fully clear of the
+                        // docked Withdraw / Back row and its fade instead of
+                        // ending under it (tour 1114c, 18-revenue_income).
+                        bottom: MediaQuery.paddingOf(context).bottom +
+                            12.h +
+                            72.h,
                       ),
                       child: Column(
                         children: [

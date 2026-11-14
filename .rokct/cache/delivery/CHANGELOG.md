@@ -1,3 +1,7 @@
+## 1.31.2
+
+- fix(driver profile settings): the edit-profile sheet fills its capped height instead of sizing to the form, so the profile menu no longer shows through above it as a faded 'Profile settings' row (tour 1114c, 21-users_profile_settings).
+
 ## 1.31.1
 
 - fix(driver home): the active-job sheet's rows fade out above the root tab pill (base_sdk `FloatingNavFold`) instead of the delivery note sitting under it; the customer name keeps one line (it wrapped as "Than / di") with the phone scaling down beside it, and the delivery address wraps to 2 lines instead of being cut (tour 1114b, 05-driver_home). The "Restauran home" label is fixed by base_sdk 1.111.1's bundled English copy for `restauran_home`.

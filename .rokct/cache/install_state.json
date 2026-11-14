@@ -321,7 +321,7 @@
       ]
     },
     "delivery_sdk": {
-      "version": "1.31.1",
+      "version": "1.31.2",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "11db8e698632a6cee50e92a83fef8a494c4b55cf316bbaf6398f652460cb8dea",
         "lib/presentation/routes/delivery_adapters.dart": "cd22c591ae3179bcc44d95cead4ac89abddfecdc6217a8c316037890e13ecddc",
@@ -342,7 +342,7 @@
         "lib/presentation/pages/parcel/parcels_page.dart": "d9a546800f7dddc3696a1da4cd7dab889a0b7789e46a7d45c3da0679efa4b990",
         "lib/presentation/pages/parcels_history/parcel_history.dart": "7aac4f9469fdbbccbb9832e67312e0bcc7572a88c5dbe2598773ca1fc5c6f758",
         "lib/presentation/pages/push_order/push_order_screen.dart": "5c66d301cf766b26ea27b4ecf13f88026b77989d2157ccd5599e12ae6eb8e8f2",
-        "lib/presentation/pages/profile/profile_page.dart": "d477fbbecc47925f266a227b07f07278a7334c2af14e3ba7209494fb5e29e50c",
+        "lib/presentation/pages/profile/profile_page.dart": "5a5ca5064e0a82e48bcaa4ab7aaa766263fb5a9a2f7be3705c0e11907bc95a04",
         "lib/presentation/pages/profile/edit_car.dart": "7102b10bb4db3453cd6e420c6a5cffb9c6d1f11242ef7d80f8d97667ef7ab0b0",
         "lib/presentation/pages/profile/widgets/cancel_dialog.dart": "07780d5e61c179d24a5c4694412f61d052bccf20eaf5c946b0cbf85be1b09ed0",
         "lib/presentation/pages/profile/widgets/edit_profile_modal.dart": "db172ad52c03468abb6ad89099ba70b3567c1c2c5f9e430cb370b99e3f9e8185",
@@ -947,10 +947,10 @@
       ]
     },
     "revenue_sdk": {
-      "version": "1.14.12",
+      "version": "1.14.13",
       "files": {
         "lib/presentation/pages/income/statistics_screen.dart": "b385595295baa359fdd50076b5f8c4823d4e64e3e50c09adfaa885ba57d8a9f2",
-        "lib/presentation/pages/income/income_page.dart": "66540ab8bf869109d304cfc76c960864e358c3f0e2c237adb9f688f3ace3ee36",
+        "lib/presentation/pages/income/income_page.dart": "59b0aa2e356ce798978f7ba20e9610dfcc611f557ea53c7a91a17b7f8804daef",
         "lib/presentation/pages/income/app_bar_screen.dart": "5446fcc437edb185dc11ce6aac8d22e328585683ed9452378b14d0a61d9ca888",
         "lib/presentation/pages/income/widgets/statistics_item.dart": "b43a9adb482a8bd0751b9b97b04051fec9fa48f1a958dccc294d6402dba0caf5",
         "lib/presentation/pages/income/widgets/income_item.dart": "6d6db6f0ac4ba18846fae7fad6bc23b385eaff79a682a5568bd127e1ce6be7de",
@@ -1447,8 +1447,8 @@
       "source_hash": "f11b51c19fabbd2d"
     },
     "delivery": {
-      "version": "1.31.1",
-      "source_hash": "3901e23f79051eeb"
+      "version": "1.31.2",
+      "source_hash": "dc34a36999791772"
     },
     "map": {
       "version": "1.5.2",
@@ -1471,8 +1471,8 @@
       "source_hash": "42eb71115dcd4610"
     },
     "revenue": {
-      "version": "1.14.12",
-      "source_hash": "c36dcc9e564b0fee"
+      "version": "1.14.13",
+      "source_hash": "411d1109fdd7dea1"
     },
     "weather": {
       "version": "1.6.3",

@@ -1,3 +1,7 @@
+## 1.14.13
+
+- fix(driver income): the phone scroller keeps 72 dp more room at its foot, so the Statistics tiles and the chart scroll fully clear of the docked Withdraw money / Back row instead of ending under it (tour 1114c, 18-revenue_income).
+
 ## 1.14.12
 
 - fix(product profit): the margin cell scales down instead of cutting ("R69.44 · %"), and "Edit cost price" keeps room below it for the floating Back pill on a tablet pane (tour 1114b manager 32-revenue_product_profit).
