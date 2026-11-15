@@ -911,7 +911,7 @@ packages:
     source: hosted
     version: "4.0.1"
   flutter_remix:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_remix
       sha256: c098f0a0268b06bf4948080d66ca3410aee11441b40fc761522222a9523e3047
