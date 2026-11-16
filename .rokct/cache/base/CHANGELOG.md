@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.111.2
+
+- fix(android): the template MainActivity registers engine bridges (`register(FlutterEngine, Activity)`) by reflection, starting with launch_sdk's `LauncherVerseWidgetBridge`, and proguard keeps it. It was never registered in a composed launcher and R8 removed it, so the Bible widget and its prompt never appeared (release APK v1.2.23 has no such class). Unverified: not compiled here.
+
 ## 1.111.1
 
 - fix(copy): bundled English for `restauran_home` ("Shop to customer"); the humanized key read "Restauran home" on the driver's active-job sheet (tour 1114b, driver 05-driver_home).

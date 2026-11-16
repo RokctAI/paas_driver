@@ -25,6 +25,36 @@ class MainActivity: FlutterFragmentActivity() {
         // base_sdk's template and must still compile in an app composed
         // without them.
         registerOptionalBridges(messenger)
+        registerOptionalEngineBridges(flutterEngine)
+    }
+
+    /**
+     * Same as [registerOptionalBridges], for bridges that need the engine
+     * itself (a platform view factory registers on the engine, not the
+     * messenger): each exposes `register(FlutterEngine, Activity)`.
+     */
+    private fun registerOptionalEngineBridges(engine: FlutterEngine) {
+        val packageName = javaClass.`package`?.name ?: return
+        for (bridgeName in OPTIONAL_ENGINE_BRIDGES) {
+            try {
+                val bridge = Class.forName("$packageName.$bridgeName")
+                val register = bridge.getMethod(
+                    "register",
+                    FlutterEngine::class.java,
+                    Activity::class.java,
+                )
+                val receiver = if (Modifier.isStatic(register.modifiers)) {
+                    null
+                } else {
+                    bridge.getField("INSTANCE").get(null)
+                }
+                register.invoke(receiver, engine, this)
+            } catch (e: ClassNotFoundException) {
+                // App composed without the SDK that ships this bridge.
+            } catch (e: ReflectiveOperationException) {
+                Log.e(TAG, "Optional bridge $bridgeName could not be registered", e)
+            }
+        }
     }
 
     /**
@@ -88,5 +118,15 @@ class MainActivity: FlutterFragmentActivity() {
          *   launcher is told when its app list changes instead of asking.
          */
         private val OPTIONAL_BRIDGES = listOf("DefaultHomeBridge", "AppChangesBridge")
+
+        /**
+         * Bridges registered with `register(FlutterEngine, Activity)`.
+         *
+         * - LauncherVerseWidgetBridge (launch_sdk): hosts the Bible app's
+         *   verse widget on the launcher home. Missing from this list, it was
+         *   never registered and R8 removed it, so the launcher home never
+         *   showed the widget or its prompt (Ray, 2026-11-15).
+         */
+        private val OPTIONAL_ENGINE_BRIDGES = listOf("LauncherVerseWidgetBridge")
     }
 }
