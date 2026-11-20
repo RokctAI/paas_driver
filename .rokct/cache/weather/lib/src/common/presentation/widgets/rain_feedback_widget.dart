@@ -12,6 +12,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:weather_sdk/src/common/weather_tr_keys.dart';
+import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:remixicon/remixicon.dart';
@@ -144,16 +147,16 @@ class _RainFeedbackWidgetState extends State<RainFeedbackWidget> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Update Rain Feedback'),
-        content: const Text('Did it rain after your previous "No" response?'),
+        title: Text(AppHelpers.getTranslation(WeatherTrKeys.weatherUpdateRainFeedback)),
+        content: Text(AppHelpers.getTranslation(WeatherTrKeys.weatherDidItRainAfterYourPreviousNo)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('No'),
+            child: Text(AppHelpers.getTranslation(WeatherTrKeys.weatherNo)),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Yes'),
+            child: Text(AppHelpers.getTranslation(TrKeys.yes)),
           ),
         ],
       ),

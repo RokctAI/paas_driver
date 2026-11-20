@@ -30,6 +30,9 @@ class TrKeys {
   static const String noJobRightNow = 'no.job.right.now';
   static const String pickUp = 'pick.up';
   static const String drop = 'drop';
+  static const String deliveryUser = 'delivery_user';
+  static const String deliveryOnlineWaitingForOrders = 'delivery_online_waiting_for_orders';
+  static const String deliveryNavigate = 'delivery_navigate';
   static const String canceled = 'canceled';
   static const String codConfirmed = 'cod.confirmed';
   static const String confirmPasswordDoesntMatchWithNewPassword = 'confirm_password_doesnt_matches_with_new_password';
@@ -42,10 +45,24 @@ class TrKeys {
   static const String openOrders = 'open_orders';
   static const String manager = 'manager';
   static const String paymentCancelled = 'payment_cancelled';
+  static const String ordersInsufficientWalletBalance = 'orders_insufficient_wallet_balance';
+  static const String ordersTopUpCreate = 'orders_top_up_create';
+  static const String ordersTrackOrder = 'orders_track_order';
+  static const String ordersCallDriver = 'orders_call_driver';
+  static const String ordersOrderPlaced = 'orders_order_placed';
+  static const String ordersPreparingYourOrder = 'orders_preparing_your_order';
+  static const String ordersArrivingNow = 'orders_arriving_now';
+  static const String ordersOnTheWay = 'orders_on_the_way';
+  static const String ordersRateOrder = 'orders_rate_order';
+  static const String ordersOrderCancelled = 'orders_order_cancelled';
+  static const String ordersGetHelp = 'orders_get_help';
   static const String deliverymanTransactions = 'deliveryman_transactions';
   static const String doneOrders = 'Done orders';
   static const String yourEarnings = 'your_earnings';
   static const String asOf = 'as.of';
+  static const String weatherUpdateRainFeedback = 'weather_update_rain_feedback';
+  static const String weatherDidItRainAfterYourPreviousNo = 'weather_did_it_rain_after_your_previous_no';
+  static const String weatherNo = 'weather_no';
   static const String drawing = 'drawing';
   static const String points = 'points';
   static const String pointsPlaced = 'points.placed';
@@ -1312,4 +1329,9 @@ class TrKeys {
   static const String schoolReportMarks = 'school_report_marks';
   static const String enterTheLatestMarksFromTheSchoolReport = 'enter_the_latest_marks_from_the_school_report';
   static const String admissionPointScore = 'admission_point_score';
+
+  // Hardcoded UI copy moved to trkeys (Ray, 2026-11-20).
+  static const String checkConnectionAndTryAgain = 'check_connection_and_try_again';
+  static const String continueOffline = 'continue_offline';
+  static const String skipGuide = 'skip_guide';
 }

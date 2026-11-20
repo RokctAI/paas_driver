@@ -22,4 +22,16 @@
 /// shipping step.
 const Map<String, String> kOrdersEnTranslations = {
   'spproximate_preparation_time: ': 'Approximate preparation time: ',
+  // Hardcoded UI copy moved to trkeys (Ray, 2026-11-20).
+  'orders_insufficient_wallet_balance': 'Insufficient Wallet Balance',
+  'orders_top_up_create': 'Top Up & Create',
+  'orders_track_order': 'Track order',
+  'orders_call_driver': 'Call driver',
+  'orders_order_placed': 'Order placed',
+  'orders_preparing_your_order': 'Preparing your order',
+  'orders_arriving_now': 'Arriving now',
+  'orders_on_the_way': 'On the way',
+  'orders_rate_order': 'Rate order',
+  'orders_order_cancelled': 'Order cancelled',
+  'orders_get_help': 'Get help',
 };

@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:orders_sdk/src/common/orders_tr_keys.dart';
 import 'dart:math' as math;
 
 import 'package:base_sdk/base_sdk.dart'
@@ -110,12 +111,12 @@ class OrderLiveActivity {
     final callDriver = (order.deliveryMan?.phone ?? '').isNotEmpty;
     final track = LiveActivityAction(
       id: 'track_order',
-      label: 'Track order',
+      label: AppHelpers.getTranslation(OrdersTrKeys.ordersTrackOrder),
       deepLink: '/order_progress?orderId=$id',
     );
     final call = LiveActivityAction(
       id: 'call_driver',
-      label: 'Call driver',
+      label: AppHelpers.getTranslation(OrdersTrKeys.ordersCallDriver),
       deepLink: 'tel:${order.deliveryMan?.phone ?? ''}',
     );
 
@@ -149,15 +150,15 @@ class OrderLiveActivity {
     switch (status) {
       case OrderStatus.open:
         return snap(
-          title: 'Order placed',
+          title: AppHelpers.getTranslation(OrdersTrKeys.ordersOrderPlaced),
           subtitle: shop.isEmpty ? 'Waiting to be accepted' : 'Waiting for $shop to accept',
           progress: 0.04,
         );
       case OrderStatus.accepted:
-        return snap(title: 'Preparing your order', subtitle: shop, progress: 0.3);
+        return snap(title: AppHelpers.getTranslation(OrdersTrKeys.ordersPreparingYourOrder), subtitle: shop, progress: 0.3);
       case OrderStatus.ready:
         return snap(
-          title: 'Preparing your order',
+          title: AppHelpers.getTranslation(OrdersTrKeys.ordersPreparingYourOrder),
           subtitle: shop.isEmpty ? 'Ready for pickup' : '$shop · ready for pickup',
           progress: 0.38,
         );
@@ -184,7 +185,7 @@ class OrderLiveActivity {
         if (left <= arrivingMeters) {
           _lastProgress = 0.95;
           return snap(
-            title: 'Arriving now',
+            title: AppHelpers.getTranslation(OrdersTrKeys.ordersArrivingNow),
             subtitle: driver.isEmpty ? 'Meet your driver' : 'Meet $driver',
             progress: 0.95,
             state: LiveActivityState.ending,
@@ -197,7 +198,7 @@ class OrderLiveActivity {
         final p = double.parse((0.6 + 0.2 * done).toStringAsFixed(3));
         _lastProgress = p;
         return snap(
-          title: 'On the way',
+          title: AppHelpers.getTranslation(OrdersTrKeys.ordersOnTheWay),
           subtitle: driver.isEmpty ? _km(left) : '$driver · ${_km(left)}',
           progress: p,
           withCall: true,
@@ -212,21 +213,21 @@ class OrderLiveActivity {
           actions: [
             LiveActivityAction(
               id: 'rate_order',
-              label: 'Rate order',
+              label: AppHelpers.getTranslation(OrdersTrKeys.ordersRateOrder),
               deepLink: '/order_progress?orderId=$id',
             ),
           ],
         );
       case OrderStatus.canceled:
         return snap(
-          title: 'Order cancelled',
+          title: AppHelpers.getTranslation(OrdersTrKeys.ordersOrderCancelled),
           subtitle: shop.isEmpty ? 'Tap for help' : '$shop cancelled the order',
           progress: _lastProgress ?? 0.3,
           state: LiveActivityState.error,
           actions: [
             LiveActivityAction(
               id: 'get_help',
-              label: 'Get help',
+              label: AppHelpers.getTranslation(OrdersTrKeys.ordersGetHelp),
               deepLink: '/order_progress?orderId=$id',
             ),
           ],

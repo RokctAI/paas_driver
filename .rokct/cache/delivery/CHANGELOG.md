@@ -1,3 +1,7 @@
+## 1.32.0
+
+- feat(i18n): hardcoded UI copy goes through trkeys (Ray, 2026-11-20): 3 new `delivery_*` tr_keys with bundled English and Afrikaans copy.
+
 ## 1.31.2
 
 - fix(driver profile settings): the edit-profile sheet fills its capped height instead of sizing to the form, so the profile menu no longer shows through above it as a faded 'Profile settings' row (tour 1114c, 21-users_profile_settings).

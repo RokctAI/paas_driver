@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:base_sdk/src/services/app_helpers.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -285,12 +287,12 @@ class _CoachMarkState extends State<_CoachMark> {
                               style: TextButton.styleFrom(
                                   foregroundColor: AppStyle.primary),
                               onPressed: onSkipAll,
-                              child: const Text('Skip guide')),
+                              child: Text(AppHelpers.getTranslation(TrKeys.skipGuide))),
                           const SizedBox(width: 8),
                           FilledButton(
                               style: FilledButton.styleFrom(
                                   backgroundColor: AppStyle.primary),
-                              onPressed: onGotIt, child: const Text('Got it')),
+                              onPressed: onGotIt, child: Text(AppHelpers.getTranslation(TrKeys.gotIt))),
                         ],
                       ),
                     ],

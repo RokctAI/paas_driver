@@ -1,3 +1,7 @@
+## 1.7.0
+
+- feat(i18n): hardcoded UI copy goes through trkeys (Ray, 2026-11-20): 3 new `weather_*` tr_keys with bundled English and Afrikaans copy.
+
 ## 1.6.3
 
 - fix(loading): page-level spinners replaced by the base_sdk shimmer `Loading()` (Ray, 2026-11-13: "Remove spinners where you can and use shimmers in the apps").

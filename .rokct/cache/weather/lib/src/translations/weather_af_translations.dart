@@ -22,4 +22,8 @@
 // change. Locale 'af' is left-to-right.
 const Map<String, String> kWeatherAfTranslations = {
   'as.of': 'soos op',
+  // Hardcoded UI copy moved to trkeys (Ray, 2026-11-20).
+  'weather_update_rain_feedback': 'Werk reënterugvoer by',
+  'weather_did_it_rain_after_your_previous_no': 'Het dit gereën ná jou vorige "Nee"-antwoord?',
+  'weather_no': 'Nee',
 };

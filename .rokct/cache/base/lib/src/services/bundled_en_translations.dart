@@ -57,4 +57,8 @@ const Map<String, String> kBaseEnTranslations = {
   // Humanizing this misspelt legacy key read "Restauran home" on the
   // driver's active-job sheet (tour 1114b, driver 05-driver_home).
   'restauran_home': 'Shop to customer',
+  // Hardcoded UI copy moved to trkeys (Ray, 2026-11-20).
+  'check_connection_and_try_again': 'Please check your internet connection and try again.',
+  'continue_offline': 'Continue offline',
+  'skip_guide': 'Skip guide',
 };

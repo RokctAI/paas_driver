@@ -617,4 +617,8 @@ const Map<String, String> kBaseAfTranslations = {
   'your_order_status_has_been_changed': 'Jou bestelling se status het verander',
   'your_orders': 'Jou bestellings',
   'your_request_is_being_processed': 'Jou versoek word verwerk',
+  // Hardcoded UI copy moved to trkeys (Ray, 2026-11-20).
+  'check_connection_and_try_again': 'Kontroleer asseblief jou internetverbinding en probeer weer.',
+  'continue_offline': 'Gaan voort vanlyn',
+  'skip_guide': 'Slaan gids oor',
 };

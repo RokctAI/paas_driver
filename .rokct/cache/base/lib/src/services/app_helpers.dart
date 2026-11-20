@@ -1188,13 +1188,13 @@ abstract class AppHelpers {
           ),
           12.verticalSpace,
           Text(
-            'Please check your internet connection and try again.',
+            AppHelpers.getTranslation(TrKeys.checkConnectionAndTryAgain),
             style: AppStyle.interNormal(size: 14.sp, color: AppStyle.textGrey),
             textAlign: TextAlign.center,
           ),
           32.verticalSpace,
           CustomButton(
-            title: "Retry",
+            title: AppHelpers.getTranslation(TrKeys.tryAgain),
             background: AppStyle.primary,
             textColor: AppStyle.white,
             onPressed: () async {
@@ -1229,7 +1229,7 @@ abstract class AppHelpers {
           ),
           16.verticalSpace,
           CustomButton(
-            title: "Continue Offline",
+            title: AppHelpers.getTranslation(TrKeys.continueOffline),
             background: AppStyle.transparent,
             borderColor: AppStyle.black,
             textColor: AppStyle.inkFor(Theme.of(context).brightness),

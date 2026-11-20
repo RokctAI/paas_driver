@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:orders_sdk/src/common/orders_tr_keys.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:base_sdk/src/handlers/api_result.dart';
 import 'package:flutter/material.dart';
@@ -217,21 +218,21 @@ class AutoOrderNotifier extends StateNotifier<AutoOrderState> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Insufficient Wallet Balance"),
+          title: Text(AppHelpers.getTranslation(OrdersTrKeys.ordersInsufficientWalletBalance)),
           content: const Text(
             "Your wallet balance is too low for this auto-order schedule. Would you like to top up from your saved card?",
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
+              child: Text(AppHelpers.getTranslation(TrKeys.cancel)),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
                 _processTopUp(context);
               },
-              child: const Text("Top Up & Create"),
+              child: Text(AppHelpers.getTranslation(OrdersTrKeys.ordersTopUpCreate)),
             ),
           ],
         );

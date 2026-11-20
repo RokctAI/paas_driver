@@ -450,7 +450,7 @@ class OrderItem extends StatelessWidget {
                                     ) ??
                                     0,
                               ),
-                              title: "Shop",
+                              title: AppHelpers.getTranslation(TrKeys.shop),
                             ),
                           );
                         },
@@ -673,7 +673,7 @@ class OrderItem extends StatelessWidget {
                                       ) ??
                                       0,
                                 ),
-                                title: "User",
+                                title: AppHelpers.getTranslation(TrKeys.deliveryUser),
                               ),
                             );
                           },

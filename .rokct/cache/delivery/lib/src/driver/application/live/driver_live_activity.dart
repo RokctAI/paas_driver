@@ -12,6 +12,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:delivery_sdk/src/common/delivery_tr_keys.dart';
+import 'package:base_sdk/src/services/tr_keys.dart';
+import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/base_sdk.dart'
     show
         LiveActivities,
@@ -85,7 +88,7 @@ class DriverLiveActivity {
       return LiveActivitySnapshot(
         key: key,
         kind: LiveActivityKind.driverDelivery,
-        title: 'Online · waiting for orders',
+        title: AppHelpers.getTranslation(DeliveryTrKeys.deliveryOnlineWaitingForOrders),
         showProgress: false,
         dismissible: false,
         appName: appName,
@@ -116,13 +119,13 @@ class DriverLiveActivity {
       actions: [
         LiveActivityAction(
           id: 'navigate',
-          label: 'Navigate',
+          label: AppHelpers.getTranslation(DeliveryTrKeys.deliveryNavigate),
           deepLink: orderLink,
         ),
         if (toCustomer)
           LiveActivityAction(
             id: 'delivered',
-            label: 'Delivered',
+            label: AppHelpers.getTranslation(TrKeys.delivered),
             // Opens the proof-of-delivery step; never completes the order.
             deepLink: '$orderLink&step=proof',
           ),

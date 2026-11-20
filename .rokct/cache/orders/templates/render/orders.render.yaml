@@ -1,0 +1,26 @@
+# Render fragment for orders_sdk (customer role).
+#
+# Binds the two customer order steps of the app shell's tour (the shell's
+# tour/app.tour.yaml lists them as app steps, /order and
+# /order_progress?orderId=3; the pages belong to this SDK's customer routes).
+# `name` equals the tour step key. A manager compose has no such steps, so
+# these screens are ignored there and their imports are never generated.
+#
+# The widgets are the customer route views this SDK installs into the shell
+# (templates/routes/orders_customer_route_pages.dart).
+#
+# Demo data: no seed. In a demo session the real repositories are answered
+# from assets/demo/orders (api.order.list_orders, api.order.get_order_details);
+# order 3 is the fixtures' live, on-the-way order, the one the tour tracks.
+#
+# customer_order_tracking is not bound: its live map is a platform view
+# (MissingPluginException in a widget test) and leaves a timer running after
+# dispose, which fails the render test and blocks the tour (paas_customer run
+# 44738923180). The tour's own screenshot still covers that screen.
+#
+# Format: RokctAI/shared-workflows scripts/render/README.md
+screens:
+  - name: customer_orders
+    caption: Customer orders
+    widget: OrdersListRouteView
+    import: package:{package}/presentation/routes/orders_customer_route_pages.dart

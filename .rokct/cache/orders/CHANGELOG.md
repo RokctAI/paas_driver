@@ -1,3 +1,15 @@
+## 1.32.1
+
+- fix(render): drop the customer_order_tracking render binding; its live map is a platform view that cannot draw in the render test and left a timer running, which failed the test and blocked the paas_customer tour. The tour screenshot still covers it.
+
+## 1.32.0
+
+- feat(i18n): hardcoded UI copy goes through trkeys (Ray, 2026-11-20): 11 new `orders_*` tr_keys with bundled English and Afrikaans copy.
+
+## 1.31.12
+
+- chore(render): render fragment `templates/render/orders.render.yaml` binds the customer order steps (customer_orders, customer_order_tracking) to their route views, order 3 for tracking, so the render strip can draw them from the tour plan. Templates only; no code change.
+
 ## 1.31.11
 
 - fix(pos cart): the `FoodStockItem` qty badge sizes to its label and is inset from the row edge, so "2 each" is no longer clipped on the left; the product name wraps to 2 lines (tour 1114b manager 19-order_pos_cart).

@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.111.2",
+      "version": "1.113.0",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -268,7 +268,7 @@
       ]
     },
     "orders_sdk": {
-      "version": "1.31.11",
+      "version": "1.32.1",
       "files": {},
       "routes": [],
       "app_routes": [],
@@ -295,6 +295,16 @@
             "import 'package:orders_sdk/src/translations/orders_en_translations.dart';"
           ],
           "_comment": "Registers English fallbacks for tr_keys whose legacy wire key humanizes badly (spproximate_preparation_time). Backend-served rows still win; the map is consulted only before the humanized-key fallback."
+        },
+        {
+          "id": "orders-af-bundled-translations",
+          "order": 65,
+          "body": "BundledTranslations.register('af', kOrdersAfTranslations);",
+          "imports": [
+            "import 'package:base_sdk/src/services/bundled_translations.dart';",
+            "import 'package:orders_sdk/src/translations/orders_af_translations.dart';"
+          ],
+          "_comment": "Registers this SDK's bundled copy for its manifest tr_keys at boot (lms_sdk precedent). Backend-served rows still win."
         }
       ],
       "tr_keys": {
@@ -302,7 +312,18 @@
         "waitingOnYou": "waiting_on_you",
         "openOrders": "open_orders",
         "manager": "manager",
-        "paymentCancelled": "payment_cancelled"
+        "paymentCancelled": "payment_cancelled",
+        "ordersInsufficientWalletBalance": "orders_insufficient_wallet_balance",
+        "ordersTopUpCreate": "orders_top_up_create",
+        "ordersTrackOrder": "orders_track_order",
+        "ordersCallDriver": "orders_call_driver",
+        "ordersOrderPlaced": "orders_order_placed",
+        "ordersPreparingYourOrder": "orders_preparing_your_order",
+        "ordersArrivingNow": "orders_arriving_now",
+        "ordersOnTheWay": "orders_on_the_way",
+        "ordersRateOrder": "orders_rate_order",
+        "ordersOrderCancelled": "orders_order_cancelled",
+        "ordersGetHelp": "orders_get_help"
       },
       "integrations": [
         {
@@ -321,14 +342,14 @@
       ]
     },
     "delivery_sdk": {
-      "version": "1.31.2",
+      "version": "1.32.0",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "11db8e698632a6cee50e92a83fef8a494c4b55cf316bbaf6398f652460cb8dea",
         "lib/presentation/routes/delivery_adapters.dart": "cd22c591ae3179bcc44d95cead4ac89abddfecdc6217a8c316037890e13ecddc",
         "lib/presentation/pages/home/parcel_bottom_sheet.dart": "6f22e19cb055a2ab1730799095d01b8f3d4eb63df06b08a8b92da5848b6056a6",
         "lib/presentation/pages/home/bottom_sheet_screen.dart": "dccb25195734d4011bfeadd77a5a650c566663b214f7e09d8bdc5fa3260da549",
         "lib/presentation/pages/home/home_page.dart": "e520bd4719b02681a2cc410ccf544e990f50e8721775150c333ac00d4fe1374c",
-        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "a55408261747947a517c337b9db6f759f5193f79725f17a10a40367e0b14f232",
+        "lib/presentation/pages/home/delivery_bottom_sheet.dart": "f17f227b8dc0132fc8d39bfd25b150734b5f031da5626df3f6ee773fd396101e",
         "lib/presentation/pages/home/widgets/outside_painter.dart": "60866744c76343e4a4cf92b27adb08a17a74dbe5f0e4bd99b6657c30aba402e3",
         "lib/presentation/pages/home/widgets/rate_customer.dart": "54aa03d498db5a7766c3cf05e57b136f23d6f627607b4ff041058cadf0a375f9",
         "lib/presentation/pages/home/widgets/stores.dart": "498027146cd90e11c9edc48e6bcfe2cd71574edb98f7228ed2a2507666f35b18",
@@ -352,7 +373,7 @@
         "lib/presentation/component/driver_avatar.dart": "6bc4ebf5e7263f622ae94730a8f78d299904e56bcabf1304f5f64d5498c1b394",
         "lib/presentation/component/image_dialog.dart": "ce98046373c6a7703e06352e5dc7dfe39d6bf262c1e10203d004939b6483d189",
         "lib/presentation/component/order_detail.dart": "24e77903eea2640b13d48cf03b5b977e52eff3118fed22aff6bbd47b6851a685",
-        "lib/presentation/component/order_item.dart": "57b54e67865a601a6a81e4c9e702056a1041da009b40d21c5beee8348fdacc85",
+        "lib/presentation/component/order_item.dart": "db4e0e940bddae2e0819a5d2752b3668a85f2ba659776e73ca87601e6e989e84",
         "lib/presentation/component/orders_item.dart": "15e17b6fae13ce3b819291633e377f73176829f450aa196f096deabf4af04e35",
         "lib/presentation/component/maps_list.dart": "9f4d0f143605c9d2b4234a730a8629bc854c476a0d2f31dac9587579af63aeeb",
         "lib/presentation/component/product_item.dart": "ed599c9dbf763f4eaddf19623c9466ddc3c60a60d864b7d427a81e24bd31ee8f",
@@ -550,6 +571,26 @@
       ],
       "boot_hooks": [
         {
+          "id": "delivery-af-bundled-translations",
+          "order": 61,
+          "body": "BundledTranslations.register('af', kDeliveryAfTranslations);",
+          "imports": [
+            "import 'package:base_sdk/src/services/bundled_translations.dart';",
+            "import 'package:delivery_sdk/src/translations/delivery_af_translations.dart';"
+          ],
+          "_comment": "Registers this SDK's bundled copy for its manifest tr_keys at boot (lms_sdk precedent). Backend-served rows still win."
+        },
+        {
+          "id": "delivery-en-bundled-translations",
+          "order": 62,
+          "body": "BundledTranslations.register('en', kDeliveryEnTranslations);",
+          "imports": [
+            "import 'package:base_sdk/src/services/bundled_translations.dart';",
+            "import 'package:delivery_sdk/src/translations/delivery_en_translations.dart';"
+          ],
+          "_comment": "Registers this SDK's bundled copy for its manifest tr_keys at boot (lms_sdk precedent). Backend-served rows still win."
+        },
+        {
           "id": "delivery-driver-splash-preserve",
           "order": 1,
           "body": "FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized());",
@@ -585,6 +626,9 @@
         "noJobRightNow": "no.job.right.now",
         "pickUp": "pick.up",
         "drop": "drop",
+        "deliveryUser": "delivery_user",
+        "deliveryOnlineWaitingForOrders": "delivery_online_waiting_for_orders",
+        "deliveryNavigate": "delivery_navigate",
         "accepted": "accepted",
         "jobs": "jobs",
         "route": "route",
@@ -1320,7 +1364,7 @@
       ]
     },
     "weather_sdk": {
-      "version": "1.6.3",
+      "version": "1.7.0",
       "files": {
         "lib/presentation/components/weather/weather_widget.dart": "13e7964746cd367f4e019c2d192e2a0ef8bf3445060c562a611f2caa14c2c53c"
       },
@@ -1359,6 +1403,16 @@
           "_comment": "Registers this SDK's bundled Afrikaans map for its manifest tr_keys into base_sdk's BundledTranslations registry at boot. Top-level (not app_type-gated) because translations are role-agnostic. Backend-served translation rows still win; the map is only the offline/unseeded fallback consulted before the humanized-key fallback. Requires a base_sdk with bundled_translations.dart."
         },
         {
+          "id": "weather-en-bundled-translations",
+          "order": 65,
+          "body": "BundledTranslations.register('en', kWeatherEnTranslations);",
+          "imports": [
+            "import 'package:base_sdk/src/services/bundled_translations.dart';",
+            "import 'package:weather_sdk/src/translations/weather_en_translations.dart';"
+          ],
+          "_comment": "Registers this SDK's bundled copy for its manifest tr_keys at boot (lms_sdk precedent). Backend-served rows still win."
+        },
+        {
           "id": "weather-driver-configure-location",
           "order": 20,
           "body": "configureWeatherSdk();",
@@ -1369,7 +1423,10 @@
         }
       ],
       "tr_keys": {
-        "asOf": "as.of"
+        "asOf": "as.of",
+        "weatherUpdateRainFeedback": "weather_update_rain_feedback",
+        "weatherDidItRainAfterYourPreviousNo": "weather_did_it_rain_after_your_previous_no",
+        "weatherNo": "weather_no"
       }
     },
     "hms_sdk": {
@@ -1419,8 +1476,8 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.111.2",
-      "source_hash": "73718061266f9136"
+      "version": "1.113.0",
+      "source_hash": "569e337f656e3aa5"
     },
     "comms": {
       "version": "1.23.4",
@@ -1435,8 +1492,8 @@
       "source_hash": "cb3062dc3a29f9fd"
     },
     "orders": {
-      "version": "1.31.11",
-      "source_hash": "6be730f213b8143d"
+      "version": "1.32.1",
+      "source_hash": "14bcef0110922ba2"
     },
     "merchants": {
       "version": "1.38.5",
@@ -1447,8 +1504,8 @@
       "source_hash": "f11b51c19fabbd2d"
     },
     "delivery": {
-      "version": "1.31.2",
-      "source_hash": "dc34a36999791772"
+      "version": "1.32.0",
+      "source_hash": "2748f5bf49a56821"
     },
     "map": {
       "version": "1.5.2",
@@ -1475,8 +1532,8 @@
       "source_hash": "411d1109fdd7dea1"
     },
     "weather": {
-      "version": "1.6.3",
-      "source_hash": "ce5b491355f50b4e"
+      "version": "1.7.0",
+      "source_hash": "25cb4f5d6a83de4e"
     },
     "hms": {
       "version": "1.1.1",

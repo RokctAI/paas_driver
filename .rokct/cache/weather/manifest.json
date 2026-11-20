@@ -1,6 +1,7 @@
 {
   "name": "weather_sdk",
-  "version": "1.6.3",
+  "version": "1.7.0",
+  "_comment_version_1_7_0": "1.6.3 -> 1.7.0: feat(i18n). Hardcoded UI copy goes through trkeys (Ray, 2026-11-20): new weather_* tr_keys with bundled English and Afrikaans copy. Existing keys unchanged.",
   "boot_hooks": [
     {
       "id": "weather-af-bundled-translations",
@@ -11,6 +12,16 @@
         "import 'package:weather_sdk/src/translations/weather_af_translations.dart';"
       ],
       "_comment": "Registers this SDK's bundled Afrikaans map for its manifest tr_keys into base_sdk's BundledTranslations registry at boot. Top-level (not app_type-gated) because translations are role-agnostic. Backend-served translation rows still win; the map is only the offline/unseeded fallback consulted before the humanized-key fallback. Requires a base_sdk with bundled_translations.dart."
+    },
+    {
+      "id": "weather-en-bundled-translations",
+      "order": 65,
+      "body": "BundledTranslations.register('en', kWeatherEnTranslations);",
+      "imports": [
+        "import 'package:base_sdk/src/services/bundled_translations.dart';",
+        "import 'package:weather_sdk/src/translations/weather_en_translations.dart';"
+      ],
+      "_comment": "Registers this SDK's bundled copy for its manifest tr_keys at boot (lms_sdk precedent). Backend-served rows still win."
     }
   ],
   "installs": [
@@ -65,7 +76,10 @@
   },
   "_comment_app_type": "Only the driver flavor carries extra wiring: courier composes consume exactly one weather surface (the severe-weather banner on the courier home, embedded through the weatherWarningsBanner seam), located by the courier's own position rather than a shop's.",
   "tr_keys": {
-    "asOf": "as.of"
+    "asOf": "as.of",
+    "weatherUpdateRainFeedback": "weather_update_rain_feedback",
+    "weatherDidItRainAfterYourPreviousNo": "weather_did_it_rain_after_your_previous_no",
+    "weatherNo": "weather_no"
   },
   "_comment_tr_keys": "asOf backs the severe-weather banner's offline freshness marker ('As of 14:30' when cached notices are shown); the SDK looks the key up via AppHelpers.getTranslation('as.of') (raw key, because the injected TrKeys constant only exists in composed hosts' cached base copy), which humanizes the key gracefully until the translation store carries a value. The ported suite's remaining strings still ship pos main's hardcoded English verbatim (pos never translated this surface) - translating them is a recorded follow-up, not smuggled in here.",
   "_comment_secrets": "No secret is committed anywhere in this SDK. The OpenWeatherMap key (extended forecast only) resolves from the OPEN_WEATHER_API_KEY dart-define and/or the host's remote-config bootstrap (pos main's get_remote_config pattern); the primary feed uses the tenant Frappe proxy with the user's bearer token."

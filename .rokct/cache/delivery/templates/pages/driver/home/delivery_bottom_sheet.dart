@@ -442,7 +442,7 @@ class _DeliverBottomSheetScreenState extends State<DeliverBottomSheetScreen> {
                                           key: formKey,
                                           child: UnderlinedBorderTextField(
                                             textController: noteCon,
-                                            label: 'Note',
+                                            label: AppHelpers.getTranslation(TrKeys.note),
                                             validator: (p0) {
                                               if (p0?.isEmpty ?? true) {
                                                 return AppHelpers

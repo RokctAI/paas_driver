@@ -1,6 +1,8 @@
 {
   "name": "base_sdk",
-  "version": "1.111.2",
+  "version": "1.113.0",
+  "_comment_version_1_113_0": "1.112.0 -> 1.113.0: MainActivity OPTIONAL_BRIDGES lists SticksCallBridge (agent_sdk 1.43.0), so Sticks voice can ride a real Android call. Found by reflection; apps without it are unchanged.",
+  "_comment_version_1_112_0": "1.111.2 -> 1.112.0: feat(i18n). The no-connection dialog body and buttons and the guide's Skip guide / Got it buttons go through trkeys (Ray, 2026-11-20): new check_connection_and_try_again, continue_offline, skip_guide keys with bundled English and Afrikaans.",
   "_comment_version_1_109_0": "1.108.2 -> 1.109.0: Loading shows a shimmer instead of a spinner; LoadingList, LoadingGrid and TabBarLoading shimmer; new AppShimmer. Same constructors, no manifest key, cmd or route changed.",
   "_comment_version_1_108_0": "1.107.0 -> 1.108.0: AppRating store step for every rating in a listed app, note below 4 stars, flush at splash (see CHANGELOG). No manifest key, cmd or route changed.",
   "_comment_version_1_107_0": "1.106.0 -> 1.107.0: AppRating and AppRatingSheet (see CHANGELOG); new dependency in_app_review. Off for the store step unless STORE_LISTED=true. No manifest key, cmd or route changed.",

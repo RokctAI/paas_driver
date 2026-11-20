@@ -1,6 +1,7 @@
 {
   "name": "orders_sdk",
-  "version": "1.31.11",
+  "version": "1.32.1",
+  "_comment_version_1_32_0": "1.31.12 -> 1.32.0: feat(i18n). Hardcoded UI copy goes through trkeys (Ray, 2026-11-20): new orders_* tr_keys with bundled English and Afrikaans copy. Existing keys unchanged.",
   "_comment_version_1_31_7": "1.31.6 -> 1.31.7: manager POS walk-in fixes found in the Manager tour screenshots. ProductData.unitId is a String (Frappe docname): the int field threw a TypeError on every seller product whose unit_id is a string, so the walk-in grid, the order cart and /load/issue showed no products. The walk-in shipping, customer picker, section picker and place-order cards draw on the theme's card/ink colours (white cards and white text in the dark app made labels, the customer field, delivery time and payment names invisible); delivery-type rows wrap instead of overflowing; the payment summary names the shop currency, not '$'; the phone foot no longer clips Total. New boot hook registers an English fallback for the legacy spproximate_preparation_time key ('Approximate preparation time:').",
   "_comment_version_1_31_2": "1.31.1 -> 1.31.2: the manifest had two top-level installs keys; the later empty one (installs: []) won when the JSON was parsed, so the assets/demo/orders fixture install from 1.x never ran in any compose. Apps got the app_assets pubspec entry (or none) with no directory behind it: flutter build windows failed with unable to find directory entry in pubspec.yaml, and the demo showed an empty orders. The empty key is removed, so the fixture install applies to every app_type. Manifest only; see CHANGELOG.",
   "_comment_version_1_31_1": "1.31.0 -> 1.31.1: version for the coach-mark guide mounted on this SDK's primary page (GuideHost and GuideAnchor from base_sdk 1.92.0, off in demo sessions). The mount landed without a version change; see CHANGELOG.",
@@ -25,6 +26,16 @@
         "import 'package:orders_sdk/src/translations/orders_en_translations.dart';"
       ],
       "_comment": "Registers English fallbacks for tr_keys whose legacy wire key humanizes badly (spproximate_preparation_time). Backend-served rows still win; the map is consulted only before the humanized-key fallback."
+    },
+    {
+      "id": "orders-af-bundled-translations",
+      "order": 65,
+      "body": "BundledTranslations.register('af', kOrdersAfTranslations);",
+      "imports": [
+        "import 'package:base_sdk/src/services/bundled_translations.dart';",
+        "import 'package:orders_sdk/src/translations/orders_af_translations.dart';"
+      ],
+      "_comment": "Registers this SDK's bundled copy for its manifest tr_keys at boot (lms_sdk precedent). Backend-served rows still win."
     }
   ],
   "app_assets": [
@@ -49,13 +60,24 @@
       "replacement": "                LaunchWindowSource.widget(\n                  mode: LaunchMode.manager,\n                  title: AppHelpers.getTranslation('manager'),\n                  icon: RemixIcons.store_2_line,\n                  builder: (context, openApp) =>\n                      ManagerLaunchWindow(onOpen: openApp),\n                ),"
     }
   ],
-  "_comment_tr_keys": "Frames 53f/53l's copy on the launcher window - the headline, the count's label and the action - plus the back-seat row's title for manager mode (53e chip 1288). Top-level (not the manager flavor block) because the window is injected into a launcher host that declares no app role, and the keys must be seeded there too. ManagerLaunchWindow references these by wire key string (ManagerLaunchWindowKeys) because lib/ analyzes and tests against raw base_sdk; the installer keeps the first declaration on a collision, so a host that already carries 'manager' is unaffected.",
+  "_comment_tr_keys": "Declared here rather than hand-written into base_sdk because only this SDK uses them (kitchen_sdk's mechanism/comment). Checked against base_sdk's hand-written keys (the original 39 were exactly the manager orders/POS keys absent there; 1.6.0 adds delivered/canceled for the wide-screen board's two history columns; 1.11.0 adds accepted/cooking/ready/on_a_way plus view_more/drop_here/pickup_skips_on_a_way/start_end for the approved seven-column board — checked against base's hand-written keys and kitchen_sdk's kitchen/kitchens, no collision; 1.13.0 adds the 33 collected-in-person keys for approved strip section 43 - the deliveryman row, the convert lane and its offline relabel, the two outcome lines, Ray's till line, the four confirm-guard ledger rows and the two converted-card notes - checked against base's hand-written keys, kitchen_sdk's two and this manifest's own, no collision; 1.22.0 adds the 33 consignment-load keys for the manager's /load, its load detail and /load/issue - the list with its two status tabs, the line table's four quantity columns and the unit price, the variance the shop is told about before it closes a load, and the issue screen's driver row, draft foot and its two refusal lines - checked against base's hand-written keys, kitchen_sdk's two and this manifest's own, no collision; 1.23.0 adds the 18 own-driver keys for /load/drivers and the Manage-drivers action on /load/issue - the roster title and count noun, the line that says what a roster DOES to the load picker, the add and remove actions with their confirm copy and their three refusal lines, the add flow's search field and its nothing-left-to-add line, and the word for a row the shop has retired - checked against base's hand-written keys, kitchen_sdk's two and this manifest's own, no collision) and against kitchen_sdk's two keys - no collision. Values are paas_manager's legacy wire keys verbatim, including the 'spproximate' typo the translation store already contains.",
   "tr_keys": {
     "ordersToAccept": "orders_to_accept",
     "waitingOnYou": "waiting_on_you",
     "openOrders": "open_orders",
     "manager": "manager",
-    "paymentCancelled": "payment_cancelled"
+    "paymentCancelled": "payment_cancelled",
+    "ordersInsufficientWalletBalance": "orders_insufficient_wallet_balance",
+    "ordersTopUpCreate": "orders_top_up_create",
+    "ordersTrackOrder": "orders_track_order",
+    "ordersCallDriver": "orders_call_driver",
+    "ordersOrderPlaced": "orders_order_placed",
+    "ordersPreparingYourOrder": "orders_preparing_your_order",
+    "ordersArrivingNow": "orders_arriving_now",
+    "ordersOnTheWay": "orders_on_the_way",
+    "ordersRateOrder": "orders_rate_order",
+    "ordersOrderCancelled": "orders_order_cancelled",
+    "ordersGetHelp": "orders_get_help"
   },
   "routes": [],
   "app_type": {
@@ -546,7 +568,6 @@
     }
   },
   "_comment_app_type": "manager: paas_manager's orders + POS vertical (order queues, order details, POS create-order flow with shipping/section/table/customer pickers, order history). Application layer, models, facades and the seller orders / POS products repositories live in lib/src/manager/ - declaring this manager block also keeps that folder alive through sdk_composer.py's strip_unused_role_folders. The manager host must call ManagerOrdersDependencies.register (direct src/ import) and register the two ADR-005 seam adapters installed at lib/presentation/routes/orders_adapters.dart (owners: merchants_sdk for sections/tables, users_sdk for customers); unwired seams degrade to visible 501 failures, not crashes. OrdersHomePage installs to lib/presentation/pages/orders/orders_home_page.dart - the exact path merchants_sdk's main_page.dart shell imports; it is tab-hosted, so it declares no route. Cross-vertical widgets the POS pages reference via ${package} host paths (custom_app_bar, filter_screen, loading list/shimmers, modal helpers, categories_tab_bar, shop_bordered_avatar, buttons_bouncing_effect from merchants' install) stay host-owned until the dedup workstream settles them. Requires .rokct/config/app_type = manager. Version bumped 1.0.0 -> 1.1.0 so version-aware cache reconciliation re-extracts composed copies, then 1.1.0 -> 1.2.0 (adopted custom_icon_button, text_loading and select_date_modal from base_sdk per the component triage - each is used by this SDK's templates only; installed to the host's lib/presentation/component/ SINGULAR paths deliberately, because those are the exact paths the existing manager templates import, so no template rewrites are needed).",
-  "_comment_tr_keys": "Declared here rather than hand-written into base_sdk because only this SDK uses them (kitchen_sdk's mechanism/comment). Checked against base_sdk's hand-written keys (the original 39 were exactly the manager orders/POS keys absent there; 1.6.0 adds delivered/canceled for the wide-screen board's two history columns; 1.11.0 adds accepted/cooking/ready/on_a_way plus view_more/drop_here/pickup_skips_on_a_way/start_end for the approved seven-column board — checked against base's hand-written keys and kitchen_sdk's kitchen/kitchens, no collision; 1.13.0 adds the 33 collected-in-person keys for approved strip section 43 - the deliveryman row, the convert lane and its offline relabel, the two outcome lines, Ray's till line, the four confirm-guard ledger rows and the two converted-card notes - checked against base's hand-written keys, kitchen_sdk's two and this manifest's own, no collision; 1.22.0 adds the 33 consignment-load keys for the manager's /load, its load detail and /load/issue - the list with its two status tabs, the line table's four quantity columns and the unit price, the variance the shop is told about before it closes a load, and the issue screen's driver row, draft foot and its two refusal lines - checked against base's hand-written keys, kitchen_sdk's two and this manifest's own, no collision; 1.23.0 adds the 18 own-driver keys for /load/drivers and the Manage-drivers action on /load/issue - the roster title and count noun, the line that says what a roster DOES to the load picker, the add and remove actions with their confirm copy and their three refusal lines, the add flow's search field and its nothing-left-to-add line, and the word for a row the shop has retired - checked against base's hand-written keys, kitchen_sdk's two and this manifest's own, no collision) and against kitchen_sdk's two keys - no collision. Values are paas_manager's legacy wire keys verbatim, including the 'spproximate' typo the translation store already contains.",
   "_comment_asset_keys": "Injected into base's AppAssets between the @sdk-asset-keys markers; the files themselves arrive via the installs above. lottiePin is also declared by marketplace_sdk (customer compose) - flavor-gating keeps the two from ever meeting in one app; if they do someday, the installer keeps whichever it sees first, and both point at assets/lottie/pin.json anyway.",
   "embedded_widgets": [
     {
