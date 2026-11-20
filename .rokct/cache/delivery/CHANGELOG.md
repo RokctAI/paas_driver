@@ -1,3 +1,11 @@
+## 1.32.2
+
+- feat(i18n): Afrikaans copy for 195 translation keys this SDK uses and English copy for 194, so both languages are complete. No behaviour change in English except proper wording where a key was humanized.
+
+## 1.32.1
+
+- feat(render): templates/render/delivery.render.yaml binds 8 driver tour steps (orders, order history, parcels, parcel history, deposits, load, load sell, load return) so the render strip draws them. Home and route (live maps) and profile (drawn by the shell) are not bound.
+
 ## 1.32.0
 
 - feat(i18n): hardcoded UI copy goes through trkeys (Ray, 2026-11-20): 3 new `delivery_*` tr_keys with bundled English and Afrikaans copy.

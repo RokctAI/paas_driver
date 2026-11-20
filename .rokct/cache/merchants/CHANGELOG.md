@@ -1,3 +1,11 @@
+## 1.38.7
+
+- feat(i18n): bundled Afrikaans (and missing English) copy for every translation key this SDK uses, so both languages are complete.
+
+## 1.38.6
+
+- feat(render): templates/render/merchants.render.yaml binds the manager tour steps manager_home, sync_issues and quick_flow so the render strip draws them.
+
 ## 1.38.5
 
 - fix(pos cart): a cart line's product name wraps to 2 lines instead of ellipsizing ("Flame-grilled beef burg...", tour 1114b manager 06-pos_cart).

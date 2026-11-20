@@ -1,0 +1,50 @@
+# Render fragment for delivery_sdk (driver role).
+#
+# One screen per driver guided-tour step (templates/tour/delivery.tour.yaml)
+# whose page can be built standalone; `name` equals the tour step key, which
+# is how RokctAI/shared-workflows scripts/render binds a screen to a step.
+# The widgets are the installed route pages the tour opens.
+#
+# Not bound:
+#  * driver_home and driver_route: both are live maps (a platform view, which
+#    throws MissingPluginException in a widget test and leaves timers behind).
+#  * driver_profile: the shell's own render (test/render/strip.json) already
+#    draws the driver profile with its chips.
+#
+# Demo data: no seed. In a demo session the real repositories are answered
+# from the SDKs' demo fixtures, as in the tour.
+#
+# Format: RokctAI/shared-workflows scripts/render/README.md
+screens:
+  - name: driver_orders
+    caption: Driver orders
+    widget: OrdersPage
+    import: package:{package}/presentation/pages/orders/orders_page.dart
+  - name: driver_order_history
+    caption: Order history
+    widget: OrderHistoryPage
+    import: package:{package}/presentation/pages/order_history/order_history.dart
+  - name: driver_parcels
+    caption: Parcels
+    widget: ParcelsPage
+    import: package:{package}/presentation/pages/parcel/parcels_page.dart
+  - name: driver_parcel_history
+    caption: Parcel history
+    widget: ParcelHistoryPage
+    import: package:{package}/presentation/pages/parcels_history/parcel_history.dart
+  - name: driver_deposits
+    caption: Deposits
+    widget: DriverDepositsPage
+    import: package:{package}/presentation/pages/deposits/deposits_page.dart
+  - name: driver_load
+    caption: Load
+    widget: DriverLoadPage
+    import: package:{package}/presentation/pages/load/load_page.dart
+  - name: driver_load_sell
+    caption: Sell from load
+    widget: DriverLoadSellPage
+    import: package:{package}/presentation/pages/load/load_sell_page.dart
+  - name: driver_load_return
+    caption: Return load
+    widget: DriverLoadReturnPage
+    import: package:{package}/presentation/pages/load/load_return_page.dart

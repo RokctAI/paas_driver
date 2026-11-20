@@ -127,7 +127,7 @@ packages:
       path: ".rokct/cache/auth"
       relative: true
     source: path
-    version: "1.22.7"
+    version: "1.22.8"
   auto_route:
     dependency: "direct main"
     description:
@@ -158,7 +158,7 @@ packages:
       path: ".rokct/cache/base"
       relative: true
     source: path
-    version: "1.113.0"
+    version: "1.113.1"
   battery_plus:
     dependency: "direct main"
     description:
@@ -277,7 +277,7 @@ packages:
       path: ".rokct/cache/calc"
       relative: true
     source: path
-    version: "1.4.2"
+    version: "1.4.3"
   calendar_date_picker2:
     dependency: "direct main"
     description:
@@ -390,7 +390,7 @@ packages:
       path: ".rokct/cache/comms"
       relative: true
     source: path
-    version: "1.23.4"
+    version: "1.23.5"
   confetti:
     dependency: "direct main"
     description:
@@ -484,7 +484,7 @@ packages:
       path: ".rokct/cache/delivery"
       relative: true
     source: path
-    version: "1.32.0"
+    version: "1.32.2"
   desktop_sdk:
     dependency: "direct main"
     description:
@@ -1663,7 +1663,7 @@ packages:
       path: ".rokct/cache/merchants"
       relative: true
     source: path
-    version: "1.38.5"
+    version: "1.38.7"
   meta:
     dependency: transitive
     description:
@@ -1718,7 +1718,7 @@ packages:
       path: ".rokct/cache/orders"
       relative: true
     source: path
-    version: "1.32.1"
+    version: "1.32.3"
   osm_nominatim:
     dependency: "direct main"
     description:
@@ -1973,7 +1973,7 @@ packages:
       path: ".rokct/cache/products"
       relative: true
     source: path
-    version: "1.13.4"
+    version: "1.13.5"
   proste_indexed_stack:
     dependency: "direct main"
     description:
@@ -2036,7 +2036,7 @@ packages:
       path: ".rokct/cache/revenue"
       relative: true
     source: path
-    version: "1.14.13"
+    version: "1.14.14"
   riverpod:
     dependency: transitive
     description:
@@ -2741,7 +2741,7 @@ packages:
       path: ".rokct/cache/zones"
       relative: true
     source: path
-    version: "1.7.3"
+    version: "1.7.4"
 sdks:
   dart: ">=3.10.0 <4.0.0"
   flutter: ">=3.38.5"

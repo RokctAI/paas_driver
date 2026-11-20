@@ -24,3 +24,25 @@ screens:
     caption: Customer orders
     widget: OrdersListRouteView
     import: package:{package}/presentation/routes/orders_customer_route_pages.dart
+  # Manager role (orders.tour.yaml). A customer compose has no such steps,
+  # so these are ignored there.
+  - name: order_pos_products
+    caption: New order
+    widget: CreateOrderPage
+    import: package:{package}/presentation/pages/create_order/create_order_page.dart
+  - name: order_history
+    caption: Order history
+    widget: OrderHistoryPage
+    import: package:{package}/presentation/pages/order_history/order_history.dart
+  - name: order_loads
+    caption: Driver loads
+    widget: LoadsPage
+    import: package:{package}/presentation/pages/loads/loads_page.dart
+  - name: order_issue_load
+    caption: Issue a load
+    widget: IssueLoadPage
+    import: package:{package}/presentation/pages/loads/issue_load_page.dart
+  - name: order_shop_drivers
+    caption: Shop drivers
+    widget: ShopDriversPage
+    import: package:{package}/presentation/pages/drivers/shop_drivers_page.dart

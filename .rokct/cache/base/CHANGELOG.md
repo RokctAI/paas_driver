@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.113.1
+
+- feat(i18n): Afrikaans copy for 9 translation keys this SDK uses and English copy for 9, so both languages are complete. No behaviour change in English except proper wording where a key was humanized.
+
 ## 1.113.0
 
 - MainActivity registers SticksCallBridge when agent_sdk installs it (Sticks voice through a watch, earbuds or car kit).

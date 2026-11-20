@@ -1,3 +1,7 @@
+## 1.4.3
+
+- feat(i18n): Afrikaans copy for 8 translation keys this SDK uses and English copy for 8, so both languages are complete. No behaviour change in English except proper wording where a key was humanized.
+
 ## 1.4.2
 
 - chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.

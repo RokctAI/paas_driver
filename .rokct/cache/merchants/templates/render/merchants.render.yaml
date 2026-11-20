@@ -1,0 +1,22 @@
+# Render fragment for merchants_sdk (manager role).
+#
+# One screen per manager guided-tour step (templates/tour/merchants.tour.yaml)
+# that opens a route; `name` equals the tour step key, which is how
+# RokctAI/shared-workflows scripts/render binds a screen to a step. The
+# widgets are the installed route pages the tour opens. The POS and
+# restaurant steps are taps inside the home page, so they are not bound.
+#
+# Format: RokctAI/shared-workflows scripts/render/README.md
+screens:
+  - name: manager_home
+    caption: Manager home
+    widget: MainPage
+    import: package:{package}/presentation/pages/main/main_page.dart
+  - name: sync_issues
+    caption: Sync issues
+    widget: SyncIssuesPage
+    import: package:{package}/presentation/pages/sync_issues/sync_issues_page.dart
+  - name: quick_flow
+    caption: Quick flow
+    widget: QuickFlowPage
+    import: package:{package}/presentation/pages/quick_flow/quick_flow_page.dart

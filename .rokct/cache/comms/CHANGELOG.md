@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.23.5
+
+- feat(i18n): Afrikaans copy for 2 translation keys this SDK uses and English copy for 2, so both languages are complete. No behaviour change in English except proper wording where a key was humanized.
+
 ## 1.23.4
 
 * feat(notifications): `LocalNotifications.show` takes optional `group` and `groupTitle`. With a group, Android stacks every alert with that key under one heading (a silent group summary), so a sender keeps all its notifications together; iOS uses the group as thread id. Callers that do not pass a group are unchanged. Covered by `test/local_notifications_alert_test.dart`.

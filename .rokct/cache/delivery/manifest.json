@@ -1,6 +1,6 @@
 {
   "name": "delivery_sdk",
-  "version": "1.32.0",
+  "version": "1.32.2",
   "_comment_version_1_32_0": "1.31.2 -> 1.32.0: feat(i18n). Hardcoded UI copy goes through trkeys (Ray, 2026-11-20): new delivery_* tr_keys with bundled English and Afrikaans copy. Existing keys unchanged.",
   "_comment_version_1_30_2": "1.30.1 -> 1.30.2: templates/assets/images/marker.png is now the blue driver pin (same file as paas_driver main), so the composer re-extracts it and the shell stays clean at HEAD. No Dart change.",
   "_comment_version_1_30_1": "1.30.0 -> 1.30.1 (tour coverage, Ray 2026-10-23): the delivery tour fragment gains /driver-deposits, /load, /load/sell and /load/return, and the demo get_my_load fixture now holds one stocked open load so those screens render with data. No Dart change.",

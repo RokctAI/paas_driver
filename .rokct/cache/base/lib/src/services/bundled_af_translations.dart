@@ -621,4 +621,15 @@ const Map<String, String> kBaseAfTranslations = {
   'check_connection_and_try_again': 'Kontroleer asseblief jou internetverbinding en probeer weer.',
   'continue_offline': 'Gaan voort vanlyn',
   'skip_guide': 'Slaan gids oor',
+
+  // Filled by scripts/trkeys-gaps (every key the SDK uses now has copy).
+  'how_are_you_finding_the_app': 'Hoe vind jy die app?',
+  'offline': 'Vanlyn',
+  'online': 'Aanlyn',
+  'rate_this_app': 'Gradeer hierdie app',
+  'rate_us_in_the_store': 'Gradeer ons in die winkel',
+  'send_feedback': 'Stuur terugvoer',
+  'tell_us_what_we_can_do_better': 'Sê vir ons wat ons beter kan doen',
+  'thanks_for_your_rating': 'Dankie vir jou gradering',
+  'this_page_is_not_available_yet': 'Hierdie bladsy is nog nie beskikbaar nie',
 };

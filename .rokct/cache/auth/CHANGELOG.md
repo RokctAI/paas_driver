@@ -1,3 +1,7 @@
+## 1.22.8
+
+- feat(i18n): Afrikaans copy for 2 translation keys this SDK uses, so both languages are complete. No behaviour change in English except proper wording where a key was humanized.
+
 ## 1.22.7
 
 - fix(welcome): wide windows (tablet/desktop) show the splash hero art as a contained panel in the start pane, beside the end-anchored Login / Register column, instead of a blank dark page (tour 1114b tablet 01-welcome, manager and driver). Compact is unchanged.

@@ -1,3 +1,7 @@
+## 1.13.5
+
+- feat(i18n): Afrikaans copy for 37 translation keys this SDK uses and English copy for 37, so both languages are complete. No behaviour change in English except proper wording where a key was humanized.
+
 ## 1.13.4
 
 - fix(catalog): `FoodsBody` owns its product `RefreshController`. On a split-pane width, opening Quick stock rebuilds the catalog into a new plane while the old one is still mounted, and the shared page controller crashed with pull_to_refresh "Don't use one refreshController to multiple SmartRefresher" (tour 1114b manager tablet 15-quick_stock). The page's scroll listener also skips while two lists are attached.

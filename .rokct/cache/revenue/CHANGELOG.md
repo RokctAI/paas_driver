@@ -1,3 +1,7 @@
+## 1.14.14
+
+- feat(i18n): Afrikaans copy for 111 translation keys this SDK uses and English copy for 111, so both languages are complete. No behaviour change in English except proper wording where a key was humanized.
+
 ## 1.14.13
 
 - fix(driver income): the phone scroller keeps 72 dp more room at its foot, so the Statistics tiles and the chart scroll fully clear of the docked Withdraw money / Back row instead of ending under it (tour 1114c, 18-revenue_income).

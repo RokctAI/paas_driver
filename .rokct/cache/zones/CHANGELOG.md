@@ -1,3 +1,7 @@
+## 1.7.4
+
+- feat(i18n): Afrikaans copy for 14 translation keys this SDK uses, so both languages are complete. No behaviour change in English except proper wording where a key was humanized.
+
 ## 1.7.3
 
 - fix(tour): the delivery-zone step waits 12s for tiles after map-ready on a tablet (4s on a phone, as since zones#154): the tablet map needs several times the tiles and tour 1114b captured the outer ring still grey (tablet 17-driver_delivery_zone).

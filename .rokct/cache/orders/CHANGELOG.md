@@ -1,3 +1,11 @@
+## 1.32.3
+
+- feat(i18n): bundled Afrikaans (and missing English) copy for every translation key this SDK uses, so both languages are complete.
+
+## 1.32.2
+
+- feat(render): orders.render.yaml also binds the manager tour steps order_pos_products, order_history, order_loads, order_issue_load and order_shop_drivers.
+
 ## 1.32.1
 
 - fix(render): drop the customer_order_tracking render binding; its live map is a platform view that cannot draw in the render test and left a timer running, which failed the test and blocked the paas_customer tour. The tour screenshot still covers it.
