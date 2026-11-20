@@ -802,7 +802,14 @@ Future<void> _drain(WidgetTester tester, {int rounds = 8}) async {
 List<_Measured> _measure(WidgetTester tester, List<ElementSpec> specs) {
   final measured = <_Measured>[];
   for (final spec in specs) {
-    final elements = spec.finder.evaluate().toList();
+    // A chip finder narrowed with `.first` throws when nothing matches; a
+    // point that is not on the frame is dropped, never failing the render.
+    final List<Element> elements;
+    try {
+      elements = spec.finder.evaluate().toList();
+    } catch (_) {
+      continue;
+    }
     for (var i = 0; i < elements.length; i++) {
       try {
         final widget = elements[i].widget;
@@ -1003,7 +1010,7 @@ Future<void> _loadRealFontsOnce() async {
 List<ElementSpec> _textChip(String key, String label, String text) =>
     <ElementSpec>[
       ElementSpec(
-          key: key, label: label, finder: find.textContaining(text).first),
+          key: key, label: label, finder: find.textContaining(text, findRichText: true).first),
     ];
 
 final Map<String, List<ElementSpec> Function()> kTourScreenChips =
