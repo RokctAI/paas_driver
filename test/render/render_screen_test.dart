@@ -40,6 +40,7 @@
 //   flutter test test/render/render_screen_test.dart
 //   RENDER_SUFFIX=_draft flutter test test/render/render_screen_test.dart
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -96,6 +97,12 @@ import 'package:zones_sdk/src/common/di/zones_di.dart';
 import 'package:driver/presentation/pages/profile/courier_statistics_provider.dart';
 import 'package:driver/presentation/pages/profile/profile_page.dart';
 
+// Tour screens: one entry per guided-tour step that an SDK's render fragment
+// (templates/render/*.render.yaml) binds by name. Written by shared-workflows'
+// merge_render_fragments.py on every strip run; the committed copy is an empty
+// stub so this test compiles (and renders only the shell's own screen).
+import 'render_screens.g.dart';
+
 // ---------------------------------------------------------------------------
 // Render settings - phone size the reviews are judged at. Only change these
 // if the whole review is moving to a different device class.
@@ -113,6 +120,10 @@ const double kDevicePixelRatio = 3.0;
 const double kProbeHeight = 2600;
 
 /// Slack below the last element in the final frame, in logical pixels.
+/// Height of a generated tour screen's frame: one phone screen, as the tour's
+/// own stills capture it.
+const double kGeneratedHeight = 844;
+
 const double kBottomPadding = 20;
 
 /// The demo courier this shell signs in as. auth_sdk's `api.user.login`
@@ -260,7 +271,7 @@ void registerScreen() {}
 /// real one either way, and it is what owns everything on the frame.
 ///
 /// No overrides — the providers resolve against the demo DI registered above.
-Widget buildScreen({required bool dark}) {
+Widget buildScreen({required bool dark, Widget? screen}) {
   return ProviderScope(
     child: LayoutBuilder(
       builder: (context, constraints) {
@@ -299,7 +310,7 @@ Widget buildScreen({required bool dark}) {
             // before the first pump, so the Material tree and AppStyle's own
             // mode-resolving tokens agree.
             themeMode: dark ? ThemeMode.dark : ThemeMode.light,
-            home: const _CourierJourney(child: ProfilePage()),
+            home: screen ?? const _CourierJourney(child: ProfilePage()),
           ),
         );
       },
@@ -830,12 +841,24 @@ Future<void> renderVariant(
   required bool dark,
   required String name,
   required String dbDir,
+  // A tour screen from kGeneratedScreens: its widget and the finder that
+  // proves it is on screen. When set, the shell's own specs
+  // (elementSpecs/verifyFinders) do not apply - the frame is the whole screen
+  // at one phone height, chipped only by kTourScreenChips.
+  Widget Function()? screen,
+  Finder Function()? screenFinder,
+  List<ElementSpec> Function()? screenChips,
 }) async {
   final outDir = Directory('${Directory.current.path}/out')
     ..createSync(recursive: true);
 
   _mockPathProvider(dbDir);
   _mockAbsentPlugins();
+
+  // Each variant starts from nothing: rootBundle caches every loadString
+  // future, and a load a previous variant never finished would be awaited
+  // forever by the next one.
+  rootBundle.clear();
 
   // App-wide state the screen reads before it builds. LocalStorage backs the
   // profile header, the language direction and the stored theme mode; the
@@ -873,10 +896,18 @@ Future<void> renderVariant(
   await tester.pumpWidget(
     RepaintBoundary(
       key: boundaryKey,
-      child: buildScreen(dark: dark),
+      child: buildScreen(dark: dark, screen: screen?.call()),
     ),
   );
   await _drain(tester);
+  final generated = screen != null;
+  if (generated) {
+    expect(
+      screenFinder!(),
+      findsOneWidget,
+      reason: 'the tour screen did not build under the harness',
+    );
+  }
 
   // Pass 1 measures the real content height in the tall probe viewport; pass 2
   // re-renders at exactly that height so the PNG is a full-length strip with
@@ -886,22 +917,31 @@ Future<void> renderVariant(
   // Before a single rect is taken: prove every finder still means what it
   // meant. A silently over- or under-matching finder is invisible in the
   // PNG, so it has to be caught here or not at all.
-  verifyFinders(tester);
+  if (!generated) verifyFinders(tester);
 
-  var measured = _measure(tester, elementSpecs());
-  expect(
-    measured,
-    isNotEmpty,
-    reason: 'no elements matched - check elementSpecs() and the gates in '
-        'registerScreen()',
-  );
+  var measured = generated
+      ? (screenChips == null ? <_Measured>[] : _measure(tester, screenChips()))
+      : _measure(tester, elementSpecs());
+  if (!generated) {
+    expect(
+      measured,
+      isNotEmpty,
+      reason: 'no elements matched - check elementSpecs() and the gates in '
+          'registerScreen()',
+    );
+  }
 
-  final contentBottom =
-      measured.map((m) => m.rect.bottom).reduce((a, b) => a > b ? a : b);
-  final targetHeight = (contentBottom + kBottomPadding).clamp(
-    400.0,
-    kProbeHeight,
-  );
+  final double targetHeight;
+  if (generated) {
+    targetHeight = kGeneratedHeight;
+  } else {
+    final contentBottom =
+        measured.map((m) => m.rect.bottom).reduce((a, b) => a > b ? a : b);
+    targetHeight = (contentBottom + kBottomPadding).clamp(
+      400.0,
+      kProbeHeight,
+    );
+  }
 
   tester.view.physicalSize = Size(
     kLogicalWidth * kDevicePixelRatio,
@@ -909,7 +949,9 @@ Future<void> renderVariant(
   );
   await tester.pump(const Duration(milliseconds: 50));
   await _drain(tester, rounds: 4);
-  measured = _measure(tester, elementSpecs());
+  measured = generated
+      ? (screenChips == null ? <_Measured>[] : _measure(tester, screenChips()))
+      : _measure(tester, elementSpecs());
 
   await tester.runAsync(() async {
     final boundary =
@@ -954,6 +996,21 @@ Future<void> _loadRealFontsOnce() async {
   _fontsLoaded = true;
 }
 
+/// Chips for the guided tour's generated screens, keyed by tour step key.
+/// Written by hand; a screen without an entry renders clean. Finders anchor
+/// on visible demo text, and a point that no longer resolves is dropped by
+/// [_measure] rather than failing the run. Never reword `key`.
+List<ElementSpec> _textChip(String key, String label, String text) =>
+    <ElementSpec>[
+      ElementSpec(
+          key: key, label: label, finder: find.textContaining(text).first),
+    ];
+
+final Map<String, List<ElementSpec> Function()> kTourScreenChips =
+    <String, List<ElementSpec> Function()>{
+  // CHIPS
+};
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -991,4 +1048,134 @@ void main() {
       dbDir: dbDir,
     );
   });
+
+  // The guided tour's screens. run_strip.sh passes the tour plan to
+  // merge_render_fragments.py, which writes render_screens.g.dart with one
+  // entry per tour step that an SDK's render fragment names the same as the
+  // step key (marketplace_home, wallet_topup, customer_orders, ...). Nothing
+  // is named here: with the committed empty stub this loop has no entries.
+  //
+  // A screen the harness cannot render headlessly must not fail the run: it
+  // is logged and skipped, no PNG is written, and the strip config drops its
+  // frame (merge_render_fragments.py --prune-config). Check the log for
+  // "SKIPPED tour screen" lines when a screen is missing from the strip.
+  for (final entry in kGeneratedScreens.entries) {
+    for (final dark in <bool>[true, false]) {
+      final mode = dark ? 'dark' : 'light';
+      testWidgets('render tour screen ${entry.key} - $mode', (tester) async {
+        final name = '${entry.key}_$mode$suffix';
+        // Framework errors (a build that throws, a failed lookup, an
+        // overflow) are reported through FlutterError.onError, not thrown to
+        // the caller. Collect them for THIS screen instead. The handler is
+        // restored in the finally block below and again in a tear-down, as
+        // flutter_test checks FlutterError.onError is back to its original.
+        final problems = <Object>[];
+        final priorOnError = FlutterError.onError;
+        addTearDown(() => FlutterError.onError = priorOnError);
+        FlutterError.onError = (FlutterErrorDetails details) {
+          problems.add(details.exception);
+        };
+        try {
+          await _runGuarded(problems, () async {
+            await renderVariant(
+              tester,
+              dark: dark,
+              name: name,
+              dbDir: dbDir,
+              screen: entry.value.build,
+              screenFinder: entry.value.finder,
+              screenChips: kTourScreenChips[entry.key],
+            );
+            // Unmount while the handler is still ours, so errors thrown by
+            // disposing the screen are collected too.
+            await tester.pumpWidget(const SizedBox.shrink());
+          });
+        } finally {
+          // The frame is captured (or given up on) by now; what follows is
+          // clean-up, and nothing from it may change the outcome.
+          final captured = problems.length;
+          await _drainPending(tester);
+          if (problems.length > captured) problems.length = captured;
+          while (tester.takeException() != null) {}
+          FlutterError.onError = priorOnError;
+        }
+        // A RenderFlex overflow is a cosmetic layout warning: the frame is
+        // still drawn and its PNG is worth keeping. Only other errors (a
+        // build that throws, a failed lookup) make a frame untrustworthy.
+        final hard = problems.where((e) => !_isOverflow(e)).toList();
+        if (problems.isNotEmpty && hard.isEmpty) {
+          // ignore: avoid_print
+          print('NOTE tour screen ${entry.key} - $mode: '
+              '${problems.length} layout overflow(s), PNG kept; '
+              'first: ${problems.first.toString().split('\n').first}');
+        }
+        if (hard.isNotEmpty) {
+          // A screen that reported hard errors is not a trustworthy frame: drop
+          // anything it wrote so it is skipped, not half-composed.
+          final outDir = '${Directory.current.path}/out';
+          for (final ext in <String>['png', 'json']) {
+            final file = File('$outDir/$name.$ext');
+            if (file.existsSync()) file.deleteSync();
+          }
+          // ignore: avoid_print
+          print('SKIPPED tour screen ${entry.key} - $mode: '
+              '${problems.length} error(s); first: ${hard.first}');
+          // One JSON line per skipped screen, for the render strip's
+          // plain-language list (run_strip.sh turns these into
+          // render-skipped.md). Only the first line of the error is kept.
+          final reason = hard.first.toString().split('\n').first.trim();
+          Directory(outDir).createSync(recursive: true);
+          File('$outDir/skipped.jsonl').writeAsStringSync(
+            '${jsonEncode(<String, String>{
+              'key': entry.key,
+              'mode': mode,
+              'reason': reason.length > 200
+                  ? '${reason.substring(0, 197)}...'
+                  : reason,
+            })}\n',
+            mode: FileMode.append,
+          );
+        }
+      });
+    }
+  }
+}
+
+/// Runs [body] in an error zone. Anything it throws, and any uncaught async
+/// error raised while it runs, is appended to [problems] rather than failing
+/// the test.
+Future<void> _runGuarded(
+  List<Object> problems,
+  Future<void> Function() body,
+) {
+  final done = Completer<void>();
+  runZonedGuarded(() async {
+    try {
+      await body();
+    } catch (error) {
+      problems.add(error);
+    } finally {
+      if (!done.isCompleted) done.complete();
+    }
+  }, (error, stack) {
+    problems.add(error);
+  });
+  return done.future;
+}
+
+/// Whether [error] is only a RenderFlex/RenderBox overflow warning.
+bool _isOverflow(Object error) => error.toString().contains('overflowed by');
+
+/// Lets everything still scheduled after the screen was unmounted (a zero
+/// length timer from an in-flight request, a timeout) run on the fake clock.
+/// flutter_test fails a test that ends with a timer pending, and a tour screen
+/// that kicks off a request would otherwise fail the whole run for it.
+Future<void> _drainPending(WidgetTester tester) async {
+  for (var i = 0; i < 12; i++) {
+    try {
+      await tester.pump(const Duration(seconds: 30));
+    } catch (_) {
+      // Ignored: the frame is already captured.
+    }
+  }
 }
