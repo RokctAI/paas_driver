@@ -64,6 +64,10 @@ key.properties
 # on every tour run but only commits marketing/tour outputs).
 !integration_test/tour_steps.g.dart
 
+# The render strip's generated screen list: the committed copy is an empty
+# stub so test/render/render_screen_test.dart compiles.
+!test/render/render_screens.g.dart
+
 # Coverage reports
 /coverage/
 
