@@ -44,9 +44,13 @@ abstract class UserRepositoryFacade {
     required String imageUrl,
   });
 
+  /// [currentPassword] is the signed-in user's present password: the server
+  /// requires it for a logged-in change. Leave it out only for the session
+  /// that forgot-password just issued (the reset flow).
   Future<ApiResult<ProfileResponse>> updatePassword({
     required String password,
     required String passwordConfirmation,
+    String? currentPassword,
   });
 
   Future<ApiResult<WalletHistoriesResponse>> getWalletHistories(int page);

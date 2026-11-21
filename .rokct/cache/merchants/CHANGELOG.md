@@ -1,3 +1,7 @@
+## 1.38.8
+
+- fix(sync-issues): no loading spinner while issues load; the list stays empty until the first fetch returns.
+
 ## 1.38.7
 
 - feat(i18n): bundled Afrikaans (and missing English) copy for every translation key this SDK uses, so both languages are complete.

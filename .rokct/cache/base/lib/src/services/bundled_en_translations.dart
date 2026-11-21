@@ -61,6 +61,8 @@ const Map<String, String> kBaseEnTranslations = {
   'check_connection_and_try_again': 'Please check your internet connection and try again.',
   'continue_offline': 'Continue offline',
   'skip_guide': 'Skip guide',
+  'current_password': 'Current password',
+  'enter_your_current_password': 'Enter your current password.',
 
   // Filled by scripts/trkeys-gaps (every key the SDK uses now has copy).
   'how_are_you_finding_the_app': 'How are you finding the app?',

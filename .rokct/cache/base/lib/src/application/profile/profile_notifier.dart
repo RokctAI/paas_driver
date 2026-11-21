@@ -14,6 +14,7 @@
 
 
 import 'package:auto_route/auto_route.dart';
+import 'package:base_sdk/src/models/data/profile_data.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -259,6 +260,11 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
         final response = await userRepository.getProfileDetails();
         response.when(
           success: (data) async {
+            // Offline first (Ray, 2026-11-21): an answer missing the
+            // person's names or contacts never wipes the ones already
+            // saved on the phone, so the identity card keeps showing them.
+            data = data.copyWith(
+                data: keepSavedIdentity(data.data, LocalStorage.getUser()));
             LocalStorage.setWalletData(data.data?.wallet);
             LocalStorage.setUser(data.data);
             LocalStorage.setAddressSelected(
@@ -620,4 +626,19 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       }
     }
   }
+}
+
+/// [fetched] with any empty name, email or phone filled from [saved], so a
+/// thin server answer never erases what the phone already knows.
+@visibleForTesting
+ProfileData? keepSavedIdentity(ProfileData? fetched, ProfileData? saved) {
+  if (fetched == null) return saved;
+  if (saved == null) return fetched;
+  String? pick(String? a, String? b) => (a ?? '').trim().isEmpty ? b : a;
+  return fetched.copyWith(
+    firstname: pick(fetched.firstname, saved.firstname),
+    lastname: pick(fetched.lastname, saved.lastname),
+    email: pick(fetched.email, saved.email),
+    phone: pick(fetched.phone, saved.phone),
+  );
 }

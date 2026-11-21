@@ -158,7 +158,7 @@ packages:
       path: ".rokct/cache/base"
       relative: true
     source: path
-    version: "1.113.1"
+    version: "1.113.4"
   battery_plus:
     dependency: "direct main"
     description:
@@ -484,7 +484,7 @@ packages:
       path: ".rokct/cache/delivery"
       relative: true
     source: path
-    version: "1.32.2"
+    version: "1.32.4"
   desktop_sdk:
     dependency: "direct main"
     description:
@@ -1663,7 +1663,7 @@ packages:
       path: ".rokct/cache/merchants"
       relative: true
     source: path
-    version: "1.38.7"
+    version: "1.38.8"
   meta:
     dependency: transitive
     description:
@@ -2503,7 +2503,7 @@ packages:
       path: ".rokct/cache/users"
       relative: true
     source: path
-    version: "1.5.3"
+    version: "1.5.4"
   uuid:
     dependency: "direct main"
     description:

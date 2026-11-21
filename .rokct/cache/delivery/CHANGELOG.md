@@ -1,3 +1,11 @@
+## 1.32.4
+
+- fix(render): driver_load_sell and driver_load_return are no longer bound; built without a load they draw an empty page that the render gate refuses, failing the tour (paas_driver run 44811008403).
+
+## 1.32.3
+
+- feat: `updateGeneralInfo` takes an optional `currentPassword` and sends it with a password change. Needs base_sdk 1.113.2.
+
 ## 1.32.2
 
 - feat(i18n): Afrikaans copy for 195 translation keys this SDK uses and English copy for 194, so both languages are complete. No behaviour change in English except proper wording where a key was humanized.

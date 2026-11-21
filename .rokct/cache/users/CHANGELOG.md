@@ -1,3 +1,7 @@
+## 1.5.4
+
+- feat: `updatePassword` sends `current_password` when the caller gives `currentPassword` (logged-in change; the reset flow leaves it out). Needs base_sdk 1.113.2.
+
 ## 1.5.3
 
 - chore(compliance): compliance-ignore comments with reasons for the sdk_validator --compliance findings; no behaviour change.

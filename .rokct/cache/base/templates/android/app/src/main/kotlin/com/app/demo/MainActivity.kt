@@ -117,7 +117,7 @@ class MainActivity: FlutterFragmentActivity() {
          *   behind the `rokct.launch_sdk/app_changes` channel, so the
          *   launcher is told when its app list changes instead of asking.
          */
-        private val OPTIONAL_BRIDGES = listOf("DefaultHomeBridge", "AppChangesBridge", "SticksCallBridge")
+        private val OPTIONAL_BRIDGES = listOf("DefaultHomeBridge", "AppChangesBridge", "SticksCallBridge", "SticksNotifyBridge")
 
         /**
          * Bridges registered with `register(FlutterEngine, Activity)`.

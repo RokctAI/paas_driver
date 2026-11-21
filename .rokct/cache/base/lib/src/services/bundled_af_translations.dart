@@ -621,6 +621,8 @@ const Map<String, String> kBaseAfTranslations = {
   'check_connection_and_try_again': 'Kontroleer asseblief jou internetverbinding en probeer weer.',
   'continue_offline': 'Gaan voort vanlyn',
   'skip_guide': 'Slaan gids oor',
+  'current_password': 'Huidige wagwoord',
+  'enter_your_current_password': 'Voer jou huidige wagwoord in.',
 
   // Filled by scripts/trkeys-gaps (every key the SDK uses now has copy).
   'how_are_you_finding_the_app': 'Hoe vind jy die app?',

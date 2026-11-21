@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.113.1",
+      "version": "1.113.4",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -239,7 +239,7 @@
       }
     },
     "users_sdk": {
-      "version": "1.5.3",
+      "version": "1.5.4",
       "files": {
         "assets/demo/users/api.user.search_user.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
         "assets/demo/users/api.user.add_user_address.json": "94040fd50c440c6ddcbbe56ce155489e70d4ae918498599ac55082d238d799ad",
@@ -342,7 +342,7 @@
       ]
     },
     "delivery_sdk": {
-      "version": "1.32.2",
+      "version": "1.32.4",
       "files": {
         "lib/presentation/pages/profile/courier_statistics_provider.dart": "11db8e698632a6cee50e92a83fef8a494c4b55cf316bbaf6398f652460cb8dea",
         "lib/presentation/routes/delivery_adapters.dart": "cd22c591ae3179bcc44d95cead4ac89abddfecdc6217a8c316037890e13ecddc",
@@ -1103,7 +1103,7 @@
       ]
     },
     "merchants_sdk": {
-      "version": "1.38.7",
+      "version": "1.38.8",
       "files": {
         "assets/audio/notification.wav": "9d62af6f1c8df010941d1daa17162175d87293bd78371c787803b5a11f95cb9d",
         "lib/presentation/pages/stores/story_page.dart": "adeb07c24627dd3f1321a4f3eebc4d762e55f8cf8e8e3b7b91daeffdb86b3508",
@@ -1579,8 +1579,8 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.113.1",
-      "source_hash": "058bd9219a11f4bb"
+      "version": "1.113.4",
+      "source_hash": "92c795608e159ed7"
     },
     "comms": {
       "version": "1.23.5",
@@ -1591,24 +1591,24 @@
       "source_hash": "a7949a7114b023c6"
     },
     "users": {
-      "version": "1.5.3",
-      "source_hash": "cb3062dc3a29f9fd"
+      "version": "1.5.4",
+      "source_hash": "7a69d52d5946b5df"
     },
     "orders": {
       "version": "1.32.3",
       "source_hash": "a9cda1696b19878d"
     },
     "merchants": {
-      "version": "1.38.7",
-      "source_hash": "a5918b11af12b2b4"
+      "version": "1.38.8",
+      "source_hash": "77581416b2377882"
     },
     "products": {
       "version": "1.13.5",
       "source_hash": "043ae91783ebb5ae"
     },
     "delivery": {
-      "version": "1.32.2",
-      "source_hash": "20de1c7d115eba02"
+      "version": "1.32.4",
+      "source_hash": "fd8195acdcfbd3e1"
     },
     "map": {
       "version": "1.5.2",

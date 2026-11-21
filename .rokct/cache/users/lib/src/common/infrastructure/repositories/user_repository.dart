@@ -346,9 +346,12 @@ class UserRepository implements UserRepositoryFacade {
   Future<ApiResult<ProfileResponse>> updatePassword({
     required String password,
     required String passwordConfirmation,
+    String? currentPassword,
   }) async {
     try {
-      // Server signature: update_password(password, password_confirmation)
+      // Server signature: update_password(password, password_confirmation,
+      // current_password). current_password is required for a logged-in
+      // change and left out for the forgot-password reset session.
       // and it throws "Password confirmation does not match." when the two
       // differ, so the confirmation the facade already receives must ride
       // along (Dart SDK audit 2026-09-02, U2). Callers keep their own
@@ -356,7 +359,11 @@ class UserRepository implements UserRepositoryFacade {
       // TypeError on the missing positional.
       final response = await _gateway.tenant(
         'api.user.update_password',
-        {'password': password, 'password_confirmation': passwordConfirmation},
+        {
+          'password': password,
+          'password_confirmation': passwordConfirmation,
+          if (currentPassword != null) 'current_password': currentPassword,
+        },
       );
       return ApiResult.success(data: ProfileResponse.fromJson(response));
     } catch (e) {

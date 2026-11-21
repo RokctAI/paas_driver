@@ -1334,4 +1334,6 @@ class TrKeys {
   static const String checkConnectionAndTryAgain = 'check_connection_and_try_again';
   static const String continueOffline = 'continue_offline';
   static const String skipGuide = 'skip_guide';
+  static const String currentPassword = 'current_password';
+  static const String enterYourCurrentPassword = 'enter_your_current_password';
 }

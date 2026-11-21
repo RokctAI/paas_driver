@@ -1,3 +1,15 @@
+## 1.113.4
+
+- feat: MainActivity registers SticksNotifyBridge when present (Sticks phone notifications; lock screen shows only who needs you unless Show work is on). Proguard keeps it.
+
+## 1.113.3
+
+- fix: the profile never loses the saved name, email or phone to a server answer that lacks them (Ray, 2026-11-21: "Apps are offline first"). `keepSavedIdentity` fills empty fields from the saved user before it is stored, so the identity card keeps the person's details.
+
+## 1.113.2
+
+- feat: `UserRepositoryFacade.updatePassword` takes an optional `currentPassword` (the server requires it for a logged-in change; the forgot-password reset session is exempt). New trkeys `current_password` and `enter_your_current_password`, English and Afrikaans.
+
 # Changelog
 
 ## 1.113.1

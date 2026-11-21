@@ -155,6 +155,20 @@ Future<void> main() async {
       expect(http.requireAuthCalls, [true]);
     });
 
+    test('updatePassword sends current_password only when given', () async {
+      await UserRepository().updatePassword(
+        password: 'new pass',
+        passwordConfirmation: 'new pass',
+        currentPassword: 'old pass',
+      );
+
+      expect(payload(adapter.requests.single), {
+        'password': 'new pass',
+        'password_confirmation': 'new pass',
+        'current_password': 'old pass',
+      });
+    });
+
     test('updatePassword forwards the confirmation verbatim (server decides)',
         () async {
       // The server is the authority on the equality check ("Password

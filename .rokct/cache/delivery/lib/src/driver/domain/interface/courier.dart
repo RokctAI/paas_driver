@@ -55,6 +55,7 @@ abstract class CourierRepositoryFacade {
     String? email,
     String? password,
     String? confirmPassword,
+    String? currentPassword,
   });
 
   Future<ApiResult<DeliveryResponse>> editCarInfo({

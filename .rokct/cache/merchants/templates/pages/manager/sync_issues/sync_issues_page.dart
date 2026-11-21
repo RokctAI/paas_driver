@@ -237,7 +237,7 @@ class _SyncIssuesPageState extends ConsumerState<SyncIssuesPage> {
         const SizedBox(height: 8),
         Expanded(
           child: state.isLoading && issues.isEmpty
-              ? const Center(child: CircularProgressIndicator.adaptive())
+              ? const SizedBox.shrink()
               : rows.isEmpty
               ? _empty()
               : RefreshIndicator.adaptive(

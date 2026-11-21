@@ -186,6 +186,7 @@ class CourierRepository implements CourierRepositoryFacade {
     String? email,
     String? password,
     String? confirmPassword,
+    String? currentPassword,
   }) async {
     final data = {
       'firstname': firstName,
@@ -208,6 +209,7 @@ class CourierRepository implements CourierRepositoryFacade {
         await _gateway.tenant('$_userCmd.update_password', {
           'password': password,
           'password_confirmation': confirmPassword ?? password,
+          if (currentPassword != null) 'current_password': currentPassword,
         });
       }
       final response =

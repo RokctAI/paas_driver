@@ -8,6 +8,10 @@
 # Not bound:
 #  * driver_home and driver_route: both are live maps (a platform view, which
 #    throws MissingPluginException in a widget test and leaves timers behind).
+#  * driver_load_sell and driver_load_return: they open for one load (the
+#    `load` query the tour passes from the load list); built standalone they
+#    have no load and draw an empty page, which the render's quality gate
+#    refuses (paas_driver run 44811008403).
 #  * driver_profile: the shell's own render (test/render/strip.json) already
 #    draws the driver profile with its chips.
 #
@@ -40,11 +44,3 @@ screens:
     caption: Load
     widget: DriverLoadPage
     import: package:{package}/presentation/pages/load/load_page.dart
-  - name: driver_load_sell
-    caption: Sell from load
-    widget: DriverLoadSellPage
-    import: package:{package}/presentation/pages/load/load_sell_page.dart
-  - name: driver_load_return
-    caption: Return load
-    widget: DriverLoadReturnPage
-    import: package:{package}/presentation/pages/load/load_return_page.dart
