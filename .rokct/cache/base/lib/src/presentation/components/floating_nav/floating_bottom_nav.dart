@@ -1052,7 +1052,9 @@ class _NavActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final enabled = action.enabled;
     final Color fill;
-    if (action.danger) {
+    if (action.color != null) {
+      fill = action.color!;
+    } else if (action.danger) {
       fill = AppStyle.red;
     } else if (action.active) {
       fill = AppStyle.primary;
@@ -1065,7 +1067,10 @@ class _NavActionButton extends StatelessWidget {
 
     final button = Material(
       color: fill,
-      shape: action.danger || action.active || compact
+      shape: action.color != null ||
+              action.danger ||
+              action.active ||
+              compact
           ? const CircleBorder()
           : CircleBorder(
               side: BorderSide(color: AppStyle.white.withOpacity(0.22)),
@@ -1279,7 +1284,7 @@ class _CompanionButton extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.only(left: 8.r),
           child: Material(
-            color: const Color.fromRGBO(0, 0, 0, 0.8),
+            color: action.color ?? const Color.fromRGBO(0, 0, 0, 0.8),
             shape: const CircleBorder(),
             child: InkWell(
               customBorder: const CircleBorder(),
@@ -1338,61 +1343,68 @@ class FloatingNavNoticeStrip extends StatelessWidget {
               constraints: const BoxConstraints(maxWidth: 420),
               child: BlurWrap(
                 radius: BorderRadius.circular(16.r),
-                child: Container(
-                  key: const ValueKey('floating_nav.notice'),
-                  padding: EdgeInsetsDirectional.only(
-                    start: 14.r,
-                    end: notice.onDismiss == null ? 14.r : 4.r,
-                    top: 6.r,
-                    bottom: 6.r,
-                  ),
-                  decoration: BoxDecoration(
-                    color: tint.withValues(alpha: 0.85),
-                    borderRadius: BorderRadius.circular(16.r),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          notice.message,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: AppStyle.white,
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      if (notice.actionLabel != null)
-                        TextButton(
-                          key: const ValueKey('floating_nav.notice.action'),
-                          onPressed: notice.onAction,
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppStyle.white,
-                            backgroundColor:
-                                AppStyle.white.withValues(alpha: 0.18),
-                            padding: EdgeInsets.symmetric(horizontal: 12.r),
-                            minimumSize: Size(0, 30.r),
-                            shape: const StadiumBorder(),
-                          ),
+                // The nav floats over the page outside any Scaffold, so
+                // the strip brings its own Material: without it the
+                // IconButton and TextButton throw "No Material widget
+                // found" and the app paints the red error screen.
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: Container(
+                    key: const ValueKey('floating_nav.notice'),
+                    padding: EdgeInsetsDirectional.only(
+                      start: 14.r,
+                      end: notice.onDismiss == null ? 14.r : 4.r,
+                      top: 6.r,
+                      bottom: 6.r,
+                    ),
+                    decoration: BoxDecoration(
+                      color: tint.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
                           child: Text(
-                            notice.actionLabel!,
+                            notice.message,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
+                              color: AppStyle.white,
                               fontSize: 13.sp,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
-                      if (notice.onDismiss != null)
-                        IconButton(
-                          key: const ValueKey('floating_nav.notice.dismiss'),
-                          onPressed: notice.onDismiss,
-                          icon: Icon(Remix.close_line,
-                              size: 18.r, color: AppStyle.white),
-                          visualDensity: VisualDensity.compact,
-                        ),
-                    ],
+                        if (notice.actionLabel != null)
+                          TextButton(
+                            key: const ValueKey('floating_nav.notice.action'),
+                            onPressed: notice.onAction,
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppStyle.white,
+                              backgroundColor:
+                                  AppStyle.white.withValues(alpha: 0.18),
+                              padding: EdgeInsets.symmetric(horizontal: 12.r),
+                              minimumSize: Size(0, 30.r),
+                              shape: const StadiumBorder(),
+                            ),
+                            child: Text(
+                              notice.actionLabel!,
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        if (notice.onDismiss != null)
+                          IconButton(
+                            key: const ValueKey('floating_nav.notice.dismiss'),
+                            onPressed: notice.onDismiss,
+                            icon: Icon(Remix.close_line,
+                                size: 18.r, color: AppStyle.white),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),

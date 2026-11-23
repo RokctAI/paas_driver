@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -28,7 +27,6 @@ import 'package:base_sdk/src/application/profile/profile_host_capabilities.dart'
 import 'package:base_sdk/src/application/profile/profile_provider.dart';
 import 'package:base_sdk/src/models/data/profile_data.dart';
 import 'package:base_sdk/src/presentation/components/buttons/custom_button.dart';
-import 'package:base_sdk/src/presentation/components/loading.dart';
 import 'package:base_sdk/src/presentation/components/user_avatar.dart';
 import 'package:base_sdk/src/presentation/adaptive/planes.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_host_scope.dart';
@@ -76,8 +74,7 @@ class GenericProfilePage extends ConsumerStatefulWidget {
 
   /// The anonymous surface's plan-only header card — present in anonymous
   /// mode only, and only while the plan slot is claimed.
-  static const Key anonymousHeaderKey =
-      Key('generic-profile-anonymous-header');
+  static const Key anonymousHeaderKey = Key('generic-profile-anonymous-header');
 
   /// The telemetry event type sent once per process when the host first
   /// mounts in anonymous mode; its context carries `missing_facades`, the
@@ -95,8 +92,7 @@ class GenericProfilePage extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<GenericProfilePage> createState() =>
-      _GenericProfilePageState();
+  ConsumerState<GenericProfilePage> createState() => _GenericProfilePageState();
 }
 
 /// The profile's scroll padding: 16 on every side, plus room at the
@@ -115,7 +111,9 @@ EdgeInsets get _listPadding => EdgeInsets.all(16.r);
 class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
   /// Resolved async visibility gates, keyed by section id. A gated section
   /// stays hidden until its gate resolves true.
-  final Map<String, bool> _gateResults = {...ProfileSectionRegistry.I.lastGateResults};
+  final Map<String, bool> _gateResults = {
+    ...ProfileSectionRegistry.I.lastGateResults,
+  };
 
   /// Resolved header-slot gates, keyed by slot. A gated slot stays empty
   /// until its gate resolves true — the same contract as section gates.
@@ -215,8 +213,7 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
     final content = ProfileSectionRegistry.I.headerSlot(slot);
     if (content == null) return null;
     if (!_capabilities.satisfies(content.requires)) return null;
-    if (content.visible != null &&
-        !(_headerSlotGateResults[slot] ?? false)) {
+    if (content.visible != null && !(_headerSlotGateResults[slot] ?? false)) {
       return null;
     }
     return content.builder(context);
@@ -231,13 +228,10 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
     final registry = ProfileSectionRegistry.I;
     final user = state.userData ?? LocalStorage.getUser();
     final sections = registry.sections.where(_isVisible).toList();
-    // Only an account host hydrates: without a UserRepositoryFacade
-    // nothing ever fetches, so a stored token must not park the page on
-    // the loader for good.
-    final hydrating = _capabilities.hasAccount &&
-        state.isLoading &&
-        user == null &&
-        LocalStorage.getToken().isNotEmpty;
+    // No loading placeholder (Ray, 2026-11-21: the shimmer stood in for the
+    // whole page and never matched it). The page draws at once from what the
+    // phone has; with nothing saved the identity card reads "Profile" until
+    // the fetch fills it in.
 
     final planBack = _headerSlotWidget(context, ProfileHeaderSlot.planBack);
 
@@ -248,7 +242,8 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
     // "sheet = PHONE, plane widths get a pane"); the phone — no host seam
     // — and a registry with no detail run the flow exactly as before.
     final onEditProfile = registry.onEditProfile;
-    final void Function(BuildContext context)? onEdit = onEditProfile == null &&
+    final void Function(BuildContext context)? onEdit =
+        onEditProfile == null &&
             !ProfileSectionNavigator.canOpenEditProfile(context)
         ? null
         : (context) {
@@ -292,19 +287,18 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
     final Widget? header = front == null
         ? null
         : planBack == null
-            ? front
-            : _FlipCard(
-                showBack: _showPlanBack,
-                front: front,
-                back: _PlanBackCard(
-                  onFlipBack: () => setState(() => _showPlanBack = false),
-                  child: planBack,
-                ),
-              );
+        ? front
+        : _FlipCard(
+            showBack: _showPlanBack,
+            front: front,
+            back: _PlanBackCard(
+              onFlipBack: () => setState(() => _showPlanBack = false),
+              child: planBack,
+            ),
+          );
 
     final topRow = _TopRow(
-      title:
-          registry.pageTitle ?? AppHelpers.getTranslation(TrKeys.profile),
+      title: registry.pageTitle ?? AppHelpers.getTranslation(TrKeys.profile),
       actions: registry.topRowActions,
       // Sign-out needs an account to sign out of: in anonymous mode the
       // button stays hidden even where the shell registered onLogout.
@@ -340,48 +334,42 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
         // light-grey page in light mode — same token every themed page
         // uses. In anonymous mode this brand ground is the whole backdrop.
         backgroundColor: AppStyle.surfaceFor(Theme.of(context).brightness),
-        body: hydrating
-            ? const Loading()
-            : SafeArea(
-                child: grantedPlanes >= 2
-                    ? _SpreadBody(
-                        columns: grantedPlanes,
-                        // Column gutters on the host's seam width, so the
-                        // page's columns sit exactly on the plane grid.
-                        columnGap: planes!.gap,
-                        topRow: topRow,
-                        header: header,
-                        sections: sections,
-                      )
-                    // The list runs to the foot of the page and FADES OUT
-                    // before the floating nav pill (FloatingNavFold): a
-                    // hard edge right above the pill read as the last row
-                    // sitting under the nav (tour 1114 20-users_profile),
-                    // and rows scrolled behind the translucent pill showed
-                    // through it (tour 1113b). The list's own bottom
-                    // padding lets the last row scroll clear of the pill.
-                    : FloatingNavFold(
-                      foot: _navClearance - 16.r,
-                      child: ListView(
-                        padding: _listPadding.copyWith(
-                          bottom: _listPadding.bottom + _navClearance,
-                        ),
-                        children: [
-                          topRow,
-                          12.verticalSpace,
-                          if (header != null) ...[
-                            header,
-                            16.verticalSpace,
-                          ],
-                          if (sections.isEmpty)
-                            const _EmptySections()
-                          else
-                            ...sections
-                                .map((section) => section.builder(context)),
-                        ],
-                      ),
+        body: SafeArea(
+          child: grantedPlanes >= 2
+              ? _SpreadBody(
+                  columns: grantedPlanes,
+                  // Column gutters on the host's seam width, so the
+                  // page's columns sit exactly on the plane grid.
+                  columnGap: planes!.gap,
+                  topRow: topRow,
+                  header: header,
+                  sections: sections,
+                )
+              // The list runs to the foot of the page and FADES OUT
+              // before the floating nav pill (FloatingNavFold): a
+              // hard edge right above the pill read as the last row
+              // sitting under the nav (tour 1114 20-users_profile),
+              // and rows scrolled behind the translucent pill showed
+              // through it (tour 1113b). The list's own bottom
+              // padding lets the last row scroll clear of the pill.
+              : FloatingNavFold(
+                  foot: _navClearance - 16.r,
+                  child: ListView(
+                    padding: _listPadding.copyWith(
+                      bottom: _listPadding.bottom + _navClearance,
                     ),
-              ),
+                    children: [
+                      topRow,
+                      12.verticalSpace,
+                      if (header != null) ...[header, 16.verticalSpace],
+                      if (sections.isEmpty)
+                        const _EmptySections()
+                      else
+                        ...sections.map((section) => section.builder(context)),
+                    ],
+                  ),
+                ),
+        ),
       ),
     );
   }
@@ -412,18 +400,20 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
           12.verticalSpace,
           // Builder: the ink is read from the dialog's own theme at build
           // time, so a live mode flip with the dialog open restyles it.
-          Builder(builder: (inner) => CustomButton(
-            title: AppHelpers.getTranslation(TrKeys.cancel),
-            background: AppStyle.transparent,
-            // Mode-resolving ink, NOT the pinned AppStyle.black: this dialog
-            // is a plain Material AlertDialog, so in dark mode it sits on the
-            // theme's dark dialog surface (#2B2930) — against which #232B2F
-            // is 1.00:1. The outlined Cancel button was invisible: no label,
-            // no border, on the sign-out confirmation of every dark host.
-            borderColor: AppStyle.inkFor(Theme.of(inner).brightness),
-            textColor: AppStyle.inkFor(Theme.of(inner).brightness),
-            onPressed: () => Navigator.of(context).pop(),
-          )),
+          Builder(
+            builder: (inner) => CustomButton(
+              title: AppHelpers.getTranslation(TrKeys.cancel),
+              background: AppStyle.transparent,
+              // Mode-resolving ink, NOT the pinned AppStyle.black: this dialog
+              // is a plain Material AlertDialog, so in dark mode it sits on the
+              // theme's dark dialog surface (#2B2930) — against which #232B2F
+              // is 1.00:1. The outlined Cancel button was invisible: no label,
+              // no border, on the sign-out confirmation of every dark host.
+              borderColor: AppStyle.inkFor(Theme.of(inner).brightness),
+              textColor: AppStyle.inkFor(Theme.of(inner).brightness),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
         ],
       ),
     );
@@ -463,8 +453,7 @@ class _SpreadBody extends StatelessWidget {
     // it, so it travels with the header as one item.
     final headerCard = header;
     final items = <Widget>[
-      if (headerCard != null)
-        Column(children: [headerCard, 16.verticalSpace]),
+      if (headerCard != null) Column(children: [headerCard, 16.verticalSpace]),
       if (sections.isEmpty)
         const _EmptySections()
       else
@@ -542,77 +531,79 @@ class _IdentityHeader extends StatelessWidget {
     final role = user?.role ?? '';
 
     final identityRow = Row(
-        children: [
-          _Avatar(user: user),
-          12.horizontalSpace,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        name.isEmpty
-                            ? AppHelpers.getTranslation(TrKeys.profile)
-                            : name,
-                        style: AppStyle.interSemi(
-                          size: 18.sp,
-                          color: AppStyle.inkFor(Theme.of(context).brightness),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+      children: [
+        _Avatar(user: user),
+        12.horizontalSpace,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      name.isEmpty
+                          ? AppHelpers.getTranslation(TrKeys.profile)
+                          : name,
+                      style: AppStyle.interSemi(
+                        size: 18.sp,
+                        color: AppStyle.inkFor(Theme.of(context).brightness),
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    if (badge != null) ...[
-                      8.horizontalSpace,
-                      badge!,
-                    ],
-                  ],
+                  ),
+                  if (badge != null) ...[8.horizontalSpace, badge!],
+                ],
+              ),
+              if (contact.isNotEmpty) ...[
+                4.verticalSpace,
+                Text(
+                  contact,
+                  style: AppStyle.interNormal(
+                    size: 13.sp,
+                    color: AppStyle.secondaryInkFor(
+                      Theme.of(context).brightness,
+                    ),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                if (contact.isNotEmpty) ...[
-                  4.verticalSpace,
-                  Text(
-                    contact,
-                    style: AppStyle.interNormal(
-                      size: 13.sp,
-                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-                if (role.isNotEmpty) ...[
-                  2.verticalSpace,
-                  Text(
-                    role,
-                    style: AppStyle.interNormal(
-                      size: 12.sp,
-                      color: AppStyle.secondaryInkFor(Theme.of(context).brightness),
-                    ),
-                  ),
-                ],
               ],
+              if (role.isNotEmpty) ...[
+                2.verticalSpace,
+                Text(
+                  role,
+                  style: AppStyle.interNormal(
+                    size: 12.sp,
+                    color: AppStyle.secondaryInkFor(
+                      Theme.of(context).brightness,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        if (onEditProfile != null)
+          IconButton(
+            onPressed: () => onEditProfile!(context),
+            icon: Icon(
+              Remix.pencil_line,
+              size: 20.sp,
+              color: AppStyle.inkFor(Theme.of(context).brightness),
             ),
           ),
-          if (onEditProfile != null)
-            IconButton(
-              onPressed: () => onEditProfile!(context),
-              icon: Icon(
-                Remix.pencil_line,
-                size: 20.sp,
-                color: AppStyle.inkFor(Theme.of(context).brightness),
-              ),
-            ),
-        ],
-      );
+      ],
+    );
 
     // The crown-led plan row: the shared plan glyph (Remix vip_crown_line
     // in the app primary) leads whatever content claimed the plan slot,
     // behind the same hairline divider as the stats row. While a planBack
     // face exists, tapping anywhere on the row flips the card in place.
-    final planRow =
-        plan == null ? null : _planRow(plan: plan!, onPlanTap: onPlanTap);
+    final planRow = plan == null
+        ? null
+        : _planRow(plan: plan!, onPlanTap: onPlanTap);
 
     final card = Container(
       padding: EdgeInsets.all(16.r),
@@ -647,11 +638,7 @@ class _IdentityHeader extends StatelessWidget {
     return Stack(
       children: [
         card,
-        Positioned(
-          right: 10.r,
-          bottom: 10.r,
-          child: corner!,
-        ),
+        Positioned(right: 10.r, bottom: 10.r, child: corner!),
       ],
     );
   }
@@ -671,32 +658,30 @@ Widget _planRow({
 }) {
   // Builder: the hairline reads the inherited theme at build time, not
   // the app-wide AppStyle.isDark static, so a live mode flip restyles it.
-  Widget row = Builder(builder: (context) => Container(
-    width: double.infinity,
-    margin: divided ? EdgeInsets.only(top: 12.r) : null,
-    padding: divided ? EdgeInsets.only(top: 12.r) : null,
-    decoration: divided
-        ? BoxDecoration(
-            border: Border(
-              top: BorderSide(
-                color: AppStyle.strokeFor(Theme.of(context).brightness),
-                width: 0.5,
+  Widget row = Builder(
+    builder: (context) => Container(
+      width: double.infinity,
+      margin: divided ? EdgeInsets.only(top: 12.r) : null,
+      padding: divided ? EdgeInsets.only(top: 12.r) : null,
+      decoration: divided
+          ? BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: AppStyle.strokeFor(Theme.of(context).brightness),
+                  width: 0.5,
+                ),
               ),
-            ),
-          )
-        : null,
-    child: Row(
-      children: [
-        Icon(
-          Remix.vip_crown_line,
-          size: 16.sp,
-          color: AppStyle.primary,
-        ),
-        8.horizontalSpace,
-        Expanded(child: plan),
-      ],
+            )
+          : null,
+      child: Row(
+        children: [
+          Icon(Remix.vip_crown_line, size: 16.sp, color: AppStyle.primary),
+          8.horizontalSpace,
+          Expanded(child: plan),
+        ],
+      ),
     ),
-  ));
+  );
   if (onPlanTap != null) {
     row = GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -924,11 +909,7 @@ class _Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return UserAvatar(
-      user: user,
-      size: 56.r,
-      fontSize: 22.sp,
-    );
+    return UserAvatar(user: user, size: 56.r, fontSize: 22.sp);
   }
 }
 

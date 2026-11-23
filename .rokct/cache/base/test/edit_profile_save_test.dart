@@ -33,6 +33,7 @@ import 'package:base_sdk/src/models/models.dart';
 import 'package:base_sdk/src/models/request/edit_profile.dart';
 import 'package:base_sdk/src/services/enums.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/services/storage_keys.dart';
 
 class _UserRepo extends Fake implements UserRepositoryFacade {
   _UserRepo({this.profile});
@@ -214,5 +215,22 @@ void main() {
 
     expect(repo.attached, ['/files/new.png']);
     expect(notifier.state.userData?.img, '/files/new.png');
+  });
+
+  testWidgets(
+      'an account registered offline saves its edits on the phone, no server',
+      (tester) async {
+    SharedPreferences.setMockInitialValues(
+        <String, Object>{StorageKeys.keyToken: 'offline:123'});
+    await LocalStorage.init();
+    final repo = _UserRepo();
+    final notifier = await save(tester, repo);
+
+    expect(repo.sent, isEmpty);
+    expect(repo.profileReads, 0);
+    expect(LocalStorage.getUser()?.firstname, 'Umukhulu');
+    expect(LocalStorage.getUser()?.email, 'u@example.com');
+    expect(notifier.state.isSuccess, isTrue);
+    expect(find.text('open'), findsOneWidget);
   });
 }

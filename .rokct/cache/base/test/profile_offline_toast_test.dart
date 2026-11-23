@@ -29,6 +29,8 @@
 // Two assertions, one bug: the radio definition itself, and the profile
 // page that shows the toast when it says no.
 
+import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,6 +38,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 
 import 'package:base_sdk/src/di/injection.dart';
 import 'package:base_sdk/src/domain/interface/user.dart';
@@ -64,6 +67,18 @@ class _RecordingUserRepository extends Fake implements UserRepositoryFacade {
         data: ProfileData(id: '1', firstname: 'Ray', email: 'ray@example.com'),
       ),
     );
+  }
+}
+
+/// A profile answer that has not come back yet.
+class _SlowUserRepository extends Fake implements UserRepositoryFacade {
+  final answer = Completer<ApiResult<ProfileResponse>>();
+  bool asked = false;
+
+  @override
+  Future<ApiResult<ProfileResponse>> getProfileDetails() {
+    asked = true;
+    return answer.future;
   }
 }
 
@@ -194,6 +209,66 @@ void main() {
 
       expect(find.text('No internet connection'), findsNothing);
       expect(repository.profileCalls, 0);
+    });
+
+    // Ray, 2026-11-21: "If I register a user offline and I go to profile
+    // that data is not there". An offline account's saved profile shows,
+    // and no server profile is asked for (it would be refused).
+    testWidgets('an account registered offline shows its saved profile',
+        (tester) async {
+      stubRadio(['wifi']);
+      final String realToken = LocalStorage.getToken();
+      await LocalStorage.setUser(ProfileData(
+          firstname: 'Offline', lastname: 'Person', email: 'o@example.com'));
+      await tester.runAsync(() async {
+        final p = await SharedPreferences.getInstance();
+        await p.setString(StorageKeys.keyToken, 'offline:42');
+      });
+      addTearDown(() async {
+        final p = await SharedPreferences.getInstance();
+        await p.setString(StorageKeys.keyToken, realToken);
+        await LocalStorage.setUser(null);
+      });
+
+      final repository = await pumpProfile(tester);
+
+      expect(repository.profileCalls, 0);
+      expect(find.textContaining('Offline', findRichText: true),
+          findsWidgets);
+    });
+
+    // Ray, 2026-11-21: "profile nolonger show it's showing shimmer that is
+    // not even on shape of what is yet to show". With nothing saved on the
+    // phone and the profile still on its way, the page itself shows, not a
+    // loading placeholder.
+    testWidgets('a profile still loading shows the page, not a shimmer',
+        (tester) async {
+      stubRadio(['wifi']);
+      final slow = _SlowUserRepository();
+      getIt.registerSingleton<UserRepositoryFacade>(slow);
+      tester.view.physicalSize = const Size(390, 1400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      expect(LocalStorage.getUser(), isNull);
+      await tester.pumpWidget(
+        ProviderScope(
+          child: ScreenUtilInit(
+            designSize: const Size(390, 1400),
+            builder: (context, _) =>
+                const MaterialApp(home: GenericProfilePage()),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(slow.asked, isTrue);
+      expect(find.byType(Shimmer), findsNothing);
+      expect(find.byKey(GenericProfilePage.accountHeaderKey), findsOneWidget);
+      slow.answer.complete(const ApiResult.failure(error: 'x', statusCode: 500));
+      await tester.pump();
     });
 
     // Ray, 2026-10-03: the offline demo sign-in (auth_sdk 1.16.3) must

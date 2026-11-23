@@ -1,6 +1,7 @@
 {
   "name": "weather_sdk",
-  "version": "1.7.0",
+  "version": "1.8.1",
+  "_comment_version_1_8_0": "1.7.0 -> 1.8.0 (Ray, 2026-11-22: 'Launcher gains weather sdk', 'We need to solve weather if no backend available'): LauncherWeatherService (location ask with no error on refusal, backend feed when signed in, MET Norway (free incl. commercial use, CC BY 4.0, credited under the days) with the location rounded to 2 decimals otherwise, the last answer saved for offline), LauncherWeatherViews (theme-row, beside-the-Bible and day rows), an app_type.launcher install + boot hook, and EN+AF keys for the weather names, days and H/L. Existing hosts unchanged; geolocator added at base_sdk's version.",
   "_comment_version_1_7_0": "1.6.3 -> 1.7.0: feat(i18n). Hardcoded UI copy goes through trkeys (Ray, 2026-11-20): new weather_* tr_keys with bundled English and Afrikaans copy. Existing keys unchanged.",
   "boot_hooks": [
     {
@@ -72,6 +73,34 @@
           "_comment": "Driver shells render no weather header widget (whose build is what lazily runs configureWeatherSdk() on pos/manager), so without this hook nothing would set the courier locationResolver before the severe-weather banner's first warnings fetch. One idempotent call at startup; cheap no-op if the host later renders AppWeatherWidget too."
         }
       ]
+    },
+    "launcher": {
+      "installs": [
+        {
+          "from": "templates/components/weather/weather_widget_launcher.dart",
+          "to": "lib/presentation/components/weather/weather_widget.dart",
+          "_comment": "Launcher host wiring (Ray, 2026-11-22: 'Launcher gains weather sdk'): the launcher's own location ask and feed (backend when signed in, Open-Meteo otherwise, the saved answer offline), filling launch_sdk's LaunchWeatherSource seam. Same destination as the generic template; flavor installs run after top-level ones, so launcher hosts get this file."
+        }
+      ],
+      "boot_hooks": [
+        {
+          "id": "weather-launcher-register",
+          "order": 21,
+          "body": "registerLauncherWeather();",
+          "imports": [
+            "import 'package:${package}/presentation/components/weather/weather_widget.dart';"
+          ],
+          "_comment": "Registers the launcher weather with GetIt before the home builds; it starts (location ask, first fetch) after the first frame."
+        }
+      ],
+      "platform_permissions": {
+        "android": [
+          "android.permission.ACCESS_COARSE_LOCATION"
+        ],
+        "ios": {
+          "NSLocationWhenInUseUsageDescription": "Your location shows the weather on your home screen."
+        }
+      }
     }
   },
   "_comment_app_type": "Only the driver flavor carries extra wiring: courier composes consume exactly one weather surface (the severe-weather banner on the courier home, embedded through the weatherWarningsBanner seam), located by the courier's own position rather than a shop's.",
@@ -79,7 +108,26 @@
     "asOf": "as.of",
     "weatherUpdateRainFeedback": "weather_update_rain_feedback",
     "weatherDidItRainAfterYourPreviousNo": "weather_did_it_rain_after_your_previous_no",
-    "weatherNo": "weather_no"
+    "weatherNo": "weather_no",
+    "weatherClear": "weather_clear",
+    "weatherPartlyCloudy": "weather_partly_cloudy",
+    "weatherCloudy": "weather_cloudy",
+    "weatherFog": "weather_fog",
+    "weatherDrizzle": "weather_drizzle",
+    "weatherRain": "weather_rain",
+    "weatherShowers": "weather_showers",
+    "weatherThunder": "weather_thunder",
+    "weatherSnow": "weather_snow",
+    "weatherHighShort": "weather_high_short",
+    "weatherLowShort": "weather_low_short",
+    "weatherMon": "weather_mon",
+    "weatherTue": "weather_tue",
+    "weatherWed": "weather_wed",
+    "weatherThu": "weather_thu",
+    "weatherFri": "weather_fri",
+    "weatherSat": "weather_sat",
+    "weatherSun": "weather_sun",
+    "weatherSourceMetNorway": "weather_source_met_norway"
   },
   "_comment_tr_keys": "asOf backs the severe-weather banner's offline freshness marker ('As of 14:30' when cached notices are shown); the SDK looks the key up via AppHelpers.getTranslation('as.of') (raw key, because the injected TrKeys constant only exists in composed hosts' cached base copy), which humanizes the key gracefully until the translation store carries a value. The ported suite's remaining strings still ship pos main's hardcoded English verbatim (pos never translated this surface) - translating them is a recorded follow-up, not smuggled in here.",
   "_comment_secrets": "No secret is committed anywhere in this SDK. The OpenWeatherMap key (extended forecast only) resolves from the OPEN_WEATHER_API_KEY dart-define and/or the host's remote-config bootstrap (pos main's get_remote_config pattern); the primary feed uses the tenant Frappe proxy with the user's bearer token."

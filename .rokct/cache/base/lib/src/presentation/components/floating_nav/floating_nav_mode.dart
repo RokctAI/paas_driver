@@ -364,6 +364,10 @@ class FloatingNavAction {
   /// this too: an unpressable control is unpressable by either gesture.
   final VoidCallback? onLongPress;
 
+  /// Fill for a companion button; null keeps the dark default. The
+  /// launcher's call button is green (Ray, 2026-11-21).
+  final Color? color;
+
   const FloatingNavAction({
     required this.icon,
     required this.label,
@@ -373,6 +377,7 @@ class FloatingNavAction {
     this.badgeCount = 0,
     this.onTap,
     this.onLongPress,
+    this.color,
   });
 
   bool get enabled => onTap != null && !locked;

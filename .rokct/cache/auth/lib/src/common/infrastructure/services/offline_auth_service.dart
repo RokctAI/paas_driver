@@ -126,6 +126,45 @@ class OfflineAuthService {
   static String _offlineToken(String localUserId) => 'offline:$localUserId';
   static bool isOfflineToken(String token) => token.startsWith('offline:');
 
+  /// The profile the app shows for a local account (Ray, 2026-11-21: "If I
+  /// register a user offline and I go to profile that data is not there").
+  /// Saved only while this local account is the signed-in one, so a real
+  /// backend session's profile is never replaced.
+  static Future<void> _saveLocalProfile(
+    String localUserId, {
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? phone,
+  }) async {
+    if (LocalStorage.getToken() != _offlineToken(localUserId)) return;
+    final ProfileData? saved = LocalStorage.getUser();
+    String? pick(String? fresh, String? old) =>
+        (fresh != null && fresh.isNotEmpty) ? fresh : old;
+    await LocalStorage.setUser((saved ?? ProfileData()).copyWith(
+      firstname: pick(firstName, saved?.firstname),
+      lastname: pick(lastName, saved?.lastname),
+      email: pick(email, saved?.email),
+      phone: pick(phone, saved?.phone),
+    ));
+  }
+
+  /// The names to send when [row] syncs: names edited on the profile page
+  /// while the account was still local win over the registration form.
+  /// Email and phone stay as registered, since they key the account.
+  static ({String? firstName, String? lastName}) _syncNames(
+      OfflineUserEntity row) {
+    final ProfileData? saved = LocalStorage.getToken() == _offlineToken(row.id)
+        ? LocalStorage.getUser()
+        : null;
+    String? pick(String? edited, String? form) =>
+        (edited != null && edited.isNotEmpty) ? edited : form;
+    return (
+      firstName: pick(saved?.firstname, row.firstName),
+      lastName: pick(saved?.lastname, row.lastName),
+    );
+  }
+
   Future<OfflineAuthResult> registerOffline({
     String? phone,
     String? email,
@@ -168,6 +207,8 @@ class OfflineAuthService {
       if (current.isEmpty || isOfflineToken(current)) {
         await LocalStorage.setToken(_offlineToken(existing.id));
       }
+      await _saveLocalProfile(existing.id,
+          firstName: firstName, lastName: lastName, email: email, phone: phone);
       return OfflineAuthResult.ok(existing.id);
     }
 
@@ -194,6 +235,8 @@ class OfflineAuthService {
     if (current.isEmpty || isOfflineToken(current)) {
       await LocalStorage.setToken(_offlineToken(id));
     }
+    await _saveLocalProfile(id,
+        firstName: firstName, lastName: lastName, email: email, phone: phone);
     return OfflineAuthResult.ok(id);
   }
 
@@ -273,6 +316,11 @@ class OfflineAuthService {
             ? row.backendToken!
             : _offlineToken(row.id);
     await LocalStorage.setToken(token);
+    await _saveLocalProfile(row.id,
+        firstName: row.firstName,
+        lastName: row.lastName,
+        email: row.email,
+        phone: row.phone);
     return OfflineAuthResult.ok(row.id);
   }
 
@@ -354,11 +402,12 @@ class OfflineAuthService {
     final typedPassword = await OfflinePasswordVault.instance.read(row.id);
     final syncPassword = typedPassword ??
         _syncPasswords.putIfAbsent(row.id, generateSecurePassword);
+    final names = _syncNames(row);
     final response = await authRepository.sigUpWithData(
       user: UserModel(
         email: row.email,
-        firstname: row.firstName,
-        lastname: row.lastName,
+        firstname: names.firstName,
+        lastname: names.lastName,
         phone: row.phone,
         password: syncPassword,
         confirmPassword: syncPassword,

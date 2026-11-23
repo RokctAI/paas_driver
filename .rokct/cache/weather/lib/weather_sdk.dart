@@ -36,6 +36,7 @@ export 'src/common/application/weather/weather_notifier.dart';
 export 'src/common/application/weather/weather_state.dart';
 
 // Services (providers live in the service files, as they did on pos main)
+export 'src/common/infrastructure/services/launcher_weather_service.dart';
 export 'src/common/infrastructure/services/open_weather_icon_mapper.dart';
 export 'src/common/infrastructure/services/open_weather_service.dart';
 export 'src/common/infrastructure/services/rain_feedback_system.dart';
@@ -47,6 +48,7 @@ export 'src/common/infrastructure/services/weather_warnings_service.dart';
 
 // Presentation
 export 'src/common/presentation/theme/weather_colors.dart';
+export 'src/common/presentation/widgets/launcher_weather_views.dart';
 export 'src/common/presentation/widgets/extended_forecast_loader.dart';
 export 'src/common/presentation/widgets/extended_forecast_view.dart';
 export 'src/common/presentation/widgets/rain_feedback_widget.dart';

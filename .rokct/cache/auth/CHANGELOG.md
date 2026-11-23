@@ -1,3 +1,7 @@
+## 1.22.9
+
+- fix: an account registered offline has its profile (Ray, 2026-11-21: "If I register a user offline and I go to profile that data is not there can't even be edited"). `registerOffline` and `loginOffline` save the names, email and phone as the signed-in user, and `syncOne` sends names edited on the profile page while the account was local. Pairs with base_sdk 1.113.5.
+
 ## 1.22.8
 
 - feat(i18n): Afrikaans copy for 2 translation keys this SDK uses, so both languages are complete. No behaviour change in English except proper wording where a key was humanized.

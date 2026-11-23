@@ -116,8 +116,11 @@ class MainActivity: FlutterFragmentActivity() {
          * - AppChangesBridge (launch_sdk): install and uninstall events
          *   behind the `rokct.launch_sdk/app_changes` channel, so the
          *   launcher is told when its app list changes instead of asking.
+         * - LauncherPhoneBridge (launch_sdk): the launcher's own phone
+         *   (dialer role, calls, call log, contacts) behind the
+         *   `rokct.launch_sdk/phone` channels.
          */
-        private val OPTIONAL_BRIDGES = listOf("DefaultHomeBridge", "AppChangesBridge", "SticksCallBridge", "SticksNotifyBridge")
+        private val OPTIONAL_BRIDGES = listOf("DefaultHomeBridge", "AppChangesBridge", "SticksCallBridge", "SticksNotifyBridge", "LauncherPhoneBridge")
 
         /**
          * Bridges registered with `register(FlutterEngine, Activity)`.

@@ -106,6 +106,24 @@ class EditProfileNotifier extends StateNotifier<EditProfileState> {
   }
 
   Future<void> editProfile(BuildContext context, ProfileData user) async {
+    // An account registered offline (token `offline:<id>`) has no server
+    // profile yet: its edits are saved on the phone and sent when the
+    // account syncs (Ray, 2026-11-21: "If I register a user offline and I
+    // go to profile that data is not there can't even be edited").
+    if (LocalStorage.getToken().startsWith('offline:')) {
+      final ProfileData saved = user.copyWith(
+        firstname: state.firstName.isEmpty ? user.firstname : state.firstName,
+        lastname: state.lastName.isEmpty ? user.lastname : state.lastName,
+        birthday: state.birth.isEmpty ? user.birthday : state.birth,
+        phone: state.phone.isEmpty ? user.phone : state.phone,
+        email: state.email.isEmpty ? user.email : state.email,
+        gender: state.gender.isEmpty ? user.gender : state.gender,
+      );
+      await LocalStorage.setUser(saved);
+      state = state.copyWith(userData: saved, isSuccess: true);
+      if (context.mounted) Navigator.pop(context);
+      return;
+    }
     final connected = await AppConnectivity.connectivity();
     if (connected) {
       state = state.copyWith(isLoading: true, isSuccess: false);

@@ -1,3 +1,21 @@
+## 1.113.8
+
+- feat: `FloatingNavAction.color`, so a nav entry can draw in its own colour (the launcher's green Call and red Hang up).
+- feat: MainActivity registers launch_sdk's `LauncherPhoneBridge` (the launcher's own phone) among the optional bridges, with its R8 keep rule.
+
+## 1.113.7
+
+- fix: the profile page no longer stands a shimmer in for itself while the profile loads (Ray, 2026-11-21: "profile nolonger show it's showing shimmer that is not even on shape of what is yet to show"). With no user saved on the phone the page parked on the loading placeholder until the server answered, which on a slow or missing answer was for good. The page now draws at once; the identity card reads "Profile" until the fetch fills in the name.
+
+## 1.113.6
+
+- fix: the floating nav notice strip brings its own Material. The nav floats outside any Scaffold, so the strip's close and action buttons threw "No Material widget found" and painted the red error screen over the page (seen in the Supacharge demo once its plan was due).
+
+## 1.113.5
+
+- fix: an account registered offline (token `offline:<id>`) shows and edits its profile (Ray, 2026-11-21: "If I register a user offline and I go to profile that data is not there can't even be edited"). The profile page shows the saved user at once and asks no server for an offline account (it would be refused and send the person to sign in). Saving edits on an offline account keeps them on the phone; auth_sdk sends the edited names when the account syncs.
+- fix: `LocalStorage.getUser()` answers null after `setUser(null)` instead of failing on the empty string.
+
 ## 1.113.4
 
 - feat: MainActivity registers SticksNotifyBridge when present (Sticks phone notifications; lock screen shows only who needs you unless Show work is on). Proguard keeps it.

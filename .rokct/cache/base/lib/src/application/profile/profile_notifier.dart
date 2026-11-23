@@ -248,6 +248,20 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     // fetch and no account to fetch it for — see [capabilities].
     final userRepository = _userRepository;
     if (userRepository == null) return;
+    // Offline first: the profile saved on the phone shows at once, before
+    // (and without) any answer from the server.
+    final ProfileData? savedUser = LocalStorage.getUser();
+    if (state.userData == null && savedUser != null) {
+      state = state.copyWith(userData: savedUser);
+    }
+    // An account registered offline (token `offline:<id>`) has no server
+    // profile until it syncs; asking for one would be refused and send the
+    // person back to sign in (Ray, 2026-11-21: "If I register a user offline
+    // and I go to profile that data is not there").
+    if (LocalStorage.getToken().startsWith('offline:')) {
+      refreshController?.refreshCompleted();
+      return;
+    }
     if (LocalStorage.getToken().isNotEmpty) {
       // A demo session is answered by the demo interceptor, which needs no
       // network, so the offline demo sign-in reaches a loaded profile.
@@ -347,6 +361,20 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
   }) async {
     final userRepository = _userRepository;
     if (userRepository == null) return;
+    // Offline first: the profile saved on the phone shows at once, before
+    // (and without) any answer from the server.
+    final ProfileData? savedUser = LocalStorage.getUser();
+    if (state.userData == null && savedUser != null) {
+      state = state.copyWith(userData: savedUser);
+    }
+    // An account registered offline (token `offline:<id>`) has no server
+    // profile until it syncs; asking for one would be refused and send the
+    // person back to sign in (Ray, 2026-11-21: "If I register a user offline
+    // and I go to profile that data is not there").
+    if (LocalStorage.getToken().startsWith('offline:')) {
+      refreshController?.refreshCompleted();
+      return;
+    }
     if (LocalStorage.getToken().isNotEmpty) {
       final connected = await AppConnectivity.connectivity();
       if (connected) {
@@ -489,6 +517,20 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
   ) async {
     final userRepository = _userRepository;
     if (userRepository == null) return;
+    // Offline first: the profile saved on the phone shows at once, before
+    // (and without) any answer from the server.
+    final ProfileData? savedUser = LocalStorage.getUser();
+    if (state.userData == null && savedUser != null) {
+      state = state.copyWith(userData: savedUser);
+    }
+    // An account registered offline (token `offline:<id>`) has no server
+    // profile until it syncs; asking for one would be refused and send the
+    // person back to sign in (Ray, 2026-11-21: "If I register a user offline
+    // and I go to profile that data is not there").
+    if (LocalStorage.getToken().startsWith('offline:')) {
+      refreshController?.refreshCompleted();
+      return;
+    }
     if (LocalStorage.getToken().isNotEmpty) {
       final connected = await AppConnectivity.connectivity();
       if (connected) {

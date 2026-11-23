@@ -42,3 +42,4 @@
 -keep,allowoptimization class **.LauncherVerseWidgetBridge { public *; }
 -keep,allowoptimization class **.SticksCallBridge { public *; }
 -keep,allowoptimization class **.SticksNotifyBridge { public *; }
+-keep,allowoptimization class **.LauncherPhoneBridge { public *; }

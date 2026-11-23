@@ -98,7 +98,8 @@ abstract class LocalStorage {
 
   static ProfileData? getUser() {
     final savedString = _preferences?.getString(StorageKeys.keyUser);
-    if (savedString == null) {
+    // setUser(null) stores an empty string: no saved user, not bad JSON.
+    if (savedString == null || savedString.isEmpty) {
       return null;
     }
     final map = jsonDecode(savedString);

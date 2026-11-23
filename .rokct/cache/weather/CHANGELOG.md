@@ -1,3 +1,12 @@
+## 1.8.1
+
+- fix(launcher): the launcher weather is black and white: icons take the theme text colour instead of amber (Ray, 2026-11-22: "Weather be black and white").
+
+## 1.8.0
+
+- feat(launcher): weather for a launcher home, with or without a backend (Ray, 2026-11-22: "Launcher gains weather sdk", "We need to solve weather if no backend available"). `LauncherWeatherService` asks for location once with no error on refusal, uses the backend feed when signed in and MET Norway's free forecast otherwise (location rounded to 2 decimals, app-only User-Agent, CC BY credit under the days), and keeps the last answer for offline use. `LauncherWeatherViews` draws the theme-row, beside-the-Bible and day-row pieces. A new `app_type.launcher` install and boot hook register it into launch_sdk's `LaunchWeatherSource` seam. Coarse location permission. EN+AF keys for weather names, weekdays, H/L and the credit.
+- build: `google_fonts` constraint 6.3.0 -> ^6.3.3 because base_sdk (path dependency) requires ^6.3.3, so the package did not resolve on its own for analysis and tests. Composed hosts resolve one version either way.
+
 ## 1.7.0
 
 - feat(i18n): hardcoded UI copy goes through trkeys (Ray, 2026-11-20): 3 new `weather_*` tr_keys with bundled English and Afrikaans copy.

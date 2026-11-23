@@ -1,7 +1,7 @@
 {
   "packages": {
     "base_sdk": {
-      "version": "1.113.4",
+      "version": "1.113.8",
       "files": {
         "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
         "android/app/proguard-rules.pro": "c3ead7bbe0480f0db1615f5c020720cb2d356bba37638434bfbc5bfddd736a7c",
@@ -1318,7 +1318,7 @@
       }
     },
     "auth_sdk": {
-      "version": "1.22.8",
+      "version": "1.22.9",
       "files": {
         "lib/presentation/routes/auth_route_pages.dart": "8eaff3abe2dd38d8a6c2f15ed4b9e4ec779c5b99f3f71a18445ee4a13d12056f",
         "lib/presentation/routes/registration_step_pages.dart": "68aed195fc07db746a0919c7ba6d47ffa445ca86e7d9cf6ee50fbcb00e82d3c2",
@@ -1467,7 +1467,7 @@
       ]
     },
     "weather_sdk": {
-      "version": "1.7.0",
+      "version": "1.8.1",
       "files": {
         "lib/presentation/components/weather/weather_widget.dart": "13e7964746cd367f4e019c2d192e2a0ef8bf3445060c562a611f2caa14c2c53c"
       },
@@ -1529,7 +1529,26 @@
         "asOf": "as.of",
         "weatherUpdateRainFeedback": "weather_update_rain_feedback",
         "weatherDidItRainAfterYourPreviousNo": "weather_did_it_rain_after_your_previous_no",
-        "weatherNo": "weather_no"
+        "weatherNo": "weather_no",
+        "weatherClear": "weather_clear",
+        "weatherPartlyCloudy": "weather_partly_cloudy",
+        "weatherCloudy": "weather_cloudy",
+        "weatherFog": "weather_fog",
+        "weatherDrizzle": "weather_drizzle",
+        "weatherRain": "weather_rain",
+        "weatherShowers": "weather_showers",
+        "weatherThunder": "weather_thunder",
+        "weatherSnow": "weather_snow",
+        "weatherHighShort": "weather_high_short",
+        "weatherLowShort": "weather_low_short",
+        "weatherMon": "weather_mon",
+        "weatherTue": "weather_tue",
+        "weatherWed": "weather_wed",
+        "weatherThu": "weather_thu",
+        "weatherFri": "weather_fri",
+        "weatherSat": "weather_sat",
+        "weatherSun": "weather_sun",
+        "weatherSourceMetNorway": "weather_source_met_norway"
       }
     },
     "hms_sdk": {
@@ -1579,16 +1598,16 @@
   },
   "sdk_cache": {
     "base": {
-      "version": "1.113.4",
-      "source_hash": "92c795608e159ed7"
+      "version": "1.113.8",
+      "source_hash": "bd58e4e7cf754d7e"
     },
     "comms": {
       "version": "1.23.5",
       "source_hash": "70455c821e3ec891"
     },
     "auth": {
-      "version": "1.22.8",
-      "source_hash": "a7949a7114b023c6"
+      "version": "1.22.9",
+      "source_hash": "39c9150c774ed345"
     },
     "users": {
       "version": "1.5.4",
@@ -1635,8 +1654,8 @@
       "source_hash": "393d103e9589d93a"
     },
     "weather": {
-      "version": "1.7.0",
-      "source_hash": "25cb4f5d6a83de4e"
+      "version": "1.8.1",
+      "source_hash": "c8cf3af911c76c25"
     },
     "hms": {
       "version": "1.1.1",
