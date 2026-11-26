@@ -1467,7 +1467,7 @@
       ]
     },
     "weather_sdk": {
-      "version": "1.8.1",
+      "version": "1.9.1",
       "files": {
         "lib/presentation/components/weather/weather_widget.dart": "13e7964746cd367f4e019c2d192e2a0ef8bf3445060c562a611f2caa14c2c53c"
       },
@@ -1654,8 +1654,8 @@
       "source_hash": "393d103e9589d93a"
     },
     "weather": {
-      "version": "1.8.1",
-      "source_hash": "c8cf3af911c76c25"
+      "version": "1.9.1",
+      "source_hash": "20b271d17e1f45fb"
     },
     "hms": {
       "version": "1.1.1",

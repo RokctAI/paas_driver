@@ -1,3 +1,14 @@
+## 1.9.1
+
+- feat(launcher): the no-backend feed keeps hourly entries for every day it carries them, not only today (MET Norway: hourly for the first days, 6-hourly further out). Each forecast day gets its `hour` list; a day without hours has none, and its long press opens nothing.
+
+## 1.9.0
+
+- feat(launcher): the coming days open as a row of icons under the theme row, each with its day name beneath (`LaunchWeatherDay`); the first is "Today". A long press on a day opens its hourly forecast in a sheet (`LaunchWeatherSource.hourly`). Day names come from launch_sdk translation keys (`weekday_mon`..`weekday_sun`, `weather_today`), EN and AF.
+- feat(launcher): the no-backend feed keeps the hourly entries for today (`forecastday[today].hour`: time, temp, condition, precipitation). The hours are for today only, as the feed carries them.
+- fix(launcher): a saved answer is reused, with no request, for the same town (GeoNames, cached per 2-decimal point under `launcher_town_*`), the same local day and under 6 hours old. Moving about town keeps the same answer. Without a town nothing is reused.
+- refactor(launcher): `LauncherWeatherViews.days` is replaced by `forecastDays`, `dayIcon` and `hourly`. The MET Norway credit now sits under the hourly sheet.
+
 ## 1.8.1
 
 - fix(launcher): the launcher weather is black and white: icons take the theme text colour instead of amber (Ray, 2026-11-22: "Weather be black and white").

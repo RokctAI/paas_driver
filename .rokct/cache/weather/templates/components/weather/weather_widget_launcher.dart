@@ -25,7 +25,7 @@ import 'package:weather_sdk/weather_sdk.dart';
 ///
 /// The launcher has no shop and may have no backend, so it brings its own
 /// location (asked once, quietly) and its own feed ([LauncherWeatherService]:
-/// the backend when signed in, Open-Meteo otherwise, the saved answer
+/// the backend when signed in, MET Norway otherwise, the saved answer
 /// offline). It fills launch_sdk's [LaunchWeatherSource] seam: today's
 /// weather on the theme row, larger beside the closed Bible, and the
 /// coming days on a tap (Ray, 2026-11-22). No location or no answer ever:
@@ -92,8 +92,18 @@ class LauncherWeather extends ChangeNotifier
       LauncherWeatherViews.beside(context, _data);
 
   @override
-  List<Widget> days(BuildContext context) =>
-      LauncherWeatherViews.days(context, _data);
+  List<LaunchWeatherDay> days(BuildContext context) => <LaunchWeatherDay>[
+        for (final ({DateTime date, int code}) d
+            in LauncherWeatherViews.forecastDays(_data))
+          LaunchWeatherDay(
+            date: d.date,
+            icon: LauncherWeatherViews.dayIcon(context, d.code),
+          ),
+      ];
+
+  @override
+  Widget? hourly(BuildContext context, DateTime day) =>
+      LauncherWeatherViews.hourly(context, _data, day);
 
   @override
   void dispose() {

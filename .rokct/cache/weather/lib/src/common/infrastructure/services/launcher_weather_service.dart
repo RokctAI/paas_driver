@@ -43,9 +43,16 @@ class LauncherWeatherService {
   final Dio _dio;
   final WeatherService? _backend;
 
-  static const String cacheKey = 'weather_launcher_last';
+  /// Prefix of the saved town per rounded point. Its own keys, so the weather
+  /// SDK's city cache is left as it is.
+  static const String townCachePrefix = 'launcher_town_';
+
+  static const String cacheKey = 'weather_launcher_v2';
   static const String metNorwayUrl =
       'https://api.met.no/weatherapi/locationforecast/2.0/compact';
+
+  /// A saved answer is reused, with no request, for this long at most.
+  static const Duration reuseMaxAge = Duration(hours: 6);
 
   /// Identifies the app to MET Norway, as its terms ask. Names the app
   /// only; nothing about the user.
@@ -87,20 +94,73 @@ class LauncherWeatherService {
   static double round(double v) => (v * 100).roundToDouble() / 100;
 
   /// The last saved answer, or null.
-  Future<Map<String, dynamic>?> cached() async {
+  Future<Map<String, dynamic>?> cached() async => (await _saved())?.data;
+
+  /// The town for [at] as `name,countrycode`, from the same GeoNames service
+  /// the weather SDK uses, cached per rounded point. Null when GeoNames has no
+  /// answer, so nothing is keyed on a guessed town.
+  Future<String?> _town(WeatherLocation at) async {
+    final String key =
+        '$townCachePrefix${at.latitude.toStringAsFixed(2)}_${at.longitude.toStringAsFixed(2)}';
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String? raw = prefs.getString(cacheKey);
-      if (raw == null) return null;
-      return (jsonDecode(raw) as Map).cast<String, dynamic>();
+      final String? cached = prefs.getString(key);
+      if (cached != null) return cached;
+      final Response<dynamic> res = await _dio.get<dynamic>(
+        WeatherService.geoNamesUrl,
+        queryParameters: <String, dynamic>{
+          'lat': '${at.latitude}',
+          'lng': '${at.longitude}',
+          'username': WeatherSdkConfig.geoNamesUsername,
+        },
+        options: Options(receiveTimeout: const Duration(seconds: 10)),
+      );
+      final dynamic body =
+          res.data is String ? jsonDecode(res.data as String) : res.data;
+      if (body is! Map || body['geonames'] is! List) return null;
+      final List<dynamic> names = body['geonames'] as List<dynamic>;
+      if (names.isEmpty) return null;
+      final Map<dynamic, dynamic> place = names.first as Map<dynamic, dynamic>;
+      final String town =
+          '${place['name']},${'${place['countryCode']}'.toLowerCase()}';
+      await prefs.setString(key, town);
+      return town;
     } catch (_) {
       return null;
     }
   }
 
-  /// A fresh answer for [at], saved for offline use; the saved one when
-  /// nothing answers; null when there is neither.
-  Future<Map<String, dynamic>?> fetch(WeatherLocation at) async {
+  Future<_SavedWeather?> _saved() async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? raw = prefs.getString(cacheKey);
+      if (raw == null) return null;
+      return _SavedWeather.fromJson((jsonDecode(raw) as Map).cast<String, dynamic>());
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// The local calendar day as yyyy-MM-dd.
+  static String _dateKey(DateTime l) =>
+      '${l.year.toString().padLeft(4, '0')}-${l.month.toString().padLeft(2, '0')}-${l.day.toString().padLeft(2, '0')}';
+
+  /// A fresh answer for [at]. The town of [at] comes from GeoNames, as the
+  /// weather SDK already does for its backend, so everyone in a town shares
+  /// one answer. The saved answer is reused, with no request, while it is
+  /// for the same town, was fetched today (local date) and is under
+  /// [reuseMaxAge] old. Without a town, nothing is reused. Otherwise a new
+  /// answer is fetched and saved. When nothing answers, the saved one
+  /// stands; null when there is neither.
+  Future<Map<String, dynamic>?> fetch(WeatherLocation at,
+      {DateTime Function()? now}) async {
+    final DateTime clock = (now ?? DateTime.now)();
+    final String? town = await _town(at);
+    final _SavedWeather? saved = await _saved();
+    if (town != null && saved != null && saved.reusableAt(town, clock)) {
+      return saved.data;
+    }
+
     Map<String, dynamic>? data;
     if (_signedIn()) {
       try {
@@ -118,11 +178,16 @@ class LauncherWeatherService {
         data = null;
       }
     }
-    if (data == null) return cached();
-    try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString(cacheKey, jsonEncode(data));
-    } catch (_) {}
+    if (data == null) return saved?.data;
+    if (town != null) {
+      try {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+          cacheKey,
+          jsonEncode(_SavedWeather(clock.toUtc(), town, data).toJson()),
+        );
+      } catch (_) {}
+    }
     return data;
   }
 
@@ -157,6 +222,9 @@ class LauncherWeatherService {
     return fromMetNorway(body.cast<String, dynamic>());
   }
 
+  static num? _precip(Map<String, dynamic>? data) =>
+      ((((data?['next_1_hours'] as Map?)?['details']) as Map?)?['precipitation_amount']) as num?;
+
   static String? _symbol(Map<String, dynamic>? data) {
     for (final String k in <String>['next_1_hours', 'next_6_hours', 'next_12_hours']) {
       final dynamic code = ((data?[k] as Map?)?['summary'] as Map?)?['symbol_code'];
@@ -177,6 +245,10 @@ class LauncherWeatherService {
         ((body['properties'] as Map?)?['timeseries'] as List?) ?? const <dynamic>[];
     if (series.isEmpty) return null;
     final DateTime Function(DateTime) local = toLocal ?? (DateTime t) => t.toLocal();
+    // Hourly entries are kept for every day the feed carries them: the
+    // hourly steps near-term, then 6-hourly further out.
+    final Map<String, List<Map<String, dynamic>>> hoursByDate =
+        <String, List<Map<String, dynamic>>>{};
     final Map<String, dynamic>? first =
         ((series.first as Map?)?['data'] as Map?)?.cast<String, dynamic>();
     final num? now = _temp(first);
@@ -193,8 +265,7 @@ class LauncherWeatherService {
       final Map<String, dynamic>? data = (e['data'] as Map?)?.cast<String, dynamic>();
       if (t == null || data == null) continue;
       final DateTime l = local(t.toUtc());
-      final String date =
-          '${l.year.toString().padLeft(4, '0')}-${l.month.toString().padLeft(2, '0')}-${l.day.toString().padLeft(2, '0')}';
+      final String date = _dateKey(l);
       if (!temps.containsKey(date)) {
         if (order.length == 7) break;
         order.add(date);
@@ -203,6 +274,16 @@ class LauncherWeatherService {
       final num? temp = _temp(data);
       if (temp != null) temps[date]!.add(temp);
       final String? symbol = _symbol(data);
+      if (temp != null) {
+        (hoursByDate[date] ??= <Map<String, dynamic>>[]).add(<String, dynamic>{
+          'time': l.toIso8601String(),
+          'temp_c': temp.toDouble(),
+          'condition': <String, dynamic>{
+            'code': weatherApiCodeForSymbol(symbol ?? 'partlycloudy_day'),
+          },
+          'precip_mm': _precip(data)?.toDouble() ?? 0.0,
+        });
+      }
       final int distance = (l.hour - 12).abs();
       if (symbol != null && distance < (skyDistance[date] ?? 99)) {
         sky[date] = symbol;
@@ -228,6 +309,7 @@ class LauncherWeatherService {
                     'code': weatherApiCodeForSymbol(sky[date] ?? 'partlycloudy_day'),
                   },
                 },
+                if (hoursByDate[date] != null) 'hour': hoursByDate[date],
               },
         ],
       },
@@ -235,7 +317,46 @@ class LauncherWeatherService {
     };
   }
 
-  /// MET Norway symbol code (e.g. "lightrainshowers_day") to the nearest
+  /// One saved answer: when it was fetched (UTC), for which town, and the
+/// data itself.
+class _SavedWeather {
+  const _SavedWeather(this.fetchedAt, this.town, this.data);
+
+  final DateTime fetchedAt;
+  final String town;
+  final Map<String, dynamic> data;
+
+  static _SavedWeather? fromJson(Map<String, dynamic> json) {
+    final Object? at = json['fetchedAt'];
+    final Object? town = json['town'];
+    final Object? data = json['data'];
+    if (at is! String || town is! String || data is! Map) return null;
+    final DateTime? t = DateTime.tryParse(at);
+    if (t == null) return null;
+    return _SavedWeather(t.toUtc(), town, data.cast<String, dynamic>());
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'fetchedAt': fetchedAt.toIso8601String(),
+        'town': town,
+        'data': data,
+      };
+
+  /// Reusable for [currentTown] at [clock]: the same town, fetched on the
+  /// same local day, and not older than [LauncherWeatherService.reuseMaxAge].
+  bool reusableAt(String currentTown, DateTime clock) {
+    if (town != currentTown) return false;
+    final Duration age = clock.toUtc().difference(fetchedAt);
+    if (age.isNegative || age >= LauncherWeatherService.reuseMaxAge) return false;
+    final DateTime fetchedLocal = fetchedAt.toLocal();
+    final DateTime now = clock.toLocal();
+    return fetchedLocal.year == now.year &&
+        fetchedLocal.month == now.month &&
+        fetchedLocal.day == now.day;
+  }
+}
+
+/// MET Norway symbol code (e.g. "lightrainshowers_day") to the nearest
   /// weatherapi.com code.
   static int weatherApiCodeForSymbol(String symbol) {
     final String s = symbol.split('_').first;
