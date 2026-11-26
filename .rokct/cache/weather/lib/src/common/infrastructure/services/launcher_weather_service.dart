@@ -21,6 +21,45 @@ import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:weather_sdk/src/common/config/weather_sdk_config.dart';
 import 'package:weather_sdk/src/common/infrastructure/services/weather_service.dart';
 
+/// One saved answer: when it was fetched (UTC), for which town, and the
+/// data itself.
+class _SavedWeather {
+  const _SavedWeather(this.fetchedAt, this.town, this.data);
+
+  final DateTime fetchedAt;
+  final String town;
+  final Map<String, dynamic> data;
+
+  static _SavedWeather? fromJson(Map<String, dynamic> json) {
+    final Object? at = json['fetchedAt'];
+    final Object? town = json['town'];
+    final Object? data = json['data'];
+    if (at is! String || town is! String || data is! Map) return null;
+    final DateTime? t = DateTime.tryParse(at);
+    if (t == null) return null;
+    return _SavedWeather(t.toUtc(), town, data.cast<String, dynamic>());
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'fetchedAt': fetchedAt.toIso8601String(),
+        'town': town,
+        'data': data,
+      };
+
+  /// Reusable for [currentTown] at [clock]: the same town, fetched on the
+  /// same local day, and not older than [LauncherWeatherService.reuseMaxAge].
+  bool reusableAt(String currentTown, DateTime clock) {
+    if (town != currentTown) return false;
+    final Duration age = clock.toUtc().difference(fetchedAt);
+    if (age.isNegative || age >= LauncherWeatherService.reuseMaxAge) return false;
+    final DateTime fetchedLocal = fetchedAt.toLocal();
+    final DateTime now = clock.toLocal();
+    return fetchedLocal.year == now.year &&
+        fetchedLocal.month == now.month &&
+        fetchedLocal.day == now.day;
+  }
+}
+
 /// Weather for a launcher home, with or without a Rokct backend (Ray,
 /// 2026-11-22: "We need to solve weather if no backend available").
 ///
@@ -317,46 +356,7 @@ class LauncherWeatherService {
     };
   }
 
-  /// One saved answer: when it was fetched (UTC), for which town, and the
-/// data itself.
-class _SavedWeather {
-  const _SavedWeather(this.fetchedAt, this.town, this.data);
-
-  final DateTime fetchedAt;
-  final String town;
-  final Map<String, dynamic> data;
-
-  static _SavedWeather? fromJson(Map<String, dynamic> json) {
-    final Object? at = json['fetchedAt'];
-    final Object? town = json['town'];
-    final Object? data = json['data'];
-    if (at is! String || town is! String || data is! Map) return null;
-    final DateTime? t = DateTime.tryParse(at);
-    if (t == null) return null;
-    return _SavedWeather(t.toUtc(), town, data.cast<String, dynamic>());
-  }
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'fetchedAt': fetchedAt.toIso8601String(),
-        'town': town,
-        'data': data,
-      };
-
-  /// Reusable for [currentTown] at [clock]: the same town, fetched on the
-  /// same local day, and not older than [LauncherWeatherService.reuseMaxAge].
-  bool reusableAt(String currentTown, DateTime clock) {
-    if (town != currentTown) return false;
-    final Duration age = clock.toUtc().difference(fetchedAt);
-    if (age.isNegative || age >= LauncherWeatherService.reuseMaxAge) return false;
-    final DateTime fetchedLocal = fetchedAt.toLocal();
-    final DateTime now = clock.toLocal();
-    return fetchedLocal.year == now.year &&
-        fetchedLocal.month == now.month &&
-        fetchedLocal.day == now.day;
-  }
-}
-
-/// MET Norway symbol code (e.g. "lightrainshowers_day") to the nearest
+  /// MET Norway symbol code (e.g. "lightrainshowers_day") to the nearest
   /// weatherapi.com code.
   static int weatherApiCodeForSymbol(String symbol) {
     final String s = symbol.split('_').first;

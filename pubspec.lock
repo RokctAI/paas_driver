@@ -491,7 +491,7 @@ packages:
       path: ".rokct/cache/desktop"
       relative: true
     source: path
-    version: "1.2.2"
+    version: "1.2.3"
   device_info_plus:
     dependency: "direct main"
     description:
@@ -2574,7 +2574,7 @@ packages:
       path: ".rokct/cache/weather"
       relative: true
     source: path
-    version: "1.9.1"
+    version: "1.9.2"
   web:
     dependency: transitive
     description:

@@ -1,6 +1,6 @@
 {
   "name": "weather_sdk",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "_comment_version_1_8_0": "1.7.0 -> 1.8.0 (Ray, 2026-11-22: 'Launcher gains weather sdk', 'We need to solve weather if no backend available'): LauncherWeatherService (location ask with no error on refusal, backend feed when signed in, MET Norway (free incl. commercial use, CC BY 4.0, credited under the days) with the location rounded to 2 decimals otherwise, the last answer saved for offline), LauncherWeatherViews (theme-row, beside-the-Bible and day rows), an app_type.launcher install + boot hook, and EN+AF keys for the weather names, days and H/L. Existing hosts unchanged; geolocator added at base_sdk's version.",
   "_comment_version_1_7_0": "1.6.3 -> 1.7.0: feat(i18n). Hardcoded UI copy goes through trkeys (Ray, 2026-11-20): new weather_* tr_keys with bundled English and Afrikaans copy. Existing keys unchanged.",
   "boot_hooks": [

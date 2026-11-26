@@ -1,3 +1,7 @@
+## 1.9.2
+
+- fix(launcher): _SavedWeather was declared inside LauncherWeatherService, which Dart rejects (Classes can't be declared inside other classes) and broke the Android release build. It is now a top-level class; no behaviour change.
+
 ## 1.9.1
 
 - feat(launcher): the no-backend feed keeps hourly entries for every day it carries them, not only today (MET Norway: hourly for the first days, 6-hourly further out). Each forecast day gets its `hour` list; a day without hours has none, and its long press opens nothing.

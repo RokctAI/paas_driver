@@ -1,3 +1,7 @@
+## 1.2.3
+
+* fix(windows): the desktop CMake template disables C4238 (/wd4238) alongside /WX. Plugins such as firebase_auth raise C4238 (class rvalue used as lvalue), which /WX turned into C2220 and failed the Windows build. /WX otherwise stays on.
+
 ## 1.2.2
 
 * Flag, not fix: the `app_type.pos` block (macOS/Linux runners) now carries a
