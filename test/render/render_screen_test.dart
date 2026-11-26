@@ -1010,36 +1010,60 @@ Future<void> _loadRealFontsOnce() async {
 List<ElementSpec> _textChip(String key, String label, String text) =>
     <ElementSpec>[
       ElementSpec(
-          key: key, label: label, finder: find.textContaining(text, findRichText: true).first),
+          key: key,
+          label: label,
+          finder: find.textContaining(text, findRichText: true).first),
     ];
 
 final Map<String, List<ElementSpec> Function()> kTourScreenChips =
     <String, List<ElementSpec> Function()>{
   'driver_orders': () => <ElementSpec>[
-        ..._textChip('driver.orders.tabs', 'Tabs - your active orders and ones waiting for a driver', 'Active orders'),
-        ..._textChip('driver.orders.card', 'Order card - shop, customer and their number', 'Corner Kitchen'),
-        ..._textChip('driver.orders.totals', 'Order total and your delivery fee', 'R189.90'),
+        ..._textChip(
+            'driver.orders.tabs',
+            'Tabs - your active orders and ones waiting for a driver',
+            'Active orders'),
+        ..._textChip('driver.orders.card',
+            'Order card - shop, customer and their number', 'Corner Kitchen'),
+        ..._textChip('driver.orders.totals',
+            'Order total and your delivery fee', 'R189.90'),
       ],
   'driver_order_history': () => <ElementSpec>[
-        ..._textChip('driver.history.count', 'How many orders you delivered', 'There are'),
-        ..._textChip('driver.history.card', 'Delivered order - shop and customer', 'Corner Kitchen'),
+        ..._textChip('driver.history.count', 'How many orders you delivered',
+            'There are'),
+        ..._textChip('driver.history.card',
+            'Delivered order - shop and customer', 'Corner Kitchen'),
       ],
   'driver_parcels': () => <ElementSpec>[
-        ..._textChip('driver.parcels.tabs', 'Tabs - your parcels and ones waiting for a driver', 'Active parcels'),
-        ..._textChip('driver.parcels.card', 'Parcel - pick-up, drop-off and fee', '#Id77001'),
+        ..._textChip(
+            'driver.parcels.tabs',
+            'Tabs - your parcels and ones waiting for a driver',
+            'Active parcels'),
+        ..._textChip('driver.parcels.card',
+            'Parcel - pick-up, drop-off and fee', '#Id77001'),
       ],
   'driver_parcel_history': () => <ElementSpec>[
-        ..._textChip('driver.parcel_history.card', 'Delivered parcel - route and fee', '#Id76901'),
+        ..._textChip('driver.parcel_history.card',
+            'Delivered parcel - route and fee', '#Id76901'),
       ],
   'driver_deposits': () => <ElementSpec>[
-        ..._textChip('driver.deposits.owe', 'What you owe from cash orders', 'You owe'),
-        ..._textChip('driver.deposits.make', 'Make a deposit - upload the bank slip', 'Make a deposit'),
-        ..._textChip('driver.deposits.list', 'Your deposits - approved or rejected, with the reason', 'YOUR DEPOSITS'),
+        ..._textChip(
+            'driver.deposits.owe', 'What you owe from cash orders', 'You owe'),
+        ..._textChip('driver.deposits.make',
+            'Make a deposit - upload the bank slip', 'Make a deposit'),
+        ..._textChip(
+            'driver.deposits.list',
+            'Your deposits - approved or rejected, with the reason',
+            'YOUR DEPOSITS'),
       ],
   'driver_load': () => <ElementSpec>[
-        ..._textChip('driver.load.summary', 'Load - shop, stock on the van and its value', 'Ubuntu Corner Foods'),
-        ..._textChip('driver.load.lines', 'Each product - issued, sold, returned and left', 'Brown bread'),
-        ..._textChip('driver.load.actions', 'Sell, return or close the load', 'Close load'),
+        ..._textChip(
+            'driver.load.summary',
+            'Load - shop, stock on the van and its value',
+            'Ubuntu Corner Foods'),
+        ..._textChip('driver.load.lines',
+            'Each product - issued, sold, returned and left', 'Brown bread'),
+        ..._textChip('driver.load.actions', 'Sell, return or close the load',
+            'Close load'),
       ],
 };
 
@@ -1159,12 +1183,12 @@ void main() {
           Directory(outDir).createSync(recursive: true);
           File('$outDir/skipped.jsonl').writeAsStringSync(
             '${jsonEncode(<String, String>{
-              'key': entry.key,
-              'mode': mode,
-              'reason': reason.length > 200
-                  ? '${reason.substring(0, 197)}...'
-                  : reason,
-            })}\n',
+                  'key': entry.key,
+                  'mode': mode,
+                  'reason': reason.length > 200
+                      ? '${reason.substring(0, 197)}...'
+                      : reason,
+                })}\n',
             mode: FileMode.append,
           );
         }
