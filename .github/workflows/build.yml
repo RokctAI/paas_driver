@@ -74,7 +74,7 @@ jobs:
       # One-time cleanup: run cleanup once if past this date (marker file prevents re-runs)
       one_time_cleanup_cutoff_date: '2026-01-30'
       # Brain Endpoint (AI release notes)
-      brain_endpoint: https://platform.rokct.ai/api/v1/method/rokct.platform.api
+      brain_endpoint: https://platform.usesticks.com/api/v1/method/rokct.platform.api
       build_android: true
       # TEMPORARY (desktop test wave for Ray) - revert candidate. Build Windows desktop
       # app and attach it to releases (windows/ scaffolding is installed by desktop_sdk
