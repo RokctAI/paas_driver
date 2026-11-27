@@ -629,9 +629,19 @@ const Map<String, String> kBaseAfTranslations = {
   'offline': 'Vanlyn',
   'online': 'Aanlyn',
   'rate_this_app': 'Gradeer hierdie app',
+  'licences': 'Lisensies',
   'rate_us_in_the_store': 'Gradeer ons in die winkel',
+  'whats_new_in': 'Nuut in',
   'send_feedback': 'Stuur terugvoer',
   'tell_us_what_we_can_do_better': 'Sê vir ons wat ons beter kan doen',
   'thanks_for_your_rating': 'Dankie vir jou gradering',
   'this_page_is_not_available_yet': 'Hierdie bladsy is nog nie beskikbaar nie',
+  'log_out_keeps_details':
+      "Vir tot 30 dae hou hierdie toestel jou naam, e-pos en profielfoto sodat jy vinnig weer kan aanmeld.",
+  'remove_from_this_device':
+      "Verwyder van hierdie toestel",
+  'welcome_back':
+      "Welkom terug",
+  'use_another_account':
+      "Gebruik 'n ander rekening",
 };

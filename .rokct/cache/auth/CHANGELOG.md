@@ -1,3 +1,11 @@
+## 1.24.0
+
+- feat: "Welcome back" sign-in (Ray, 2026-11-27, approved). When Log out kept the account on this device (base_sdk 1.114.0 `RememberedAccount`), the login page shows the account in one tap, with "Remove from this device", "Use another account" and Skip. The tap opens the usual login sheet with the email filled in; the password is still asked. Needs base_sdk 1.114.0 (core#1661).
+
+## 1.23.0
+
+- feat: a home SDK can declare its own login page (Ray, 2026-11-27). `AuthEntryConfig.layout` picks `photo` (the splash picture, default) or `card` (centred welcome that follows light and dark mode); `heroAsset` / `heroBuilder`, `titleTrKey`, `subtitleTrKey` and `showsRegister, socialSignIns (Google/Facebook/Apple buttons on the card, running the existing loginWith* calls)` set its picture, words and Register button. Declared through the `// @auth-entry-config` integration; apps that declare nothing are unchanged.
+
 ## 1.22.9
 
 - fix: an account registered offline has its profile (Ray, 2026-11-21: "If I register a user offline and I go to profile that data is not there can't even be edited"). `registerOffline` and `loginOffline` save the names, email and phone as the signed-in user, and `syncOne` sends names edited on the profile page while the account was local. Pairs with base_sdk 1.113.5.

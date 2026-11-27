@@ -69,9 +69,18 @@ const Map<String, String> kBaseEnTranslations = {
   'offline': 'Offline',
   'online': 'Online',
   'rate_this_app': 'Rate this app',
+  'licences': 'Licences',
   'rate_us_in_the_store': 'Rate us in the store',
+  'whats_new_in': 'What\'s new in',
+  'got_it': 'Got it',
   'send_feedback': 'Send feedback',
   'tell_us_what_we_can_do_better': 'Tell us what we can do better',
   'thanks_for_your_rating': 'Thanks for your rating',
   'this_page_is_not_available_yet': 'This page is not available yet',
+  'log_out_keeps_details':
+      "For up to 30 days, this device keeps your name, email and profile picture so you can sign back in quickly.",
+  'remove_from_this_device':
+      "Remove from this device",
+  'use_another_account':
+      "Use another account",
 };

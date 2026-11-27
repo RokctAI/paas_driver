@@ -87,6 +87,13 @@ void main() {
         'reset_password_text': 'resetPasswordText',
         'reset_password_phone_text': 'resetPasswordPhoneText',
         'reset_password_either_text': 'resetPasswordEitherText',
+        // AuthTrKeys (auth_tr_keys.dart): "AuthTrKeys.x" contains "TrKeys.x".
+        'auth_continue_terms_lead': 'continueTermsLead',
+        'auth_continue_with_email': 'continueWithEmail',
+        'auth_continue_with_google': 'continueWithGoogle',
+        'auth_continue_with_facebook': 'continueWithFacebook',
+        'auth_continue_with_apple': 'continueWithApple',
+        'auth_or': 'or',
       };
       for (final key in kAuthEnTranslations.keys) {
         final constant = constantsByKey[key];

@@ -1,6 +1,6 @@
 {
   "name": "merchants_sdk",
-  "version": "1.38.8",
+  "version": "1.38.10",
   "_comment_version_1_38_0": "1.37.0 -> 1.38.0 (manager till): a scan the catalog does not know is no longer dropped. PosCartState.unknownBarcode holds it, the camera pauses, and the till asks \"We don't recognise this barcode\" with the code in the printer face, \"Add this product\" and \"Scan again\" (render approved by Ray 2026-10-30 19:22Z): a bottom sheet on a phone and at the two-plane fold, the Add Items pane's place in plane 2 at three planes. Scan again (or resuming the camera, or closing the sheet) clears it via PosCartNotifier.dismissUnknownBarcode, which also resets the 2s dedupe so the same code can be scanned again at once. Add this product calls BillingPage.onAddUnknownProduct; the installed main_page.dart passes products_sdk's CreateProductModal.open with the barcode prefilled (needs products_sdk >= 1.13.0). New tr_keys barcodeNotRecognised, barcodeNotInProductsYet, wouldYouLikeToAddThisProduct, addThisProduct, scanAgain.",
   "_comment_version_1_36_1": "1.36.0 -> 1.36.1: version for the coach-mark guide mounted on this SDK's primary page (GuideHost and GuideAnchor from base_sdk 1.92.0, off in demo sessions). The mount landed without a version change; see CHANGELOG.",
   "_comment_version_1_36_0": "1.35.0 -> 1.36.0 (manager mode): app_type.manager gains host_integration.android_application_xml, an exported activity-alias .RokctManagerEntry of MainActivity answering rokct.intent.action.MANAGER with CATEGORY_DEFAULT and no data - exactly what launch_sdk's DefaultHomeBridge.fleetManagerPackages queries - so a launcher on a device with the manager app installed turns manager mode on. Only the manager flavor gets it; customer and driver composes are unchanged. No Dart change.",
@@ -92,7 +92,8 @@
       "constants": {
         "import": "package:base_sdk/src/presentation/components/floating_nav/floating_nav_mode.dart",
         "overrides": {
-          "tabletNavPlacement": "FloatingNavPlacement.railStart"
+          "tabletNavPlacement": "FloatingNavPlacement.railStart",
+          "webUrl": "const String.fromEnvironment('MANAGER_WEB_URL', defaultValue: String.fromEnvironment('WEB_URL'))"
         }
       },
       "_comment_constants_tablet_nav": "Opts the manager app into the start-side nav rail in tablet mode (windows >= 600 logical px): the composed AppConstants.tabletNavPlacement is re-pointed at FloatingNavPlacement.railStart, which the manager main shell reads. Phones keep the floating bottom pill exactly as before, and the driver flavor is untouched (this block only merges when composing app_type manager). The import is already present in base_sdk's app_constants.dart, so the installer will find it and skip re-adding; it is declared here so the override stands on its own.",

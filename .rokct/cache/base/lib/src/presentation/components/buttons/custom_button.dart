@@ -77,17 +77,29 @@ class CustomButton extends StatelessWidget {
                 ),
               )
             : Row(
+                // min: a button laid out with unbounded width (a fixed
+                // `weight` straight in a Row) must not throw on the
+                // Flexible label below.
+                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   icon == null
                       ? const SizedBox()
                       : Row(children: [icon!, 10.horizontalSpace]),
-                  Text(
-                    title,
-                    style: AppStyle.interNormal(
-                      size: 15,
-                      color: textColor,
-                      letterSpacing: -14 * 0.01,
+                  // Shrinks only when the label would not fit (a half-width
+                  // button, a longer translation); otherwise unchanged.
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        style: AppStyle.interNormal(
+                          size: 15,
+                          color: textColor,
+                          letterSpacing: -14 * 0.01,
+                        ),
+                      ),
                     ),
                   ),
                 ],

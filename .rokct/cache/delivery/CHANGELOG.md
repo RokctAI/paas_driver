@@ -1,3 +1,11 @@
+## 1.32.6
+
+- Driver app reads its own web address, DRIVER_WEB_URL (Ray 2026-11-27: each paas app has its own key; the old marketplace keys are removed).
+
+## 1.32.5
+
+- Juvo apps read their own web address, MARKETPLACE_WEB_URL (platform.juvo.app), instead of the empty shared WEB_URL.
+
 ## 1.32.4
 
 - fix(render): driver_load_sell and driver_load_return are no longer bound; built without a load they draw an empty page that the render gate refuses, failing the tour (paas_driver run 44811008403).

@@ -31,6 +31,9 @@ import 'package:auth_sdk/src/common/presentation/pages/auth/register/register_pa
 // [refork] removed host router import
 import 'package:auth_sdk/src/common/application/auth/login/login_provider.dart';
 // [refork] embed via EmbeddedWidgets
+import 'package:auth_sdk/src/common/presentation/pages/auth/login/login_card_entry.dart';
+import 'package:auth_sdk/src/common/presentation/pages/auth/login/welcome_back_entry.dart';
+import 'package:base_sdk/src/services/remembered_account.dart';
 import 'package:auth_sdk/src/common/presentation/pages/auth/login/login_embedded_slots.dart';
 import 'package:auth_sdk/src/common/presentation/pages/auth/login/login_screen.dart';
 import 'package:auth_sdk/src/common/presentation/pages/auth/login/login_terms_notice.dart';
@@ -68,6 +71,10 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   bool _showIntro = false;
+
+  /// The account Log out kept on this device (base_sdk RememberedAccount),
+  /// shown as "Welcome back" until the user picks another account.
+  RememberedAccount? _remembered;
   late final LoginEmbeddedSlots _slots;
   static const String splashImage = "assets/images/splash.png";
   static const Color _splashGround = Color(0xFFDC3700);
@@ -75,6 +82,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   void initState() {
     super.initState();
+    RememberedAccount.read().then((account) {
+      if (mounted && account != null) setState(() => _remembered = account);
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(loginProvider.notifier).checkLanguage(context);
     });
@@ -206,6 +216,34 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   double _sheetTopGap(BuildContext context) =>
       MediaQuery.sizeOf(context).height * 0.3 / 1.r;
 
+  void _socialSignIn(AuthSocialSignIn method) {
+    final event = ref.read(loginProvider.notifier);
+    switch (method) {
+      case AuthSocialSignIn.google:
+        event.loginWithGoogle(context);
+      case AuthSocialSignIn.facebook:
+        event.loginWithFacebook(context);
+      case AuthSocialSignIn.apple:
+        event.loginWithApple(context);
+    }
+  }
+
+  void _openLoginSheet({String? initialLogin}) {
+    AppHelpers.showCustomModalBottomSheet(
+      context: context,
+      modal: LoginScreen(initialLogin: initialLogin),
+      paddingTop: _sheetTopGap(context),
+    );
+  }
+
+  void _openRegisterSheet() {
+    AppHelpers.showCustomModalBottomSheet(
+      context: context,
+      modal: RegisterPage(isOnlyEmail: true),
+      paddingTop: _sheetTopGap(context),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => GuideHost(
         definition: authLoginGuide,
@@ -230,6 +268,50 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         }
       }
     });
+
+    // Log out kept this device's account: offer it back in one tap.
+    final RememberedAccount? remembered = _remembered;
+    if (remembered != null && !(_showIntro && _slots.introPage != null)) {
+      return Directionality(
+        textDirection:
+            LocalStorage.getLangLtr() ? TextDirection.ltr : TextDirection.rtl,
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: WelcomeBackEntry(
+            account: remembered,
+            onContinue: () => _openLoginSheet(initialLogin: remembered.login),
+            onAnotherAccount: () => setState(() => _remembered = null),
+            onRemove: () {
+              unawaited(RememberedAccount.forget());
+              setState(() => _remembered = null);
+            },
+            onSkip: _skip,
+          ),
+        ),
+      );
+    }
+
+    // A home SDK that declared the card layout (AuthEntryConfig.layout)
+    // gets the centred welcome instead of the splash picture; the buttons
+    // open the very same sheets, so sign-in itself does not change.
+    if (AuthEntryConfig.layout == AuthEntryLayout.card) {
+      return Directionality(
+        textDirection:
+            LocalStorage.getLangLtr() ? TextDirection.ltr : TextDirection.rtl,
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: _showIntro && _slots.introPage != null
+              ? _slots.introPage!
+              : LoginCardEntry(
+                  slots: _slots,
+                  onLogin: _openLoginSheet,
+                  onRegister: _openRegisterSheet,
+                  onSkip: _skip,
+                  onSocial: _socialSignIn,
+                ),
+        ),
+      );
+    }
 
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final bool isLtr = LocalStorage.getLangLtr();
@@ -502,6 +584,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 },
                               ),
                             ),
+                            if (AuthEntryConfig.showsRegister) ...[
                             10.verticalSpace,
                             CustomButton(
                               title: AppHelpers.getTranslation(TrKeys.register),
@@ -519,6 +602,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               textColor: AppStyle.white,
                               borderColor: AppStyle.white,
                             ),
+                            ],
                             5.verticalSpace,
                             // The legal line borrows corporate_sdk's terms
                             // and privacy pages through the registry, so it

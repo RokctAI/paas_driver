@@ -87,17 +87,15 @@ class ProfileMetaRow extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       runSpacing: 4,
       children: [
-        Text(
-          AppHelpers.getAppName() ?? "",
-          style: AppStyle.interBold(color: AppStyle.primary),
-        ),
-        const SizedBox(width: 4),
-        Icon(
-          Remix.checkbox_blank_circle_fill,
-          size: 8,
-          // Mode-resolving ink so the separator follows the theme.
-          color: ink,
-        ),
+        // App name in a primary-colour block, with the online status as a
+        // small dot on its corner (Ray, 2026-11-27: "appname give it a
+        // rectangle in primary color ... at the corner ... behave like the
+        // sticks floating nav's online dot"). Replaces the separate
+        // Online/Offline dot and text. The name's ink is picked from the
+        // primary colour's own brightness, so it stays readable in both
+        // theme modes and on any app's brand colour.
+        const _AppNamePill(),
+        const SizedBox(width: 8),
         FutureBuilder<PackageInfo>(
           future: PackageInfo.fromPlatform(),
           builder: (context, packageSnapshot) {
@@ -124,51 +122,8 @@ class ProfileMetaRow extends StatelessWidget {
             }
           },
         ),
-        // Online/Offline dot backed by a real backend probe (guest
-        // api_status) - except in a demo build or session, which reads as
-        // connected (see [_online]). Listens to the runtime demo switch:
-        // the profile is on screen when a sign-out ends a demo session,
-        // and re-asks the probe at that moment instead of keeping the
-        // session's answer - keyed on the answer's source, so the flip
-        // starts a fresh builder (a FutureBuilder handed a new future
-        // keeps showing its last data until the new one resolves).
-        ListenableBuilder(
-          listenable: DemoSession.instance,
-          builder: (context, _) => FutureBuilder<bool>(
-            key: ValueKey<bool>(DemoSession.demoActive),
-            future: _online(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const SizedBox.shrink();
-              }
-              final isOnline = snapshot.data!;
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(width: 8),
-                  Icon(
-                    Remix.checkbox_blank_circle_fill,
-                    size: 20,
-                    color: isOnline ? AppStyle.green : AppStyle.red,
-                  ),
-                  Text(
-                    AppHelpers.getTranslation(
-                      isOnline ? TrKeys.online : TrKeys.offline,
-                    ),
-                    style: TextStyle(
-                      color: isOnline ? AppStyle.green : AppStyle.red,
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
-        // The usage badge counts a signed-in user's app opens. In the
-        // host's anonymous mode (no account facade) there is no such user
-        // and the stats read answers all zeros, so the badge is left out
-        // rather than rendered dead. Outside the host, or with an account,
-        // the row is exactly as before.
+        // The usage badge counts a signed-in user's app opens; in the host's
+        // anonymous mode there is no such user, so it is left out.
         if (ProfileHostScope.of(context).hasAccount) ...[
           SizedBox(width: 16.w),
           const AppUsageBadge(),
@@ -186,6 +141,28 @@ class ProfileMetaRow extends StatelessWidget {
           onTap: () => AppRatingSheet.show(context),
           child: Text(
             AppHelpers.getTranslation(TrKeys.rateThisApp),
+            style: AppStyle.interBold(color: AppStyle.primary),
+          ),
+        ),
+        // Licence notices for the open-source packages the app ships
+        // (Ray, 2026-11-27): Flutter's own licence page, which lists every
+        // package that registers a LICENSE file. A dot separates it from
+        // "Rate this app" (Ray, 2026-11-27), the same dot as after the name.
+        SizedBox(width: 6.w),
+        Icon(
+          Remix.checkbox_blank_circle_fill,
+          size: 8,
+          color: ink,
+        ),
+        SizedBox(width: 6.w),
+        InkWell(
+          key: const ValueKey('profile_licences'),
+          onTap: () => showLicensePage(
+            context: context,
+            applicationName: AppHelpers.getAppName(),
+          ),
+          child: Text(
+            AppHelpers.getTranslation(TrKeys.licences),
             style: AppStyle.interBold(color: AppStyle.primary),
           ),
         ),
@@ -219,6 +196,117 @@ class BaseProfileFooter extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10.r),
       child: const ProfileMetaRow(),
+    );
+  }
+}
+
+/// The app name in a primary-colour block with the backend-probe dot on its
+/// top-right corner: green online, red offline, nothing until the probe
+/// answers. The dot carries a ring in the page colour so it reads as sitting
+/// on the corner. The probe is the same one the old Online/Offline row used
+/// (see [ProfileMetaRow._online]), re-asked when a demo session starts or
+/// ends.
+class _AppNamePill extends StatefulWidget {
+  const _AppNamePill();
+
+  @override
+  State<_AppNamePill> createState() => _AppNamePillState();
+}
+
+/// Offline, the dot blinks the way Sticks' floating-nav connection dot does
+/// (Ray, 2026-11-27: "copy the behavior of floating nav"): opacity 1 to 0.25
+/// and back every 900 ms. Online, or with animations turned off on the
+/// phone, it stays still.
+class _AppNamePillState extends State<_AppNamePill>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _blink = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+    value: 1,
+  );
+
+  @override
+  void dispose() {
+    _blink.dispose();
+    super.dispose();
+  }
+
+  void _follow(bool online, bool still) {
+    if (online || still) {
+      if (_blink.isAnimating) _blink.stop();
+      _blink.value = 1;
+    } else if (!_blink.isAnimating) {
+      _blink.repeat(reverse: true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Color fill = AppStyle.primary;
+    final Color label =
+        ThemeData.estimateBrightnessForColor(fill) == Brightness.dark
+        ? Colors.white
+        : Colors.black;
+    final Color ring = Theme.of(context).scaffoldBackgroundColor;
+    final bool still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    return ListenableBuilder(
+      listenable: DemoSession.instance,
+      builder: (context, _) => FutureBuilder<bool>(
+        key: ValueKey<bool>(DemoSession.demoActive),
+        future: ProfileMetaRow._online(),
+        builder: (context, snapshot) {
+          final bool? isOnline = snapshot.data;
+          // Started or stopped after the frame, not while building it.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _follow(isOnline ?? true, still);
+          });
+          return Semantics(
+            label: isOnline == null
+                ? null
+                : AppHelpers.getTranslation(
+                    isOnline ? TrKeys.online : TrKeys.offline,
+                  ),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  key: const ValueKey('profile_app_name_pill'),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: fill,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    AppHelpers.getAppName() ?? "",
+                    style: AppStyle.interBold(color: label),
+                  ),
+                ),
+                if (isOnline != null)
+                  Positioned(
+                    top: -4,
+                    right: -4,
+                    child: FadeTransition(
+                      opacity: Tween<double>(begin: .25, end: 1).animate(_blink),
+                      child: Container(
+                        key: const ValueKey('profile_online_dot'),
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isOnline ? AppStyle.green : AppStyle.red,
+                          border: Border.all(color: ring, width: 2),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

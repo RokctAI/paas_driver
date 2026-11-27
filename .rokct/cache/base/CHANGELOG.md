@@ -1,3 +1,31 @@
+## 1.115.4
+
+- fix: long What's new notes scroll with no visible scrollbar (Ray, 2026-11-27).
+
+## 1.115.3
+
+- feat: offline, the app-name dot blinks like Sticks' floating-nav connection dot (opacity 1 to 0.25 every 900 ms); online or with animations off it stays still (Ray, 2026-11-27).
+
+## 1.115.2
+
+- feat: the profile footer shows the app name in a primary-colour block with the online status as a small dot on its corner (green online, red offline), replacing the separate Online/Offline dot and text (Ray, 2026-11-27). The name is white or black by the primary colour's brightness.
+
+## 1.115.1
+
+- feat: a "Licences" link in the shared profile footer opens Flutter's licence page, so every app shows the licence notices of the packages it ships (Ray, 2026-11-27). New trkey `licences`, English and Afrikaans. A small dot separates it from "Rate this app".
+
+## 1.115.0
+
+- feat: in-app What's new. `WhatsNew` reads `assets/whats_new.json` (packed by the release workflow before the build) and `WhatsNewSheet` shows it once per installed build (a same-version rebuild gets a new build number, so its rewritten note shows once more), opened by the splash page on the way to the main screen. A fresh install only records the version; off in demo sessions. New tr_key `whats_new_in` (EN + AF).
+
+## 1.114.1
+
+- fix: Log out and Cancel sit side by side again, as Ray approved (2026-11-27: "buttons side by side"). `CustomButton` now shrinks its label only when it would not fit, so half-width buttons and longer translations no longer overflow.
+
+## 1.114.0
+
+- feat: Log out works like the Claude app (Ray, 2026-11-27, approved). The profile's Log out box says the device keeps the name, email and profile picture for up to 30 days so the user can sign back in quickly, with a "Remove from this device" tick and Cancel / Log out. The kept details live in `RememberedAccount` (no token, no password; never for a demo or tour account; dropped after 30 days or when removed) for auth_sdk's "Welcome back" sign-in. New trkeys `log_out_keeps_details`, `remove_from_this_device`, `welcome_back`, `use_another_account` (EN + AF).
+
 ## 1.113.8
 
 - feat: `FloatingNavAction.color`, so a nav entry can draw in its own colour (the launcher's green Call and red Hang up).

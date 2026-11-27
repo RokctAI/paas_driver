@@ -32,6 +32,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:base_sdk/src/application/profile/profile_host_capabilities.dart';
 import 'package:base_sdk/src/presentation/pages/profile/profile_host_scope.dart';
 import 'package:base_sdk/src/presentation/pages/profile/widgets/base_profile_footer.dart';
+import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/demo_session.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 
@@ -71,7 +72,7 @@ void main() {
     await DemoSession.instance.clear();
   });
 
-  group('ProfileMetaRow Online/Offline dot', () {
+  group('ProfileMetaRow app-name online dot', () {
     testWidgets('a demo session reads as Online without a backend',
         (tester) async {
       // The only demo switch there is: no build flag stands in for it.
@@ -80,8 +81,7 @@ void main() {
       await tester.pumpWidget(_host(const ProfileMetaRow()));
       await tester.pumpAndSettle();
 
-      expect(find.text('Online'), findsOneWidget);
-      expect(find.text('Offline'), findsNothing);
+      expect(_dot(tester), AppStyle.green);
     });
 
     testWidgets('a real build with no backend answering still reads Offline',
@@ -90,10 +90,13 @@ void main() {
       expect(DemoSession.demoActive, isFalse);
 
       await tester.pumpWidget(_host(const ProfileMetaRow()));
-      await tester.pumpAndSettle();
+      // Offline the dot blinks for good, so pumpAndSettle would never
+      // settle: pump in steps until the probe has answered.
+      for (var i = 0; i < 20 && _dot(tester) == null; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
 
-      expect(find.text('Offline'), findsOneWidget);
-      expect(find.text('Online'), findsNothing);
+      expect(_dot(tester), AppStyle.red);
     });
 
     testWidgets('the row follows the session while it is on screen',
@@ -101,19 +104,28 @@ void main() {
       await tester.pumpWidget(_host(const ProfileMetaRow()));
       await tester.pump();
       // Session off, no backend answering: never a session-granted Online.
-      expect(find.text('Online'), findsNothing);
+      expect(_dot(tester), isNot(AppStyle.green));
 
       await DemoSession.instance.activate();
       await tester.pump();
       await tester.pump();
-      expect(find.text('Online'), findsOneWidget);
+      expect(_dot(tester), AppStyle.green);
 
       // Sign-out ends the session with the profile still up: the dot
       // drops the session's answer and goes back to the real probe.
       await DemoSession.instance.clear();
       await tester.pump();
       await tester.pump();
-      expect(find.text('Online'), findsNothing);
+      expect(_dot(tester), isNot(AppStyle.green));
     });
   });
+}
+
+/// The colour of the online dot on the app-name block, or null while the
+/// probe has not answered.
+Color? _dot(WidgetTester tester) {
+  final f = find.byKey(const ValueKey('profile_online_dot'));
+  if (f.evaluate().isEmpty) return null;
+  final c = tester.widget<Container>(f);
+  return (c.decoration! as BoxDecoration).color;
 }

@@ -1,6 +1,6 @@
 {
   "name": "delivery_sdk",
-  "version": "1.32.4",
+  "version": "1.32.6",
   "_comment_version_1_32_0": "1.31.2 -> 1.32.0: feat(i18n). Hardcoded UI copy goes through trkeys (Ray, 2026-11-20): new delivery_* tr_keys with bundled English and Afrikaans copy. Existing keys unchanged.",
   "_comment_version_1_30_2": "1.30.1 -> 1.30.2: templates/assets/images/marker.png is now the blue driver pin (same file as paas_driver main), so the composer re-extracts it and the shell stays clean at HEAD. No Dart change.",
   "_comment_version_1_30_1": "1.30.0 -> 1.30.1 (tour coverage, Ray 2026-10-23): the delivery tour fragment gains /driver-deposits, /load, /load/sell and /load/return, and the demo get_my_load fixture now holds one stocked open load so those screens render with data. No Dart change.",
@@ -76,6 +76,11 @@
   },
   "app_type": {
     "driver": {
+      "constants": {
+        "overrides": {
+          "webUrl": "const String.fromEnvironment('DRIVER_WEB_URL', defaultValue: String.fromEnvironment('WEB_URL'))"
+        }
+      },
       "host_integration": {
         "_comment": "Driver mode's answer (Ray approved, 2026-10-17). launch_sdk's DefaultHomeBridge (fleetDriverPackages) asks the package manager which OTHER apps answer Intent(\"rokct.intent.action.DRIVER\") with CATEGORY_DEFAULT and no data, and turns driver mode on when one does (LaunchModeResolver.discovered). Nothing declared that action, so driver mode never appeared. This flavor block gives the driver app (and only it: app_type.driver) an exported activity-alias of its MainActivity answering exactly that: the action plus the DEFAULT category, and deliberately NO <data> element, because a filter with data does not match the launcher's data-less query intent. Exported so another package's query can see it. Carries the NormalTheme meta-data for the same reason calc_sdk's RokctCalculatorEntry does (FlutterActivity reads meta-data from the component it was started as). Applied by the protocol installer's update_host_integration() into the marker-owned <application> block, after MainActivity, and removed when delivery_sdk leaves a driver compose. The launcher only discovers this entry; it does not start the app through it. Mirrors merchants_sdk 1.36.0's manager entry.",
         "android_application_xml": [

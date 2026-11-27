@@ -1,3 +1,7 @@
+## 1.1.2
+
+- chore: licence file carries the owner line.
+
 # Changelog
 
 ## 1.1.1

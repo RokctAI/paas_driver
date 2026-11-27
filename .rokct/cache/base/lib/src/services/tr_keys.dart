@@ -1108,11 +1108,14 @@ class TrKeys {
   static const String oneTrackOnlyExplainer = 'you_take_one_maths_track_not_both';
   static const String online = 'online';
   static const String rateThisApp = 'rate_this_app';
+  /// Profile footer link to the licence notices.
+  static const String licences = 'licences';
   static const String howIsTheApp = 'how_are_you_finding_the_app';
   static const String thanksForRating = 'thanks_for_your_rating';
   static const String tellUsWhatToFix = 'tell_us_what_we_can_do_better';
   static const String sendFeedback = 'send_feedback';
   static const String rateInStore = 'rate_us_in_the_store';
+  static const String whatsNewIn = 'whats_new_in';
   static const String onlineHelper = 'online.helper';
   static const String onlyGradeRLessonsSoFar = 'only_grade_r_lessons_so_far';
   static const String openSettings = 'open_settings';
@@ -1355,4 +1358,8 @@ class TrKeys {
   static const String skipGuide = 'skip_guide';
   static const String currentPassword = 'current_password';
   static const String enterYourCurrentPassword = 'enter_your_current_password';
+  static const String logOutKeepsDetails = 'log_out_keeps_details';
+  static const String removeFromThisDevice = 'remove_from_this_device';
+  static const String welcomeBack = 'welcome_back';
+  static const String useAnotherAccount = 'use_another_account';
 }

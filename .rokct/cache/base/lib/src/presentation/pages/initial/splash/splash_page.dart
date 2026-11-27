@@ -25,6 +25,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:base_sdk/src/application/splash/splash_provider.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:base_sdk/src/presentation/components/whats_new_sheet.dart';
 import 'package:base_sdk/src/services/app_rating.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
 import 'package:base_sdk/src/navigation/app_routes.dart';
@@ -200,8 +201,19 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   void _leaveSplash(String destination, VoidCallback navigate) {
     if (!mounted) return;
     _removeSplash();
+    // The root overlay outlives this page, so the What's New sheet can open
+    // on the main screen after the splash is replaced.
+    final overlayContext =
+        Navigator.maybeOf(context, rootNavigator: true)?.overlay?.context;
     try {
       navigate();
+      if (destination == 'main' && overlayContext != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (overlayContext.mounted) {
+            unawaited(WhatsNewSheet.maybeShow(overlayContext));
+          }
+        });
+      }
       // A real page is up: from now on, going to the background counts
       // toward a quick return (not for the maintenance page).
       if (destination != 'maintenance') {

@@ -1,3 +1,11 @@
+## 1.38.10
+
+- Manager app reads its own web address, MANAGER_WEB_URL (Ray 2026-11-27: each paas app has its own key; the old marketplace keys are removed).
+
+## 1.38.9
+
+- Juvo apps read their own web address, MARKETPLACE_WEB_URL (platform.juvo.app), instead of the empty shared WEB_URL.
+
 ## 1.38.8
 
 - fix(sync-issues): no loading spinner while issues load; the list stays empty until the first fetch returns.

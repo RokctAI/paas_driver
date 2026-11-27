@@ -85,7 +85,7 @@ abstract class AppConstants {
   /// Mutable (not const) so the tenant's remote config can override it at
   /// boot — see RemoteConfigService. Share links (shop/product/group order)
   /// read it at call time, so a post-boot override is picked up everywhere.
-  static String webUrl = const String.fromEnvironment('WEB_URL');
+  static String webUrl = const String.fromEnvironment('DRIVER_WEB_URL', defaultValue: String.fromEnvironment('WEB_URL'));
   static const String drawingBaseUrl = String.fromEnvironment('ROUTING_API');
   static String adminPageUrl = String.fromEnvironment('ADMIN_URL');
   static const String googleApiKey = String.fromEnvironment(

@@ -34,6 +34,12 @@
 // keys belong here; a key whose humanized form already reads as its copy
 // gains nothing from a row.
 const Map<String, String> kAuthEnTranslations = {
+  'auth_or': 'OR',
+  'auth_continue_with_google': 'Continue with Google',
+  'auth_continue_with_facebook': 'Continue with Facebook',
+  'auth_continue_with_apple': 'Continue with Apple',
+  'auth_continue_with_email': 'Continue with email',
+  'auth_continue_terms_lead': 'By continuing you accept the',
   'reset_password_text':
       'Enter the email address for your account and we will send you a '
           'link to reset your password.',

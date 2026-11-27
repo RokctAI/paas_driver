@@ -37,6 +37,8 @@ import 'package:base_sdk/src/presentation/pages/profile/widgets/profile_theme_to
 import 'package:base_sdk/src/presentation/theme/app_style.dart';
 import 'package:base_sdk/src/services/app_helpers.dart';
 import 'package:base_sdk/src/services/local_storage.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
+import 'package:base_sdk/src/services/remembered_account.dart';
 import 'package:base_sdk/src/services/telemetry.dart';
 import 'package:base_sdk/src/services/tr_keys.dart';
 
@@ -374,47 +376,25 @@ class _GenericProfilePageState extends ConsumerState<GenericProfilePage> {
     );
   }
 
+  /// Log out, the way the Claude app does it (Ray, 2026-11-27): the device
+  /// keeps the name, email and picture for up to 30 days so the sign-in page
+  /// can offer "Welcome back", unless "Remove from this device" is ticked.
   void _confirmLogout(void Function(BuildContext context) onLogout) {
     AppHelpers.showAlertDialog(
       context: context,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Remix.logout_box_r_line, size: 48.sp, color: AppStyle.textGrey),
-          16.verticalSpace,
-          Text(
-            AppHelpers.getTranslation(TrKeys.doYouReallyWantToLogout),
-            style: AppStyle.interSemi(size: 16.sp),
-            textAlign: TextAlign.center,
-          ),
-          24.verticalSpace,
-          CustomButton(
-            title: AppHelpers.getTranslation(TrKeys.yes),
-            background: AppStyle.primary,
-            textColor: AppStyle.white,
-            onPressed: () {
-              Navigator.of(context).pop();
-              onLogout(context);
-            },
-          ),
-          12.verticalSpace,
-          // Builder: the ink is read from the dialog's own theme at build
-          // time, so a live mode flip with the dialog open restyles it.
-          Builder(
-            builder: (inner) => CustomButton(
-              title: AppHelpers.getTranslation(TrKeys.cancel),
-              background: AppStyle.transparent,
-              // Mode-resolving ink, NOT the pinned AppStyle.black: this dialog
-              // is a plain Material AlertDialog, so in dark mode it sits on the
-              // theme's dark dialog surface (#2B2930) — against which #232B2F
-              // is 1.00:1. The outlined Cancel button was invisible: no label,
-              // no border, on the sign-out confirmation of every dark host.
-              borderColor: AppStyle.inkFor(Theme.of(inner).brightness),
-              textColor: AppStyle.inkFor(Theme.of(inner).brightness),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-        ],
+      child: LogoutDialogBody(
+        onCancel: () => Navigator.of(context).pop(),
+        onLogout: (removeFromDevice) async {
+          // A demo or tour account is never kept: it is not the user's.
+          if (removeFromDevice || DemoSession.demoActive) {
+            await RememberedAccount.forget();
+          } else {
+            await RememberedAccount.remember(LocalStorage.getUser());
+          }
+          if (!mounted) return;
+          Navigator.of(context).pop();
+          onLogout(context);
+        },
       ),
     );
   }
@@ -948,6 +928,105 @@ class _EmptySections extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The Log out dialog's body: title, what the device keeps, the "Remove from
+/// this device" tick, and Cancel / Log out.
+@visibleForTesting
+class LogoutDialogBody extends StatefulWidget {
+  const LogoutDialogBody({
+    super.key,
+    required this.onCancel,
+    required this.onLogout,
+  });
+
+  static const Key removeKey = ValueKey('logout.remove_from_device');
+  static const Key confirmKey = ValueKey('logout.confirm');
+
+  final VoidCallback onCancel;
+  final void Function(bool removeFromDevice) onLogout;
+
+  @override
+  State<LogoutDialogBody> createState() => _LogoutDialogBodyState();
+}
+
+class _LogoutDialogBodyState extends State<LogoutDialogBody> {
+  bool _remove = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final Brightness brightness = Theme.of(context).brightness;
+    final Color ink = AppStyle.inkFor(brightness);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          AppHelpers.getTranslation(TrKeys.logout),
+          style: AppStyle.interSemi(size: 20.sp, color: ink),
+        ),
+        10.verticalSpace,
+        Text(
+          AppHelpers.getTranslation(TrKeys.logOutKeepsDetails),
+          style: AppStyle.interNormal(
+            size: 14.sp,
+            color: ink.withValues(alpha: 0.7),
+          ),
+        ),
+        12.verticalSpace,
+        InkWell(
+          key: LogoutDialogBody.removeKey,
+          borderRadius: BorderRadius.circular(8.r),
+          onTap: () => setState(() => _remove = !_remove),
+          child: Padding(
+            padding: REdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              children: [
+                Icon(
+                  _remove ? Remix.checkbox_fill : Remix.checkbox_blank_line,
+                  size: 22.sp,
+                  color: _remove ? AppStyle.primary : ink,
+                ),
+                12.horizontalSpace,
+                Expanded(
+                  child: Text(
+                    AppHelpers.getTranslation(TrKeys.removeFromThisDevice),
+                    style: AppStyle.interNormal(size: 15.sp, color: ink),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        16.verticalSpace,
+        Row(
+          children: [
+            Expanded(
+              child: CustomButton(
+                title: AppHelpers.getTranslation(TrKeys.cancel),
+                background: AppStyle.transparent,
+                borderColor: ink,
+                textColor: ink,
+                radius: 25,
+                onPressed: widget.onCancel,
+              ),
+            ),
+            12.horizontalSpace,
+            Expanded(
+              child: CustomButton(
+                key: LogoutDialogBody.confirmKey,
+                title: AppHelpers.getTranslation(TrKeys.logout),
+                background: AppStyle.red,
+                textColor: AppStyle.white,
+                radius: 25,
+                onPressed: () => widget.onLogout(_remove),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

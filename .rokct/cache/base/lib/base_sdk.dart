@@ -131,6 +131,7 @@ export 'src/services/timing_telemetry.dart';
 export 'src/services/app_helpers.dart';
 export 'src/services/key_sound.dart';
 export 'src/services/local_storage.dart';
+export 'src/services/remembered_account.dart';
 // The fleet's only demo switch: a server-marked demo account signed in
 // through the real backend, OR the guided-tour build (AppConstants.isTour).
 export 'src/services/demo_session.dart';

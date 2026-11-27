@@ -37,3 +37,25 @@ const like = 'sample';
 TODO: Tell users more about the package: where to find more information, how to
 contribute to the package, how to file issues, what response they can expect
 from the package authors, and more.
+
+
+## Declaring your app's login page (home SDKs)
+
+The login page is shared, but its look is declared by the app's home SDK
+through a manifest `integrations` entry on
+`lib/presentation/routes/auth_route_pages.dart`, placeholder
+`// @auth-entry-config`, normally inside the `app_type` flavor block:
+
+```dart
+AuthEntryConfig.layout = AuthEntryLayout.card; // or .photo (default)
+AuthEntryConfig.heroAsset = 'assets/images/my_logo.png'; // optional
+// or, from the home SDK's di_hook: AuthEntryConfig.heroBuilder = (_) => MyMark();
+AuthEntryConfig.titleTrKey = 'my_login_title';   // English + Afrikaans
+AuthEntryConfig.subtitleTrKey = 'my_login_subtitle';
+AuthEntryConfig.socialSignIns = [AuthSocialSignIn.google]; // card buttons
+AuthEntryConfig.showsRegister = false; // accounts made elsewhere
+AuthEntryConfig.showsGuestSkip = false; // no guest surface
+```
+
+Declare nothing and the app keeps the splash-picture login. Sticks
+(agent_sdk, `sticks` flavor) is the first app on the card layout.

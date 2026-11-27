@@ -39,7 +39,11 @@ import 'package:auth_sdk/src/common/services/platform_support.dart';
 const bool _showKeepLoggedIn = false;
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, this.initialLogin});
+
+  /// The email (or email-or-phone) to start the sign-in field with: the
+  /// account a "Welcome back" tap chose. Null starts it empty.
+  final String? initialLogin;
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -50,6 +54,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   // Add local SignUpType variable to track the current state
   SignUpType currentSignUpType = AppConstants.signUpType;
+
+  /// The kept login, unless it is a phone number and this form's field takes
+  /// only an email (it would only show "not a valid email").
+  String? get _prefill {
+    final login = widget.initialLogin;
+    if (login == null || login.isEmpty) return null;
+    if (currentSignUpType == SignUpType.email && !login.contains('@')) {
+      return null;
+    }
+    return login;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final login = _prefill;
+    if (login != null) {
+      // Fills the email and email-or-phone fields; a phone-only field is
+      // left for the user to type.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) ref.read(loginProvider.notifier).setEmail(login);
+      });
+    }
+  }
 
   // Method to toggle between phone and email sign up types
   void toggleSignUpType() {
@@ -213,6 +241,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             label: AppHelpers.getTranslation(
                               TrKeys.emailOrPhoneNumber,
                             ).toUpperCase(),
+                            initialText: _prefill,
                             onChanged: event.setEmail,
                             isError: state.isEmailNotValid,
                             validation: (s) {
@@ -234,6 +263,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             textCapitalization: TextCapitalization.none,
                             label: AppHelpers.getTranslation(TrKeys.email)
                                 .toUpperCase(),
+                            initialText: _prefill,
                             onChanged: event.setEmail,
                             isError: state.isEmailNotValid,
                             validation: (s) {
